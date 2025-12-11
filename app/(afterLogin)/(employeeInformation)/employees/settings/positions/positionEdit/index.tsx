@@ -85,7 +85,7 @@ const PositionsEdit: React.FC = () => {
             data-cy="settings-position-edit-description-item"
             name="description"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span className="text-md my-2 font-semibold text-gray-700" id="settings-position-edit-description-label" data-cy="settings-position-edit-description-label">
                 Position Description
               </span>
             }
@@ -103,7 +103,7 @@ const PositionsEdit: React.FC = () => {
               data-cy={`settings-position-edit-description-input-${editSlug}`}
             />
           </Form.Item>
-          <Form.Item>
+          <Form.Item id="settings-position-edit-actions-wrapper" data-cy="settings-position-edit-actions-wrapper">
             <div
               className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
               id={`settings-position-edit-actions-${editSlug}`}

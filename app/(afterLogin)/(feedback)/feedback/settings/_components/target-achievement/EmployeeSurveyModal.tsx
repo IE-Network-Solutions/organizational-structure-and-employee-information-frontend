@@ -61,17 +61,19 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyDrawerProps> = ({
   };
 
   const modalHeader = (
-    <div className="flex  text-lg font-extrabold text-gray-800 ">
+    <div className="flex  text-lg font-extrabold text-gray-800 " data-cy="employee-survey-modal-header" id="employeeSurveyModalHeader">
       Create Employee Survey
     </div>
   );
 
   const footer = (
-    <div className="w-full flex justify-end items-center gap-4 pt-4">
+    <div className="w-full flex justify-end items-center gap-4 pt-4" data-cy="employee-survey-modal-footer" id="employeeSurveyModalFooter">
       <Button
         type="default"
         onClick={handleDrawerClose}
         loading={updateLoading}
+        data-cy="employee-survey-modal-cancel-button"
+        id="employeeSurveyModalCancelButton"
       >
         Cancel
       </Button>
@@ -81,6 +83,8 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyDrawerProps> = ({
         htmlType="submit"
         onClick={() => form.submit()}
         loading={updateLoading}
+        data-cy="employee-survey-modal-submit-button"
+        id="employeeSurveyModalSubmitButton"
       >
         Submit
       </Button>
@@ -94,17 +98,22 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyDrawerProps> = ({
       title={modalHeader}
       footer={footer}
       destroyOnClose
+      data-cy="employee-survey-modal"
     >
       <Form
         form={form}
         layout="vertical"
         name="employee_survey"
         onFinish={onFinish}
+        data-cy="employee-survey-modal-form"
+        id="employeeSurveyModalForm"
       >
         <Form.Item
           label="Employee"
           name="userId"
           rules={[{ required: true, message: 'Please select employee' }]}
+          data-cy="employee-survey-modal-employee-field"
+          id="employeeSurveyModalEmployeeField"
         >
           <Select
             disabled={true}
@@ -122,6 +131,8 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyDrawerProps> = ({
               label:
                 item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
             }))}
+            data-cy="employee-survey-modal-employee-select"
+            id="employeeSurveyModalEmployeeSelect"
           />
         </Form.Item>
 
@@ -129,12 +140,16 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyDrawerProps> = ({
           label="Score"
           name="score"
           rules={[{ required: true, message: 'Please input score' }]}
+          data-cy="employee-survey-modal-score-field"
+          id="employeeSurveyModalScoreField"
         >
           <InputNumber
             min={0}
             max={10}
             className="w-full"
             placeholder="Enter score"
+            data-cy="employee-survey-modal-score-input"
+            id="employeeSurveyModalScoreInput"
           />
         </Form.Item>
       </Form>

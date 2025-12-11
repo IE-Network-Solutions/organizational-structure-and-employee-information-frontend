@@ -119,7 +119,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
   ];
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4" data-cy="feedback-conversation-id-slug-page-div-modal-header" id="feedback-conversation-id-slug-page-div-modal-header">
       Add Action Plan
     </div>
   );
@@ -128,20 +128,21 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
     <TabLandingLayout
       buttonTitle="Add Action Plan"
       id="conversationLayoutId"
+      data-cy="feedback-conversation-id-slug-page-tab-landing-layout"
       onClickHandler={() => setOpen(true)}
       title={
-        <div>
+        <div data-cy="feedback-conversation-id-slug-page-div-title" id="feedback-conversation-id-slug-page-div-title">
           {' '}
-          <Button type="link" onClick={() => handleRedirectback()}>
+          <Button type="link" onClick={() => handleRedirectback()} data-cy="feedback-conversation-id-slug-page-button-back" id="feedback-conversation-id-slug-page-button-back">
             ←
           </Button>{' '}
-          <span>Details</span>
+          <span data-cy="feedback-conversation-id-slug-page-span-details" id="feedback-conversation-id-slug-page-span-details">Details</span>
         </div>
       }
       subtitle=""
     >
-      <Row gutter={[16, 24]}>
-        <Col lg={8} md={10} xs={24}>
+      <Row gutter={[16, 24]} data-cy="feedback-conversation-id-slug-page-row" id="feedback-conversation-id-slug-page-row">
+        <Col lg={8} md={10} xs={24} data-cy="feedback-conversation-id-slug-page-col-detail" id="feedback-conversation-id-slug-page-col-detail">
           {isLoading ? (
             /* eslint-disable @typescript-eslint/naming-convention */
             Array.from({ length: 2 }).map(
@@ -149,7 +150,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
                 _ /* eslint-disable @typescript-eslint/naming-convention */,
                 index,
               ) => (
-                <Skeleton key={index} active paragraph={{ rows: 4 }} avatar />
+                <Skeleton key={index} active paragraph={{ rows: 4 }} avatar data-cy={`feedback-conversation-id-slug-page-skeleton-${index}`} />
               ),
             )
           ) : (
@@ -159,8 +160,8 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
             />
           )}
         </Col>
-        <Col lg={16} md={14} xs={24}>
-          <Card>
+        <Col lg={16} md={14} xs={24} data-cy="feedback-conversation-id-slug-page-col-tabs" id="feedback-conversation-id-slug-page-col-tabs">
+          <Card data-cy="feedback-conversation-id-slug-page-card-tabs" id="feedback-conversation-id-slug-page-card-tabs">
             <Tabs
               items={items}
               activeKey={activeTab}
@@ -168,6 +169,8 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
               size="small"
               onChange={(active: string) => setActiveTab(active)}
               tabBarStyle={{ textAlign: 'center' }}
+              data-cy="feedback-conversation-id-slug-page-tabs"
+              id="feedback-conversation-id-slug-page-tabs"
             />
           </Card>
         </Col>
@@ -177,11 +180,13 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
         onClose={() => setOpen(false)}
         modalHeader={modalHeader}
         width="40%"
+        data-cy="feedback-conversation-id-slug-page-drawer"
       >
         <CreateActionPlans
           slug={slug}
           onFinish={(values) => handleCreateActionPlan(values)}
           form2={form2}
+          data-cy="feedback-conversation-id-slug-page-create-action-plans"
         />
       </CustomDrawerLayout>
     </TabLandingLayout>

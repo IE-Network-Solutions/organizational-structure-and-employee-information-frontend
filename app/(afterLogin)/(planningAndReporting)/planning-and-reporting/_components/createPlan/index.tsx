@@ -336,10 +336,18 @@ function CreatePlan() {
 
     // Always grab the latest mkAsATask value to avoid stale reads
     const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
-    const taskTitle = latestMkAsATask?.title || '';
-    const achieveMK = !!latestMkAsATask;
+    
+    // VALIDATION: Only use mkAsATask if it belongs to this Key Result
+    // Check if mkAsATask.mid matches the current kId (exact match or for milestones, kId ends with mid)
+    const shouldUseMkAsATask = latestMkAsATask?.mid && (
+      kId === latestMkAsATask.mid ||           // Exact match (for Key Result without milestone)
+      kId.endsWith(latestMkAsATask.mid)        // Ends with match (for milestone: "krId+mlId" where mid is "mlId")
+    );
+    
+    const taskTitle = shouldUseMkAsATask ? latestMkAsATask.title : '';
+    const achieveMK = shouldUseMkAsATask;
 
-    // Create a task object - if mkAsATask exists, use its title
+    // Create a task object - if mkAsATask exists and matches, use its title
     const newTask = {
       task: taskTitle,
       priority: undefined,
