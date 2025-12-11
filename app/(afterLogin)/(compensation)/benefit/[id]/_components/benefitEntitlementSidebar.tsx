@@ -321,57 +321,63 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   return (
     <>
       {isBenefitEntitlementSidebarOpen && (
-          <CustomDrawerLayout
-            data-cy="compensation-benefit-sidebar-layout"
-            open={isBenefitEntitlementSidebarOpen}
-            onClose={onClose}
-            modalHeader={
-              <CustomDrawerHeader data-cy="compensation-benefit-sidebar-header" className="flex justify-center">
-                <span
-                  className="text-2xl"
-                  id="compensation-benefit-sidebar-title"
-                  data-cy="compensation-benefit-sidebar-title"
-                >
-                  {title}
-                </span>
-              </CustomDrawerHeader>
-            }
-            footer={
-              <div
-                className="flex flex-row gap-4 justify-center py-3"
-                id="compensation-benefit-sidebar-footer"
-                data-cy="compensation-benefit-sidebar-footer"
+        <CustomDrawerLayout
+          data-cy="compensation-benefit-sidebar-layout"
+          open={isBenefitEntitlementSidebarOpen}
+          onClose={onClose}
+          modalHeader={
+            <CustomDrawerHeader
+              data-cy="compensation-benefit-sidebar-header"
+              className="flex justify-center"
+            >
+              <span
+                className="text-2xl"
+                id="compensation-benefit-sidebar-title"
+                data-cy="compensation-benefit-sidebar-title"
               >
-                <Button
-                  type="default"
-                  className="h-10 px-3 w-40"
-                  size="large"
-                  loading={createBenefitLoading}
-                  onClick={() => onClose()}
-                  id="compensation-benefit-sidebar-cancel-button"
-                  data-cy="compensation-benefit-sidebar-cancel-button"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="primary"
-                  key="create"
-                  className="h-10 px-3 w-40"
-                  size="large"
-                  loading={createBenefitLoading}
-                  disabled={entitlementsLoading}
-                  onClick={() => form.submit()}
-                  id="compensation-benefit-sidebar-create-button"
-                  data-cy="compensation-benefit-sidebar-create-button"
-                >
-                  Create
-                </Button>
-              </div>
-            }
-            width="35%"
-            customPadding="16px"
+                {title}
+              </span>
+            </CustomDrawerHeader>
+          }
+          footer={
+            <div
+              className="flex flex-row gap-4 justify-center py-3"
+              id="compensation-benefit-sidebar-footer"
+              data-cy="compensation-benefit-sidebar-footer"
+            >
+              <Button
+                type="default"
+                className="h-10 px-3 w-40"
+                size="large"
+                loading={createBenefitLoading}
+                onClick={() => onClose()}
+                id="compensation-benefit-sidebar-cancel-button"
+                data-cy="compensation-benefit-sidebar-cancel-button"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                key="create"
+                className="h-10 px-3 w-40"
+                size="large"
+                loading={createBenefitLoading}
+                disabled={entitlementsLoading}
+                onClick={() => form.submit()}
+                id="compensation-benefit-sidebar-create-button"
+                data-cy="compensation-benefit-sidebar-create-button"
+              >
+                Create
+              </Button>
+            </div>
+          }
+          width="35%"
+          customPadding="16px"
+        >
+          <Spin
+            data-cy="compensation-benefit-sidebar-loading"
+            spinning={allUserLoading || payLoading}
           >
-          <Spin data-cy="compensation-benefit-sidebar-loading" spinning={allUserLoading || payLoading}>
             <Form
               layout="vertical"
               className="p-2"
@@ -386,7 +392,12 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 id="compensation-benefit-sidebar-amount-grid"
                 data-cy="compensation-benefit-sidebar-amount-grid"
               >
-                <Form.Item data-cy="compensation-benefit-sidebar-total-amount-item" required name="totalAmount" label="Total Amount">
+                <Form.Item
+                  data-cy="compensation-benefit-sidebar-total-amount-item"
+                  required
+                  name="totalAmount"
+                  label="Total Amount"
+                >
                   <InputNumber
                     className="w-full h-10 mt-1"
                     value={totalAmount}
@@ -398,7 +409,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 <Form.Item
                   required
                   name="settlementPeriod"
-                  label="Settlement Period"
+                  label={
+                    benefitDatas?.mode === 'CREDIT' ? (
+                      <span>Settlement Period </span>
+                    ) : (
+                      <span>Payout Period</span>
+                    )
+                  }
                   data-cy="compensation-benefit-sidebar-settlement-period-item"
                 >
                   <InputNumber
@@ -450,7 +467,11 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                   data-cy="compensation-benefit-sidebar-department-select"
                 >
                   {departments?.map((dept: any) => (
-                    <Option data-cy="compensation-benefit-sidebar-department-option" key={dept.id} value={dept.name}>
+                    <Option
+                      data-cy="compensation-benefit-sidebar-department-option"
+                      key={dept.id}
+                      value={dept.name}
+                    >
                       {dept.name}
                     </Option>
                   ))}
@@ -493,7 +514,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               </Form.Item>
             </Form>
           </Spin>
-          </CustomDrawerLayout>
+        </CustomDrawerLayout>
       )}
 
       {/* Duplicate Confirmation Modal */}
