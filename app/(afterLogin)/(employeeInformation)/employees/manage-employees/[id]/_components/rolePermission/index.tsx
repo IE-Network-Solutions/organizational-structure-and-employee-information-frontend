@@ -209,19 +209,27 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
   };
 
   return (
-    <div>
+    <div id="role-permission-container" data-cy="role-permission-container">
       <Card
         loading={isLoading}
         title="User Role Permission "
         extra={
-          <AccessGuard permissions={[Permissions.UpdateEmployeeDetails]}>
+          <AccessGuard
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            id="role-permission-edit-guard"
+            data-cy="role-permission-edit-guard"
+          >
             <LuPencil
               className="cursor-pointer"
               onClick={() => handleEditChange('rolePermission')}
+              id="role-permission-edit-icon"
+              data-cy="role-permission-edit-icon"
             />
           </AccessGuard>
         }
         className="my-6"
+        id="role-permission-card"
+        data-cy="role-permission-card"
       >
         <Form
           form={form}
@@ -231,13 +239,25 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
           style={{ maxWidth: '100%' }}
           layout="vertical"
           onFinish={handleUpdateUserRolePermission}
+          id="role-permission-form"
+          data-cy="role-permission-form"
         >
-          <Row gutter={16}>
-            <Col xs={24} sm={24}>
+          <Row
+            gutter={16}
+            id="role-permission-role-row"
+            data-cy="role-permission-role-row"
+          >
+            <Col
+              xs={24}
+              sm={24}
+              id="role-permission-role-col"
+              data-cy="role-permission-role-col"
+            >
               <Form.Item
                 className="font-semibold text-xs"
                 name="roleId"
                 id="roleId"
+                data-cy="role-permission-role-form-item"
                 label="Role"
                 rules={[{ required: true, message: 'Please select a role!' }]}
               >
@@ -247,9 +267,16 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                   onChange={onRoleChangeHandler}
                   allowClear
                   value={selectedRoleOnOption}
+                  id="role-permission-role-select"
+                  data-cy="role-permission-role-select"
                 >
                   {rolesWithPermission?.map((role) => (
-                    <Option key={role.id} value={role.id}>
+                    <Option
+                      key={role.id}
+                      value={role.id}
+                      id={`role-permission-role-option-${role.id}`}
+                      data-cy={`role-permission-role-option-${role.id}`}
+                    >
                       {role.name}
                     </Option>
                   ))}
@@ -257,12 +284,22 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={16}>
-            <Col xs={24} sm={24}>
+          <Row
+            gutter={16}
+            id="role-permission-group-row"
+            data-cy="role-permission-group-row"
+          >
+            <Col
+              xs={24}
+              sm={24}
+              id="role-permission-group-col"
+              data-cy="role-permission-group-col"
+            >
               <Form.Item
                 className="font-semibold text-xs"
                 name="groupPermissionId"
                 id="groupPermissionId"
+                data-cy="role-permission-group-form-item"
                 label="Group Permission"
                 rules={[]}
               >
@@ -273,12 +310,16 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                   allowClear
                   mode="multiple"
                   value={selectedGroupPermission}
+                  id="role-permission-group-select"
+                  data-cy="role-permission-group-select"
                 >
                   {groupPermissionData?.items?.map((groupPermission) => (
                     <Option
                       key={groupPermission.id}
                       disabled={groupPermission?.isBasic}
                       value={groupPermission.id}
+                      id={`role-permission-group-option-${groupPermission.id}`}
+                      data-cy={`role-permission-group-option-${groupPermission.id}`}
                     >
                       {groupPermission.name}
                     </Option>
@@ -287,12 +328,22 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={16}>
-            <Col xs={24} sm={24}>
+          <Row
+            gutter={16}
+            id="role-permission-permissions-row"
+            data-cy="role-permission-permissions-row"
+          >
+            <Col
+              xs={24}
+              sm={24}
+              id="role-permission-permissions-col"
+              data-cy="role-permission-permissions-col"
+            >
               <Form.Item
                 className="font-semibold text-xs"
                 name="permission"
                 id="setOfPermission"
+                data-cy="role-permission-permissions-form-item"
                 label="Set of Permissions"
                 rules={[
                   {
@@ -315,9 +366,16 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                       .includes(input.toLowerCase())
                   }
                   dropdownStyle={{ maxHeight: '200px', overflowY: 'auto' }}
+                  id="role-permission-permissions-select"
+                  data-cy="role-permission-permissions-select"
                 >
                   {permissionListData?.items?.map((permission) => (
-                    <Option key={permission.id} value={permission.id}>
+                    <Option
+                      key={permission.id}
+                      value={permission.id}
+                      id={`role-permission-permission-option-${permission.id}`}
+                      data-cy={`role-permission-permission-option-${permission.id}`}
+                    >
                       {permission.name}
                     </Option>
                   ))}
@@ -325,11 +383,17 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
               </Form.Item>
             </Col>
           </Row>
-          <Row className="flex justify-end">
+          <Row
+            className="flex justify-end"
+            id="role-permission-submit-row"
+            data-cy="role-permission-submit-row"
+          >
             <Button
               loading={rolePermissionUpdateLoading}
               htmlType="submit"
               type="primary"
+              id="role-permission-submit-btn"
+              data-cy="role-permission-submit-btn"
             >
               Save changes
             </Button>
@@ -340,14 +404,22 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
         title={`Select Permissions for ${selectedGroupForModal?.name}`}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
+        data-cy="role-permission-modal"
         footer={[
-          <Button key="cancel" onClick={() => setModalVisible(false)}>
+          <Button
+            key="cancel"
+            onClick={() => setModalVisible(false)}
+            id="role-permission-modal-cancel-btn"
+            data-cy="role-permission-modal-cancel-btn"
+          >
             Cancel
           </Button>,
           <Button
             key="confirm"
             type="primary"
             onClick={handleConfirmPermissions}
+            id="role-permission-modal-confirm-btn"
+            data-cy="role-permission-modal-confirm-btn"
           >
             Confirm
           </Button>,
@@ -359,8 +431,15 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
             alignItems: 'center',
             marginBottom: '10px',
           }}
+          id="role-permission-modal-select-all-wrapper"
+          data-cy="role-permission-modal-select-all-wrapper"
         >
-          <Checkbox checked={selectAll} onChange={handleSelectAll}>
+          <Checkbox
+            checked={selectAll}
+            onChange={handleSelectAll}
+            id="role-permission-modal-select-all"
+            data-cy="role-permission-modal-select-all"
+          >
             Select All
           </Checkbox>
         </div>
@@ -371,6 +450,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
           }))}
           value={tempSelectedPermissions}
           onChange={handleModalPermissionChange}
+          data-cy="role-permission-modal-checkbox-group"
         />
       </Modal>
     </div>

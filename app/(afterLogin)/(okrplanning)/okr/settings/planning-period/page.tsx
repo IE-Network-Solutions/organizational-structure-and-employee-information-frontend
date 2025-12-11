@@ -94,12 +94,17 @@ const PlanningPeriod = () => {
     });
   };
   const menu = (planningPeriod: any) => (
-    <Menu>
+    <Menu
+      id={`okr-planning-period-card-menu-${planningPeriod.id}`}
+      data-cy={`okr-planning-period-card-menu-${planningPeriod.id}`}
+    >
       <AccessGuard permissions={[Permissions.UpdatePlanningPeriod]}>
         <Menu.Item
           key="1"
           disabled={editPlannningPeriod}
           onClick={() => handleEdit(planningPeriod)}
+          id={`okr-planning-period-card-menu-edit-${planningPeriod.id}`}
+          data-cy={`okr-planning-period-card-menu-edit-${planningPeriod.id}`}
         >
           Edit
         </Menu.Item>
@@ -109,6 +114,8 @@ const PlanningPeriod = () => {
           key="2"
           disabled={deletePlannniggPeriod}
           onClick={() => handleDelete(planningPeriod.id)}
+          id={`okr-planning-period-card-menu-delete-${planningPeriod.id}`}
+          data-cy={`okr-planning-period-card-menu-delete-${planningPeriod.id}`}
         >
           Delete
         </Menu.Item>
@@ -117,56 +124,128 @@ const PlanningPeriod = () => {
   );
 
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
-      <div className="mb-4">
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id="okr-planning-period-container-display-div"
+      data-cy="okr-planning-period-container-display-div"
+    >
+      <div
+        className="mb-4"
+        id="okr-planning-period-search-wrapper-display-div"
+        data-cy="okr-planning-period-search-wrapper-display-div"
+      >
         <Input
           placeholder="Search period by name"
           className="rounded-lg"
           onChange={(e) => setPlanningPeriodName(e.target.value)}
+          id="okr-planning-period-search-input-display-input"
+          data-cy="okr-planning-period-search-input-display-input"
         />
       </div>
-      <div className="max-h-[400px] overflow-y-auto">
+      <div
+        className="max-h-[400px] overflow-y-auto"
+        id="okr-planning-period-list-container-display-div"
+        data-cy="okr-planning-period-list-container-display-div"
+      >
         {filteredPlanningPeriod?.map((planningPeriod) => (
           <Card
-            key={planningPeriod.id} // Add a unique key for each card
+            key={planningPeriod.id}
             title={planningPeriod?.name}
             extra={
-              <div className="flex">
-                <AccessGuard permissions={[Permissions.UpdatePlanningPeriod]}>
+              <div
+                className="flex"
+                id={`okr-planning-period-card-actions-${planningPeriod.id}`}
+                data-cy={`okr-planning-period-card-actions-${planningPeriod.id}`}
+              >
+                <AccessGuard data-cy="okr-planning-period-card-switch-access-guard-display-guard" permissions={[Permissions.UpdatePlanningPeriod]}>
                   <Switch
                     checked={planningPeriod?.isActive}
                     disabled={isLoading}
                     onChange={() => updateStatus(planningPeriod.id)}
                     className="mr-3"
                     checkedChildren={<CheckOutlined />}
+                    id={`okr-planning-period-card-switch-${planningPeriod.id}`}
+                    data-cy={`okr-planning-period-card-switch-${planningPeriod.id}`}
                   />
                 </AccessGuard>
-                <Dropdown overlay={menu(planningPeriod)} trigger={['click']}>
+                <Dropdown
+                  overlay={menu(planningPeriod)}
+                  trigger={['click']}
+                
+                  data-cy={`okr-planning-period-card-dropdown-${planningPeriod.id}`}
+                >
                   <MoreOutlined
                     className="cursor-pointer "
                     style={{ fontSize: '22px', color: '#000000' }}
+                    id={`okr-planning-period-card-more-icon-${planningPeriod.id}`}
+                    data-cy={`okr-planning-period-card-more-icon-${planningPeriod.id}`}
                   />
                 </Dropdown>
               </div>
             }
             className="mb-4"
             bodyStyle={{ padding: '0.5rem 1rem' }}
+            id={`okr-planning-period-card-${planningPeriod.id}`}
+            data-cy={`okr-planning-period-card-${planningPeriod.id}`}
           >
-            <div className="grid grid-cols-1 gap-4 pb-5">
-              <div className="flex justify-between px-2">
-                <p className="text-gray-400 text-sm">Action on Failure</p>
-                <p>{planningPeriod?.actionOnFailure}</p>
+            <div
+              className="grid grid-cols-1 gap-4 pb-5"
+              id={`okr-planning-period-card-content-${planningPeriod.id}`}
+              data-cy={`okr-planning-period-card-content-${planningPeriod.id}`}
+            >
+              <div
+                className="flex justify-between px-2"
+                id={`okr-planning-period-card-action-failure-${planningPeriod.id}`}
+                data-cy={`okr-planning-period-card-action-failure-${planningPeriod.id}`}
+              >
+                <p
+                  className="text-gray-400 text-sm"
+                  id={`okr-planning-period-card-action-failure-label-${planningPeriod.id}`}
+                  data-cy={`okr-planning-period-card-action-failure-label-${planningPeriod.id}`}
+                >
+                  Action on Failure
+                </p>
+                <p
+                  id={`okr-planning-period-card-action-failure-value-${planningPeriod.id}`}
+                  data-cy={`okr-planning-period-card-action-failure-value-${planningPeriod.id}`}
+                >
+                  {planningPeriod?.actionOnFailure}
+                </p>
               </div>
-              <div className="flex justify-between px-2">
-                <p className="text-gray-400 text-sm">Interval</p>
-                <p>{planningPeriod?.intervalType}</p>
+              <div
+                className="flex justify-between px-2"
+                id={`okr-planning-period-card-interval-${planningPeriod.id}`}
+                data-cy={`okr-planning-period-card-interval-${planningPeriod.id}`}
+              >
+                <p
+                  className="text-gray-400 text-sm"
+                  id={`okr-planning-period-card-interval-label-${planningPeriod.id}`}
+                  data-cy={`okr-planning-period-card-interval-label-${planningPeriod.id}`}
+                >
+                  Interval
+                </p>
+                <p
+                  id={`okr-planning-period-card-interval-value-${planningPeriod.id}`}
+                  data-cy={`okr-planning-period-card-interval-value-${planningPeriod.id}`}
+                >
+                  {planningPeriod?.intervalType}
+                </p>
               </div>
             </div>
           </Card>
         ))}
         {allPlanningperiod?.items?.length === 0 && (
-          <div className="flex justify-center items-center">
-            No Data Available
+          <div
+            className="flex justify-center items-center"
+            id="okr-planning-period-empty-state-display-div"
+            data-cy="okr-planning-period-empty-state-display-div"
+          >
+            <span
+              id="okr-planning-period-empty-state-text-display-span"
+              data-cy="okr-planning-period-empty-state-text-display-span"
+            >
+              No Data Available
+            </span>
           </div>
         )}
       </div>
@@ -176,23 +255,48 @@ const PlanningPeriod = () => {
         onOk={handleModalOk}
         onCancel={handleModalCancel}
         confirmLoading={editPlannningPeriod}
+     
+        data-cy="okr-planning-period-edit-modal-display-modal"
       >
-        <Form form={form} layout="vertical">
+        <Form
+          form={form}
+          layout="vertical"
+          id="okr-planning-period-edit-form-display-form"
+          data-cy="okr-planning-period-edit-form-display-form"
+        >
           <Form.Item
             name="name"
             label="Name"
             rules={[{ required: true, message: 'Please enter the name' }]}
+            id="okr-planning-period-edit-form-name-item-display-item"
+            data-cy="okr-planning-period-edit-form-name-item-display-item"
           >
-            <Input />
+            <Input
+              id="okr-planning-period-edit-form-name-input-display-input"
+              data-cy="okr-planning-period-edit-form-name-input-display-input"
+            />
           </Form.Item>
 
-          <Form.Item label="Interval Length (Days)">
+          <Form.Item
+            label="Interval Length (Days)"
+            id="okr-planning-period-edit-form-interval-length-wrapper-display-item"
+            data-cy="okr-planning-period-edit-form-interval-length-wrapper-display-item"
+          >
             <Form.Item
               name="intervalLength"
               noStyle
               rules={[{ required: true, message: 'Please enter days' }]}
+              id="okr-planning-period-edit-form-interval-length-item-display-item"
+              data-cy="okr-planning-period-edit-form-interval-length-item-display-item"
             >
-              <Input disabled type="text" min={0} placeholder="Days" />
+              <Input
+                disabled
+                type="text"
+                min={0}
+                placeholder="Days"
+                id="okr-planning-period-edit-form-interval-length-input-display-input"
+                data-cy="okr-planning-period-edit-form-interval-length-input-display-input"
+              />
             </Form.Item>
           </Form.Item>
           <Form.Item
@@ -201,11 +305,34 @@ const PlanningPeriod = () => {
             rules={[
               { required: true, message: 'Please select an interval type' },
             ]}
+            id="okr-planning-period-edit-form-interval-type-item-display-item"
+            data-cy="okr-planning-period-edit-form-interval-type-item-display-item"
           >
-            <Select>
-              <Option value="daily">Daily</Option>
-              <Option value="weekly">Weekly</Option>
-              <Option value="monthly">Monthly</Option>
+            <Select
+              id="okr-planning-period-edit-form-interval-type-select-display-select"
+              data-cy="okr-planning-period-edit-form-interval-type-select-display-select"
+            >
+              <Option
+                value="daily"
+                id="okr-planning-period-edit-form-interval-type-option-daily-display-option"
+                data-cy="okr-planning-period-edit-form-interval-type-option-daily-display-option"
+              >
+                Daily
+              </Option>
+              <Option
+                value="weekly"
+                id="okr-planning-period-edit-form-interval-type-option-weekly-display-option"
+                data-cy="okr-planning-period-edit-form-interval-type-option-weekly-display-option"
+              >
+                Weekly
+              </Option>
+              <Option
+                value="monthly"
+                id="okr-planning-period-edit-form-interval-type-option-monthly-display-option"
+                data-cy="okr-planning-period-edit-form-interval-type-option-monthly-display-option"
+              >
+                Monthly
+              </Option>
             </Select>
           </Form.Item>
           <Form.Item
@@ -215,14 +342,40 @@ const PlanningPeriod = () => {
             rules={[
               { required: true, message: 'Please enter submission deadline' },
             ]}
+            id="okr-planning-period-edit-form-deadline-wrapper-display-item"
+            data-cy="okr-planning-period-edit-form-deadline-wrapper-display-item"
           >
-            <Input disabled type="text" min={0} placeholder="Days" />
+            <Input
+              disabled
+              type="text"
+              min={0}
+              placeholder="Days"
+              id="okr-planning-period-edit-form-deadline-input-display-input"
+              data-cy="okr-planning-period-edit-form-deadline-input-display-input"
+            />
           </Form.Item>
-          <Form.Item name="actionOnFailure" label="Action on Failure">
-            <Input />
+          <Form.Item
+            name="actionOnFailure"
+            label="Action on Failure"
+            id="okr-planning-period-edit-form-action-failure-item-display-item"
+            data-cy="okr-planning-period-edit-form-action-failure-item-display-item"
+          >
+            <Input
+              id="okr-planning-period-edit-form-action-failure-input-display-input"
+              data-cy="okr-planning-period-edit-form-action-failure-input-display-input"
+            />
           </Form.Item>
-          <Form.Item name="isActive" label="Is Active" valuePropName="checked">
-            <Switch />
+          <Form.Item
+            name="isActive"
+            label="Is Active"
+            valuePropName="checked"
+            id="okr-planning-period-edit-form-is-active-item-display-item"
+            data-cy="okr-planning-period-edit-form-is-active-item-display-item"
+          >
+            <Switch
+              id="okr-planning-period-edit-form-is-active-switch-display-switch"
+              data-cy="okr-planning-period-edit-form-is-active-switch-display-switch"
+            />
           </Form.Item>
         </Form>
       </Modal>

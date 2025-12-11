@@ -19,9 +19,14 @@ const NumericForm: React.FC<OKRFormProps> = ({
   const { data: metrics } = useGetMetrics();
 
   return (
-    <div className="relative bg-gray-50 rounded-xl border-none p-6 mb-4">
+    <div
+      id={`okr-numeric-form-container-${index}`}
+      data-cy={`okr-numeric-form-container-${index}`}
+      className="relative bg-gray-50 rounded-xl border-none p-6 mb-4"
+    >
       {/* Remove button */}
       <button
+        data-cy={`okr-numeric-form-remove-${index}`}
         onClick={() => removeKeyResult(index)}
         title="Remove Key Result"
         aria-label="Remove Key Result"
@@ -45,6 +50,8 @@ const NumericForm: React.FC<OKRFormProps> = ({
         </svg>
       </button>
       <Form
+        id={`okr-numeric-form-${index}`}
+        data-cy={`okr-numeric-form-${index}`}
         form={form}
         initialValues={{
           ...keyItem,
@@ -56,6 +63,8 @@ const NumericForm: React.FC<OKRFormProps> = ({
       >
         {/* Desktop Layout */}
         <div
+          id={`okr-numeric-desktop-top-row-${index}`}
+          data-cy={`okr-numeric-desktop-top-row-${index}`}
           className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-2 items-center mt-4 mx-4`}
         >
           <Form.Item
@@ -65,8 +74,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
               { required: true, message: 'Please enter the Key Result name' },
             ]}
             id={`key-result-title-${index}`}
+            data-cy={`okr-numeric-desktop-title-item-${index}`}
           >
             <Input
+              id={`okr-numeric-desktop-title-input-${index}`}
+              data-cy={`okr-numeric-desktop-title-input-${index}`}
               value={keyItem.title === '' ? undefined : keyItem.title}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
               placeholder="Key Result Name"
@@ -80,10 +92,12 @@ const NumericForm: React.FC<OKRFormProps> = ({
               { required: true, message: 'Please select a Key Result type' },
             ]}
             id={`key-type-select-${index}`}
+            data-cy={`okr-numeric-desktop-type-item-${index}`}
           >
             <Select
               className="w-full h-10 rounded-lg text-base"
               popupClassName="text-base"
+              data-cy={`okr-numeric-desktop-type-select-${index}`}
               onChange={(value) => {
                 const selectedMetric = metrics?.items?.find(
                   (metric) => metric.id === value,
@@ -114,9 +128,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
             name="weight"
             rules={[{ required: true, message: 'Please enter the weight' }]}
             id={`weight-input-${index}`}
+            data-cy={`okr-numeric-desktop-weight-item-${index}`}
           >
             <InputNumber
               className="w-full h-10 rounded-lg text-base"
+              data-cy={`okr-numeric-desktop-weight-input-${index}`}
               min={0}
               max={100}
               suffix="%"
@@ -131,10 +147,12 @@ const NumericForm: React.FC<OKRFormProps> = ({
             name={`dead_line_${index}`}
             rules={[{ required: true, message: 'Please select a deadline' }]}
             id={`deadline-picker-${index}`}
+            data-cy={`okr-numeric-desktop-deadline-item-${index}`}
           >
             <DatePicker
               className="w-full h-10 rounded-lg text-base"
               popupClassName="text-base"
+              data-cy={`okr-numeric-desktop-deadline-picker-${index}`}
               value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
               format="YYYY-MM-DD"
               disabledDate={(current) => {
@@ -158,6 +176,8 @@ const NumericForm: React.FC<OKRFormProps> = ({
         </div>
         {/* Desktop Numeric input row */}
         <div
+          id={`okr-numeric-desktop-values-row-${index}`}
+          data-cy={`okr-numeric-desktop-values-row-${index}`}
           className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center mt-4 mx-4`}
         >
           <Form.Item
@@ -166,9 +186,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
             rules={[
               { required: true, message: 'Please enter the initial value' },
             ]}
+            data-cy={`okr-numeric-desktop-initial-item-${index}`}
           >
             <InputNumber
               className="w-full h-10 rounded-lg text-base"
+              data-cy={`okr-numeric-desktop-initial-input-${index}`}
               min={0}
               placeholder="Initial Value"
               value={keyItem.initialValue ?? 0}
@@ -193,9 +215,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
             rules={[
               { required: true, message: 'Please enter the target value' },
             ]}
+            data-cy={`okr-numeric-desktop-target-item-${index}`}
           >
             <InputNumber
               className="w-full h-10 rounded-lg text-base"
+              data-cy={`okr-numeric-desktop-target-input-${index}`}
               min={0}
               placeholder="Target Value"
               value={keyItem.targetValue ?? 0}
@@ -214,7 +238,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
           </Form.Item>
         </div>
         {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 mt-4 mx-4`}>
+        <div
+          id={`okr-numeric-mobile-wrapper-${index}`}
+          data-cy={`okr-numeric-mobile-wrapper-${index}`}
+          className={`${isMobile ? 'block' : 'hidden'} space-y-4 mt-4 mx-4`}
+        >
           {/* Row 1: Key Result Name */}
           <Form.Item
             className="mb-0"
@@ -223,8 +251,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
               { required: true, message: 'Please enter the Key Result name' },
             ]}
             id={`key-result-title-mobile-${index}`}
+            data-cy={`okr-numeric-mobile-title-item-${index}`}
           >
             <Input
+              id={`okr-numeric-mobile-title-input-${index}`}
+              data-cy={`okr-numeric-mobile-title-input-${index}`}
               value={keyItem.title === '' ? undefined : keyItem.title}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
               placeholder="Key Result Name"
@@ -233,17 +264,23 @@ const NumericForm: React.FC<OKRFormProps> = ({
             />
           </Form.Item>
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-2">
+          <div
+            id={`okr-numeric-mobile-meta-row-${index}`}
+            data-cy={`okr-numeric-mobile-meta-row-${index}`}
+            className="flex gap-2"
+          >
             <Form.Item
               className="w-48 mb-0"
               rules={[
                 { required: true, message: 'Please select a Key Result type' },
               ]}
               id={`key-type-select-mobile-${index}`}
+              data-cy={`okr-numeric-mobile-type-item-${index}`}
             >
               <Select
                 className="w-full h-10 rounded-lg text-base"
                 popupClassName="text-base"
+                data-cy={`okr-numeric-mobile-type-select-${index}`}
                 onChange={(value) => {
                   const selectedMetric = metrics?.items?.find(
                     (metric) => metric.id === value,
@@ -259,11 +296,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
                   )?.id || ''
                 }
               >
-                <Option value="" disabled>
+                <Option data-cy={`okr-numeric-mobile-type-option-${index}`} value="" disabled>
                   Please select a metric type
                 </Option>
                 {metrics?.items?.map((metric) => (
-                  <Option key={metric?.id} value={metric?.id}>
+                  <Option data-cy={`okr-numeric-mobile-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
                     {metric?.name}
                   </Option>
                 ))}
@@ -274,9 +311,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
               name="weight"
               rules={[{ required: true, message: 'Please enter the weight' }]}
               id={`weight-input-mobile-${index}`}
+              data-cy={`okr-numeric-mobile-weight-item-${index}`}
             >
               <InputNumber
                 className="w-full h-10 rounded-lg text-base"
+                data-cy={`okr-numeric-mobile-weight-input-${index}`}
                 min={0}
                 max={100}
                 suffix="%"
@@ -291,10 +330,12 @@ const NumericForm: React.FC<OKRFormProps> = ({
               name={`dead_line_${index}`}
               rules={[{ required: true, message: 'Please select a deadline' }]}
               id={`deadline-picker-mobile-${index}`}
+              data-cy={`okr-numeric-mobile-deadline-item-${index}`}
             >
               <DatePicker
                 className="w-full h-10 rounded-lg text-base"
                 popupClassName="text-base"
+                data-cy={`okr-numeric-mobile-deadline-picker-${index}`}
                 value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                 format="YYYY-MM-DD"
                 disabledDate={(current) => {
@@ -317,16 +358,22 @@ const NumericForm: React.FC<OKRFormProps> = ({
             </Form.Item>
           </div>
           {/* Row 3: Initial Value and Target Value */}
-          <div className="flex gap-4 pl-4">
+          <div
+            id={`okr-numeric-mobile-values-row-${index}`}
+            data-cy={`okr-numeric-mobile-values-row-${index}`}
+            className="flex gap-4 pl-4"
+          >
             <Form.Item
               className="flex-1 mb-0"
               name="initialValue"
               rules={[
                 { required: true, message: 'Please enter the initial value' },
               ]}
+              data-cy={`okr-numeric-mobile-initial-item-${index}`}
             >
               <InputNumber
                 className="w-full h-10 rounded-lg text-base"
+                data-cy={`okr-numeric-mobile-initial-input-${index}`}
                 min={0}
                 placeholder="Initial Value"
                 value={keyItem.initialValue ?? 0}
@@ -351,9 +398,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
               rules={[
                 { required: true, message: 'Please enter the target value' },
               ]}
+              data-cy={`okr-numeric-mobile-target-item-${index}`}
             >
               <InputNumber
                 className="w-full h-10 rounded-lg text-base"
+                data-cy={`okr-numeric-mobile-target-input-${index}`}
                 min={0}
                 placeholder="Target Value"
                 value={keyItem.targetValue ?? 0}

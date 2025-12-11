@@ -63,26 +63,32 @@ const QuestionTemplateCard: React.FC<any> = () => {
           <div
             key={index}
             className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
+            data-cy={`question-template-card-${questions?.id}`}
+            id={`questionTemplateCard${questions?.id}`}
           >
-            <div className="text-medium font-medium">
+            <div className="text-medium font-medium" data-cy={`question-template-card-name-${questions?.id}`} id={`questionTemplateCardName${questions?.id}`}>
               {questions?.customFieldName}
             </div>
-            <div className="flex items-center justify-center gap-2">
-              <AccessGuard permissions={[Permissions.UpdateCustomFields]}>
-                <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+            <div className="flex items-center justify-center gap-2" data-cy={`question-template-card-actions-${questions?.id}`} id={`questionTemplateCardActions${questions?.id}`}>
+              <AccessGuard permissions={[Permissions.UpdateCustomFields]} data-cy="question-template-card-edit-button-access-guard" id="questionTemplateCardEditButtonAccessGuard">
+                <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center" data-cy={`question-template-card-edit-container-${questions?.id}`} id={`questionTemplateCardEditContainer${questions?.id}`}>
                   <Pencil
                     size={15}
                     className="text-white cursor-pointer"
                     onClick={() => handleQuestionModalOpen(questions)}
+                    data-cy={`question-template-card-edit-icon-${questions?.id}`}
+                    id={`questionTemplateCardEditIcon${questions?.id}`}
                   />
                 </div>
               </AccessGuard>
-              <AccessGuard permissions={[Permissions.DeleteCustomFields]}>
-                <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+              <AccessGuard permissions={[Permissions.DeleteCustomFields]} data-cy="question-template-card-delete-button-access-guard" id="questionTemplateCardDeleteButtonAccessGuard">
+                <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center" data-cy={`question-template-card-delete-container-${questions?.id}`} id={`questionTemplateCardDeleteContainer${questions?.id}`}>
                   <Trash2
                     size={15}
                     className="text-white cursor-pointer"
                     onClick={() => handleDeleteModalOpen(questions)}
+                    data-cy={`question-template-card-delete-icon-${questions?.id}`}
+                    id={`questionTemplateCardDeleteIcon${questions?.id}`}
                   />
                 </div>
               </AccessGuard>
@@ -90,7 +96,7 @@ const QuestionTemplateCard: React.FC<any> = () => {
           </div>
         ))
       ) : (
-        <div className="text-center my-5">No questions available.</div>
+        <div className="text-center my-5" data-cy="question-template-card-empty" id="questionTemplateCardEmpty">No questions available.</div>
       )}
       <FeedbackPagination
         current={templateCurrentPage}
@@ -104,15 +110,18 @@ const QuestionTemplateCard: React.FC<any> = () => {
           setTemplatePageSize(size);
           setTemplateCurrentPage(1);
         }}
+        data-cy="question-template-card-pagination"
       />
       <EditQuestionTemplate
         question={editingQuestion}
         onClose={handleQuestionModalClose}
+        data-cy="question-template-card-edit-modal"
       />
       <DeleteModal
         open={deleteModal}
         onCancel={() => setDeleteModal(false)}
         onConfirm={handleDelete}
+        data-cy="question-template-card-delete-modal"
       />
     </>
   );

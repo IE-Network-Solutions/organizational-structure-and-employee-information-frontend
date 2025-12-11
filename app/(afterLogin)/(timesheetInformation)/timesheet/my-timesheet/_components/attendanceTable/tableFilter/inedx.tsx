@@ -49,55 +49,84 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
   };
 
   return (
-    <div>
+    <div
+      id="time-attendance-attendance-table-filter-container"
+      data-cy="time-attendance-attendance-table-filter-container"
+    >
       {/* Desktop Filters */}
-      <Form form={form} onFieldsChange={() => onChange(form.getFieldsValue())}>
-        <Row gutter={16} align="middle">
-          <Col className="block sm:hidden">
+      <Form
+        form={form}
+        onFieldsChange={() => onChange(form.getFieldsValue())}
+        id="time-attendance-attendance-table-filter-form"
+        data-cy="time-attendance-attendance-table-filter-form"
+      >
+        <Row id="time-attendance-attendance-table-filter-row" data-cy="time-attendance-attendance-table-filter-row" gutter={16} align="middle">
+          <Col id="time-attendance-attendance-table-filter-mobile-button-col" data-cy="time-attendance-attendance-table-filter-mobile-button-col" className="block sm:hidden">
             <Button
               type="default"
               className="flex justify-center w-10 h-10 hover:bg-gray-100 border-gray-200"
-              icon={<LuSettings2 className="text-gray-600" />}
+              icon={<LuSettings2 data-cy="time-attendance-attendance-table-filter-mobile-button-icon" className="text-gray-600" />}
               onClick={() => {
                 mobileForm.setFieldsValue(form.getFieldsValue());
                 setShowLeaveHistoryFilter(true);
               }}
+              id="time-attendance-attendance-table-filter-mobile-button"
+              data-cy="time-attendance-attendance-table-filter-mobile-button"
             />
           </Col>
 
           <Col className="hidden sm:block" span={14}>
-            <Form.Item name="date" rules={[{ validator: validateDateRange }]}>
+            <Form.Item
+              name="date"
+              rules={[{ validator: validateDateRange }]}
+              id="time-attendance-attendance-table-filter-date"
+              data-cy="time-attendance-attendance-table-filter-date"
+            >
               <DatePicker.RangePicker
                 className="w-full h-[40px]"
                 separator={'-'}
                 format={DATE_FORMAT}
+                id="time-attendance-attendance-table-filter-date-picker"
+                data-cy="time-attendance-attendance-table-filter-date-picker"
               />
             </Form.Item>
           </Col>
 
           <Col className="hidden sm:block" span={5}>
-            <Form.Item name="location">
+            <Form.Item
+              name="location"
+              id="time-attendance-attendance-table-filter-location"
+              data-cy="time-attendance-attendance-table-filter-location"
+            >
               <Select
                 placeholder="Select area"
                 allowClear={true}
                 className="w-full h-[40px]"
                 suffixIcon={
-                  <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                  <MdKeyboardArrowDown data-cy="time-attendance-attendance-table-filter-location-select-icon" size={16} className="text-gray-900" />
                 }
                 options={formatToOptions(allowedAreas, 'title', 'id')}
+                id="time-attendance-attendance-table-filter-location-select"
+                data-cy="time-attendance-attendance-table-filter-location-select"
               />
             </Form.Item>
           </Col>
           <Col className="hidden sm:block" span={5}>
-            <Form.Item name="type">
+            <Form.Item
+              name="type"
+              id="time-attendance-attendance-table-filter-type"
+              data-cy="time-attendance-attendance-table-filter-type"
+            >
               <Select
                 placeholder="Select Status"
                 allowClear={true}
                 className="w-full h-[40px]"
                 suffixIcon={
-                  <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                  <MdKeyboardArrowDown data-cy="time-attendance-attendance-table-filter-type-select-icon" size={16} className="text-gray-900" />
                 }
                 options={attendanceRecordTypeOption}
+                id="time-attendance-attendance-table-filter-type-select"
+                data-cy="time-attendance-attendance-table-filter-type-select"
               />
             </Form.Item>
           </Col>
@@ -111,21 +140,45 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
         open={showLeaveHistoryFilter}
         onCancel={handleReset}
         width="85%"
+        data-cy="time-attendance-attendance-table-filter-mobile-modal"
         footer={
-          <div className="flex justify-center items-center space-x-4">
-            <Button type="default" className="px-3" onClick={handleReset}>
+          <div
+            className="flex justify-center items-center space-x-4"
+            id="time-attendance-attendance-table-filter-mobile-modal-footer"
+            data-cy="time-attendance-attendance-table-filter-mobile-modal-footer"
+          >
+            <Button
+              type="default"
+              className="px-3"
+              onClick={handleReset}
+              id="time-attendance-attendance-table-filter-mobile-reset-button"
+              data-cy="time-attendance-attendance-table-filter-mobile-reset-button"
+            >
               Reset
             </Button>
-            <Button onClick={handleSubmit} type="primary" className="px-3">
+            <Button
+              onClick={handleSubmit}
+              type="primary"
+              className="px-3"
+              id="time-attendance-attendance-table-filter-mobile-filter-button"
+              data-cy="time-attendance-attendance-table-filter-mobile-filter-button"
+            >
               Filter
             </Button>
           </div>
         }
       >
-        <Form form={mobileForm} layout="vertical">
+        <Form
+          form={mobileForm}
+          layout="vertical"
+          id="time-attendance-attendance-table-filter-mobile-form"
+          data-cy="time-attendance-attendance-table-filter-mobile-form"
+        >
           <Form.Item
             label="Start Date"
             name="startDate"
+            id="time-attendance-attendance-table-filter-mobile-start-date"
+            data-cy="time-attendance-attendance-table-filter-mobile-start-date"
             rules={[
               ({ getFieldValue }) => ({
                 /* eslint-disable @typescript-eslint/naming-convention */
@@ -148,12 +201,16 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               className="w-full h-[40px]"
               placeholder="Start Date"
               format={DATE_FORMAT}
+              id="time-attendance-attendance-table-filter-mobile-start-date-picker"
+              data-cy="time-attendance-attendance-table-filter-mobile-start-date-picker"
             />
           </Form.Item>
 
           <Form.Item
             label="End Date"
             name="endDate"
+            id="time-attendance-attendance-table-filter-mobile-end-date"
+            data-cy="time-attendance-attendance-table-filter-mobile-end-date"
             rules={[
               ({ getFieldValue }) => ({
                 /* eslint-disable @typescript-eslint/naming-convention */
@@ -176,30 +233,46 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               className="w-full h-[40px]"
               placeholder="End Date"
               format={DATE_FORMAT}
+              id="time-attendance-attendance-table-filter-mobile-end-date-picker"
+              data-cy="time-attendance-attendance-table-filter-mobile-end-date-picker"
             />
           </Form.Item>
 
-          <Form.Item label="Area" name="location">
+          <Form.Item
+            label="Area"
+            name="location"
+            id="time-attendance-attendance-table-filter-mobile-location"
+            data-cy="time-attendance-attendance-table-filter-mobile-location"
+          >
             <Select
               placeholder="Select area"
               allowClear={true}
               className="w-full h-[40px]"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown data-cy="time-attendance-attendance-table-filter-mobile-location-select-icon" size={16} className="text-gray-900" />
               }
               options={formatToOptions(allowedAreas, 'title', 'id')}
+              id="time-attendance-attendance-table-filter-mobile-location-select"
+              data-cy="time-attendance-attendance-table-filter-mobile-location-select"
             />
           </Form.Item>
 
-          <Form.Item label="Status" name="type">
+          <Form.Item
+            label="Status"
+            name="type"
+            id="time-attendance-attendance-table-filter-mobile-type"
+            data-cy="time-attendance-attendance-table-filter-mobile-type"
+          >
             <Select
               placeholder="Select Status"
               allowClear={true}
               className="w-full h-[40px]"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown data-cy="time-attendance-attendance-table-filter-mobile-type-select-icon" size={16} className="text-gray-900" />
               }
               options={attendanceRecordTypeOption}
+              id="time-attendance-attendance-table-filter-mobile-type-select"
+              data-cy="time-attendance-attendance-table-filter-mobile-type-select"
             />
           </Form.Item>
         </Form>

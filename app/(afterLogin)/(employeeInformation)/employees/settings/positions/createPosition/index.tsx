@@ -6,6 +6,12 @@ import { Button, Form, Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React from 'react';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const CreatePosition: React.FC = () => {
   const [form] = Form.useForm();
   const { openPositionDrawer, setOpenPositionDrawer, setFormValues } =
@@ -15,8 +21,14 @@ const CreatePosition: React.FC = () => {
     setOpenPositionDrawer(false);
   };
 
+  const drawerSlug = toSlug('create-position-drawer');
+
   const addPositionDrawerHeader = (
-    <div className="flex justify-start text-xl font-extrabold text-gray-800">
+    <div
+      className="flex justify-start text-xl font-extrabold text-gray-800"
+      id={`settings-position-create-header-${drawerSlug}`}
+      data-cy={`settings-position-create-header-${drawerSlug}`}
+    >
       Add New Position
     </div>
   );
@@ -38,11 +50,17 @@ const CreatePosition: React.FC = () => {
         modalHeader={addPositionDrawerHeader}
         width="40%"
         footer={
-          <div className="flex justify-center w-full bg-[#fff] space-x-5 p-4 ">
+          <div
+            className="flex justify-center w-full bg-[#fff] space-x-5 p-4 "
+            id={`settings-position-create-footer-${drawerSlug}`}
+            data-cy={`settings-position-create-footer-${drawerSlug}`}
+          >
             <Button
               className="h-[40px] sm:h-[56px] text-base px-10"
               type="default"
               onClick={handleCloseDrawer}
+              id={`settings-position-create-cancel-${drawerSlug}`}
+              data-cy={`settings-position-create-cancel-${drawerSlug}`}
             >
               Cancel
             </Button>
@@ -50,11 +68,14 @@ const CreatePosition: React.FC = () => {
               className="h-[40px] sm:h-[56px] text-base px-10"
               type="primary"
               onClick={() => form.submit()}
+              id={`settings-position-create-submit-${drawerSlug}`}
+              data-cy={`settings-position-create-submit-${drawerSlug}`}
             >
               Submit
             </Button>
           </div>
         }
+        data-cy={`settings-position-create-drawer-${drawerSlug}`}
       >
         <Form
           form={form}
@@ -65,6 +86,8 @@ const CreatePosition: React.FC = () => {
           onFinish={() => {
             handleSubmit();
           }}
+          id={`settings-position-create-form-${drawerSlug}`}
+          data-cy={`settings-position-create-form-${drawerSlug}`}
         >
           <Form.Item
             id="positionTitle"
@@ -80,19 +103,26 @@ const CreatePosition: React.FC = () => {
                 message: 'Please input the position name!',
               },
             ]}
+            data-cy="settings-position-create-name-item"
           >
             <Input
               size="large"
               placeholder="Job title"
               className="text-sm w-full  h-10"
               allowClear
+              id={`settings-position-create-name-input-${drawerSlug}`}
+              data-cy={`settings-position-create-name-input-${drawerSlug}`}
             />
           </Form.Item>
           <Form.Item
             id="positionDescription"
             name="description"
             label={
-              <span className="text-lg my-2 font-semibold text-gray-700">
+              <span
+                className="text-lg my-2 font-semibold text-gray-700"
+                id="settings-position-create-description-label"
+                data-cy="settings-position-create-description-label"
+              >
                 Position Description
               </span>
             }
@@ -102,12 +132,15 @@ const CreatePosition: React.FC = () => {
                 message: 'Please input the position description!',
               },
             ]}
+            data-cy="settings-position-create-description-item"
           >
             <TextArea
               className="h-36"
               rows={4}
               placeholder="Job description"
               allowClear
+              id={`settings-position-create-description-input-${drawerSlug}`}
+              data-cy={`settings-position-create-description-input-${drawerSlug}`}
             />
           </Form.Item>
         </Form>

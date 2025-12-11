@@ -33,6 +33,7 @@ import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInform
 import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 
 interface CustomMenuItem {
   key: string;
@@ -77,6 +78,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIsCheckingPermissions,
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const pathName = usePathname();
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -428,9 +431,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/payroll-menu',
       className: 'font-bold',
-      permissions: ['view_payroll_overview'],
+      permissions: ['view_payroll_menu'],
       disabled: hasEndedFiscalYear,
-      // || isSubscriptionExpired,
       children: [
         {
           title: <span>Employee Information</span>,
@@ -726,8 +728,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     useGetDepartments();
   const { data: employeeData, isLoading: employeeDataLoading } =
     useGetEmployee(userId);
-  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
-    useEmployeeManagementStore();
+  const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
 
   const isLoadingData =
     departmentsLoading || employeeDataLoading || !departments || !employeeData;
@@ -737,11 +738,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     if (departments.length === 0 && !isLoadingData) {
       router.push('/onboarding');
-    } else if (employeeData?.employeeJobInformation?.length === 0) {
+    } else if (
+      employeeData?.employeeJobInformation?.length === 0 &&
+      pathName !== `/employees/manage-employees/${userId}`
+    ) {
+      setIsModalOpen(true);
+    } else if (
+      employeeData?.employeeJobInformation?.length === 0 &&
+      pathName === `/employees/manage-employees/${userId}`
+    ) {
       setIsAddEmployeeJobInfoModalVisible(true);
-      setEmployeeJobInfoModalWidth('100%');
     }
-  }, [departments, employeeData, router, isLoadingData]);
+  }, [departments, employeeData, router, isLoadingData, pathName, userId]);
+
+  const handleOk = () => {
+    router.push(`/employees/manage-employees/${userId}`);
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   // ✅ Check permission on pathname change
   useEffect(() => {
@@ -1111,7 +1128,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
               style={{
                 borderRadius: borderRadiusLG,
-                marginTop: '94px',
+                marginTop: `${isMobile ? '85px' : '94px'}`,
                 marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
               }}
             >
@@ -1123,6 +1140,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               handleUserInfoUpdate();
             }}
             id={userId}
+          />
+          <JobInfoAccessModal
+            open={isModalOpen}
+            onClose={handleCancel}
+            onConfirm={handleOk}
           />
         </Content>
       </Layout>

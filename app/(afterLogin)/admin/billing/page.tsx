@@ -94,48 +94,69 @@ const BillingPage = () => {
     }
   }, [subscriptionsData]);
 
-  // Calculate statistics
+  const getCurrencyInfo = (currencyId: string) => {
+    const currency = currencies?.find((c) => c.id === currencyId);
+    return {
+      symbol: currency?.symbol || '$',
+      code: currency?.code || 'USD',
+      currency,
+    };
+  };
+
+  // Calculate statistics grouped by currency
   const calculateStats = () => {
-    let totalAmount = 0;
-    let issuedAmount = 0;
-    let paidAmount = 0;
-    let overdueAmount = 0;
+    const statsByCurrency: Record<
+      string,
+      {
+        totalAmount: number;
+        issuedAmount: number;
+        paidAmount: number;
+        overdueAmount: number;
+        currencyId: string;
+      }
+    > = {};
 
     invoices.forEach((invoice) => {
+      const currencyId = invoice.currencyId || 'USD';
+
+      if (!statsByCurrency[currencyId]) {
+        statsByCurrency[currencyId] = {
+          totalAmount: 0,
+          issuedAmount: 0,
+          paidAmount: 0,
+          overdueAmount: 0,
+          currencyId,
+        };
+      }
+
       // Convert string amount to number
-      // totalAmount can come as a string, so we convert it to a number
       const amount =
         typeof invoice.totalAmount === 'string'
           ? parseFloat(invoice.totalAmount)
           : invoice.totalAmount || 0;
 
-      totalAmount += amount;
+      statsByCurrency[currencyId].totalAmount += amount;
 
       switch (invoice.status?.toLowerCase()) {
-        case 'issued':
-          issuedAmount += amount;
+        case 'pending':
+          statsByCurrency[currencyId].issuedAmount += amount;
           break;
         case 'paid':
-          paidAmount += amount;
+          statsByCurrency[currencyId].paidAmount += amount;
           break;
         case 'overdue':
-          overdueAmount += amount;
+          statsByCurrency[currencyId].overdueAmount += amount;
           break;
       }
     });
 
-    return {
-      totalAmount,
-      issuedAmount,
-      paidAmount,
-      overdueAmount,
-    };
+    return statsByCurrency;
   };
 
-  const stats = calculateStats();
+  const statsByCurrency = calculateStats();
 
   // Format large numbers with K (thousands) suffix
-  const formatLargeNumber = (amount: number) => {
+  const formatLargeNumber = (amount: number, currencySymbol: string) => {
     if (amount >= 1000) {
       // Format to 1 decimal place if not a round thousand
       const isRoundThousand = amount % 1000 === 0;
@@ -144,16 +165,61 @@ const BillingPage = () => {
         ? value.toFixed(0)
         : value.toFixed(1).replace(/\.0$/, ''); // Remove .0 if it ends with it
 
-      return `$${formattedValue}K`;
+      return `${currencySymbol}${formattedValue}K`;
     }
 
-    // For amounts less than 1000, use regular currency format
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+    // For amounts less than 1000, use currency symbol directly
+    return `${currencySymbol}${amount.toFixed(0)}`;
+  };
+
+  // Get formatted stats for each currency
+  const getFormattedStats = (
+    statType: 'totalAmount' | 'issuedAmount' | 'paidAmount' | 'overdueAmount',
+  ) => {
+    const currencyEntries = Object.entries(statsByCurrency);
+
+    if (currencyEntries.length === 0) {
+      return { value: '$0 USD', currencies: [] };
+    }
+
+    // If only one currency, show simple format
+    if (currencyEntries.length === 1) {
+      const [currencyId, stats] = currencyEntries[0];
+      const currencyInfo = getCurrencyInfo(currencyId);
+      const amount = stats[statType];
+      return {
+        value: formatLargeNumber(amount, currencyInfo.symbol),
+        currencies: [{ currencyId, ...currencyInfo, amount }],
+      };
+    }
+
+    // Multiple currencies - show all with breakdown
+    const formattedValues: string[] = [];
+    const currencyDetails: Array<{
+      currencyId: string;
+      symbol: string;
+      code: string;
+      amount: number;
+    }> = [];
+
+    currencyEntries.forEach(([currencyId, stats]) => {
+      const currencyInfo = getCurrencyInfo(currencyId);
+      const amount = stats[statType];
+      if (amount > 0) {
+        formattedValues.push(formatLargeNumber(amount, currencyInfo.symbol));
+        currencyDetails.push({
+          currencyId,
+          ...currencyInfo,
+          amount,
+        });
+      }
+    });
+
+    return {
+      value:
+        formattedValues.length > 0 ? formattedValues.join(' / ') : '$0 USD',
+      currencies: currencyDetails,
+    };
   };
 
   const dashboardData = [
@@ -186,19 +252,19 @@ const BillingPage = () => {
   const dashboardValues = [
     {
       id: 'totalInvoice',
-      value: formatLargeNumber(stats.totalAmount),
+      ...getFormattedStats('totalAmount'),
     },
     {
       id: 'issued',
-      value: formatLargeNumber(stats.issuedAmount),
+      ...getFormattedStats('issuedAmount'),
     },
     {
       id: 'paid',
-      value: formatLargeNumber(stats.paidAmount),
+      ...getFormattedStats('paidAmount'),
     },
     {
       id: 'overdue',
-      value: formatLargeNumber(stats.overdueAmount),
+      ...getFormattedStats('overdueAmount'),
     },
   ];
 
@@ -209,18 +275,21 @@ const BillingPage = () => {
     subscriptionsLoading;
 
   return (
-    <div className="h-auto w-auto px-6 py-6">
+    <div id="billing-page" data-cy="billing-page" className="h-auto w-auto px-6 py-6">
       <CustomBreadcrumb
         title="Billing & Invoices"
         subtitle="Complete Billing Overview"
+        data-cy="billing-page-breadcrumb"
       />
 
-      <div className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5">
+      <div id="billing-cards" data-cy="billing-cards" className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5">
         {dashboardData.map((item, idx) => {
           const valueData = dashboardValues.find((v) => v.id === item.id);
           return (
             <Card
               key={idx}
+              id={`billing-card-${item.id}`}
+              data-cy={`billing-card-${item.id}`}
               loading={isLoading}
               className="rounded-lg bg-white relative"
               bordered={false}
@@ -238,22 +307,24 @@ const BillingPage = () => {
               }}
             >
               {isLoading ? (
-                <Skeleton active paragraph={{ rows: 2 }} />
+                <Skeleton active paragraph={{ rows: 2 }} data-cy="billing-card-loading-skeleton" />
               ) : (
                 <>
-                  <div className="flex flex-row items-center gap-2 pt-6 pl-4 pr-4 pb-4">
-                    <div className="bg-gray-100 rounded-md py-2 px-3 w-fit">
+                  <div id={`billing-card-${item.id}-header`} data-cy={`billing-card-${item.id}-header`} className="flex flex-row items-center gap-2 pt-6 pl-4 pr-4 pb-4">
+                    <div id={`billing-card-${item.id}-icon`} data-cy={`billing-card-${item.id}-icon`} className="bg-gray-100 rounded-md py-2 px-3 w-fit">
                       {React.cloneElement(item.icon, {
                         style: { color: item.color },
                         size: 24,
                       })}
                     </div>
-                    <div className="text-sm text-gray-500">{item.overview}</div>
+                    <div id={`billing-card-${item.id}-label`} data-cy={`billing-card-${item.id}-label`} className="text-sm text-gray-500">{item.overview}</div>
                   </div>
 
-                  <div className="flex flex-col">
-                    <div className="p-4 pt-0">
+                  <div id={`billing-card-${item.id}-content`} data-cy={`billing-card-${item.id}-content`} className="flex flex-col">
+                    <div id={`billing-card-${item.id}-value-container`} data-cy={`billing-card-${item.id}-value-container`} className="p-4 pt-0">
                       <div
+                        id={`billing-card-${item.id}-value`}
+                        data-cy={`billing-card-${item.id}-value`}
                         className={`text-3xl font-bold flex items-center justify-between ${item.id === 'overdue' ? 'text-error' : ''}`}
                       >
                         {valueData?.value}
@@ -267,13 +338,14 @@ const BillingPage = () => {
         })}
       </div>
 
-      <div className="mb-[35px] mt-[25px] ">
+      <div id="billing-invoices-section" data-cy="billing-invoices-section" className="mb-[35px] mt-[25px] ">
         <InvoicesTable
           data={invoices}
           loading={isLoading}
           plans={plans}
           currencies={currencies}
           subscriptions={subscriptions}
+          data-cy="billing-invoices-table"
         />
       </div>
     </div>

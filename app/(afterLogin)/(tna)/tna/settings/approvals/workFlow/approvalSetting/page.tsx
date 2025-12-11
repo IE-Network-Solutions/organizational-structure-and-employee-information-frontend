@@ -54,12 +54,13 @@ const ApprovalSetting = () => {
     );
   };
   return (
-    <div>
+    <div id="tnaApprovalSettingPageId" data-cy="tna-approval-setting-page">
       <ApprovalWorkFlowSettingComponent
         handleSubmit={handleSubmit}
         isSuccess={isSuccess}
         form={form}
         title={'TNA '}
+        data-cy="tna-approval-setting-component"
       />
     </div>
   );

@@ -48,28 +48,56 @@ const ClosedDateTable = () => {
       dataIndex: 'name',
       key: 'dateNaming',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-closed-date-table-row-name"
+          data-cy="time-attendance-settings-closed-date-table-row-name"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-closed-date-table-row-name"
+          data-cy="time-attendance-settings-closed-date-table-row-name"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-closed-date-table-row-name"
+          data-cy="time-attendance-settings-closed-date-table-row-name"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-closed-date-table-row-name"
+          data-cy="time-attendance-settings-closed-date-table-row-name"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Action',
@@ -81,11 +109,13 @@ const ClosedDateTable = () => {
             Permissions.UpdateClosedDate,
             Permissions.DeleteClosedDate,
           ]}
+          data-cy="time-attendance-settings-closed-date-table-row-actions-access-guard"
         >
           <ActionButtons
             id={record?.id ?? null}
             onEdit={() => handleEdit(record)}
             onDelete={() => handleDelete(record)}
+            data-cy="time-attendance-settings-closed-date-table-row-action-buttons"
           />
         </AccessGuard>
       ),
@@ -93,12 +123,17 @@ const ClosedDateTable = () => {
   ];
 
   return (
-    <Spin spinning={fiscalActiveYearFetchLoading}>
+    <Spin
+      spinning={fiscalActiveYearFetchLoading}
+      data-cy="time-attendance-settings-closed-date-table-spin"
+    >
       <Table
         className="mt-6"
         columns={columns}
         dataSource={fiscalActiveYear?.closedDates || []}
         pagination={false}
+        id="time-attendance-settings-closed-date-table"
+        data-cy="time-attendance-settings-closed-date-table"
       />
     </Spin>
   );

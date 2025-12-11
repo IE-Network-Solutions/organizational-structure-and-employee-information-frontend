@@ -3,6 +3,7 @@ import { devtools, persist } from 'zustand/middleware';
 interface SearchParams {
   name: string;
   entityType: string;
+  entityId: string;
 }
 interface SelectProps {
   SelectedItemType: Record<string, any> | null;
@@ -81,6 +82,9 @@ interface UserState {
 
   addDepartmentApproval: boolean;
   setAddDepartmentApproval: (addDepartmentApproval: boolean) => void;
+
+  selectedEntityType: string;
+  setSelectedEntityType: (selectedEntityType: string) => void;
 }
 
 export const useApprovalStore = create<UserState>()(
@@ -130,6 +134,7 @@ export const useApprovalStore = create<UserState>()(
         searchParams: {
           name: '',
           entityType: '',
+          entityId: '',
         },
         setSearchParams: (key, value) =>
           set((state) => ({
@@ -149,6 +154,10 @@ export const useApprovalStore = create<UserState>()(
 
         selections: { SectionItemType: Array(1).fill({ user: null }) },
         setSelections: (selections: SectionProps) => set({ selections }),
+
+        selectedEntityType: '',
+        setSelectedEntityType: (selectedEntityType: string) =>
+          set({ selectedEntityType }),
 
         rejectComment: '',
         setRejectComment: (value: string) => set({ rejectComment: value }),

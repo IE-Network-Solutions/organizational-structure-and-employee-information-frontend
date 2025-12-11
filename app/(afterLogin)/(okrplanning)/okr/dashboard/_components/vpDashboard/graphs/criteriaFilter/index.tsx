@@ -18,19 +18,25 @@ const CriteriaFilter: React.FC = () => {
     onselectionchange(value, 'selectedRange');
   };
   return (
-    <div className="flex items-center justify-end">
+    <div
+      className="flex items-center justify-end"
+      id="okr-criteriafilter-container-display-div"
+      data-cy="okr-criteriafilter-container-display-div"
+    >
       <Select
-        id={`selectedRange${searchParams?.selectedRange}`}
+        id={`okr-criteriafilter-select-display-select-${searchParams?.selectedRange || 'default'}`}
         placeholder="Select Filter"
         defaultValue="monthly"
         allowClear
         onChange={handleCriteriaFilter}
+        data-cy={`okr-criteriafilter-select-display-select-${searchParams?.selectedRange || 'default'}`}
       >
         {FilterOptions.map((option) => (
           <Select.Option
-            id={`selectedRange${searchParams?.selectedRange}`}
+            id={`okr-criteriafilter-option-display-option-${option.key}`}
             key={option.key}
             value={option.value}
+            data-cy={`okr-criteriafilter-option-display-option-${option.key}`}
           >
             {option.label}
           </Select.Option>

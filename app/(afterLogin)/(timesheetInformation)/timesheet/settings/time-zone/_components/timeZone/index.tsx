@@ -80,29 +80,58 @@ const TimezoneComponent = ({
   };
 
   return (
-    <div className="mt-4">
-      <Form form={form} onFinish={handleFinish}>
+    <div
+      className="mt-4"
+      id="time-attendance-settings-time-zone-component-content"
+      data-cy="time-attendance-settings-time-zone-component-content"
+    >
+      <Form
+        form={form}
+        onFinish={handleFinish}
+        id="time-attendance-settings-time-zone-component-form"
+        data-cy="time-attendance-settings-time-zone-component-form"
+      >
         <Form.Item
           name="timezone"
           rules={[{ required: true, message: 'Please select your timezone!' }]}
+          id="time-attendance-settings-time-zone-component-timezone-field"
+          data-cy="time-attendance-settings-time-zone-component-timezone-field"
         >
           <Select
             showSearch
             placeholder="Select GMT offset"
             style={{ width: 200 }}
             options={gmtOffsets}
+            id="time-attendance-settings-time-zone-component-timezone-select"
+            data-cy="time-attendance-settings-time-zone-component-timezone-select"
           />
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={isLoading}>
+        <Form.Item id="time-attendance-settings-time-zone-component-submit-field" data-cy="time-attendance-settings-time-zone-component-submit-field">
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={isLoading}
+            id="time-attendance-settings-time-zone-component-submit-button"
+            data-cy="time-attendance-settings-time-zone-component-submit-button"
+          >
             Set Timezone
           </Button>
         </Form.Item>
       </Form>
       <hr />
-      <div className="text-xl">
+      <div
+        className="text-xl"
+        id="time-attendance-settings-time-zone-component-current"
+        data-cy="time-attendance-settings-time-zone-component-current"
+      >
         Your Current Timezone:{' '}
-        <span className="font-extrabold">{autoDetectedTimeZone}</span>
+        <span
+          className="font-extrabold"
+          id="time-attendance-settings-time-zone-component-current-value"
+          data-cy="time-attendance-settings-time-zone-component-current-value"
+        >
+          {autoDetectedTimeZone}
+        </span>
       </div>
     </div>
   );
