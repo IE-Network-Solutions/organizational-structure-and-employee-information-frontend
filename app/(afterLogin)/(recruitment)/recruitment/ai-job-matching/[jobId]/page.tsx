@@ -140,9 +140,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                   {jobDetails.jobTitle}
                 </h2>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                  <span>{jobDetails.location}</span>
-                  <span>•</span>
-                  <span>3-5 years</span>
+                  {jobDetails.location && <span>{jobDetails.location}</span>}
                   <span>•</span>
                   <span>Posted {dayjs(jobDetails.createdAt).format('DD MMM YYYY')}</span>
                 </div>
@@ -156,14 +154,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                 </span>
               </div>
             </div>
-            <div className="text-sm text-gray-700 leading-relaxed">
-              This is a job description for senior data engineer that shows a simple
-              description about the job and details about the information. This is a job
-              description for senior data engineer that shows a simple description about the
-              job and details about the information. This is a job description for senior
-              data engineer that shows a simple description about the job and details about
-              the information.
-            </div>
+            {/* No hard-coded description: job description can be added here once available from backend */}
           </Card>
         )}
 
@@ -202,6 +193,12 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                   ? 'text-purple-600'
                   : 'text-gray-700';
 
+                const primaryReason =
+                  (candidate.matchReasons && candidate.matchReasons[0]) ||
+                  'No summary available yet for this candidate.';
+
+                const topMatchedSkills = candidate.matchedSkills?.slice(0, 5) ?? [];
+
                 return (
                   <Card
                     key={candidate.candidateId}
@@ -236,45 +233,30 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Description */}
+                        {/* Short summary from Azure matchReasons */}
                         <p className="text-sm text-gray-700 mb-4">
-                          3D Designer at James Graphics, Inc. With over eight years of
-                          experience as a Graphic Designer,
+                          {primaryReason}
                         </p>
 
-                        {/* Score Breakdown */}
-                        <div className="grid grid-cols-5 gap-3 mb-4">
-                          {['Experience', 'Education', 'Skill', 'Position', 'Time'].map(
-                            (label) => (
-                              <div key={label} className="text-center">
-                                <div className="text-xs text-gray-600 mb-1">{label}</div>
-                                <div className={`text-lg font-bold ${scoreColor}`}>
-                                  {candidate.matchScore}%
-                                </div>
-                              </div>
-                            ),
-                          )}
-                        </div>
-
-                        {/* Skill Matching */}
-                        <div>
-                          <div className="text-xs font-medium text-gray-700 mb-2">
-                            Skill Matching
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {['Typescript', 'Frontend', 'HTML', 'React', 'Git'].map(
-                              (skill) => (
+                        {/* Matched skills from Azure (up to 5) */}
+                        {topMatchedSkills.length > 0 && (
+                          <div>
+                            <div className="text-xs font-medium text-gray-700 mb-2">
+                              Matched skills
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {topMatchedSkills.map((skill, idx) => (
                                 <Tag
-                                  key={skill}
+                                  key={idx}
                                   color="blue"
-                                  className="text-xs px-3 py-1 rounded-full m-0"
+                                  className="text-xs px-3 py-1 rounded-full m-0 max-w-full truncate"
                                 >
                                   {skill}
                                 </Tag>
-                              ),
-                            )}
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </Card>
@@ -360,50 +342,131 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
 
                   {/* Scrollable Content */}
                   <div className="flex-1 overflow-y-auto pt-4 space-y-6">
-                    {/* Experience Section */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="font-semibold text-gray-900">
-                          Experience • 5 years
-                        </span>
-                      </div>
-                      <div className="space-y-3 text-sm text-gray-700">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <p className="font-medium text-gray-900">DevOps Engineer</p>
-                            <p className="text-gray-600">IE network solutions</p>
-                          </div>
-                          <span className="text-xs text-gray-500 whitespace-nowrap">
-                            May 2022 - Mar 2025
+                    {/* Candidate Overview (from Azure data) */}
+                    {(matchDetails?.candidate ||
+                      selectedCandidate.jobCandidate?.applicantStatusStage) && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="font-semibold text-gray-900">
+                            Candidate overview
                           </span>
                         </div>
-                      </div>
-                    </div>
+                        <div className="space-y-2 text-sm text-gray-700">
+                          {selectedCandidate.jobCandidate?.applicantStatusStage
+                            ?.title && (
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-gray-600">Stage</span>
+                              <span className="font-medium">
+                                {
+                                  selectedCandidate.jobCandidate
+                                    .applicantStatusStage.title
+                                }
+                              </span>
+                            </div>
+                          )}
 
-                    <div className="border-t border-gray-200" />
+                          {(matchDetails?.candidate?.city ||
+                            matchDetails?.candidate?.country) && (
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-gray-600">Location</span>
+                              <span className="font-medium">
+                                {[
+                                  matchDetails?.candidate?.city,
+                                  matchDetails?.candidate?.country,
+                                ]
+                                  .filter(Boolean)
+                                  .join(', ')}
+                              </span>
+                            </div>
+                          )}
 
-                    {/* Education Section */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="font-semibold text-gray-900">
-                          Education • Bachelors
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-700 space-y-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              Bachelors of Science
-                            </p>
-                            <p className="text-gray-600">AASTU</p>
-                          </div>
-                          <span className="text-xs text-gray-500 whitespace-nowrap">
-                            • Software Engineering
-                          </span>
+                          {matchDetails?.candidate?.CGPA != null && (
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-gray-600">CGPA</span>
+                              <span className="font-medium">
+                                {matchDetails.candidate.CGPA}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                        <p className="text-xs text-gray-500">June 2025</p>
                       </div>
-                    </div>
+                    )}
+
+                    {/* Experience Section (from Azure blob data) */}
+                    {(matchDetails?.candidate?.experience?.length ?? 0) > 0 && (
+                      <>
+                        <div className="border-t border-gray-200" />
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="font-semibold text-gray-900">
+                              Experience
+                            </span>
+                          </div>
+                          <div className="space-y-3 text-sm text-gray-700">
+                            {matchDetails!.candidate!.experience!.map((exp, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-start justify-between gap-2"
+                              >
+                                <div>
+                                  <p className="font-medium text-gray-900">
+                                    {exp.role || 'Role not specified'}
+                                  </p>
+                                  {exp.company && (
+                                    <p className="text-gray-600">{exp.company}</p>
+                                  )}
+                                </div>
+                                {(exp.startDate || exp.endDate) && (
+                                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                                    {[exp.startDate, exp.endDate]
+                                      .filter(Boolean)
+                                      .join(' - ')}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Education Section (from Azure blob data) */}
+                    {(matchDetails?.candidate?.education?.length ?? 0) > 0 && (
+                      <>
+                        <div className="border-t border-gray-200" />
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="font-semibold text-gray-900">
+                              Education
+                            </span>
+                          </div>
+                          <div className="space-y-3 text-sm text-gray-700">
+                            {matchDetails!.candidate!.education!.map((edu, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-start justify-between gap-2"
+                              >
+                                <div>
+                                  <p className="font-medium text-gray-900">
+                                    {edu.degree || 'Education'}
+                                  </p>
+                                  {edu.institution && (
+                                    <p className="text-gray-600">{edu.institution}</p>
+                                  )}
+                                </div>
+                                {(edu.startYear || edu.endYear) && (
+                                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                                    {[edu.startYear, edu.endYear]
+                                      .filter(Boolean)
+                                      .join(' - ')}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     <div className="border-t border-gray-200" />
 
@@ -438,23 +501,17 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           )
                         )}
 
-                        {/* Areas for improvement */}
-                        {selectedCandidate.matchScore < 90 && (
+                        {/* Areas for improvement (from Azure blob data) */}
+                        {(matchDetails?.concerns?.length ?? 0) > 0 && (
                           <>
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                                <span className="text-red-600 text-xs">!</span>
+                            {matchDetails!.concerns.map((concern, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-red-600 text-xs">!</span>
+                                </div>
+                                <span className="text-red-600">{concern}</span>
                               </div>
-                              <span className="text-red-600">
-                                10 years experience preferred
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                                <span className="text-red-600 text-xs">!</span>
-                              </div>
-                              <span className="text-red-600">REST expertise missing</span>
-                            </div>
+                            ))}
                           </>
                         )}
                       </div>

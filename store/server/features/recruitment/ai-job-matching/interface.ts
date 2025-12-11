@@ -16,6 +16,7 @@ export interface AIMatchedCandidate {
   candidateId: string;
   matchScore: number;
   matchReasons: string[];
+  matchedSkills?: string[];
   candidate: {
     id: string;
     fullName: string;
@@ -26,6 +27,20 @@ export interface AIMatchedCandidate {
     CGPA?: number;
     city?: string;
     country?: string;
+    experience?: Array<{
+      role?: string;
+      company?: string;
+      startDate?: string;
+      endDate?: string;
+      description?: string[];
+    }>;
+    education?: Array<{
+      degree?: string;
+      institution?: string | null;
+      cgpa?: number | null;
+      startYear?: number | null;
+      endYear?: number | null;
+    }>;
   };
   jobCandidate?: {
     id: string;
@@ -77,6 +92,8 @@ export interface AIMatchDetails {
   candidateId: string;
   matchScore: number;
   detailedAnalysis: MatchScoreBreakdown;
+  matchedSkills?: string[];
+  missingSkills?: string[];
   recommendations: string[];
   strengths: string[];
   concerns: string[];
@@ -91,6 +108,20 @@ export interface AIMatchDetails {
     CGPA?: number;
     city?: string;
     country?: string;
+    experience?: Array<{
+      role?: string;
+      company?: string;
+      startDate?: string;
+      endDate?: string;
+      description?: string[];
+    }>;
+    education?: Array<{
+      degree?: string;
+      institution?: string | null;
+      cgpa?: number | null;
+      startYear?: number | null;
+      endYear?: number | null;
+    }>;
   };
 }
 

@@ -26,14 +26,18 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
         {/* Job Title */}
         <h3 className="text-lg font-semibold text-gray-900">{job.jobTitle}</h3>
         
-        {/* Job Info */}
+        {/* Job Info (from Azure Function data) */}
         <div className="flex items-center gap-3 text-sm text-gray-500">
           <span className="flex items-center gap-1">
-            <EnvironmentOutlined className="text-gray-400" /> Remote
+            <EnvironmentOutlined className="text-gray-400" />{' '}
+            {job.location || 'Unknown'}
           </span>
           <span>•</span>
           <span className="flex items-center gap-1">
-            <ClockCircleOutlined className="text-gray-400" /> 3 Days ago
+            <ClockCircleOutlined className="text-gray-400" />{' '}
+            {job.lastAnalyzed
+              ? dayjs(job.lastAnalyzed).fromNow()
+              : 'Last analyzed: N/A'}
           </span>
         </div>
 

@@ -4,12 +4,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import {
-  AIMatchedCandidate,
   AIMatchDetails,
   AIMatchOptions,
   AIMatchResponse,
   JobMatchSummary,
-  MatchScoreBreakdown,
 } from './interface';
 
 interface JobCandidateRelation {
@@ -70,58 +68,6 @@ interface CandidateDetailApi extends JobCandidateApi {
 }
 
 const JOBS_PAGE_SIZE = 12;
-const MATCH_REASON_LIBRARY = [
-  'Strong alignment with required skills',
-  'Relevant industry experience',
-  'Proven track record of meeting deadlines',
-  'Solid educational background',
-  'Positive team collaboration feedback',
-  'Availability aligns with project timeline',
-  'Strong communication skills',
-  'Experience with similar tools and stack',
-  'Adaptable to changing requirements',
-  'Leadership experience with cross-functional teams',
-];
-
-const SKILL_LIBRARY = [
-  'TypeScript',
-  'React',
-  'Node.js',
-  'NestJS',
-  'Azure',
-  'Docker',
-  'Kubernetes',
-  'SQL',
-  'GraphQL',
-  'CI/CD Pipelines',
-  'Unit Testing',
-  'Agile Methodology',
-];
-
-const MISSING_SKILL_LIBRARY = [
-  'Kubernetes',
-  'Advanced data visualization',
-  'Performance tuning',
-  'Security hardening',
-  'Generative AI tooling',
-];
-
-const RECOMMENDATION_LIBRARY = [
-  'Schedule a technical interview focusing on problem solving.',
-  'Share a take-home assessment to validate practical skills.',
-  'Discuss relocation expectations and preferred working style.',
-  'Introduce the candidate to the hiring manager for culture fit evaluation.',
-  'Review compensation expectations early in the process.',
-  'Align on onboarding timeline and device provisioning requirements.',
-];
-
-const CONCERN_LIBRARY = [
-  'Needs additional exposure to enterprise-scale systems.',
-  'Has limited background in our core industry.',
-  'May require mentorship on stakeholder communication.',
-  'Has not recently led cross-functional initiatives.',
-  'Requires a clearer plan for upskilling on cloud tooling.',
-];
 
 const buildHeaders = async () => {
   const token = await getCurrentToken();
@@ -150,75 +96,6 @@ const buildHeaders = async () => {
   });
 
   return headers;
-};
-
-const hashString = (value: string) => {
-  let hash = 0;
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (hash << 5) - hash + value.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-};
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
-
-const selectItems = (list: string[], hash: number, count: number) => {
-  if (list.length === 0 || count === 0) {
-    return [];
-  }
-  const picks: string[] = [];
-  for (let i = 0; i < count; i += 1) {
-    const index = (hash + i * 7) % list.length;
-    const item = list[index];
-    if (!picks.includes(item)) {
-      picks.push(item);
-    }
-  }
-  return picks;
-};
-
-const generateMatchScore = (seed: string) => {
-  const hash = hashString(seed);
-  return clamp(55 + (hash % 45), 50, 98);
-};
-
-const generateMatchReasons = (seed: string) =>
-  selectItems(MATCH_REASON_LIBRARY, hashString(seed), 3);
-
-const mapJobToSummary = (
-  job: JobInformationApi,
-  mockStats: JobMatchSummary,
-): JobMatchSummary => {
-  const totalCandidates =
-    Array.isArray(job.jobCandidate) && job.jobCandidate.length
-      ? job.jobCandidate.length
-      : (job.totalCandidates ?? job.candidateCount ?? 0);
-
-  const departmentName =
-    job.department?.name ||
-    job.organizationDepartment?.name ||
-    job.departmentName ||
-    job.departmentTitle ||
-    null;
-
-  return {
-    jobId: job.id,
-    jobTitle: job.jobTitle || mockStats.jobTitle,
-    department: departmentName ?? mockStats.department,
-    location: job.jobLocation || job.location || mockStats.location,
-    totalCandidates,
-    aiMatchedCount:
-      totalCandidates > 0
-        ? Math.min(totalCandidates, mockStats.aiMatchedCount)
-        : mockStats.aiMatchedCount,
-    topMatchScore: mockStats.topMatchScore,
-    averageMatchScore: mockStats.averageMatchScore,
-    lastAnalyzed: job.updatedAt || job.createdAt || mockStats.lastAnalyzed,
-    jobStatus: job.jobStatus,
-    jobDeadline: job.jobDeadline || null,
-  };
 };
 
 const fetchJobMatchSummaries = async (): Promise<JobMatchSummary[]> => {
@@ -267,45 +144,6 @@ const fetchJobMatchSummaries = async (): Promise<JobMatchSummary[]> => {
     );
     throw error;
   }
-};
-
-const mapCandidateToMatch = (
-  jobId: string,
-  candidate: JobCandidateApi,
-): AIMatchedCandidate => {
-  const candidateId = candidate.id || `${jobId}-candidate-${Math.random()}`;
-  const seed = `${jobId}-${candidateId}`;
-  const matchScore = generateMatchScore(seed);
-
-  const stage =
-    Array.isArray(candidate.jobCandidate) && candidate.jobCandidate.length > 0
-      ? candidate.jobCandidate[0]
-      : undefined;
-
-  return {
-    candidateId,
-    matchScore,
-    matchReasons: generateMatchReasons(seed),
-    candidate: {
-      id: candidateId,
-      fullName: candidate.fullName || 'Unknown Candidate',
-      email: candidate.email || '',
-      phone: candidate.phone || '',
-      resumeUrl: candidate.resumeUrl || '',
-      documentName: candidate.documentName || 'Resume.pdf',
-      CGPA: candidate.CGPA,
-      city: candidate.city,
-      country: candidate.country,
-    },
-    jobCandidate: stage
-      ? {
-          id: stage.id,
-          applicantStatusStage: stage.applicantStatusStage?.title
-            ? { title: stage.applicantStatusStage.title }
-            : undefined,
-        }
-      : undefined,
-  };
 };
 
 const fetchMatchedCandidates = async (
@@ -358,102 +196,6 @@ const fetchMatchedCandidates = async (
     throw error;
   }
 };
-
-const createScoreBreakdown = (
-  seed: string,
-  overallScore: number,
-  preferredLocation?: string,
-): MatchScoreBreakdown => {
-  const hash = hashString(seed);
-  const skillsScore = clamp(overallScore + ((hash % 15) - 7), 40, 100);
-  const experienceScore = clamp(
-    overallScore + (((hash >> 3) % 12) - 6),
-    40,
-    100,
-  );
-  const educationScore = clamp(
-    overallScore + (((hash >> 6) % 10) - 5),
-    40,
-    100,
-  );
-  const locationScore = clamp(
-    overallScore + (((hash >> 9) % 20) - 10),
-    30,
-    100,
-  );
-
-  return {
-    skillsMatch: {
-      score: skillsScore,
-      matchedSkills: selectItems(SKILL_LIBRARY, hash, 3),
-      missingSkills: selectItems(MISSING_SKILL_LIBRARY, hash >> 2, 2),
-      totalSkills: SKILL_LIBRARY.length,
-    },
-    experienceMatch: {
-      score: experienceScore,
-      yearsMatch: (hash & 1) === 0,
-      industryMatch: (hash & 2) === 0,
-      yearsDifference: ((hash >> 5) % 4) - 1,
-    },
-    educationMatch: {
-      score: educationScore,
-      degreeMatch: (hash & 4) === 0,
-      cgpaMatch: (hash & 8) === 0,
-      cgpa: clamp(2.8 + (hash % 15) / 10, 2.5, 4),
-    },
-    locationMatch: {
-      score: locationScore,
-      preferenceMatch: (hash & 16) === 0,
-      location: preferredLocation,
-    },
-    overallScore,
-  };
-};
-
-const buildCandidateStrengths = (
-  candidate: CandidateDetailApi | null,
-  seed: string,
-) => {
-  const name = candidate?.fullName || 'The candidate';
-  const cgpa = candidate?.CGPA
-    ? `${candidate.CGPA}`
-    : 'a solid academic record';
-  const statements = [
-    `${name} demonstrates ${cgpa} which reflects consistent commitment.`,
-    `${name} communicates proactively and collaborates well with stakeholders.`,
-    'Shows accountability for deliverables and follows through on action items.',
-    'Comfortable adapting to new tooling and workflows quickly.',
-    'Provides thoughtful responses during screening conversations.',
-    'Brings experience working across cross-functional pods.',
-  ];
-
-  return selectItems(statements, hashString(`${seed}-strengths`), 3);
-};
-
-const buildCandidateConcerns = (
-  candidate: CandidateDetailApi | null,
-  seed: string,
-) => {
-  const location = candidate?.city || candidate?.country;
-  const concernStatements = [
-    location
-      ? `Availability for relocation to ${location} still needs confirmation.`
-      : 'Relocation preferences remain unclear.',
-    'Needs a clearer plan for upskilling on our infrastructure stack.',
-    'Recent experience with enterprise security practices is limited.',
-    'Requires additional context on working with distributed teams.',
-    'Should provide more detail on production incident handling.',
-  ];
-
-  return selectItems(
-    [...concernStatements, ...CONCERN_LIBRARY],
-    hashString(`${seed}-concerns`),
-    2,
-  );
-};
-
-const buildRecommendations = (seed: string) =>
-  selectItems(RECOMMENDATION_LIBRARY, hashString(`${seed}-recs`), 3);
 
 const fetchCandidateDetail = async (
   candidateId: string,
