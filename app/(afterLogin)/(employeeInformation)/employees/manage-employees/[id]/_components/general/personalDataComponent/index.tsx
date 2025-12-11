@@ -153,6 +153,13 @@ function PersonalDataComponent({
                       <Select
                         loading={isLoadingNationality}
                         placeholder="Select Nationality"
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                          String(option?.children || '')
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
                         id="personal-data-nationality-select"
                         data-cy="personal-data-nationality-select"
                       >
