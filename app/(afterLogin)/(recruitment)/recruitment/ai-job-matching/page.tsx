@@ -17,8 +17,14 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
+  const locationLabel = job.location || 'Location not specified';
+  const analyzedLabel = job.lastAnalyzed
+    ? dayjs(job.lastAnalyzed).fromNow()
+    : 'Last analyzed: N/A';
+
   return (
     <Card
+      data-cy={`ai-job-card-${job.jobId}`}
       onClick={onClick}
       className="rounded-2xl border border-gray-200 hover:shadow-lg hover:border-blue-400 transition-all cursor-pointer bg-white"
     >
@@ -29,15 +35,11 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
         {/* Job Info (from Azure Function data) */}
         <div className="flex items-center gap-3 text-sm text-gray-500">
           <span className="flex items-center gap-1">
-            <EnvironmentOutlined className="text-gray-400" />{' '}
-            {job.location || 'Unknown'}
+            <EnvironmentOutlined className="text-gray-400" /> {locationLabel}
           </span>
           <span>•</span>
           <span className="flex items-center gap-1">
-            <ClockCircleOutlined className="text-gray-400" />{' '}
-            {job.lastAnalyzed
-              ? dayjs(job.lastAnalyzed).fromNow()
-              : 'Last analyzed: N/A'}
+            <ClockCircleOutlined className="text-gray-400" /> {analyzedLabel}
           </span>
         </div>
 
@@ -45,7 +47,10 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
         <div className="pt-2 border-t border-gray-100">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500">AI Matches</span>
-            <span className="text-sm font-semibold text-blue-600">
+            <span
+              data-cy={`ai-job-card-${job.jobId}-candidate-count`}
+              className="text-sm font-semibold text-blue-600"
+            >
               {job.totalCandidates} {job.totalCandidates === 1 ? 'Candidate' : 'Candidates'}
             </span>
           </div>
@@ -79,7 +84,7 @@ const AIJobMatchingPage: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50" data-cy="ai-job-matching-page">
         <div className="bg-white px-6 py-4 border-b border-gray-200">
           <h1 className="text-xl font-semibold text-gray-900">AI Job Matching</h1>
           <p className="text-sm text-gray-500">Match candidates to jobs using AI-powered analysis</p>
@@ -92,7 +97,7 @@ const AIJobMatchingPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" data-cy="ai-job-matching-page">
       {/* Header */}
       <div className="bg-white px-6 py-4 border-b border-gray-200">
         <h1 className="text-xl font-semibold text-gray-900">AI Job Matching</h1>
