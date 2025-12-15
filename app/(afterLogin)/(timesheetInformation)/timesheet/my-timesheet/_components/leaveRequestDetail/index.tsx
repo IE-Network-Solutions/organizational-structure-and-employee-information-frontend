@@ -1,6 +1,6 @@
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Col, Divider, Row, Spin } from 'antd';
+import { Col, Divider, Row, Spin, Skeleton } from 'antd';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
@@ -53,7 +53,7 @@ const LeaveRequestDetail = () => {
     leaveRequestSidebarData ?? '',
   );
 
-  const { data: logData } = useGetSingleApprovalLog(
+  const { data: logData, isLoading: isLogDataLoading } = useGetSingleApprovalLog(
     leaveRequestSidebarData ?? '',
     leaveRequestSidebarWorkflowData ?? '',
   );
@@ -78,6 +78,39 @@ const LeaveRequestDetail = () => {
     },
   ];
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
+  
+  // Skeleton component for approval status cards
+  const ApprovalStatusCardSkeleton = () => (
+    <div 
+      className="border-b border-gray-200"
+      data-cy="time-attendance-leave-request-detail-approval-status-card-skeleton"
+    >
+      <div className="flex items-center px-3 py-4 gap-4">
+        <Skeleton.Input 
+          active 
+          size="small" 
+          style={{ width: 60, height: 20 }}
+          data-cy="time-attendance-leave-request-detail-approval-status-card-skeleton-level"
+        />
+        <Skeleton.Avatar 
+          active 
+          size={24} 
+          shape="square"
+          data-cy="time-attendance-leave-request-detail-approval-status-card-skeleton-icon"
+        />
+        <div className="flex-1">
+          <Skeleton 
+            active 
+            avatar={{ size: 32, shape: 'circle' }} 
+            paragraph={{ rows: 1, width: ['60%'] }}
+            title={false}
+            data-cy="time-attendance-leave-request-detail-approval-status-card-skeleton-user"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
   type ApprovalRecord = {
     approverId: string; // UUID
     userId: string; // UUID
@@ -297,7 +330,14 @@ const LeaveRequestDetail = () => {
               >
                 <ApprovalStatusesInfo data-cy="time-attendance-leave-request-detail-approval-statuses-info-component" />
               </div>
-              {Array.isArray(logData) &&
+              {isLogDataLoading ? (
+                // Show skeleton loading while fetching approval log data
+                Array.from({ length: 3 }).map((_, idx) => (
+                  <ApprovalStatusCardSkeleton key={`skeleton-${idx}`} />
+                ))
+              ) : (
+                // Show actual approval status cards when data is loaded
+                Array.isArray(logData) &&
                 logData
                   ?.sort((a, b) => a.stepOrder - b.stepOrder)
                   ?.map((approvalCard: ApprovalRecord, idx: number) => (
@@ -308,7 +348,8 @@ const LeaveRequestDetail = () => {
                       userImage={userImage}
                       data-cy={`time-attendance-leave-request-detail-approval-status-card-${idx}`}
                     />
-                  ))}
+                  ))
+              )}
             </div>
             <Divider data-cy="time-attendance-leave-request-detail-overall-status-divider" className="my-8 h-[5px] bg-gray-200" />
 
