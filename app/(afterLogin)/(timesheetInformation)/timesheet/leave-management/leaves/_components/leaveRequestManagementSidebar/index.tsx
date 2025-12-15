@@ -1,6 +1,6 @@
 import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Col, Divider, Row, Spin, Skeleton } from 'antd';
+import { Col, Divider, Row, Spin } from 'antd';
 import { classNames } from '@/utils/classNames';
 import { TbFileDownload } from 'react-icons/tb';
 import CustomDrawerFooterButton, {
@@ -9,6 +9,7 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalStatusesInfo';
 import ApprovalStatusCard from '@/components/common/approvalStatuses/approvalStatusCard';
+import ApprovalStatusCardSkeleton from '@/components/common/approvalStatuses/approvalStatusCardSkeleton';
 import UserCard from '@/components/common/userCard/userCard';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import dayjs from 'dayjs';
@@ -67,38 +68,6 @@ const LeaveRequestManagementSidebar = () => {
 
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
   
-  // Skeleton component for approval status cards
-  const ApprovalStatusCardSkeleton = () => (
-    <div 
-      className="border-b border-gray-200"
-      data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton"
-    >
-      <div className="flex items-center px-3 py-4 gap-4">
-        <Skeleton.Input 
-          active 
-          size="small" 
-          style={{ width: 60, height: 20 }}
-          data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton-level"
-        />
-        <Skeleton.Avatar 
-          active 
-          size={24} 
-          shape="square"
-          data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton-icon"
-        />
-        <div className="flex-1">
-          <Skeleton 
-            active 
-            avatar={{ size: 32, shape: 'circle' }} 
-            paragraph={{ rows: 1, width: ['60%'] }}
-            title={false}
-            data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton-user"
-          />
-        </div>
-      </div>
-    </div>
-  );
-
   type ApprovalRecord = {
     approverId: string; // UUID
     userId: string; // UUID
@@ -261,8 +230,12 @@ const LeaveRequestManagementSidebar = () => {
                 </div>
                 {isLogDataLoading ? (
                   // Show skeleton loading while fetching approval log data
-                  Array.from({ length: 3 }).map((_, idx) => (
-                    <ApprovalStatusCardSkeleton key={`skeleton-${idx}`} />
+                  // eslint-disable-next-line react/no-array-index-key
+                  Array.from({ length: 3 }).map((unusedItem, idx) => (
+                    <ApprovalStatusCardSkeleton 
+                      key={`skeleton-${idx}`}
+                      dataCyPrefix={`time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton-${idx}`}
+                    />
                   ))
                 ) : (
                   // Show actual approval status cards when data is loaded
