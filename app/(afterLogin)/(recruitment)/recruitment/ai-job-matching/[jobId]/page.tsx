@@ -20,7 +20,6 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
   const jobId = params?.jobId as string;
 
   const {
-    minMatchScore,
     matchDetailsDrawerOpen,
     setMatchDetailsDrawerOpen,
     selectedCandidateId,
@@ -29,6 +28,9 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
 
   const [selectedCandidate, setSelectedCandidate] =
     useState<AIMatchedCandidate | null>(null);
+
+  // Control how many candidates we show in the left list
+  const [showAllCandidates, setShowAllCandidates] = useState(false);
 
   // Local toggles for "show more" behaviour in Skill Analysis
   const [showAllMatchedSkills, setShowAllMatchedSkills] = useState(false);
@@ -64,18 +66,28 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
   );
 
   // Extract job details from Azure response
-  const jobDetails = matchResponse ? {
-    jobTitle: matchResponse.jobTitle,
-    department: matchResponse.department || 'N/A',
-    location: matchResponse.location || 'Remote',
-    createdAt: matchResponse.analysisTimestamp,
-  } : null;
+  const jobDetails = matchResponse
+    ? {
+        jobTitle: matchResponse.jobTitle,
+        department: matchResponse.department || 'N/A',
+        // Use backend value when available; otherwise show a neutral label
+        // instead of implying "Remote" when we don't actually know.
+        location: matchResponse.location || 'Location not specified',
+        createdAt: matchResponse.analysisTimestamp,
+      }
+    : null;
 
   // Use all candidates returned from Azure for the UI
   const allCandidates = matchResponse?.matchedCandidates ?? [];
   const sortedCandidates = [...allCandidates].sort(
     (a, b) => b.matchScore - a.matchScore,
   );
+
+  const MAX_VISIBLE_CANDIDATES = 5;
+  const hasMoreCandidates = sortedCandidates.length > MAX_VISIBLE_CANDIDATES;
+  const visibleCandidates = showAllCandidates
+    ? sortedCandidates
+    : sortedCandidates.slice(0, MAX_VISIBLE_CANDIDATES);
 
   // Always show top-ranked candidate on the right when data is available
   useEffect(() => {
@@ -225,39 +237,23 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
         )}
 
         {/* Candidates + Detail layout */}
-        <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex flex-col lg:flex-row gap-6">
           {/* Candidates List - Left */}
           <div className="w-full lg:w-1/2 space-y-4">
             {sortedCandidates.length === 0 ? (
               <Empty description="No candidates available yet" />
             ) : (
-              sortedCandidates.map((candidate, index) => {
-                const isTopMatch = index === 0;
-                const isSecondMatch = index === 1;
+              visibleCandidates.map((candidate) => {
                 const isSelected =
                   selectedCandidateId && selectedCandidateId === candidate.candidateId;
-
                 const borderColor = isSelected
-                  ? 'border-blue-500'
-                  : isTopMatch
-                  ? 'border-green-400'
-                  : isSecondMatch
-                  ? 'border-purple-400'
+                  ? 'border-green-500'
                   : 'border-gray-200';
+                const bgColor = isSelected ? 'bg-green-50' : 'bg-white';
+                const scoreColor = isSelected ? 'text-green-700' : 'text-gray-700';
 
-                const bgColor = isSelected
-                  ? 'bg-blue-50'
-                  : isTopMatch
-                  ? 'bg-green-50/30'
-                  : isSecondMatch
-                  ? 'bg-purple-50/30'
-                  : 'bg-white';
-
-                const scoreColor = isTopMatch
-                  ? 'text-green-600'
-                  : isSecondMatch
-                  ? 'text-purple-600'
-                  : 'text-gray-700';
+                // Always give a subtle green hover to make interaction obvious
+                const hoverClasses = 'hover:border-green-400 hover:bg-green-50/60';
 
                 const primaryReason =
                   (candidate.matchReasons && candidate.matchReasons[0]) ||
@@ -269,7 +265,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                   <Card
                     key={candidate.candidateId}
                     data-cy={`ai-candidate-card-${candidate.candidateId}`}
-                    className={`rounded-2xl border-2 ${borderColor} ${bgColor} cursor-pointer hover:shadow-lg transition-all`}
+                    className={`rounded-2xl border-2 ${borderColor} ${bgColor} cursor-pointer hover:shadow-lg ${hoverClasses} transition-all`}
                     onClick={() => handleOpenDetails(candidate)}
                   >
                     <div className="flex items-start gap-4">
@@ -330,6 +326,17 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                 );
               })
             )}
+
+            {hasMoreCandidates && !showAllCandidates && (
+              <Button
+                type="default"
+                className="w-full mt-2 border-green-500 text-green-600 hover:bg-green-50"
+                onClick={() => setShowAllCandidates(true)}
+              >
+                View more candidates ({sortedCandidates.length - MAX_VISIBLE_CANDIDATES}{' '}
+                more)
+              </Button>
+            )}
           </div>
 
           {/* Details Panel - Right (only when there are candidates) */}
@@ -373,11 +380,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 'Name not provided'}
                             </h3>
                             <div
-                              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
-                                selectedCandidate.matchScore >= 90
-                                  ? 'bg-green-50 text-green-700'
-                                  : 'bg-purple-50 text-purple-700'
-                              }`}
+                              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700"
                             >
                               <span>{selectedCandidate.matchScore}% Overall Match</span>
                             </div>
