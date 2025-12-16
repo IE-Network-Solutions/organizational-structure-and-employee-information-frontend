@@ -130,21 +130,19 @@ const Login: FC = () => {
             />
           </Form.Item>
 
-          <Form.Item className="mb-2">
-            <div className="flex justify-between items-center">
-              <Form.Item name="remember" valuePropName="checked" noStyle>
-                <Checkbox className="text-black font-medium">
-                  Remember me
-                </Checkbox>
-              </Form.Item>
-              <Link
-                href="/authentication/forget-password"
-                className="text-[#4e4ef1] hover:text-blue-600 font-medium"
-              >
-                Forgot password
-              </Link>
-            </div>
-          </Form.Item>
+          <div className="flex justify-between items-center mb-2">
+            <Form.Item name="remember" valuePropName="checked" noStyle>
+              <Checkbox className="text-black font-medium">
+                Remember me
+              </Checkbox>
+            </Form.Item>
+            <Link
+              href="/authentication/forget-password"
+              className="text-[#4e4ef1] hover:text-blue-600 font-medium"
+            >
+              Forgot password
+            </Link>
+          </div>
 
           <Form.Item className="mb-4">
             <Button
@@ -181,7 +179,7 @@ const Login: FC = () => {
         </div>
         {/* Footer */}
         <div className="text-xs text-gray-500 text-center mt-4">
-          © {new Date().getFullYear().toString()} PEP . All-rights reserved.
+          © {new Date().getFullYear().toString()} PEP. All-rights reserved.
           <Link href="/terms" className="text-black font-medium ml-2">
             Terms & Conditions
           </Link>
