@@ -227,13 +227,13 @@ const BenefitypeSideBar = () => {
                   value="CREDIT"
                   data-cy="compensation-settings-benefit-sidebar-mode-credit"
                 >
-                  Credit
+                  Repayable
                 </Radio>
                 <Radio
                   value="DEBIT"
                   data-cy="compensation-settings-benefit-sidebar-mode-debit"
                 >
-                  Debit
+                  Non-repayable
                 </Radio>
               </Radio.Group>
             </Form.Item>

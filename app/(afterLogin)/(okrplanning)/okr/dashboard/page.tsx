@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
         >
           {/* Performance (left, 3/5 width) */}
           <div
-            className="col-span-1 xl:col-span-3.flex flex-col h-full min-h-[200px]"
+            className="col-span-1 xl:col-span-3 flex flex-col h-full min-h-[200px]"
             id="okr-dashboard-performance-wrapper"
             data-cy="okr-dashboard-performance-wrapper"
           >

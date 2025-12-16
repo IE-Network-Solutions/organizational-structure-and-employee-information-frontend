@@ -1,6 +1,6 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { Pencil, Trash2 } from 'lucide-react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { useDeletePosition } from '@/store/server/features/employees/positions/mutation';
@@ -26,6 +26,7 @@ const PositionCards: React.FC = () => {
     deleteModal,
     deletedPositionId,
     editModal,
+    searchTerm,
     setSelectedPosition,
     setDeleteModal,
     setCurrentPage,
@@ -34,7 +35,11 @@ const PositionCards: React.FC = () => {
     setDeletePositionId,
     setEditModal,
   } = usePositionState();
-  const { data: positions, refetch } = useGetPositions(currentPage, pageSize);
+  const { data: positions} = useGetPositions(
+    currentPage,
+    pageSize,
+    searchTerm,
+  );
 
   const handlePositionEditModalOpen = (position: any) => {
     setSelectedPosition(position);
@@ -51,9 +56,14 @@ const PositionCards: React.FC = () => {
     setDeleteModal(false);
   };
 
+  const prevSearchTermRef = useRef<string>('');
   useEffect(() => {
-    refetch();
-  }, [currentPage, pageSize]);
+    // Reset to page 1 when search term actually changes
+    if (prevSearchTermRef.current !== searchTerm && currentPage !== 1) {
+      setCurrentPage(1);
+    }
+    prevSearchTermRef.current = searchTerm;
+  }, [searchTerm, currentPage, setCurrentPage]);
 
   const onPageChange = (page: number, pageSize: number) => {
     setCurrentPage(page);

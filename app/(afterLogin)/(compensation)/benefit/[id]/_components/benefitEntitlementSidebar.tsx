@@ -409,7 +409,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 <Form.Item
                   required
                   name="settlementPeriod"
-                  label="Settlement Period"
+                  label={
+                    benefitDatas?.mode === 'CREDIT' ? (
+                      <span>Settlement Period </span>
+                    ) : (
+                      <span>Payout Period</span>
+                    )
+                  }
                   data-cy="compensation-benefit-sidebar-settlement-period-item"
                 >
                   <InputNumber
