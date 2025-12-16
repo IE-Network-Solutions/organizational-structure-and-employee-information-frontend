@@ -20,7 +20,10 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
   const locationLabel = job.location || 'Location not specified';
   const analyzedLabel = job.lastAnalyzed
     ? dayjs(job.lastAnalyzed).fromNow()
-    : 'Last analyzed: N/A';
+    : 'N/A';
+  const postedLabel = job.postedAt
+    ? `Posted ${dayjs(job.postedAt).format('DD MMM YYYY')}`
+    : 'Posted date not available';
 
   return (
     <Card
@@ -33,14 +36,20 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
         <h3 className="text-lg font-semibold text-gray-900">{job.jobTitle}</h3>
         
         {/* Job Info (from Azure Function data) */}
-        <div className="flex items-center gap-3 text-sm text-gray-500">
-          <span className="flex items-center gap-1">
-            <EnvironmentOutlined className="text-gray-400" /> {locationLabel}
-          </span>
-          <span>•</span>
-          <span className="flex items-center gap-1">
-            <ClockCircleOutlined className="text-gray-400" /> {analyzedLabel}
-          </span>
+        <div className="space-y-1 text-sm text-gray-500">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <EnvironmentOutlined className="text-gray-400" /> {locationLabel}
+            </span>
+            <span>•</span>
+            <span>{postedLabel}</span>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-gray-400">
+            <ClockCircleOutlined className="text-gray-300" />{' '}
+            <span>
+              Last analyzed {analyzedLabel}
+            </span>
+          </div>
         </div>
 
         {/* AI Matches */}

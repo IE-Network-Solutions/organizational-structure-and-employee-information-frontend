@@ -1,4 +1,4 @@
-Ôªø'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Card, Empty, Spin, Tag, Button, Avatar } from 'antd';
@@ -73,10 +73,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
         // Use backend value when available; otherwise show a neutral label
         // instead of implying "Remote" when we don't actually know.
         location: matchResponse.location || 'Location not specified',
-        // Use a dedicated posted date from backend when available
-        postedAt: matchResponse.postedAt ?? null,
-        // Keep analysis timestamp separately for "Last analyzed" label
-        analyzedAt: matchResponse.analysisTimestamp,
+        createdAt: matchResponse.analysisTimestamp,
       }
     : null;
 
@@ -150,35 +147,6 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
     concernsAll.length - visibleConcerns.length,
   );
 
-  const getSectionScore = (
-    section:
-      | 'experienceMatch'
-      | 'educationMatch'
-      | 'skillsMatch',
-  ): number | null => {
-    if (
-      !matchDetails ||
-      !selectedCandidate ||
-      matchDetails.candidateId !== selectedCandidate.candidateId
-    ) {
-      return null;
-    }
-
-    const breakdown = matchDetails.detailedAnalysis;
-    if (!breakdown) return null;
-
-    if (section === 'experienceMatch') {
-      return breakdown.experienceMatch?.score ?? null;
-    }
-    if (section === 'educationMatch') {
-      return breakdown.educationMatch?.score ?? null;
-    }
-    if (section === 'skillsMatch') {
-      return breakdown.skillsMatch?.score ?? null;
-    }
-    return null;
-  };
-
   const handleOpenDetails = (candidate: AIMatchedCandidate) => {
     setSelectedCandidate(candidate);
     setSelectedCandidateId(candidate.candidateId);
@@ -226,7 +194,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
             onClick={() => router.push('/recruitment/ai-job-matching')}
             className="flex items-center text-gray-600 hover:text-gray-800"
           >
-            ‚Üê Back
+            GÂ… Back
           </Button>
           <div className="flex-1">
             <h1 className="text-xl font-semibold text-gray-900">AI Job Matching</h1>
@@ -251,16 +219,8 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                 </h2>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                   {jobDetails.location && <span>{jobDetails.location}</span>}
-                  <span>‚Ä¢</span>
-                  {jobDetails.postedAt ? (
-                    <span>
-                      Posted {dayjs(jobDetails.postedAt).format('DD MMM YYYY')}
-                    </span>
-                  ) : (
-                    <span className="text-gray-500">
-                      Posted date not available
-                    </span>
-                  )}
+                  <span>G«Û</span>
+                  <span>Posted {dayjs(jobDetails.createdAt).format('DD MMM YYYY')}</span>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
@@ -268,10 +228,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                   Active
                 </Tag>
                 <span className="text-xs text-gray-500">
-                  Last analyzed ‚Ä¢{' '}
-                  {jobDetails.analyzedAt
-                    ? dayjs(jobDetails.analyzedAt).fromNow()
-                    : 'N/A'}
+                  Last Analyzed G«Û {dayjs(matchResponse?.analysisTimestamp).fromNow()}
                 </span>
               </div>
             </div>
@@ -303,13 +260,6 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                   'No summary available yet for this candidate.';
 
                 const topMatchedSkills = candidate.matchedSkills?.slice(0, 5) ?? [];
-
-                const experienceScore =
-                  getSectionScore('experienceMatch');
-                const educationScore =
-                  getSectionScore('educationMatch');
-                const skillsScore =
-                  getSectionScore('skillsMatch');
 
                 return (
                   <Card
@@ -370,33 +320,6 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                             </div>
                           </div>
                         )}
-                        {/* Match score breakdown (Experience / Education / Skill) */}
-                        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                          <div className="flex flex-col items-center">
-                            <span className="text-xs text-gray-500">
-                              Experience
-                            </span>
-                            <span className="mt-1 inline-flex items-center justify-center rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-700">
-                              {experienceScore != null ? `${experienceScore}%` : '‚Äî'}
-                            </span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-xs text-gray-500">
-                              Education
-                            </span>
-                            <span className="mt-1 inline-flex items-center justify-center rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-700">
-                              {educationScore != null ? `${educationScore}%` : '‚Äî'}
-                            </span>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-xs text-gray-500">
-                              Skill
-                            </span>
-                            <span className="mt-1 inline-flex items-center justify-center rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-700">
-                              {skillsScore != null ? `${skillsScore}%` : '‚Äî'}
-                            </span>
-                          </div>
-                        </div>
                       </div>
                     </div>
                   </Card>
@@ -487,7 +410,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-400">üìû</span>
+                          <span className="text-gray-400">=ÉÙP</span>
                           <span>
                             {selectedCandidate.candidate.phone ||
                               'Phone number not provided'}
@@ -501,7 +424,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                     {/* Candidate Overview (from Azure data) */}
                     <div>
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-gray-600">üë§</span>
+                        <span className="text-gray-600">=ÉÊÒ</span>
                         <span className="font-semibold text-gray-900">
                           Candidate overview
                         </span>
@@ -541,7 +464,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                       <div className="border-t border-gray-200" />
                       <div className="pt-4">
                         <div className="flex items-center gap-2 mb-3">
-                          <span className="text-gray-700">üíº</span>
+                          <span className="text-gray-700">=É∆+</span>
                           <span className="font-semibold text-gray-900">
                             Experience
                           </span>
@@ -583,7 +506,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                       <div className="border-t border-gray-200" />
                       <div className="pt-4">
                         <div className="flex items-center gap-2 mb-3">
-                          <span className="text-gray-700">üéì</span>
+                          <span className="text-gray-700">=ÉƒÙ</span>
                           <span className="font-semibold text-gray-900">
                             Education
                           </span>
@@ -643,7 +566,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                   className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1"
                                   data-cy="ai-skill-matched"
                                 >
-                                  <span className="text-green-600 text-xs">‚úì</span>
+                                  <span className="text-green-600 text-xs">G£Ù</span>
                                   <span className="text-gray-800 text-xs">
                                     {skill}
                                   </span>

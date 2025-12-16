@@ -10,6 +10,11 @@ export interface JobMatchSummary {
   lastAnalyzed: string;
   jobStatus?: string | null;
   jobDeadline?: string | null;
+  /**
+   * Optional job posted date from backend (if provided by Azure function).
+   * Used by the AI Job Matching list and detail pages instead of any hardcoded dates.
+   */
+  postedAt?: string | null;
 }
 
 export interface AIMatchedCandidate {
@@ -85,6 +90,11 @@ export interface AIMatchResponse {
   analysisTimestamp: string;
   department?: string;
   location?: string;
+  /**
+   * Optional job posted date from backend (if provided by Azure function).
+   * When available, the UI will display this instead of a hardcoded label.
+   */
+  postedAt?: string | null;
 }
 
 export interface AIMatchDetails {
