@@ -33,8 +33,17 @@ const Dashboard: React.FC = () => {
       >
         <SummaryCardsRow data-cy="okr-dashboard-summary-cards-row" />
         {selectedCard && (
-          <div className="flex justify-end">
-            <Button type="default" onClick={() => setSelectedCard(null)}>
+          <div
+            id="okr-dashboard-remove-filter-container"
+            data-cy="okr-dashboard-remove-filter-container"
+            className="flex justify-end"
+          >
+            <Button
+              id="okr-dashboard-remove-filter-button"
+              data-cy="okr-dashboard-remove-filter-button"
+              type="default"
+              onClick={() => setSelectedCard(null)}
+            >
               Remove Filter
             </Button>
           </div>
