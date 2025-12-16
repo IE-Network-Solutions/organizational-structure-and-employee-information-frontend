@@ -84,11 +84,14 @@ const Login: FC = () => {
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
       style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
     >
-      <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
-        <p className="flex justify-center font-semibold">
+      <div className="bg-white w-full max-w-md py-8 px-8 rounded-2xl my-5 shadow-lg">
+        <div className="flex justify-center mb-2">
           <SimpleLogo />
-        </p>
-        <h5 className="text-center my-2">Login</h5>
+        </div>
+        <h2 className="text-center text-2xl font-bold text-gray-900 mb-6">
+          Login
+        </h2>
+
         <Form
           name="login-form"
           labelCol={{ span: 24 }}
@@ -98,7 +101,7 @@ const Login: FC = () => {
           autoComplete="off"
         >
           <Form.Item
-            label="Email"
+            label={<span className="text-gray-700 font-medium">Email</span>}
             name="email"
             rules={[
               {
@@ -109,40 +112,44 @@ const Login: FC = () => {
             ]}
           >
             <Input
-              placeholder="Type your email"
-              className="w-full h-10"
+              placeholder="Enter email"
+              className="w-full h-11 rounded-lg"
               allowClear
             />
           </Form.Item>
 
           <Form.Item
-            label="Password"
+            label={<span className="text-gray-700 font-medium">Password</span>}
             name="password"
             rules={[{ required: true, message: 'Please input your password!' }]}
           >
             <Input.Password
-              placeholder="Type your password"
-              className="w-full h-10"
+              placeholder="Enter password"
+              className="w-full h-11 rounded-lg"
               allowClear
             />
           </Form.Item>
 
-          <Form.Item>
-            <Form.Item name="remember" valuePropName="checked" noStyle>
-              <Checkbox className="m-1">Remember me</Checkbox>
-            </Form.Item>
-            <Link
-              href="/authentication/forget-password"
-              className="float-right m-0 p-0"
-            >
-              Forgot password
-            </Link>
+          <Form.Item className="mb-2">
+            <div className="flex justify-between items-center">
+              <Form.Item name="remember" valuePropName="checked" noStyle>
+                <Checkbox className="text-black font-medium">
+                  Remember me
+                </Checkbox>
+              </Form.Item>
+              <Link
+                href="/authentication/forget-password"
+                className="text-[#4e4ef1] hover:text-blue-600 font-medium"
+              >
+                Forgot password
+              </Link>
+            </div>
           </Form.Item>
 
-          <Form.Item>
+          <Form.Item className="mb-4">
             <Button
               loading={loading || isGet2FACodeLoading}
-              className="py-5 my-4"
+              className="h-12 rounded-md text-base font-medium"
               type="primary"
               htmlType="submit"
               block
@@ -151,37 +158,37 @@ const Login: FC = () => {
             </Button>
           </Form.Item>
         </Form>
-        <p className="text-center text-xs font-light mb-5">Or login with</p>
-        <div className="flex flex-col sm:flex-row gap-2">
+
+        <p className="text-center text-sm text-black mb-4">Or login with</p>
+
+        <div className="flex flex-row gap-3">
           <Button
-            size="small"
+            size="large"
             icon={<Google />}
-            className="p-4 text-sm bg-transparent"
+            className="flex-1 h-11 text-sm bg-white border border-gray-200 rounded-lg hover:border-gray-300"
             onClick={handleGoogleSignIn}
-            block
           >
             Google
           </Button>
           <Button
-            size="small"
+            size="large"
             icon={<Microsoft />}
-            className="p-4 text-sm bg-transparent"
+            className="flex-1 h-11 text-sm bg-white border border-gray-200 rounded-lg hover:border-gray-300"
             onClick={handleMicrosoftSignIn}
-            block
           >
             Microsoft
           </Button>
         </div>
-      </div>
-      <div className="text-xs font-thin text-center">
-        © {new Date().getFullYear().toString()} Selamnew Workspace . All-rights
-        reserved.
-        {/* <span className="font-semibold ml-1 cursor-pointer">
-          Terms & Conditions
-        </span>
-        <span className="font-semibold ml-1 cursor-pointer">
-          Privacy Settings
-        </span> */}
+        {/* Footer */}
+        <div className="text-xs text-gray-500 text-center mt-4">
+          © {new Date().getFullYear().toString()} PEP . All-rights reserved.
+          <Link href="/terms" className="text-black font-medium ml-2">
+            Terms & Conditions
+          </Link>
+          <Link href="/privacy" className="text-black font-medium ml-2">
+            Privacy Policy
+          </Link>
+        </div>
       </div>
     </div>
   );
