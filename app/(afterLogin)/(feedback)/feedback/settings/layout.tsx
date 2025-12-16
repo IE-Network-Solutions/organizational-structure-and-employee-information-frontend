@@ -121,18 +121,36 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] p-3" data-cy="settings-layout" id="settingsLayout">
-      <div className="h-auto w-auto" data-cy="settings-layout-container" id="settingsLayoutContainer">
+    <div
+      className="min-h-screen bg-[#fafafa] p-3"
+      data-cy="settings-layout"
+      id="settingsLayout"
+    >
+      <div
+        className="h-auto w-auto"
+        data-cy="settings-layout-container"
+        id="settingsLayoutContainer"
+      >
         <PageHeader
           title="Settings"
           description="Organizational development settings"
           data-cy="settings-layout-header"
         ></PageHeader>
 
-        <div className=" flex flex-col lg:flex-row gap-6 mt-3" data-cy="settings-layout-content" id="settingsLayoutContent">
-          <SidebarMenu menuItems={menuItems} data-cy="settings-layout-sidebar" />
+        <div
+          className=" flex flex-col lg:flex-row gap-6 mt-3"
+          data-cy="settings-layout-content"
+          id="settingsLayoutContent"
+        >
+          <SidebarMenu
+            menuItems={menuItems}
+            data-cy="settings-layout-sidebar"
+          />
 
-          <BlockWrapper className="flex-1 h-max bg-[#fafafa] p-0" data-cy="settings-layout-main-content">
+          <BlockWrapper
+            className="flex-1 h-max bg-[#fafafa] p-0"
+            data-cy="settings-layout-main-content"
+          >
             {children}
           </BlockWrapper>
         </div>

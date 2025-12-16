@@ -261,9 +261,7 @@ const LeaveSection: React.FC = () => {
             )}
           </Spin>
         </div>
-        <LeaveSectionGraph
-          data-cy="time-attendance-leave-section-graph-display-component"
-        />
+        <LeaveSectionGraph data-cy="time-attendance-leave-section-graph-display-component" />
       </div>
       {/* Chart */}
     </Card>

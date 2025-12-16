@@ -14,7 +14,10 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
 
   if (!jobId) {
     return (
-      <Card className="rounded-2xl border border-gray-100 shadow-sm">
+      <Card
+        className="rounded-2xl border border-gray-100 shadow-sm"
+        data-cy="ai-job-applicants-card"
+      >
         <Empty description="Select a job to view applicants" />
       </Card>
     );
@@ -22,7 +25,10 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
 
   if (isLoading) {
     return (
-      <Card className="rounded-2xl border border-gray-100 shadow-sm">
+      <Card
+        className="rounded-2xl border border-gray-100 shadow-sm"
+        data-cy="ai-job-applicants-card"
+      >
         <div className="flex items-center justify-center h-48">
           <Spin size="large" />
         </div>
@@ -34,7 +40,10 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
 
   if (applicants.length === 0) {
     return (
-      <Card className="rounded-2xl border border-gray-100 shadow-sm">
+      <Card
+        className="rounded-2xl border border-gray-100 shadow-sm"
+        data-cy="ai-job-applicants-card"
+      >
         <Empty description="No applicants yet" />
       </Card>
     );
@@ -90,12 +99,14 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
   return (
     <Card
       className="rounded-2xl border border-gray-100 shadow-sm"
+      data-cy="ai-job-applicants-card"
       title="All Applicants"
       extra={
         <span className="text-xs text-gray-500">{tableData.length} total</span>
       }
     >
       <Table
+        data-cy="ai-job-applicants-table"
         columns={columns}
         dataSource={tableData}
         pagination={false}

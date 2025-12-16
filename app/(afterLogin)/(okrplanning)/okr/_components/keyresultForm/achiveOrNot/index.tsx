@@ -102,8 +102,10 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             >
               {metrics?.items?.map((metric) => (
                 <Option
-                data-cy={`okr-achieve-desktop-type-option-${index}-${metric?.id}`}
-                key={metric?.id} value={metric?.id}>
+                  data-cy={`okr-achieve-desktop-type-option-${index}-${metric?.id}`}
+                  key={metric?.id}
+                  value={metric?.id}
+                >
                   {metric?.name}
                 </Option>
               ))}
@@ -214,7 +216,11 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 value={keyItem.key_type}
               >
                 {metrics?.items?.map((metric) => (
-                  <Option data-cy={`okr-achieve-mobile-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                  <Option
+                    data-cy={`okr-achieve-mobile-type-option-${index}-${metric?.id}`}
+                    key={metric?.id}
+                    value={metric?.id}
+                  >
                     {metric?.name}
                   </Option>
                 ))}

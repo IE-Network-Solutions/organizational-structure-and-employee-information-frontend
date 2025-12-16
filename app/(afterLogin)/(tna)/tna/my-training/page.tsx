@@ -236,11 +236,22 @@ const TnaReviewPage = () => {
   };
 
   return (
-    <div className="page-wrap" id="tnaMyTrainingPageId" data-cy="tna-my-training-page">
+    <div
+      className="page-wrap"
+      id="tnaMyTrainingPageId"
+      data-cy="tna-my-training-page"
+    >
       <TnaApprovalTable data-cy="tna-approval-table" />
-      <BlockWrapper withBackground={false} data-cy="tna-my-training-block-wrapper">
+      <BlockWrapper
+        withBackground={false}
+        data-cy="tna-my-training-block-wrapper"
+      >
         <PageHeader title="MY TNA" data-cy="tna-my-training-page-header">
-          <Space size={20} id="tnaMyTrainingPageHeaderActionsId" data-cy="tna-my-training-page-header-actions">
+          <Space
+            size={20}
+            id="tnaMyTrainingPageHeaderActionsId"
+            data-cy="tna-my-training-page-header-actions"
+          >
             <DatePicker.RangePicker
               format={DATE_FORMAT}
               separator="-"
@@ -261,7 +272,11 @@ const TnaReviewPage = () => {
               }}
             />
             {isMobile || isTablet ? (
-              <AccessGuard permissions={[Permissions.CreateTna]} data-cy="tna-my-training-new-button-mobile-guard" id="tnaMyTrainingNewButtonMobileGuardId">
+              <AccessGuard
+                permissions={[Permissions.CreateTna]}
+                data-cy="tna-my-training-new-button-mobile-guard"
+                id="tnaMyTrainingNewButtonMobileGuardId"
+              >
                 <Button
                   className="p-6 mr-2 border border-gray-300"
                   type="primary"
@@ -272,7 +287,11 @@ const TnaReviewPage = () => {
                 />
               </AccessGuard>
             ) : (
-              <AccessGuard permissions={[Permissions.CreateTna]} data-cy="tna-my-training-new-button-guard" id="tnaMyTrainingNewButtonGuardId">
+              <AccessGuard
+                permissions={[Permissions.CreateTna]}
+                data-cy="tna-my-training-new-button-guard"
+                id="tnaMyTrainingNewButtonGuardId"
+              >
                 <Button
                   icon={<LuPlus size={16} />}
                   className="h-[54px]"

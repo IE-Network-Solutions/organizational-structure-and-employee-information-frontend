@@ -22,6 +22,12 @@ export interface AIMatchedCandidate {
   matchScore: number;
   matchReasons: string[];
   matchedSkills?: string[];
+  // New fields from updated function
+  skillMatch?: number;
+  educationMatch?: number;
+  experienceMatch?: number;
+  llmMatch?: number;
+  cosineMatch?: number;
   candidate: {
     id: string;
     fullName: string;
@@ -35,14 +41,14 @@ export interface AIMatchedCandidate {
     experience?: Array<{
       role?: string;
       company?: string;
-      startDate?: string;
-      endDate?: string;
+      startDate?: string | number | null;
+      endDate?: string | number | null;
       description?: string[];
     }>;
     education?: Array<{
       degree?: string;
       institution?: string | null;
-      cgpa?: number | null;
+      cgpa?: number | string | null;
       startYear?: number | null;
       endYear?: number | null;
     }>;
@@ -95,6 +101,8 @@ export interface AIMatchResponse {
    * When available, the UI will display this instead of a hardcoded label.
    */
   postedAt?: string | null;
+  jobPostedAt?: string | null;
+  jobStatus?: string | null;
 }
 
 export interface AIMatchDetails {
@@ -108,6 +116,16 @@ export interface AIMatchDetails {
   strengths: string[];
   concerns: string[];
   analysisTimestamp: string;
+  // New fields from updated function
+  skillMatch?: number;
+  educationMatch?: number;
+  experienceMatch?: number;
+  llmMatch?: number;
+  cosineMatch?: number;
+  jobPostedAt?: string;
+  jobStatus?: string;
+  location?: string;
+  rawMatch?: any; // Full blob document
   candidate?: {
     id: string;
     fullName: string;
@@ -121,14 +139,14 @@ export interface AIMatchDetails {
     experience?: Array<{
       role?: string;
       company?: string;
-      startDate?: string;
-      endDate?: string;
+      startDate?: string | number | null;
+      endDate?: string | number | null;
       description?: string[];
     }>;
     education?: Array<{
       degree?: string;
       institution?: string | null;
-      cgpa?: number | null;
+      cgpa?: number | string | null;
       startYear?: number | null;
       endYear?: number | null;
     }>;

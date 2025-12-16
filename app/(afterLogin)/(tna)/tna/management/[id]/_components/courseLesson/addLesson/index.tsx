@@ -174,7 +174,10 @@ const CourseAddLessonSidebar = () => {
         onClose={() => onClose()}
         data-cy="tna-add-lesson-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-3" data-cy="tna-add-lesson-header">
+          <CustomDrawerHeader
+            className="flex justify-start text-xl font-extrabold px-3"
+            data-cy="tna-add-lesson-header"
+          >
             {lesson ? 'Edit' : 'Add'} Lesson
           </CustomDrawerHeader>
         }
@@ -202,8 +205,16 @@ const CourseAddLessonSidebar = () => {
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => (
-                  <React.Fragment key={key} data-cy={`tna-add-lesson-fragment-${key}`}>
-                    <Flex className="w-full" gap={5} id={`tnaAddLessonTitleFlex${key}Id`} data-cy={`tna-add-lesson-title-flex-${key}`}>
+                  <React.Fragment
+                    key={key}
+                    data-cy={`tna-add-lesson-fragment-${key}`}
+                  >
+                    <Flex
+                      className="w-full"
+                      gap={5}
+                      id={`tnaAddLessonTitleFlex${key}Id`}
+                      data-cy={`tna-add-lesson-title-flex-${key}`}
+                    >
                       <Form.Item
                         {...restField}
                         name={[name, 'title']}
@@ -281,7 +292,10 @@ const CourseAddLessonSidebar = () => {
                 ))}
 
                 {!lesson && (
-                  <Form.Item id="tnaAddLessonAddButtonItemId" data-cy="tna-add-lesson-add-button-item">
+                  <Form.Item
+                    id="tnaAddLessonAddButtonItemId"
+                    data-cy="tna-add-lesson-add-button-item"
+                  >
                     <AddFormFieldsButton
                       label="Add Lesson"
                       onClick={() => {
@@ -299,13 +313,33 @@ const CourseAddLessonSidebar = () => {
         {lesson && (
           <>
             {lesson.courseLessonMaterials.map((material) => (
-              <Spin spinning={isLoadingDelete} key={material.id} data-cy={`tna-add-lesson-material-spinner-${material.id}`}>
-                <div className="mt-6" id={`tnaAddLessonMaterial${material.id}Id`} data-cy={`tna-add-lesson-material-${material.id}`}>
-                  <div className="text-sm text-gray-900 font-medium mb-2.5" id={`tnaAddLessonMaterialTitle${material.id}Id`} data-cy={`tna-add-lesson-material-title-${material.id}`}>
+              <Spin
+                spinning={isLoadingDelete}
+                key={material.id}
+                data-cy={`tna-add-lesson-material-spinner-${material.id}`}
+              >
+                <div
+                  className="mt-6"
+                  id={`tnaAddLessonMaterial${material.id}Id`}
+                  data-cy={`tna-add-lesson-material-${material.id}`}
+                >
+                  <div
+                    className="text-sm text-gray-900 font-medium mb-2.5"
+                    id={`tnaAddLessonMaterialTitle${material.id}Id`}
+                    data-cy={`tna-add-lesson-material-title-${material.id}`}
+                  >
                     Course Material Title
                   </div>
-                  <div className="flex items-center gap-2" id={`tnaAddLessonMaterialContent${material.id}Id`} data-cy={`tna-add-lesson-material-content-${material.id}`}>
-                    <div className="flex-1 h-[54px] px-5 text-sm font-medium text-gray-900 rounded-lg border border-gray-200 bg-gray-100 flex items-center" id={`tnaAddLessonMaterialTitleDisplay${material.id}Id`} data-cy={`tna-add-lesson-material-title-display-${material.id}`}>
+                  <div
+                    className="flex items-center gap-2"
+                    id={`tnaAddLessonMaterialContent${material.id}Id`}
+                    data-cy={`tna-add-lesson-material-content-${material.id}`}
+                  >
+                    <div
+                      className="flex-1 h-[54px] px-5 text-sm font-medium text-gray-900 rounded-lg border border-gray-200 bg-gray-100 flex items-center"
+                      id={`tnaAddLessonMaterialTitleDisplay${material.id}Id`}
+                      data-cy={`tna-add-lesson-material-title-display-${material.id}`}
+                    >
                       {material.title}
                     </div>
                     <ActionButtons

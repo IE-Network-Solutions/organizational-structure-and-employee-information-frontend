@@ -38,11 +38,13 @@ const proxyRequest = async (
   if (!headers.has('tenantId') && !headers.has('tenantid')) {
     headers.set('tenantId', 'demo-tenant');
     if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
       console.log('[AI Proxy] No tenantId header found, using demo-tenant');
     }
   } else {
     if (process.env.NODE_ENV === 'development') {
       const tid = headers.get('tenantId') || headers.get('tenantid');
+      // eslint-disable-next-line no-console
       console.log('[AI Proxy] Using tenantId:', tid);
     }
   }

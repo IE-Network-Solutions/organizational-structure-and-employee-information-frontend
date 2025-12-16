@@ -3,7 +3,11 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Input, Spin, Empty, Card } from 'antd';
-import { SearchOutlined, EnvironmentOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import {
+  SearchOutlined,
+  EnvironmentOutlined,
+  ClockCircleOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useGetJobMatchSummaries } from '@/store/server/features/recruitment/ai-job-matching/queries';
@@ -34,7 +38,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
       <div className="space-y-3">
         {/* Job Title */}
         <h3 className="text-lg font-semibold text-gray-900">{job.jobTitle}</h3>
-        
+
         {/* Job Info (from Azure Function data) */}
         <div className="space-y-1 text-sm text-gray-500">
           <div className="flex items-center gap-3">
@@ -46,9 +50,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
           </div>
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <ClockCircleOutlined className="text-gray-300" />{' '}
-            <span>
-              Last analyzed {analyzedLabel}
-            </span>
+            <span>Last analyzed {analyzedLabel}</span>
           </div>
         </div>
 
@@ -60,7 +62,8 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
               data-cy={`ai-job-card-${job.jobId}-candidate-count`}
               className="text-sm font-semibold text-blue-600"
             >
-              {job.totalCandidates} {job.totalCandidates === 1 ? 'Candidate' : 'Candidates'}
+              {job.totalCandidates}{' '}
+              {job.totalCandidates === 1 ? 'Candidate' : 'Candidates'}
             </span>
           </div>
         </div>
@@ -81,8 +84,12 @@ const AIJobMatchingPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="bg-white px-6 py-4 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900">AI Job Matching</h1>
-          <p className="text-sm text-gray-500">Match candidates to jobs using AI-powered analysis</p>
+          <h1 className="text-xl font-semibold text-gray-900">
+            AI Job Matching
+          </h1>
+          <p className="text-sm text-gray-500">
+            Match candidates to jobs using AI-powered analysis
+          </p>
         </div>
         <div className="flex items-center justify-center min-h-96">
           <Spin size="large" />
@@ -95,8 +102,12 @@ const AIJobMatchingPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50" data-cy="ai-job-matching-page">
         <div className="bg-white px-6 py-4 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900">AI Job Matching</h1>
-          <p className="text-sm text-gray-500">Match candidates to jobs using AI-powered analysis</p>
+          <h1 className="text-xl font-semibold text-gray-900">
+            AI Job Matching
+          </h1>
+          <p className="text-sm text-gray-500">
+            Match candidates to jobs using AI-powered analysis
+          </p>
         </div>
         <div className="flex items-center justify-center min-h-96">
           <Empty description="Failed to load jobs" />
@@ -110,12 +121,16 @@ const AIJobMatchingPage: React.FC = () => {
       {/* Header */}
       <div className="bg-white px-6 py-4 border-b border-gray-200">
         <h1 className="text-xl font-semibold text-gray-900">AI Job Matching</h1>
-        <p className="text-sm text-gray-500">Match candidates to jobs using AI-powered analysis</p>
+        <p className="text-sm text-gray-500">
+          Match candidates to jobs using AI-powered analysis
+        </p>
       </div>
 
       {/* Search Bar */}
       <div className="px-6 py-4">
         <Input
+          id="ai-job-matching-search"
+          data-cy="ai-job-matching-search"
           placeholder="Search"
           prefix={<SearchOutlined className="text-gray-400" />}
           className="max-w-md rounded-lg"

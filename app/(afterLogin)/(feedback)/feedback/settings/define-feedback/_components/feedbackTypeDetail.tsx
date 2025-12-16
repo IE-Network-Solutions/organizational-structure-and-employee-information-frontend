@@ -63,8 +63,16 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
     return (
       <>
-        <div className="flex justify-between text-xs mx-2 overflow-x-auto " data-cy={`feedback-type-detail-${variant}-actions`} id={`feedbackTypeDetail${variant}Actions`}>
-          <div style={{ marginBottom: 16 }} data-cy={`feedback-type-detail-${variant}-search-container`} id={`feedbackTypeDetail${variant}SearchContainer`}>
+        <div
+          className="flex justify-between text-xs mx-2 overflow-x-auto "
+          data-cy={`feedback-type-detail-${variant}-actions`}
+          id={`feedbackTypeDetail${variant}Actions`}
+        >
+          <div
+            style={{ marginBottom: 16 }}
+            data-cy={`feedback-type-detail-${variant}-search-container`}
+            id={`feedbackTypeDetail${variant}SearchContainer`}
+          >
             <Input.Search
               placeholder="Search feedbacks..."
               allowClear
@@ -84,17 +92,51 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
             data-cy={`feedback-type-detail-${variant}-add-button`}
             id={`feedbackTypeDetail${variant}AddButton`}
           >
-            <span className="hidden md:inline" data-cy={`feedback-type-detail-${variant}-add-button-text`} id={`feedbackTypeDetail${variant}AddButtonText`}> Add Type</span>
+            <span
+              className="hidden md:inline"
+              data-cy={`feedback-type-detail-${variant}-add-button-text`}
+              id={`feedbackTypeDetail${variant}AddButtonText`}
+            >
+              {' '}
+              Add Type
+            </span>
           </Button>
         </div>
         {paginatedItems.map((item: any) => (
-          <Card className="mx-2 mb-2" key={item.id} data-cy={`feedback-type-detail-${variant}-card-${item.id}`} id={`feedbackTypeDetail${variant}Card${item.id}`}>
-            <div className="flex justify-between" data-cy={`feedback-type-detail-${variant}-card-content-${item.id}`} id={`feedbackTypeDetail${variant}CardContent${item.id}`}>
-              <div data-cy={`feedback-type-detail-${variant}-card-info-${item.id}`} id={`feedbackTypeDetail${variant}CardInfo${item.id}`}>
-                <p data-cy={`feedback-type-detail-${variant}-card-name-${item.id}`} id={`feedbackTypeDetail${variant}CardName${item.id}`}>{item?.name}</p>
-                <p className="text-xs text-gray-500" data-cy={`feedback-type-detail-${variant}-card-description-${item.id}`} id={`feedbackTypeDetail${variant}CardDescription${item.id}`}>{item?.description}</p>
+          <Card
+            className="mx-2 mb-2"
+            key={item.id}
+            data-cy={`feedback-type-detail-${variant}-card-${item.id}`}
+            id={`feedbackTypeDetail${variant}Card${item.id}`}
+          >
+            <div
+              className="flex justify-between"
+              data-cy={`feedback-type-detail-${variant}-card-content-${item.id}`}
+              id={`feedbackTypeDetail${variant}CardContent${item.id}`}
+            >
+              <div
+                data-cy={`feedback-type-detail-${variant}-card-info-${item.id}`}
+                id={`feedbackTypeDetail${variant}CardInfo${item.id}`}
+              >
+                <p
+                  data-cy={`feedback-type-detail-${variant}-card-name-${item.id}`}
+                  id={`feedbackTypeDetail${variant}CardName${item.id}`}
+                >
+                  {item?.name}
+                </p>
+                <p
+                  className="text-xs text-gray-500"
+                  data-cy={`feedback-type-detail-${variant}-card-description-${item.id}`}
+                  id={`feedbackTypeDetail${variant}CardDescription${item.id}`}
+                >
+                  {item?.description}
+                </p>
               </div>
-              <p className="flex gap-2" data-cy={`feedback-type-detail-${variant}-card-actions-${item.id}`} id={`feedbackTypeDetail${variant}CardActions${item.id}`}>
+              <p
+                className="flex gap-2"
+                data-cy={`feedback-type-detail-${variant}-card-actions-${item.id}`}
+                id={`feedbackTypeDetail${variant}CardActions${item.id}`}
+              >
                 <Button
                   size="small"
                   onClick={() => editHandler(item)}
@@ -157,8 +199,18 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
   ];
 
   return (
-    <div className="mt-5" data-cy="feedback-type-detail" id="feedbackTypeDetail">
-      <Tabs activeKey={variantType} items={tabItems} onChange={onChange} data-cy="feedback-type-detail-tabs" id="feedbackTypeDetailTabs" />
+    <div
+      className="mt-5"
+      data-cy="feedback-type-detail"
+      id="feedbackTypeDetail"
+    >
+      <Tabs
+        activeKey={variantType}
+        items={tabItems}
+        onChange={onChange}
+        data-cy="feedback-type-detail-tabs"
+        id="feedbackTypeDetailTabs"
+      />
     </div>
   );
 }

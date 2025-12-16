@@ -161,7 +161,14 @@ const InvoicesTable = ({
       title: 'Invoice ID',
       dataIndex: 'invoiceNumber',
       sorter: (a, b) => a.invoiceNumber - b.invoiceNumber,
-      render: (invoiceNumber: string) => <span id={`invoice-number-${invoiceNumber}`} data-cy={`invoice-number-${invoiceNumber}`}>#{invoiceNumber}</span>,
+      render: (invoiceNumber: string) => (
+        <span
+          id={`invoice-number-${invoiceNumber}`}
+          data-cy={`invoice-number-${invoiceNumber}`}
+        >
+          #{invoiceNumber}
+        </span>
+      ),
       defaultSortOrder: 'descend',
     },
     {
@@ -180,9 +187,22 @@ const InvoicesTable = ({
         return planNameA.localeCompare(planNameB);
       },
       render: (subscriptionId: string) => (
-        <div id={`invoice-plan-${subscriptionId}`} data-cy={`invoice-plan-${subscriptionId}`} className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 w-fit whitespace-nowrap">
-          <span id={`invoice-plan-indicator-${subscriptionId}`} data-cy={`invoice-plan-indicator-${subscriptionId}`} className="w-2 h-2 min-w-2 min-h-2 rounded-full bg-primary" />
-          <span id={`invoice-plan-name-${subscriptionId}`} data-cy={`invoice-plan-name-${subscriptionId}`}>{getPlanName(subscriptionId)}</span>
+        <div
+          id={`invoice-plan-${subscriptionId}`}
+          data-cy={`invoice-plan-${subscriptionId}`}
+          className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 w-fit whitespace-nowrap"
+        >
+          <span
+            id={`invoice-plan-indicator-${subscriptionId}`}
+            data-cy={`invoice-plan-indicator-${subscriptionId}`}
+            className="w-2 h-2 min-w-2 min-h-2 rounded-full bg-primary"
+          />
+          <span
+            id={`invoice-plan-name-${subscriptionId}`}
+            data-cy={`invoice-plan-name-${subscriptionId}`}
+          >
+            {getPlanName(subscriptionId)}
+          </span>
         </div>
       ),
     },
@@ -191,7 +211,10 @@ const InvoicesTable = ({
       dataIndex: 'totalAmount',
       sorter: (a, b) => a.totalAmount - b.totalAmount,
       render: (total: number, record: Invoice) => (
-        <span id={`invoice-amount-${record.id}`} data-cy={`invoice-amount-${record.id}`}>
+        <span
+          id={`invoice-amount-${record.id}`}
+          data-cy={`invoice-amount-${record.id}`}
+        >
           {getCurrencySymbol(record.currencyId)}
           {Number(total).toFixed(2)}
         </span>
@@ -203,7 +226,14 @@ const InvoicesTable = ({
       sorter: (a, b) => a.currencyId.localeCompare(b.currencyId),
       render: (currencyId: string) => {
         const currency = currencies?.find((c) => c.id === currencyId);
-        return <span id={`invoice-currency-${currencyId}`} data-cy={`invoice-currency-${currencyId}`}>{currency?.symbol || currencyId}</span>;
+        return (
+          <span
+            id={`invoice-currency-${currencyId}`}
+            data-cy={`invoice-currency-${currencyId}`}
+          >
+            {currency?.symbol || currencyId}
+          </span>
+        );
       },
     },
     {
@@ -258,7 +288,11 @@ const InvoicesTable = ({
         const isDownloadingThis = downloadingInvoiceId === record.id;
 
         return (
-          <div id={`invoice-actions-${record.id}`} data-cy={`invoice-actions-${record.id}`} className="flex items-center gap-4">
+          <div
+            id={`invoice-actions-${record.id}`}
+            data-cy={`invoice-actions-${record.id}`}
+            className="flex items-center gap-4"
+          >
             <button
               id={`invoice-download-${record.id}`}
               data-cy={`invoice-download-${record.id}`}
@@ -267,7 +301,12 @@ const InvoicesTable = ({
               disabled={isDownloadingThis}
             >
               {isDownloadingThis ? (
-                <LoadingOutlined id={`invoice-download-indicator-${record.id}`} data-cy={`invoice-download-indicator-${record.id}`} className="w-5 h-5 text-primary" spin />
+                <LoadingOutlined
+                  id={`invoice-download-indicator-${record.id}`}
+                  data-cy={`invoice-download-indicator-${record.id}`}
+                  className="w-5 h-5 text-primary"
+                  spin
+                />
               ) : (
                 <img
                   src="/icons/file-download.svg"
@@ -287,7 +326,10 @@ const InvoicesTable = ({
               }}
               className="text-gray-500 hover:text-primary transition-colors hover:translate-x-1 transition-transform duration-300"
             >
-              <RightOutlined id={`invoice-view-icon-${record.id}`} data-cy={`invoice-view-icon-${record.id}`} />
+              <RightOutlined
+                id={`invoice-view-icon-${record.id}`}
+                data-cy={`invoice-view-icon-${record.id}`}
+              />
             </button>
           </div>
         );
@@ -297,7 +339,11 @@ const InvoicesTable = ({
 
   return (
     <div id="invoices-table-container" data-cy="invoices-table-container">
-      <div id="invoices-table-filters" data-cy="invoices-table-filters" className="flex flex-col md:flex-row gap-4 mb-6">
+      <div
+        id="invoices-table-filters"
+        data-cy="invoices-table-filters"
+        className="flex flex-col md:flex-row gap-4 mb-6"
+      >
         <Search
           id="invoices-table-search"
           data-cy="invoices-table-search"

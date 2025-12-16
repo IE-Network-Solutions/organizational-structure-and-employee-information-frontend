@@ -72,7 +72,10 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           id="compensation-allowance-layout-content"
           data-cy="compensation-allowance-layout-content"
         >
-          <SidebarMenu data-cy="compensation-allowance-layout-sidebar-menu" menuItems={sidebarMenuItems} />
+          <SidebarMenu
+            data-cy="compensation-allowance-layout-sidebar-menu"
+            menuItems={sidebarMenuItems}
+          />
 
           <BlockWrapper
             className="flex-1 h-max overflow-x-auto"

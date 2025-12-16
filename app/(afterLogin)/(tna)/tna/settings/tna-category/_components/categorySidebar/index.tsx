@@ -89,11 +89,24 @@ const TnaCategorySidebar = () => {
         onClose={() => onClose()}
         data-cy="tna-category-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-2" data-cy="tna-category-sidebar-header">
+          <CustomDrawerHeader
+            className="flex justify-start text-xl font-extrabold px-2"
+            data-cy="tna-category-sidebar-header"
+          >
             {tnaCategoryId ? (
-              <span data-cy="tna-category-sidebar-edit-text" id="tnaCategorySidebarEditTextId">Edit TNA Category</span>
+              <span
+                data-cy="tna-category-sidebar-edit-text"
+                id="tnaCategorySidebarEditTextId"
+              >
+                Edit TNA Category
+              </span>
             ) : (
-              <span data-cy="tna-category-sidebar-add-text" id="tnaCategorySidebarAddTextId">Add TNA Category</span>
+              <span
+                data-cy="tna-category-sidebar-add-text"
+                id="tnaCategorySidebarAddTextId"
+              >
+                Add TNA Category
+              </span>
             )}
           </CustomDrawerHeader>
         }
@@ -107,7 +120,10 @@ const TnaCategorySidebar = () => {
         width="400px"
         customMobileHeight="62vh"
       >
-        <Spin spinning={isLoading || isFetching} data-cy="tna-category-sidebar-spinner">
+        <Spin
+          spinning={isLoading || isFetching}
+          data-cy="tna-category-sidebar-spinner"
+        >
           <Form
             layout="vertical"
             form={form}
@@ -125,7 +141,11 @@ const TnaCategorySidebar = () => {
               id="tnaCategorySidebarNameItemId"
               data-cy="tna-category-sidebar-name-item"
             >
-              <Input id="tnaCategoryNameFieldId" data-cy="tna-category-name-field" className="control h-10" />
+              <Input
+                id="tnaCategoryNameFieldId"
+                data-cy="tna-category-name-field"
+                className="control h-10"
+              />
             </Form.Item>
             <Form.Item
               name="description"

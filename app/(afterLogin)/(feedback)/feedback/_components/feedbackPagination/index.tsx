@@ -68,7 +68,12 @@ const FeedbackPagination: React.FC<FeedbackPaginationProps> = ({
           </button>,
         );
         pageNumbers.push(
-          <span key="leftEllipsis" className="px-2" data-cy="feedback-components-feedbackpagination-span-ellipsis-left" id="feedback-components-feedbackpagination-span-ellipsis-left">
+          <span
+            key="leftEllipsis"
+            className="px-2"
+            data-cy="feedback-components-feedbackpagination-span-ellipsis-left"
+            id="feedback-components-feedbackpagination-span-ellipsis-left"
+          >
             ...
           </span>,
         );
@@ -94,7 +99,12 @@ const FeedbackPagination: React.FC<FeedbackPaginationProps> = ({
 
       if (rightSide < totalPages - 1) {
         pageNumbers.push(
-          <span key="rightEllipsis" className="px-2" data-cy="feedback-components-feedbackpagination-span-ellipsis-right" id="feedback-components-feedbackpagination-span-ellipsis-right">
+          <span
+            key="rightEllipsis"
+            className="px-2"
+            data-cy="feedback-components-feedbackpagination-span-ellipsis-right"
+            id="feedback-components-feedbackpagination-span-ellipsis-right"
+          >
             ...
           </span>,
         );
@@ -116,8 +126,16 @@ const FeedbackPagination: React.FC<FeedbackPaginationProps> = ({
   };
 
   return (
-    <div className="flex justify-between items-center py-6" data-cy="feedback-components-feedbackpagination-div" id="feedback-components-feedbackpagination-div">
-      <div className="flex items-center space-x-2" data-cy="feedback-components-feedbackpagination-div-pages" id="feedback-components-feedbackpagination-div-pages">
+    <div
+      className="flex justify-between items-center py-6"
+      data-cy="feedback-components-feedbackpagination-div"
+      id="feedback-components-feedbackpagination-div"
+    >
+      <div
+        className="flex items-center space-x-2"
+        data-cy="feedback-components-feedbackpagination-div-pages"
+        id="feedback-components-feedbackpagination-div-pages"
+      >
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
@@ -129,7 +147,10 @@ const FeedbackPagination: React.FC<FeedbackPaginationProps> = ({
           data-cy="feedback-components-feedbackpagination-button-prev"
           id="feedback-components-feedbackpagination-button-prev"
         >
-          <LeftOutlined data-cy="feedback-components-feedbackpagination-icon-left" id="feedback-components-feedbackpagination-icon-left" />
+          <LeftOutlined
+            data-cy="feedback-components-feedbackpagination-icon-left"
+            id="feedback-components-feedbackpagination-icon-left"
+          />
         </button>
         {renderPageNumbers()}
         <button
@@ -143,18 +164,53 @@ const FeedbackPagination: React.FC<FeedbackPaginationProps> = ({
           data-cy="feedback-components-feedbackpagination-button-next"
           id="feedback-components-feedbackpagination-button-next"
         >
-          <RightOutlined data-cy="feedback-components-feedbackpagination-icon-right" id="feedback-components-feedbackpagination-icon-right" />
+          <RightOutlined
+            data-cy="feedback-components-feedbackpagination-icon-right"
+            id="feedback-components-feedbackpagination-icon-right"
+          />
         </button>
       </div>
-      <div className="flex items-center" data-cy="feedback-components-feedbackpagination-div-info" id="feedback-components-feedbackpagination-div-info">
-        <span className="mr-2 text-sm text-gray-400" data-cy="feedback-components-feedbackpagination-span-info" id="feedback-components-feedbackpagination-span-info">
+      <div
+        className="flex items-center"
+        data-cy="feedback-components-feedbackpagination-div-info"
+        id="feedback-components-feedbackpagination-div-info"
+      >
+        <span
+          className="mr-2 text-sm text-gray-400"
+          data-cy="feedback-components-feedbackpagination-span-info"
+          id="feedback-components-feedbackpagination-span-info"
+        >
           Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
           {Math.min(total, current * pageSize)} out of {total} entries
         </span>
-        <Select value={pageSize} className="w-24" onChange={handleSizeChange} data-cy="feedback-components-feedbackpagination-select-page-size" id="feedback-components-feedbackpagination-select-page-size">
-          <Option value={4} data-cy="feedback-components-feedbackpagination-option-4" id="feedback-components-feedbackpagination-option-4">Show 4</Option>
-          <Option value={10} data-cy="feedback-components-feedbackpagination-option-10" id="feedback-components-feedbackpagination-option-10">Show 10</Option>
-          <Option value={25} data-cy="feedback-components-feedbackpagination-option-25" id="feedback-components-feedbackpagination-option-25">Show 25</Option>
+        <Select
+          value={pageSize}
+          className="w-24"
+          onChange={handleSizeChange}
+          data-cy="feedback-components-feedbackpagination-select-page-size"
+          id="feedback-components-feedbackpagination-select-page-size"
+        >
+          <Option
+            value={4}
+            data-cy="feedback-components-feedbackpagination-option-4"
+            id="feedback-components-feedbackpagination-option-4"
+          >
+            Show 4
+          </Option>
+          <Option
+            value={10}
+            data-cy="feedback-components-feedbackpagination-option-10"
+            id="feedback-components-feedbackpagination-option-10"
+          >
+            Show 10
+          </Option>
+          <Option
+            value={25}
+            data-cy="feedback-components-feedbackpagination-option-25"
+            id="feedback-components-feedbackpagination-option-25"
+          >
+            Show 25
+          </Option>
         </Select>
       </div>
     </div>

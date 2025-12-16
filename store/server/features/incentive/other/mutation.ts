@@ -130,7 +130,8 @@ export const useDeleteBulkIncentives = () => {
         queryClient.invalidateQueries(['getAllIncentiveData']);
         NotificationMessage.success({
           message: 'Incentives deleted successfully!',
-          description: 'Selected incentive records have been successfully deleted',
+          description:
+            'Selected incentive records have been successfully deleted',
         });
       },
       onError: () => {

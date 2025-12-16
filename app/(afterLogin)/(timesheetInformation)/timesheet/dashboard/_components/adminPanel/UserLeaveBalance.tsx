@@ -212,10 +212,20 @@ const UserLeaveBalance: React.FC = () => {
                   id={`time-attendance-user-leave-balance-type-card-${index}-balance-value`}
                   data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value`}
                 >
-                  <span id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`} data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`} className="">
+                  <span
+                    id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`}
+                    data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`}
+                    className=""
+                  >
                     {Math.round(item.totalBalance)}
                   </span>
-                  <span id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`} data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`} className="text-[10px] mr-2 font-bold ">days</span>
+                  <span
+                    id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`}
+                    data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`}
+                    className="text-[10px] mr-2 font-bold "
+                  >
+                    days
+                  </span>
                 </div>
                 <div
                   className="text-sm font-medium text-black "

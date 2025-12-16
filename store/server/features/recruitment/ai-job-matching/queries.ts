@@ -10,35 +10,6 @@ import {
   JobMatchSummary,
 } from './interface';
 
-interface JobCandidateRelation {
-  id: string;
-  applicantStatusStage?: {
-    title?: string;
-  };
-}
-
-interface JobInformationApi {
-  id: string;
-  jobTitle: string;
-  jobStatus?: string;
-  jobLocation?: string;
-  location?: string;
-  jobDeadline?: string;
-  department?: { name?: string } | null;
-  organizationDepartment?: { name?: string } | null;
-  departmentName?: string | null;
-  departmentTitle?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-  jobCandidate?: JobCandidateRelation[] | null;
-  totalCandidates?: number;
-  candidateCount?: number;
-}
-
-interface JobListApiResponse {
-  items?: JobInformationApi[];
-}
-
 interface JobCandidateApi {
   id: string;
   fullName?: string;
@@ -50,7 +21,10 @@ interface JobCandidateApi {
   city?: string;
   country?: string;
   createdAt?: string;
-  jobCandidate?: JobCandidateRelation[];
+  jobCandidate?: Array<{
+    id: string;
+    applicantStatusStage?: { title?: string };
+  }>;
 }
 
 interface JobCandidateListResponse {
@@ -58,13 +32,6 @@ interface JobCandidateListResponse {
   meta?: {
     totalItems?: number;
   };
-}
-
-interface CandidateDetailApi extends JobCandidateApi {
-  additionalInformation?: Array<{
-    question: string;
-    answer: string;
-  }>;
 }
 
 const JOBS_PAGE_SIZE = 12;
@@ -77,8 +44,10 @@ const buildHeaders = async () => {
   // Also use demo-tenant if tenantId is empty string or null
   if (!tenantId || tenantId.trim() === '') {
     tenantId = 'demo-tenant';
+    // eslint-disable-next-line no-console
     console.log('[AI Job Matching] Using demo-tenant for sample data');
   } else {
+    // eslint-disable-next-line no-console
     console.log('[AI Job Matching] Using tenantId from store:', tenantId);
   }
 
@@ -90,6 +59,7 @@ const buildHeaders = async () => {
   // Always set tenantId
   headers.tenantId = tenantId;
 
+  // eslint-disable-next-line no-console
   console.log('[AI Job Matching] Request headers:', {
     tenantId,
     hasToken: !!token,
@@ -110,6 +80,7 @@ const fetchJobMatchSummaries = async (): Promise<JobMatchSummary[]> => {
 
   // eslint-disable-next-line no-console
   console.log('[AI Job Matching] Calling Azure DIRECTLY:', url);
+  // eslint-disable-next-line no-console
   console.log('[AI Job Matching] Headers:', headers);
 
   try {
@@ -195,17 +166,6 @@ const fetchMatchedCandidates = async (
     );
     throw error;
   }
-};
-
-const fetchCandidateDetail = async (
-  candidateId: string,
-): Promise<CandidateDetailApi> => {
-  const headers = await buildHeaders();
-  const { data } = await axios.get<CandidateDetailApi>(
-    `${RECRUITMENT_URL}/job-candidate-information/${candidateId}`,
-    { headers },
-  );
-  return data;
 };
 
 const fetchMatchDetails = async (

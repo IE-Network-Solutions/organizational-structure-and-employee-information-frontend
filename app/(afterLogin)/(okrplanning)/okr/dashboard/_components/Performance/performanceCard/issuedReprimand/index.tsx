@@ -41,7 +41,10 @@ const IssuedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
             />
           </g>
           <defs>
-            <clipPath data-cy="okr-issued-reprimand-clip-path" id="clip0_7606_452751">
+            <clipPath
+              data-cy="okr-issued-reprimand-clip-path"
+              id="clip0_7606_452751"
+            >
               <rect
                 width="20"
                 height="20"
