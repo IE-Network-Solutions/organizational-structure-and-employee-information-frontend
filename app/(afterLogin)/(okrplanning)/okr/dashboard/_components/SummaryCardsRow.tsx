@@ -210,16 +210,18 @@ const SummaryCardsRow: React.FC = () => {
                 id="okr-summary-my-okr-card-text"
                 data-cy="okr-summary-my-okr-card-text"
               >
-                <span 
-                id="okr-summary-my-okr-card-value-display-span"
-                data-cy="okr-summary-my-okr-card-value-display-span"
-                className="text-lg font-bold text-gray-800 leading-none">
+                <span
+                  id="okr-summary-my-okr-card-value-display-span"
+                  data-cy="okr-summary-my-okr-card-value-display-span"
+                  className="text-lg font-bold text-gray-800 leading-none"
+                >
                   {userOkr.toFixed(2)}%
                 </span>
-                <span 
-                id="okr-summary-my-okr-card-label-display-span"
-                data-cy="okr-summary-my-okr-card-label-display-span"
-                className="text-xs text-gray-500 font-medium mt-1">
+                <span
+                  id="okr-summary-my-okr-card-label-display-span"
+                  data-cy="okr-summary-my-okr-card-label-display-span"
+                  className="text-xs text-gray-500 font-medium mt-1"
+                >
                   My OKR
                 </span>
               </div>
@@ -228,14 +230,14 @@ const SummaryCardsRow: React.FC = () => {
                 id="okr-summary-my-okr-progress"
                 data-cy="okr-summary-my-okr-progress"
               >
-                <span 
-                id="okr-summary-my-okr-achieved-text-display-span"
-                data-cy="okr-summary-my-okr-achieved-text-display-span"
-                className="text-[10px] text-gray-400 mb-1 text-right whitespace-nowrap">
+                <span
+                  id="okr-summary-my-okr-achieved-text-display-span"
+                  data-cy="okr-summary-my-okr-achieved-text-display-span"
+                  className="text-[10px] text-gray-400 mb-1 text-right whitespace-nowrap"
+                >
                   {achievedKeyResults} Key Results achieved
                 </span>
                 <Progress
-        
                   data-cy="okr-summary-my-okr-progress-progress"
                   percent={userOkr}
                   size="small"
@@ -283,14 +285,14 @@ const SummaryCardsRow: React.FC = () => {
                 id="okr-summary-company-okr-progress"
                 data-cy="okr-summary-company-okr-progress"
               >
-                <span 
-                id="okr-summary-company-okr-achieved-text-display-span"
-                data-cy="okr-summary-company-okr-achieved-text-display-span"
-                className="text-[10px] text-gray-400 mb-1 text-right whitespace-nowrap">
+                <span
+                  id="okr-summary-company-okr-achieved-text-display-span"
+                  data-cy="okr-summary-company-okr-achieved-text-display-span"
+                  className="text-[10px] text-gray-400 mb-1 text-right whitespace-nowrap"
+                >
                   {achievedKeyResults} Key Results achieved
                 </span>
                 <Progress
-               
                   data-cy="okr-summary-company-okr-progress-progress"
                   percent={companyOkr}
                   size="small"
@@ -304,7 +306,7 @@ const SummaryCardsRow: React.FC = () => {
         </div>
         {/* Next four columns: one card each, with correct count and color and progress bar */}
         <div
-          className={`rounded-xl transition-all duration-150 ${selectedCard === 'completed' ? 'bg-gray-50' : 'bg-white'}`}
+          className={`rounded-xl transition-all duration-150 ${selectedCard === 'completed' ? 'bg-gray-100 scale-[1.02]' : 'bg-white scale-100'}`}
           onClick={() =>
             setSelectedCard(selectedCard === 'completed' ? null : 'completed')
           }
@@ -313,28 +315,32 @@ const SummaryCardsRow: React.FC = () => {
         >
           <Card
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
-              hover:shadow-lg`}
+              hover:shadow-lg hover:bg-gray-100`}
             bodyStyle={{ padding: 0, width: '100%' }}
             loading={isObjectivesLoading}
             id="okr-summary-completed-card"
             data-cy="okr-summary-completed-card"
           >
-            <div 
-            id="okr-summary-completed-card-content"
-            data-cy="okr-summary-completed-card-content"
-            className="flex flex-col h-full justify-between">
-              <div 
-              id="okr-summary-completed-card-content-body"
-              data-cy="okr-summary-completed-card-content-body"
-              className="flex flex-col w-full">
-                <div 
-                id="okr-summary-completed-card-content-body-icon"
-                data-cy="okr-summary-completed-card-content-body-icon"
-                className="flex items-start mb-2">
-                  <div 
-                  id="okr-summary-completed-card-content-body-icon-div"
-                  data-cy="okr-summary-completed-card-content-body-icon-div"
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+            <div
+              id="okr-summary-completed-card-content"
+              data-cy="okr-summary-completed-card-content"
+              className="flex flex-col h-full justify-between"
+            >
+              <div
+                id="okr-summary-completed-card-content-body"
+                data-cy="okr-summary-completed-card-content-body"
+                className="flex flex-col w-full"
+              >
+                <div
+                  id="okr-summary-completed-card-content-body-icon"
+                  data-cy="okr-summary-completed-card-content-body-icon"
+                  className="flex items-start mb-2"
+                >
+                  <div
+                    id="okr-summary-completed-card-content-body-icon-div"
+                    data-cy="okr-summary-completed-card-content-body-icon-div"
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100"
+                  >
                     <CiCircleCheck
                       id="okr-summary-completed-card-content-body-icon-div-icon"
                       data-cy="okr-summary-completed-card-content-body-icon-div-icon"
@@ -342,30 +348,32 @@ const SummaryCardsRow: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div 
-                id="okr-summary-completed-card-content-body-progress"
-                data-cy="okr-summary-completed-card-content-body-progress"
-                className="flex flex-row items-center w-full mb-1">
+                <div
+                  id="okr-summary-completed-card-content-body-progress"
+                  data-cy="okr-summary-completed-card-content-body-progress"
+                  className="flex flex-row items-center w-full mb-1"
+                >
                   <span
-                  id="okr-summary-completed-card-content-body-progress-span"
-                  data-cy="okr-summary-completed-card-content-body-progress-span"
+                    id="okr-summary-completed-card-content-body-progress-span"
+                    data-cy="okr-summary-completed-card-content-body-progress-span"
                     className={`text-3xl font-bold mr-2 ${cardStyles.completed.color}`}
                   >
                     {completedObjectives.length}
                   </span>
-                  <div 
-                  id="okr-summary-completed-card-content-body-progress-div"
-                  data-cy="okr-summary-completed-card-content-body-progress-div"
-                  className="flex flex-col items-end flex-1">
-                    <span 
-                    id="okr-summary-completed-card-content-body-progress-percent-display-span"
-                    data-cy="okr-summary-completed-card-content-body-progress-percent-display-span"
-                    className="text-xs text-gray-400 mb-1 whitespace-nowrap">
+                  <div
+                    id="okr-summary-completed-card-content-body-progress-div"
+                    data-cy="okr-summary-completed-card-content-body-progress-div"
+                    className="flex flex-col items-end flex-1"
+                  >
+                    <span
+                      id="okr-summary-completed-card-content-body-progress-percent-display-span"
+                      data-cy="okr-summary-completed-card-content-body-progress-percent-display-span"
+                      className="text-xs text-gray-400 mb-1 whitespace-nowrap"
+                    >
                       {getCategoryPercentOfTotal(completedObjectives)}
                       {getCategoryLabel('completed')}
                     </span>
                     <Progress
-
                       data-cy="okr-summary-completed-card-content-body-progress-progress"
                       percent={getCategoryPercentOfTotal(completedObjectives)}
                       size="default"
@@ -377,17 +385,18 @@ const SummaryCardsRow: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div 
-              id="okr-summary-completed-card-content-body-progress-text"
-              data-cy="okr-summary-completed-card-content-body-progress-text"
-              className="text-xs text-gray-500 font-medium mt-6 w-full text-left">
+              <div
+                id="okr-summary-completed-card-content-body-progress-text"
+                data-cy="okr-summary-completed-card-content-body-progress-text"
+                className="text-xs text-gray-500 font-medium mt-6 w-full text-left"
+              >
                 Completed Objective
               </div>
             </div>
           </Card>
         </div>
         <div
-          className={`rounded-xl transition-all duration-150 ${selectedCard === 'onProgress' ? 'bg-gray-50' : 'bg-white'}`}
+          className={`rounded-xl transition-all duration-150 ${selectedCard === 'onProgress' ? 'bg-gray-100 scale-[1.02]' : 'bg-white scale-100'}`}
           onClick={() =>
             setSelectedCard(selectedCard === 'onProgress' ? null : 'onProgress')
           }
@@ -396,28 +405,32 @@ const SummaryCardsRow: React.FC = () => {
         >
           <Card
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
-              hover:shadow-lg`}
+              hover:shadow-lg hover:bg-gray-100`}
             bodyStyle={{ padding: 0, width: '100%' }}
             loading={isObjectivesLoading}
             id="okr-summary-onprogress-card"
             data-cy="okr-summary-onprogress-card"
           >
-            <div 
-            id="okr-summary-onprogress-card-content"
-            data-cy="okr-summary-onprogress-card-content"
-            className="flex flex-col h-full justify-between">
-              <div 
-              id="okr-summary-onprogress-card-content-body"
-              data-cy="okr-summary-onprogress-card-content-body"
-              className="flex flex-col w-full">
-                <div 
-                id="okr-summary-onprogress-card-content-body-icon"
-                data-cy="okr-summary-onprogress-card-content-body-icon"
-                className="flex items-start mb-2">
-                  <div 
-                  id="okr-summary-onprogress-card-content-body-icon-div"
-                  data-cy="okr-summary-onprogress-card-content-body-icon-div"
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+            <div
+              id="okr-summary-onprogress-card-content"
+              data-cy="okr-summary-onprogress-card-content"
+              className="flex flex-col h-full justify-between"
+            >
+              <div
+                id="okr-summary-onprogress-card-content-body"
+                data-cy="okr-summary-onprogress-card-content-body"
+                className="flex flex-col w-full"
+              >
+                <div
+                  id="okr-summary-onprogress-card-content-body-icon"
+                  data-cy="okr-summary-onprogress-card-content-body-icon"
+                  className="flex items-start mb-2"
+                >
+                  <div
+                    id="okr-summary-onprogress-card-content-body-icon-div"
+                    data-cy="okr-summary-onprogress-card-content-body-icon-div"
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100"
+                  >
                     <IoHourglassOutline
                       id="okr-summary-onprogress-card-content-body-icon-div-icon"
                       data-cy="okr-summary-onprogress-card-content-body-icon-div-icon"
@@ -425,21 +438,23 @@ const SummaryCardsRow: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div 
-                id="okr-summary-onprogress-card-content-body-progress"
-                data-cy="okr-summary-onprogress-card-content-body-progress"
-                className="flex flex-row items-center w-full mb-1">
+                <div
+                  id="okr-summary-onprogress-card-content-body-progress"
+                  data-cy="okr-summary-onprogress-card-content-body-progress"
+                  className="flex flex-row items-center w-full mb-1"
+                >
                   <span
-                  id="okr-summary-onprogress-card-content-body-progress-span"
-                  data-cy="okr-summary-onprogress-card-content-body-progress-span"
+                    id="okr-summary-onprogress-card-content-body-progress-span"
+                    data-cy="okr-summary-onprogress-card-content-body-progress-span"
                     className={`text-3xl font-bold mr-2 ${cardStyles.onProgress.color}`}
                   >
                     {onProgressObjectives.length}
                   </span>
-                  <div 
-                  id="okr-summary-onprogress-card-content-body-progress-div"
-                  data-cy="okr-summary-onprogress-card-content-body-progress-div"
-                  className="flex flex-col items-end flex-1">
+                  <div
+                    id="okr-summary-onprogress-card-content-body-progress-div"
+                    data-cy="okr-summary-onprogress-card-content-body-progress-div"
+                    className="flex flex-col items-end flex-1"
+                  >
                     <span
                       id="okr-summary-onprogress-card-content-body-progress-percent-display-span"
                       data-cy="okr-summary-onprogress-card-content-body-progress-percent-display-span"
@@ -449,7 +464,6 @@ const SummaryCardsRow: React.FC = () => {
                       {getCategoryLabel('onProgress')}
                     </span>
                     <Progress
-                
                       data-cy="okr-summary-onprogress-card-content-body-progress-progress"
                       percent={getCategoryPercentOfTotal(onProgressObjectives)}
                       size="default"
@@ -461,17 +475,18 @@ const SummaryCardsRow: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div 
-              id="okr-summary-onprogress-card-content-body-progress-text"
-              data-cy="okr-summary-onprogress-card-content-body-progress-text"
-              className="text-xs text-gray-500 font-medium mt-6 w-full text-left">
+              <div
+                id="okr-summary-onprogress-card-content-body-progress-text"
+                data-cy="okr-summary-onprogress-card-content-body-progress-text"
+                className="text-xs text-gray-500 font-medium mt-6 w-full text-left"
+              >
                 On Progress Objective
               </div>
             </div>
           </Card>
         </div>
         <div
-          className={`rounded-xl transition-all duration-150 ${selectedCard === 'overdue' ? 'bg-gray-50' : 'bg-white'}`}
+          className={`rounded-xl transition-all duration-150 ${selectedCard === 'overdue' ? 'bg-gray-100 scale-[1.02]' : 'bg-white scale-100'}`}
           onClick={() =>
             setSelectedCard(selectedCard === 'overdue' ? null : 'overdue')
           }
@@ -480,7 +495,7 @@ const SummaryCardsRow: React.FC = () => {
         >
           <Card
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
-              hover:shadow-lg`}
+              hover:shadow-lg hover:bg-gray-100`}
             bodyStyle={{ padding: 0, width: '100%' }}
             loading={isObjectivesLoading}
             id="okr-summary-overdue-card"
@@ -501,10 +516,11 @@ const SummaryCardsRow: React.FC = () => {
                   data-cy="okr-summary-overdue-card-content-body-icon"
                   className="flex items-start mb-2"
                 >
-                  <div 
-                  id="okr-summary-overdue-card-content-body-icon-div"
-                  data-cy="okr-summary-overdue-card-content-body-icon-div"
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+                  <div
+                    id="okr-summary-overdue-card-content-body-icon-div"
+                    data-cy="okr-summary-overdue-card-content-body-icon-div"
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100"
+                  >
                     <TbCalendarX
                       id="okr-summary-overdue-card-content-body-icon-div-icon"
                       data-cy="okr-summary-overdue-card-content-body-icon-div-icon"
@@ -538,7 +554,6 @@ const SummaryCardsRow: React.FC = () => {
                       {getCategoryLabel('overdue')}
                     </span>
                     <Progress
-         
                       data-cy="okr-summary-overdue-card-content-body-progress-progress"
                       percent={getCategoryPercentOfTotal(overdueObjectives)}
                       size="default"
@@ -561,7 +576,7 @@ const SummaryCardsRow: React.FC = () => {
           </Card>
         </div>
         <div
-          className={`rounded-xl transition-all duration-150 ${selectedCard === 'notStarted' ? 'bg-gray-50' : 'bg-white'}`}
+          className={`rounded-xl transition-all duration-150 ${selectedCard === 'notStarted' ? 'bg-gray-100 scale-[1.02]' : 'bg-white scale-100'}`}
           onClick={() =>
             setSelectedCard(selectedCard === 'notStarted' ? null : 'notStarted')
           }
@@ -570,7 +585,7 @@ const SummaryCardsRow: React.FC = () => {
         >
           <Card
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
-              hover:shadow-lg`}
+              hover:shadow-lg hover:bg-gray-100`}
             bodyStyle={{ padding: 0, width: '100%' }}
             loading={isObjectivesLoading}
             id="okr-summary-notstarted-card"
@@ -629,7 +644,6 @@ const SummaryCardsRow: React.FC = () => {
                       {getCategoryLabel('notStarted')}
                     </span>
                     <Progress
-            
                       data-cy="okr-summary-notstarted-card-content-body-progress-progress"
                       percent={getCategoryPercentOfTotal(notStartedObjectives)}
                       size="default"
