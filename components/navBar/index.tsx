@@ -957,6 +957,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, [expandedKeys]);
 
   useEffect(() => {
+    if (pathname === '/dashboard' || pathname === '/') {
+      setExpandedKeys([]);
+      return;
+    }
+    const parentKey = findParentMenuKey(pathname, treeData);
+    if (parentKey) {
+      setExpandedKeys((prev) => {
+        if (prev.length !== 1 || prev[0] !== parentKey) {
+          return [parentKey];
+        }
+        return prev;
+      });
+    }
+  }, [pathname]);
+
+  useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
