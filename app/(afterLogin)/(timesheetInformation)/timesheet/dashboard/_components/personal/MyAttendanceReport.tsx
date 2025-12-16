@@ -167,8 +167,8 @@ const MyAttendanceReport: React.FC = () => {
                         status === 'on time'
                           ? ' text-[#3636F0] bg-[#B2B2FF]/10 font-bold'
                           : status === 'late'
-                            ? 'text-[#FFD023] bg-[#FFDE6533] font-bold '
-                            : 'text-[#e03137] bg-[#f9d6d7] font-bold'
+                            ? 'text-[#e6bb20] bg-[#fffdf7]  font-bold  '
+                            : 'text-[#e13c42] bg-[#fdf4f5] font-bold'
                       }`}
                       id={`time-attendance-personal-attendance-report-record-${req.id}-status-tag`}
                       data-cy={`time-attendance-personal-attendance-report-record-${req.id}-status-tag`}
