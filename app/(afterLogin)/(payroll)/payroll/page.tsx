@@ -398,6 +398,7 @@ const Payroll = () => {
       };
 
       const exportColumns = [
+        { type: 'TIN Number', key: 'tinNumber' },
         { type: 'Basic Salary', key: 'basicSalary' },
         { type: 'Transport Allowance', key: 'transportAllowance' },
         { type: 'Taxable Transport', key: 'taxableTransport' },
@@ -434,7 +435,6 @@ const Payroll = () => {
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
           '--';
         const tinNumber = item.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber || '--';
-        const fullNameWithTIN = `${fullName} (TIN: ${tinNumber})`;
         const basicSalary =
           item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
             ?.basicSalary || 0;
@@ -458,7 +458,8 @@ const Payroll = () => {
           ?.amount || 0;
 
         const payrollRowData: any = {
-          fullName: fullNameWithTIN,
+          fullName,
+          tinNumber,
           basicSalary: formatAmount(basicSalary),
           transportAllowance: formatAmount(transportAllowance),
           taxableTransport: formatAmount(taxableTransport),
@@ -488,7 +489,8 @@ const Payroll = () => {
           0,
         );
         const deductionRow: any = {
-          fullName: fullNameWithTIN,
+          fullName,
+          tinNumber,
           totalDeductions: formatAmount(totalDeductions),
         };
 
@@ -498,7 +500,8 @@ const Payroll = () => {
           0,
         );
         const allowanceRow: any = {
-          fullName: fullNameWithTIN,
+          fullName,
+          tinNumber,
           totalAllowances: formatAmount(totalAllowances),
         };
 
@@ -508,7 +511,8 @@ const Payroll = () => {
           0,
         );
         const meritRow: any = {
-          fullName: fullNameWithTIN,
+          fullName,
+          tinNumber,
           totalMerits: formatAmount(totalMerits),
         };
 
@@ -547,17 +551,31 @@ const Payroll = () => {
         const sheet = workbook.addWorksheet(sheetName);
 
         // **Define Headers**
-        const headers = [
-          { header: 'Full Name', key: 'fullName', minWidth: 30 },
-          ...Array.from(uniqueTypes).map((type) => ({
-            header: columnHeaderMap.get(type) || type,
-            key: type,
-            minWidth: 12,
-          })),
-          ...(sheetName !== 'Payrolls'
-            ? [{ header: `Total ${sheetName}`, key: totalKey, minWidth: 18 }]
-            : []),
-        ];
+        // For Payrolls sheet, ensure TIN Number comes right after Full Name
+        const payrollHeaders = sheetName === 'Payrolls' 
+          ? [
+              { header: 'Full Name', key: 'fullName', minWidth: 30 },
+              { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
+              ...Array.from(uniqueTypes)
+                .filter((type) => type !== 'tinNumber') // Remove tinNumber from the rest
+                .map((type) => ({
+                  header: columnHeaderMap.get(type) || type,
+                  key: type,
+                  minWidth: 12,
+                })),
+            ]
+          : [
+              { header: 'Full Name', key: 'fullName', minWidth: 30 },
+              { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
+              ...Array.from(uniqueTypes).map((type) => ({
+                header: columnHeaderMap.get(type) || type,
+                key: type,
+                minWidth: 12,
+              })),
+              { header: `Total ${sheetName}`, key: totalKey, minWidth: 18 },
+            ];
+
+        const headers = payrollHeaders;
 
         // **Set Column Width Dynamically**
         sheet.columns = headers.map((col) => ({
@@ -858,35 +876,40 @@ const Payroll = () => {
       dataIndex: 'employeeId',
       key: 'employeeId',
       minWidth: 200,
+      render: (notused: any, record: any) => (
+        <div
+          id={`payroll-row-${record.id || record.employeeId}-name-view-container`}
+          data-cy={`payroll-row-${record.id || record.employeeId}-name-view-container`}
+          className="flex items-center gap-2"
+        >
+          <Avatar
+            data-cy={`payroll-row-${record.id || record.employeeId}-avatar-view-component`}
+            src={record.employeeInfo?.profileImage}
+            size={32}
+          />
+          <span
+            id={`payroll-row-${record.id || record.employeeId}-fullname-view-text`}
+            data-cy={`payroll-row-${record.id || record.employeeId}-fullname-view-text`}
+          >
+            {`${record.employeeInfo?.firstName || ''} ${record.employeeInfo?.lastName || ''}`}
+          </span>
+        </div>
+      ),
+    },
+    {
+      title: 'TIN Number',
+      dataIndex: 'tinNumber',
+      key: 'tinNumber',
+      minWidth: 150,
       render: (notused: any, record: any) => {
         const tinNumber = record.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber || '--';
         return (
-          <div
-            id={`payroll-row-${record.id || record.employeeId}-name-view-container`}
-            data-cy={`payroll-row-${record.id || record.employeeId}-name-view-container`}
-            className="flex items-center gap-2"
+          <span
+            id={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
+            data-cy={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
           >
-            <Avatar
-              data-cy={`payroll-row-${record.id || record.employeeId}-avatar-view-component`}
-              src={record.employeeInfo?.profileImage}
-              size={32}
-            />
-            <div className="flex flex-col">
-              <span
-                id={`payroll-row-${record.id || record.employeeId}-fullname-view-text`}
-                data-cy={`payroll-row-${record.id || record.employeeId}-fullname-view-text`}
-              >
-                {`${record.employeeInfo?.firstName || ''} ${record.employeeInfo?.lastName || ''}`}
-              </span>
-              <span
-                id={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
-                data-cy={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
-                className="text-xs text-gray-500"
-              >
-                TIN: {tinNumber}
-              </span>
-            </div>
-          </div>
+            {tinNumber}
+          </span>
         );
       },
     },
