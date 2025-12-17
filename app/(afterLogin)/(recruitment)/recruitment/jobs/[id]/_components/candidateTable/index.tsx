@@ -226,9 +226,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           className="text-lg font-semibold mb-4 text-center"
           data-cy="talent-acquisition-job-candidate-table-hire-popover-title"
         >
-          <span data-cy="talent-acquisition-job-candidate-table-hire-popover-title-text">
             Date Hired
-          </span>
+        
         </h3>
         <Form form={hireForm} layout="vertical">
           <Form.Item
@@ -262,11 +261,9 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               className="bg-blue-600 hover:bg-blue-700 h-8"
               loading={isHireLoading}
             >
-              <span
-                data-cy={`talent-acquisition-job-candidate-table-button-hire-text-${item?.id}`}
-              >
+            
                 Hire Candidate
-              </span>
+           
             </Button>
             <Button
               id={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
@@ -275,11 +272,9 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               onClick={() => handleCancelHire(item?.id)}
               className="h-8"
             >
-              <span
-                data-cy={`talent-acquisition-job-candidate-table-button-cancel-hire-text-${item?.id}`}
-              >
+           
                 Cancel
-              </span>
+            
             </Button>
           </div>
         </Form>
@@ -344,11 +339,9 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               id={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
               data-cy={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
             >
-              <span
-                data-cy={`talent-acquisition-job-candidate-table-option-stage-text-${stage.id}-${item?.id}`}
-              >
+             
                 {stage.title}
-              </span>
+              
             </Select.Option>
           ))}
         </Select>

@@ -25,9 +25,8 @@ const CandidateDetail: React.FC = ({}) => {
             className="font-semibold"
             data-cy="talent-acquisition-job-candidate-detail-tab-cover-letter-text"
           >
-            <span data-cy="talent-acquisition-job-candidate-detail-tab-cover-letter-text-content">
-              Cover Letter
-            </span>
+             Cover Letter
+           
           </p>
         </span>
       ),
@@ -76,28 +75,25 @@ const CandidateDetail: React.FC = ({}) => {
           className="text-lg font-bold"
           data-cy="talent-acquisition-job-candidate-detail-drawer-header-name"
         >
-          <span data-cy="talent-acquisition-job-candidate-detail-drawer-header-name-text">
-            {selectedCandidate?.fullName}
-          </span>
+           {selectedCandidate?.fullName}
+        
         </div>
         <div
           className={`mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border`}
           data-cy="talent-acquisition-job-candidate-detail-drawer-header-status-badge"
         >
-          <span data-cy="talent-acquisition-job-candidate-detail-drawer-header-status-badge-text">
-            Applied
-          </span>
+          Applied
+        
         </div>
       </div>
       <div
         className="text-xs font-light text-gray-400"
         data-cy="talent-acquisition-job-candidate-detail-drawer-header-job-title"
       >
-        <span data-cy="talent-acquisition-job-candidate-detail-drawer-header-job-title-text">
-          {selectedCandidate?.jobCandidate
+         {selectedCandidate?.jobCandidate
             ?.map((item: any) => item?.jobInformation?.jobTitle)
             .join(', ')}
-        </span>
+     
       </div>
       <div
         className="flex items-center justify-between"
@@ -116,9 +112,8 @@ const CandidateDetail: React.FC = ({}) => {
               size={15}
               data-cy="talent-acquisition-job-candidate-detail-drawer-header-email-icon"
             />
-            <span data-cy="talent-acquisition-job-candidate-detail-drawer-header-email-text">
-              {selectedCandidate?.email}
-            </span>
+             {selectedCandidate?.email}
+           
           </div>
           <div
             className="flex items-center justify-start gap-2 text-[12px] font-semibold"
@@ -129,9 +124,8 @@ const CandidateDetail: React.FC = ({}) => {
               size={13}
               data-cy="talent-acquisition-job-candidate-detail-drawer-header-phone-icon"
             />
-            <span data-cy="talent-acquisition-job-candidate-detail-drawer-header-phone-text">
-              {selectedCandidate?.phone}
-            </span>
+            {selectedCandidate?.phone}
+          
           </div>
         </div>
         <div
@@ -146,9 +140,8 @@ const CandidateDetail: React.FC = ({}) => {
               className="text-sm font-normal text-gray-500"
               data-cy="talent-acquisition-job-candidate-detail-drawer-header-status-label"
             >
-              <span data-cy="talent-acquisition-job-candidate-detail-drawer-header-status-label-text">
                 Status:{' '}
-              </span>
+             
             </span>
             {selectedCandidate?.jobCandidate?.map((item: any) => (
               <span
@@ -162,11 +155,9 @@ const CandidateDetail: React.FC = ({}) => {
                 }`}
                 data-cy={`talent-acquisition-job-candidate-detail-drawer-header-status-value-${item?.id}`}
               >
-                <span
-                  data-cy={`talent-acquisition-job-candidate-detail-drawer-header-status-value-text-${item?.id}`}
-                >
+               
                   {' ' + item?.applicantStatusStage?.title}
-                </span>
+               
               </span>
             ))}
           </div>

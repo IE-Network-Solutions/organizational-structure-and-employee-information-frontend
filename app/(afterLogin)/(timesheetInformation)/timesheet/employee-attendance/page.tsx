@@ -30,6 +30,7 @@ const EmployeeAttendance = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isExportLoading, setIsExportLoading] = useState(false);
   const [exportType, setExportType] = useState<'EXCEL' | 'PDF' | null>(null);
+  const [isExportDisabled, setIsExportDisabled] = useState(false);
   const [file, setFile] = useState<any>();
   const [bodyRequest, setBodyRequest] = useState<AttendanceRequestBody>({
     filter: {}, // Initialize with empty filter
@@ -40,7 +41,8 @@ const EmployeeAttendance = () => {
     true,
     true,
   );
-  const { mutate: exportAttendanceData } = UseExportAttendanceData();
+  const { mutate: exportAttendanceData, isLoading: isExportingData } =
+    UseExportAttendanceData();
   // Log the current state of data and request
   useEffect(() => {
     if (bodyRequest.exportType) {
@@ -64,17 +66,29 @@ const EmployeeAttendance = () => {
   const exportTimeoutRef = useRef<NodeJS.Timeout>();
 
   const onExport = async (type: 'PDF' | 'EXCEL') => {
+    setExportType(type);
     try {
-      exportAttendanceData({
-        exportType: type,
-        filter: {
-          ...filter,
-          attendanceRecordIds:
-            selectedRowKeys.length > 0
-              ? selectedRowKeys.map((key) => key.toString())
-              : filter?.attendanceRecordIds,
+      exportAttendanceData(
+        {
+          exportType: type,
+          filter: {
+            ...filter,
+            attendanceRecordIds:
+              selectedRowKeys.length > 0
+                ? selectedRowKeys.map((key) => key.toString())
+                : filter?.attendanceRecordIds,
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            message.success('Download completed successfully!');
+            setIsExportDisabled(true);
+            setTimeout(() => {
+              setIsExportDisabled(false);
+            }, 2000);
+          },
+        },
+      );
     } catch (error) {
       message.error('Failed to export. Please try again.');
       setIsExportLoading(false);
@@ -284,7 +298,8 @@ const EmployeeAttendance = () => {
                             />
                           }
                           onClick={() => onExport('EXCEL')}
-                          loading={isExportLoading && exportType === 'EXCEL'}
+                          loading={isExportingData && exportType === 'EXCEL'}
+                          disabled={isExportDisabled}
                           id="time-attendance-employee-attendance-export-excel-button"
                           data-cy="time-attendance-employee-attendance-export-excel-button"
                         >
@@ -298,7 +313,8 @@ const EmployeeAttendance = () => {
                           type="primary"
                           icon={<LuBookmark size={16} />}
                           onClick={() => onExport('PDF')}
-                          loading={isExportLoading && exportType === 'PDF'}
+                          loading={isExportingData && exportType === 'PDF'}
+                          disabled={isExportDisabled}
                           id="time-attendance-employee-attendance-export-pdf-button"
                           data-cy="time-attendance-employee-attendance-export-pdf-button"
                         >

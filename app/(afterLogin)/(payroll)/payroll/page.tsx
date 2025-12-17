@@ -56,6 +56,7 @@ const Payroll = () => {
   const { data: allowanceTypesData } = useFetchAllowanceTypes();
   const [exportPayrollData, setExportPayrollData] = useState(true);
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const {
     searchQuery,
@@ -173,27 +174,51 @@ const Payroll = () => {
     }
   }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
 
+  // Get selected payroll data or all data if nothing is selected
+  const getSelectedPayrollData = () => {
+    if (selectedRowKeys.length === 0) {
+      return mergedPayrollForExport;
+    }
+    return mergedPayrollForExport.filter((item: any) =>
+      selectedRowKeys.includes(item.id || item.employeeId),
+    );
+  };
+
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
+    const selectedData = getSelectedPayrollData();
+
+    // Check if there's any data available to export
+    if (!selectedData || selectedData.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description: selectedRowKeys.length > 0
+          ? 'The selected employees have no payroll data to export. Please adjust your selection or filters.'
+          : 'There is no payroll data available to export. Please check your filters or generate payroll first.',
+      });
+      return;
+    }
 
     if (paySlip)
       exportTasks.push(
-        Promise.resolve(sendingPaySlipHandler(mergedPayrollForExport)),
+        Promise.resolve(sendingPaySlipHandler(selectedData)),
       );
 
     if (exportPayrollData)
-      exportTasks.push(Promise.resolve(handleDeductionExportPayroll()));
+      exportTasks.push(Promise.resolve(handleDeductionExportPayroll(selectedData)));
 
-    if (exportBank) exportTasks.push(handleExportBank());
+    if (exportBank) exportTasks.push(handleExportBank(selectedData));
 
-    if (bankLetter)
-      exportTasks.push(
-        Promise.resolve(
-          handleBankLetter(
-            payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
-          ),
-        ),
+    if (bankLetter) {
+      // Calculate total net pay for selected items
+      const totalNetPay = selectedData.reduce(
+        (sum: number, item: any) => sum + (item.netPay || 0),
+        0,
       );
+      exportTasks.push(
+        Promise.resolve(handleBankLetter(totalNetPay)),
+      );
+    }
 
     if (exportTasks?.length === 0) {
       notification.error({
@@ -208,7 +233,7 @@ const Payroll = () => {
       await Promise.all(exportTasks); // Await all promises
       notification.success({
         message: 'Export Successful',
-        description: 'Selected export operations completed successfully.',
+        description: `Selected export operations completed successfully for ${selectedData.length} employee(s).`,
       });
     } catch (error) {
       notification.error({
@@ -273,6 +298,8 @@ const Payroll = () => {
       ? `&${queryParams.toString()}`
       : '';
     setSearchQuery(searchParams);
+    // Reset selection when filters change
+    setSelectedRowKeys([]);
     refetch();
     refetchExportData();
   };
@@ -341,8 +368,9 @@ const Payroll = () => {
     }));
     sendPaySlip({ values });
   };
-  const handleDeductionExportPayroll = async () => {
-    if (!mergedPayrollForExport || mergedPayrollForExport?.length === 0) {
+  const handleDeductionExportPayroll = async (dataToExport?: any[]) => {
+    const payrollDataToExport = dataToExport || mergedPayrollForExport;
+    if (!payrollDataToExport || payrollDataToExport?.length === 0) {
       NotificationMessage.error({
         message: 'No Data Available',
         description: 'There is no data available to export.',
@@ -388,7 +416,7 @@ const Payroll = () => {
         exportColumns.map((col) => [col.key, col.type]),
       );
       exportColumns.forEach((col) => uniquePayrollColumns.add(col.key));
-      mergedPayrollForExport.forEach((item: any) => {
+      payrollDataToExport.forEach((item: any) => {
         item.breakdown?.allowances?.forEach((a: any) =>
           uniqueAllowanceTypes.add(a.type),
         );
@@ -400,7 +428,7 @@ const Payroll = () => {
         );
       });
 
-      mergedPayrollForExport.forEach((item: any) => {
+      payrollDataToExport.forEach((item: any) => {
         const fullName =
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
           '--';
@@ -645,7 +673,8 @@ const Payroll = () => {
     }
   };
 
-  const handleExportBank = async () => {
+  const handleExportBank = async (dataToExport?: any[]) => {
+    const payrollDataToExport = dataToExport || mergedPayrollForExport;
     if (!employeeInfo || employeeInfo?.length === 0) {
       notification.error({
         message: 'No Data Available',
@@ -662,8 +691,16 @@ const Payroll = () => {
         });
       };
 
-      const flatData = employeeInfo.map((employee: any) => {
-        const payroll = mergedPayrollForExport.find(
+      // Filter employees based on selected payroll data
+      const selectedEmployeeIds = new Set(
+        payrollDataToExport.map((p: any) => p.employeeId),
+      );
+      const filteredEmployees = employeeInfo.filter((employee: any) =>
+        selectedEmployeeIds.has(employee.id),
+      );
+
+      const flatData = filteredEmployees.map((employee: any) => {
+        const payroll = payrollDataToExport.find(
           (p: any) => p.employeeId === employee.id,
         ) as Payroll | undefined;
 
@@ -1402,6 +1439,25 @@ const Payroll = () => {
             dataSource={mergedPayroll || []}
             columns={columns}
             pagination={false}
+            rowSelection={{
+              selectedRowKeys,
+              onChange: (newSelectedRowKeys: React.Key[]) => {
+                setSelectedRowKeys(newSelectedRowKeys);
+              },
+              /* eslint-disable @typescript-eslint/no-unused-vars */
+              onSelectAll: (selected: boolean, selectedRows: any[], changeRows: any[]) => {
+                if (selected) {
+                  const allKeys = mergedPayroll.map(
+                    (item: any) => item.id || item.employeeId,
+                  );
+                  setSelectedRowKeys(allKeys);
+                } else {
+                  setSelectedRowKeys([]);
+                }
+              },
+              /* eslint-enable @typescript-eslint/no-unused-vars */
+            }}
+            rowKey={(record: any) => record.id || record.employeeId}
           />
           {isMobile || isTablet ? (
             <CustomMobilePagination
@@ -1426,7 +1482,11 @@ const Payroll = () => {
           title="Export for Bank"
           data-cy="payroll-export-modal-view-modal"
           open={isModalOpen}
-          onCancel={() => setIsModalOpen(false)}
+          onCancel={() => {
+            setIsModalOpen(false);
+            // Optionally reset selection when modal closes
+            // setSelectedRowKeys([]);
+          }}
           footer={
             <div
               id="payroll-export-modal-footer-view-container"
@@ -1448,7 +1508,10 @@ const Payroll = () => {
                 type="primary"
                 onClick={handleExportAll}
                 className="text-white bg-blue border-none"
-                disabled={!bankLetter || loading}
+                disabled={
+                  loading ||
+                  (!bankLetter && !exportPayrollData && !paySlip && !exportBank)
+                }
                 loading={loading}
               >
                 Export
@@ -1513,7 +1576,6 @@ const Payroll = () => {
               <Switch
                 id="payroll-export-payslip-toggle-switch"
                 data-cy="payroll-export-payslip-toggle-switch"
-                disabled={!isMobile}
                 checked={paySlip}
                 onChange={() => setPaySlip(!paySlip)}
               />
