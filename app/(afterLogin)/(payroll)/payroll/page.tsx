@@ -401,15 +401,16 @@ const Payroll = () => {
         { type: 'Basic Salary', key: 'basicSalary' },
         { type: 'Transport Allowance', key: 'transportAllowance' },
         { type: 'Taxable Transport', key: 'taxableTransport' },
-        { type: 'Total Award', key: 'totalBenefits' },
-        { type: 'Gross Salary', key: 'grossIncome' },
-        { type: 'Taxable Income', key: 'taxableIncome' },
-        { type: 'Tax', key: 'tax' },
-        { type: 'Total Deduction', key: 'totalDeduction' },
+        { type: 'Position Allowance', key: 'positionAllowance' },
+        { type: 'Total Benefits', key: 'totalBenefits' },
         { type: 'Variable Pay', key: 'variablePay' },
-        { type: 'Total Incentive', key: 'totalIncentive' },
+        { type: 'Gross Salary', key: 'grossIncome' },
         { type: 'Employee Pension', key: 'employeePension' },
+        { type: 'Tax', key: 'tax' },
         { type: 'Company Pension', key: 'companyPesnion' },
+        { type: 'Total Deduction', key: 'totalDeduction' },
+        { type: 'Total Incentive', key: 'totalIncentive' },
+        { type: 'Taxable Income', key: 'taxableIncome' },
         { type: 'Net Income', key: 'netIncome' },
       ];
       const columnHeaderMap = new Map<string, string>(
@@ -432,6 +433,8 @@ const Payroll = () => {
         const fullName =
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
           '--';
+        const tinNumber = item.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber || '--';
+        const fullNameWithTIN = `${fullName} (TIN: ${tinNumber})`;
         const basicSalary =
           item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
             ?.basicSalary || 0;
@@ -448,29 +451,35 @@ const Payroll = () => {
           }, 0);
         const taxableTransport = transportAllowance - 600;
         const totalBenefits = item.totalMerit || 0;
+        
+        // Find Position Allowance from allowances
+        const positionAllowance = allowances
+          ?.find((a: any) => a.type === 'Position Allowance' || a.type?.toLowerCase().includes('position'))
+          ?.amount || 0;
 
         const payrollRowData: any = {
-          fullName,
+          fullName: fullNameWithTIN,
           basicSalary: formatAmount(basicSalary),
           transportAllowance: formatAmount(transportAllowance),
           taxableTransport: formatAmount(taxableTransport),
           totalBenefits: formatAmount(totalBenefits || 0),
-          grossIncome: formatAmount(item.grossSalary || 0),
-          taxableIncome: formatAmount(item.grossSalary - 600 || 0),
-          tax: formatAmount(item.breakdown?.tax?.amount),
-          totalDeduction: formatAmount(item.totalDeductions || 0),
           variablePay: formatAmount(variablePay || 0),
-          totalIncentive: formatAmount(totalIncentive || 0),
+          grossIncome: formatAmount(item.grossSalary || 0),
           employeePension: formatAmount(
             item.breakdown?.pension?.find((i: any) => i.type == 'Pension')
               ?.amount || 0,
           ),
+          tax: formatAmount(item.breakdown?.tax?.amount),
           companyPesnion: formatAmount(
             item.breakdown?.pension?.find(
               (i: any) => i.type == 'CompanyContribution',
             )?.amount || 0,
           ),
+          totalDeduction: formatAmount(item.totalDeductions || 0),
+          totalIncentive: formatAmount(totalIncentive || 0),
+          taxableIncome: formatAmount(item.grossSalary - 600 || 0),
           netIncome: formatAmount(item.netPay || 0),
+          positionAllowance: formatAmount(positionAllowance || 0),
         };
 
         // Calculate total deductions
@@ -479,7 +488,7 @@ const Payroll = () => {
           0,
         );
         const deductionRow: any = {
-          fullName,
+          fullName: fullNameWithTIN,
           totalDeductions: formatAmount(totalDeductions),
         };
 
@@ -489,7 +498,7 @@ const Payroll = () => {
           0,
         );
         const allowanceRow: any = {
-          fullName,
+          fullName: fullNameWithTIN,
           totalAllowances: formatAmount(totalAllowances),
         };
 
@@ -499,7 +508,7 @@ const Payroll = () => {
           0,
         );
         const meritRow: any = {
-          fullName,
+          fullName: fullNameWithTIN,
           totalMerits: formatAmount(totalMerits),
         };
 
@@ -849,25 +858,37 @@ const Payroll = () => {
       dataIndex: 'employeeId',
       key: 'employeeId',
       minWidth: 200,
-      render: (notused: any, record: any) => (
-        <div
-          id={`payroll-row-${record.id || record.employeeId}-name-view-container`}
-          data-cy={`payroll-row-${record.id || record.employeeId}-name-view-container`}
-          className="flex items-center gap-2"
-        >
-          <Avatar
-            data-cy={`payroll-row-${record.id || record.employeeId}-avatar-view-component`}
-            src={record.employeeInfo?.profileImage}
-            size={32}
-          />
-          <span
-            id={`payroll-row-${record.id || record.employeeId}-fullname-view-text`}
-            data-cy={`payroll-row-${record.id || record.employeeId}-fullname-view-text`}
+      render: (notused: any, record: any) => {
+        const tinNumber = record.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber || '--';
+        return (
+          <div
+            id={`payroll-row-${record.id || record.employeeId}-name-view-container`}
+            data-cy={`payroll-row-${record.id || record.employeeId}-name-view-container`}
+            className="flex items-center gap-2"
           >
-            {`${record.employeeInfo?.firstName || ''} ${record.employeeInfo?.lastName || ''}`}
-          </span>
-        </div>
-      ),
+            <Avatar
+              data-cy={`payroll-row-${record.id || record.employeeId}-avatar-view-component`}
+              src={record.employeeInfo?.profileImage}
+              size={32}
+            />
+            <div className="flex flex-col">
+              <span
+                id={`payroll-row-${record.id || record.employeeId}-fullname-view-text`}
+                data-cy={`payroll-row-${record.id || record.employeeId}-fullname-view-text`}
+              >
+                {`${record.employeeInfo?.firstName || ''} ${record.employeeInfo?.lastName || ''}`}
+              </span>
+              <span
+                id={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
+                data-cy={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
+                className="text-xs text-gray-500"
+              >
+                TIN: {tinNumber}
+              </span>
+            </div>
+          </div>
+        );
+      },
     },
     {
       title: 'Basic Salary',
@@ -898,16 +919,21 @@ const Payroll = () => {
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
     },
-
     {
-      title: 'Tax',
-      dataIndex: 'tax',
-      key: 'tax',
+      title: 'Variable Pay',
+      dataIndex: 'variablePay',
+      key: 'variablePay',
       minWidth: 150,
       render: (notused: any, record: any) =>
-        Number(record.breakdown?.tax?.amount)?.toLocaleString(),
+        Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
     },
-
+    {
+      title: 'Gross Salary',
+      dataIndex: 'grossSalary',
+      key: 'grossSalary',
+      minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
+    },
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
@@ -918,6 +944,14 @@ const Payroll = () => {
           record.breakdown?.pension?.find((i: any) => i.type == 'Pension')
             ?.amount,
         )?.toLocaleString(),
+    },
+    {
+      title: 'Tax',
+      dataIndex: 'tax',
+      key: 'tax',
+      minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.tax?.amount)?.toLocaleString(),
     },
     {
       title: 'Company Pension',
@@ -945,21 +979,6 @@ const Payroll = () => {
       minWidth: 150,
       render: (notused: any, record: any) =>
         Number(record.breakdown?.incentives?.amount)?.toLocaleString(),
-    },
-    {
-      title: 'Variable Pay',
-      dataIndex: 'variablePay',
-      key: 'variablePay',
-      minWidth: 150,
-      render: (notused: any, record: any) =>
-        Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
-    },
-    {
-      title: 'Gross Income after VP',
-      dataIndex: 'grossSalary',
-      key: 'grossSalary',
-      minWidth: 150,
-      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Taxable Income',
