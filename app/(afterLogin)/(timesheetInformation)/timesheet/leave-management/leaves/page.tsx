@@ -2,7 +2,7 @@
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import LeaveManagementTable from './_components/leaveManagementTable';
-import { Button, Col, Popover, Row, Space } from 'antd';
+import { Button, Col, Popover, Row, Space, Tooltip } from 'antd';
 import CustomButton from '@/components/common/buttons/customButton';
 import { TbFileDownload, TbLayoutList } from 'react-icons/tb';
 import { LuBookmark } from 'react-icons/lu';
@@ -110,28 +110,40 @@ const LeaveManagement = () => {
               id="time-attendance-leave-management-header-actions"
               data-cy="time-attendance-leave-management-header-actions"
             >
-              <CustomButton
-                title={!isSmallScreen ? 'Email Reminder' : ' '} // Hide text on small screens
-                id="emailNotification"
-                data-cy="time-attendance-leave-management-email-notification-button"
-                className={isSmallScreen ? 'w-10 h-10' : ''}
-                icon={
-                  <MdMarkEmailRead
-                    data-cy="time-attendance-leave-management-email-notification-button-icon"
-                    size={20}
-                  />
+              <Tooltip
+                id="time-attendance-leave-management-email-notification-button-tooltip"
+                data-cy="time-attendance-leave-management-email-notification-button-tooltip"
+                color="white"
+                title={
+                  <span className="text-black font-Manrope text-sm">
+                    Send an email for leave approvers who have not taken action
+                    on pending leave requests
+                  </span>
                 }
-                onClick={() => {
-                  const selectedIds =
-                    selectedRowKeys.length > 0
-                      ? selectedRowKeys.map((key) => key.toString())
-                      : undefined;
-                  sendNotification({
-                    leaveRequestIds: selectedIds,
-                  });
-                }}
-                loading={isLoading}
-              />
+              >
+                <CustomButton
+                  title={!isSmallScreen ? 'Email Reminder' : ' '}
+                  id="emailNotification"
+                  data-cy="time-attendance-leave-management-email-notification-button"
+                  className={isSmallScreen ? 'w-10 h-10' : ''}
+                  icon={
+                    <MdMarkEmailRead
+                      data-cy="time-attendance-leave-management-email-notification-button-icon"
+                      size={20}
+                    />
+                  }
+                  onClick={() => {
+                    const selectedIds =
+                      selectedRowKeys.length > 0
+                        ? selectedRowKeys.map((key) => key.toString())
+                        : undefined;
+                    sendNotification({
+                      leaveRequestIds: selectedIds,
+                    });
+                  }}
+                  loading={isLoading}
+                />
+              </Tooltip>
               <Popover
                 data-cy="time-attendance-leave-management-export-popover"
                 trigger="click"

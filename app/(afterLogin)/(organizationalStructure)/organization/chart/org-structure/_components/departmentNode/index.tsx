@@ -75,6 +75,10 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
             id="org-org-structure-components-departmentnode-index-accessguard-1"
           >
             <Button
+              style={{
+                minHeight: 'unset',
+                minWidth: 'unset',
+              }}
               id="ceoButton"
               data-cy="org-structure-root-add-department-btn"
               icon={
@@ -108,6 +112,10 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
             data-cy={`org-structure-department-dropdown-${departmentId}`}
           >
             <Button
+              style={{
+                minHeight: 'unset',
+                minWidth: 'unset',
+              }}
               icon={
                 <Pencil
                   size={8}
@@ -161,6 +169,11 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
             id="org-org-structure-components-departmentnode-index-accessguard-3"
           >
             <Button
+              style={{
+                minHeight: 'unset',
+                minWidth: 'unset',
+                marginTop: '5px',
+              }}
               id={`${data.name}Button`}
               data-cy={`org-structure-department-add-child-${departmentId}`}
               icon={
@@ -172,7 +185,6 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
               size="small"
               type="primary"
               className="rounded-full absolute bottom-[-10px] hide-on-download z-50"
-              style={{ marginTop: '5px' }}
               onClick={onAdd}
             />
           </AccessGuard>

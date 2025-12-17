@@ -964,6 +964,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, [expandedKeys]);
 
   useEffect(() => {
+    if (pathname === '/dashboard' || pathname === '/') {
+      setExpandedKeys([]);
+      return;
+    }
+    const parentKey = findParentMenuKey(pathname, treeData);
+    if (parentKey) {
+      setExpandedKeys((prev) => {
+        if (prev.length !== 1 || prev[0] !== parentKey) {
+          return [parentKey];
+        }
+        return prev;
+      });
+    }
+  }, [pathname]);
+
+  useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
@@ -1326,7 +1342,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               className="overflow-y-hidden min-h-screen"
               style={{
                 paddingInline: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 0 : collapsed ? 100 : 280,
+                paddingLeft: isMobile ? 0 : collapsed ? 100 : 300,
                 transition: 'padding-left 0.3s ease',
               }}
             >
@@ -1339,7 +1355,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
                   style={{
                     borderRadius: borderRadiusLG,
-                    marginTop: `${isMobile ? '85px' : '94px'}`,
+                    marginTop: `${isMobile ? '85px' : collapsed ? '94px' : '94px'}`,
                     marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
                   }}
                 >

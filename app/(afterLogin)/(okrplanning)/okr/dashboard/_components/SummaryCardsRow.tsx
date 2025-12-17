@@ -306,7 +306,7 @@ const SummaryCardsRow: React.FC = () => {
         </div>
         {/* Next four columns: one card each, with correct count and color and progress bar */}
         <div
-          className={`rounded-xl transition-all duration-150 ${selectedCard === 'completed' ? 'bg-gray-50' : 'bg-white'}`}
+          className={`rounded-xl transition-all duration-150 ${selectedCard === 'completed' ? 'bg-gray-100 scale-[1.02]' : 'bg-white scale-100'}`}
           onClick={() =>
             setSelectedCard(selectedCard === 'completed' ? null : 'completed')
           }
@@ -315,7 +315,7 @@ const SummaryCardsRow: React.FC = () => {
         >
           <Card
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
-              hover:shadow-lg`}
+              hover:shadow-lg hover:bg-gray-100`}
             bodyStyle={{ padding: 0, width: '100%' }}
             loading={isObjectivesLoading}
             id="okr-summary-completed-card"
@@ -396,7 +396,7 @@ const SummaryCardsRow: React.FC = () => {
           </Card>
         </div>
         <div
-          className={`rounded-xl transition-all duration-150 ${selectedCard === 'onProgress' ? 'bg-gray-50' : 'bg-white'}`}
+          className={`rounded-xl transition-all duration-150 ${selectedCard === 'onProgress' ? 'bg-gray-100 scale-[1.02]' : 'bg-white scale-100'}`}
           onClick={() =>
             setSelectedCard(selectedCard === 'onProgress' ? null : 'onProgress')
           }
@@ -405,7 +405,7 @@ const SummaryCardsRow: React.FC = () => {
         >
           <Card
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
-              hover:shadow-lg`}
+              hover:shadow-lg hover:bg-gray-100`}
             bodyStyle={{ padding: 0, width: '100%' }}
             loading={isObjectivesLoading}
             id="okr-summary-onprogress-card"
@@ -486,7 +486,7 @@ const SummaryCardsRow: React.FC = () => {
           </Card>
         </div>
         <div
-          className={`rounded-xl transition-all duration-150 ${selectedCard === 'overdue' ? 'bg-gray-50' : 'bg-white'}`}
+          className={`rounded-xl transition-all duration-150 ${selectedCard === 'overdue' ? 'bg-gray-100 scale-[1.02]' : 'bg-white scale-100'}`}
           onClick={() =>
             setSelectedCard(selectedCard === 'overdue' ? null : 'overdue')
           }
@@ -495,7 +495,7 @@ const SummaryCardsRow: React.FC = () => {
         >
           <Card
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
-              hover:shadow-lg`}
+              hover:shadow-lg hover:bg-gray-100`}
             bodyStyle={{ padding: 0, width: '100%' }}
             loading={isObjectivesLoading}
             id="okr-summary-overdue-card"
@@ -576,7 +576,7 @@ const SummaryCardsRow: React.FC = () => {
           </Card>
         </div>
         <div
-          className={`rounded-xl transition-all duration-150 ${selectedCard === 'notStarted' ? 'bg-gray-50' : 'bg-white'}`}
+          className={`rounded-xl transition-all duration-150 ${selectedCard === 'notStarted' ? 'bg-gray-100 scale-[1.02]' : 'bg-white scale-100'}`}
           onClick={() =>
             setSelectedCard(selectedCard === 'notStarted' ? null : 'notStarted')
           }
@@ -585,7 +585,7 @@ const SummaryCardsRow: React.FC = () => {
         >
           <Card
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
-              hover:shadow-lg`}
+              hover:shadow-lg hover:bg-gray-100`}
             bodyStyle={{ padding: 0, width: '100%' }}
             loading={isObjectivesLoading}
             id="okr-summary-notstarted-card"
