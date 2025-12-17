@@ -69,6 +69,7 @@ const LeaveRequestSidebar = () => {
   } = useSetLeaveRequest();
   const [leaveRequest, setLeaveRequest] = useState<LeaveRequest>();
   const [isLoading, setIsLoading] = useState(false);
+  const [showApproverMessage, setShowApproverMessage] = useState(false);
 
   const [form] = Form.useForm();
 
@@ -134,6 +135,7 @@ const LeaveRequestSidebar = () => {
     setIsLoading(false);
     setLeaveRequestSidebarData(null);
     setIsShowLeaveRequestSidebar(false);
+    setShowApproverMessage(false);
   };
 
   useEffect(() => {
@@ -141,6 +143,7 @@ const LeaveRequestSidebar = () => {
     if (isShowLeaveRequestSidebar && !leaveRequestSidebarData) {
       setLeaveRequest(undefined);
       form.resetFields();
+      setShowApproverMessage(false);
     }
   }, [isShowLeaveRequestSidebar, leaveRequestSidebarData]);
 
@@ -168,26 +171,25 @@ const LeaveRequestSidebar = () => {
       'data-cy': 'time-attendance-leave-request-sidebar-cancel-button',
     },
     {
-      label:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
-          ? 'You lack an assigned approver.'
-          : leaveRequest
-            ? 'Update'
-            : 'Create',
+      label: leaveRequest ? 'Update' : 'Add',
       key: 'create',
-      className: 'h-[40px] sm:h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base !bg-purple !border-purple hover:!bg-[#7A4FE6] hover:!border-[#7A4FE6]',
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
       onClick: () => form.submit(),
-      disabled:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
       id: 'time-attendance-leave-request-sidebar-submit-button',
       'data-cy': 'time-attendance-leave-request-sidebar-submit-button',
     },
   ];
 
   const onFinish = () => {
+    // Check if there's no approver assigned
+    if (approvalUserData?.length < 1 && approvalDepartmentData?.length < 1) {
+      setShowApproverMessage(true);
+      return;
+    }
+
     const value = form.getFieldsValue();
 
     updateLeaveRequest({
@@ -441,6 +443,17 @@ const LeaveRequestSidebar = () => {
                   data-cy="time-attendance-leave-request-sidebar-delegatee-select"
                 />
               </Form.Item>
+              {showApproverMessage && (
+                <div
+                  className="mt-6 mb-4 px-5 py-4 bg-white rounded-xl border-2 border-orange-200 shadow-md"
+                  id="time-attendance-leave-request-sidebar-approver-message"
+                  data-cy="time-attendance-leave-request-sidebar-approver-message"
+                >
+                  <p className="text-base font-medium text-gray-800 m-0 leading-relaxed">
+                    You lack approver please contact your team lead for more information
+                  </p>
+                </div>
+              )}
             </Space.Compact>
           </Form>
         </Spin>
