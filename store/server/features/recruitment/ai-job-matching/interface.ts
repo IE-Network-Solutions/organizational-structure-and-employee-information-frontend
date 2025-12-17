@@ -10,6 +10,7 @@ export interface JobMatchSummary {
   lastAnalyzed: string;
   jobStatus?: string | null;
   jobDeadline?: string | null;
+  jobPostedAt?: string | null;
   /**
    * Optional job posted date from backend (if provided by Azure function).
    * Used by the AI Job Matching list and detail pages instead of any hardcoded dates.

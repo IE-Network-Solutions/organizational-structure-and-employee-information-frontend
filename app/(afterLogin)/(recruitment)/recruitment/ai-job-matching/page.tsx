@@ -10,7 +10,10 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useGetJobMatchSummaries } from '@/store/server/features/recruitment/ai-job-matching/queries';
+import {
+  useGetJobMatchSummaries,
+  useGetJobMetadata,
+} from '@/store/server/features/recruitment/ai-job-matching/queries';
 import type { JobMatchSummary } from '@/store/server/features/recruitment/ai-job-matching/interface';
 
 dayjs.extend(relativeTime);
@@ -21,46 +24,51 @@ interface JobCardProps {
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
-  const locationLabel = job.location || 'Location not specified';
-  const analyzedLabel = job.lastAnalyzed
-    ? dayjs(job.lastAnalyzed).fromNow()
-    : 'N/A';
-  const postedLabel = job.postedAt
-    ? `Posted ${dayjs(job.postedAt).format('DD MMM YYYY')}`
+  const { data: metadata } = useGetJobMetadata(job.jobId, Boolean(job.jobId));
+  const metadataLocation = metadata?.location;
+  const metadataPostedAt = metadata?.jobPostedAt || metadata?.postedAt;
+
+  const locationLabel =
+    metadataLocation || job.location || 'Location not specified';
+  const postedAt =
+    metadataPostedAt || job.jobPostedAt || job.postedAt || null;
+  const formattedPostedDate = postedAt
+    ? dayjs(postedAt).format('DD MMM YYYY')
     : 'Posted date not available';
 
   return (
     <Card
       data-cy={`ai-job-card-${job.jobId}`}
       onClick={onClick}
-      className="rounded-2xl border border-gray-200 hover:shadow-lg hover:border-blue-400 transition-all cursor-pointer bg-white"
+      className="rounded-[28px] border border-blue-100 bg-white shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer p-6"
     >
-      <div className="space-y-3">
+      <div className="space-y-4">
         {/* Job Title */}
         <h3 className="text-lg font-semibold text-gray-900">{job.jobTitle}</h3>
 
         {/* Job Info (from Azure Function data) */}
-        <div className="space-y-1 text-sm text-gray-500">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <EnvironmentOutlined className="text-gray-400" /> {locationLabel}
+        <div className="flex items-center gap-8 text-sm text-gray-500 flex-nowrap">
+          <span className="flex items-center gap-2">
+            <EnvironmentOutlined className="text-gray-400 text-base" />
+            <span className="text-sm font-medium text-gray-700">
+              {locationLabel}
             </span>
-            <span>•</span>
-            <span>{postedLabel}</span>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-gray-400">
-            <ClockCircleOutlined className="text-gray-300" />{' '}
-            <span>Last analyzed {analyzedLabel}</span>
-          </div>
+          </span>
+          <span className="flex items-center gap-1 text-sm text-gray-500">
+            <ClockCircleOutlined className="text-gray-400 text-base" />
+            <span className="text-sm text-gray-400">{formattedPostedDate}</span>
+          </span>
         </div>
 
         {/* AI Matches */}
-        <div className="pt-2 border-t border-gray-100">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">AI Matches</span>
+        <div className="pt-4 border-t border-blue-50">
+          <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+            <span className="text-sm font-medium text-gray-500">
+              AI Matches
+            </span>
             <span
               data-cy={`ai-job-card-${job.jobId}-candidate-count`}
-              className="text-sm font-semibold text-blue-600"
+              className="inline-flex items-center justify-center gap-1 rounded-full border border-[#e7e3ff] bg-[#f1f0ff] px-4 py-1 text-sm font-semibold text-[#3d3dff]"
             >
               {job.totalCandidates}{' '}
               {job.totalCandidates === 1 ? 'Candidate' : 'Candidates'}
@@ -133,7 +141,7 @@ const AIJobMatchingPage: React.FC = () => {
           data-cy="ai-job-matching-search"
           placeholder="Search"
           prefix={<SearchOutlined className="text-gray-400" />}
-          className="max-w-md rounded-lg"
+          className="max-w-md rounded-lg border border-gray-200 bg-white shadow-sm"
           size="large"
         />
       </div>

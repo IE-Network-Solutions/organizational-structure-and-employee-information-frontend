@@ -168,6 +168,23 @@ const fetchMatchedCandidates = async (
   }
 };
 
+interface JobMetadata {
+  jobId: string;
+  location?: string | null;
+  jobPostedAt?: string | null;
+  postedAt?: string | null;
+}
+
+const fetchJobMetadata = async (jobId: string): Promise<JobMetadata> => {
+  const matchResponse = await fetchMatchedCandidates(jobId, { limit: 1 });
+  return {
+    jobId: matchResponse.jobId,
+    location: matchResponse.location ?? null,
+    jobPostedAt: matchResponse.jobPostedAt ?? matchResponse.postedAt ?? null,
+    postedAt: matchResponse.postedAt ?? null,
+  };
+};
+
 const fetchMatchDetails = async (
   jobId: string,
   candidateId: string,
@@ -269,5 +286,16 @@ export const useGetJobApplicants = (jobId: string | null, enabled = true) =>
     {
       enabled: Boolean(jobId) && enabled,
       staleTime: 60 * 1000,
+    },
+  );
+
+export const useGetJobMetadata = (jobId: string | null, enabled = true) =>
+  useQuery<JobMetadata>(
+    ['ai-job-metadata', jobId],
+    () => fetchJobMetadata(jobId as string),
+    {
+      enabled: Boolean(jobId) && enabled,
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
     },
   );
