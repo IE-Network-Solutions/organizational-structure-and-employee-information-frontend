@@ -255,17 +255,13 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                   selectedCandidateId &&
                   selectedCandidateId === candidate.candidateId;
                 
-                // First candidate (top ranked) uses green, others use blue
-                const isTopCandidate = index === 0;
-                const borderColor = isTopCandidate ? 'border-green-500' : 'border-blue-300';
-                const bgColor = isSelected 
-                  ? (isTopCandidate ? 'bg-green-50' : 'bg-blue-50') 
-                  : 'bg-white';
-
-                // Hover: gray for non-top candidates, green for top candidate
-                const hoverClasses = isTopCandidate
-                  ? 'hover:border-green-600 hover:bg-green-50/80'
-                  : 'hover:border-gray-400 hover:bg-gray-50/80';
+                // Styling rules:
+                // - Background always white
+                // - Hover background always gray
+                // - Selected: green border + green score
+                // - Not selected: blue border + blue score
+                // NOTE: Ant Design `Card` can override Tailwind border colors; use inline style for border.
+                const borderHex = isSelected ? '#22c55e' : '#3b82f6'; // green-500 / blue-500
 
                 const primaryReason =
                   (candidate.matchReasons && candidate.matchReasons[0]) ||
@@ -290,11 +286,18 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                   <Card
                     key={candidate.candidateId}
                     data-cy={`ai-candidate-card-${candidate.candidateId}`}
-                    className={`rounded-2xl border-2 ${borderColor} ${bgColor} cursor-pointer hover:shadow-lg ${hoverClasses} transition-all`}
-                    bodyStyle={{ padding: 16 }}
+                    className="group rounded-2xl cursor-pointer transition-all shadow-[0_4px_20px_rgba(16,24,40,0.06)] hover:shadow-[0_8px_28px_rgba(16,24,40,0.10)]"
+                    style={{
+                      borderColor: borderHex,
+                      borderWidth: 2,
+                      borderStyle: 'solid',
+                      background: '#fff',
+                    }}
+                    bodyStyle={{ padding: 0 }}
                     onClick={() => handleOpenDetails(candidate)}
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="rounded-2xl bg-white p-5 transition-colors group-hover:bg-gray-50">
+                      <div className="flex items-start gap-4">
                       {/* Avatar with initials */}
                       <Avatar
                         size={64}
@@ -328,15 +331,18 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                             </p>
                           </div>
                           <div className="flex flex-col items-end justify-center flex-shrink-0">
-                            <div className={`inline-flex items-center justify-center rounded-full px-4 py-2 border ${
-                              isTopCandidate
-                                ? 'bg-green-50 border-green-200'
-                                : 'bg-blue-50 border-blue-200'
-                            }`}>
+                            <div
+                              className={`inline-flex items-center justify-center rounded-full px-5 py-2 border ${
+                                isSelected
+                                  ? 'bg-green-50 border-green-200'
+                                  : 'bg-blue-50 border-blue-200'
+                              }`}
+                            >
                               <span
-                                className={`text-xl font-bold ${
-                                  isTopCandidate ? 'text-green-700' : 'text-blue-600'
-                                }`}
+                                className="text-xl font-bold"
+                                style={{
+                                  color: isSelected ? '#15803d' : '#1d4ed8', // green-700 / blue-700
+                                }}
                                 data-cy={`ai-candidate-score-${candidate.candidateId}`}
                               >
                                 {candidate.matchScore}%
@@ -352,7 +358,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
 
                         {/* Match score breakdown (Skill / Education / Experience) - use full width, left aligned */}
                         <div
-                          className="mb-4 flex w-full flex-wrap items-start justify-start gap-x-12 gap-y-3"
+                          className="mb-4 flex w-full flex-wrap items-start justify-start gap-x-10 gap-y-3"
                           data-cy={`ai-candidate-score-breakdown-${candidate.candidateId}`}
                         >
                           <div className="flex flex-col items-start">
@@ -360,11 +366,13 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               Skill
                             </span>
                             <span
-                              className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold min-w-[50px] ${
-                                isTopCandidate
-                                  ? 'bg-green-50 text-green-700'
-                                  : 'bg-blue-50 text-blue-600'
-                              }`}
+                              className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold min-w-[50px]"
+                              style={{
+                                backgroundColor: isSelected
+                                  ? '#dcfce7' // green-100-ish
+                                  : '#dbeafe', // blue-100-ish
+                                color: isSelected ? '#15803d' : '#1d4ed8', // green-700 / blue-700
+                              }}
                               data-cy={`ai-candidate-skill-score-${candidate.candidateId}`}
                             >
                               {skillScore != null
@@ -377,11 +385,13 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               Education
                             </span>
                             <span
-                              className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold min-w-[50px] ${
-                                isTopCandidate
-                                  ? 'bg-green-50 text-green-700'
-                                  : 'bg-blue-50 text-blue-600'
-                              }`}
+                              className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold min-w-[50px]"
+                              style={{
+                                backgroundColor: isSelected
+                                  ? '#dcfce7'
+                                  : '#dbeafe',
+                                color: isSelected ? '#15803d' : '#1d4ed8',
+                              }}
                               data-cy={`ai-candidate-education-score-${candidate.candidateId}`}
                             >
                               {educationScore != null
@@ -394,11 +404,13 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               Experience
                             </span>
                             <span
-                              className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold min-w-[50px] ${
-                                isTopCandidate
-                                  ? 'bg-green-50 text-green-700'
-                                  : 'bg-blue-50 text-blue-600'
-                              }`}
+                              className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold min-w-[50px]"
+                              style={{
+                                backgroundColor: isSelected
+                                  ? '#dcfce7'
+                                  : '#dbeafe',
+                                color: isSelected ? '#15803d' : '#1d4ed8',
+                              }}
                               data-cy={`ai-candidate-experience-score-${candidate.candidateId}`}
                             >
                               {experienceScore != null
@@ -408,7 +420,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Skill Matching - 3 skills, wrap to use all available space (no horizontal scroll) */}
+                        {/* Skill Matching - 3 skills, styled like Figma (full-width pill rows) */}
                         {candidate.matchedSkills &&
                           candidate.matchedSkills.length > 0 && (
                             <div
@@ -418,7 +430,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               <div className="text-sm font-semibold text-gray-900 mb-2">
                                 Skill Matching
                               </div>
-                              <div className="flex flex-wrap gap-2">
+                              <div className="flex flex-col gap-2">
                                 {(() => {
                                   const desired = [
                                     'Strong analytical abilities',
@@ -447,7 +459,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                   return finalSkills.map((skill, idx) => (
                                     <span
                                       key={`${skill}-${idx}`}
-                                      className="inline-flex items-center justify-center whitespace-nowrap rounded-2xl bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700"
+                                      className="w-full rounded-2xl bg-[#E8E9FF] px-4 py-2 text-sm font-medium text-[#3F51F5]"
                                       data-cy={`ai-candidate-skill-chip-${candidate.candidateId}-${idx}`}
                                     >
                                       {skill}
@@ -459,6 +471,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           )}
                       </div>
                     </div>
+                      </div>
                   </Card>
                 );
               })
