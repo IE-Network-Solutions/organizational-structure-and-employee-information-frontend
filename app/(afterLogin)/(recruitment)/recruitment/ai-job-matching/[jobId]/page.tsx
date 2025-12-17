@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, Empty, Spin, Tag, Button, Avatar } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter, useParams } from 'next/navigation';
@@ -249,17 +250,22 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
             {sortedCandidates.length === 0 ? (
               <Empty description="No candidates available yet" />
             ) : (
-              visibleCandidates.map((candidate) => {
+              visibleCandidates.map((candidate, index) => {
                 const isSelected =
                   selectedCandidateId &&
                   selectedCandidateId === candidate.candidateId;
-                // Use green border for all cards to match design
-                const borderColor = 'border-green-500';
-                const bgColor = isSelected ? 'bg-green-50' : 'bg-white';
+                
+                // First candidate (top ranked) uses green, others use blue
+                const isTopCandidate = index === 0;
+                const borderColor = isTopCandidate ? 'border-green-500' : 'border-blue-300';
+                const bgColor = isSelected 
+                  ? (isTopCandidate ? 'bg-green-50' : 'bg-blue-50') 
+                  : 'bg-white';
 
-                // Always give a subtle green hover to make interaction obvious
-                const hoverClasses =
-                  'hover:border-green-600 hover:bg-green-50/80';
+                // Hover: gray for non-top candidates, green for top candidate
+                const hoverClasses = isTopCandidate
+                  ? 'hover:border-green-600 hover:bg-green-50/80'
+                  : 'hover:border-gray-400 hover:bg-gray-50/80';
 
                 const primaryReason =
                   (candidate.matchReasons && candidate.matchReasons[0]) ||
@@ -322,9 +328,15 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                             </p>
                           </div>
                           <div className="flex flex-col items-end justify-center flex-shrink-0">
-                            <div className="inline-flex items-center justify-center rounded-full bg-green-50 px-4 py-2 border border-green-200">
+                            <div className={`inline-flex items-center justify-center rounded-full px-4 py-2 border ${
+                              isTopCandidate
+                                ? 'bg-green-50 border-green-200'
+                                : 'bg-blue-50 border-blue-200'
+                            }`}>
                               <span
-                                className="text-xl font-bold text-green-700"
+                                className={`text-xl font-bold ${
+                                  isTopCandidate ? 'text-green-700' : 'text-blue-600'
+                                }`}
                                 data-cy={`ai-candidate-score-${candidate.candidateId}`}
                               >
                                 {candidate.matchScore}%
@@ -348,7 +360,11 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               Skill
                             </span>
                             <span
-                              className="inline-flex items-center justify-center rounded-full bg-green-50 px-3 py-1.5 text-sm font-semibold text-green-700 min-w-[50px]"
+                              className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold min-w-[50px] ${
+                                isTopCandidate
+                                  ? 'bg-green-50 text-green-700'
+                                  : 'bg-blue-50 text-blue-600'
+                              }`}
                               data-cy={`ai-candidate-skill-score-${candidate.candidateId}`}
                             >
                               {skillScore != null
@@ -361,7 +377,11 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               Education
                             </span>
                             <span
-                              className="inline-flex items-center justify-center rounded-full bg-green-50 px-3 py-1.5 text-sm font-semibold text-green-700 min-w-[50px]"
+                              className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold min-w-[50px] ${
+                                isTopCandidate
+                                  ? 'bg-green-50 text-green-700'
+                                  : 'bg-blue-50 text-blue-600'
+                              }`}
                               data-cy={`ai-candidate-education-score-${candidate.candidateId}`}
                             >
                               {educationScore != null
@@ -374,7 +394,11 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               Experience
                             </span>
                             <span
-                              className="inline-flex items-center justify-center rounded-full bg-green-50 px-3 py-1.5 text-sm font-semibold text-green-700 min-w-[50px]"
+                              className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold min-w-[50px] ${
+                                isTopCandidate
+                                  ? 'bg-green-50 text-green-700'
+                                  : 'bg-blue-50 text-blue-600'
+                              }`}
                               data-cy={`ai-candidate-experience-score-${candidate.candidateId}`}
                             >
                               {experienceScore != null
@@ -521,6 +545,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               : undefined
                           }
                           data-cy="ai-candidate-resume-button"
+                          icon={<DownloadOutlined />}
                         >
                           Resume
                         </Button>
