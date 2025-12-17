@@ -45,7 +45,14 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 
   const menuItems: MenuProps['items'] = filteredItems.map((item) => ({
     key: item.key,
-    label: <span onClick={item.onClick}>{item.label}</span>,
+    label: (
+      <span
+        onClick={item.onClick}
+        data-cy={`category-card-menu-item-${item.key}`}
+      >
+        {item.label}
+      </span>
+    ),
   }));
 
   return (

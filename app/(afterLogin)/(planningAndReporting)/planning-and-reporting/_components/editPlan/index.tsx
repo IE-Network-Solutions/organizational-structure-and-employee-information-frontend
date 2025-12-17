@@ -132,8 +132,11 @@ function EditPlan() {
   };
 
   const modalHeader = (
-    <div className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4">
-      <div>
+    <div
+      className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4"
+      data-cy="edit-plan-modal-header"
+    >
+      <div data-cy="edit-plan-modal-header-title">
         Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
       </div>
       <div

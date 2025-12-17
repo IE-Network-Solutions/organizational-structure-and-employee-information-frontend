@@ -121,7 +121,7 @@ const CommentList = ({
     editReportLoading;
 
   return (
-    <div className="w-full">
+    <div className="w-full" data-cy="comment-list-container">
       {data.map((commentData) => {
         const { fullName, profileImage } = getUserDetail(
           commentData.commentedBy,

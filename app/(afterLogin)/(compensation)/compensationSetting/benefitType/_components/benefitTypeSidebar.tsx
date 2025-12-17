@@ -115,7 +115,15 @@ const BenefitypeSideBar = () => {
       onClick: () => onClose(),
     },
     {
-      label: selectedBenefitRecord ? <span>Update</span> : <span>Create</span>,
+      label: selectedBenefitRecord ? (
+        <span data-cy="compensation-settings-benefit-sidebar-update-button-label">
+          Update
+        </span>
+      ) : (
+        <span data-cy="compensation-settings-benefit-sidebar-create-button-label">
+          Create
+        </span>
+      ),
       key: 'create',
       className: 'h-12',
       type: 'primary',

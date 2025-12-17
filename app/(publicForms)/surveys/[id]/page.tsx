@@ -37,13 +37,27 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
 
   if (alreadySubmitted) {
     return (
-      <div className="mt-8 flex flex-col items-center">
-        <h2 className="text-2xl font-bold mb-4">{publicForm?.name}</h2>
-        <div className="w-full max-w-xl mb-6">
+      <div
+        className="mt-8 flex flex-col items-center"
+        data-cy="public-forms-surveys-already-submitted-container"
+      >
+        <h2
+          className="text-2xl font-bold mb-4"
+          data-cy="public-forms-surveys-already-submitted-title"
+        >
+          <span data-cy="public-forms-surveys-already-submitted-title-text">
+            {publicForm?.name}
+          </span>
+        </h2>
+        <div
+          className="w-full max-w-xl mb-6"
+          data-cy="public-forms-surveys-already-submitted-alert"
+        >
           <Alert
             message="You have submitted your response."
             type="info"
             showIcon
+            data-cy="public-forms-surveys-already-submitted-alert-message"
           />
         </div>
       </div>

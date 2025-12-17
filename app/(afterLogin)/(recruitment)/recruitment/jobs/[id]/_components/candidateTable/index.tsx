@@ -222,7 +222,14 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         data-cy={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`}
         className="w-64"
       >
-        <h3 className="text-lg font-semibold mb-4 text-center">Date Hired</h3>
+        <h3
+          className="text-lg font-semibold mb-4 text-center"
+          data-cy="talent-acquisition-job-candidate-table-hire-popover-title"
+        >
+          <span data-cy="talent-acquisition-job-candidate-table-hire-popover-title-text">
+            Date Hired
+          </span>
+        </h3>
         <Form form={hireForm} layout="vertical">
           <Form.Item
             name="hireDate"
@@ -255,7 +262,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               className="bg-blue-600 hover:bg-blue-700 h-8"
               loading={isHireLoading}
             >
-              Hire Candidate
+              <span
+                data-cy={`talent-acquisition-job-candidate-table-button-hire-text-${item?.id}`}
+              >
+                Hire Candidate
+              </span>
             </Button>
             <Button
               id={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
@@ -264,7 +275,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               onClick={() => handleCancelHire(item?.id)}
               className="h-8"
             >
-              Cancel
+              <span
+                data-cy={`talent-acquisition-job-candidate-table-button-cancel-hire-text-${item?.id}`}
+              >
+                Cancel
+              </span>
             </Button>
           </div>
         </Form>
@@ -290,6 +305,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           <span
             className="text-xs font-semibold cursor-pointer"
             title={item?.documentName ?? 'CV.pdf'}
+            data-cy={`talent-acquisition-job-candidate-table-cv-filename-${item?.id}`}
           >
             {item?.documentName?.length > 8
               ? `${item.documentName.slice(0, 8)}...`
@@ -328,7 +344,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               id={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
               data-cy={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
             >
-              {stage.title}
+              <span
+                data-cy={`talent-acquisition-job-candidate-table-option-stage-text-${stage.id}-${item?.id}`}
+              >
+                {stage.title}
+              </span>
             </Select.Option>
           ))}
         </Select>
@@ -381,18 +401,34 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
                       placement="rightTop"
                       overlayClassName="hire-candidate-popover"
                     >
-                      Hire Candidate
+                      <span
+                        data-cy={`talent-acquisition-job-candidate-table-popover-hire-text-${item?.id}`}
+                      >
+                        Hire Candidate
+                      </span>
                     </Popover>
                   ),
                 },
                 {
                   key: 'edit',
-                  label: 'Edit',
+                  label: (
+                    <span
+                      data-cy={`talent-acquisition-job-candidate-table-menu-item-edit-${item?.id}`}
+                    >
+                      Edit
+                    </span>
+                  ),
                   onClick: () => handleMenuClick('edit', item),
                 },
                 {
                   key: 'delete',
-                  label: 'Delete',
+                  label: (
+                    <span
+                      data-cy={`talent-acquisition-job-candidate-table-menu-item-delete-${item?.id}`}
+                    >
+                      Delete
+                    </span>
+                  ),
                   onClick: () => handleMenuClick('delete', item),
                 },
               ],

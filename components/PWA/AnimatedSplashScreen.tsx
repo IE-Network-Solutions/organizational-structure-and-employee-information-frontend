@@ -16,7 +16,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
   const { isStandalone } = usePWA();
   const [showSplash, setShowSplash] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
+  const [setIsExiting] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -51,93 +51,91 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
 
   return (
     <>
-          <div
-            style={{
-              marginBottom: '1.5rem',
-              transform: 'scale(0)',
-              animation: 'logoScale 0.8s ease-out 0.2s forwards',
-              position: 'relative',
-              zIndex: 2,
-            }}
-            data-cy="animated-splash-logo-container"
-          >
-            <SimpleLogo />
-          </div>
+      <div
+        style={{
+          marginBottom: '1.5rem',
+          transform: 'scale(0)',
+          animation: 'logoScale 0.8s ease-out 0.2s forwards',
+          position: 'relative',
+          zIndex: 2,
+        }}
+        data-cy="animated-splash-logo-container"
+      >
+        <SimpleLogo />
+      </div>
 
-          {/* App Name */}
-          <h1
-            style={{
-              fontSize: '1.8rem',
-              margin: '0.5rem 0',
-              fontWeight: 'bold',
-              opacity: 0,
-              transform: 'translateY(20px)',
-              animation: 'textSlideUp 0.6s ease-out 0.8s forwards',
-            }}
-            data-cy="animated-splash-app-name"
-          >
-            Selamnew
-          </h1>
+      {/* App Name */}
+      <h1
+        style={{
+          fontSize: '1.8rem',
+          margin: '0.5rem 0',
+          fontWeight: 'bold',
+          opacity: 0,
+          transform: 'translateY(20px)',
+          animation: 'textSlideUp 0.6s ease-out 0.8s forwards',
+        }}
+        data-cy="animated-splash-app-name"
+      >
+        Selamnew
+      </h1>
 
-          {/* Subtitle */}
-          <p
-            style={{
-              fontSize: '1rem',
-              margin: '0 0 2rem 0',
-              opacity: 0,
-              animation: 'textSlideUp 0.6s ease-out 1s forwards',
-            }}
-            data-cy="animated-splash-subtitle"
-          >
-            Workspace
-          </p>
+      {/* Subtitle */}
+      <p
+        style={{
+          fontSize: '1rem',
+          margin: '0 0 2rem 0',
+          opacity: 0,
+          animation: 'textSlideUp 0.6s ease-out 1s forwards',
+        }}
+        data-cy="animated-splash-subtitle"
+      >
+        Workspace
+      </p>
 
-          {/* Loading Animation */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '0.5rem',
-              opacity: 0,
-              animation: 'fadeIn 0.4s ease-out 1.2s forwards',
-            }}
-            data-cy="animated-splash-loading"
-          >
-            <div
-              style={{
-                width: '8px',
-                height: '8px',
-                background: 'white',
-                borderRadius: '50%',
-                animation: 'bounce 1.4s infinite ease-in-out',
-                animationDelay: '-0.32s',
-              }}
-              data-cy="animated-splash-dot-1"
-            />
-            <div
-              style={{
-                width: '8px',
-                height: '8px',
-                background: 'white',
-                borderRadius: '50%',
-                animation: 'bounce 1.4s infinite ease-in-out',
-                animationDelay: '-0.16s',
-              }}
-              data-cy="animated-splash-dot-2"
-            />
-            <div
-              style={{
-                width: '8px',
-                height: '8px',
-                background: 'white',
-                borderRadius: '50%',
-                animation: 'bounce 1.4s infinite ease-in-out',
-              }}
-              data-cy="animated-splash-dot-3"
-            />
-          </div>
-        </div>
+      {/* Loading Animation */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '0.5rem',
+          opacity: 0,
+          animation: 'fadeIn 0.4s ease-out 1.2s forwards',
+        }}
+        data-cy="animated-splash-loading"
+      >
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            background: 'white',
+            borderRadius: '50%',
+            animation: 'bounce 1.4s infinite ease-in-out',
+            animationDelay: '-0.32s',
+          }}
+          data-cy="animated-splash-dot-1"
+        />
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            background: 'white',
+            borderRadius: '50%',
+            animation: 'bounce 1.4s infinite ease-in-out',
+            animationDelay: '-0.16s',
+          }}
+          data-cy="animated-splash-dot-2"
+        />
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            background: 'white',
+            borderRadius: '50%',
+            animation: 'bounce 1.4s infinite ease-in-out',
+          }}
+          data-cy="animated-splash-dot-3"
+        />
       </div>
 
       {/* Keyframe Animations */}

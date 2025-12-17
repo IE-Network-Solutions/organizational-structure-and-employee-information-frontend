@@ -24,8 +24,13 @@ const ShareToSocialMedia: React.FC = () => {
     setShareModalOpen(false);
   };
   const socialMediaShareModalHeader = (
-    <div className=" flex items-center justify-center text-xl font-extrabold px-2">
-      Share to other Media
+    <div
+      className=" flex items-center justify-center text-xl font-extrabold px-2"
+      data-cy="talent-acquisition-share-modal-header"
+    >
+      <span data-cy="talent-acquisition-share-modal-header-text">
+        Share to other Media
+      </span>
     </div>
   );
 
@@ -58,7 +63,12 @@ const ShareToSocialMedia: React.FC = () => {
         footer={null}
         centered
       >
-        <div className="text-lg font-bold">Share</div>
+        <div
+          className="text-lg font-bold"
+          data-cy="talent-acquisition-share-modal-title"
+        >
+          Share
+        </div>
         <div className="flex items-center justify-start gap-5 p-2 py-2">
           <FaXTwitter
             id="talent-acquisition-share-icon-twitter"

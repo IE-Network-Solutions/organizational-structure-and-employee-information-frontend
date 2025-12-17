@@ -67,7 +67,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           </div>
         )}
       </div>
-      <div className="mt-5">{children}</div>
+      <div className="mt-5" data-cy="page-header-actions">
+        {children}
+      </div>
     </div>
   );
 };
