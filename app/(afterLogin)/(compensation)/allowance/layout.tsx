@@ -29,11 +29,14 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                 className=" font-bold"
                 data-cy={`allowance-menu-item-${allowance.id}`}
               >
-            
+                <span
+                  data-cy={`allowance-menu-item-label-${allowance.id}`}
+                  className="font-bold"
+                >
                   {allowance.name?.length > 15
                     ? allowance.name?.slice(0, 15) + '...'
                     : allowance.name || 'Unnamed Allowance'}
-              
+                </span>
               </div>
             ),
           },
@@ -45,9 +48,9 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           key: 'allAllowance',
           label: (
             <div className=" font-bold" data-cy="allowance-menu-item-all">
-             
+              <span data-cy="allowance-menu-item-all-label">
                 All Allowances
-              
+              </span>
             </div>
           ),
         },

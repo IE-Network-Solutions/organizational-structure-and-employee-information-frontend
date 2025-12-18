@@ -27,11 +27,11 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                 title={allowance.name}
                 data-cy={`benefit-menu-item-${allowance.id}`}
               >
-               
+                <span data-cy={`benefit-menu-item-label-${allowance.id}`}>
                   {allowance.name?.length > 15
                     ? allowance.name?.slice(0, 15) + '...'
                     : allowance.name || 'Unnamed Allowance'}
-               
+                </span>
               </div>
             ),
           },
@@ -46,9 +46,9 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
               className=" font-bold"
               data-cy="benefit-menu-item-variable-pay"
             >
-              
+              <span data-cy="benefit-menu-item-variable-pay-label">
                 Variable Pay
-             
+              </span>
             </div>
           ),
         },

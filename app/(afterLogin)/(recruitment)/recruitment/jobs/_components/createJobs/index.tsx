@@ -55,7 +55,7 @@ const CreateJobs: React.FC = () => {
           )}
         </div>
       </div>
-    );
+    ) as React.ReactNode;
   const handleStepChange = (value: number) => {
     setCurrentStep(value);
   };

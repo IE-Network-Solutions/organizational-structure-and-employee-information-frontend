@@ -59,9 +59,9 @@ const EmployeeSurveyDrawer: React.FC<EmployeeSurveyDrawerProps> = ({
       className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
       data-cy="employee-survey-drawer-header"
     >
-      
+      <span data-cy="employee-survey-drawer-header-text">
         Create Employee Survey
-     
+      </span>
     </div>
   );
 

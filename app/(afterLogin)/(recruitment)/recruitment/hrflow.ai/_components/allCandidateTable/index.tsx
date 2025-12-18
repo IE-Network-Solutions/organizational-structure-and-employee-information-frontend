@@ -54,8 +54,9 @@ const AllCandidateTable: React.FC = () => {
           className="bg-green-100 px-4 rounded text-green-800 text-xs"
           data-cy="talent-acquisition-hrflow-table-ai-score"
         >
+          <span data-cy="talent-acquisition-hrflow-table-ai-score-text">
             90%
-         
+          </span>
         </span>
       ),
     },
