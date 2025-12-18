@@ -11,7 +11,11 @@ const CoursePage = () => {
     {
       key: 'overview',
       id: 'tabOverviewId',
-      label: <div className="font-semibold">Overview</div>,
+      label: (
+        <div className="font-semibold" data-cy="tab-overview-label">
+          Overview
+        </div>
+      ),
       children: <CourseOverview />,
     },
     {

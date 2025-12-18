@@ -56,9 +56,12 @@ const ApproverListTableComponent = ({
 }) => {
   const { isMobile, isTablet } = useIsMobile();
   return (
-    <div>
-      <div className="mt-2 w-full">
-        <div className="overflow-x-auto scrollbar-none">
+    <div data-cy="approval-list-table-container">
+      <div className="mt-2 w-full" data-cy="approval-list-table-wrapper">
+        <div
+          className="overflow-x-auto scrollbar-none"
+          data-cy="approval-list-table-scroll"
+        >
           <Table
             columns={columns}
             dataSource={data}

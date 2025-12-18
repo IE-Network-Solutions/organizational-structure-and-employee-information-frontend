@@ -371,8 +371,11 @@ function CreatePlan() {
   };
 
   const modalHeader = (
-    <div className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4">
-      <div>
+    <div
+      className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4"
+      data-cy="create-plan-modal-header"
+    >
+      <div data-cy="create-plan-modal-header-title">
         Create {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'New'}{' '}
         Plan
       </div>

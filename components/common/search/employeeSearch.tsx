@@ -83,10 +83,13 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
 
   return (
     <>
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full" data-cy="employee-search-container">
         {isMobile ? (
-          <div className="flex items-center gap-2 w-full">
-            <div className="flex-1">
+          <div
+            className="flex items-center gap-2 w-full"
+            data-cy="employee-search-mobile"
+          >
+            <div className="flex-1" data-cy="employee-search-select-container">
               <AccessGuard permissions={[Permissions.ViewAllEmployeePlan]}>
                 <Select
                   placeholder="Select employee"
@@ -119,7 +122,11 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                         ? `${displayFirstName} ${displayMiddleName}`.trim()
                         : 'Unnamed Employee';
                     return (
-                      <Option key={item.id} value={item.id}>
+                      <Option
+                        key={item.id}
+                        value={item.id}
+                        data-cy="employee-search-option"
+                      >
                         {fullName}
                       </Option>
                     );
@@ -130,6 +137,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
             <button
               onClick={() => setIsFilterModalOpen(true)}
               className="p-2 border border-gray-300 rounded-lg"
+              data-cy="employee-search-filter-button"
             >
               <VscSettings size={20} />
             </button>

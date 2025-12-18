@@ -144,9 +144,9 @@ const AllowanceTypeSideBar = ({
     },
     {
       label: selectedAllowanceRecord ? (
-        <span>Update</span>
+        <span data-cy="allowance-sidebar-update-button-label">Update</span>
       ) : (
-        <span>Create</span>
+        <span data-cy="allowance-sidebar-create-button-label">Create</span>
       ),
       key: 'create',
       className: 'h-12',

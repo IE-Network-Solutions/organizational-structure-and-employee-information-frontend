@@ -210,7 +210,6 @@ const OrgChartComponent: React.FC = () => {
         ) : (
           <div
             className="p-4 sm:p-2 md:p-6 lg:p-8"
-            ref={chartRef}
             data-cy="org-structure-tree-container"
             id="org-structure-tree-container"
           >
@@ -275,38 +274,45 @@ const OrgChartComponent: React.FC = () => {
                           height: '100%',
                         }}
                       >
-                        <Tree
-                          label={
-                            <DepartmentNode
-                              data-cy="org-structure-department-node"
-                              data={{
-                                id: orgStructureData?.id || '',
-                                name: orgStructureData?.name || '',
-                                department: orgStructureData?.department || [],
-                                branchId: orgStructureData?.branchId,
-                                description: '',
-                                collapsed: false,
-                              }}
-                              onEdit={() => {}}
-                              onAdd={() => handleAdd(orgStructureData)}
-                              onDelete={() => {}}
-                              isRoot={true}
-                            />
-                          }
-                          lineWidth={'1px'}
-                          lineColor={'#CBD5E0'}
-                          lineBorderRadius={'10px'}
-                          data-cy="org-org-structure-components-orgstructurepeoples-index-tree-1"
+                        <div
+                          id="org-structure-chart"
+                          data-cy="org-structure-chart"
+                          ref={chartRef}
                         >
-                          {renderTreeNodes(
-                            orgStructureData?.department || [],
-                            handleEdit,
-                            handleAdd,
-                            handleDelete,
-                            false,
-                            setDepartmentTobeDeletedId,
-                          )}
-                        </Tree>
+                          <Tree
+                            label={
+                              <DepartmentNode
+                                data-cy="org-structure-department-node"
+                                data={{
+                                  id: orgStructureData?.id || '',
+                                  name: orgStructureData?.name || '',
+                                  department:
+                                    orgStructureData?.department || [],
+                                  branchId: orgStructureData?.branchId,
+                                  description: '',
+                                  collapsed: false,
+                                }}
+                                onEdit={() => {}}
+                                onAdd={() => handleAdd(orgStructureData)}
+                                onDelete={() => {}}
+                                isRoot={true}
+                              />
+                            }
+                            lineWidth={'1px'}
+                            lineColor={'#CBD5E0'}
+                            lineBorderRadius={'10px'}
+                            data-cy="org-org-structure-components-orgstructurepeoples-index-tree-1"
+                          >
+                            {renderTreeNodes(
+                              orgStructureData?.department || [],
+                              handleEdit,
+                              handleAdd,
+                              handleDelete,
+                              false,
+                              setDepartmentTobeDeletedId,
+                            )}
+                          </Tree>
+                        </div>
                       </TransformComponent>
                     </div>
                     <div

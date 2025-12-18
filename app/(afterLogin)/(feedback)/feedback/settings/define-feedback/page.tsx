@@ -54,8 +54,13 @@ const Page = () => {
   };
 
   const perspectiveModalHeader = addPerspectiveModal ? (
-    <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <p>Add New Perspective</p>
+    <div
+      className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="settings-define-feedback-perspective-modal-header"
+    >
+      <p data-cy="settings-define-feedback-perspective-modal-header-title">
+        Add New Perspective
+      </p>
     </div>
   ) : null;
 

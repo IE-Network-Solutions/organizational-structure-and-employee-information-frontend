@@ -74,13 +74,16 @@ const TnaReviewPage = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
-    if (isError) return <>-</>;
+    if (isLoading) return <div data-cy="loading-indicator">...</div>;
+    if (isError) return <div data-cy="error-indicator">-</div>;
     const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="flex-1">
+      <div
+        className="flex items-center gap-1.5"
+        data-cy="employee-card-container"
+      >
+        <div className="flex-1" data-cy="employee-card-content">
           <UserCard
             data={employeeData}
             name={fullName}

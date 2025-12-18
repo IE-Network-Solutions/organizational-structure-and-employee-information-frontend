@@ -353,7 +353,10 @@ const OkrSearch: React.FC = () => {
         >
           {/* User Filter */}
           {okrTab != 1 && (
-            <div className="col-span-12 lg:col-span-4">
+            <div
+              className="col-span-12 lg:col-span-4"
+              data-cy="okr-desktop-user-filter-container"
+            >
               <Select
                 id="desktop-user-select"
                 data-cy="okr-desktop-user-select"

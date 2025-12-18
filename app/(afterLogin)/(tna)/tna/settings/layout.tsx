@@ -21,6 +21,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/tna/settings/course-category') ? 'lg:ml-4' : ''}`}
+            data-cy="course-category-icon"
           >
             <CiCalendarDate
               className={`hidden lg:block ${pathname.includes('/tna/settings/course-category') ? 'text-[#1677FF]' : ''}`}

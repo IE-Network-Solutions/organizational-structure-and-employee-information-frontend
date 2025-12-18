@@ -173,11 +173,15 @@ function Page() {
       dataIndex: 'criteriaScore',
       render: (unused, record) =>
         record?.criteriaScore?.length ? (
-          <div className="flex gap-2 max-w-[400px] overflow-x-auto scrollbar-hide">
+          <div
+            className="flex gap-2 max-w-[400px] overflow-x-auto scrollbar-hide"
+            data-cy={`recognition-criteria-container-${record.id}`}
+          >
             {record.criteriaScore.map((criteria: any, index: number) => (
               <span
                 key={index}
                 className="whitespace-nowrap px-2 py-1 bg-gray-100 rounded text-sm flex-shrink-0"
+                data-cy={`recognition-criteria-item-${record.id}-${index}`}
               >
                 {criteria?.name}
               </span>
@@ -211,7 +215,9 @@ function Page() {
       title: 'Details',
       dataIndex: 'description',
       render: (notused, record) => (
-        <p>{record?.recognitionType?.description ?? '-'}</p>
+        <p data-cy={`recognition-details-${record.id}`}>
+          {record?.recognitionType?.description ?? '-'}
+        </p>
       ),
     },
     {

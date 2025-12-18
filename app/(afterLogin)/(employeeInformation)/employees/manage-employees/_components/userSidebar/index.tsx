@@ -92,21 +92,30 @@ const UserSidebar = (props: any) => {
     if (current > step) {
       // Completed step: blue circle with checkmark
       return (
-        <div className="border-2 border-indigo-700 bg-indigo-700 rounded-full h-6 w-6 flex items-center justify-center">
+        <div
+          className="border-2 border-indigo-700 bg-indigo-700 rounded-full h-6 w-6 flex items-center justify-center"
+          data-cy={`user-sidebar-step-dot-completed-${step}`}
+        >
           <IoCheckmarkSharp className="text-white text-[12px] font-bold" />
         </div>
       );
     } else if (current === step) {
       // Current step: blue dot in blue-outlined circle
       return (
-        <div className="border-2 border-indigo-700 rounded-full h-6 w-6 flex items-center justify-center">
+        <div
+          className="border-2 border-indigo-700 rounded-full h-6 w-6 flex items-center justify-center"
+          data-cy={`user-sidebar-step-dot-current-${step}`}
+        >
           <span className="bg-indigo-700 rounded-full h-2.5 w-2.5 block"></span>
         </div>
       );
     } else {
       // Upcoming step: empty gray-outlined circle
       return (
-        <div className="border-2 border-gray-300 rounded-full h-6 w-6 flex items-center justify-center"></div>
+        <div
+          className="border-2 border-gray-300 rounded-full h-6 w-6 flex items-center justify-center"
+          data-cy={`user-sidebar-step-dot-upcoming-${step}`}
+        ></div>
       );
     }
   };

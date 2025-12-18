@@ -8,7 +8,12 @@ const columns: ColumnsType<any> = [
     key: 'criteria',
     render: (value, record) => {
       return (
-        <div className="bg-gray-300 h-full p-3 rounded-lg">{record.name}</div>
+        <div
+          className="bg-gray-300 h-full p-3 rounded-lg"
+          data-cy={`employee-score-card-criteria-${record.id || record.key}`}
+        >
+          {record.name}
+        </div>
       );
     },
   },

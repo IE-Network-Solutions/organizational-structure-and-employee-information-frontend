@@ -24,10 +24,16 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: deduction.id,
             label: (
-              <div title={deduction?.name} className=" font-bold">
-                {deduction?.name?.length > 15
-                  ? deduction.name?.slice(0, 15) + '...'
-                  : deduction.name || 'Unnamed Allowance'}
+              <div
+                title={deduction?.name}
+                className=" font-bold"
+                data-cy={`deduction-menu-item-${deduction.id}`}
+              >
+                <span data-cy={`deduction-menu-item-label-${deduction.id}`}>
+                  {deduction?.name?.length > 15
+                    ? deduction.name?.slice(0, 15) + '...'
+                    : deduction.name || 'Unnamed Allowance'}
+                </span>
               </div>
             ),
           },
@@ -37,7 +43,13 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'allDeduction',
-          label: <div className=" font-bold">All Deductions</div>,
+          label: (
+            <div className=" font-bold" data-cy="deduction-menu-item-all">
+              <span data-cy="deduction-menu-item-all-label">
+                All Deductions
+              </span>
+            </div>
+          ),
         },
         link: '/deduction/allDeduction',
       };

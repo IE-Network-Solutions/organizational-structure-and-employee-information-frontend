@@ -7,7 +7,7 @@ import {
 } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/taxRules/taxRulesStore';
 
-<style jsx global>{`
+<style jsx global data-cy="payroll-tax-rule-drawer-style">{`
   @media (max-width: 767px) {
     .input-number-mobile .ant-input-number,
     .input-number-mobile .ant-input-number-input {

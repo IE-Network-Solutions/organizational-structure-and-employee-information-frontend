@@ -75,13 +75,16 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
   };
 
   const modalHeader = (
-    <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <p>
+    <div
+      className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="create-feedback-modal-header"
+    >
+      <p data-cy="create-feedback-modal-header-title">
         {selectedFeedback === null
           ? `Add New ${activeTabName}`
           : `Edit New ${activeTabName}`}
       </p>
-      <p>{variantType} type</p>
+      <p data-cy="create-feedback-modal-header-subtitle">{variantType} type</p>
     </div>
   );
 

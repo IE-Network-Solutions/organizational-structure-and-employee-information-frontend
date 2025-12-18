@@ -49,6 +49,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                 ? 'bg-[#F8F8F8] text-[#111827] '
                 : 'bg-white text-[#111827]'
             }`}
+            data-cy="pagination-page-button"
           >
             {i}
           </button>,
@@ -65,6 +66,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               ? 'bg-[#F8F8F8] text-[#111827]'
               : 'bg-white text-[#111827]'
           }`}
+          data-cy="pagination-page-button"
         >
           1
         </button>,
@@ -86,7 +88,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       // Add ellipsis after first page if needed
       if (startPage > 2) {
         pageNumbers.push(
-          <span key="leftEllipsis" className="px-2">
+          <span
+            key="leftEllipsis"
+            className="px-2"
+            data-cy="pagination-ellipsis"
+          >
             ...
           </span>,
         );
@@ -103,6 +109,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                 ? 'bg-[#F8F8F8] text-[#111827] '
                 : 'bg-white text-[#111827] '
             }`}
+            data-cy="pagination-page-button"
           >
             {i}
           </button>,
@@ -112,7 +119,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       // Add ellipsis before last page if needed
       if (endPage < totalPages - 1) {
         pageNumbers.push(
-          <span key="rightEllipsis" className="px-2">
+          <span
+            key="rightEllipsis"
+            className="px-2"
+            data-cy="pagination-ellipsis"
+          >
             ...
           </span>,
         );
@@ -128,6 +139,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               ? 'bg-[#F8F8F8] text-[#111827] '
               : 'bg-white text-[#111827]  hover:bg-gray-100'
           }`}
+          data-cy="pagination-page-button"
         >
           {totalPages}
         </button>,
@@ -144,10 +156,14 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       data-cy={dataCy}
       className="flex justify-between items-center py-6  bg-white"
     >
-      <div className="flex items-center space-x-2">
+      <div
+        className="flex items-center space-x-2"
+        data-cy="pagination-controls"
+      >
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
+          data-cy="pagination-prev-button"
           className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === 1
               ? 'text-[#111827] border-gray-200'
@@ -160,6 +176,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
+          data-cy="pagination-next-button"
           className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === totalPages
               ? 'text-[#111827] border-gray-200'

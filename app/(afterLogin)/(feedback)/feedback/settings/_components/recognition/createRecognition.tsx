@@ -124,9 +124,11 @@ const RecognitionForm: React.FC<PropsData> = ({
       data-cy="create-recognition-drawer-header"
       id="createRecognitionDrawerHeader"
     >
-      {selectedRecognitionType === ''
-        ? 'Add New Recognition'
-        : 'Update Recognition'}
+      <span data-cy="create-recognition-drawer-header-text">
+        {selectedRecognitionType === ''
+          ? 'Add New Recognition'
+          : 'Update Recognition'}
+      </span>
     </div>
   );
 
@@ -269,7 +271,10 @@ const RecognitionForm: React.FC<PropsData> = ({
     // You can add a confirmation modal here if needed
     Modal.confirm({
       content: (
-        <span className="text-xs text-gray-950 font-semibold">
+        <span
+          className="text-xs text-gray-950 font-semibold"
+          data-cy="create-recognition-delete-confirm-message"
+        >
           Are you sure you want to delete ?
         </span>
       ),
@@ -525,8 +530,8 @@ const RecognitionForm: React.FC<PropsData> = ({
   }, [criteria, pendingNewCriteriaId]);
 
   return (
-    <>
-      <style>{`
+    <div data-cy="create-recognition-container">
+      <style data-cy="create-recognition-styles">{`
     .custom-delete-modal .ant-modal-confirm-btns {
       text-align: center !important;
       justify-content: center !important;
@@ -1361,7 +1366,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           </Form>
         </Modal>
       </CustomDrawerLayout>
-    </>
+    </div>
   );
 };
 

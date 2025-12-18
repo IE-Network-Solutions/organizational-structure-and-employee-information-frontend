@@ -85,12 +85,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          data-cy={`okr-milestone-form-remove-icon-${index}`}
         >
           <path
             d="M6 6L14 14M6 14L14 6"
             stroke="white"
             strokeWidth="2"
             strokeLinecap="round"
+            data-cy={`okr-milestone-form-remove-key-result-path-${index}`}
           />
         </svg>
       </button>
@@ -398,6 +400,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         stroke="white"
                         strokeWidth="2"
                         strokeLinecap="round"
+                        data-cy={`okr-milestone-form-remove-path-${index}`}
                       />
                     </svg>
                   </button>
@@ -621,6 +624,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         stroke="white"
                         strokeWidth="2"
                         strokeLinecap="round"
+                        data-cy={`okr-milestone-form-remove-path-${index}`}
                       />
                     </svg>
                   </button>

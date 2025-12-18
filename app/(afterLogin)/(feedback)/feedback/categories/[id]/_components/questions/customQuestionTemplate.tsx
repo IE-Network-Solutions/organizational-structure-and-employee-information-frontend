@@ -40,7 +40,13 @@ const CustomQuestionTemplate = () => {
 
   if (isQuestionTemplateLoading)
     return (
-      <div className="text-center my-5"> No custom question available.</div>
+      <div
+        className="text-center my-5"
+        data-cy="custom-question-template-loading"
+      >
+        {' '}
+        No custom question available.
+      </div>
     );
   return (
     <>
@@ -101,6 +107,7 @@ const CustomQuestionTemplate = () => {
                         <Checkbox
                           checked={selectedQuestions?.includes(question?.id)}
                           onClick={(e) => handleSelectQuestion(question?.id, e)}
+                          data-cy={`custom-question-template-checkbox-${question?.id}`}
                         />
                         <span
                           className="ml-2"
