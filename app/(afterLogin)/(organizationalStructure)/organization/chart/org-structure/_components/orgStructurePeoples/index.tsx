@@ -274,7 +274,11 @@ const OrgChartComponent: React.FC = () => {
                           height: '100%',
                         }}
                       >
-                        <div ref={chartRef}>
+                        <div
+                          id="org-structure-chart"
+                          data-cy="org-structure-chart"
+                          ref={chartRef}
+                        >
                           <Tree
                             label={
                               <DepartmentNode
