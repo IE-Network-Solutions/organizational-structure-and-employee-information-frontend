@@ -19,7 +19,12 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
         className="rounded-2xl border border-gray-100 shadow-sm"
         data-cy="ai-job-applicants-card"
       >
-        <Empty description="Select a job to view applicants" />
+        <div
+          id="ai-job-applicants-empty-no-job"
+          data-cy="ai-job-applicants-empty-no-job"
+        >
+          <Empty description="Select a job to view applicants" />
+        </div>
       </Card>
     );
   }
@@ -36,7 +41,12 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
           data-cy="ai-job-applicants-loading"
           className="flex items-center justify-center h-48"
         >
-          <Spin size="large" />
+          <div
+            id="ai-job-applicants-loading-spinner"
+            data-cy="ai-job-applicants-loading-spinner"
+          >
+            <Spin size="large" />
+          </div>
         </div>
       </Card>
     );
@@ -49,16 +59,28 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
       <Card
         id="ai-job-applicants-card-empty"
         className="rounded-2xl border border-gray-100 shadow-sm"
-        data-cy="ai-job-applicants-card"
+        data-cy="ai-job-applicants-card-empty"
       >
-        <Empty description="No applicants yet" />
+        <div
+          id="ai-job-applicants-empty-state"
+          data-cy="ai-job-applicants-empty-state"
+        >
+          <Empty description="No applicants yet" />
+        </div>
       </Card>
     );
   }
 
   const columns = [
     {
-      title: 'Name',
+      title: (
+        <span
+          id="ai-applicant-column-name"
+          data-cy="ai-applicant-column-name"
+        >
+          Name
+        </span>
+      ),
       dataIndex: 'fullName',
       key: 'fullName',
       render: (value: string, record: any, index: number) => (
@@ -72,7 +94,14 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
       ),
     },
     {
-      title: 'Email',
+      title: (
+        <span
+          id="ai-applicant-column-email"
+          data-cy="ai-applicant-column-email"
+        >
+          Email
+        </span>
+      ),
       dataIndex: 'email',
       key: 'email',
       render: (value: string, record: any, index: number) => (
@@ -85,7 +114,14 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
       ),
     },
     {
-      title: 'Phone',
+      title: (
+        <span
+          id="ai-applicant-column-phone"
+          data-cy="ai-applicant-column-phone"
+        >
+          Phone
+        </span>
+      ),
       dataIndex: 'phone',
       key: 'phone',
       render: (value: string, record: any, index: number) => (
@@ -98,7 +134,14 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
       ),
     },
     {
-      title: 'Stage',
+      title: (
+        <span
+          id="ai-applicant-column-stage"
+          data-cy="ai-applicant-column-stage"
+        >
+          Stage
+        </span>
+      ),
       dataIndex: 'stage',
       key: 'stage',
       render: (value: string, record: any, index: number) => (
@@ -113,7 +156,14 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
       ),
     },
     {
-      title: 'Applied On',
+      title: (
+        <span
+          id="ai-applicant-column-applied-on"
+          data-cy="ai-applicant-column-applied-on"
+        >
+          Applied On
+        </span>
+      ),
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (value: string, record: any, index: number) => (
@@ -141,7 +191,14 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
       id="ai-job-applicants-card"
       className="rounded-2xl border border-gray-100 shadow-sm"
       data-cy="ai-job-applicants-card"
-      title="All Applicants"
+      title={
+        <span
+          id="ai-job-applicants-title"
+          data-cy="ai-job-applicants-title"
+        >
+          All Applicants
+        </span>
+      }
       extra={
         <span
           id="ai-job-applicants-total-count"

@@ -58,24 +58,42 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
           data-cy={`ai-job-card-${job.jobId}-info`}
           className="flex items-center gap-8 text-sm text-gray-500 flex-nowrap"
         >
-          <span
-            id={`ai-job-card-${job.jobId}-location`}
-            data-cy={`ai-job-card-${job.jobId}-location`}
-            className="flex items-center gap-2"
-          >
-            <EnvironmentOutlined className="text-gray-400 text-base" />
-            <span className="text-sm font-medium text-gray-700">
-              {locationLabel}
+            <span
+              id={`ai-job-card-${job.jobId}-location`}
+              data-cy={`ai-job-card-${job.jobId}-location`}
+              className="flex items-center gap-2"
+            >
+              <EnvironmentOutlined
+                id={`ai-job-card-${job.jobId}-location-icon`}
+                data-cy={`ai-job-card-${job.jobId}-location-icon`}
+                className="text-gray-400 text-base"
+              />
+              <span
+                id={`ai-job-card-${job.jobId}-location-text`}
+                data-cy={`ai-job-card-${job.jobId}-location-text`}
+                className="text-sm font-medium text-gray-700"
+              >
+                {locationLabel}
+              </span>
             </span>
-          </span>
-          <span
-            id={`ai-job-card-${job.jobId}-posted-date`}
-            data-cy={`ai-job-card-${job.jobId}-posted-date`}
-            className="flex items-center gap-1 text-sm text-gray-500"
-          >
-            <ClockCircleOutlined className="text-gray-400 text-base" />
-            <span className="text-sm text-gray-400">{formattedPostedDate}</span>
-          </span>
+            <span
+              id={`ai-job-card-${job.jobId}-posted-date`}
+              data-cy={`ai-job-card-${job.jobId}-posted-date`}
+              className="flex items-center gap-1 text-sm text-gray-500"
+            >
+              <ClockCircleOutlined
+                id={`ai-job-card-${job.jobId}-posted-date-icon`}
+                data-cy={`ai-job-card-${job.jobId}-posted-date-icon`}
+                className="text-gray-400 text-base"
+              />
+              <span
+                id={`ai-job-card-${job.jobId}-posted-date-text`}
+                data-cy={`ai-job-card-${job.jobId}-posted-date-text`}
+                className="text-sm text-gray-400"
+              >
+                {formattedPostedDate}
+              </span>
+            </span>
         </div>
 
         {/* AI Matches */}
@@ -117,17 +135,42 @@ const AIJobMatchingPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="bg-white px-6 py-4 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900">
+      <div
+        id="ai-job-matching-page-loading"
+        data-cy="ai-job-matching-page-loading"
+        className="min-h-screen bg-gray-50"
+      >
+        <div
+          id="ai-job-matching-header-loading"
+          data-cy="ai-job-matching-header-loading"
+          className="bg-white px-6 py-4 border-b border-gray-200"
+        >
+          <h1
+            id="ai-job-matching-title-loading"
+            data-cy="ai-job-matching-title-loading"
+            className="text-xl font-semibold text-gray-900"
+          >
             AI Job Matching
           </h1>
-          <p className="text-sm text-gray-500">
+          <p
+            id="ai-job-matching-subtitle-loading"
+            data-cy="ai-job-matching-subtitle-loading"
+            className="text-sm text-gray-500"
+          >
             Match candidates to jobs using AI-powered analysis
           </p>
         </div>
-        <div className="flex items-center justify-center min-h-96">
-          <Spin size="large" />
+        <div
+          id="ai-job-matching-spinner-container"
+          data-cy="ai-job-matching-spinner-container"
+          className="flex items-center justify-center min-h-96"
+        >
+          <div
+            id="ai-job-matching-spinner"
+            data-cy="ai-job-matching-spinner"
+          >
+            <Spin size="large" />
+          </div>
         </div>
       </div>
     );
@@ -135,17 +178,42 @@ const AIJobMatchingPage: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50" data-cy="ai-job-matching-page">
-        <div className="bg-white px-6 py-4 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900">
+      <div
+        id="ai-job-matching-page-error"
+        className="min-h-screen bg-gray-50"
+        data-cy="ai-job-matching-page-error"
+      >
+        <div
+          id="ai-job-matching-header-error"
+          data-cy="ai-job-matching-header-error"
+          className="bg-white px-6 py-4 border-b border-gray-200"
+        >
+          <h1
+            id="ai-job-matching-title-error"
+            data-cy="ai-job-matching-title-error"
+            className="text-xl font-semibold text-gray-900"
+          >
             AI Job Matching
           </h1>
-          <p className="text-sm text-gray-500">
+          <p
+            id="ai-job-matching-subtitle-error"
+            data-cy="ai-job-matching-subtitle-error"
+            className="text-sm text-gray-500"
+          >
             Match candidates to jobs using AI-powered analysis
           </p>
         </div>
-        <div className="flex items-center justify-center min-h-96">
-          <Empty description="Failed to load jobs" />
+        <div
+          id="ai-job-matching-error-container"
+          data-cy="ai-job-matching-error-container"
+          className="flex items-center justify-center min-h-96"
+        >
+          <div
+            id="ai-job-matching-error-empty"
+            data-cy="ai-job-matching-error-empty"
+          >
+            <Empty description="Failed to load jobs" />
+          </div>
         </div>
       </div>
     );
@@ -180,7 +248,11 @@ const AIJobMatchingPage: React.FC = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="px-6 py-4">
+      <div
+        id="ai-job-matching-search-container"
+        data-cy="ai-job-matching-search-container"
+        className="px-6 py-4"
+      >
         <Input
           id="ai-job-matching-search"
           data-cy="ai-job-matching-search"
@@ -203,7 +275,12 @@ const AIJobMatchingPage: React.FC = () => {
             data-cy="ai-job-matching-empty"
             className="flex items-center justify-center min-h-96"
           >
-            <Empty description="No jobs available" />
+            <div
+              id="ai-job-matching-empty-state"
+              data-cy="ai-job-matching-empty-state"
+            >
+              <Empty description="No jobs available" />
+            </div>
           </div>
         ) : (
           <div
