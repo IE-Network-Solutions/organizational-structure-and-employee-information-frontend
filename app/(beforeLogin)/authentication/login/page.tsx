@@ -82,9 +82,9 @@ const Login: FC = () => {
   ) : (
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
-      style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      style={{ backgroundImage: 'url(/Background.png)', margin: 0 }}
     >
-      <div className="bg-white w-full max-w-md py-8 px-8 rounded-2xl my-5 shadow-lg">
+      <div className="bg-[#FAFAFA] w-full max-w-md py-8 px-8 rounded-2xl my-5 shadow-2xl">
         <div className="flex justify-center mb-2">
           <SimpleLogo />
         </div>
