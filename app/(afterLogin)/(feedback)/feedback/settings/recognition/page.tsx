@@ -43,7 +43,11 @@ const Page = () => {
   ];
 
   const CategoryButton = (
-    <AccessGuard permissions={[Permissions.CreateRecognition]} data-cy="settings-recognition-category-access-guard" id="settingsRecognitionCategoryAccessGuard">
+    <AccessGuard
+      permissions={[Permissions.CreateRecognition]}
+      data-cy="settings-recognition-category-access-guard"
+      id="settingsRecognitionCategoryAccessGuard"
+    >
       <Button
         onClick={() => setOpenRecognitionType(true)}
         icon={<FaPlus />}
@@ -52,15 +56,32 @@ const Page = () => {
         data-cy="settings-recognition-category-button"
         id="settingsRecognitionCategoryButton"
       >
-        <span className="hidden sm:inline" data-cy="settings-recognition-category-label">Category</span>
+        <span
+          className="hidden sm:inline"
+          data-cy="settings-recognition-category-label"
+        >
+          Category
+        </span>
       </Button>
     </AccessGuard>
   );
   return (
-    <div className="p-5 rounded-2xl bg-white h-full" data-cy="settings-recognition-page" id="settingsRecognitionPage">
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      data-cy="settings-recognition-page"
+      id="settingsRecognitionPage"
+    >
       <Spin spinning={isLoading} data-cy="settings-recognition-spin">
-        <div className="grid grid-cols-12 flex-col-reverse justify-between" data-cy="settings-recognition-content" id="settingsRecognitionContent">
-          <div className="col-span-12 " data-cy="settings-recognition-tabs-container" id="settingsRecognitionTabsContainer">
+        <div
+          className="grid grid-cols-12 flex-col-reverse justify-between"
+          data-cy="settings-recognition-content"
+          id="settingsRecognitionContent"
+        >
+          <div
+            className="col-span-12 "
+            data-cy="settings-recognition-tabs-container"
+            id="settingsRecognitionTabsContainer"
+          >
             <Tabs
               defaultActiveKey="1"
               items={items}

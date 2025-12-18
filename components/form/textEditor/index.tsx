@@ -31,12 +31,18 @@ const TextEditor: FC<TextEditorProps> = ({
       className={classNames('border rounded-2xl border-gray-200', undefined, [
         className,
       ])}
+      data-cy="text-editor"
     >
       <div
         id="textEditorToolbar"
         className="flex items-center gap-3 px-2 py-4 border-0 border-b border-gray-200"
+        data-cy="text-editor-toolbar"
       >
-        <button className="ql-header" value="3">
+        <button
+          className="ql-header"
+          value="3"
+          data-cy="text-editor-header-button"
+        >
           <MdTitle size={16} />
         </button>
         <button id="buttonQlBold" type="button" className="ql-bold"></button>

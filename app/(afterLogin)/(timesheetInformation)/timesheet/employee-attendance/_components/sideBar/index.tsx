@@ -176,7 +176,7 @@ const EmployeeAttendanceSideBar = () => {
         data-cy="time-attendance-employee-attendance-sidebar-container"
       >
         <CustomDrawerLayout
-          data-cy="time-attendance-employee-attendance-sidebar-container" 
+          data-cy="time-attendance-employee-attendance-sidebar-container"
           open={isShowEmployeeAttendanceSidebar}
           onClose={onClose}
           modalHeader={
@@ -190,7 +190,10 @@ const EmployeeAttendanceSideBar = () => {
                 id="time-attendance-employee-attendance-sidebar-footer-buttons"
                 data-cy="time-attendance-employee-attendance-sidebar-footer-buttons"
               >
-                <CustomDrawerFooterButton data-cy="time-attendance-employee-attendance-sidebar-footer-buttons" buttons={footerModalItems} />
+                <CustomDrawerFooterButton
+                  data-cy="time-attendance-employee-attendance-sidebar-footer-buttons"
+                  buttons={footerModalItems}
+                />
               </div>
             </div>
           }

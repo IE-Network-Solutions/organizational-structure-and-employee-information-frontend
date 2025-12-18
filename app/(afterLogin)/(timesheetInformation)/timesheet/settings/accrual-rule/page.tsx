@@ -119,11 +119,20 @@ const Page = () => {
             type="primary"
             id="time-attendance-settings-accrual-rule-add-button"
             data-cy="time-attendance-settings-accrual-rule-add-button"
-            icon={<FaPlus data-cy="time-attendance-settings-accrual-rule-add-button-icon" />}
+            icon={
+              <FaPlus data-cy="time-attendance-settings-accrual-rule-add-button-icon" />
+            }
             className="h-10 w-10 sm:w-auto"
             onClick={() => setIsShowNewAccrualRuleSidebar(true)}
           >
-            <span id="time-attendance-settings-accrual-rule-add-button-label" data-cy="time-attendance-settings-accrual-rule-add-button-label" className="hidden md:inline"> New Accrual Rule</span>
+            <span
+              id="time-attendance-settings-accrual-rule-add-button-label"
+              data-cy="time-attendance-settings-accrual-rule-add-button-label"
+              className="hidden md:inline"
+            >
+              {' '}
+              New Accrual Rule
+            </span>
           </Button>
         </AccessGuard>
       </div>

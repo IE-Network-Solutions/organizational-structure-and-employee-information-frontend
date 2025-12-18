@@ -67,7 +67,8 @@ const AddTypesSidebar = () => {
       loading: isLoading,
       onClick: () => onClose(),
       id: 'time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button',
-      'data-cy': 'time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button',
+      'data-cy':
+        'time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button',
     },
     {
       label: attendanceTypeId ? 'Edit' : 'Add',
@@ -78,7 +79,8 @@ const AddTypesSidebar = () => {
       loading: isLoading,
       onClick: () => form.submit(),
       id: 'time-attendance-settings-attendance-rules-add-type-sidebar-submit-button',
-      'data-cy': 'time-attendance-settings-attendance-rules-add-type-sidebar-submit-button',
+      'data-cy':
+        'time-attendance-settings-attendance-rules-add-type-sidebar-submit-button',
     },
   ];
 

@@ -163,7 +163,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const treeData: CustomMenuItem[] = [
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          className="flex items-center gap-2 h-12"
+          data-cy="nav-item-settings"
+        >
           <CiSettings
             size={18}
             className={

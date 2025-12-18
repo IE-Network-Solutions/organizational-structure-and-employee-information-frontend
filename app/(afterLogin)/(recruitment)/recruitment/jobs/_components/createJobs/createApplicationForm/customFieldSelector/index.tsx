@@ -39,8 +39,14 @@ const CustomFieldsSelector: React.FC = () => {
 
   if (isCustomFieldLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
+      <div
+        className="flex justify-center items-center h-64"
+        data-cy="talent-acquisition-create-application-form-custom-field-loading"
+      >
+        <Spin
+          size="large"
+          data-cy="talent-acquisition-create-application-form-custom-field-spin"
+        />
       </div>
     );
   }
@@ -48,7 +54,12 @@ const CustomFieldsSelector: React.FC = () => {
   return (
     <div>
       <div className="flex items-center justify-start gap-1">
-        <span className="text-md font-medium">Choose your Custom field</span>
+        <span
+          className="text-md font-medium"
+          data-cy="talent-acquisition-create-application-form-custom-field-label"
+        >
+          Choose your Custom field
+        </span>
         <span className="text-red-500">*</span>
       </div>
       <Collapse defaultActiveKey={['1']}>

@@ -63,7 +63,11 @@ const DetailPageTabs: React.FC = () => {
   const OperationsSlot = useMemo(() => {
     if (activeKey === '1') {
       return (
-        <div id="detail-page-tabs-operations-slot-all" data-cy="detail-page-tabs-operations-slot-all" className="flex items-center justify-center gap-3">
+        <div
+          id="detail-page-tabs-operations-slot-all"
+          data-cy="detail-page-tabs-operations-slot-all"
+          className="flex items-center justify-center gap-3"
+        >
           {isPayrollView ? (
             <Button
               id="detail-page-tabs-generate-button"
@@ -97,7 +101,11 @@ const DetailPageTabs: React.FC = () => {
     } else {
       // Show Import & Generate for all other tabs
       return (
-        <div id="detail-page-tabs-operations-slot-other" data-cy="detail-page-tabs-operations-slot-other" className="flex items-center justify-center gap-3">
+        <div
+          id="detail-page-tabs-operations-slot-other"
+          data-cy="detail-page-tabs-operations-slot-other"
+          className="flex items-center justify-center gap-3"
+        >
           <Button
             id="detail-page-tabs-export-button-other"
             data-cy="detail-page-tabs-export-button-other"
@@ -136,8 +144,15 @@ const DetailPageTabs: React.FC = () => {
     }
   };
   return (
-    <div id="detail-page-tabs-container" data-cy="detail-page-tabs-container" className="m-1">
-      <div id="detail-page-tabs-payroll-view-wrapper" data-cy="detail-page-tabs-payroll-view-wrapper">
+    <div
+      id="detail-page-tabs-container"
+      data-cy="detail-page-tabs-container"
+      className="m-1"
+    >
+      <div
+        id="detail-page-tabs-payroll-view-wrapper"
+        data-cy="detail-page-tabs-payroll-view-wrapper"
+      >
         {isPayrollView && <PayRoleView operationSlot={OperationsSlot} />}
       </div>
 

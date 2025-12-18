@@ -36,7 +36,9 @@ const AllowanceTypePage = () => {
           <Button
             type="primary"
             id="createNewClosedHolidayFieldId"
-            icon={<FaPlus data-cy="compensation-settings-allowance-type-create-icon" />}
+            icon={
+              <FaPlus data-cy="compensation-settings-allowance-type-create-icon" />
+            }
             className="h-10"
             onClick={() => {
               setIsAllowanceOpen(true);

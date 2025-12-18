@@ -109,18 +109,41 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
     },
   };
   return (
-    <div id={`okr-performance-chart-container-${userId}`} data-cy={`okr-performance-chart-container-${userId}`} className="bg-white rounded-xl border border-[#F3F4F6] p-2 mb-2">
-      <Bar id={`okr-performance-chart-bar-${userId}`} data-cy={`okr-performance-chart-bar-${userId}`} data={data} options={options} height={100} />
-      <div id={`okr-performance-chart-legend-container-${userId}`} data-cy={`okr-performance-chart-legend-container-${userId}`} className="flex items-center justify-start mt-1 gap-8">
+    <div
+      id={`okr-performance-chart-container-${userId}`}
+      data-cy={`okr-performance-chart-container-${userId}`}
+      className="bg-white rounded-xl border border-[#F3F4F6] p-2 mb-2"
+    >
+      <Bar
+        id={`okr-performance-chart-bar-${userId}`}
+        data-cy={`okr-performance-chart-bar-${userId}`}
+        data={data}
+        options={options}
+        height={100}
+      />
+      <div
+        id={`okr-performance-chart-legend-container-${userId}`}
+        data-cy={`okr-performance-chart-legend-container-${userId}`}
+        className="flex items-center justify-start mt-1 gap-8"
+      >
         {legendItems.map((item) => (
-          <div id={`okr-performance-chart-legend-item-${item.label}`} data-cy={`okr-performance-chart-legend-item-${item.label}`} key={item.label} className="flex items-center gap-2">
+          <div
+            id={`okr-performance-chart-legend-item-${item.label}`}
+            data-cy={`okr-performance-chart-legend-item-${item.label}`}
+            key={item.label}
+            className="flex items-center gap-2"
+          >
             <span
               id={`okr-performance-chart-legend-item-color-${item.label}`}
               data-cy={`okr-performance-chart-legend-item-color-${item.label}`}
               className="inline-block rounded-full"
               style={{ width: 18, height: 12, backgroundColor: item.color }}
             />
-            <span id={`okr-performance-chart-legend-item-label-${item.label}`} data-cy={`okr-performance-chart-legend-item-label-${item.label}`} className="text-sm text-gray-500 font-normal">
+            <span
+              id={`okr-performance-chart-legend-item-label-${item.label}`}
+              data-cy={`okr-performance-chart-legend-item-label-${item.label}`}
+              className="text-sm text-gray-500 font-normal"
+            >
               {item.label}
             </span>
           </div>

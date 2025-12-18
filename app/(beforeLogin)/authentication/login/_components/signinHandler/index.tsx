@@ -64,11 +64,14 @@ export const useHandleSignIn = () => {
           Modal.confirm({
             title: 'Link accounts',
             content: (
-              <div>
-                <p>Please enter your account email to continue linking:</p>
+              <div data-cy="authentication-signin-handler-link-accounts-email-modal">
+                <p data-cy="authentication-signin-handler-link-accounts-email-modal-text">
+                  Please enter your account email to continue linking:
+                </p>
                 <Input
                   type="email"
                   placeholder="you@example.com"
+                  data-cy="authentication-signin-handler-link-accounts-email-input"
                   onChange={(e) => {
                     inputValue = e.target.value;
                   }}

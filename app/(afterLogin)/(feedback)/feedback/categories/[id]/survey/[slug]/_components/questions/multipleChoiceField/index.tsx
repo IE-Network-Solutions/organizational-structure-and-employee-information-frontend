@@ -18,7 +18,12 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({
   choices,
   selectedAnswer,
 }) => (
-  <Row id="multiple-choice-field-row" data-cy="multiple-choice-field-row" gutter={[16, 16]} className="mt-2">
+  <Row
+    id="multiple-choice-field-row"
+    data-cy="multiple-choice-field-row"
+    gutter={[16, 16]}
+    className="mt-2"
+  >
     {choices?.map((choice, index) => (
       <Row
         key={index}

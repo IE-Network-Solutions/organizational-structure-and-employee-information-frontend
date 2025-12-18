@@ -20,7 +20,10 @@ const DuplicateDeductionModal: React.FC<DuplicateDeductionModalProps> = ({
   employeeNames = [],
 }) => {
   const modalFooter = (
-    <div className="w-full flex justify-center items-center gap-4">
+    <div
+      className="w-full flex justify-center items-center gap-4"
+      data-cy="duplicate-deduction-modal-footer"
+    >
       <Button
         className="px-8 py-3 text-base font-medium border border-gray-300"
         onClick={onCancel}

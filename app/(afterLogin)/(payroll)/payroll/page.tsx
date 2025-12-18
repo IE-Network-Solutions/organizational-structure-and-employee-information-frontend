@@ -192,20 +192,21 @@ const Payroll = () => {
     if (!selectedData || selectedData.length === 0) {
       notification.error({
         message: 'No Data Available',
-        description: selectedRowKeys.length > 0
-          ? 'The selected employees have no payroll data to export. Please adjust your selection or filters.'
-          : 'There is no payroll data available to export. Please check your filters or generate payroll first.',
+        description:
+          selectedRowKeys.length > 0
+            ? 'The selected employees have no payroll data to export. Please adjust your selection or filters.'
+            : 'There is no payroll data available to export. Please check your filters or generate payroll first.',
       });
       return;
     }
 
     if (paySlip)
-      exportTasks.push(
-        Promise.resolve(sendingPaySlipHandler(selectedData)),
-      );
+      exportTasks.push(Promise.resolve(sendingPaySlipHandler(selectedData)));
 
     if (exportPayrollData)
-      exportTasks.push(Promise.resolve(handleDeductionExportPayroll(selectedData)));
+      exportTasks.push(
+        Promise.resolve(handleDeductionExportPayroll(selectedData)),
+      );
 
     if (exportBank) exportTasks.push(handleExportBank(selectedData));
 
@@ -215,9 +216,7 @@ const Payroll = () => {
         (sum: number, item: any) => sum + (item.netPay || 0),
         0,
       );
-      exportTasks.push(
-        Promise.resolve(handleBankLetter(totalNetPay)),
-      );
+      exportTasks.push(Promise.resolve(handleBankLetter(totalNetPay)));
     }
 
     if (exportTasks?.length === 0) {
@@ -434,7 +433,9 @@ const Payroll = () => {
         const fullName =
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
           '--';
-        const tinNumber = item.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber || '--';
+        const tinNumber =
+          item.employeeInfo?.employeeInformation?.additionalInformation
+            ?.tinNumber || '--';
         const basicSalary =
           item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
             ?.basicSalary || 0;
@@ -451,11 +452,14 @@ const Payroll = () => {
           }, 0);
         const taxableTransport = transportAllowance - 600;
         const totalBenefits = item.totalMerit || 0;
-        
+
         // Find Position Allowance from allowances
-        const positionAllowance = allowances
-          ?.find((a: any) => a.type === 'Position Allowance' || a.type?.toLowerCase().includes('position'))
-          ?.amount || 0;
+        const positionAllowance =
+          allowances?.find(
+            (a: any) =>
+              a.type === 'Position Allowance' ||
+              a.type?.toLowerCase().includes('position'),
+          )?.amount || 0;
 
         const payrollRowData: any = {
           fullName,
@@ -552,28 +556,29 @@ const Payroll = () => {
 
         // **Define Headers**
         // For Payrolls sheet, ensure TIN Number comes right after Full Name
-        const payrollHeaders = sheetName === 'Payrolls' 
-          ? [
-              { header: 'Full Name', key: 'fullName', minWidth: 30 },
-              { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
-              ...Array.from(uniqueTypes)
-                .filter((type) => type !== 'tinNumber') // Remove tinNumber from the rest
-                .map((type) => ({
+        const payrollHeaders =
+          sheetName === 'Payrolls'
+            ? [
+                { header: 'Full Name', key: 'fullName', minWidth: 30 },
+                { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
+                ...Array.from(uniqueTypes)
+                  .filter((type) => type !== 'tinNumber') // Remove tinNumber from the rest
+                  .map((type) => ({
+                    header: columnHeaderMap.get(type) || type,
+                    key: type,
+                    minWidth: 12,
+                  })),
+              ]
+            : [
+                { header: 'Full Name', key: 'fullName', minWidth: 30 },
+                { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
+                ...Array.from(uniqueTypes).map((type) => ({
                   header: columnHeaderMap.get(type) || type,
                   key: type,
                   minWidth: 12,
                 })),
-            ]
-          : [
-              { header: 'Full Name', key: 'fullName', minWidth: 30 },
-              { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
-              ...Array.from(uniqueTypes).map((type) => ({
-                header: columnHeaderMap.get(type) || type,
-                key: type,
-                minWidth: 12,
-              })),
-              { header: `Total ${sheetName}`, key: totalKey, minWidth: 18 },
-            ];
+                { header: `Total ${sheetName}`, key: totalKey, minWidth: 18 },
+              ];
 
         const headers = payrollHeaders;
 
@@ -902,7 +907,9 @@ const Payroll = () => {
       key: 'tinNumber',
       minWidth: 150,
       render: (notused: any, record: any) => {
-        const tinNumber = record.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber || '--';
+        const tinNumber =
+          record.employeeInfo?.employeeInformation?.additionalInformation
+            ?.tinNumber || '--';
         return (
           <span
             id={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
@@ -1487,7 +1494,11 @@ const Payroll = () => {
                 setSelectedRowKeys(newSelectedRowKeys);
               },
               /* eslint-disable @typescript-eslint/no-unused-vars */
-              onSelectAll: (selected: boolean, selectedRows: any[], changeRows: any[]) => {
+              onSelectAll: (
+                selected: boolean,
+                selectedRows: any[],
+                changeRows: any[],
+              ) => {
                 if (selected) {
                   const allKeys = mergedPayroll.map(
                     (item: any) => item.id || item.employeeId,

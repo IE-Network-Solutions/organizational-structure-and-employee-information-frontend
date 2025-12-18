@@ -53,7 +53,10 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
           id="okr-vpgraph-actualvstarget-col-display-col"
           data-cy="okr-vpgraph-actualvstarget-col-display-col"
         >
-          <ActualVsTargetChart data-cy="okr-vpgraph-actualvstarget-chart-display-chart" variablePay={variablePay} />
+          <ActualVsTargetChart
+            data-cy="okr-vpgraph-actualvstarget-chart-display-chart"
+            variablePay={variablePay}
+          />
         </Col>
         <Col
           xs={24}
@@ -64,7 +67,10 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
           id="okr-vpgraph-criteriacontribution-col-display-col"
           data-cy="okr-vpgraph-criteriacontribution-col-display-col"
         >
-          <CriteriaContributionChart data-cy="okr-vpgraph-criteriacontribution-chart-display-chart" variablePay={variablePay} />
+          <CriteriaContributionChart
+            data-cy="okr-vpgraph-criteriacontribution-chart-display-chart"
+            variablePay={variablePay}
+          />
         </Col>
       </Row>
     </div>

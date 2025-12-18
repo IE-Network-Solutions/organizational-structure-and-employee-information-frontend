@@ -12,9 +12,12 @@ const ApprovalStatusCard = ({
   userImage: (a: any) => any;
 }) => {
   return (
-    <div className="border-b border-gray-200">
-      <div className="flex items-center px-3 py-4 gap-4">
-        <div>Level {data?.stepOrder}</div>
+    <div className="border-b border-gray-200" data-cy="approval-status-card">
+      <div
+        className="flex items-center px-3 py-4 gap-4"
+        data-cy="approval-status-card-content"
+      >
+        <div data-cy="approval-status-card-level">Level {data?.stepOrder}</div>
         <Image
           width={24}
           height={24}
