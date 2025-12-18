@@ -24,7 +24,11 @@ const FormSearch: React.FC = () => {
   };
 
   return (
-    <div id="form-search-container" data-cy="form-search-container" className="my-2">
+    <div
+      id="form-search-container"
+      data-cy="form-search-container"
+      className="my-2"
+    >
       <Row
         id="form-search-row"
         data-cy="form-search-row"
@@ -32,7 +36,13 @@ const FormSearch: React.FC = () => {
         justify="space-between"
         className="bg-white py-4"
       >
-        <Col id="form-search-input-col" data-cy="form-search-input-col" xs={24} sm={24} lg={10}>
+        <Col
+          id="form-search-input-col"
+          data-cy="form-search-input-col"
+          xs={24}
+          sm={24}
+          lg={10}
+        >
           <Input
             id="form-search-input"
             data-cy="form-search-input"

@@ -69,8 +69,21 @@ const EmployeeDetails = ({
   // ✅ If just showing avatar (inside Avatar.Group), return Avatar directly
   if (type === 'avatar') {
     return (
-      <Tooltip title={userName} data-cy={`feedback-action-plan-tooltip-employee-${empId}`} id={`feedback-action-plan-tooltip-employee-${empId}`}>
-        <Avatar src={profileImage} icon={<UserOutlined id={`feedback-action-plan-avatar-employee-${empId}`} data-cy="feedback-action-plan-avatar-employee-icon" />} data-cy={`feedback-action-plan-avatar-employee-${empId}`}>
+      <Tooltip
+        title={userName}
+        data-cy={`feedback-action-plan-tooltip-employee-${empId}`}
+        id={`feedback-action-plan-tooltip-employee-${empId}`}
+      >
+        <Avatar
+          src={profileImage}
+          icon={
+            <UserOutlined
+              id={`feedback-action-plan-avatar-employee-${empId}`}
+              data-cy="feedback-action-plan-avatar-employee-icon"
+            />
+          }
+          data-cy={`feedback-action-plan-avatar-employee-${empId}`}
+        >
           {!profileImage && userName[0]}
         </Avatar>
       </Tooltip>
@@ -79,11 +92,30 @@ const EmployeeDetails = ({
 
   // ✅ For 'all' type — full display
   return (
-    <div key={empId} className="flex gap-2 items-center" data-cy={`feedback-action-plan-div-employee-${empId}`} id={`feedback-action-plan-div-employee-${empId}`}>
-      <Avatar src={profileImage} icon={<UserOutlined id={`feedback-action-plan-avatar-employee-full-${empId}`} data-cy="feedback-action-plan-avatar-employee-full-icon" />} data-cy={`feedback-action-plan-avatar-employee-full-${empId}`}>
+    <div
+      key={empId}
+      className="flex gap-2 items-center"
+      data-cy={`feedback-action-plan-div-employee-${empId}`}
+      id={`feedback-action-plan-div-employee-${empId}`}
+    >
+      <Avatar
+        src={profileImage}
+        icon={
+          <UserOutlined
+            id={`feedback-action-plan-avatar-employee-full-${empId}`}
+            data-cy="feedback-action-plan-avatar-employee-full-icon"
+          />
+        }
+        data-cy={`feedback-action-plan-avatar-employee-full-${empId}`}
+      >
         {!profileImage && userName[0]}
       </Avatar>
-      <span data-cy={`feedback-action-plan-span-employee-name-${empId}`} id={`feedback-action-plan-span-employee-name-${empId}`}>{userName}</span>
+      <span
+        data-cy={`feedback-action-plan-span-employee-name-${empId}`}
+        id={`feedback-action-plan-span-employee-name-${empId}`}
+      >
+        {userName}
+      </span>
     </div>
   );
 };
@@ -105,7 +137,15 @@ const columns: ColumnsType<any> = [
   {
     title: 'Issues',
     dataIndex: 'issue',
-    render: (text, record) => <p className="text-[12px] max-w-xs truncate" data-cy={`feedback-action-plan-table-cell-issue-${record.key}`} id={`feedback-action-plan-table-cell-issue-${record.key}`}>{text}</p>,
+    render: (text, record) => (
+      <p
+        className="text-[12px] max-w-xs truncate"
+        data-cy={`feedback-action-plan-table-cell-issue-${record.key}`}
+        id={`feedback-action-plan-table-cell-issue-${record.key}`}
+      >
+        {text}
+      </p>
+    ),
   },
   {
     title: 'Type',
@@ -124,7 +164,11 @@ const columns: ColumnsType<any> = [
     title: 'Responsible person',
     dataIndex: 'responsible',
     render: (users: any[], record) => (
-      <div className="flex gap-1" data-cy={`feedback-action-plan-table-cell-responsible-${record.key}`} id={`feedback-action-plan-table-cell-responsible-${record.key}`}>
+      <div
+        className="flex gap-1"
+        data-cy={`feedback-action-plan-table-cell-responsible-${record.key}`}
+        id={`feedback-action-plan-table-cell-responsible-${record.key}`}
+      >
         {users && users.length > 1
           ? users.map((res: any, index: number) => (
               <Avatar.Group
@@ -136,11 +180,21 @@ const columns: ColumnsType<any> = [
                 key={index}
                 data-cy={`feedback-action-plan-avatar-group-${record.key}-${index}`}
               >
-                <EmployeeDetails key={res} empId={res} type="avatar" data-cy={`feedback-action-plan-avatar-group-${record.key}-${index}`} />
+                <EmployeeDetails
+                  key={res}
+                  empId={res}
+                  type="avatar"
+                  data-cy={`feedback-action-plan-avatar-group-${record.key}-${index}`}
+                />
               </Avatar.Group>
             ))
           : users.map((res: any) => (
-              <EmployeeDetails key={res} type="all" empId={res} data-cy="feedback-action-plan-avatar-group-employee-full" />
+              <EmployeeDetails
+                key={res}
+                type="all"
+                empId={res}
+                data-cy="feedback-action-plan-avatar-group-employee-full"
+              />
             ))}
       </div>
     ),
@@ -185,7 +239,15 @@ const columns: ColumnsType<any> = [
   {
     title: 'What needs to be done',
     dataIndex: 'description',
-    render: (text, record) => <p className="text-[12px] truncate" data-cy={`feedback-action-plan-table-cell-description-${record.key}`} id={`feedback-action-plan-table-cell-description-${record.key}`}>{text}</p>,
+    render: (text, record) => (
+      <p
+        className="text-[12px] truncate"
+        data-cy={`feedback-action-plan-table-cell-description-${record.key}`}
+        id={`feedback-action-plan-table-cell-description-${record.key}`}
+      >
+        {text}
+      </p>
+    ),
   },
 ];
 
@@ -247,15 +309,46 @@ export default function ActionPlansPage() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   return (
-    <div className="p-6" data-cy="feedback-action-plan-page-div" id="feedback-action-plan-page-div">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4" data-cy="feedback-action-plan-page-div-header" id="feedback-action-plan-page-div-header">
-        <div data-cy="feedback-action-plan-page-div-title-section" id="feedback-action-plan-page-div-title-section">
-          <h2 className="text-2xl font-semibold" data-cy="feedback-action-plan-page-h2-title" id="feedback-action-plan-page-h2-title">Action Plans</h2>
-          <p className="text-sm text-gray-500" data-cy="feedback-action-plan-page-p-subtitle" id="feedback-action-plan-page-p-subtitle">View all action plans</p>
+    <div
+      className="p-6"
+      data-cy="feedback-action-plan-page-div"
+      id="feedback-action-plan-page-div"
+    >
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4"
+        data-cy="feedback-action-plan-page-div-header"
+        id="feedback-action-plan-page-div-header"
+      >
+        <div
+          data-cy="feedback-action-plan-page-div-title-section"
+          id="feedback-action-plan-page-div-title-section"
+        >
+          <h2
+            className="text-2xl font-semibold"
+            data-cy="feedback-action-plan-page-h2-title"
+            id="feedback-action-plan-page-h2-title"
+          >
+            Action Plans
+          </h2>
+          <p
+            className="text-sm text-gray-500"
+            data-cy="feedback-action-plan-page-p-subtitle"
+            id="feedback-action-plan-page-p-subtitle"
+          >
+            View all action plans
+          </p>
         </div>
         {isMobile && (
-          <div className="flex justify-end items-center gap-2" data-cy="feedback-action-plan-page-div-mobile-filter" id="feedback-action-plan-page-div-mobile-filter">
-            <div className="flex items-center justify-center w-10 h-10 text-black border border-gray-300 rounded-lg" data-cy="feedback-action-plan-page-div-filter-icon-container" id="feedback-action-plan-page-div-filter-icon-container">
+          <div
+            className="flex justify-end items-center gap-2"
+            data-cy="feedback-action-plan-page-div-mobile-filter"
+            id="feedback-action-plan-page-div-mobile-filter"
+          >
+            <div
+              className="flex items-center justify-center w-10 h-10 text-black border border-gray-300 rounded-lg"
+              data-cy="feedback-action-plan-page-div-filter-icon-container"
+              id="feedback-action-plan-page-div-filter-icon-container"
+            >
               <VscSettings
                 size={20}
                 onClick={() => setIsFilterModalOpen(true)}
@@ -317,6 +410,7 @@ export default function ActionPlansPage() {
             <Select
               allowClear
               className="h-12"
+
               placeholder="Select type"
               data-cy="feedback-action-plan-page-select-source-type"
               id="feedback-action-plan-page-select-source-type"
@@ -334,6 +428,7 @@ export default function ActionPlansPage() {
                 id="feedback-action-plan-page-option-source-survey"
               >
                 Survey
+
               </Option>
             </Select>
           </Form.Item>
@@ -344,10 +439,34 @@ export default function ActionPlansPage() {
             data-cy="feedback-action-plan-page-form-item-status"
             id="feedback-action-plan-page-form-item-status"
           >
-            <Select allowClear className="h-12" placeholder="Select status" data-cy="feedback-action-plan-page-select-status" id="feedback-action-plan-page-select-status">
-              <Option value="Pending" data-cy="feedback-action-plan-page-option-status-pending" id="feedback-action-plan-page-option-status-pending">Pending</Option>
-              <Option value="In_Progress" data-cy="feedback-action-plan-page-option-status-in-progress" id="feedback-action-plan-page-option-status-in-progress">In progress </Option>
-              <Option value="Completed" data-cy="feedback-action-plan-page-option-status-completed" id="feedback-action-plan-page-option-status-completed">Completed </Option>
+            <Select
+              allowClear
+              className="h-12"
+              placeholder="Select status"
+              data-cy="feedback-action-plan-page-select-status"
+              id="feedback-action-plan-page-select-status"
+            >
+              <Option
+                value="Pending"
+                data-cy="feedback-action-plan-page-option-status-pending"
+                id="feedback-action-plan-page-option-status-pending"
+              >
+                Pending
+              </Option>
+              <Option
+                value="In_Progress"
+                data-cy="feedback-action-plan-page-option-status-in-progress"
+                id="feedback-action-plan-page-option-status-in-progress"
+              >
+                In progress{' '}
+              </Option>
+              <Option
+                value="Completed"
+                data-cy="feedback-action-plan-page-option-status-completed"
+                id="feedback-action-plan-page-option-status-completed"
+              >
+                Completed{' '}
+              </Option>
             </Select>
           </Form.Item>
 
@@ -380,7 +499,9 @@ export default function ActionPlansPage() {
           </Form.Item>
         </div>
       </Form>
+
       <div className="mt-4 overflow-x-auto scrollbar-none" data-cy="feedback-action-plan-page-div-table-container" id="feedback-action-plan-page-div-table-container">
+
         <Table
           columns={columns}
           dataSource={data}
@@ -412,8 +533,17 @@ export default function ActionPlansPage() {
         open={isFilterModalOpen}
         onCancel={() => setIsFilterModalOpen(false)}
         footer={
-          <div className="flex justify-end items-center gap-2" data-cy="feedback-action-plan-page-modal-footer" id="feedback-action-plan-page-modal-footer">
-            <Button key="cancel" onClick={() => setIsFilterModalOpen(false)} data-cy="feedback-action-plan-page-modal-button-cancel" id="feedback-action-plan-page-modal-button-cancel">
+          <div
+            className="flex justify-end items-center gap-2"
+            data-cy="feedback-action-plan-page-modal-footer"
+            id="feedback-action-plan-page-modal-footer"
+          >
+            <Button
+              key="cancel"
+              onClick={() => setIsFilterModalOpen(false)}
+              data-cy="feedback-action-plan-page-modal-button-cancel"
+              id="feedback-action-plan-page-modal-button-cancel"
+            >
               Cancel
             </Button>
             <Button
@@ -444,8 +574,17 @@ export default function ActionPlansPage() {
           data-cy="feedback-action-plan-page-modal-form"
           id="feedback-action-plan-page-modal-form"
         >
-          <div className="space-y-4" data-cy="feedback-action-plan-page-modal-div-fields" id="feedback-action-plan-page-modal-div-fields">
-            <Form.Item name="empId" label="Employee" data-cy="feedback-action-plan-page-modal-form-item-employee" id="feedback-action-plan-page-modal-form-item-employee">
+          <div
+            className="space-y-4"
+            data-cy="feedback-action-plan-page-modal-div-fields"
+            id="feedback-action-plan-page-modal-div-fields"
+          >
+            <Form.Item
+              name="empId"
+              label="Employee"
+              data-cy="feedback-action-plan-page-modal-form-item-employee"
+              id="feedback-action-plan-page-modal-form-item-employee"
+            >
               <Select
                 showSearch
                 allowClear
@@ -465,14 +604,17 @@ export default function ActionPlansPage() {
             </Form.Item>
 
             <Form.Item
+
               name="sourceType"
               label="Type"
               data-cy="feedback-action-plan-page-modal-form-item-source-type"
               id="feedback-action-plan-page-modal-form-item-source-type"
+
             >
               <Select
                 allowClear
                 className="h-12"
+
                 placeholder="Select type"
                 data-cy="feedback-action-plan-page-modal-select-source-type"
                 id="feedback-action-plan-page-modal-select-source-type"
@@ -499,18 +641,53 @@ export default function ActionPlansPage() {
                 <Option value="High" data-cy="feedback-action-plan-page-modal-option-priority-high" id="feedback-action-plan-page-modal-option-priority-high">High</Option>
                 <Option value="Medium" data-cy="feedback-action-plan-page-modal-option-priority-medium" id="feedback-action-plan-page-modal-option-priority-medium">Medium</Option>
                 <Option value="Low" data-cy="feedback-action-plan-page-modal-option-priority-low" id="feedback-action-plan-page-modal-option-priority-low">Low</Option>
+
               </Select>
             </Form.Item>
 
-            <Form.Item name="status" label="Status" data-cy="feedback-action-plan-page-modal-form-item-status" id="feedback-action-plan-page-modal-form-item-status">
-              <Select allowClear className="h-12" placeholder="Select status" data-cy="feedback-action-plan-page-modal-select-status" id="feedback-action-plan-page-modal-select-status">
-                <Option value="Pending" data-cy="feedback-action-plan-page-modal-option-status-pending" id="feedback-action-plan-page-modal-option-status-pending">Pending</Option>
-                <Option value="In_Progress" data-cy="feedback-action-plan-page-modal-option-status-in-progress" id="feedback-action-plan-page-modal-option-status-in-progress">In progress </Option>
-                <Option value="Completed" data-cy="feedback-action-plan-page-modal-option-status-completed" id="feedback-action-plan-page-modal-option-status-completed">Completed </Option>
+            <Form.Item
+              name="status"
+              label="Status"
+              data-cy="feedback-action-plan-page-modal-form-item-status"
+              id="feedback-action-plan-page-modal-form-item-status"
+            >
+              <Select
+                allowClear
+                className="h-12"
+                placeholder="Select status"
+                data-cy="feedback-action-plan-page-modal-select-status"
+                id="feedback-action-plan-page-modal-select-status"
+              >
+                <Option
+                  value="Pending"
+                  data-cy="feedback-action-plan-page-modal-option-status-pending"
+                  id="feedback-action-plan-page-modal-option-status-pending"
+                >
+                  Pending
+                </Option>
+                <Option
+                  value="In_Progress"
+                  data-cy="feedback-action-plan-page-modal-option-status-in-progress"
+                  id="feedback-action-plan-page-modal-option-status-in-progress"
+                >
+                  In progress{' '}
+                </Option>
+                <Option
+                  value="Completed"
+                  data-cy="feedback-action-plan-page-modal-option-status-completed"
+                  id="feedback-action-plan-page-modal-option-status-completed"
+                >
+                  Completed{' '}
+                </Option>
               </Select>
             </Form.Item>
 
-            <Form.Item name="dateRange" label="Date Range" data-cy="feedback-action-plan-page-modal-form-item-date-range" id="feedback-action-plan-page-modal-form-item-date-range">
+            <Form.Item
+              name="dateRange"
+              label="Date Range"
+              data-cy="feedback-action-plan-page-modal-form-item-date-range"
+              id="feedback-action-plan-page-modal-form-item-date-range"
+            >
               <RangePicker
                 allowClear
                 className="w-full h-12"

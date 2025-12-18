@@ -144,9 +144,9 @@ const AllowanceTypeSideBar = ({
     },
     {
       label: selectedAllowanceRecord ? (
-        <span>Update</span>
+        <span data-cy="allowance-sidebar-update-button-label">Update</span>
       ) : (
-        <span>Create</span>
+        <span data-cy="allowance-sidebar-create-button-label">Create</span>
       ),
       key: 'create',
       className: 'h-12',
@@ -217,15 +217,23 @@ const AllowanceTypeSideBar = ({
               initialValue={false}
             >
               <Switch
-                checkedChildren={<CheckOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-modal-checked" />}
-                unCheckedChildren={<CloseOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-modal-unchecked" />}
+                checkedChildren={
+                  <CheckOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-modal-checked" />
+                }
+                unCheckedChildren={
+                  <CloseOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-modal-unchecked" />
+                }
                 onChange={onRateToggle}
                 id="compensation-settings-allowance-sidebar-rate-switch-modal"
                 data-cy="compensation-settings-allowance-sidebar-rate-switch-modal"
               />
             </Form.Item>
 
-            <div id="compensation-settings-allowance-sidebar-default-amount-container" data-cy="compensation-settings-allowance-sidebar-default-amount-container" style={{ display: 'flex', gap: '20px' }}>
+            <div
+              id="compensation-settings-allowance-sidebar-default-amount-container"
+              data-cy="compensation-settings-allowance-sidebar-default-amount-container"
+              style={{ display: 'flex', gap: '20px' }}
+            >
               <Form.Item
                 id="compensation-settings-allowance-sidebar-default-amount-item"
                 data-cy="compensation-settings-allowance-sidebar-default-amount-item"
@@ -314,7 +322,11 @@ const AllowanceTypeSideBar = ({
         ) : (
           // Drawer layout: Original layout with "Is Rate" and "All Employees" side by side, amounts stacked
           <>
-            <div id="compensation-settings-allowance-sidebar-rate-container" data-cy="compensation-settings-allowance-sidebar-rate-container" style={{ display: 'flex', gap: '20px' }}>
+            <div
+              id="compensation-settings-allowance-sidebar-rate-container"
+              data-cy="compensation-settings-allowance-sidebar-rate-container"
+              style={{ display: 'flex', gap: '20px' }}
+            >
               <Form.Item
                 name="isRate"
                 label={'Is Rate'}
@@ -324,8 +336,12 @@ const AllowanceTypeSideBar = ({
                 data-cy="compensation-settings-allowance-sidebar-rate-item"
               >
                 <Switch
-                  checkedChildren={<CheckOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-checked" />}
-                  unCheckedChildren={<CloseOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-unchecked" />}
+                  checkedChildren={
+                    <CheckOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-checked" />
+                  }
+                  unCheckedChildren={
+                    <CloseOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-unchecked" />
+                  }
                   onChange={onRateToggle}
                   id="compensation-settings-allowance-sidebar-rate-switch"
                   data-cy="compensation-settings-allowance-sidebar-rate-switch"
@@ -341,8 +357,12 @@ const AllowanceTypeSideBar = ({
                 data-cy="compensation-settings-allowance-sidebar-all-item"
               >
                 <Switch
-                  checkedChildren={<CheckOutlined data-cy="compensation-settings-allowance-sidebar-all-switch-checked" />}
-                  unCheckedChildren={<CloseOutlined data-cy="compensation-settings-allowance-sidebar-all-switch-unchecked" />}
+                  checkedChildren={
+                    <CheckOutlined data-cy="compensation-settings-allowance-sidebar-all-switch-checked" />
+                  }
+                  unCheckedChildren={
+                    <CloseOutlined data-cy="compensation-settings-allowance-sidebar-all-switch-unchecked" />
+                  }
                   onChange={handleAllEmployeeChange}
                   checked={isAllEmployee}
                   disabled={selectedAllowanceRecord}
@@ -374,7 +394,7 @@ const AllowanceTypeSideBar = ({
             >
               <Input
                 id="compensation-settings-allowance-sidebar-default-amount-input"
-                data-cy="compensation-settings-allowance-sidebar-default-amount-input"  
+                data-cy="compensation-settings-allowance-sidebar-default-amount-input"
                 className="control"
                 type="number"
                 min={0}
@@ -517,11 +537,24 @@ const AllowanceTypeSideBar = ({
         open={isAllowanceOpen}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader data-cy="compensation-settings-allowance-sidebar-header" className="flex justify-center">
+          <CustomDrawerHeader
+            data-cy="compensation-settings-allowance-sidebar-header"
+            className="flex justify-center"
+          >
             {selectedAllowanceRecord ? (
-              <span id="compensation-settings-allowance-sidebar-header-title" data-cy="compensation-settings-allowance-sidebar-header-title">Edit Allowance Type</span>
+              <span
+                id="compensation-settings-allowance-sidebar-header-title"
+                data-cy="compensation-settings-allowance-sidebar-header-title"
+              >
+                Edit Allowance Type
+              </span>
             ) : (
-              <span id="compensation-settings-allowance-sidebar-header-title" data-cy="compensation-settings-allowance-sidebar-header-title">Add Allowance Type</span>
+              <span
+                id="compensation-settings-allowance-sidebar-header-title"
+                data-cy="compensation-settings-allowance-sidebar-header-title"
+              >
+                Add Allowance Type
+              </span>
             )}
           </CustomDrawerHeader>
         }

@@ -68,7 +68,12 @@ const BreakTypeTable = () => {
           id="time-attendance-settings-break-type-table-row-end-time"
           data-cy="time-attendance-settings-break-type-table-row-end-time"
         >
-          <div id="time-attendance-settings-break-type-table-row-end-time-div" data-cy="time-attendance-settings-break-type-table-row-end-time-div">{dayjs(text, 'HH:mm:ss').format('HH:mm') || ''}</div>
+          <div
+            id="time-attendance-settings-break-type-table-row-end-time-div"
+            data-cy="time-attendance-settings-break-type-table-row-end-time-div"
+          >
+            {dayjs(text, 'HH:mm:ss').format('HH:mm') || ''}
+          </div>
         </div>
       ),
     },
@@ -116,7 +121,10 @@ const BreakTypeTable = () => {
     });
   };
   return (
-    <Spin spinning={breakTypeIsLoading} data-cy="time-attendance-settings-break-type-table-spin">
+    <Spin
+      spinning={breakTypeIsLoading}
+      data-cy="time-attendance-settings-break-type-table-spin"
+    >
       <Table
         className="mt-6"
         columns={columns}

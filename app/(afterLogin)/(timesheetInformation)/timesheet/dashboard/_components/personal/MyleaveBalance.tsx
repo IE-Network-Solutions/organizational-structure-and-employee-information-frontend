@@ -346,7 +346,11 @@ const MyleaveBalance: React.FC = () => {
           bodyStyle={{ padding: '16px 24px' }}
           className="shadow-sm col-span-9 mb-5"
           title={
-            <span id="time-attendance-personal-leave-balance-utilization-title-text" data-cy="time-attendance-personal-leave-balance-utilization-title-text" className="text-[12px] font-bold text-black">
+            <span
+              id="time-attendance-personal-leave-balance-utilization-title-text"
+              data-cy="time-attendance-personal-leave-balance-utilization-title-text"
+              className="text-[12px] font-bold text-black"
+            >
               Utilization
             </span>
           }

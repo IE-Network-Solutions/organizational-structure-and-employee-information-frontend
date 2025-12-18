@@ -19,7 +19,12 @@ export default function Index() {
       title="Meetings"
       subtitle="Manage your Meetings"
       buttonTitle={'Add New'}
-      buttonIcon={<FaPlus data-cy="feedback-meeting-page-icon-plus" id="feedback-meeting-page-icon-plus" />}
+      buttonIcon={
+        <FaPlus
+          data-cy="feedback-meeting-page-icon-plus"
+          id="feedback-meeting-page-icon-plus"
+        />
+      }
       onClickHandler={() => HandleOpen()}
     >
       <MeetingList data-cy="feedback-meeting-page-meeting-list" />

@@ -68,7 +68,10 @@ function EditReport() {
   const { data: allReportedPlanning } = useGetReportedPlanning(selectedPlanId);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="edit-report-modal-header"
+    >
       Update {planningPeriodName} Report
     </div>
   );

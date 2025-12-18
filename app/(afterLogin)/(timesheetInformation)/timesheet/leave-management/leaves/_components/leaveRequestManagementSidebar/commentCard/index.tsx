@@ -16,7 +16,9 @@ const CommentCard: FC<CommentCardProps> = ({ text, attachments }) => {
       data-cy="time-attendance-leave-management-comment-card"
     >
       <Avatar
-        icon={<UserOutlined data-cy="time-attendance-leave-management-comment-card-avatar-icon" />}
+        icon={
+          <UserOutlined data-cy="time-attendance-leave-management-comment-card-avatar-icon" />
+        }
         size={40}
         data-cy="time-attendance-leave-management-comment-card-avatar"
       />
@@ -24,7 +26,11 @@ const CommentCard: FC<CommentCardProps> = ({ text, attachments }) => {
         id="time-attendance-leave-management-comment-card-content"
         data-cy="time-attendance-leave-management-comment-card-content"
       >
-        <div id="time-attendance-leave-management-comment-card-author-row" data-cy="time-attendance-leave-management-comment-card-author-row" className="flex items-center text-sm gap-1.5">
+        <div
+          id="time-attendance-leave-management-comment-card-author-row"
+          data-cy="time-attendance-leave-management-comment-card-author-row"
+          className="flex items-center text-sm gap-1.5"
+        >
           <span
             className="text-gray-900 font-bold"
             id="time-attendance-leave-management-comment-card-author"
@@ -32,7 +38,13 @@ const CommentCard: FC<CommentCardProps> = ({ text, attachments }) => {
           >
             Caleb Abreham
           </span>
-          <span id="time-attendance-leave-management-comment-card-author-label" data-cy="time-attendance-leave-management-comment-card-author-label" className="text-gray-500">Commented</span>
+          <span
+            id="time-attendance-leave-management-comment-card-author-label"
+            data-cy="time-attendance-leave-management-comment-card-author-label"
+            className="text-gray-500"
+          >
+            Commented
+          </span>
         </div>
         <div
           className="text-xs text-gray-800 leading-5"
@@ -50,7 +62,12 @@ const CommentCard: FC<CommentCardProps> = ({ text, attachments }) => {
               <Button
                 key={item}
                 id={`${key}filePdfAttachmentId`}
-                icon={<LuFileText data-cy="time-attendance-leave-management-comment-card-attachment-icon" size={14} />}
+                icon={
+                  <LuFileText
+                    data-cy="time-attendance-leave-management-comment-card-attachment-icon"
+                    size={14}
+                  />
+                }
                 type="text"
                 className="py-1 pl-0 pr-4 text-[10px] font-bold text-gray-900"
                 data-cy={`time-attendance-leave-management-comment-card-attachment-${key}`}

@@ -39,7 +39,9 @@ const Page = () => {
             type="primary"
             id="carryOver"
             data-cy="time-attendance-settings-carry-over-rule-add-button-id"
-            icon={<FaPlus data-cy="time-attendance-settings-carry-over-rule-add-button-icon" />}
+            icon={
+              <FaPlus data-cy="time-attendance-settings-carry-over-rule-add-button-icon" />
+            }
             className="h-10 w-10 sm:w-auto"
             onClick={() => setIsShowCarryOverRuleSidebar(true)}
           >

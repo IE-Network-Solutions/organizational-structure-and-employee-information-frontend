@@ -55,19 +55,28 @@ const EmployeeSurveyDrawer: React.FC<EmployeeSurveyDrawerProps> = ({
   };
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Create Employee Survey
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="employee-survey-drawer-header"
+    >
+      <span data-cy="employee-survey-drawer-header-text">
+        Create Employee Survey
+      </span>
     </div>
   );
 
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div
+      className="w-full flex justify-center items-center gap-4 pt-8"
+      data-cy="employee-survey-drawer-footer"
+    >
       <CustomButton
         type="default"
         title="Cancel"
         onClick={handleDrawerClose}
         style={{ marginRight: 8 }}
         loading={createLoading}
+        data-cy="employee-survey-drawer-cancel-button"
       />
       <CustomButton
         title={'Add'}
@@ -75,6 +84,7 @@ const EmployeeSurveyDrawer: React.FC<EmployeeSurveyDrawerProps> = ({
         htmlType="submit"
         onClick={() => form.submit()}
         loading={createLoading}
+        data-cy="employee-survey-drawer-add-button"
       />
     </div>
   );
@@ -103,9 +113,12 @@ const EmployeeSurveyDrawer: React.FC<EmployeeSurveyDrawerProps> = ({
         data-cy="employee-survey-drawer-form"
         id="employeeSurveyDrawerForm"
       >
-        <Form.List name="employees" data-cy="employee-survey-drawer-employees-list">
+        <Form.List
+          name="employees"
+          data-cy="employee-survey-drawer-employees-list"
+        >
           {(fields, { add, remove }) => (
-            <>
+            <div data-cy="employee-survey-drawer-employees-list-content">
               {fields.map(({ key, name, ...restField }) => (
                 <div
                   key={key}
@@ -173,7 +186,11 @@ const EmployeeSurveyDrawer: React.FC<EmployeeSurveyDrawerProps> = ({
                   </Form.Item>
 
                   {/* Remove Button - span 2 */}
-                  <div className="col-span-1 flex justify-start pt-1" data-cy={`employee-survey-drawer-remove-button-container-${name}`} id={`employeeSurveyDrawerRemoveButtonContainer${name}`}>
+                  <div
+                    className="col-span-1 flex justify-start pt-1"
+                    data-cy={`employee-survey-drawer-remove-button-container-${name}`}
+                    id={`employeeSurveyDrawerRemoveButtonContainer${name}`}
+                  >
                     <Button
                       danger
                       type="text"
@@ -187,12 +204,21 @@ const EmployeeSurveyDrawer: React.FC<EmployeeSurveyDrawerProps> = ({
                 </div>
               ))}
 
-              <Form.Item className="flex justify-end" data-cy="employee-survey-drawer-add-button-container" id="employeeSurveyDrawerAddButtonContainer">
-                <Button onClick={() => add()} icon={<PlusOutlined />} data-cy="employee-survey-drawer-add-button" id="employeeSurveyDrawerAddButton">
+              <Form.Item
+                className="flex justify-end"
+                data-cy="employee-survey-drawer-add-button-container"
+                id="employeeSurveyDrawerAddButtonContainer"
+              >
+                <Button
+                  onClick={() => add()}
+                  icon={<PlusOutlined />}
+                  data-cy="employee-survey-drawer-add-button"
+                  id="employeeSurveyDrawerAddButton"
+                >
                   Add Employee
                 </Button>
               </Form.Item>
-            </>
+            </div>
           )}
         </Form.List>
       </Form>

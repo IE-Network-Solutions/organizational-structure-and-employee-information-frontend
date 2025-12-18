@@ -30,6 +30,7 @@ const EmployeeAttendance = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isExportLoading, setIsExportLoading] = useState(false);
   const [exportType, setExportType] = useState<'EXCEL' | 'PDF' | null>(null);
+  const [isExportDisabled, setIsExportDisabled] = useState(false);
   const [file, setFile] = useState<any>();
   const [bodyRequest, setBodyRequest] = useState<AttendanceRequestBody>({
     filter: {}, // Initialize with empty filter
@@ -40,7 +41,8 @@ const EmployeeAttendance = () => {
     true,
     true,
   );
-  const { mutate: exportAttendanceData } = UseExportAttendanceData();
+  const { mutate: exportAttendanceData, isLoading: isExportingData } =
+    UseExportAttendanceData();
   // Log the current state of data and request
   useEffect(() => {
     if (bodyRequest.exportType) {
@@ -64,17 +66,29 @@ const EmployeeAttendance = () => {
   const exportTimeoutRef = useRef<NodeJS.Timeout>();
 
   const onExport = async (type: 'PDF' | 'EXCEL') => {
+    setExportType(type);
     try {
-      exportAttendanceData({
-        exportType: type,
-        filter: {
-          ...filter,
-          attendanceRecordIds:
-            selectedRowKeys.length > 0
-              ? selectedRowKeys.map((key) => key.toString())
-              : filter?.attendanceRecordIds,
+      exportAttendanceData(
+        {
+          exportType: type,
+          filter: {
+            ...filter,
+            attendanceRecordIds:
+              selectedRowKeys.length > 0
+                ? selectedRowKeys.map((key) => key.toString())
+                : filter?.attendanceRecordIds,
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            message.success('Download completed successfully!');
+            setIsExportDisabled(true);
+            setTimeout(() => {
+              setIsExportDisabled(false);
+            }, 2000);
+          },
+        },
+      );
     } catch (error) {
       message.error('Failed to export. Please try again.');
       setIsExportLoading(false);
@@ -150,7 +164,9 @@ const EmployeeAttendance = () => {
     >
       <Menu.Item
         key="1"
-        icon={<TbFileUpload data-cy="time-attendance-employee-attendance-import-menu-attendance-item-icon" />}
+        icon={
+          <TbFileUpload data-cy="time-attendance-employee-attendance-import-menu-attendance-item-icon" />
+        }
         onClick={() => {
           if (importAttendance) {
             importAttendance.current?.click();
@@ -176,7 +192,12 @@ const EmployeeAttendance = () => {
         id="time-attendance-employee-attendance-import-menu-template-item"
         data-cy="time-attendance-employee-attendance-import-menu-template-item"
       >
-        <a id="time-attendance-employee-attendance-import-menu-template-item-link" data-cy="time-attendance-employee-attendance-import-menu-template-item-link" href="/Attendance_Template.xlsx" download>
+        <a
+          id="time-attendance-employee-attendance-import-menu-template-item-link"
+          data-cy="time-attendance-employee-attendance-import-menu-template-item-link"
+          href="/Attendance_Template.xlsx"
+          download
+        >
           Attendance Template
         </a>
       </Menu.Item>
@@ -219,7 +240,9 @@ const EmployeeAttendance = () => {
                 data-cy="time-attendance-employee-attendance-import-dropdown"
               >
                 <Button
-                  icon={<TbFileUpload data-cy="time-attendance-employee-attendance-import-button-icon" />}
+                  icon={
+                    <TbFileUpload data-cy="time-attendance-employee-attendance-import-button-icon" />
+                  }
                   size="large"
                   loading={isLoading || isLoadingImport}
                   className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : 'px-10 h-10'}`}
@@ -240,21 +263,43 @@ const EmployeeAttendance = () => {
                 trigger="click"
                 placement={isSmallScreen ? 'bottomLeft' : 'bottomRight'}
                 title={
-                  <div id="time-attendance-employee-attendance-export-popover-title" data-cy="time-attendance-employee-attendance-export-popover-title" className="text-base text-gray-900 font-bold">
+                  <div
+                    id="time-attendance-employee-attendance-export-popover-title"
+                    data-cy="time-attendance-employee-attendance-export-popover-title"
+                    className="text-base text-gray-900 font-bold"
+                  >
                     Export Format
                   </div>
                 }
                 content={
-                  <div id="time-attendance-employee-attendance-export-popover-content" data-cy="time-attendance-employee-attendance-export-popover-content" className="pt-4">
-                    <Row id="time-attendance-employee-attendance-export-popover-content-row" data-cy="time-attendance-employee-attendance-export-popover-content-row" gutter={[8, 8]}>
-                      <Col id="time-attendance-employee-attendance-export-popover-content-row-col-1" data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1" span={12}>
+                  <div
+                    id="time-attendance-employee-attendance-export-popover-content"
+                    data-cy="time-attendance-employee-attendance-export-popover-content"
+                    className="pt-4"
+                  >
+                    <Row
+                      id="time-attendance-employee-attendance-export-popover-content-row"
+                      data-cy="time-attendance-employee-attendance-export-popover-content-row"
+                      gutter={[8, 8]}
+                    >
+                      <Col
+                        id="time-attendance-employee-attendance-export-popover-content-row-col-1"
+                        data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1"
+                        span={12}
+                      >
                         <Button
                           size="small"
                           className="w-full flex items-center justify-center gap-1"
                           type="primary"
-                          icon={<TbLayoutList data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1-icon" size={16} />}
+                          icon={
+                            <TbLayoutList
+                              data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1-icon"
+                              size={16}
+                            />
+                          }
                           onClick={() => onExport('EXCEL')}
-                          loading={isExportLoading && exportType === 'EXCEL'}
+                          loading={isExportingData && exportType === 'EXCEL'}
+                          disabled={isExportDisabled}
                           id="time-attendance-employee-attendance-export-excel-button"
                           data-cy="time-attendance-employee-attendance-export-excel-button"
                         >
@@ -268,7 +313,8 @@ const EmployeeAttendance = () => {
                           type="primary"
                           icon={<LuBookmark size={16} />}
                           onClick={() => onExport('PDF')}
-                          loading={isExportLoading && exportType === 'PDF'}
+                          loading={isExportingData && exportType === 'PDF'}
+                          disabled={isExportDisabled}
                           id="time-attendance-employee-attendance-export-pdf-button"
                           data-cy="time-attendance-employee-attendance-export-pdf-button"
                         >
@@ -282,7 +328,9 @@ const EmployeeAttendance = () => {
                 data-cy="time-attendance-employee-attendance-export-popover"
               >
                 <Button
-                  icon={<TbFileDownload data-cy="time-attendance-employee-attendance-export-button-icon" />}
+                  icon={
+                    <TbFileDownload data-cy="time-attendance-employee-attendance-export-button-icon" />
+                  }
                   size="large"
                   type="primary"
                   loading={isExportLoading}
@@ -317,7 +365,10 @@ const EmployeeAttendance = () => {
           id="time-attendance-employee-attendance-table-section"
           data-cy="time-attendance-employee-attendance-table-section"
         >
-          <BlockWrapper data-cy="time-attendance-employee-attendance-table-block-wrapper" className="p-4 bg-white">
+          <BlockWrapper
+            data-cy="time-attendance-employee-attendance-table-block-wrapper"
+            className="p-4 bg-white"
+          >
             <EmployeeAttendanceTable
               selectedRowKeys={selectedRowKeys}
               setSelectedRowKeys={setSelectedRowKeys}

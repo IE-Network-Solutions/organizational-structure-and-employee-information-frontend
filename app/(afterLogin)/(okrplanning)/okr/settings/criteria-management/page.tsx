@@ -133,16 +133,20 @@ function Page() {
 
           <DeletePopover
             onDelete={() => handleDelete(record.key)}
-       
             data-cy={`okr-criteria-assigned-table-delete-popover-${record.key}`}
           >
             <AccessGuard
-              data-cy="okr-criteria-assigned-table-delete-button-access-guard-display-guard" permissions={[Permissions.DeleteVpScoringConfigurations]}
+              data-cy="okr-criteria-assigned-table-delete-button-access-guard-display-guard"
+              permissions={[Permissions.DeleteVpScoringConfigurations]}
             >
               <Button
                 type="default"
                 className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={<RiDeleteBin6Line data-cy={`okr-criteria-assigned-table-delete-button-icon-${record.key}`} />}
+                icon={
+                  <RiDeleteBin6Line
+                    data-cy={`okr-criteria-assigned-table-delete-button-icon-${record.key}`}
+                  />
+                }
                 id={`okr-criteria-assigned-table-delete-button-${record.key}`}
                 data-cy={`okr-criteria-assigned-table-delete-button-${record.key}`}
               />
@@ -190,7 +194,10 @@ function Page() {
         >
           Criteria Management
         </h1>
-        <AccessGuard data-cy="okr-criteria-management-desktop-add-button-access-guard-display-guard" permissions={[Permissions.CreateVpScoringConfigurations]}>
+        <AccessGuard
+          data-cy="okr-criteria-management-desktop-add-button-access-guard-display-guard"
+          permissions={[Permissions.CreateVpScoringConfigurations]}
+        >
           <Button
             type="primary"
             className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 md:w-auto"
@@ -218,7 +225,6 @@ function Page() {
           onSearch={handleSearch}
           onTypeChange={handleTypeChange}
           criteriaNames={['All Types', ...criteriaTypes]}
-
           data-cy="okr-criteria-management-desktop-filters"
         />
       </div>
@@ -245,11 +251,11 @@ function Page() {
             onSearch={handleSearch}
             onTypeChange={handleTypeChange}
             criteriaNames={['All Types', ...criteriaTypes]}
-      
             data-cy="okr-criteria-management-mobile-filters"
           />
           <AccessGuard
-            data-cy="okr-criteria-management-mobile-add-button-access-guard-display-guard" permissions={[Permissions.CreateVpScoringConfigurations]}
+            data-cy="okr-criteria-management-mobile-add-button-access-guard-display-guard"
+            permissions={[Permissions.CreateVpScoringConfigurations]}
           >
             <Button
               type="primary"
@@ -321,10 +327,7 @@ function Page() {
           </Tabs>
         </div>
       </div>
-      <ScoringDrawer
-       
-        data-cy="okr-criteria-management-drawer"
-      />
+      <ScoringDrawer data-cy="okr-criteria-management-drawer" />
     </div>
   );
 }

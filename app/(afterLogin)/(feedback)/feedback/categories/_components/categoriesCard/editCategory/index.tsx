@@ -79,7 +79,13 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
       onCancel={handleCancel}
       data-cy="feedback-categories-components-categoriescard-editcategory-modal"
     >
-      <Form form={form} layout="vertical" initialValues={editingCategory} data-cy="feedback-categories-components-categoriescard-editcategory-form" id="feedback-categories-components-categoriescard-editcategory-form">
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={editingCategory}
+        data-cy="feedback-categories-components-categoriescard-editcategory-form"
+        id="feedback-categories-components-categoriescard-editcategory-form"
+      >
         <Form.Item
           name="name"
           label="Name"
@@ -89,12 +95,28 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
           data-cy="feedback-categories-components-categoriescard-editcategory-form-item-name"
           id="feedback-categories-components-categoriescard-editcategory-form-item-name"
         >
-          <Input data-cy="feedback-categories-components-categoriescard-editcategory-input-name" id="feedback-categories-components-categoriescard-editcategory-input-name" />
+          <Input
+            data-cy="feedback-categories-components-categoriescard-editcategory-input-name"
+            id="feedback-categories-components-categoriescard-editcategory-input-name"
+          />
         </Form.Item>
-        <Form.Item name="description" label="Description" data-cy="feedback-categories-components-categoriescard-editcategory-form-item-description" id="feedback-categories-components-categoriescard-editcategory-form-item-description">
-          <Input.TextArea data-cy="feedback-categories-components-categoriescard-editcategory-textarea-description" id="feedback-categories-components-categoriescard-editcategory-textarea-description" />
+        <Form.Item
+          name="description"
+          label="Description"
+          data-cy="feedback-categories-components-categoriescard-editcategory-form-item-description"
+          id="feedback-categories-components-categoriescard-editcategory-form-item-description"
+        >
+          <Input.TextArea
+            data-cy="feedback-categories-components-categoriescard-editcategory-textarea-description"
+            id="feedback-categories-components-categoriescard-editcategory-textarea-description"
+          />
         </Form.Item>
-        <Form.Item name="users" label="Permitted Users" data-cy="feedback-categories-components-categoriescard-editcategory-form-item-users" id="feedback-categories-components-categoriescard-editcategory-form-item-users">
+        <Form.Item
+          name="users"
+          label="Permitted Users"
+          data-cy="feedback-categories-components-categoriescard-editcategory-form-item-users"
+          id="feedback-categories-components-categoriescard-editcategory-form-item-users"
+        >
           <Select
             mode="multiple"
             style={{ width: '100%' }}
@@ -115,9 +137,17 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
             id="feedback-categories-components-categoriescard-editcategory-select-users"
           >
             {users?.items.map((employee: any) => (
-              <Option key={employee.id} value={employee.id} data-cy={`feedback-categories-components-categoriescard-editcategory-option-employee-${employee.id}`} id={`feedback-categories-components-categoriescard-editcategory-option-employee-${employee.id}`}>
+              <Option
+                key={employee.id}
+                value={employee.id}
+                data-cy={`feedback-categories-components-categoriescard-editcategory-option-employee-${employee.id}`}
+                id={`feedback-categories-components-categoriescard-editcategory-option-employee-${employee.id}`}
+              >
                 {usersLoading ? (
-                  <Spin size="small" data-cy={`feedback-categories-components-categoriescard-editcategory-spin-employee-${employee.id}`} />
+                  <Spin
+                    size="small"
+                    data-cy={`feedback-categories-components-categoriescard-editcategory-spin-employee-${employee.id}`}
+                  />
                 ) : (
                   employee.firstName +
                   ' ' +
@@ -129,8 +159,17 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item className="flex justify-end w-full gap-3" data-cy="feedback-categories-components-categoriescard-editcategory-form-item-footer" id="feedback-categories-components-categoriescard-editcategory-form-item-footer">
-          <Button onClick={handleCancel} className="mr-3" data-cy="feedback-categories-components-categoriescard-editcategory-button-cancel" id="feedback-categories-components-categoriescard-editcategory-button-cancel">
+        <Form.Item
+          className="flex justify-end w-full gap-3"
+          data-cy="feedback-categories-components-categoriescard-editcategory-form-item-footer"
+          id="feedback-categories-components-categoriescard-editcategory-form-item-footer"
+        >
+          <Button
+            onClick={handleCancel}
+            className="mr-3"
+            data-cy="feedback-categories-components-categoriescard-editcategory-button-cancel"
+            id="feedback-categories-components-categoriescard-editcategory-button-cancel"
+          >
             Cancel
           </Button>
           <Button

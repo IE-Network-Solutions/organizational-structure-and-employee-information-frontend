@@ -256,7 +256,10 @@ const BenefitTracking = () => {
         </div>
       </div>
 
-      <Divider data-cy="compensation-benefit-tracker-divider" className="my-4" />
+      <Divider
+        data-cy="compensation-benefit-tracker-divider"
+        className="my-4"
+      />
       <h3
         className="text-sm font-light mb-2"
         id="compensation-benefit-tracker-paid-back-header"
@@ -281,7 +284,10 @@ const BenefitTracking = () => {
             id="compensation-benefit-tracker-form"
             data-cy="compensation-benefit-tracker-form"
           >
-            <Form.List data-cy="compensation-benefit-tracker-form-list" name="benefits">
+            <Form.List
+              data-cy="compensation-benefit-tracker-form-list"
+              name="benefits"
+            >
               {(fields) => (
                 <Table
                   dataSource={fields}
@@ -298,11 +304,15 @@ const BenefitTracking = () => {
                           name={[index, 'createdAt']}
                           data-cy={`compensation-benefit-tracker-form-item-date-${index}`}
                           className="mb-0"
+                        >
+                          <span
+                            id={`compensation-benefit-tracker-form-item-date-value-${index}`}
+                            data-cy={`compensation-benefit-tracker-form-item-date-value-${index}`}
+                            className="text-xs sm:text-sm"
                           >
-                            <span id={`compensation-benefit-tracker-form-item-date-value-${index}`} data-cy={`compensation-benefit-tracker-form-item-date-value-${index}`} className="text-xs sm:text-sm">
-                              {dayjs(
-                                paginatedTracking?.[index]?.createdAt,
-                              ).format('MMM DD, YYYY')}
+                            {dayjs(
+                              paginatedTracking?.[index]?.createdAt,
+                            ).format('MMM DD, YYYY')}
                           </span>
                         </Form.Item>
                       ),
@@ -365,9 +375,7 @@ const BenefitTracking = () => {
                                     'MMM DD, YYYY',
                                   )}{' '}
                                   –{' '}
-                                  {dayjs(period.endDate).format(
-                                    'MMM DD, YYYY',
-                                  )}
+                                  {dayjs(period.endDate).format('MMM DD, YYYY')}
                                 </span>
                               </Option>
                             ))}

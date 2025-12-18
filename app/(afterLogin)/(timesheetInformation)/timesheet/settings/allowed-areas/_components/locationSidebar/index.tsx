@@ -267,13 +267,25 @@ const LocationSidebar = () => {
                 </div>
 
                 {/* Hidden form fields for map values */}
-                <Form.Item  data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-form-item" name="latitude" hidden>
+                <Form.Item
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-form-item"
+                  name="latitude"
+                  hidden
+                >
                   <Input />
                 </Form.Item>
-                <Form.Item  data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-form-item"   name="longitude" hidden>
+                <Form.Item
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-form-item"
+                  name="longitude"
+                  hidden
+                >
                   <Input />
                 </Form.Item>
-                <Form.Item data-cy="time-attendance-settings-allowed-areas-sidebar-distance-form-item" name="distance" hidden>
+                <Form.Item
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-distance-form-item"
+                  name="distance"
+                  hidden
+                >
                   <Input />
                 </Form.Item>
                 <div
@@ -288,14 +300,19 @@ const LocationSidebar = () => {
                   >
                     Is Global
                   </span>
-                <Form.Item data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-item" name="isGlobal" valuePropName="checked" noStyle>
-                  <Switch
-                    defaultChecked
-                    onChange={(checked) => setShowUsers(!checked)}
-                    id="time-attendance-settings-allowed-areas-sidebar-is-global-switch"
-                    data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-switch"
-                  />
-                </Form.Item>
+                  <Form.Item
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-item"
+                    name="isGlobal"
+                    valuePropName="checked"
+                    noStyle
+                  >
+                    <Switch
+                      defaultChecked
+                      onChange={(checked) => setShowUsers(!checked)}
+                      id="time-attendance-settings-allowed-areas-sidebar-is-global-switch"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-switch"
+                    />
+                  </Form.Item>
                 </div>
 
                 {showUsers && (
