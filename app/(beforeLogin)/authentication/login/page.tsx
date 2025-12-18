@@ -240,10 +240,20 @@ const Login: FC = () => {
           className="text-xs text-gray-500 text-center mt-4"
         >
           © {new Date().getFullYear().toString()} PEP. All-rights reserved.
-          <Link href="/terms" className="text-black font-medium ml-2">
+          <Link
+            id="login-footer-terms"
+            data-cy="login-footer-terms"
+            href="/terms"
+            className="text-black font-medium ml-2"
+          >
             Terms & Conditions
           </Link>
-          <Link href="/privacy" className="text-black font-medium ml-2">
+          <Link
+            id="login-footer-privacy"
+            data-cy="login-footer-privacy"
+            href="/privacy"
+            className="text-black font-medium ml-2"
+          >
             Privacy Policy
           </Link>
         </div>
