@@ -20,13 +20,11 @@ const CandidateDetail: React.FC = ({}) => {
           className="mt-4"
           data-cy="talent-acquisition-job-candidate-detail-tab-cover-letter-label"
         >
-          {/* eslint-disable-next-line data-cy-required */}
           <p
             className="font-semibold"
             data-cy="talent-acquisition-job-candidate-detail-tab-cover-letter-text"
           >
-             Cover Letter
-           
+            Cover Letter
           </p>
         </span>
       ),
@@ -75,25 +73,22 @@ const CandidateDetail: React.FC = ({}) => {
           className="text-lg font-bold"
           data-cy="talent-acquisition-job-candidate-detail-drawer-header-name"
         >
-           {selectedCandidate?.fullName}
-        
+          {selectedCandidate?.fullName}
         </div>
         <div
           className={`mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border`}
           data-cy="talent-acquisition-job-candidate-detail-drawer-header-status-badge"
         >
           Applied
-        
         </div>
       </div>
       <div
         className="text-xs font-light text-gray-400"
         data-cy="talent-acquisition-job-candidate-detail-drawer-header-job-title"
       >
-         {selectedCandidate?.jobCandidate
-            ?.map((item: any) => item?.jobInformation?.jobTitle)
-            .join(', ')}
-     
+        {selectedCandidate?.jobCandidate
+          ?.map((item: any) => item?.jobInformation?.jobTitle)
+          .join(', ')}
       </div>
       <div
         className="flex items-center justify-between"
@@ -112,8 +107,7 @@ const CandidateDetail: React.FC = ({}) => {
               size={15}
               data-cy="talent-acquisition-job-candidate-detail-drawer-header-email-icon"
             />
-             {selectedCandidate?.email}
-           
+            {selectedCandidate?.email}
           </div>
           <div
             className="flex items-center justify-start gap-2 text-[12px] font-semibold"
@@ -125,7 +119,6 @@ const CandidateDetail: React.FC = ({}) => {
               data-cy="talent-acquisition-job-candidate-detail-drawer-header-phone-icon"
             />
             {selectedCandidate?.phone}
-          
           </div>
         </div>
         <div
@@ -140,8 +133,7 @@ const CandidateDetail: React.FC = ({}) => {
               className="text-sm font-normal text-gray-500"
               data-cy="talent-acquisition-job-candidate-detail-drawer-header-status-label"
             >
-                Status:{' '}
-             
+              Status:{' '}
             </span>
             {selectedCandidate?.jobCandidate?.map((item: any) => (
               <span
@@ -155,9 +147,7 @@ const CandidateDetail: React.FC = ({}) => {
                 }`}
                 data-cy={`talent-acquisition-job-candidate-detail-drawer-header-status-value-${item?.id}`}
               >
-               
-                  {' ' + item?.applicantStatusStage?.title}
-               
+                {' ' + item?.applicantStatusStage?.title}
               </span>
             ))}
           </div>

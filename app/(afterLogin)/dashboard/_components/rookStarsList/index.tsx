@@ -31,7 +31,6 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ title, data }) => {
       className="bg-white rounded-lg p-1 shadow-lg"
       data-cy="dashboard-rook-stars-list-container"
     >
-      {/* eslint-disable-next-line data-cy-required */}
       <div
         className="text-base lg:text-lg font-bold gap-3 flex items-center px-3  "
         data-cy="dashboard-rook-stars-list-title"

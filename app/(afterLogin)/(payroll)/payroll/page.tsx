@@ -192,20 +192,21 @@ const Payroll = () => {
     if (!selectedData || selectedData.length === 0) {
       notification.error({
         message: 'No Data Available',
-        description: selectedRowKeys.length > 0
-          ? 'The selected employees have no payroll data to export. Please adjust your selection or filters.'
-          : 'There is no payroll data available to export. Please check your filters or generate payroll first.',
+        description:
+          selectedRowKeys.length > 0
+            ? 'The selected employees have no payroll data to export. Please adjust your selection or filters.'
+            : 'There is no payroll data available to export. Please check your filters or generate payroll first.',
       });
       return;
     }
 
     if (paySlip)
-      exportTasks.push(
-        Promise.resolve(sendingPaySlipHandler(selectedData)),
-      );
+      exportTasks.push(Promise.resolve(sendingPaySlipHandler(selectedData)));
 
     if (exportPayrollData)
-      exportTasks.push(Promise.resolve(handleDeductionExportPayroll(selectedData)));
+      exportTasks.push(
+        Promise.resolve(handleDeductionExportPayroll(selectedData)),
+      );
 
     if (exportBank) exportTasks.push(handleExportBank(selectedData));
 
@@ -215,9 +216,7 @@ const Payroll = () => {
         (sum: number, item: any) => sum + (item.netPay || 0),
         0,
       );
-      exportTasks.push(
-        Promise.resolve(handleBankLetter(totalNetPay)),
-      );
+      exportTasks.push(Promise.resolve(handleBankLetter(totalNetPay)));
     }
 
     if (exportTasks?.length === 0) {
@@ -1445,7 +1444,11 @@ const Payroll = () => {
                 setSelectedRowKeys(newSelectedRowKeys);
               },
               /* eslint-disable @typescript-eslint/no-unused-vars */
-              onSelectAll: (selected: boolean, selectedRows: any[], changeRows: any[]) => {
+              onSelectAll: (
+                selected: boolean,
+                selectedRows: any[],
+                changeRows: any[],
+              ) => {
                 if (selected) {
                   const allKeys = mergedPayroll.map(
                     (item: any) => item.id || item.employeeId,

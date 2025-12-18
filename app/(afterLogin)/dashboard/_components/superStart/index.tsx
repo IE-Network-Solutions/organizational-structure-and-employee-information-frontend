@@ -32,7 +32,6 @@ const SuperStart = () => {
       className="bg-white flex flex-col rounded-lg p-1 gap-5 shadow-lg"
       data-cy="dashboard-super-start-container"
     >
-      {/* eslint-disable-next-line data-cy-required */}
       <div
         className="text-base lg:text-xl font-bold gap-10 flex items-center justify-center"
         data-cy="dashboard-super-start-title"

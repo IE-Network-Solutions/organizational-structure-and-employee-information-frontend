@@ -16,7 +16,6 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
   const { isStandalone } = usePWA();
   const [showSplash, setShowSplash] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [setIsExiting] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -29,9 +28,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
     setShowSplash(true);
 
     // Start exit animation before hiding
-    const exitTimer = setTimeout(() => {
-      setIsExiting(true);
-    }, duration - 500);
+    const exitTimer = setTimeout(() => {}, duration - 500);
 
     // Hide splash screen
     const hideTimer = setTimeout(() => {
