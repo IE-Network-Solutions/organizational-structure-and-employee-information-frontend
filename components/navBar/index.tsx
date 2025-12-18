@@ -264,6 +264,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
+          title: <span>AI Job Matching</span>,
+          key: '/recruitment/ai-job-matching',
+          className: 'font-bold',
+          permissions: ['manage_recruitment_jobs'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
+        },
+        {
           title: <span>Candidates</span>,
           key: '/recruitment/candidate',
           className: 'font-bold',
