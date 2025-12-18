@@ -1,16 +1,15 @@
 import { useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
-import { AI_REC_BASE_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { AI_REC_BASE_URL } from '@/utils/constants';
 import { BatchMatchResponse, AIMatchOptions } from './interface';
 
-// Call Azure Function DIRECTLY (no proxy)
 const getDirectUrl = (endpoint: string) => {
-  const BASE_URL =
-    AI_REC_BASE_URL ||
-    'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
-  return `${BASE_URL}/api${endpoint}`;
+  if (!AI_REC_BASE_URL) {
+    throw new Error('AI_REC_BASE_URL is not configured');
+  }
+  return `${AI_REC_BASE_URL}/api${endpoint}`;
 };
 
 /**

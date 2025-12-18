@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { RECRUITMENT_URL } from '@/utils/constants';
+import { RECRUITMENT_URL, AI_REC_BASE_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import {
   AIMatchDetails,
@@ -44,11 +44,6 @@ const buildHeaders = async () => {
   // Also use demo-tenant if tenantId is empty string or null
   if (!tenantId || tenantId.trim() === '') {
     tenantId = 'demo-tenant';
-    // eslint-disable-next-line no-console
-    console.log('[AI Job Matching] Using demo-tenant for sample data');
-  } else {
-    // eslint-disable-next-line no-console
-    console.log('[AI Job Matching] Using tenantId from store:', tenantId);
   }
 
   const headers: Record<string, string> = {};
@@ -59,29 +54,17 @@ const buildHeaders = async () => {
   // Always set tenantId
   headers.tenantId = tenantId;
 
-  // eslint-disable-next-line no-console
-  console.log('[AI Job Matching] Request headers:', {
-    tenantId,
-    hasToken: !!token,
-  });
-
   return headers;
 };
 
 const fetchJobMatchSummaries = async (): Promise<JobMatchSummary[]> => {
-  // Call Azure Function DIRECTLY (no proxy)
-  const AI_BASE_URL =
-    process.env.NEXT_PUBLIC_AI_REC_BASE_URL ||
-    'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
+  if (!AI_REC_BASE_URL) {
+    throw new Error('AI_REC_BASE_URL is not configured');
+  }
 
-  const url = `${AI_BASE_URL}/api/recruitment/job-matching/jobs`;
+  const url = `${AI_REC_BASE_URL}/api/recruitment/job-matching/jobs`;
 
   const headers = await buildHeaders();
-
-  // eslint-disable-next-line no-console
-  console.log('[AI Job Matching] Calling Azure DIRECTLY:', url);
-  // eslint-disable-next-line no-console
-  console.log('[AI Job Matching] Headers:', headers);
 
   try {
     const { data } = await axios.get<JobMatchSummary[]>(url, {
@@ -92,27 +75,12 @@ const fetchJobMatchSummaries = async (): Promise<JobMatchSummary[]> => {
       },
     });
 
-    // eslint-disable-next-line no-console
-    console.log(
-      '[AI Job Matching] ✅ Received data:',
-      Array.isArray(data) ? `Array(${data.length})` : typeof data,
-      data,
-    );
-
     if (Array.isArray(data)) {
       return data;
     }
 
-    // eslint-disable-next-line no-console
-    console.warn('[AI Job Matching] Invalid data format:', data);
     return [];
   } catch (error: any) {
-    // eslint-disable-next-line no-console
-    console.error(
-      '[AI Job Matching] ❌ Error:',
-      error?.response?.status,
-      error?.message,
-    );
     throw error;
   }
 };
@@ -121,18 +89,14 @@ const fetchMatchedCandidates = async (
   jobId: string,
   options?: AIMatchOptions,
 ): Promise<AIMatchResponse> => {
-  // Call Azure Function DIRECTLY (no proxy)
-  const AI_BASE_URL =
-    process.env.NEXT_PUBLIC_AI_REC_BASE_URL ||
-    'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
+  if (!AI_REC_BASE_URL) {
+    throw new Error('AI_REC_BASE_URL is not configured');
+  }
 
-  const url = `${AI_BASE_URL}/api/recruitment/job-matching/jobs/${jobId}/candidates`;
+  const url = `${AI_REC_BASE_URL}/api/recruitment/job-matching/jobs/${jobId}/candidates`;
 
   const headers = await buildHeaders();
   const limit = options?.limit ?? 200;
-
-  // eslint-disable-next-line no-console
-  console.log(`[AI Job Matching] Calling Azure DIRECTLY for candidates:`, url);
 
   try {
     const { data } = await axios.get<AIMatchResponse>(url, {
@@ -141,15 +105,9 @@ const fetchMatchedCandidates = async (
     });
 
     if (data && Array.isArray(data.matchedCandidates)) {
-      // eslint-disable-next-line no-console
-      console.log(
-        `[AI Job Matching] ✅ Loaded ${data.matchedCandidates.length} candidates for job ${jobId}`,
-      );
       return data;
     }
 
-    // eslint-disable-next-line no-console
-    console.warn(`[AI Job Matching] Invalid data for job ${jobId}`);
     return {
       jobId,
       jobTitle: '',
@@ -158,12 +116,6 @@ const fetchMatchedCandidates = async (
       analysisTimestamp: new Date().toISOString(),
     };
   } catch (error: any) {
-    // eslint-disable-next-line no-console
-    console.error(
-      `[AI Job Matching] ❌ Error:`,
-      error?.response?.status,
-      error?.message,
-    );
     throw error;
   }
 };
@@ -189,31 +141,20 @@ const fetchMatchDetails = async (
   jobId: string,
   candidateId: string,
 ): Promise<AIMatchDetails> => {
-  // Call Azure Function DIRECTLY (no proxy)
-  const AI_BASE_URL =
-    process.env.NEXT_PUBLIC_AI_REC_BASE_URL ||
-    'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
+  if (!AI_REC_BASE_URL) {
+    throw new Error('AI_REC_BASE_URL is not configured');
+  }
 
-  const url = `${AI_BASE_URL}/api/recruitment/job-matching/jobs/${jobId}/candidates/${candidateId}`;
+  const url = `${AI_REC_BASE_URL}/api/recruitment/job-matching/jobs/${jobId}/candidates/${candidateId}`;
 
   const headers = await buildHeaders();
-
-  // eslint-disable-next-line no-console
-  console.log(
-    `[AI Job Matching] Calling Azure DIRECTLY for match details:`,
-    url,
-  );
 
   const { data } = await axios.get<AIMatchDetails>(url, { headers });
 
   if (data) {
-    // eslint-disable-next-line no-console
-    console.log(`[AI Job Matching] ✅ Loaded match details for ${candidateId}`);
     return data;
   }
 
-  // eslint-disable-next-line no-console
-  console.warn(`[AI Job Matching] Invalid data for match details`);
   throw new Error('Failed to load match details from Azure');
 };
 

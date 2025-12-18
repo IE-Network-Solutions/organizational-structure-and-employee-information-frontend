@@ -30,43 +30,70 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
 
   const locationLabel =
     metadataLocation || job.location || 'Location not specified';
-  const postedAt =
-    metadataPostedAt || job.jobPostedAt || job.postedAt || null;
+  const postedAt = metadataPostedAt || job.jobPostedAt || job.postedAt || null;
   const formattedPostedDate = postedAt
     ? dayjs(postedAt).format('DD MMM YYYY')
     : 'Posted date not available';
 
   return (
     <Card
+      id={`ai-job-card-${job.jobId}`}
       data-cy={`ai-job-card-${job.jobId}`}
       onClick={onClick}
       className="rounded-[28px] border border-blue-100 bg-white shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer p-6"
     >
       <div className="space-y-4">
         {/* Job Title */}
-        <h3 className="text-lg font-semibold text-gray-900">{job.jobTitle}</h3>
+        <h3
+          id={`ai-job-card-${job.jobId}-title`}
+          data-cy={`ai-job-card-${job.jobId}-title`}
+          className="text-lg font-semibold text-gray-900"
+        >
+          {job.jobTitle}
+        </h3>
 
         {/* Job Info (from Azure Function data) */}
-        <div className="flex items-center gap-8 text-sm text-gray-500 flex-nowrap">
-          <span className="flex items-center gap-2">
+        <div
+          id={`ai-job-card-${job.jobId}-info`}
+          data-cy={`ai-job-card-${job.jobId}-info`}
+          className="flex items-center gap-8 text-sm text-gray-500 flex-nowrap"
+        >
+          <span
+            id={`ai-job-card-${job.jobId}-location`}
+            data-cy={`ai-job-card-${job.jobId}-location`}
+            className="flex items-center gap-2"
+          >
             <EnvironmentOutlined className="text-gray-400 text-base" />
             <span className="text-sm font-medium text-gray-700">
               {locationLabel}
             </span>
           </span>
-          <span className="flex items-center gap-1 text-sm text-gray-500">
+          <span
+            id={`ai-job-card-${job.jobId}-posted-date`}
+            data-cy={`ai-job-card-${job.jobId}-posted-date`}
+            className="flex items-center gap-1 text-sm text-gray-500"
+          >
             <ClockCircleOutlined className="text-gray-400 text-base" />
             <span className="text-sm text-gray-400">{formattedPostedDate}</span>
           </span>
         </div>
 
         {/* AI Matches */}
-        <div className="pt-4 border-t border-blue-50">
+        <div
+          id={`ai-job-card-${job.jobId}-matches`}
+          data-cy={`ai-job-card-${job.jobId}-matches`}
+          className="pt-4 border-t border-blue-50"
+        >
           <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-            <span className="text-sm font-medium text-gray-500">
+            <span
+              id={`ai-job-card-${job.jobId}-matches-label`}
+              data-cy={`ai-job-card-${job.jobId}-matches-label`}
+              className="text-sm font-medium text-gray-500"
+            >
               AI Matches
             </span>
             <span
+              id={`ai-job-card-${job.jobId}-candidate-count`}
               data-cy={`ai-job-card-${job.jobId}-candidate-count`}
               className="inline-flex items-center justify-center gap-1 rounded-full border border-[#e7e3ff] bg-[#f1f0ff] px-4 py-1 text-sm font-semibold text-[#3d3dff]"
             >
@@ -125,11 +152,29 @@ const AIJobMatchingPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" data-cy="ai-job-matching-page">
+    <div
+      id="ai-job-matching-page"
+      className="min-h-screen bg-gray-50"
+      data-cy="ai-job-matching-page"
+    >
       {/* Header */}
-      <div className="bg-white px-6 py-4 border-b border-gray-200">
-        <h1 className="text-xl font-semibold text-gray-900">AI Job Matching</h1>
-        <p className="text-sm text-gray-500">
+      <div
+        id="ai-job-matching-header"
+        data-cy="ai-job-matching-header"
+        className="bg-white px-6 py-4 border-b border-gray-200"
+      >
+        <h1
+          id="ai-job-matching-title"
+          data-cy="ai-job-matching-title"
+          className="text-xl font-semibold text-gray-900"
+        >
+          AI Job Matching
+        </h1>
+        <p
+          id="ai-job-matching-subtitle"
+          data-cy="ai-job-matching-subtitle"
+          className="text-sm text-gray-500"
+        >
           Match candidates to jobs using AI-powered analysis
         </p>
       </div>
@@ -147,13 +192,25 @@ const AIJobMatchingPage: React.FC = () => {
       </div>
 
       {/* Jobs Grid */}
-      <div className="px-6 pb-6">
+      <div
+        id="ai-job-matching-grid-container"
+        data-cy="ai-job-matching-grid-container"
+        className="px-6 pb-6"
+      >
         {!jobs || jobs.length === 0 ? (
-          <div className="flex items-center justify-center min-h-96">
+          <div
+            id="ai-job-matching-empty"
+            data-cy="ai-job-matching-empty"
+            className="flex items-center justify-center min-h-96"
+          >
             <Empty description="No jobs available" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div
+            id="ai-job-matching-grid"
+            data-cy="ai-job-matching-grid"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+          >
             {jobs.map((job) => (
               <JobCard
                 key={job.jobId}
