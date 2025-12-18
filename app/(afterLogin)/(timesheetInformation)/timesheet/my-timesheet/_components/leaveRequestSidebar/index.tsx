@@ -159,6 +159,8 @@ const LeaveRequestSidebar = () => {
     }
   }, [isShowLeaveRequestSidebar, leaveRequestSidebarData, leaveRequest]);
 
+  const hasNoApprover = (approvalUserData?.length ?? 0) < 1 && (approvalDepartmentData?.length ?? 0) < 1;
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -173,13 +175,33 @@ const LeaveRequestSidebar = () => {
     {
       label: leaveRequest ? 'Update' : 'Add',
       key: 'create',
-      className: 'h-[40px] sm:h-[56px] text-base !bg-purple !border-purple hover:!bg-[#7A4FE6] hover:!border-[#7A4FE6]',
+      className: 'h-[40px] sm:h-[56px] text-base',
+      style: {
+        backgroundColor: '#2563eb',
+        borderColor: '#2563eb',
+        color: 'white',
+      },
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
+      disabled: hasNoApprover && !leaveRequest,
       onClick: () => form.submit(),
       id: 'time-attendance-leave-request-sidebar-submit-button',
       'data-cy': 'time-attendance-leave-request-sidebar-submit-button',
+      tooltip: hasNoApprover && !leaveRequest ? 'You lack approver please contact your team lead for more information' : undefined,
+      tooltipProps: hasNoApprover && !leaveRequest ? {
+        overlayInnerStyle: {
+          backgroundColor: 'white',
+          color: '#1f2937',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          maxWidth: '300px',
+          fontSize: '14px',
+          fontWeight: 500,
+        },
+        color: 'white',
+      } : undefined,
     },
   ];
 
@@ -241,26 +263,41 @@ const LeaveRequestSidebar = () => {
 
   return (
     isShowLeaveRequestSidebar && (
-      <CustomDrawerLayout
-        data-cy="time-attendance-leave-request-sidebar-container"
-        open={isShowLeaveRequestSidebar}
-        onClose={onClose}
-        modalHeader={
-          <CustomDrawerHeader data-cy="time-attendance-leave-request-sidebar-header">
-            {leaveRequest ? 'Update' : 'Add New'} Leave Request
-          </CustomDrawerHeader>
-        }
-        footer={
-          <div
-            className="p-6 sm:p-0"
-            id="time-attendance-leave-request-sidebar-footer"
-            data-cy="time-attendance-leave-request-sidebar-footer"
-          >
-            <CustomDrawerFooterButton data-cy="time-attendance-leave-request-sidebar-footer-button" buttons={footerModalItems} />
-          </div>
-        }
-        width="400px"
-      >
+      <>
+        <style>{`
+          #time-attendance-leave-request-sidebar-submit-button.ant-btn-primary:disabled,
+          #time-attendance-leave-request-sidebar-submit-button.ant-btn-primary[disabled] {
+            background-color: #2563eb !important;
+            border-color: #2563eb !important;
+            color: white !important;
+            opacity: 1 !important;
+            cursor: not-allowed !important;
+          }
+          #time-attendance-leave-request-sidebar-submit-button.ant-btn-primary:hover:not(:disabled) {
+            background-color: #1d4ed8 !important;
+            border-color: #1d4ed8 !important;
+          }
+        `}</style>
+        <CustomDrawerLayout
+          data-cy="time-attendance-leave-request-sidebar-container"
+          open={isShowLeaveRequestSidebar}
+          onClose={onClose}
+          modalHeader={
+            <CustomDrawerHeader data-cy="time-attendance-leave-request-sidebar-header">
+              {leaveRequest ? 'Update' : 'Add New'} Leave Request
+            </CustomDrawerHeader>
+          }
+          footer={
+            <div
+              className="p-6 sm:p-0"
+              id="time-attendance-leave-request-sidebar-footer"
+              data-cy="time-attendance-leave-request-sidebar-footer"
+            >
+              <CustomDrawerFooterButton data-cy="time-attendance-leave-request-sidebar-footer-button" buttons={footerModalItems} />
+            </div>
+          }
+          width="400px"
+        >
         <Spin
           spinning={isLoading || isLoadingRequest}
           data-cy="time-attendance-leave-request-sidebar-spin"
@@ -458,6 +495,7 @@ const LeaveRequestSidebar = () => {
           </Form>
         </Spin>
       </CustomDrawerLayout>
+      </>
     )
   );
 };
