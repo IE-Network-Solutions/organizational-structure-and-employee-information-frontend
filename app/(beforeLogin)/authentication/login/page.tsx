@@ -87,8 +87,8 @@ const Login: FC = () => {
       style={{ backgroundImage: 'url(/Background.png)', margin: 0 }}
     >
       <div
-        id="login-form"
-        data-cy="login-form"
+        id="div-login-form"
+        data-cy="div-login-form"
         className="bg-[#FAFAFA] w-full max-w-md py-8 px-8 rounded-2xl my-5 shadow-2xl"
       >
         <div
