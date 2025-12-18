@@ -397,18 +397,20 @@ const Payroll = () => {
       };
 
       const exportColumns = [
+        { type: 'TIN Number', key: 'tinNumber' },
         { type: 'Basic Salary', key: 'basicSalary' },
         { type: 'Transport Allowance', key: 'transportAllowance' },
         { type: 'Taxable Transport', key: 'taxableTransport' },
-        { type: 'Total Award', key: 'totalBenefits' },
-        { type: 'Gross Salary', key: 'grossIncome' },
-        { type: 'Taxable Income', key: 'taxableIncome' },
-        { type: 'Tax', key: 'tax' },
-        { type: 'Total Deduction', key: 'totalDeduction' },
+        { type: 'Position Allowance', key: 'positionAllowance' },
+        { type: 'Total Benefits', key: 'totalBenefits' },
         { type: 'Variable Pay', key: 'variablePay' },
-        { type: 'Total Incentive', key: 'totalIncentive' },
+        { type: 'Gross Salary', key: 'grossIncome' },
         { type: 'Employee Pension', key: 'employeePension' },
+        { type: 'Tax', key: 'tax' },
         { type: 'Company Pension', key: 'companyPesnion' },
+        { type: 'Total Deduction', key: 'totalDeduction' },
+        { type: 'Total Incentive', key: 'totalIncentive' },
+        { type: 'Taxable Income', key: 'taxableIncome' },
         { type: 'Net Income', key: 'netIncome' },
       ];
       const columnHeaderMap = new Map<string, string>(
@@ -431,6 +433,7 @@ const Payroll = () => {
         const fullName =
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
           '--';
+        const tinNumber = item.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber || '--';
         const basicSalary =
           item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
             ?.basicSalary || 0;
@@ -447,29 +450,36 @@ const Payroll = () => {
           }, 0);
         const taxableTransport = transportAllowance - 600;
         const totalBenefits = item.totalMerit || 0;
+        
+        // Find Position Allowance from allowances
+        const positionAllowance = allowances
+          ?.find((a: any) => a.type === 'Position Allowance' || a.type?.toLowerCase().includes('position'))
+          ?.amount || 0;
 
         const payrollRowData: any = {
           fullName,
+          tinNumber,
           basicSalary: formatAmount(basicSalary),
           transportAllowance: formatAmount(transportAllowance),
           taxableTransport: formatAmount(taxableTransport),
           totalBenefits: formatAmount(totalBenefits || 0),
-          grossIncome: formatAmount(item.grossSalary || 0),
-          taxableIncome: formatAmount(item.grossSalary - 600 || 0),
-          tax: formatAmount(item.breakdown?.tax?.amount),
-          totalDeduction: formatAmount(item.totalDeductions || 0),
           variablePay: formatAmount(variablePay || 0),
-          totalIncentive: formatAmount(totalIncentive || 0),
+          grossIncome: formatAmount(item.grossSalary || 0),
           employeePension: formatAmount(
             item.breakdown?.pension?.find((i: any) => i.type == 'Pension')
               ?.amount || 0,
           ),
+          tax: formatAmount(item.breakdown?.tax?.amount),
           companyPesnion: formatAmount(
             item.breakdown?.pension?.find(
               (i: any) => i.type == 'CompanyContribution',
             )?.amount || 0,
           ),
+          totalDeduction: formatAmount(item.totalDeductions || 0),
+          totalIncentive: formatAmount(totalIncentive || 0),
+          taxableIncome: formatAmount(item.grossSalary - 600 || 0),
           netIncome: formatAmount(item.netPay || 0),
+          positionAllowance: formatAmount(positionAllowance || 0),
         };
 
         // Calculate total deductions
@@ -479,6 +489,7 @@ const Payroll = () => {
         );
         const deductionRow: any = {
           fullName,
+          tinNumber,
           totalDeductions: formatAmount(totalDeductions),
         };
 
@@ -489,6 +500,7 @@ const Payroll = () => {
         );
         const allowanceRow: any = {
           fullName,
+          tinNumber,
           totalAllowances: formatAmount(totalAllowances),
         };
 
@@ -499,6 +511,7 @@ const Payroll = () => {
         );
         const meritRow: any = {
           fullName,
+          tinNumber,
           totalMerits: formatAmount(totalMerits),
         };
 
@@ -537,17 +550,31 @@ const Payroll = () => {
         const sheet = workbook.addWorksheet(sheetName);
 
         // **Define Headers**
-        const headers = [
-          { header: 'Full Name', key: 'fullName', minWidth: 30 },
-          ...Array.from(uniqueTypes).map((type) => ({
-            header: columnHeaderMap.get(type) || type,
-            key: type,
-            minWidth: 12,
-          })),
-          ...(sheetName !== 'Payrolls'
-            ? [{ header: `Total ${sheetName}`, key: totalKey, minWidth: 18 }]
-            : []),
-        ];
+        // For Payrolls sheet, ensure TIN Number comes right after Full Name
+        const payrollHeaders = sheetName === 'Payrolls' 
+          ? [
+              { header: 'Full Name', key: 'fullName', minWidth: 30 },
+              { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
+              ...Array.from(uniqueTypes)
+                .filter((type) => type !== 'tinNumber') // Remove tinNumber from the rest
+                .map((type) => ({
+                  header: columnHeaderMap.get(type) || type,
+                  key: type,
+                  minWidth: 12,
+                })),
+            ]
+          : [
+              { header: 'Full Name', key: 'fullName', minWidth: 30 },
+              { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
+              ...Array.from(uniqueTypes).map((type) => ({
+                header: columnHeaderMap.get(type) || type,
+                key: type,
+                minWidth: 12,
+              })),
+              { header: `Total ${sheetName}`, key: totalKey, minWidth: 18 },
+            ];
+
+        const headers = payrollHeaders;
 
         // **Set Column Width Dynamically**
         sheet.columns = headers.map((col) => ({
@@ -869,6 +896,23 @@ const Payroll = () => {
       ),
     },
     {
+      title: 'TIN Number',
+      dataIndex: 'tinNumber',
+      key: 'tinNumber',
+      minWidth: 150,
+      render: (notused: any, record: any) => {
+        const tinNumber = record.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber || '--';
+        return (
+          <span
+            id={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
+            data-cy={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
+          >
+            {tinNumber}
+          </span>
+        );
+      },
+    },
+    {
       title: 'Basic Salary',
       dataIndex: 'basicSalary',
       key: 'basicSalary',
@@ -897,16 +941,21 @@ const Payroll = () => {
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
     },
-
     {
-      title: 'Tax',
-      dataIndex: 'tax',
-      key: 'tax',
+      title: 'Variable Pay',
+      dataIndex: 'variablePay',
+      key: 'variablePay',
       minWidth: 150,
       render: (notused: any, record: any) =>
-        Number(record.breakdown?.tax?.amount)?.toLocaleString(),
+        Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
     },
-
+    {
+      title: 'Gross Salary',
+      dataIndex: 'grossSalary',
+      key: 'grossSalary',
+      minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
+    },
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
@@ -917,6 +966,14 @@ const Payroll = () => {
           record.breakdown?.pension?.find((i: any) => i.type == 'Pension')
             ?.amount,
         )?.toLocaleString(),
+    },
+    {
+      title: 'Tax',
+      dataIndex: 'tax',
+      key: 'tax',
+      minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.tax?.amount)?.toLocaleString(),
     },
     {
       title: 'Company Pension',
@@ -944,21 +1001,6 @@ const Payroll = () => {
       minWidth: 150,
       render: (notused: any, record: any) =>
         Number(record.breakdown?.incentives?.amount)?.toLocaleString(),
-    },
-    {
-      title: 'Variable Pay',
-      dataIndex: 'variablePay',
-      key: 'variablePay',
-      minWidth: 150,
-      render: (notused: any, record: any) =>
-        Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
-    },
-    {
-      title: 'Gross Income after VP',
-      dataIndex: 'grossSalary',
-      key: 'grossSalary',
-      minWidth: 150,
-      render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
       title: 'Taxable Income',
