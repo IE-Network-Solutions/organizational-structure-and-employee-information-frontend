@@ -106,7 +106,7 @@ function EditPlan() {
       kId === latestMkAsATask.mid ||           // Exact match (for Key Result without milestone)
       kId.endsWith(latestMkAsATask.mid)        // Ends with match (for milestone: "krId+mlId" where mid is "mlId")
     );
-    
+
     const taskTitle = shouldUseMkAsATask ? latestMkAsATask.title : '';
     const achieveMK = shouldUseMkAsATask;
 
