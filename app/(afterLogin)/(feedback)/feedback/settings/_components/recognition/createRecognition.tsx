@@ -124,11 +124,11 @@ const RecognitionForm: React.FC<PropsData> = ({
       data-cy="create-recognition-drawer-header"
       id="createRecognitionDrawerHeader"
     >
-      <span data-cy="create-recognition-drawer-header-text">
+      
         {selectedRecognitionType === ''
           ? 'Add New Recognition'
           : 'Update Recognition'}
-      </span>
+     
     </div>
   );
 

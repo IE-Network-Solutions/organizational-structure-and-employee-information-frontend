@@ -308,12 +308,10 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                   value={period.id}
                   data-cy={`benefit-entitlement-sidebar-pay-period-option-${period.id}-${index}`}
                 >
-                  <span
-                    data-cy={`benefit-entitlement-sidebar-pay-period-option-text-${period.id}-${index}`}
-                  >
+                 
                     {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
                     {dayjs(period.endDate).format('MMM DD, YYYY')}
-                  </span>
+                 
                 </Option>
               ))}
           </Select>
@@ -438,8 +436,8 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                     ) : (
                       <span>Payout Period</span>
                     )
-                  }
-                  data-cy="compensation-benefit-sidebar-settlement-period-item"
+                  }                 
+                   data-cy="compensation-benefit-sidebar-settlement-period-item"
                 >
                   <InputNumber
                     className="w-full h-10 mt-1"
