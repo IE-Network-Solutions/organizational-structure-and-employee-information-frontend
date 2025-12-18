@@ -64,8 +64,10 @@ function BoardCardForm({
               <Form.Item
                 noStyle
                 shouldUpdate={(prevValues, currentValues) => {
-                  const prevAchieveMK = prevValues[`board-${name}`]?.[subName]?.achieveMK;
-                  const currentAchieveMK = currentValues[`board-${name}`]?.[subName]?.achieveMK;
+                  const prevAchieveMK =
+                    prevValues[`board-${name}`]?.[subName]?.achieveMK;
+                  const currentAchieveMK =
+                    currentValues[`board-${name}`]?.[subName]?.achieveMK;
                   return prevAchieveMK !== currentAchieveMK;
                 }}
               >

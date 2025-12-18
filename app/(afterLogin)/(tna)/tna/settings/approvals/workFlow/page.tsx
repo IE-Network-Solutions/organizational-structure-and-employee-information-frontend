@@ -17,7 +17,10 @@ const Workflow = () => {
   };
   return (
     <div id="tnaApprovalWorkflowPageId" data-cy="tna-approval-workflow-page">
-      <ApprovalWorkFlowComponent onChange={onChange} data-cy="tna-approval-workflow-component" />
+      <ApprovalWorkFlowComponent
+        onChange={onChange}
+        data-cy="tna-approval-workflow-component"
+      />
     </div>
   );
 };

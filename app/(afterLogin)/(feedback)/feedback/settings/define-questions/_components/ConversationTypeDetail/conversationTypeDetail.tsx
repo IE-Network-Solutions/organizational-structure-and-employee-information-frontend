@@ -59,29 +59,50 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
     )?.name || '';
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4" data-cy="conversation-type-detail-drawer-header" id="conversationTypeDetailDrawerHeader">
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="conversation-type-detail-drawer-header"
+      id="conversationTypeDetailDrawerHeader"
+    >
       Edit {activeTabName}
     </div>
   );
 
   return (
-    <div className="p-4" data-cy="conversation-type-detail" id="conversationTypeDetail">
-      {getConversationLoading && <Skeleton data-cy="conversation-type-detail-skeleton" />}
+    <div
+      className="p-4"
+      data-cy="conversation-type-detail"
+      id="conversationTypeDetail"
+    >
+      {getConversationLoading && (
+        <Skeleton data-cy="conversation-type-detail-skeleton" />
+      )}
       {conversationType?.questionSets?.map(
         (set: QuestionSet, index: number) => (
-          <Collapse key={index} data-cy={`conversation-type-detail-collapse-${set?.id}`}>
+          <Collapse
+            key={index}
+            data-cy={`conversation-type-detail-collapse-${set?.id}`}
+          >
             <Card
               key={set?.id}
               className="mb-4"
               title={set?.name}
               extra={
-                <div className="flex items-center space-x-2" data-cy={`conversation-type-detail-card-actions-${set?.id}`} id={`conversationTypeDetailCardActions${set?.id}`}>
+                <div
+                  className="flex items-center space-x-2"
+                  data-cy={`conversation-type-detail-card-actions-${set?.id}`}
+                  id={`conversationTypeDetailCardActions${set?.id}`}
+                >
                   <AccessGuard
                     permissions={[Permissions.createConversationSet]}
                     data-cy="conversation-type-detail-card-switch-access-guard"
                     id="conversationTypeDetailCardSwitchAccessGuard"
                   >
-                    <Tooltip title={set?.active ? 'Active' : 'Inactive'} data-cy={`conversation-type-detail-card-switch-tooltip-${set?.id}`} id={`conversationTypeDetailCardSwitchTooltip${set?.id}`}>
+                    <Tooltip
+                      title={set?.active ? 'Active' : 'Inactive'}
+                      data-cy={`conversation-type-detail-card-switch-tooltip-${set?.id}`}
+                      id={`conversationTypeDetailCardSwitchTooltip${set?.id}`}
+                    >
                       <Switch
                         size="small"
                         className="text-xs text-gray-950"
@@ -127,7 +148,12 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
                       <Button
                         disabled={!set?.active}
                         size="small"
-                        icon={<DeleteOutlined data-cy="conversation-type-detail-card-delete-button-icon" id="conversationTypeDetailCardDeleteButtonIcon" />}
+                        icon={
+                          <DeleteOutlined
+                            data-cy="conversation-type-detail-card-delete-button-icon"
+                            id="conversationTypeDetailCardDeleteButtonIcon"
+                          />
+                        }
                         danger
                         data-cy={`conversation-type-detail-card-delete-button-${set?.id}`}
                         id={`conversationTypeDetailCardDeleteButton${set?.id}`}
@@ -141,21 +167,54 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
             >
               {set.conversationsQuestions.map(
                 (question: Question, index: number) => (
-                  <div key={question.id} className="mb-2" data-cy={`conversation-type-detail-question-${question.id}`} id={`conversationTypeDetailQuestion${question.id}`}>
-                    <p className="font-semibold text-sm" data-cy={`conversation-type-detail-question-text-${question.id}`} id={`conversationTypeDetailQuestionText${question.id}`}>
+                  <div
+                    key={question.id}
+                    className="mb-2"
+                    data-cy={`conversation-type-detail-question-${question.id}`}
+                    id={`conversationTypeDetailQuestion${question.id}`}
+                  >
+                    <p
+                      className="font-semibold text-sm"
+                      data-cy={`conversation-type-detail-question-text-${question.id}`}
+                      id={`conversationTypeDetailQuestionText${question.id}`}
+                    >
                       {index + 1}. {question?.question}
                       {question.mandatory && (
-                        <span className="text-red-500" data-cy={`conversation-type-detail-question-mandatory-${question.id}`} id={`conversationTypeDetailQuestionMandatory${question.id}`}>*</span>
+                        <span
+                          className="text-red-500"
+                          data-cy={`conversation-type-detail-question-mandatory-${question.id}`}
+                          id={`conversationTypeDetailQuestionMandatory${question.id}`}
+                        >
+                          *
+                        </span>
                       )}
                     </p>
                     {question?.field?.length > 0 && (
-                      <ul className="list-none text-gray-600 text-xs ml-2" data-cy={`conversation-type-detail-question-options-${question.id}`} id={`conversationTypeDetailQuestionOptions${question.id}`}>
+                      <ul
+                        className="list-none text-gray-600 text-xs ml-2"
+                        data-cy={`conversation-type-detail-question-options-${question.id}`}
+                        id={`conversationTypeDetailQuestionOptions${question.id}`}
+                      >
                         {question?.field.map((option, index) => (
-                          <li key={option?.key} className="flex items-start" data-cy={`conversation-type-detail-question-option-${question.id}-${index}`} id={`conversationTypeDetailQuestionOption${question.id}${index}`}>
-                            <span className="font-bold mr-2" data-cy={`conversation-type-detail-question-option-label-${question.id}-${index}`} id={`conversationTypeDetailQuestionOptionLabel${question.id}${index}`}>
+                          <li
+                            key={option?.key}
+                            className="flex items-start"
+                            data-cy={`conversation-type-detail-question-option-${question.id}-${index}`}
+                            id={`conversationTypeDetailQuestionOption${question.id}${index}`}
+                          >
+                            <span
+                              className="font-bold mr-2"
+                              data-cy={`conversation-type-detail-question-option-label-${question.id}-${index}`}
+                              id={`conversationTypeDetailQuestionOptionLabel${question.id}${index}`}
+                            >
                               {String.fromCharCode(65 + index)}.
                             </span>
-                            <span data-cy={`conversation-type-detail-question-option-value-${question.id}-${index}`} id={`conversationTypeDetailQuestionOptionValue${question.id}${index}`}>{option?.value}</span>
+                            <span
+                              data-cy={`conversation-type-detail-question-option-value-${question.id}-${index}`}
+                              id={`conversationTypeDetailQuestionOptionValue${question.id}${index}`}
+                            >
+                              {option?.value}
+                            </span>
                           </li>
                         ))}
                       </ul>
@@ -168,7 +227,11 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
         ),
       )}
       {conversationType?.questionSets?.length < 1 && (
-        <div className="flex justify-center items-center" data-cy="conversation-type-detail-empty" id="conversationTypeDetailEmpty">
+        <div
+          className="flex justify-center items-center"
+          data-cy="conversation-type-detail-empty"
+          id="conversationTypeDetailEmpty"
+        >
           <EmptyImage data-cy="conversation-type-detail-empty-image" />
         </div>
       )}

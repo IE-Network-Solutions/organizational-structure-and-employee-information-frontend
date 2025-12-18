@@ -17,7 +17,11 @@ const LogCard: FC<LogCardProps> = ({ item }) => {
       data-cy={`time-attendance-settings-imported-logs-card-${item.id}-container`}
     >
       <Avatar
-        icon={<UserOutlined data-cy={`time-attendance-settings-imported-logs-card-${item.id}-avatar-icon`} />}
+        icon={
+          <UserOutlined
+            data-cy={`time-attendance-settings-imported-logs-card-${item.id}-avatar-icon`}
+          />
+        }
         size={30}
         data-cy={`time-attendance-settings-imported-logs-card-${item.id}-avatar`}
       />

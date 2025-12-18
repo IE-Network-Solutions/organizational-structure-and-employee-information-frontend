@@ -67,7 +67,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   if (!isClient) return null;
 
   return (
-    <div>
+    <div data-cy="custom-drawer-container">
       <>
         {open && !hideButton && (
           <Button

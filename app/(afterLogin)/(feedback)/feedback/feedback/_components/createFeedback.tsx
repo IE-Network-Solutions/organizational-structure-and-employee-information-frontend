@@ -137,7 +137,11 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     )?.category ?? '';
 
   const modalHeader = (
-    <div className="flex justify-start text-xl font-extrabold text-gray-800 " data-cy="feedback-feedback-components-createfeedback-div-header" id="feedback-feedback-components-createfeedback-div-header">
+    <div
+      className="flex justify-start text-xl font-extrabold text-gray-800 "
+      data-cy="feedback-feedback-components-createfeedback-div-header"
+      id="feedback-feedback-components-createfeedback-div-header"
+    >
       {`${activeTabName} - ${variantType}`}
     </div>
   );
@@ -154,8 +158,15 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       width="40%"
       data-cy="feedback-feedback-components-createfeedback-drawer"
       footer={
-        <Form.Item data-cy="feedback-feedback-components-createfeedback-form-item-footer" id="feedback-feedback-components-createfeedback-form-item-footer">
-          <div className=" w-full bg-[#fff] flex justify-between space-x-5 p-4" data-cy="feedback-feedback-components-createfeedback-div-footer" id="feedback-feedback-components-createfeedback-div-footer">
+        <Form.Item
+          data-cy="feedback-feedback-components-createfeedback-form-item-footer"
+          id="feedback-feedback-components-createfeedback-form-item-footer"
+        >
+          <div
+            className=" w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            data-cy="feedback-feedback-components-createfeedback-div-footer"
+            id="feedback-feedback-components-createfeedback-div-footer"
+          >
             <Button
               className="h-12 p-5 px-12"
               onClick={() => setOpen(false)}
@@ -208,7 +219,13 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         data-cy="feedback-feedback-components-createfeedback-form"
         id="feedback-feedback-components-createfeedback-form"
       >
-        {selectedFeedbackRecord !== null && <Form.Item name="id" data-cy="feedback-feedback-components-createfeedback-form-item-id" id="feedback-feedback-components-createfeedback-form-item-id"></Form.Item>}
+        {selectedFeedbackRecord !== null && (
+          <Form.Item
+            name="id"
+            data-cy="feedback-feedback-components-createfeedback-form-item-id"
+            id="feedback-feedback-components-createfeedback-form-item-id"
+          ></Form.Item>
+        )}
         {/* Select Employee ID */}
 
         <Form.Item
@@ -260,7 +277,12 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
             id="feedback-feedback-components-createfeedback-select-department"
           >
             {departments?.map((department: any) => (
-              <Select.Option key={department.id} value={department.id} data-cy={`feedback-feedback-components-createfeedback-select-option-department-${department.id}`} id={`feedback-feedback-components-createfeedback-select-option-department-${department.id}`}>
+              <Select.Option
+                key={department.id}
+                value={department.id}
+                data-cy={`feedback-feedback-components-createfeedback-select-option-department-${department.id}`}
+                id={`feedback-feedback-components-createfeedback-select-option-department-${department.id}`}
+              >
                 {department.name}
               </Select.Option>
             ))}
@@ -307,7 +329,12 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           data-cy="feedback-feedback-components-createfeedback-form-item-reason"
           id="feedback-feedback-components-createfeedback-form-item-reason"
         >
-          <TextArea rows={4} placeholder="Enter reason or description" data-cy="feedback-feedback-components-createfeedback-textarea-reason" id="feedback-feedback-components-createfeedback-textarea-reason" />
+          <TextArea
+            rows={4}
+            placeholder="Enter reason or description"
+            data-cy="feedback-feedback-components-createfeedback-textarea-reason"
+            id="feedback-feedback-components-createfeedback-textarea-reason"
+          />
         </Form.Item>
 
         {/* Action to Be Taken */}
@@ -323,7 +350,12 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           data-cy="feedback-feedback-components-createfeedback-form-item-action"
           id="feedback-feedback-components-createfeedback-form-item-action"
         >
-          <TextArea rows={4} placeholder="Describe the action to be taken" data-cy="feedback-feedback-components-createfeedback-textarea-action" id="feedback-feedback-components-createfeedback-textarea-action" />
+          <TextArea
+            rows={4}
+            placeholder="Describe the action to be taken"
+            data-cy="feedback-feedback-components-createfeedback-textarea-action"
+            id="feedback-feedback-components-createfeedback-textarea-action"
+          />
         </Form.Item>
 
         {/* CC */}

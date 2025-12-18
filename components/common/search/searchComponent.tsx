@@ -35,18 +35,25 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
     useFilterStore();
 
   return (
-    <div className="flex flex-wrap justify-start w-full">
+    <div
+      className="flex flex-wrap justify-start w-full"
+      data-cy="search-component"
+    >
       {fields.map((field) => {
         const isDateField = field?.type === 'start-end-date';
         const baseWidth = isDateField ? 'w-1/4 md:w-1/2' : 'w-3/4 md:w-1/2';
         const mdWidth = `md:w-${Math.round(field.widthRatio)}/12`;
 
         return (
-          <div key={field.key} className={`${baseWidth} ${mdWidth}`}>
+          <div
+            key={field.key}
+            className={`${baseWidth} ${mdWidth}`}
+            data-cy="search-field"
+          >
             {isDateField ? (
               <>
                 {/* Show modal button on small screens */}
-                <div className="block md:hidden">
+                <div className="block md:hidden" data-cy="search-field-mobile">
                   <Button
                     icon={<LuSettings2 className="text-gray-400 text-xl" />}
                     className="w-full h-14 border border-gray-200"

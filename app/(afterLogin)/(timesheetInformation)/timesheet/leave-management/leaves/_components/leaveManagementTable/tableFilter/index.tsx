@@ -80,7 +80,11 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
                 placeholder="Select Type"
                 allowClear
                 suffixIcon={
-                  <MdKeyboardArrowDown data-cy="time-attendance-leave-management-filter-type-select-suffix-icon" size={16} className="text-gray-900" />
+                  <MdKeyboardArrowDown
+                    data-cy="time-attendance-leave-management-filter-type-select-suffix-icon"
+                    size={16}
+                    className="text-gray-900"
+                  />
                 }
                 options={formatToOptions(
                   leaveTypesData?.items ?? [],
@@ -143,9 +147,17 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               allowClear
               suffixIcon={
                 isSmallScreen ? (
-                  <LuSettings2 data-cy="time-attendance-leave-management-filter-status-select-suffix-icon" size={24} className="text-gray-900" />
+                  <LuSettings2
+                    data-cy="time-attendance-leave-management-filter-status-select-suffix-icon"
+                    size={24}
+                    className="text-gray-900"
+                  />
                 ) : (
-                  <MdKeyboardArrowDown data-cy="time-attendance-leave-management-filter-status-select-suffix-icon" size={16} className="text-gray-900" />
+                  <MdKeyboardArrowDown
+                    data-cy="time-attendance-leave-management-filter-status-select-suffix-icon"
+                    size={16}
+                    className="text-gray-900"
+                  />
                 )
               }
               options={LeaveRequestStatusOption}

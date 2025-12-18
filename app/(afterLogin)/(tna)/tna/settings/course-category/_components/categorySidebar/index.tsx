@@ -54,7 +54,11 @@ const CourseCategorySidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: courseCategoryId ? <span>Edit</span> : <span>Create</span>,
+      label: courseCategoryId ? (
+        <span data-cy="edit-label">Edit</span>
+      ) : (
+        <span data-cy="create-label">Create</span>
+      ),
       key: 'create',
       className: 'h-12',
       type: 'primary',
@@ -89,11 +93,24 @@ const CourseCategorySidebar = () => {
         onClose={() => onClose()}
         data-cy="tna-course-category-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start font-extrabold text-xl" data-cy="tna-course-category-sidebar-header">
+          <CustomDrawerHeader
+            className="flex justify-start font-extrabold text-xl"
+            data-cy="tna-course-category-sidebar-header"
+          >
             {courseCategoryId ? (
-              <span data-cy="tna-course-category-sidebar-header-text" id="tnaCourseCategorySidebarHeaderTextId">Edit Course Category</span>
+              <span
+                data-cy="tna-course-category-sidebar-header-text"
+                id="tnaCourseCategorySidebarHeaderTextId"
+              >
+                Edit Course Category
+              </span>
             ) : (
-              <span data-cy="tna-course-category-sidebar-header-text" id="tnaCourseCategorySidebarHeaderTextId">Add Course Category</span>
+              <span
+                data-cy="tna-course-category-sidebar-header-text"
+                id="tnaCourseCategorySidebarHeaderTextId"
+              >
+                Add Course Category
+              </span>
             )}
           </CustomDrawerHeader>
         }
@@ -107,7 +124,10 @@ const CourseCategorySidebar = () => {
         width="400px"
         customMobileHeight="60vh"
       >
-        <Spin spinning={isLoading || isFetching} data-cy="tna-course-category-sidebar-spinner">
+        <Spin
+          spinning={isLoading || isFetching}
+          data-cy="tna-course-category-sidebar-spinner"
+        >
           <Form
             layout="vertical"
             form={form}
@@ -124,7 +144,11 @@ const CourseCategorySidebar = () => {
               id="tnaCourseCategorySidebarTitleItemId"
               data-cy="tna-course-category-sidebar-title-item"
             >
-              <Input className="control h-10" id="tnaCourseCategorySidebarTitleInputId" data-cy="tna-course-category-sidebar-title-input" />
+              <Input
+                className="control h-10"
+                id="tnaCourseCategorySidebarTitleInputId"
+                data-cy="tna-course-category-sidebar-title-input"
+              />
             </Form.Item>
             <Form.Item
               name="description"

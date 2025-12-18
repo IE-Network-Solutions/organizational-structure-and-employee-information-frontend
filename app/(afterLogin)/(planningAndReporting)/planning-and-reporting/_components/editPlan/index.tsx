@@ -99,13 +99,13 @@ function EditPlan() {
 
     // Always grab the latest mkAsATask value to avoid stale reads
     const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
-    
+
     // VALIDATION: Only use mkAsATask if it belongs to this Key Result
     // Check if mkAsATask.mid matches the current kId (exact match or for milestones, kId ends with mid)
-    const shouldUseMkAsATask = latestMkAsATask?.mid && (
-      kId === latestMkAsATask.mid ||           // Exact match (for Key Result without milestone)
-      kId.endsWith(latestMkAsATask.mid)        // Ends with match (for milestone: "krId+mlId" where mid is "mlId")
-    );
+    const shouldUseMkAsATask =
+      latestMkAsATask?.mid &&
+      (kId === latestMkAsATask.mid || // Exact match (for Key Result without milestone)
+        kId.endsWith(latestMkAsATask.mid)); // Ends with match (for milestone: "krId+mlId" where mid is "mlId")
 
     const taskTitle = shouldUseMkAsATask ? latestMkAsATask.title : '';
     const achieveMK = shouldUseMkAsATask;
@@ -132,8 +132,11 @@ function EditPlan() {
   };
 
   const modalHeader = (
-    <div className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4">
-      <div>
+    <div
+      className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4"
+      data-cy="edit-plan-modal-header"
+    >
+      <div data-cy="edit-plan-modal-header-title">
         Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
       </div>
       <div

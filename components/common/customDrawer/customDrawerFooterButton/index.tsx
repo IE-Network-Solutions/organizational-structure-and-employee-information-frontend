@@ -18,7 +18,10 @@ const CustomDrawerFooterButton: FC<CustomDrawerFooterButtonsProps> = ({
   className = '',
 }) => {
   return (
-    <div className={classNames('', undefined, [className])}>
+    <div
+      className={classNames('', undefined, [className])}
+      data-cy="custom-drawer-footer-button"
+    >
       <Flex gap={20} className="w-full py-2">
         {buttons.map(({ key, label, className = '', ...otherProps }) => (
           <Button

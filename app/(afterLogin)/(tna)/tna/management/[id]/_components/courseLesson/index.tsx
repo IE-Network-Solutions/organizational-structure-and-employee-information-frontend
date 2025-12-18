@@ -46,12 +46,24 @@ const CourseLesson = () => {
     course?.courseLessons?.map((lesson) => ({
       key: String(lesson.id),
       label: (
-        <div className="flex items-center justify-between w-full" data-cy="tna-course-lesson-collapse-label" id="tnaCourseLessonCollapseLabelId">
-          <span className="text-lg font-semibold text-gray-900" data-cy="tna-course-lesson-title" id="tnaCourseLessonTitleId">
+        <div
+          className="flex items-center justify-between w-full"
+          data-cy="tna-course-lesson-collapse-label"
+          id="tnaCourseLessonCollapseLabelId"
+        >
+          <span
+            className="text-lg font-semibold text-gray-900"
+            data-cy="tna-course-lesson-title"
+            id="tnaCourseLessonTitleId"
+          >
             {lesson.title}
           </span>
           {activeKey === String(lesson.id) && (
-            <div className="flex items-center gap-2" data-cy="tna-course-lesson-actions" id="tnaCourseLessonActionsId">
+            <div
+              className="flex items-center gap-2"
+              data-cy="tna-course-lesson-actions"
+              id="tnaCourseLessonActionsId"
+            >
               <Button
                 id="tnaAddCourseMaterialButtonId"
                 icon={<LuPlus size={16} className="text-primary" />}
@@ -80,7 +92,12 @@ const CourseLesson = () => {
           )}
         </div>
       ),
-      children: <LessonCard lesson={lesson} data-cy="tna-course-lesson-card-component" />, // Just render the content, not a Collapse
+      children: (
+        <LessonCard
+          lesson={lesson}
+          data-cy="tna-course-lesson-card-component"
+        />
+      ), // Just render the content, not a Collapse
     })) || [];
 
   return (
@@ -109,7 +126,11 @@ const CourseLesson = () => {
         )}
       />
 
-      <div className="flex flex-col justify-center items-center gap-2.5" id="tnaCourseLessonActionsId" data-cy="tna-course-lesson-actions">
+      <div
+        className="flex flex-col justify-center items-center gap-2.5"
+        id="tnaCourseLessonActionsId"
+        data-cy="tna-course-lesson-actions"
+      >
         <Button
           id="tnaCreateLessonButtonId"
           data-cy="tna-create-lesson-button"
@@ -124,7 +145,11 @@ const CourseLesson = () => {
           Create Lesson
         </Button>
 
-        <div className="text-base text-gray-600" id="tnaCourseLessonHintId" data-cy="tna-course-lesson-hint">
+        <div
+          className="text-base text-gray-600"
+          id="tnaCourseLessonHintId"
+          data-cy="tna-course-lesson-hint"
+        >
           {course?.courseLessons?.length
             ? 'Click to add more Lessons'
             : ' No lessons currently created'}
@@ -133,7 +158,9 @@ const CourseLesson = () => {
 
       <CourseAddLessonSidebar data-cy="tna-course-lesson-add-lesson-sidebar" />
 
-      {!isShowAddLesson && <CourseLessonMaterial data-cy="tna-course-lesson-material" />}
+      {!isShowAddLesson && (
+        <CourseLessonMaterial data-cy="tna-course-lesson-material" />
+      )}
     </div>
   );
 };

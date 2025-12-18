@@ -15,8 +15,12 @@ const Stepper: React.FC<Props> = ({ numberOfSteps, setCurrent, current }) => {
   const customDot = (step: number) => (
     <div
       className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${current >= step ? 'bg-indigo-700 text-white' : 'bg-white border-gray-300 text-gray-500'}`}
+      data-cy="stepper-dot"
     >
-      <div style={{ fontSize: '24px', lineHeight: '24px' }}>
+      <div
+        style={{ fontSize: '24px', lineHeight: '24px' }}
+        data-cy="stepper-dot-content"
+      >
         {current >= step ? (
           <IoCheckmarkSharp className="text-xs font-bold" />
         ) : (
@@ -26,7 +30,7 @@ const Stepper: React.FC<Props> = ({ numberOfSteps, setCurrent, current }) => {
     </div>
   );
   return (
-    <div>
+    <div data-cy="stepper-container">
       <Steps
         current={current}
         size="default"

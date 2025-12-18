@@ -22,11 +22,18 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/compensationSetting/allowanceType') ? 'lg:ml-4' : ''}`}
+            data-cy="compensation-settings-menu-allowance-type"
           >
             <CiCalendarDate
               className={`hidden lg:inline ${pathname.includes('/compensationSetting/allowanceType') ? 'text-[#1677FF]' : ''}`}
+              data-cy="compensation-settings-menu-allowance-type-icon"
             />
-            <p className="menu-item-label">Allowance Type</p>
+            <p
+              className="menu-item-label"
+              data-cy="compensation-settings-menu-allowance-type-text"
+            >
+              Allowance Type
+            </p>
           </div>
         ),
       },
@@ -38,11 +45,18 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/compensationSetting/benefitType') ? 'lg:ml-4' : ''}`}
+            data-cy="compensation-settings-menu-benefit-type"
           >
             <CiCalendarDate
               className={`hidden lg:inline ${pathname.includes('/compensationSetting/benefitType') ? 'text-[#1677FF]' : ''}`}
+              data-cy="compensation-settings-menu-benefit-type-icon"
             />
-            <p className="menu-item-label">Benefit Type</p>
+            <p
+              className="menu-item-label"
+              data-cy="compensation-settings-menu-benefit-type-text"
+            >
+              Benefit Type
+            </p>
           </div>
         ),
       },
@@ -54,11 +68,18 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/compensationSetting/deductionType') ? 'lg:ml-4' : ''}`}
+            data-cy="compensation-settings-menu-deduction-type"
           >
             <CiCalendarDate
               className={`hidden lg:inline ${pathname.includes('/compensationSetting/deductionType') ? 'text-[#1677FF]' : ''}`}
+              data-cy="compensation-settings-menu-deduction-type-icon"
             />
-            <p className="menu-item-label">Deduction Type</p>
+            <p
+              className="menu-item-label"
+              data-cy="compensation-settings-menu-deduction-type-text"
+            >
+              Deduction Type
+            </p>
           </div>
         ),
       },
@@ -77,28 +98,28 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
         id="compensation-settings-layout-body"
         data-cy="compensation-settings-layout-body"
       >
-          <PageHeader
-            title="Settings"
-            description="Compensation Settings"
-            className="hidden sm:block"
-            horizontalPadding="0px"
-            data-cy="compensation-settings-layout-header-title"
-          />
+        <PageHeader
+          title="Settings"
+          description="Compensation Settings"
+          className="hidden sm:block"
+          horizontalPadding="0px"
+          data-cy="compensation-settings-layout-header-title"
+        />
         <div
           className="flex flex-col lg:flex-row gap-3 sm:gap-6"
           id="compensation-settings-layout-content"
           data-cy="compensation-settings-layout-content"
         >
-            <SidebarMenu
-              menuItems={menuItems}
-              data-cy="compensation-settings-layout-sidebar-menu"
-            />
-            <BlockWrapper
-              className="flex-1 h-max overflow-x-auto sm:mr-4"
-              data-cy="compensation-settings-layout-block-wrapper-content"
-            >
-              {children}
-            </BlockWrapper>
+          <SidebarMenu
+            menuItems={menuItems}
+            data-cy="compensation-settings-layout-sidebar-menu"
+          />
+          <BlockWrapper
+            className="flex-1 h-max overflow-x-auto sm:mr-4"
+            data-cy="compensation-settings-layout-block-wrapper-content"
+          >
+            {children}
+          </BlockWrapper>
         </div>
       </div>
     </div>

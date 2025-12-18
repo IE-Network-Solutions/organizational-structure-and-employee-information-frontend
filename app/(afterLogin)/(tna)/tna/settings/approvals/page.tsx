@@ -17,10 +17,28 @@ const Workflow = () => {
     setApproverType('');
   };
   return (
-    <div className="py-4 px-2 rounded-2xl bg-white w-full" id="tnaApprovalsPageId" data-cy="tna-approvals-page">
-      <div className="flex justify-between mb-4 " id="tnaApprovalsPageHeaderId" data-cy="tna-approvals-page-header">
-        <h1 className="text-lg font-bold " id="tnaApprovalsPageTitleId" data-cy="tna-approvals-page-title">List Of Approval</h1>
-        <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]} data-cy="tna-approvals-create-guard" id="tnaApprovalsCreateGuardId">
+    <div
+      className="py-4 px-2 rounded-2xl bg-white w-full"
+      id="tnaApprovalsPageId"
+      data-cy="tna-approvals-page"
+    >
+      <div
+        className="flex justify-between mb-4 "
+        id="tnaApprovalsPageHeaderId"
+        data-cy="tna-approvals-page-header"
+      >
+        <h1
+          className="text-lg font-bold "
+          id="tnaApprovalsPageTitleId"
+          data-cy="tna-approvals-page-title"
+        >
+          List Of Approval
+        </h1>
+        <AccessGuard
+          permissions={[Permissions.CreateApprovalWorkFlow]}
+          data-cy="tna-approvals-create-guard"
+          id="tnaApprovalsCreateGuardId"
+        >
           <Button
             type="primary"
             id="createUserButton"
@@ -29,11 +47,21 @@ const Workflow = () => {
             icon={<FaPlus />}
             onClick={handleNavigation}
           >
-            <span className="hidden sm:inline" data-cy="tna-approvals-create-button-text" id="tnaApprovalsCreateButtonTextId">Set Approval</span>
+            <span
+              className="hidden sm:inline"
+              data-cy="tna-approvals-create-button-text"
+              id="tnaApprovalsCreateButtonTextId"
+            >
+              Set Approval
+            </span>
           </Button>
         </AccessGuard>
       </div>
-      <div className="mb-4" id="tnaApprovalsPageFilterId" data-cy="tna-approvals-page-filter">
+      <div
+        className="mb-4"
+        id="tnaApprovalsPageFilterId"
+        data-cy="tna-approvals-page-filter"
+      >
         <ApprovalFilter data-cy="tna-approvals-filter" />
       </div>
       <div id="tnaApprovalsPageTableId" data-cy="tna-approvals-page-table">

@@ -51,9 +51,24 @@ const CommentInput: FC<CommentInputProps> = ({ onChange }) => {
           className="border-0"
           data-cy="time-attendance-leave-management-comment-input-toolbar"
         >
-          <button id="qlBoldId" data-cy="time-attendance-leave-management-comment-input-toolbar-bold-button" type="button" className="ql-bold"></button>
-          <button id="qlItallicId" data-cy="time-attendance-leave-management-comment-input-toolbar-italic-button" type="button" className="ql-italic"></button>
-          <button id="qlLinkId" data-cy="time-attendance-leave-management-comment-input-toolbar-link-button" type="button" className="ql-link"></button>
+          <button
+            id="qlBoldId"
+            data-cy="time-attendance-leave-management-comment-input-toolbar-bold-button"
+            type="button"
+            className="ql-bold"
+          ></button>
+          <button
+            id="qlItallicId"
+            data-cy="time-attendance-leave-management-comment-input-toolbar-italic-button"
+            type="button"
+            className="ql-italic"
+          ></button>
+          <button
+            id="qlLinkId"
+            data-cy="time-attendance-leave-management-comment-input-toolbar-link-button"
+            type="button"
+            className="ql-link"
+          ></button>
         </div>
       </Form>
     </div>

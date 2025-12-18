@@ -264,8 +264,12 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           label={'Amount'}
           name={['payments', index, 'amount']}
           className="mb-0"
+          data-cy={`benefit-entitlement-sidebar-amount-item-${index}`}
         >
-          <InputNumber className="w-full" />
+          <InputNumber
+            className="w-full"
+            data-cy={`benefit-entitlement-sidebar-amount-input-${index}`}
+          />
         </Form.Item>
       ),
     },
@@ -279,8 +283,14 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           name={['payments', index, 'payPeriodId']}
           className="mb-0"
           rules={[{ required: true, message: 'Pay Period is required' }]}
+          data-cy={`benefit-entitlement-sidebar-pay-period-item-${index}`}
         >
-          <Select placeholder="Pay Period" allowClear className="w-full">
+          <Select
+            placeholder="Pay Period"
+            allowClear
+            className="w-full"
+            data-cy={`benefit-entitlement-sidebar-pay-period-select-${index}`}
+          >
             {payPeriods
               ?.filter((period: any) => {
                 const start = dayjs(period.startDate);
@@ -293,9 +303,17 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 );
               })
               .map((period: any) => (
-                <Option key={period.id} value={period.id}>
-                  {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
-                  {dayjs(period.endDate).format('MMM DD, YYYY')}
+                <Option
+                  key={period.id}
+                  value={period.id}
+                  data-cy={`benefit-entitlement-sidebar-pay-period-option-${period.id}-${index}`}
+                >
+                  <span
+                    data-cy={`benefit-entitlement-sidebar-pay-period-option-text-${period.id}-${index}`}
+                  >
+                    {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
+                    {dayjs(period.endDate).format('MMM DD, YYYY')}
+                  </span>
                 </Option>
               ))}
           </Select>
@@ -311,8 +329,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           required
           name={['payments', index, 'reason']}
           className="mb-0"
+          data-cy={`benefit-entitlement-sidebar-reason-item-${index}`}
         >
-          <TextArea placeholder="Reason" autoSize />
+          <TextArea
+            placeholder="Reason"
+            autoSize
+            data-cy={`benefit-entitlement-sidebar-reason-textarea-${index}`}
+          />
         </Form.Item>
       ),
     },
