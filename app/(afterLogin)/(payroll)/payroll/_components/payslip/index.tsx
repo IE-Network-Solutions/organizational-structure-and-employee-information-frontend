@@ -193,6 +193,11 @@ const PaySlip = ({ data }: { data: any[] }) => {
           >
             Employee Name: {employeeData?.employeeInfo?.firstName}{' '}
             {employeeData?.employeeInfo?.lastName}
+            {employeeData?.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber && (
+              <span className="ml-2 text-sm font-normal">
+                (TIN: {employeeData?.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber})
+              </span>
+            )}
           </div>
           <table
             id={`payroll-payslip-employee-details-view-table-${employeeData?.employeeId}`}
@@ -270,7 +275,7 @@ const PaySlip = ({ data }: { data: any[] }) => {
                   data-cy={`payroll-payslip-employee-details-tin-value-cell-${employeeData?.employeeId}`}
                   className="p-2 border border-gray-300"
                 >
-                  --
+                  {employeeData?.employeeInfo?.employeeInformation?.additionalInformation?.tinNumber || '--'}
                 </td>
               </tr>
               <tr
