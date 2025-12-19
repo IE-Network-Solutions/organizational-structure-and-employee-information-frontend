@@ -5,7 +5,6 @@
 /.pnp
 .env
 .env.local
-/docs
  package-lock.json
 .pnp.js
 .yarn/install-state.gz
@@ -47,3 +46,5 @@ yarn.lock
 
 Jenkinsfile
 .qodo
+
+/docs
