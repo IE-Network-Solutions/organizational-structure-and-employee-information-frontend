@@ -175,12 +175,7 @@ const LeaveRequestSidebar = () => {
     {
       label: leaveRequest ? 'Update' : 'Add',
       key: 'create',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      style: {
-        backgroundColor: '#2563eb',
-        borderColor: '#2563eb',
-        color: 'white',
-      },
+      className: 'h-[40px] sm:h-[56px] text-base bg-[#2563eb] border-[#2563eb] text-white hover:bg-[#1d4ed8] hover:border-[#1d4ed8] disabled:bg-[#2563eb] disabled:border-[#2563eb] disabled:text-white disabled:opacity-100 disabled:cursor-not-allowed',
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
@@ -264,20 +259,6 @@ const LeaveRequestSidebar = () => {
   return (
     isShowLeaveRequestSidebar && (
       <>
-        <style>{`
-          #time-attendance-leave-request-sidebar-submit-button.ant-btn-primary:disabled,
-          #time-attendance-leave-request-sidebar-submit-button.ant-btn-primary[disabled] {
-            background-color: #2563eb !important;
-            border-color: #2563eb !important;
-            color: white !important;
-            opacity: 1 !important;
-            cursor: not-allowed !important;
-          }
-          #time-attendance-leave-request-sidebar-submit-button.ant-btn-primary:hover:not(:disabled) {
-            background-color: #1d4ed8 !important;
-            border-color: #1d4ed8 !important;
-          }
-        `}</style>
         <CustomDrawerLayout
           data-cy="time-attendance-leave-request-sidebar-container"
           open={isShowLeaveRequestSidebar}
@@ -486,7 +467,11 @@ const LeaveRequestSidebar = () => {
                   id="time-attendance-leave-request-sidebar-approver-message"
                   data-cy="time-attendance-leave-request-sidebar-approver-message"
                 >
-                  <p className="text-base font-medium text-gray-800 m-0 leading-relaxed">
+                  <p 
+                    className="text-base font-medium text-gray-800 m-0 leading-relaxed"
+                    id="time-attendance-leave-request-sidebar-approver-message-text"
+                    data-cy="time-attendance-leave-request-sidebar-approver-message-text"
+                  >
                     You lack approver please contact your team lead for more information
                   </p>
                 </div>

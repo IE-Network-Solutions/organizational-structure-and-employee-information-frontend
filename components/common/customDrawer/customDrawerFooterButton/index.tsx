@@ -28,12 +28,17 @@ const CustomDrawerFooterButton: FC<CustomDrawerFooterButtonsProps> = ({
     <div className={classNames('', undefined, [className])}>
       <Flex gap={20} className="w-full py-2">
         {buttons.map(({ key, label, className = '', tooltip, tooltipProps, ...otherProps }) => {
+          const { id, 'data-cy': dataCy, ...restProps } = otherProps;
+          const buttonId = id || `${label}${key}ButtonId`;
+          const buttonDataCy = dataCy || `${buttonId}-button`;
+          
           const button = (
             <Button
               key={key}
-              id={`${label}${key}ButtonId`}
               className={classNames('flex-1 text-base', undefined, [className])}
-              {...otherProps}
+              {...restProps}
+              id={buttonId}
+              data-cy={buttonDataCy}
             >
               {label}
             </Button>
@@ -43,6 +48,8 @@ const CustomDrawerFooterButton: FC<CustomDrawerFooterButtonsProps> = ({
             <Tooltip
               key={key}
               title={tooltip || tooltipProps?.title}
+              id={tooltipProps?.id || `${buttonId}-tooltip`}
+              data-cy={tooltipProps?.['data-cy'] || (dataCy ? `${dataCy}-tooltip` : `${buttonId}-tooltip`)}
               {...tooltipProps}
             >
               {button}
