@@ -668,7 +668,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         data-cy="ai-suggestion-trigger-button"
         id="ai-suggestion-trigger-button"
       >
-        AI Suggestion
+        <span className="hidden sm:inline">AI Suggestion</span>
+        <span className="sm:hidden">AI</span>
       </Button>
       <Modal
         title={

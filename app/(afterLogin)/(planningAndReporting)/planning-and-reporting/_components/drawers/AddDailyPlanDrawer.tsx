@@ -473,7 +473,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                 })}
 
                                                 {/* Add Task button */}
-                                                <div className="flex justify-end mt-2">
+                                                <div className="flex justify-end mt-2 sm:mt-0">
                                                     <Button
                                                         type="primary"
                                                         className="bg-[#574CFF] hover:bg-[#4F46EF] rounded-lg font-medium px-6"

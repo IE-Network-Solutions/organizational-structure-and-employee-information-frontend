@@ -218,7 +218,7 @@ function BoardCardForm({
                         >
                           <InputNumber
                             placeholder={'0'}
-                            className="w-28 text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:pt-1"
+                            className="w-20 sm:w-28 text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:pt-1"
                             min={0}
                             max={100}
                           />
@@ -277,6 +277,7 @@ function BoardCardForm({
                   <Button
                     id="add-task-button-for-planning-and-reporting"
                     type="primary"
+                    className="mt-2 sm:mt-0"
                     onClick={() => {
                       form
                         .validateFields([`board-${name}`, subName])

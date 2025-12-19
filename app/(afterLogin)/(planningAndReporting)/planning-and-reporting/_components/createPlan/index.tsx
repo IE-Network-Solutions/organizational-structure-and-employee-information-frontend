@@ -430,34 +430,44 @@ function CreatePlan() {
     </div>
   );
   const footer = (
-    <div className="flex justify-center gap-4 w-full">
-      <Tooltip
-        title={
-          totalWeight !== 100
-            ? "Summation of all task's weights must be equal to 100!"
-            : 'Submit'
-        }
-      >
-        <Button
-          id="submit-plan-button-for-planning-and-reporting"
-          className="py-6 px-10"
-          type="primary"
-          onClick={() => form.submit()}
-          loading={isLoading}
-          disabled={totalWeight !== 100}
+    <div className="flex items-center justify-between w-full">
+      <div className="flex-1"></div>
+      <div className="flex justify-center gap-4 flex-1">
+        <Tooltip
+          title={
+            totalWeight !== 100
+              ? "Summation of all task's weights must be equal to 100!"
+              : 'Submit'
+          }
         >
-          Submit
-        </Button>
-      </Tooltip>
+          <Button
+            id="submit-plan-button-for-planning-and-reporting"
+            className="py-6 px-10"
+            type="primary"
+            onClick={() => form.submit()}
+            loading={isLoading}
+            disabled={totalWeight !== 100}
+          >
+            Submit
+          </Button>
+        </Tooltip>
 
-      <Button
-        id="cancel-plan-button-for-planning-and-reporting"
-        className="py-6 px-10"
-        onClick={onClose}
-        disabled={isLoading}
-      >
-        Cancel
-      </Button>
+        <Button
+          id="cancel-plan-button-for-planning-and-reporting"
+          className="py-6 px-10"
+          onClick={onClose}
+          disabled={isLoading}
+        >
+          Cancel
+        </Button>
+      </div>
+      <div className="flex-1 flex justify-end">
+        <div className="my-2 font-bold mx-6">
+          <span className="hidden sm:inline">Total Weights: </span>
+          <span className="sm:hidden">W: </span>
+          {Math.round(Number(totalWeight) || 0)} / 100
+        </div>
+      </div>
     </div>
   );
 
@@ -536,12 +546,6 @@ function CreatePlan() {
                 failedTasksByKeyResult={failedTasksByKeyResult}
               />
             )}
-
-            <div className="flex justify-end mt-10">
-              <div className="my-2 font-bold">
-                Total Weights: {Math.round(Number(totalWeight) || 0)} / 100
-              </div>
-            </div>
           </Form>
         )}
       </CustomDrawerLayout>

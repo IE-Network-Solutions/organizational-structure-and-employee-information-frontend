@@ -1,11 +1,12 @@
 import React from 'react';
-import { Collapse, Button, Divider, Tooltip } from 'antd';
+import { Collapse, Button, Divider, Tooltip, Dropdown } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { BsKey } from 'react-icons/bs';
 import DefaultCardForm from '../planForms/defaultForm';
 import BoardCardForm from '../planForms/boardFormView';
 import { NAME } from '@/types/enumTypes';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
+import { DownOutlined } from '@ant-design/icons';
 
 interface Milestone {
   id: number;
@@ -68,6 +69,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 }) => {
   const { statuses, setClickStatus } = useClickStatus();
 
+
   return (
     <Collapse 
       expandIconPosition="end"
@@ -93,26 +95,26 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
             return (
               <div key={resultIndex} className="border-2 border-gray-200 rounded-lg p-2 mb-4">
-                <div className="flex items-start gap-3 mt-2">
-                  <BsKey size={24} className="text-[#574CFF] flex-shrink-0 mt-0.5" />
-                  <span className="text-sm font-normal">
-                    {kr?.title}
-                  </span>
-                </div>
+                <div className="flex items-start gap-3 mt-2 justify-between flex-wrap">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <BsKey size={24} className="text-[#574CFF] flex-shrink-0 mt-0.5" />
+                    <span className="text-sm font-normal truncate max-w-[260px] md:max-w-[420px]">
+                      {kr?.title}
+                    </span>
+                  </div>
 
-                {/* Plan Task and Weight Handling */}
-                {!hasMilestone && (
-                  <div className="flex flex-col items-end gap-2 mt-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
-                        weight
-                      </span>
-                      <div className="rounded-lg border-gray-100 border bg-indigo-200 text-indigo-600 font-bold w-14 h-7 text-xs flex items-center justify-center">
-                        {weights[`names-${kr?.id}`] || 0}%
+                  {/* Plan Task and Weight Handling for key results without milestones */}
+                  {!hasMilestone && (
+                    <div className="flex items-center gap-3 justify-end flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs flex items-center gap-2">
+                          <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                          weight
+                        </span>
+                        <div className="rounded-lg border-gray-100 border bg-indigo-200 text-indigo-600 font-bold w-14 h-7 text-xs flex items-center justify-center">
+                          {weights[`names-${kr?.id}`] || 0}%
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
                       <Button
                         id={`plan-as-task_${kr?.id ?? ''}`}
                         onClick={() =>
@@ -149,8 +151,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         </Tooltip>
                       )}
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 {/* Milestone handling */}
                 {hasMilestone && (
@@ -158,66 +160,63 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                     {kr?.milestones?.map((ml) => (
                       <div key={ml?.id}>
                         <div className="ml-4 mt-2">
-                          <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center justify-between mb-2 flex-wrap gap-3">
                             <div className="flex items-center">
                               <span className="font-bold">Milestone:</span>
                               <span className="text-xs ml-2">{ml?.title}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs flex items-center gap-2">
-                                <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
-                                weight
-                              </span>
-                              <div className="rounded-lg border-gray-100 border bg-indigo-200 text-indigo-600 font-bold w-14 h-7 text-xs flex items-center justify-center">
-                                {weights[`names-${kr?.id + ml?.id}`] || 0}%
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs flex items-center gap-2">
+                                  <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                                  weight
+                                </span>
+                                <div className="rounded-lg border-gray-100 border bg-indigo-200 text-indigo-600 font-bold w-14 h-7 text-xs flex items-center justify-center">
+                                  {weights[`names-${kr?.id + ml?.id}`] || 0}%
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 justify-end">
-                            <Button
-                              id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}
-                              onClick={() => {
-                                setMKAsATask(null);
-                                handleAddBoard(
-                                  kr?.id + ml?.id,
-                                  String(kr?.id || ''),
-                                  ml?.id ? String(ml.id) : null,
-                                );
-                              }}
-                              type="primary"
-                              disabled={ml?.status === 'Completed'}
-                            >
-                              Add plan Task
-                            </Button>
-
-                            {/* Plan Milestone as Task */}
-                            {kr?.metricType?.name === NAME.MILESTONE && (
-                              <Tooltip title="Plan Milestone as a Task">
-                                <Button
-                                  id="plan-milestone-as-task"
-                                  disabled={
-                                    statuses[ml?.id] ||
-                                    ml?.status === 'Completed' ||
-                                    form?.getFieldValue(
-                                      `names-${kr?.id + ml?.id}`,
-                                    )?.[0]?.achieveMK
-                                  }
-                                  size="small"
-                                  className="text-[10px] text-primary"
-                                  icon={<FaPlus />}
-                                  onClick={() => {
-                                    if (!statuses[ml?.id]) {
-                                      setMKAsATask({
-                                        title: ml?.title,
-                                        mid: ml?.id,
-                                      });
-                                      handleAddBoard(kr?.id + ml?.id);
-                                      setClickStatus(ml?.id + '', true); // Store click status in Zustand
-                                    }
+                              <span id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}>
+                                <Dropdown.Button
+                                  type="primary"
+                                  icon={<DownOutlined />}
+                                  disabled={ml?.status === 'Completed'}
+                                  menu={{
+                                    items: [
+                                      {
+                                        key: 'plan-milestone-as-task',
+                                        label: 'Plan Milestone as a Task',
+                                        disabled:
+                                          statuses[ml?.id] ||
+                                          ml?.status === 'Completed' ||
+                                          form?.getFieldValue(
+                                            `names-${kr?.id + ml?.id}`,
+                                          )?.[0]?.achieveMK,
+                                        onClick: () => {
+                                          if (!statuses[ml?.id]) {
+                                            setMKAsATask({
+                                              title: ml?.title,
+                                              mid: ml?.id,
+                                            });
+                                            handleAddBoard(kr?.id + ml?.id);
+                                            setClickStatus(ml?.id + '', true); // Store click status in Zustand
+                                          }
+                                        },
+                                      },
+                                    ],
                                   }}
-                                />
-                              </Tooltip>
-                            )}
+                                  onClick={() => {
+                                    setMKAsATask(null);
+                                    handleAddBoard(
+                                      kr?.id + ml?.id,
+                                      String(kr?.id || ''),
+                                      ml?.id ? String(ml.id) : null,
+                                    );
+                                  }}
+                                >
+                                  Add plan Task
+                                </Dropdown.Button>
+                              </span>
+                            </div>
                           </div>
                         </div>
 

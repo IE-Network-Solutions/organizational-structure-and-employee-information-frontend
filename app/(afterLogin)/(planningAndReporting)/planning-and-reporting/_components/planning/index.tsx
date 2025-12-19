@@ -121,11 +121,30 @@ function Planning() {
     setPageSize(10);
   }, [activeTab, setPage, setPageSize]);
 
-  // Build employee options from real data
+  // Helper function to get user IDs by department
+  const getUserIdsByDepartmentId = (departmentId: string) => {
+    const department = departmentData?.find((dep: any) => dep.id === departmentId);
+    if (department && department.users) {
+      return department.users.map((user: any) => user.id);
+    }
+    return [];
+  };
+
+  // Build employee options from real data - filter by selected department
   const employeeOptions = useMemo(() => {
     const options = [{ label: 'All employees', value: 'all' }];
     if (employeeData?.items) {
-      employeeData.items.forEach((emp: any) => {
+      let employeesToShow = employeeData.items;
+      
+      // If a department is selected, filter employees by that department
+      if (selectedDepartment && selectedDepartment !== 'all') {
+        const departmentUserIds = getUserIdsByDepartmentId(selectedDepartment);
+        employeesToShow = employeeData.items.filter((emp: any) => 
+          departmentUserIds.includes(emp.id)
+        );
+      }
+      
+      employeesToShow.forEach((emp: any) => {
         const name = `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim();
         if (name) {
           options.push({ label: name, value: emp.id });
@@ -133,7 +152,7 @@ function Planning() {
       });
     }
     return options;
-  }, [employeeData]);
+  }, [employeeData, selectedDepartment, departmentData]);
 
   // Get the current selected employee value - only if it exists in options
   const getSelectedEmployeeValue = () => {
@@ -166,15 +185,6 @@ function Planning() {
     { label: 'My Plans', value: 'myPlan' },
     { label: 'Subordinate Plans', value: 'subordinatePlan' },
   ];
-
-  // Helper function to get user IDs by department
-  const getUserIdsByDepartmentId = (departmentId: string) => {
-    const department = departmentData?.find((dep: any) => dep.id === departmentId);
-    if (department && department.users) {
-      return department.users.map((user: any) => user.id);
-    }
-    return [];
-  };
 
   // Handle employee filter change
   const handleEmployeeChange = (value: string) => {
@@ -209,14 +219,44 @@ function Planning() {
 
   // Handle department filter change
   const handleDepartmentChange = (value: string) => {
-    setSelectedPlanType('all');
     setSelectedDepartment(value);
 
     if (value === 'all') {
-      setSelectedUser(['all']);
+      // If department is 'all', restore based on plan type
+      if (selectedPlanType === 'all') {
+        setSelectedUser(['all']);
+      } else if (selectedPlanType === 'myPlan') {
+        setSelectedUser([userId]);
+      } else if (selectedPlanType === 'subordinatePlan') {
+        const subordinates = employeeData?.items
+          ?.filter(
+            (employee: any) =>
+              (employee?.delegatedTo?.id || employee.reportingTo?.id) === userId,
+          )
+          .map((employee: any) => employee.id) || [];
+        setSelectedUser(subordinates.length > 0 ? ['subordinate', ...subordinates] : ['subordinate']);
+      }
     } else {
-      const userIds = getUserIdsByDepartmentId(value);
-      setSelectedUser(userIds.length > 0 ? userIds : []);
+      // Apply department filter while preserving plan type
+      const departmentUserIds = getUserIdsByDepartmentId(value);
+      
+      if (selectedPlanType === 'all') {
+        setSelectedUser(departmentUserIds.length > 0 ? departmentUserIds : []);
+      } else if (selectedPlanType === 'myPlan') {
+        // Only include current user if they're in the selected department
+        const userInDepartment = departmentUserIds.includes(userId);
+        setSelectedUser(userInDepartment ? [userId] : []);
+      } else if (selectedPlanType === 'subordinatePlan') {
+        // Filter subordinates within the selected department
+        const subordinates = employeeData?.items
+          ?.filter(
+            (employee: any) =>
+              (employee?.delegatedTo?.id || employee.reportingTo?.id) === userId &&
+              departmentUserIds.includes(employee.id),
+          )
+          .map((employee: any) => employee.id) || [];
+        setSelectedUser(subordinates.length > 0 ? ['subordinate', ...subordinates] : ['subordinate']);
+      }
     }
   };
 

@@ -96,7 +96,7 @@ export default function PlanCard({
   };
 
   return (
-    <article className="rounded-3xl border border-gray-300 p-3 md:p-6 mb-4">
+    <article className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4">
       {/* Header with Title and Reprimand/Appreciation Badges */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs md:text-base font-bold text-[#8F94A3]">{getDateLabel()}</h3>

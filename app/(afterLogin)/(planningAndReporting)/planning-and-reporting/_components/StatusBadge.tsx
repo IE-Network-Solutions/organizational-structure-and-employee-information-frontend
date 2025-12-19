@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckOutlined, MoreOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 import { PlanStatus } from './types';
 
 interface StatusBadgeProps {
@@ -8,6 +9,10 @@ interface StatusBadgeProps {
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
   const isClosed = status.label === 'Closed';
+  const displayedLabel = status.label === 'Open' ? 'Pending' : status.label;
+  const formattedDate = status.updatedAt
+    ? dayjs(status.updatedAt).format('MMMM D YYYY, h:mm:ss A')
+    : '';
 
   // Map tone string to actual color values
   const getBackgroundColor = () => {
@@ -31,9 +36,13 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
       </div>
       <div className="flex flex-col min-w-0">
         <p className="text-xs md:text-sm font-bold leading-tight text-[#161A2C] line-clamp-1">
-          {status.label}
+          {displayedLabel}
         </p>
-        <p className="text-[10px] md:text-xs leading-tight text-[#8F94A3] hidden md:block">{status.updatedAt}</p>
+        {formattedDate && (
+          <p className="text-[10px] md:text-xs leading-tight text-[#8F94A3] hidden md:block">
+            {formattedDate}
+          </p>
+        )}
       </div>
     </div>
   );
