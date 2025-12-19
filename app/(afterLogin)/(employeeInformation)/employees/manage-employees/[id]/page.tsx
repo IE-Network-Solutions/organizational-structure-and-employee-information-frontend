@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
-import { Card, Col, Row, Tabs, Button, Popconfirm, Modal, Form, Tooltip } from 'antd';
+import { Card, Col, Row, Tabs, Button, Modal, Form, Tooltip } from 'antd';
+import CustomConfirmPopover from '@/components/common/customConfirmPopover';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
 import { IoInformationCircleOutline } from 'react-icons/io5';
 import BasicInfo from './_components/basicInfo';
@@ -39,7 +40,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
 
   const { setIsEmploymentFormVisible } = useOffboardingStore();
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
-  const { data: employeeData, refetch: refetchEmployee } = useGetEmployee(id);
+  const { data: employeeData, refetch: refetchEmployee, isLoading } = useGetEmployee(id);
 
   const { mutate: sendResignationID } = useResignedEmployee();
 
@@ -62,6 +63,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const handleConfirmResignation = (resignationId: string) => {
     sendResignationID(resignationId, {
       onSuccess: () => {
+        refetchEmployee();
         setActiveTab('6');
       },
     });
@@ -196,6 +198,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
             <BasicInfo id={id} data-cy="employee-detail-basic-info" />
           </div>
           <Card
+            loading={isLoading}
             className="mb-3 relative"
             id="employee-detail-actions-card"
             data-cy="employee-detail-actions-card"
@@ -255,12 +258,13 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
                       (item: any) => item.isPositionActive,
                     );
                     return activeJob ? (
-                      <Popconfirm
+                      <CustomConfirmPopover
                         key={activeJob?.id}
-                        title="Are you sure to initiate resignation?"
+                        title="Are you sure you want to Initiate the resignation process?"
                         onConfirm={() => handleConfirmResignation(activeJob?.id)}
-                        okText="Yes"
-                        cancelText="No"
+                        okText="Confirm"
+                        cancelText="Cancel"
+                        placement="top"
                         id={`employee-detail-initiate-resignation-popconfirm-${activeJob?.id}`}
                         data-cy={`employee-detail-initiate-resignation-popconfirm-${activeJob?.id}`}
                       >
@@ -277,7 +281,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
                         >
                           Initiate Resignation
                         </Button>
-                      </Popconfirm>
+                      </CustomConfirmPopover>
                     ) : null;
                   })()
                 ) : (
@@ -297,47 +301,48 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
                 )}
               </div>
             </AccessGuard>
-            <AccessGuard
-              permissions={[Permissions.DeleteEmployee]}
-              id="employee-detail-activate-deactivate-guard"
-              data-cy="employee-detail-activate-deactivate-guard"
-            >
-              <div
-                className="flex flex-col gap-3 w-full"
-                id="employee-detail-activate-deactivate-actions"
-                data-cy="employee-detail-activate-deactivate-actions"
+            {resignationSubmittedDate === null && (
+              <AccessGuard
+                permissions={[Permissions.DeleteEmployee]}
+                id="employee-detail-activate-deactivate-guard"
+                data-cy="employee-detail-activate-deactivate-guard"
               >
-                {employeeData?.deletedAt === null ? (
-                  <Popconfirm
-                    title="Are you sure you want to Deactivate Employee ?"
-                    onConfirm={handleDeleteConfirm}
-                    okText="Confirm"
-                    cancelText="Cancel"
-                    okButtonProps={{ type: 'primary', danger: true }}
-                    cancelButtonProps={{ type: 'default' }}
-                    id="employee-detail-deactivate-popconfirm"
-                    data-cy="employee-detail-deactivate-popconfirm"
-                  >
-                    <Button
-                      id="employee-detail-deactivate-btn"
-                      data-cy="employee-detail-deactivate-btn"
-                      className="bg-white text-red-600 border border-red-600 hover:bg-white hover:text-red-600 hover:border-red-600 w-full rounded-lg h-9 font-semibold"
+                <div
+                  className="flex flex-col gap-3 w-full"
+                  id="employee-detail-activate-deactivate-actions"
+                  data-cy="employee-detail-activate-deactivate-actions"
+                >
+                  {employeeData?.deletedAt === null ? (
+                    <CustomConfirmPopover
+                      title="Are you sure you want to Deactivate Employee ?"
+                      onConfirm={handleDeleteConfirm}
+                      okText="Confirm"
+                      cancelText="Cancel"
+                      placement="top"
+                      id="employee-detail-deactivate-popconfirm"
+                      data-cy="employee-detail-deactivate-popconfirm"
                     >
-                      Deactivate Employee
+                      <Button
+                        id="employee-detail-deactivate-btn"
+                        data-cy="employee-detail-deactivate-btn"
+                        className="bg-white text-red-600 border border-red-600 hover:bg-white hover:text-red-600 hover:border-red-600 w-full rounded-lg h-9 font-semibold"
+                      >
+                        Deactivate Employee
+                      </Button>
+                    </CustomConfirmPopover>
+                  ) : (
+                    <Button
+                      id="employee-detail-activate-btn"
+                      data-cy="employee-detail-activate-btn"
+                      className="bg-white text-black border border-black hover:bg-white hover:text-black hover:border-black w-full rounded-lg h-9 font-semibold"
+                      onClick={handleRehireClick}
+                    >
+                      ReActivate Employee
                     </Button>
-                  </Popconfirm>
-                ) : (
-                  <Button
-                    id="employee-detail-activate-btn"
-                    data-cy="employee-detail-activate-btn"
-                    className="bg-white text-black border border-black hover:bg-white hover:text-black hover:border-black w-full rounded-lg h-9 font-semibold"
-                    onClick={handleRehireClick}
-                  >
-                    ReActivate Employee
-                  </Button>
-                )}
-              </div>
-            </AccessGuard>
+                  )}
+                </div>
+              </AccessGuard>
+            )}
           </Card>
         </Col>
         <Col
