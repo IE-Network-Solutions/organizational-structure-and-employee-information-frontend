@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Popover, Button } from 'antd';
+import { useCustomConfirmPopoverStore } from '@/store/uistate/features/common/customConfirmPopover';
 
 interface CustomConfirmPopoverProps {
   title: string;
@@ -26,8 +27,9 @@ const CustomConfirmPopover: React.FC<CustomConfirmPopoverProps> = ({
   'data-cy': dataCy,
   children,
 }) => {
-  const [open, setOpen] = useState(false);
-  const [popoverWidth, setPopoverWidth] = useState<number | undefined>(undefined);
+  const popoverId = id || `popover-${Math.random().toString(36).substr(2, 9)}`;
+  const { getPopoverState, setPopoverOpen, setPopoverWidth } = useCustomConfirmPopoverStore();
+  const { open, popoverWidth } = getPopoverState(popoverId);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -56,17 +58,17 @@ const CustomConfirmPopover: React.FC<CustomConfirmPopoverProps> = ({
   useEffect(() => {
     if (open && wrapperRef.current) {
       const width = wrapperRef.current.offsetWidth;
-      setPopoverWidth(width);
+      setPopoverWidth(popoverId, width);
     }
-  }, [open]);
+  }, [open, popoverId, setPopoverWidth]);
 
   const handleConfirm = () => {
-    setOpen(false);
+    setPopoverOpen(popoverId, false);
     onConfirm();
   };
 
   const handleCancel = () => {
-    setOpen(false);
+    setPopoverOpen(popoverId, false);
     if (onCancel) {
       onCancel();
     }
@@ -76,7 +78,7 @@ const CustomConfirmPopover: React.FC<CustomConfirmPopoverProps> = ({
     <div ref={wrapperRef} style={{ width: '100%' }}>
       <Popover
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={(visible) => setPopoverOpen(popoverId, visible)}
         trigger="click"
         placement={placement}
         overlayClassName="custom-confirm-popover"

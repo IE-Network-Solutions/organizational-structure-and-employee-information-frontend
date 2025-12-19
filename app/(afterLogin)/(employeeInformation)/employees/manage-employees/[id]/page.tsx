@@ -213,7 +213,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
                       <div>• <strong>End Employment:</strong> completes the employment termination after resignation</div>
                     )}
                     {employeeData?.deletedAt === null ? (
-                      <div>• <strong>Deactivate Employee:</strong> provokes the employees access</div>
+                      <div>• <strong>Deactivate Employee:</strong> revokes the employees access</div>
                     ) : (
                       <div>• <strong>ReActivate Employee:</strong> reactivates a previously deactivated employee account</div>
                     )}
