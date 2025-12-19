@@ -9,14 +9,11 @@ import React from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
 import { LuSettings2 } from 'react-icons/lu';
 import { MdOutlineUploadFile } from 'react-icons/md';
+import { useGetActiveEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 
 const { Option } = Select;
 
-interface VPFilterParams {
-  tableData: any;
-}
-
-const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
+const VariablePayFilter: React.FC = () => {
   const {
     searchParams,
     setSearchParams,
@@ -27,9 +24,10 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
 
   const { data: employeeData } = useGetAllUsers();
   const { data: activeCalender } = useGetActiveFiscalYears();
+  const { data: activeEmployee } = useGetActiveEmployee();
 
-  const allEmployeesIds: string[] = tableData.map(
-    (employee: any) => employee.name,
+  const allEmployeesIds: string[] = activeEmployee?.items?.map(
+    (employee: any) => employee.id,
   );
   const {
     refetch,
