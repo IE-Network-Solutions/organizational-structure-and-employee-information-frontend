@@ -39,7 +39,9 @@ const Page = () => {
             type="primary"
             id="createNewClosedHolidayFieldId"
             data-cy="time-attendance-settings-closed-date-add-button-id"
-            icon={<FaPlus data-cy="time-attendance-settings-closed-date-add-button-icon" />}
+            icon={
+              <FaPlus data-cy="time-attendance-settings-closed-date-add-button-icon" />
+            }
             className="h-10 w-10 sm:w-auto"
             onClick={() => {
               setSelectedClosedDate(null);

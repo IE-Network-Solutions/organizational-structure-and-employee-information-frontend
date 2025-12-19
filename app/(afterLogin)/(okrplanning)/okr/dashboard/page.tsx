@@ -7,8 +7,12 @@ import MetricsProgressOverview from './_components/MetricsProgressOverview';
 import DueSoonKeyResultList from './_components/DueSoonKeyResultList';
 import AwaitingApprovalsList from './_components/AwaitingApprovalsList';
 import Performance from './_components/Performance';
+import { Button } from 'antd';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 
 const Dashboard: React.FC = () => {
+  const { selectedCard, setSelectedCard } = useOKRStore();
+
   return (
     <>
       <div
@@ -28,6 +32,23 @@ const Dashboard: React.FC = () => {
         data-cy="okr-dashboard-content-container"
       >
         <SummaryCardsRow data-cy="okr-dashboard-summary-cards-row" />
+        {selectedCard && (
+          <div
+            id="okr-dashboard-remove-filter-container"
+            data-cy="okr-dashboard-remove-filter-container"
+            className="flex justify-end"
+          >
+            <Button
+              id="okr-dashboard-remove-filter-button"
+              data-cy="okr-dashboard-remove-filter-button"
+              type="default"
+              onClick={() => setSelectedCard(null)}
+            >
+              Remove Filter
+            </Button>
+          </div>
+        )}
+
         <div
           className="grid grid-cols-1 xl:grid-cols-5 gap-6 items-stretch"
           id="okr-dashboard-top-grid"

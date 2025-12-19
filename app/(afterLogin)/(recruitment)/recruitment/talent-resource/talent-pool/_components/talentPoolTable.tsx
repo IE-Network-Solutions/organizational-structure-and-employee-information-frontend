@@ -59,11 +59,25 @@ const TalentPoolTable: React.FC<any> = () => {
           id="talent-acquisition-talent-pool-table-cell-name"
           data-cy={`talent-acquisition-talent-pool-table-cell-name-${record?.jobCandidateInformation?.id || record?.id}`}
         >
-          <p className="font-bold">
-            {record?.jobCandidateInformation?.fullName ?? '-'}
+          <p
+            className="font-bold"
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-${record?.jobCandidateInformation?.id || record?.id}`}
+          >
+            <span
+              data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-text-${record?.jobCandidateInformation?.id || record?.id}`}
+            >
+              {record?.jobCandidateInformation?.fullName ?? '-'}
+            </span>
           </p>
-          <p className="text-gray-500 text-sm">
-            {record?.jobCandidateInformation?.email ?? '-'}
+          <p
+            className="text-gray-500 text-sm"
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-email-${record?.jobCandidateInformation?.id || record?.id}`}
+          >
+            <span
+              data-cy={`talent-acquisition-talent-pool-table-cell-name-email-text-${record?.jobCandidateInformation?.id || record?.id}`}
+            >
+              {record?.jobCandidateInformation?.email ?? '-'}
+            </span>
           </p>
         </div>
       ),

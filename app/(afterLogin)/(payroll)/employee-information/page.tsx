@@ -151,9 +151,19 @@ const EmployeeInformation = () => {
       key: 'name',
       render: (text: string, record: any) => (
         <Space data-cy={`payroll-employee-card-view-space-${record.id}`}>
-          <Avatar data-cy={`payroll-employee-avatar-view-component-${record.id}`} size={32} src={record.profileImage} icon={<UserOutlined />} />
-          <span id={`payroll-employee-name-view-text-${record.id}`} data-cy={`payroll-employee-name-view-text-${record.id}`}>{text}</span>
-          </Space>      
+          <Avatar
+            data-cy={`payroll-employee-avatar-view-component-${record.id}`}
+            size={32}
+            src={record.profileImage}
+            icon={<UserOutlined />}
+          />
+          <span
+            id={`payroll-employee-name-view-text-${record.id}`}
+            data-cy={`payroll-employee-name-view-text-${record.id}`}
+          >
+            {text}
+          </span>
+        </Space>
       ),
     },
     {
@@ -178,7 +188,8 @@ const EmployeeInformation = () => {
               id={`payroll-allowance-${item?.id}-view-tag`}
               data-cy={`payroll-allowance-${item?.id}-view-tag`}
               className={`${color} text-sm text-black`}
-              key={item}>
+              key={item}
+            >
               {item.name}
             </Tag>
           );
@@ -189,9 +200,13 @@ const EmployeeInformation = () => {
       dataIndex: 'bank',
       key: 'bank',
       render: (text: any) => (
-        <span id={`payroll-bank-name-view-text-${text}`} data-cy={`payroll-bank-name-view-text-${text}`} style={{ color: text === 'Not Available' ? 'red' : 'black' }}>
-            {text}
-          </span>
+        <span
+          id={`payroll-bank-name-view-text-${text}`}
+          data-cy={`payroll-bank-name-view-text-${text}`}
+          style={{ color: text === 'Not Available' ? 'red' : 'black' }}
+        >
+          {text}
+        </span>
       ),
     },
     {
@@ -199,34 +214,46 @@ const EmployeeInformation = () => {
       dataIndex: 'account',
       key: 'account',
       render: (text: any) => (
-        <span id={`payroll-bank-account-view-text-${text}`} data-cy={`payroll-bank-account-view-text-${text}`} style={{ color: text === 'Not Available' ? 'red' : 'black' }}>
-            {text}
-          </span>
+        <span
+          id={`payroll-bank-account-view-text-${text}`}
+          data-cy={`payroll-bank-account-view-text-${text}`}
+          style={{ color: text === 'Not Available' ? 'red' : 'black' }}
+        >
+          {text}
+        </span>
       ),
     },
     {
       title: 'Action',
       key: 'action',
       render: (record: any) => (
-        <Space id={`payroll-action-controls-view-space-${record.id}`} data-cy={`payroll-action-controls-view-space-${record.id}`} size="middle">
-          <AccessGuard id={`payroll-edit-guard-view-component-${record.id}`} data-cy={`payroll-edit-guard-view-component-${record.id}`} permissions={[Permissions.UpdateAllowanceEntitlement]}>
-              <Button
-                type="primary"
-                id={`payroll-edit-allowance-click-button-${record.id}`}
-                data-cy={`payroll-edit-allowance-click-button-${record.id}`}
-                icon={
-                  <EditOutlined
-                    id={`payroll-edit-allowance-click-icon-${record.id}`}
-                    data-cy={`payroll-edit-allowance-click-icon-${record.id}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(record);
-                    }}
-                  />
-                }
-              />
-            </AccessGuard>
-          </Space>
+        <Space
+          id={`payroll-action-controls-view-space-${record.id}`}
+          data-cy={`payroll-action-controls-view-space-${record.id}`}
+          size="middle"
+        >
+          <AccessGuard
+            id={`payroll-edit-guard-view-component-${record.id}`}
+            data-cy={`payroll-edit-guard-view-component-${record.id}`}
+            permissions={[Permissions.UpdateAllowanceEntitlement]}
+          >
+            <Button
+              type="primary"
+              id={`payroll-edit-allowance-click-button-${record.id}`}
+              data-cy={`payroll-edit-allowance-click-button-${record.id}`}
+              icon={
+                <EditOutlined
+                  id={`payroll-edit-allowance-click-icon-${record.id}`}
+                  data-cy={`payroll-edit-allowance-click-icon-${record.id}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(record);
+                  }}
+                />
+              }
+            />
+          </AccessGuard>
+        </Space>
       ),
     },
   ];
@@ -282,14 +309,12 @@ const EmployeeInformation = () => {
         </span>
       </div>
       <Filters
-       
         data-cy="payroll-employee-information-filter-interact-component"
         onSearch={handleSearch}
       />
 
       <Spin
         spinning={responseLoading || Loading}
-      
         data-cy="payroll-employee-information-loading-view-spin"
       >
         <Table
@@ -306,7 +331,6 @@ const EmployeeInformation = () => {
         />
         {isMobile || isTablet ? (
           <CustomMobilePagination
-          
             data-cy="payroll-employee-information-pagination-interact-mobile"
             totalResults={filteredData?.length || 0}
             pageSize={pageSize}
@@ -315,7 +339,6 @@ const EmployeeInformation = () => {
           />
         ) : (
           <CustomPagination
-           
             data-cy="payroll-employee-information-pagination-interact-desktop"
             current={currentPage}
             total={filteredData?.length || 0}
@@ -328,10 +351,7 @@ const EmployeeInformation = () => {
           />
         )}
       </Spin>
-      <Drawer
-     
-        data-cy="payroll-employee-information-drawer-view-component"
-      />
+      <Drawer data-cy="payroll-employee-information-drawer-view-component" />
     </div>
   );
 };

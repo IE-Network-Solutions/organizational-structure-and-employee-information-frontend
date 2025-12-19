@@ -82,7 +82,10 @@ const CheckControl = () => {
   switch (checkStatus) {
     case CheckStatus.notStarted:
       return (
-        <AccessGuard data-cy="time-attendance-check-control-check-in-button-access-guard" permissions={[Permissions.CheckInRemotely]}>
+        <AccessGuard
+          data-cy="time-attendance-check-control-check-in-button-access-guard"
+          permissions={[Permissions.CheckInRemotely]}
+        >
           <Button
             className="h-12 sm:h-14 text-base w-full sm:w-auto"
             id="time-attendance-check-control-check-in-button"
@@ -91,8 +94,16 @@ const CheckControl = () => {
             type="primary"
             icon={
               <>
-                <IoLocationOutline data-cy="time-attendance-check-control-check-in-button-icon" className="block sm:hidden" size={20} />
-                <GoClock data-cy="time-attendance-check-control-check-in-button-clock-icon" className="hidden sm:block" size={20} />
+                <IoLocationOutline
+                  data-cy="time-attendance-check-control-check-in-button-icon"
+                  className="block sm:hidden"
+                  size={20}
+                />
+                <GoClock
+                  data-cy="time-attendance-check-control-check-in-button-clock-icon"
+                  className="hidden sm:block"
+                  size={20}
+                />
               </>
             }
             loading={isLoading || isFetching}
@@ -113,7 +124,10 @@ const CheckControl = () => {
           id="time-attendance-check-control-started-container"
           data-cy="time-attendance-check-control-started-container"
         >
-          <AccessGuard data-cy="time-attendance-check-control-break-check-out-button-access-guard" permissions={[Permissions.CheckOutRemotely]}>
+          <AccessGuard
+            data-cy="time-attendance-check-control-break-check-out-button-access-guard"
+            permissions={[Permissions.CheckOutRemotely]}
+          >
             <Button
               className="h-12 sm:h-14 text-base w-full sm:w-auto"
               size="large"
@@ -121,8 +135,16 @@ const CheckControl = () => {
               data-cy="time-attendance-check-control-break-check-out-button"
               icon={
                 <>
-                  <IoLocationOutline data-cy="time-attendance-check-control-break-check-out-button-icon" className="block sm:hidden" size={20} />
-                  <GoClock data-cy="time-attendance-check-control-break-check-out-button-clock-icon" className="hidden sm:block" size={20} />
+                  <IoLocationOutline
+                    data-cy="time-attendance-check-control-break-check-out-button-icon"
+                    className="block sm:hidden"
+                    size={20}
+                  />
+                  <GoClock
+                    data-cy="time-attendance-check-control-break-check-out-button-clock-icon"
+                    className="hidden sm:block"
+                    size={20}
+                  />
                 </>
               }
               loading={isLoading || isFetching}
@@ -141,8 +163,16 @@ const CheckControl = () => {
               data-cy="time-attendance-check-control-check-out-button"
               icon={
                 <>
-                  <IoLocationOutline data-cy="time-attendance-check-control-check-out-button-icon" className="block sm:hidden" size={20} />
-                  <GoClock data-cy="time-attendance-check-control-check-out-button-clock-icon" className="hidden sm:block" size={20} />
+                  <IoLocationOutline
+                    data-cy="time-attendance-check-control-check-out-button-icon"
+                    className="block sm:hidden"
+                    size={20}
+                  />
+                  <GoClock
+                    data-cy="time-attendance-check-control-check-out-button-clock-icon"
+                    className="hidden sm:block"
+                    size={20}
+                  />
                 </>
               }
               loading={isLoading || isFetching}
@@ -173,7 +203,10 @@ const CheckControl = () => {
               {workTime} hrs
             </div>
           )}
-          <AccessGuard data-cy="time-attendance-check-control-break-check-in-button-access-guard" permissions={[Permissions.CheckInRemotely]}>
+          <AccessGuard
+            data-cy="time-attendance-check-control-break-check-in-button-access-guard"
+            permissions={[Permissions.CheckInRemotely]}
+          >
             <Button
               className="h-12 sm:h-14 text-base w-full sm:w-auto"
               size="large"
@@ -181,8 +214,16 @@ const CheckControl = () => {
               data-cy="time-attendance-check-control-break-check-in-button"
               icon={
                 <>
-                  <IoLocationOutline data-cy="time-attendance-check-control-break-check-in-button-icon" className="block sm:hidden" size={20} />
-                  <GoClock data-cy="time-attendance-check-control-break-check-in-button-clock-icon" className="hidden sm:block" size={20} />
+                  <IoLocationOutline
+                    data-cy="time-attendance-check-control-break-check-in-button-icon"
+                    className="block sm:hidden"
+                    size={20}
+                  />
+                  <GoClock
+                    data-cy="time-attendance-check-control-break-check-in-button-clock-icon"
+                    className="hidden sm:block"
+                    size={20}
+                  />
                 </>
               }
               loading={isLoading || isFetching}

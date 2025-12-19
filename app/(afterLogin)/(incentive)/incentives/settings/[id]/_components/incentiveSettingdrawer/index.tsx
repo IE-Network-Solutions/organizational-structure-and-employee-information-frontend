@@ -538,12 +538,24 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
       open={openIncentiveDrawer}
       onClose={() => handleClose(false)}
       modalHeader={
-        <CustomDrawerHeader data-cy="incentive-settings-drawer-header" className="flex justify-center ">
-          <span id="incentive-settings-drawer-header-text" data-cy="incentive-settings-drawer-header-text">{recognitionData?.name || '-'}</span>
+        <CustomDrawerHeader
+          data-cy="incentive-settings-drawer-header"
+          className="flex justify-center "
+        >
+          <span
+            id="incentive-settings-drawer-header-text"
+            data-cy="incentive-settings-drawer-header-text"
+          >
+            {recognitionData?.name || '-'}
+          </span>
         </CustomDrawerHeader>
       }
       footer={
-        <div id="incentive-settings-drawer-footer" data-cy="incentive-settings-drawer-footer" className="flex justify-center  w-full p-4 gap-6">
+        <div
+          id="incentive-settings-drawer-footer"
+          data-cy="incentive-settings-drawer-footer"
+          className="flex justify-center  w-full p-4 gap-6"
+        >
           <Button
             id="incentive-settings-drawer-cancel-button"
             data-cy="incentive-settings-drawer-cancel-button"
@@ -564,7 +576,21 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             loading={updateLoading || createLoading}
             disabled={formulaError ? true : false}
           >
-            {!formulaById ? <span id="incentive-settings-drawer-create-text" data-cy="incentive-settings-drawer-create-text">Create</span> : <span id="incentive-settings-drawer-edit-text" data-cy="incentive-settings-drawer-edit-text">Edit</span>}
+            {!formulaById ? (
+              <span
+                id="incentive-settings-drawer-create-text"
+                data-cy="incentive-settings-drawer-create-text"
+              >
+                Create
+              </span>
+            ) : (
+              <span
+                id="incentive-settings-drawer-edit-text"
+                data-cy="incentive-settings-drawer-edit-text"
+              >
+                Edit
+              </span>
+            )}
           </Button>
         </div>
       }
@@ -584,8 +610,19 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
           data-cy="incentive-settings-drawer-form-amount-type"
           rules={[{ required: true, message: 'Please choose type' }]}
           label={
-            <span id="incentive-settings-drawer-form-amount-type-label" data-cy="incentive-settings-drawer-form-amount-type-label" className="font-bold mb-2">
-              Formula <span id="incentive-settings-drawer-form-amount-type-required" data-cy="incentive-settings-drawer-form-amount-type-required" className="text-red-500">*</span>
+            <span
+              id="incentive-settings-drawer-form-amount-type-label"
+              data-cy="incentive-settings-drawer-form-amount-type-label"
+              className="font-bold mb-2"
+            >
+              Formula{' '}
+              <span
+                id="incentive-settings-drawer-form-amount-type-required"
+                data-cy="incentive-settings-drawer-form-amount-type-required"
+                className="text-red-500"
+              >
+                *
+              </span>
             </span>
           }
           name="amountType"
@@ -607,8 +644,19 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             data-cy="incentive-settings-drawer-form-fixed-amount"
             rules={[{ required: true, message: 'Please enter amount' }]}
             label={
-              <span id="incentive-settings-drawer-form-fixed-amount-label" data-cy="incentive-settings-drawer-form-fixed-amount-label" className="font-medium text-sm mb-2">
-                Amount <span id="incentive-settings-drawer-form-fixed-amount-required" data-cy="incentive-settings-drawer-form-fixed-amount-required" className="text-red-500">*</span>
+              <span
+                id="incentive-settings-drawer-form-fixed-amount-label"
+                data-cy="incentive-settings-drawer-form-fixed-amount-label"
+                className="font-medium text-sm mb-2"
+              >
+                Amount{' '}
+                <span
+                  id="incentive-settings-drawer-form-fixed-amount-required"
+                  data-cy="incentive-settings-drawer-form-fixed-amount-required"
+                  className="text-red-500"
+                >
+                  *
+                </span>
               </span>
             }
             name="fixedAmount"
@@ -628,8 +676,19 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             data-cy="incentive-settings-drawer-form-formula"
             name="formula"
             label={
-              <span id="incentive-settings-drawer-form-formula-label" data-cy="incentive-settings-drawer-form-formula-label" className="font-bold">
-                Formula <span id="incentive-settings-drawer-form-formula-required" data-cy="incentive-settings-drawer-form-formula-required" className="text-red-500">*</span>
+              <span
+                id="incentive-settings-drawer-form-formula-label"
+                data-cy="incentive-settings-drawer-form-formula-label"
+                className="font-bold"
+              >
+                Formula{' '}
+                <span
+                  id="incentive-settings-drawer-form-formula-required"
+                  data-cy="incentive-settings-drawer-form-formula-required"
+                  className="text-red-500"
+                >
+                  *
+                </span>
               </span>
             }
           >
@@ -644,20 +703,65 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
               rows={4}
             />
             {formulaError && (
-              <div id="incentive-settings-drawer-form-formula-error" data-cy="incentive-settings-drawer-form-formula-error" style={{ color: 'red', marginTop: 4 }}>{formulaError}</div>
+              <div
+                id="incentive-settings-drawer-form-formula-error"
+                data-cy="incentive-settings-drawer-form-formula-error"
+                style={{ color: 'red', marginTop: 4 }}
+              >
+                {formulaError}
+              </div>
             )}
-            <div id="incentive-settings-drawer-form-formula-options" data-cy="incentive-settings-drawer-form-formula-options" className="my-5">
-              <Row id="incentive-settings-drawer-form-formula-options-row" data-cy="incentive-settings-drawer-form-formula-options-row" gutter={[16, 10]}>
-                <Col id="incentive-settings-drawer-form-formula-options-criteria-col" data-cy="incentive-settings-drawer-form-formula-options-criteria-col" xs={12} sm={12} md={13} lg={13} xl={13}>
-                  <div id="incentive-settings-drawer-form-formula-options-criteria-wrapper" data-cy="incentive-settings-drawer-form-formula-options-criteria-wrapper" className="flex flex-col gap-1">
-                    <span id="incentive-settings-drawer-form-formula-options-criteria-label" data-cy="incentive-settings-drawer-form-formula-options-criteria-label" className="font-bold">
-                      Criteria<span id="incentive-settings-drawer-form-formula-options-criteria-required" data-cy="incentive-settings-drawer-form-formula-options-criteria-required" className="text-red-500">*</span>
+            <div
+              id="incentive-settings-drawer-form-formula-options"
+              data-cy="incentive-settings-drawer-form-formula-options"
+              className="my-5"
+            >
+              <Row
+                id="incentive-settings-drawer-form-formula-options-row"
+                data-cy="incentive-settings-drawer-form-formula-options-row"
+                gutter={[16, 10]}
+              >
+                <Col
+                  id="incentive-settings-drawer-form-formula-options-criteria-col"
+                  data-cy="incentive-settings-drawer-form-formula-options-criteria-col"
+                  xs={12}
+                  sm={12}
+                  md={13}
+                  lg={13}
+                  xl={13}
+                >
+                  <div
+                    id="incentive-settings-drawer-form-formula-options-criteria-wrapper"
+                    data-cy="incentive-settings-drawer-form-formula-options-criteria-wrapper"
+                    className="flex flex-col gap-1"
+                  >
+                    <span
+                      id="incentive-settings-drawer-form-formula-options-criteria-label"
+                      data-cy="incentive-settings-drawer-form-formula-options-criteria-label"
+                      className="font-bold"
+                    >
+                      Criteria
+                      <span
+                        id="incentive-settings-drawer-form-formula-options-criteria-required"
+                        data-cy="incentive-settings-drawer-form-formula-options-criteria-required"
+                        className="text-red-500"
+                      >
+                        *
+                      </span>
                     </span>
-                    <span id="incentive-settings-drawer-form-formula-options-criteria-buttons" data-cy="incentive-settings-drawer-form-formula-options-criteria-buttons" className="flex flex-wrap my-1">
+                    <span
+                      id="incentive-settings-drawer-form-formula-options-criteria-buttons"
+                      data-cy="incentive-settings-drawer-form-formula-options-criteria-buttons"
+                      className="flex flex-wrap my-1"
+                    >
                       {incentiveData?.items ? (
                         recognitionData?.recognitionCriteria?.map(
                           (option: any) => (
-                            <div id={`incentive-settings-drawer-form-formula-options-criteria-item-${option?.id}`} data-cy={`incentive-settings-drawer-form-formula-options-criteria-item-${option?.id}`} key={option?.id}>
+                            <div
+                              id={`incentive-settings-drawer-form-formula-options-criteria-item-${option?.id}`}
+                              data-cy={`incentive-settings-drawer-form-formula-options-criteria-item-${option?.id}`}
+                              key={option?.id}
+                            >
                               {option?.criteria?.criteriaName && (
                                 <Button
                                   id={`incentive-settings-drawer-form-formula-options-criteria-button-${option?.criteria?.id}`}
@@ -671,8 +775,16 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
                                   }
                                   className="bg-[#F8F8F8] text-[#111827] border-none text-sm font-normal m-1 rounded-2xl"
                                 >
-                                  <div id={`incentive-settings-drawer-form-formula-options-criteria-button-content-${option?.criteria?.id}`} data-cy={`incentive-settings-drawer-form-formula-options-criteria-button-content-${option?.criteria?.id}`} className="flex flex-wrap items-center justify-center">
-                                    <span id={`incentive-settings-drawer-form-formula-options-criteria-button-text-${option?.criteria?.id}`} data-cy={`incentive-settings-drawer-form-formula-options-criteria-button-text-${option?.criteria?.id}`} className="text-md font-md">
+                                  <div
+                                    id={`incentive-settings-drawer-form-formula-options-criteria-button-content-${option?.criteria?.id}`}
+                                    data-cy={`incentive-settings-drawer-form-formula-options-criteria-button-content-${option?.criteria?.id}`}
+                                    className="flex flex-wrap items-center justify-center"
+                                  >
+                                    <span
+                                      id={`incentive-settings-drawer-form-formula-options-criteria-button-text-${option?.criteria?.id}`}
+                                      data-cy={`incentive-settings-drawer-form-formula-options-criteria-button-text-${option?.criteria?.id}`}
+                                      className="text-md font-md"
+                                    >
                                       {option?.criteria?.criteriaName}
                                     </span>
                                   </div>
@@ -682,19 +794,50 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
                           ),
                         )
                       ) : (
-                        <span id="incentive-settings-drawer-form-formula-options-criteria-empty" data-cy="incentive-settings-drawer-form-formula-options-criteria-empty" className="text-sm text-gray-500 m-1">
+                        <span
+                          id="incentive-settings-drawer-form-formula-options-criteria-empty"
+                          data-cy="incentive-settings-drawer-form-formula-options-criteria-empty"
+                          className="text-sm text-gray-500 m-1"
+                        >
                           No Criterion
                         </span>
                       )}
                     </span>
                   </div>
                 </Col>
-                <Col id="incentive-settings-drawer-form-formula-options-operands-col" data-cy="incentive-settings-drawer-form-formula-options-operands-col" xs={12} sm={12} md={10} lg={10} xl={10}>
-                  <div id="incentive-settings-drawer-form-formula-options-operands-wrapper" data-cy="incentive-settings-drawer-form-formula-options-operands-wrapper" className="flex flex-col gap-1">
-                    <span id="incentive-settings-drawer-form-formula-options-operands-label" data-cy="incentive-settings-drawer-form-formula-options-operands-label" className="font-bold">
-                      Operands<span id="incentive-settings-drawer-form-formula-options-operands-required" data-cy="incentive-settings-drawer-form-formula-options-operands-required" className="text-red-500">*</span>
+                <Col
+                  id="incentive-settings-drawer-form-formula-options-operands-col"
+                  data-cy="incentive-settings-drawer-form-formula-options-operands-col"
+                  xs={12}
+                  sm={12}
+                  md={10}
+                  lg={10}
+                  xl={10}
+                >
+                  <div
+                    id="incentive-settings-drawer-form-formula-options-operands-wrapper"
+                    data-cy="incentive-settings-drawer-form-formula-options-operands-wrapper"
+                    className="flex flex-col gap-1"
+                  >
+                    <span
+                      id="incentive-settings-drawer-form-formula-options-operands-label"
+                      data-cy="incentive-settings-drawer-form-formula-options-operands-label"
+                      className="font-bold"
+                    >
+                      Operands
+                      <span
+                        id="incentive-settings-drawer-form-formula-options-operands-required"
+                        data-cy="incentive-settings-drawer-form-formula-options-operands-required"
+                        className="text-red-500"
+                      >
+                        *
+                      </span>
                     </span>
-                    <span id="incentive-settings-drawer-form-formula-options-operands-buttons" data-cy="incentive-settings-drawer-form-formula-options-operands-buttons" className="my-1">
+                    <span
+                      id="incentive-settings-drawer-form-formula-options-operands-buttons"
+                      data-cy="incentive-settings-drawer-form-formula-options-operands-buttons"
+                      className="my-1"
+                    >
                       {options?.operand.map((option: any) => (
                         <Button
                           id={`incentive-settings-drawer-form-formula-options-operands-button-${option?.id}`}

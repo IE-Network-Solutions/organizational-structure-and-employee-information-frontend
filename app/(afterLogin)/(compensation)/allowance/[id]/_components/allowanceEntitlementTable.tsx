@@ -87,7 +87,10 @@ const AllowanceEntitlementTable = () => {
           id={`compensation-allowance-entitlement-employee-${userId}`}
           data-cy={`compensation-allowance-entitlement-employee-${userId}`}
         >
-          <EmployeeDetails data-cy="compensation-allowance-entitlement-employee-details" empId={userId} />
+          <EmployeeDetails
+            data-cy="compensation-allowance-entitlement-employee-details"
+            empId={userId}
+          />
         </div>
       ),
     },
@@ -133,7 +136,10 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (rule: any, record: any) => (
-        <AccessGuard data-cy="compensation-allowance-entitlement-actions-access-guard" permissions={[Permissions.DeleteAllowanceEntitlement]}>
+        <AccessGuard
+          data-cy="compensation-allowance-entitlement-actions-access-guard"
+          permissions={[Permissions.DeleteAllowanceEntitlement]}
+        >
           <div
             data-testid={`entitlement-actions-${record.id}`}
             id={`compensation-allowance-entitlement-actions-${record.id}`}

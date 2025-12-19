@@ -28,7 +28,11 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
     }
   }, [initialValues, form]);
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8" data-cy="meeting-template-drawer-footer" id="meetingTemplateDrawerFooter">
+    <div
+      className="w-full flex justify-center items-center gap-4 pt-8"
+      data-cy="meeting-template-drawer-footer"
+      id="meetingTemplateDrawerFooter"
+    >
       <Button
         type="default"
         title="Cancel"
@@ -60,7 +64,11 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       open={open}
       onClose={() => onClose()}
       modalHeader={
-        <div className="text-center font-bold text-xl" data-cy="meeting-template-drawer-header" id="meetingTemplateDrawerHeader">
+        <div
+          className="text-center font-bold text-xl"
+          data-cy="meeting-template-drawer-header"
+          id="meetingTemplateDrawerHeader"
+        >
           {' '}
           {initialValues
             ? 'Update Meeting Template'
@@ -86,7 +94,11 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           data-cy="meeting-template-drawer-name-field"
           id="meetingTemplateDrawerNameField"
         >
-          <Input placeholder="Template name" data-cy="meeting-template-drawer-name-input" id="meetingTemplateDrawerNameInput" />
+          <Input
+            placeholder="Template name"
+            data-cy="meeting-template-drawer-name-input"
+            id="meetingTemplateDrawerNameInput"
+          />
         </Form.Item>
 
         <Form.Item
@@ -98,7 +110,11 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           data-cy="meeting-template-drawer-objective-field"
           id="meetingTemplateDrawerObjectiveField"
         >
-          <Input placeholder="The meeting objective" data-cy="meeting-template-drawer-objective-input" id="meetingTemplateDrawerObjectiveInput" />
+          <Input
+            placeholder="The meeting objective"
+            data-cy="meeting-template-drawer-objective-input"
+            id="meetingTemplateDrawerObjectiveInput"
+          />
         </Form.Item>
 
         <Form.Item
@@ -108,14 +124,26 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           data-cy="meeting-template-drawer-description-field"
           id="meetingTemplateDrawerDescriptionField"
         >
-          <Input.TextArea placeholder="Some sort of description" data-cy="meeting-template-drawer-description-textarea" id="meetingTemplateDrawerDescriptionTextarea" />
+          <Input.TextArea
+            placeholder="Some sort of description"
+            data-cy="meeting-template-drawer-description-textarea"
+            id="meetingTemplateDrawerDescriptionTextarea"
+          />
         </Form.Item>
 
-        <Form.List name="agendaItems" data-cy="meeting-template-drawer-agenda-items-list">
+        <Form.List
+          name="agendaItems"
+          data-cy="meeting-template-drawer-agenda-items-list"
+        >
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
-                <div key={key} className="mb-2" data-cy={`meeting-template-drawer-agenda-item-${name}`} id={`meetingTemplateDrawerAgendaItem${name}`}>
+                <div
+                  key={key}
+                  className="mb-2"
+                  data-cy={`meeting-template-drawer-agenda-item-${name}`}
+                  id={`meetingTemplateDrawerAgendaItem${name}`}
+                >
                   <Form.Item
                     {...restField}
                     name={name}
@@ -141,8 +169,17 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
                   </Form.Item>
                 </div>
               ))}
-              <Form.Item data-cy="meeting-template-drawer-add-agenda-item-container" id="meetingTemplateDrawerAddAgendaItemContainer">
-                <Button type="primary" onClick={() => add()} block data-cy="meeting-template-drawer-add-agenda-item-button" id="meetingTemplateDrawerAddAgendaItemButton">
+              <Form.Item
+                data-cy="meeting-template-drawer-add-agenda-item-container"
+                id="meetingTemplateDrawerAddAgendaItemContainer"
+              >
+                <Button
+                  type="primary"
+                  onClick={() => add()}
+                  block
+                  data-cy="meeting-template-drawer-add-agenda-item-button"
+                  id="meetingTemplateDrawerAddAgendaItemButton"
+                >
                   Add agenda item
                 </Button>
               </Form.Item>

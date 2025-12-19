@@ -36,9 +36,7 @@ const DashboardHeader: React.FC = () => {
           data-cy="time-attendance-dashboard-header-actions-div"
         >
           {activeTab === 'personal' && (
-            <CheckControl
-              data-cy="time-attendance-dashboard-header-check-control-component"
-            />
+            <CheckControl data-cy="time-attendance-dashboard-header-check-control-component" />
           )}
 
           <div

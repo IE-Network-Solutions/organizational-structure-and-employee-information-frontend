@@ -74,7 +74,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
     useFetchAllowanceTypesByTypeAllowance();
   const params = useParams();
   const employeeIdFromParams = params?.id as string | undefined;
-  const { data: employeeAllowances } = useGetEmployeeAllowances(employeeIdFromParams);
+  const { data: employeeAllowances } =
+    useGetEmployeeAllowances(employeeIdFromParams);
   const { setIsAllowanceOpen, isAllowanceOpen } = useCompensationSettingStore();
   const [contractType, setContractType] = useState<string>('Permanent');
   const [wasAllowanceOpen, setWasAllowanceOpen] = useState<boolean>(false);
@@ -92,9 +93,13 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           .map((allowance: any) => {
             const compensationItem = allowance.compensationItem || allowance;
             return {
-              id: compensationItem.id || allowance.compensationItemId || allowance.id,
+              id:
+                compensationItem.id ||
+                allowance.compensationItemId ||
+                allowance.id,
               name: compensationItem.name || allowance.name,
-              description: compensationItem.description || allowance.description,
+              description:
+                compensationItem.description || allowance.description,
               isRate: compensationItem.isRate ?? allowance.isRate ?? false,
               defaultAmount:
                 compensationItem.defaultAmount ||
@@ -741,7 +746,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               >
                 {({ getFieldValue, setFieldValue }) => {
                   const selectedIds = getFieldValue('allowanceIds') || [];
-                  
+
                   // Get employee allowances from form (already populated)
                   const formAllowances = getFieldValue('allowances') || [];
 
@@ -751,11 +756,14 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                     ...formAllowances, // Include employee allowances so they can be removed
                     ...tempAllowances,
                   ];
-                  
+
                   // Remove duplicates by id
                   const uniqueAllowanceTypes = allAllowanceTypes.filter(
                     (type: any, index: number, self: any[]) =>
-                      index === self.findIndex((t: any) => String(t.id) === String(type.id))
+                      index ===
+                      self.findIndex(
+                        (t: any) => String(t.id) === String(type.id),
+                      ),
                   );
 
                   const allOptions =
@@ -821,17 +829,21 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                         setFieldValue('allowanceIds', newSelectedIds);
 
                         // Combine fetched allowance types, employee allowances, and temporary ones
-                        const currentFormAllowances = getFieldValue('allowances') || [];
+                        const currentFormAllowances =
+                          getFieldValue('allowances') || [];
                         const allAllowanceTypes = [
                           ...(allowanceTypes || []),
                           ...currentFormAllowances, // Include employee allowances
                           ...tempAllowances,
                         ];
-                        
+
                         // Remove duplicates by id
                         const uniqueAllowanceTypes = allAllowanceTypes.filter(
                           (type: any, index: number, self: any[]) =>
-                            index === self.findIndex((t: any) => String(t.id) === String(type.id))
+                            index ===
+                            self.findIndex(
+                              (t: any) => String(t.id) === String(type.id),
+                            ),
                         );
 
                         // Sync allowances array with selected IDs

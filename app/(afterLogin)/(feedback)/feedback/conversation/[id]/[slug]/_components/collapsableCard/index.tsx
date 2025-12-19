@@ -26,7 +26,10 @@ const CollapsibleCardList: React.FC<PropsData> = ({
   };
 
   return (
-    <div className="max-h-[500px] overflow-y-scroll">
+    <div
+      className="max-h-[500px] overflow-y-scroll"
+      data-cy="collapsable-card-list-container"
+    >
       {isLoading
         ? Array(3)
             .fill(null)

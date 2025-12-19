@@ -55,9 +55,17 @@ function Form({ params: { id } }: CategoryForms) {
             onClick={showDrawer}
             className="bg-blue-600 hover:bg-blue-700"
           />
-          <FormDrawer onClose={onClose} id={id} data-cy="category-form-page-form-drawer" />
+          <FormDrawer
+            onClose={onClose}
+            id={id}
+            data-cy="category-form-page-form-drawer"
+          />
         </div>
-        <div id="category-form-page-list" data-cy="category-form-page-list" className="w-full h-auto">
+        <div
+          id="category-form-page-list"
+          data-cy="category-form-page-list"
+          className="w-full h-auto"
+        >
           <FormSearch data-cy="category-form-page-form-search" />
           <FormCard id={id} data-cy="category-form-page-form-card" />
         </div>

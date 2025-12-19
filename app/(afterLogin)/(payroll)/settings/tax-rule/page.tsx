@@ -77,25 +77,39 @@ const TaxRules = () => {
           data-cy={`payroll-tax-rule-actions-view-space-${record.id}`}
           size="middle"
         >
-          <Tooltip data-cy={`payroll-tax-rule-edit-click-button-tooltip-${record.id}`} title="Edit">
+          <Tooltip
+            data-cy={`payroll-tax-rule-edit-click-button-tooltip-${record.id}`}
+            title="Edit"
+          >
             <Button
               id={`payroll-tax-rule-edit-click-button-${record.id}`}
               data-cy={`payroll-tax-rule-edit-click-button-${record.id}`}
               type="primary"
               className=" border-none rounded-xl"
-              icon={<EditOutlined data-cy={`payroll-tax-rule-edit-click-button-icon-${record.id}`} />}
+              icon={
+                <EditOutlined
+                  data-cy={`payroll-tax-rule-edit-click-button-icon-${record.id}`}
+                />
+              }
               onClick={() => handleEdit(record)}
             />
           </Tooltip>
 
-            <DeletePopover data-cy={`payroll-tax-rule-delete-popover-view-component-${record.id}`} onDelete={() => handleDelete(record.id)}>
-              <Button
-                id={`payroll-tax-rule-delete-click-button-${record.id}`}
-                data-cy={`payroll-tax-rule-delete-click-button-${record.id}`}
-                className="bg-red-600 text-white border-none rounded-xl"
-                icon={<DeleteOutlined data-cy={`payroll-tax-rule-delete-click-button-icon-${record.id}`} />}
-              />
-            </DeletePopover>
+          <DeletePopover
+            data-cy={`payroll-tax-rule-delete-popover-view-component-${record.id}`}
+            onDelete={() => handleDelete(record.id)}
+          >
+            <Button
+              id={`payroll-tax-rule-delete-click-button-${record.id}`}
+              data-cy={`payroll-tax-rule-delete-click-button-${record.id}`}
+              className="bg-red-600 text-white border-none rounded-xl"
+              icon={
+                <DeleteOutlined
+                  data-cy={`payroll-tax-rule-delete-click-button-icon-${record.id}`}
+                />
+              }
+            />
+          </DeletePopover>
         </Space>
       ),
     },
@@ -140,7 +154,13 @@ const TaxRules = () => {
           icon={<FaPlus data-cy="payroll-tax-rule-add-click-button-icon" />}
           onClick={handleAddRule}
         >
-          <span id="payroll-tax-rule-add-click-button-text" data-cy="payroll-tax-rule-add-click-button-text" className="hidden sm:inline">Add Tax Rule</span>
+          <span
+            id="payroll-tax-rule-add-click-button-text"
+            data-cy="payroll-tax-rule-add-click-button-text"
+            className="hidden sm:inline"
+          >
+            Add Tax Rule
+          </span>
         </Button>
       </div>
       <div
@@ -164,7 +184,7 @@ const TaxRules = () => {
           />
         </div>
       </div>
-        <Drawer data-cy="payroll-tax-rule-drawer-view-component" />
+      <Drawer data-cy="payroll-tax-rule-drawer-view-component" />
     </div>
   );
 };

@@ -333,7 +333,11 @@ const LeaveRequestSidebar = () => {
                     leaveRequest?.status === LeaveRequestStatus.APPROVED
                   }
                   suffixIcon={
-                    <MdKeyboardArrowDown data-cy="time-attendance-leave-request-sidebar-type-select-icon" size={16} className="text-gray-900" />
+                    <MdKeyboardArrowDown
+                      data-cy="time-attendance-leave-request-sidebar-type-select-icon"
+                      size={16}
+                      className="text-gray-900"
+                    />
                   }
                   id="time-attendance-leave-request-sidebar-type-select"
                   data-cy="time-attendance-leave-request-sidebar-type-select"
@@ -355,8 +359,14 @@ const LeaveRequestSidebar = () => {
                   data-cy="time-attendance-leave-request-sidebar-half-day-radio"
                 />
               </Form.Item>
-              <Row data-cy="time-attendance-leave-request-sidebar-date-row" gutter={16}>
-                <Col data-cy="time-attendance-leave-request-sidebar-start-date-column" span={12}>
+              <Row
+                data-cy="time-attendance-leave-request-sidebar-date-row"
+                gutter={16}
+              >
+                <Col
+                  data-cy="time-attendance-leave-request-sidebar-start-date-column"
+                  span={12}
+                >
                   <Form.Item
                     name="startDate"
                     label="Start Date "

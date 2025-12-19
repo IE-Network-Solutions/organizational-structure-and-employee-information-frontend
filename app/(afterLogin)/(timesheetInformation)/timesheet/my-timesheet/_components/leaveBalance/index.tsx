@@ -96,7 +96,10 @@ const LeaveBalance = () => {
               }}
             >
               {filteredItems.map((item: any) => (
-                <SwiperSlide data-cy={`time-attendance-leave-balance-slide-${item.id}`} key={item.id}>
+                <SwiperSlide
+                  data-cy={`time-attendance-leave-balance-slide-${item.id}`}
+                  key={item.id}
+                >
                   <LeaveBalanceCard
                     title={item?.leaveType?.title ?? ''}
                     duration={parseFloat(item.totalBalance.toFixed(1))}
@@ -113,7 +116,10 @@ const LeaveBalance = () => {
               id="time-attendance-leave-balance-next-button"
               data-cy="time-attendance-leave-balance-next-button"
               icon={
-                <RightOutlined data-cy="time-attendance-leave-balance-card-right-button-icon" className="text-gray-600 text-xl hover:text-primary transition-colors" />
+                <RightOutlined
+                  data-cy="time-attendance-leave-balance-card-right-button-icon"
+                  className="text-gray-600 text-xl hover:text-primary transition-colors"
+                />
               }
               onClick={() => swiper?.slideNext()}
             />

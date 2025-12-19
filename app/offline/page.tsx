@@ -18,8 +18,11 @@ export default function OfflinePage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full mx-4">
+    <div
+      className="min-h-screen flex items-center justify-center bg-gray-50"
+      data-cy="offline-page"
+    >
+      <div className="max-w-md w-full mx-4" data-cy="offline-content">
         <Result
           icon={<WifiOutlined className="text-6xl text-gray-400" />}
           title="You're Offline"

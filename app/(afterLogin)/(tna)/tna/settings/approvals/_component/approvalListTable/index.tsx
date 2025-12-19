@@ -128,8 +128,16 @@ const ApprovalListTable = () => {
                 id={`tnaApprovalListTableAssignedTooltip${item?.id}_${empIndex}Id`}
                 data-cy={`tna-approval-list-table-assigned-tooltip-${item?.id}-${empIndex}`}
               >
-                <div className="flex items-center flex-wrap sm:flex-row gap-2" id={`tnaApprovalListTableAssignedItem${item?.id}_${empIndex}Id`} data-cy={`tna-approval-list-table-assigned-item-${item?.id}-${empIndex}`}>
-                  <div className="relative w-6 h-6 rounded-full overflow-hidden" id={`tnaApprovalListTableAssignedImageContainer${item?.id}_${empIndex}Id`} data-cy={`tna-approval-list-table-assigned-image-container-${item?.id}-${empIndex}`}>
+                <div
+                  className="flex items-center flex-wrap sm:flex-row gap-2"
+                  id={`tnaApprovalListTableAssignedItem${item?.id}_${empIndex}Id`}
+                  data-cy={`tna-approval-list-table-assigned-item-${item?.id}-${empIndex}`}
+                >
+                  <div
+                    className="relative w-6 h-6 rounded-full overflow-hidden"
+                    id={`tnaApprovalListTableAssignedImageContainer${item?.id}_${empIndex}Id`}
+                    data-cy={`tna-approval-list-table-assigned-image-container-${item?.id}-${empIndex}`}
+                  >
                     <Image
                       src={
                         getEmployeeInformation(employee?.userId)
@@ -164,9 +172,22 @@ const ApprovalListTable = () => {
                       data-cy={`tna-approval-list-table-assigned-image-${item?.id}-${empIndex}`}
                     />
                   </div>
-                  <div className="flex flex-wrap flex-col justify-center" id={`tnaApprovalListTableAssignedTextContainer${item?.id}_${empIndex}Id`} data-cy={`tna-approval-list-table-assigned-text-container-${item?.id}-${empIndex}`}>
-                    <p id={`tnaApprovalListTableAssignedTextName${item?.id}_${empIndex}Id`} data-cy={`tnaApprovalListTableAssignedTextContainer${item?.id}_${empIndex}Id`}>{displayName}</p>
-                    <p className="font-extralight text-[12px]" id={`tnaApprovalListTableAssignedTextEmail${item?.id}_${empIndex}Id`} data-cy={`tna-approval-list-table-assigned-text-email-${item?.id}-${empIndex}`}>
+                  <div
+                    className="flex flex-wrap flex-col justify-center"
+                    id={`tnaApprovalListTableAssignedTextContainer${item?.id}_${empIndex}Id`}
+                    data-cy={`tna-approval-list-table-assigned-text-container-${item?.id}-${empIndex}`}
+                  >
+                    <p
+                      id={`tnaApprovalListTableAssignedTextName${item?.id}_${empIndex}Id`}
+                      data-cy={`tnaApprovalListTableAssignedTextContainer${item?.id}_${empIndex}Id`}
+                    >
+                      {displayName}
+                    </p>
+                    <p
+                      className="font-extralight text-[12px]"
+                      id={`tnaApprovalListTableAssignedTextEmail${item?.id}_${empIndex}Id`}
+                      data-cy={`tna-approval-list-table-assigned-text-email-${item?.id}-${empIndex}`}
+                    >
                       {displayEmail}
                     </p>
                   </div>
@@ -178,9 +199,21 @@ const ApprovalListTable = () => {
       ),
       level: item?.approvers ? item?.approvers?.length : '-',
       action: (
-        <div className="flex gap-4 text-white" id={`tnaApprovalListTableActionButtons${item?.id}Id`} data-cy={`tna-approval-list-table-action-buttons-${item?.id}`}>
-          <AccessGuard permissions={[Permissions.CreateApprover]} data-cy="tna-approval-list-table-add-approver-guard" id="tnaApprovalListTableAddApproverGuardId">
-            <Tooltip title={'Add Approver'} data-cy="tna-approval-list-table-add-approver-tooltip" id="tnaApprovalListTableAddApproverTooltipId">
+        <div
+          className="flex gap-4 text-white"
+          id={`tnaApprovalListTableActionButtons${item?.id}Id`}
+          data-cy={`tna-approval-list-table-action-buttons-${item?.id}`}
+        >
+          <AccessGuard
+            permissions={[Permissions.CreateApprover]}
+            data-cy="tna-approval-list-table-add-approver-guard"
+            id="tnaApprovalListTableAddApproverGuardId"
+          >
+            <Tooltip
+              title={'Add Approver'}
+              data-cy="tna-approval-list-table-add-approver-tooltip"
+              id="tnaApprovalListTableAddApproverTooltipId"
+            >
               <Button
                 id={`editUserButton${item?.id}`}
                 className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 border-none w-7 h-7"
@@ -196,12 +229,23 @@ const ApprovalListTable = () => {
                 }}
                 data-cy={`tna-approval-list-table-add-approver-button-${item?.id}`}
               >
-                <FaPlus id={`tnaApprovalListTableAddApproverIcon${item?.id}Id`} data-cy={`tna-approval-list-table-add-approver-icon-${item?.id}`} />
+                <FaPlus
+                  id={`tnaApprovalListTableAddApproverIcon${item?.id}Id`}
+                  data-cy={`tna-approval-list-table-add-approver-icon-${item?.id}`}
+                />
               </Button>
             </Tooltip>
           </AccessGuard>
-          <AccessGuard permissions={[Permissions.UpdateApprover]} data-cy="tna-approval-list-table-edit-approver-guard" id="tnaApprovalListTableEditApproverGuardId">
-            <Tooltip title={'Edit Approver'} data-cy="tna-approval-list-table-edit-approver-tooltip" id="tnaApprovalListTableEditApproverTooltipId">
+          <AccessGuard
+            permissions={[Permissions.UpdateApprover]}
+            data-cy="tna-approval-list-table-edit-approver-guard"
+            id="tnaApprovalListTableEditApproverGuardId"
+          >
+            <Tooltip
+              title={'Edit Approver'}
+              data-cy="tna-approval-list-table-edit-approver-tooltip"
+              id="tnaApprovalListTableEditApproverTooltipId"
+            >
               <Button
                 id={`editUserButton${item?.id}`}
                 className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 border-none w-7 h-7"
@@ -218,13 +262,23 @@ const ApprovalListTable = () => {
                 }}
                 data-cy={`tna-approval-list-table-edit-approver-button-${item?.id}`}
               >
-                <FaPencil id={`tnaApprovalListTableEditApproverIcon${item?.id}Id`} data-cy={`tna-approval-list-table-edit-approver-icon-${item?.id}`} />
+                <FaPencil
+                  id={`tnaApprovalListTableEditApproverIcon${item?.id}Id`}
+                  data-cy={`tna-approval-list-table-edit-approver-icon-${item?.id}`}
+                />
               </Button>
             </Tooltip>
           </AccessGuard>
-          <AccessGuard permissions={[Permissions.DeleteApprover]} data-cy="tna-approval-list-table-delete-approver-guard"
-            id="tnaApprovalListTableDeleteApproverGuardId">
-            <Tooltip title={'Delete Employee'} data-cy="tna-approval-list-table-delete-approver-tooltip" id="tnaApprovalListTableDeleteApproverTooltipId">
+          <AccessGuard
+            permissions={[Permissions.DeleteApprover]}
+            data-cy="tna-approval-list-table-delete-approver-guard"
+            id="tnaApprovalListTableDeleteApproverGuardId"
+          >
+            <Tooltip
+              title={'Delete Employee'}
+              data-cy="tna-approval-list-table-delete-approver-tooltip"
+              id="tnaApprovalListTableDeleteApproverTooltipId"
+            >
               <Button
                 id={`deleteUserButton${item?.id}`}
                 className="bg-red-600 px-[8%] text-white disabled:bg-gray-400 border-none w-7 h-7"
@@ -234,7 +288,10 @@ const ApprovalListTable = () => {
                 }}
                 data-cy={`tna-approval-list-table-delete-approver-button-${item?.id}`}
               >
-                <RiDeleteBin6Line id={`tnaApprovalListTableDeleteApproverIcon${item?.id}Id`} data-cy={`tna-approval-list-table-delete-approver-icon-${item?.id}`} />
+                <RiDeleteBin6Line
+                  id={`tnaApprovalListTableDeleteApproverIcon${item?.id}Id`}
+                  data-cy={`tna-approval-list-table-delete-approver-icon-${item?.id}`}
+                />
               </Button>
             </Tooltip>
           </AccessGuard>
@@ -243,14 +300,19 @@ const ApprovalListTable = () => {
     };
   });
   return (
-    <div id="tnaApprovalListTableContainerId" data-cy="tna-approval-list-table-container">
+    <div
+      id="tnaApprovalListTableContainerId"
+      data-cy="tna-approval-list-table-container"
+    >
       <DeleteModal
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}
         onCancel={() => setDeleteModal(false)}
         data-cy="tna-approval-list-table-delete-modal"
       />
-      {editModal && <EditWorkFLow data-cy="tna-approval-list-table-edit-modal" />}
+      {editModal && (
+        <EditWorkFLow data-cy="tna-approval-list-table-edit-modal" />
+      )}
       {addModal && <AddApprover data-cy="tna-approval-list-table-add-modal" />}
       <ApproverListTableComponent
         data={data}

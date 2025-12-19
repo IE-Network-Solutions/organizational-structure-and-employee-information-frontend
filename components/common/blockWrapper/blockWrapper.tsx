@@ -23,6 +23,7 @@ const BlockWrapper: React.FC<BlockWrapperProps> = ({
         className,
       )}
       style={{ borderRadius: 11 }}
+      data-cy="block-wrapper"
     >
       {children}
     </div>
