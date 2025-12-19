@@ -15,13 +15,36 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
   activeTab,
 }) => {
   return (
-    <div className="my-3 pb-8 bg-white shadow-sm rounded-lg border">
-      <div className="grid gap-4 mt-3 sm:mt-0">
-        <div className="flex gap-4 sm:px-10 sm:py-3">
-          <div className="items-center gap-2 hidden sm:flex">
-            <div className="flex items-center gap-1">
-              <div className="text-blue text-xl">&#x2022;</div>
-              <div className="text-gray-500 font-semibold mt-1  text-[10px] flex items-center rounded-lg">
+    <div
+      className="my-3 pb-8 bg-white shadow-sm rounded-lg border"
+      data-cy={`key-result-tasks-container-${keyResultIndex}`}
+    >
+      <div
+        className="grid gap-4 mt-3 sm:mt-0"
+        data-cy={`key-result-tasks-grid-${keyResultIndex}`}
+      >
+        <div
+          className="flex gap-4 sm:px-10 sm:py-3"
+          data-cy={`key-result-tasks-header-${keyResultIndex}`}
+        >
+          <div
+            className="items-center gap-2 hidden sm:flex"
+            data-cy={`key-result-tasks-target-section-${keyResultIndex}`}
+          >
+            <div
+              className="flex items-center gap-1"
+              data-cy={`key-result-tasks-target-label-container-${keyResultIndex}`}
+            >
+              <div
+                className="text-blue text-xl"
+                data-cy={`key-result-tasks-target-bullet-${keyResultIndex}`}
+              >
+                &#x2022;
+              </div>
+              <div
+                className="text-gray-500 font-semibold mt-1  text-[10px] flex items-center rounded-lg"
+                data-cy={`key-result-tasks-target-label-${keyResultIndex}`}
+              >
                 {keyResult?.metricType?.name === 'Milestone'
                   ? 'Milestones'
                   : 'Target'}
@@ -39,10 +62,24 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
             </Tag>
           </div>
 
-          <div className="items-center gap-2 hidden sm:flex">
-            <div className="flex items-center gap-1">
-              <div className="text-blue text-xl">&#x2022;</div>
-              <div className="text-gray-500 font-semibold mt-1 text-[10px] flex items-center rounded-lg">
+          <div
+            className="items-center gap-2 hidden sm:flex"
+            data-cy={`key-result-tasks-achieved-section-${keyResultIndex}`}
+          >
+            <div
+              className="flex items-center gap-1"
+              data-cy={`key-result-tasks-achieved-label-container-${keyResultIndex}`}
+            >
+              <div
+                className="text-blue text-xl"
+                data-cy={`key-result-tasks-achieved-bullet-${keyResultIndex}`}
+              >
+                &#x2022;
+              </div>
+              <div
+                className="text-gray-500 font-semibold mt-1 text-[10px] flex items-center rounded-lg"
+                data-cy={`key-result-tasks-achieved-label-${keyResultIndex}`}
+              >
                 Achieved
               </div>
             </div>
@@ -63,10 +100,24 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
             </Tag>
           </div>
 
-          <div className="items-center gap-2 hidden sm:flex">
-            <div className="flex items-center gap-1">
-              <div className="text-green-600 text-xl">&#x2022;</div>
-              <div className="text-gray-500 font-semibold mt-1  text-[10px] flex items-center rounded-lg">
+          <div
+            className="items-center gap-2 hidden sm:flex"
+            data-cy={`key-result-tasks-progress-section-${keyResultIndex}`}
+          >
+            <div
+              className="flex items-center gap-1"
+              data-cy={`key-result-tasks-progress-label-container-${keyResultIndex}`}
+            >
+              <div
+                className="text-green-600 text-xl"
+                data-cy={`key-result-tasks-progress-bullet-${keyResultIndex}`}
+              >
+                &#x2022;
+              </div>
+              <div
+                className="text-gray-500 font-semibold mt-1  text-[10px] flex items-center rounded-lg"
+                data-cy={`key-result-tasks-progress-label-${keyResultIndex}`}
+              >
                 KR Progress
               </div>
             </div>
@@ -79,10 +130,19 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
           </div>
         </div>
       </div>
-      <div className="bg-white px-3 w-full sm:px-6">
-        <div className="flex items-center gap-2 mb-1">
+      <div
+        className="bg-white px-3 w-full sm:px-6"
+        data-cy={`key-result-tasks-title-section-${keyResultIndex}`}
+      >
+        <div
+          className="flex items-center gap-2 mb-1"
+          data-cy={`key-result-tasks-title-container-${keyResultIndex}`}
+        >
           <BsKey size={32} className="text-[#3636f0] flex-shrink-0" />
-          <h2 className="text-sm font-semibold truncate min-w-0 flex-1">
+          <h2
+            className="text-sm font-semibold truncate min-w-0 flex-1"
+            data-cy={`key-result-tasks-title-${keyResultIndex}`}
+          >
             {keyResult?.title}
           </h2>
         </div>

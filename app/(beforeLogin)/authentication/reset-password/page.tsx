@@ -51,15 +51,33 @@ const NewPassword: FC = () => {
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
       style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      data-cy="authentication-reset-password-container"
     >
-      <div className="flex justify-center items-center w-[80%] md:w-[35%] ">
-        <div className="flex flex-col items-center gap-8 w-[80%] ">
-          <div className="flex flex-row items-center gap-8">
+      <div
+        className="flex justify-center items-center w-[80%] md:w-[35%] "
+        data-cy="authentication-reset-password-form-wrapper"
+      >
+        <div
+          className="flex flex-col items-center gap-8 w-[80%] "
+          data-cy="authentication-reset-password-form-container"
+        >
+          <div
+            className="flex flex-row items-center gap-8"
+            data-cy="authentication-reset-password-logo"
+          >
             <Logo type="selamnew" />
           </div>
 
-          <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-semibold">Create New Password</h2>
+          <div
+            className="flex flex-col items-center"
+            data-cy="authentication-reset-password-title-section"
+          >
+            <h2
+              className="text-2xl font-semibold"
+              data-cy="authentication-reset-password-title"
+            >
+              Create New Password
+            </h2>
           </div>
 
           <Form

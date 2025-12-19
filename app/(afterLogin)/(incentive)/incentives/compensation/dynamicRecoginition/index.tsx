@@ -13,10 +13,19 @@ const DynamicIncentive: React.FC<DynamicIncentiveProps> = ({
 }) => {
   return (
     <div id="dynamic-incentive-container" data-cy="dynamic-incentive-container">
-      <DynamicIncentiveCards data-cy="dynamic-incentive-cards" parentRecognitionId={parentRecognitionId} />
+      <DynamicIncentiveCards
+        data-cy="dynamic-incentive-cards"
+        parentRecognitionId={parentRecognitionId}
+      />
       <DynamicIncentiveFilter data-cy="dynamic-incentive-filter" />
-      <IncentiveTableAfterGenerate data-cy="dynamic-incentive-table" id={parentRecognitionId} />
-      <ImportData data-cy="dynamic-incentive-import-data" parentRecognitionId={parentRecognitionId} />
+      <IncentiveTableAfterGenerate
+        data-cy="dynamic-incentive-table"
+        id={parentRecognitionId}
+      />
+      <ImportData
+        data-cy="dynamic-incentive-import-data"
+        parentRecognitionId={parentRecognitionId}
+      />
     </div>
   );
 };

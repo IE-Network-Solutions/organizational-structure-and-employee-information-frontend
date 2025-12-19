@@ -40,7 +40,10 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { DeleteOutlined } from '@ant-design/icons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { useDeleteRecognition, useDeleteBulkRecognitions } from '@/store/server/features/CFR/recognition/mutation';
+import {
+  useDeleteRecognition,
+  useDeleteBulkRecognitions,
+} from '@/store/server/features/CFR/recognition/mutation';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
 import { useGetAllRecognitionIds } from '@/store/server/features/CFR/recognition/queries';
@@ -65,15 +68,19 @@ function Page() {
     showBulkDeleteModal,
     setShowBulkDeleteModal,
   } = useRecongnitionStore();
-  
-  const { mutate: deleteRecognition, isLoading: isDeletingSingle } = useDeleteRecognition();
-  const { mutate: deleteBulkRecognitions, isLoading: isDeleting } = useDeleteBulkRecognitions();
+
+  const { mutate: deleteRecognition, isLoading: isDeletingSingle } =
+    useDeleteRecognition();
+  const { mutate: deleteBulkRecognitions, isLoading: isDeleting } =
+    useDeleteBulkRecognitions();
   const isSelectingAllRef = useRef(false);
-  const [deleteModalOpen, setDeleteModalOpen] = React.useState<Record<string, boolean>>({});
-  
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState<
+    Record<string, boolean>
+  >({});
+
   const { refetch: fetchAllIds } = useGetAllRecognitionIds(
     searchValue,
-    false // Always disabled, we'll use refetch manually
+    false, // Always disabled, we'll use refetch manually
   );
   const { data: allUserData } = useGetAllUsers();
   const { data: recognitionType } = useGetAllRecognitionData();
@@ -166,17 +173,23 @@ function Page() {
       dataIndex: 'criteriaScore',
       render: (unused, record) =>
         record?.criteriaScore?.length ? (
-          <div className="flex gap-2 max-w-[400px] overflow-x-auto scrollbar-hide">
+          <div
+            className="flex gap-2 max-w-[400px] overflow-x-auto scrollbar-hide"
+            data-cy={`recognition-criteria-container-${record.id}`}
+          >
             {record.criteriaScore.map((criteria: any, index: number) => (
               <span
                 key={index}
                 className="whitespace-nowrap px-2 py-1 bg-gray-100 rounded text-sm flex-shrink-0"
+                data-cy={`recognition-criteria-item-${record.id}-${index}`}
               >
                 {criteria?.name}
               </span>
             ))}
           </div>
-        ) : '-',
+        ) : (
+          '-'
+        ),
       sorter: (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       width: 450,
@@ -202,7 +215,9 @@ function Page() {
       title: 'Details',
       dataIndex: 'description',
       render: (notused, record) => (
-        <p>{record?.recognitionType?.description ?? '-'}</p>
+        <p data-cy={`recognition-details-${record.id}`}>
+          {record?.recognitionType?.description ?? '-'}
+        </p>
       ),
     },
     {
@@ -234,7 +249,10 @@ function Page() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setDeleteModalOpen((prev) => ({ ...prev, [record.id]: true }));
+                  setDeleteModalOpen((prev) => ({
+                    ...prev,
+                    [record.id]: true,
+                  }));
                 }}
                 className="bg-red-600 hover:bg-red-700 text-white rounded w-8 h-8 flex items-center justify-center"
                 id={`recognition-table-delete-button-${record.id}`}
@@ -249,55 +267,72 @@ function Page() {
     },
   ];
 
-  const currentPageIds = (getAllRecognition?.items || []).map((item: any) => String(item.id));
+  const currentPageIds = (getAllRecognition?.items || []).map((item: any) =>
+    String(item.id),
+  );
   const currentPageSelectedKeys = (selectedRowKeys || []).filter((key) =>
-    currentPageIds.includes(String(key))
+    currentPageIds.includes(String(key)),
   );
 
   const rowSelection = {
     selectedRowKeys: currentPageSelectedKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => {
       if (isSelectingAllRef.current) return;
-      
+
       const existingSelected = (selectedRowKeys || []).map(String);
       const otherPagesSelected = existingSelected.filter(
-        (key) => !currentPageIds.includes(key)
+        (key) => !currentPageIds.includes(key),
       );
       const newSelectedStrings = newSelectedRowKeys.map(String);
       setSelectedRowKeys([...otherPagesSelected, ...newSelectedStrings]);
     },
     onSelectAll: (selected: boolean) => {
       isSelectingAllRef.current = true;
-      
+
       if (selected) {
-        fetchAllIds().then((response) => {
-          if (response.data?.items) {
-            const allIds = response.data.items.map((item: any) => String(item.id));
+        fetchAllIds()
+          .then((response) => {
+            if (response.data?.items) {
+              const allIds = response.data.items.map((item: any) =>
+                String(item.id),
+              );
+              const existingSelected = (selectedRowKeys || []).map(String);
+              const allSelected =
+                allIds.length > 0 &&
+                allIds.every((id: string) => existingSelected.includes(id)) &&
+                existingSelected.length === allIds.length;
+
+              setSelectedRowKeys(allSelected ? [] : allIds);
+            }
+            setTimeout(() => {
+              isSelectingAllRef.current = false;
+            }, 100);
+          })
+          .catch(() => {
             const existingSelected = (selectedRowKeys || []).map(String);
-            const allSelected = allIds.length > 0 && 
-              allIds.every((id: string) => existingSelected.includes(id)) &&
-              existingSelected.length === allIds.length;
-            
-            setSelectedRowKeys(allSelected ? [] : allIds);
-          }
-          setTimeout(() => { isSelectingAllRef.current = false; }, 100);
-        }).catch(() => {
-          const existingSelected = (selectedRowKeys || []).map(String);
-          const allCurrentPageSelected = currentPageIds.length > 0 &&
-            currentPageIds.every((id: string) => existingSelected.includes(id));
-          
-          const otherPagesSelected = existingSelected.filter(
-            (key) => !currentPageIds.includes(key)
-          );
-          setSelectedRowKeys(allCurrentPageSelected 
-            ? otherPagesSelected 
-            : [...otherPagesSelected, ...currentPageIds]
-          );
-          setTimeout(() => { isSelectingAllRef.current = false; }, 100);
-        });
+            const allCurrentPageSelected =
+              currentPageIds.length > 0 &&
+              currentPageIds.every((id: string) =>
+                existingSelected.includes(id),
+              );
+
+            const otherPagesSelected = existingSelected.filter(
+              (key) => !currentPageIds.includes(key),
+            );
+            setSelectedRowKeys(
+              allCurrentPageSelected
+                ? otherPagesSelected
+                : [...otherPagesSelected, ...currentPageIds],
+            );
+            setTimeout(() => {
+              isSelectingAllRef.current = false;
+            }, 100);
+          });
       } else {
         setSelectedRowKeys([]);
-        setTimeout(() => { isSelectingAllRef.current = false; }, 100);
+        setTimeout(() => {
+          isSelectingAllRef.current = false;
+        }, 100);
       }
     },
   };
@@ -307,10 +342,22 @@ function Page() {
       label: 'All',
       children: (
         <>
-          <div className="flex justify-between items-center mb-4" data-cy="recognition-header-container" id="recognitionHeaderContainer">
-            <PageHeader title="Recognition" description="Manage Recognition" data-cy="recognition-header-page-header" />
+          <div
+            className="flex justify-between items-center mb-4"
+            data-cy="recognition-header-container"
+            id="recognitionHeaderContainer"
+          >
+            <PageHeader
+              title="Recognition"
+              description="Manage Recognition"
+              data-cy="recognition-header-page-header"
+            />
 
-            <div className="flex items-center space-x-2" data-cy="recognition-actions-container" id="recognitionActionsContainer">
+            <div
+              className="flex items-center space-x-2"
+              data-cy="recognition-actions-container"
+              id="recognitionActionsContainer"
+            >
               <Button
                 type="primary"
                 onClick={handleRecognitionModal}
@@ -319,11 +366,21 @@ function Page() {
                 data-cy="recognition-recognize-button"
                 id="recognitionRecognizeButton"
               >
-                <span className="hidden sm:inline" data-cy="recognition-recognize-button-text" id="recognitionRecognizeButtonText">Recognize</span>
+                <span
+                  className="hidden sm:inline"
+                  data-cy="recognition-recognize-button-text"
+                  id="recognitionRecognizeButtonText"
+                >
+                  Recognize
+                </span>
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-cy="recognition-stats-container" id="recognitionStatsContainer">
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+            data-cy="recognition-stats-container"
+            id="recognitionStatsContainer"
+          >
             <Card
               className="bg-[#fafafa] font-bold"
               key={`all-card-${1}`}
@@ -331,13 +388,25 @@ function Page() {
               data-cy="recognition-total-employees-card"
               id="recognitionTotalEmployeesCard"
             >
-              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center" data-cy="recognition-total-employees-icon" id="recognitionTotalEmployeesIcon">
+              <div
+                className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center"
+                data-cy="recognition-total-employees-icon"
+                id="recognitionTotalEmployeesIcon"
+              >
                 <CiMedal fill="#0BA259" />
               </div>
-              <p className="text-gray-400 text-xs font-normal  mt-4" data-cy="recognition-total-employees-label" id="recognitionTotalEmployeesLabel">
+              <p
+                className="text-gray-400 text-xs font-normal  mt-4"
+                data-cy="recognition-total-employees-label"
+                id="recognitionTotalEmployeesLabel"
+              >
                 Total number of recognized employees
               </p>
-              <p className="text-3xl" data-cy="recognition-total-employees-value" id="recognitionTotalEmployeesValue">{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
+              <p
+                className="text-3xl"
+                data-cy="recognition-total-employees-value"
+                id="recognitionTotalEmployeesValue"
+              >{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
             </Card>
             <Card
               className="bg-[#fafafa] font-bold"
@@ -346,13 +415,29 @@ function Page() {
               data-cy="recognition-total-criteria-card"
               id="recognitionTotalCriteriaCard"
             >
-              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center" data-cy="recognition-total-criteria-icon-wrapper" id="recognitionTotalCriteriaIconWrapper">
-                <CiMedal fill="#0BA259" data-cy="recognition-total-criteria-icon" id="recognitionTotalCriteriaIcon" />
+              <div
+                className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center"
+                data-cy="recognition-total-criteria-icon-wrapper"
+                id="recognitionTotalCriteriaIconWrapper"
+              >
+                <CiMedal
+                  fill="#0BA259"
+                  data-cy="recognition-total-criteria-icon"
+                  id="recognitionTotalCriteriaIcon"
+                />
               </div>
-              <p className="text-gray-400 text-xs font-normal mt-4" data-cy="recognition-total-criteria-label" id="recognitionTotalCriteriaLabel">
+              <p
+                className="text-gray-400 text-xs font-normal mt-4"
+                data-cy="recognition-total-criteria-label"
+                id="recognitionTotalCriteriaLabel"
+              >
                 Total number of Criteria
               </p>
-              <p className="text-3xl" data-cy="recognition-total-criteria-value" id="recognitionTotalCriteriaValue">{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
+              <p
+                className="text-3xl"
+                data-cy="recognition-total-criteria-value"
+                id="recognitionTotalCriteriaValue"
+              >{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
             </Card>
           </div>
         </>
@@ -362,7 +447,11 @@ function Page() {
       key: item.id,
       label: item.name,
       children: (
-        <PageHeader title="Recognition" description="Manage Recognition" data-cy="recognition-type-header" />
+        <PageHeader
+          title="Recognition"
+          description="Manage Recognition"
+          data-cy="recognition-type-header"
+        />
       ),
     })) || []), // Fallback to an empty array if recognitionType?.items is undefined
   ];
@@ -429,7 +518,15 @@ function Page() {
             data-cy="recognition-filters-row"
             id="recognitionFiltersRow"
           >
-            <Col lg={9} md={9} xs={20} sm={20} flex="auto" data-cy="recognition-employee-filter-col" id="recognitionEmployeeFilterCol">
+            <Col
+              lg={9}
+              md={9}
+              xs={20}
+              sm={20}
+              flex="auto"
+              data-cy="recognition-employee-filter-col"
+              id="recognitionEmployeeFilterCol"
+            >
               <Select
                 placeholder="Search by Employee"
                 onChange={(value) => handleSearchChange('userId', value)}
@@ -451,7 +548,15 @@ function Page() {
               />
             </Col>
 
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto" data-cy="recognition-year-filter-col" id="recognitionYearFilterCol">
+            <Col
+              lg={5}
+              md={5}
+              xs={20}
+              sm={20}
+              flex="auto"
+              data-cy="recognition-year-filter-col"
+              id="recognitionYearFilterCol"
+            >
               <Select
                 placeholder="filter by year"
                 onChange={(value) => handleSearchChange('calendarId', value)}
@@ -469,7 +574,15 @@ function Page() {
               />
             </Col>
 
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto" data-cy="recognition-session-filter-col" id="recognitionSessionFilterCol">
+            <Col
+              lg={5}
+              md={5}
+              xs={20}
+              sm={20}
+              flex="auto"
+              data-cy="recognition-session-filter-col"
+              id="recognitionSessionFilterCol"
+            >
               <Select
                 placeholder="Select by session"
                 onChange={(value) => handleSearchChange('sessionId', value)}
@@ -492,7 +605,15 @@ function Page() {
               />
             </Col>
 
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto" data-cy="recognition-month-filter-col" id="recognitionMonthFilterCol">
+            <Col
+              lg={5}
+              md={5}
+              xs={20}
+              sm={20}
+              flex="auto"
+              data-cy="recognition-month-filter-col"
+              id="recognitionMonthFilterCol"
+            >
               <Select
                 placeholder="filter by month"
                 onChange={(value) => handleSearchChange('monthId', value)}
@@ -519,7 +640,11 @@ function Page() {
             </Col>
           </Row>
           {hasSelectedRows && (
-            <div id="recognition-bulk-delete-container" data-cy="recognition-bulk-delete-container" className="px-6 mb-4 flex justify-end">
+            <div
+              id="recognition-bulk-delete-container"
+              data-cy="recognition-bulk-delete-container"
+              className="px-6 mb-4 flex justify-end"
+            >
               <AccessGuard
                 permissions={[Permissions.DeleteRecognition]}
                 id="recognition-bulk-delete-guard"

@@ -289,7 +289,13 @@ const HistoryTable = () => {
           <Button
             type="text"
             size="small"
-            icon={<AiOutlineReload data-cy="time-attendance-history-table-refresh-button-icon" size={14} className="text-gray-600" />}
+            icon={
+              <AiOutlineReload
+                data-cy="time-attendance-history-table-refresh-button-icon"
+                size={14}
+                className="text-gray-600"
+              />
+            }
             onClick={() => refetch()}
             id="time-attendance-history-table-refresh-button"
             data-cy="time-attendance-history-table-refresh-button"
@@ -307,14 +313,21 @@ const HistoryTable = () => {
             id="time-attendance-history-table-mobile-actions"
             data-cy="time-attendance-history-table-mobile-actions"
           >
-            <div id="time-attendance-history-table-mobile-filter-container" data-cy="time-attendance-history-table-mobile-filter-container" className="h-10 flex ">
+            <div
+              id="time-attendance-history-table-mobile-filter-container"
+              data-cy="time-attendance-history-table-mobile-filter-container"
+              className="h-10 flex "
+            >
               <HistoryTableFilter
                 onChange={onFilterChange}
                 data-cy="time-attendance-history-table-mobile-filter"
               />
             </div>
             <div className="">
-              <AccessGuard data-cy="time-attendance-history-table-mobile-add-button-access-guard" permissions={[Permissions.SubmitLeaveRequest]}>
+              <AccessGuard
+                data-cy="time-attendance-history-table-mobile-add-button-access-guard"
+                permissions={[Permissions.SubmitLeaveRequest]}
+              >
                 <Button
                   size="large"
                   type="primary"
@@ -335,7 +348,10 @@ const HistoryTable = () => {
             id="time-attendance-history-table-desktop-actions"
             data-cy="time-attendance-history-table-desktop-actions"
           >
-            <AccessGuard data-cy="time-attendance-history-table-desktop-add-button-access-guard" permissions={[Permissions.SubmitLeaveRequest]}>
+            <AccessGuard
+              data-cy="time-attendance-history-table-desktop-add-button-access-guard"
+              permissions={[Permissions.SubmitLeaveRequest]}
+            >
               <Button
                 size="large"
                 type="primary"

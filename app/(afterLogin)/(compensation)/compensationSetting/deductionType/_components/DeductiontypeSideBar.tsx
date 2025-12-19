@@ -152,9 +152,9 @@ const DeductiontypeSideBar = () => {
     },
     {
       label: selectedDeductionRecord?.id ? (
-        <span>Update</span>
+        <span data-cy="deduction-sidebar-update-button-label">Update</span>
       ) : (
-        <span>Create</span>
+        <span data-cy="deduction-sidebar-create-button-label">Create</span>
       ),
       key: 'create',
       className: 'h-12',
@@ -251,7 +251,10 @@ const DeductiontypeSideBar = () => {
             </Form.Item>
 
             <>
-              <div style={{ display: 'flex', gap: '20px' }}>
+              <div
+                style={{ display: 'flex', gap: '20px' }}
+                data-cy="compensation-settings-deduction-sidebar-empty-container"
+              >
                 {/* <Form.Item
                     name="isRate"
                     label={'Is Rate'}

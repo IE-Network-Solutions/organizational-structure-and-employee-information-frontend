@@ -164,13 +164,11 @@ const PlanAssignment: React.FC = () => {
                     <Avatar
                       size={20}
                       src={item?.profileImage}
-                     
                       data-cy={`okr-planning-assignation-table-employee-avatar-${item?.userId}`}
                     />
                   ) : (
                     <Avatar
                       size={20}
-                     
                       data-cy={`okr-planning-assignation-table-employee-avatar-initials-${item?.userId}`}
                     >
                       {getEmployeeData(item?.userId)
@@ -223,7 +221,6 @@ const PlanAssignment: React.FC = () => {
           {employeeDataLoading ? (
             <Spin
               size="small"
-             
               data-cy={`okr-planning-assignation-table-employee-name-loading-${record?.key}`}
             />
           ) : (
@@ -255,7 +252,10 @@ const PlanAssignment: React.FC = () => {
           id={`okr-planning-assignation-table-actions-${record?.key}`}
           data-cy={`okr-planning-assignation-table-actions-${record?.key}`}
         >
-          <AccessGuard data-cy="okr-planning-assignation-table-edit-button-access-guard-display-guard" permissions={[Permissions.UpdateAssignedPlanningPeriod]}>
+          <AccessGuard
+            data-cy="okr-planning-assignation-table-edit-button-access-guard-display-guard"
+            permissions={[Permissions.UpdateAssignedPlanningPeriod]}
+          >
             <button
               className="bg-[#2F78EE] font-bold text-white rounded px-2 py-1 text-xs"
               onClick={() => record.actions.edit()}
@@ -269,7 +269,10 @@ const PlanAssignment: React.FC = () => {
               />
             </button>
           </AccessGuard>
-          <AccessGuard data-cy="okr-planning-assignation-table-delete-button-access-guard-display-guard" permissions={[Permissions.DeleteAssignedPlanningPeriod]}>
+          <AccessGuard
+            data-cy="okr-planning-assignation-table-delete-button-access-guard-display-guard"
+            permissions={[Permissions.DeleteAssignedPlanningPeriod]}
+          >
             <Popconfirm
               title="Are you sure you want to delete this item?"
               onConfirm={() => record.actions.delete()}
@@ -318,7 +321,11 @@ const PlanAssignment: React.FC = () => {
         id="okr-planning-assignation-filters-display-div"
         data-cy="okr-planning-assignation-filters-display-div"
       >
-        <Form.Item id="filterByLeaveRequestUserIds" data-cy="filterByLeaveRequestUserIds" name="userIds">
+        <Form.Item
+          id="filterByLeaveRequestUserIds"
+          data-cy="filterByLeaveRequestUserIds"
+          name="userIds"
+        >
           <Select
             placeholder="Select a person"
             showSearch
@@ -335,9 +342,14 @@ const PlanAssignment: React.FC = () => {
             data-cy="okr-planning-assignation-user-select-display-select"
           />
         </Form.Item>
-        <AccessGuard data-cy="okr-planning-assignation-assign-button-access-guard-display-guard" permissions={[Permissions.AssignPlanningPeriod]}>
+        <AccessGuard
+          data-cy="okr-planning-assignation-assign-button-access-guard-display-guard"
+          permissions={[Permissions.AssignPlanningPeriod]}
+        >
           <Button
-            icon={<FaPlus data-cy="okr-planning-assignation-assign-button-icon-display-button" />}
+            icon={
+              <FaPlus data-cy="okr-planning-assignation-assign-button-icon-display-button" />
+            }
             onClick={showDrawer}
             className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
             type="primary"
@@ -377,7 +389,6 @@ const PlanAssignment: React.FC = () => {
             pageSize={pageSize}
             onChange={onPageChange}
             onShowSizeChange={onPageChange}
-          
             data-cy="okr-planning-assignation-mobile-pagination-display-pagination"
           />
         ) : (
@@ -392,7 +403,6 @@ const PlanAssignment: React.FC = () => {
               setPageSize(pageSize);
               setPage(1);
             }}
-        
             data-cy="okr-planning-assignation-pagination-display-pagination"
           />
         )}
@@ -401,14 +411,12 @@ const PlanAssignment: React.FC = () => {
       <PlanningAssignationDrawer
         open={open}
         onClose={onClose}
-      
         data-cy="okr-planning-assignation-drawer-display-drawer"
       />
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleDeletePlanningAssignation(deletedId)}
         onCancel={onCloseDeleteModal}
-      
         data-cy="okr-planning-assignation-delete-modal-display-modal"
       />
     </div>

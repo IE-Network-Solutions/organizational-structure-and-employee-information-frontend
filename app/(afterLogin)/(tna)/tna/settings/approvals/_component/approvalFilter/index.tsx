@@ -49,8 +49,16 @@ const ApprovalFilter = () => {
     setApproverType('');
   };
   return (
-    <div className="flex justify-between gap-4 sm:block" id="tnaApprovalFilterContainerId" data-cy="tna-approval-filter-container">
-      <div className="flex-1" id="tnaApprovalFilterComponentId" data-cy="tna-approval-filter-component">
+    <div
+      className="flex justify-between gap-4 sm:block"
+      id="tnaApprovalFilterContainerId"
+      data-cy="tna-approval-filter-container"
+    >
+      <div
+        className="flex-1"
+        id="tnaApprovalFilterComponentId"
+        data-cy="tna-approval-filter-component"
+      >
         <ApprovalFilterComponent
           searchParams={searchParams}
           handleSearchInput={handleSearchInput}
@@ -59,7 +67,11 @@ const ApprovalFilter = () => {
         />
       </div>
 
-      <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]} data-cy="tna-approval-filter-create-guard" id="tnaApprovalFilterCreateGuardId">
+      <AccessGuard
+        permissions={[Permissions.CreateApprovalWorkFlow]}
+        data-cy="tna-approval-filter-create-guard"
+        id="tnaApprovalFilterCreateGuardId"
+      >
         <Button
           title="Set Approval"
           id="createUserButton"
@@ -69,7 +81,13 @@ const ApprovalFilter = () => {
           onClick={handleNavigation}
           type="primary"
         >
-          <span className="hidden sm:inline" data-cy="tna-approval-filter-create-button-text" id="tnaApprovalFilterCreateButtonTextId">Set Approval</span>
+          <span
+            className="hidden sm:inline"
+            data-cy="tna-approval-filter-create-button-text"
+            id="tnaApprovalFilterCreateButtonTextId"
+          >
+            Set Approval
+          </span>
         </Button>
       </AccessGuard>
     </div>

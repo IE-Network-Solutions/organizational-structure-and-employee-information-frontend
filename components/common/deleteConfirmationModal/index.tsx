@@ -30,7 +30,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   'data-cy': dataCy,
 }) => {
   const deleteModalFooter = (
-    <div className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6">
+    <div
+      className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6"
+      data-cy="delete-confirmation-modal-footer"
+    >
       <Button
         className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
         id="deleteModalCancelButtonId"

@@ -35,7 +35,7 @@ const PositionCards: React.FC = () => {
     setDeletePositionId,
     setEditModal,
   } = usePositionState();
-  const { data: positions} = useGetPositions(
+  const { data: positions } = useGetPositions(
     currentPage,
     pageSize,
     searchTerm,

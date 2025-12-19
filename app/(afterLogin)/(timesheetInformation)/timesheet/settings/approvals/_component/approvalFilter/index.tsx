@@ -75,11 +75,19 @@ const ApprovalFilter = () => {
           id="createUserButton"
           data-cy="time-attendance-settings-approvals-filter-add-button-id"
           className="h-10 w-10 sm:w-auto sm:hidden"
-          icon={<FaPlus data-cy="time-attendance-settings-approvals-filter-add-button-icon" />}
+          icon={
+            <FaPlus data-cy="time-attendance-settings-approvals-filter-add-button-icon" />
+          }
           onClick={handleNavigation}
           type="primary"
         >
-          <span id="time-attendance-settings-approvals-filter-add-button-label" data-cy="time-attendance-settings-approvals-filter-add-button-label" className="hidden sm:inline">Set Approval</span>
+          <span
+            id="time-attendance-settings-approvals-filter-add-button-label"
+            data-cy="time-attendance-settings-approvals-filter-add-button-label"
+            className="hidden sm:inline"
+          >
+            Set Approval
+          </span>
         </Button>
       </AccessGuard>
     </div>

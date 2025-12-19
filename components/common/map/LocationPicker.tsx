@@ -222,14 +222,17 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
       <div
         style={{ height, width }}
         className="bg-gray-100 rounded-lg flex items-center justify-center"
+        data-cy="location-picker-loading"
       >
-        <div className="text-gray-500">Loading map...</div>
+        <div className="text-gray-500" data-cy="location-picker-loading-text">
+          Loading map...
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ height, width }}>
+    <div style={{ height, width }} data-cy="location-picker">
       <MapContainer
         center={position}
         zoom={zoomLevel}

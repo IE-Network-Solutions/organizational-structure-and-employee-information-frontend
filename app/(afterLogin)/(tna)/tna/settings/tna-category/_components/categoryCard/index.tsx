@@ -18,8 +18,16 @@ const TnaCategoryCard: FC<TnaCategoryCardProps> = ({ item }) => {
 
   return (
     <Spin spinning={isLoading} data-cy={`tna-category-card-spinner-${item.id}`}>
-      <div className="flex justify-between items-center p-6 rounded-2xl border border-gray-200 mt-6 gap-2.5" id={`tnaCategoryCard${item.id}Id`} data-cy={`tna-category-card-${item.id}`}>
-        <div className="text-lg font-semibold text-gray-900 flex-1" id={`tnaCategoryCardName${item.id}Id`} data-cy={`tna-category-card-name-${item.id}`}>
+      <div
+        className="flex justify-between items-center p-6 rounded-2xl border border-gray-200 mt-6 gap-2.5"
+        id={`tnaCategoryCard${item.id}Id`}
+        data-cy={`tna-category-card-${item.id}`}
+      >
+        <div
+          className="text-lg font-semibold text-gray-900 flex-1"
+          id={`tnaCategoryCardName${item.id}Id`}
+          data-cy={`tna-category-card-name-${item.id}`}
+        >
           {item.name}
         </div>
         <AccessGuard

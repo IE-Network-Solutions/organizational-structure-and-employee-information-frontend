@@ -60,7 +60,11 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
   };
 
   const drawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 px-4 py-2" data-cy="question-template-drawer-header" id="questionTemplateDrawerHeader">
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 px-4 py-2"
+      data-cy="question-template-drawer-header"
+      id="questionTemplateDrawerHeader"
+    >
       Create New Field
     </div>
   );
@@ -74,7 +78,11 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
         width="40%"
         data-cy="question-template-drawer"
       >
-        <div className="pb-[60px]" data-cy="question-template-drawer-content" id="questionTemplateDrawerContent">
+        <div
+          className="pb-[60px]"
+          data-cy="question-template-drawer-content"
+          id="questionTemplateDrawerContent"
+        >
           <Form
             form={form}
             name="dependencies"
@@ -90,23 +98,50 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
             data-cy="question-template-drawer-form"
             id="questionTemplateDrawerForm"
           >
-            <div className="flex flex-col justify-between" data-cy="question-template-drawer-form-content" id="questionTemplateDrawerFormContent">
-              <div data-cy="question-template-drawer-form-fields" id="questionTemplateDrawerFormFields">
+            <div
+              className="flex flex-col justify-between"
+              data-cy="question-template-drawer-form-content"
+              id="questionTemplateDrawerFormContent"
+            >
+              <div
+                data-cy="question-template-drawer-form-fields"
+                id="questionTemplateDrawerFormFields"
+              >
                 <Form.Item
                   required
                   name="customFieldName"
                   label={
-                    <span className="text-md font-semibold text-gray-700" data-cy="question-template-drawer-title-label" id="questionTemplateDrawerTitleLabel">
+                    <span
+                      className="text-md font-semibold text-gray-700"
+                      data-cy="question-template-drawer-title-label"
+                      id="questionTemplateDrawerTitleLabel"
+                    >
                       Template Title
                     </span>
                   }
                   data-cy="question-template-drawer-title-field"
                   id="questionTemplateDrawerTitleField"
                 >
-                  <Input allowClear size="large" placeholder="Enter Title" data-cy="question-template-drawer-title-input" id="questionTemplateDrawerTitleInput" />
+                  <Input
+                    allowClear
+                    size="large"
+                    placeholder="Enter Title"
+                    data-cy="question-template-drawer-title-input"
+                    id="questionTemplateDrawerTitleInput"
+                  />
                 </Form.Item>
-                <Row gutter={12} data-cy="question-template-drawer-row" id="questionTemplateDrawerRow">
-                  <Col lg={8} md={10} xs={24} data-cy="question-template-drawer-field-type-col" id="questionTemplateDrawerFieldTypeCol">
+                <Row
+                  gutter={12}
+                  data-cy="question-template-drawer-row"
+                  id="questionTemplateDrawerRow"
+                >
+                  <Col
+                    lg={8}
+                    md={10}
+                    xs={24}
+                    data-cy="question-template-drawer-field-type-col"
+                    id="questionTemplateDrawerFieldTypeCol"
+                  >
                     <Form.Item
                       label={
                         <span className="text-md font-semibold text-gray-700">
@@ -118,18 +153,57 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                       data-cy="question-template-drawer-field-type-field"
                       id="questionTemplateDrawerFieldTypeField"
                     >
-                      <Select allowClear placeholder="Select type" data-cy="question-template-drawer-field-type-select" id="questionTemplateDrawerFieldTypeSelect">
-                        <Option value="multiple_choice" data-cy="question-template-drawer-field-type-option-multiple-choice" id="questionTemplateDrawerFieldTypeOptionMultipleChoice">Multiple Choice</Option>
-                        <Option value="checkbox" data-cy="question-template-drawer-field-type-option-checkbox" id="questionTemplateDrawerFieldTypeOptionCheckbox">Checkbox</Option>
-                        <Option value="short_text" data-cy="question-template-drawer-field-type-option-short-text" id="questionTemplateDrawerFieldTypeOptionShortText">Short Text</Option>
-                        <Option value="paragraph" data-cy="question-template-drawer-field-type-option-paragraph" id="questionTemplateDrawerFieldTypeOptionParagraph">Paragraph</Option>
+                      <Select
+                        allowClear
+                        placeholder="Select type"
+                        data-cy="question-template-drawer-field-type-select"
+                        id="questionTemplateDrawerFieldTypeSelect"
+                      >
+                        <Option
+                          value="multiple_choice"
+                          data-cy="question-template-drawer-field-type-option-multiple-choice"
+                          id="questionTemplateDrawerFieldTypeOptionMultipleChoice"
+                        >
+                          Multiple Choice
+                        </Option>
+                        <Option
+                          value="checkbox"
+                          data-cy="question-template-drawer-field-type-option-checkbox"
+                          id="questionTemplateDrawerFieldTypeOptionCheckbox"
+                        >
+                          Checkbox
+                        </Option>
+                        <Option
+                          value="short_text"
+                          data-cy="question-template-drawer-field-type-option-short-text"
+                          id="questionTemplateDrawerFieldTypeOptionShortText"
+                        >
+                          Short Text
+                        </Option>
+                        <Option
+                          value="paragraph"
+                          data-cy="question-template-drawer-field-type-option-paragraph"
+                          id="questionTemplateDrawerFieldTypeOptionParagraph"
+                        >
+                          Paragraph
+                        </Option>
                       </Select>
                     </Form.Item>
                   </Col>
-                  <Col lg={16} md={10} xs={24} data-cy="question-template-drawer-question-col" id="questionTemplateDrawerQuestionCol">
+                  <Col
+                    lg={16}
+                    md={10}
+                    xs={24}
+                    data-cy="question-template-drawer-question-col"
+                    id="questionTemplateDrawerQuestionCol"
+                  >
                     <Form.Item
                       label={
-                        <span className="text-md font-semibold text-gray-700" data-cy="question-template-drawer-question-label" id="questionTemplateDrawerQuestionLabel">
+                        <span
+                          className="text-md font-semibold text-gray-700"
+                          data-cy="question-template-drawer-question-label"
+                          id="questionTemplateDrawerQuestionLabel"
+                        >
                           Question
                         </span>
                       }
@@ -157,7 +231,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                   data-cy="question-template-drawer-required-field"
                   id="questionTemplateDrawerRequiredField"
                 >
-                  <Checkbox defaultChecked={false} data-cy="question-template-drawer-required-checkbox" id="questionTemplateDrawerRequiredCheckbox">Is Required</Checkbox>
+                  <Checkbox
+                    defaultChecked={false}
+                    data-cy="question-template-drawer-required-checkbox"
+                    id="questionTemplateDrawerRequiredCheckbox"
+                  >
+                    Is Required
+                  </Checkbox>
                 </Form.Item>
 
                 <Form.List
@@ -190,7 +270,11 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                   {(fields, { add, remove }) => {
                     const questionType = form.getFieldValue('fieldType');
                     return (
-                      <div className="mx-8" data-cy="question-template-drawer-field-list-container" id="questionTemplateDrawerFieldListContainer">
+                      <div
+                        className="mx-8"
+                        data-cy="question-template-drawer-field-list-container"
+                        id="questionTemplateDrawerFieldListContainer"
+                      >
                         {fields.map((field) => (
                           <Form.Item
                             required={false}
@@ -205,7 +289,11 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                             data-cy={`question-template-drawer-field-item-${field.name}`}
                             id={`questionTemplateDrawerFieldItem${field.name}`}
                           >
-                            <div className="flex items-center gap-3" data-cy={`question-template-drawer-field-item-container-${field.name}`} id={`questionTemplateDrawerFieldItemContainer${field.name}`}>
+                            <div
+                              className="flex items-center gap-3"
+                              data-cy={`question-template-drawer-field-item-container-${field.name}`}
+                              id={`questionTemplateDrawerFieldItemContainer${field.name}`}
+                            >
                               {renderOptionInput(questionType)}
                               <Form.Item
                                 {...field}
@@ -222,7 +310,11 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                                 data-cy={`question-template-drawer-field-input-field-${field.name}`}
                                 id={`questionTemplateDrawerFieldInputField${field.name}`}
                               >
-                                <Input placeholder="Option" data-cy={`question-template-drawer-field-input-${field.name}`} id={`questionTemplateDrawerFieldInput${field.name}`} />
+                                <Input
+                                  placeholder="Option"
+                                  data-cy={`question-template-drawer-field-input-${field.name}`}
+                                  id={`questionTemplateDrawerFieldInput${field.name}`}
+                                />
                               </Form.Item>
                               {fields.length > 0 && (
                                 <MinusCircleOutlined
@@ -238,8 +330,15 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
 
                         {questionType === 'multiple_choice' ||
                         questionType === FieldType.CHECKBOX ? (
-                          <Form.Item data-cy="question-template-drawer-add-option-container" id="questionTemplateDrawerAddOptionContainer">
-                            <div className="flex flex-col items-center justify-center" data-cy="question-template-drawer-add-option" id="questionTemplateDrawerAddOption">
+                          <Form.Item
+                            data-cy="question-template-drawer-add-option-container"
+                            id="questionTemplateDrawerAddOptionContainer"
+                          >
+                            <div
+                              className="flex flex-col items-center justify-center"
+                              data-cy="question-template-drawer-add-option"
+                              id="questionTemplateDrawerAddOption"
+                            >
                               <div
                                 onClick={() => add()}
                                 className="w-6 h-6 flex items-center justify-center rounded-full bg-primary cursor-pointer"
@@ -253,7 +352,11 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                                   id="questionTemplateDrawerAddOptionButtonIcon"
                                 />
                               </div>
-                              <p className="text-xs font-light text-gray-400 " data-cy="question-template-drawer-add-option-label" id="questionTemplateDrawerAddOptionLabel">
+                              <p
+                                className="text-xs font-light text-gray-400 "
+                                data-cy="question-template-drawer-add-option-label"
+                                id="questionTemplateDrawerAddOptionLabel"
+                              >
                                 Add Option
                               </p>
                             </div>
@@ -266,9 +369,20 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                   }}
                 </Form.List>
               </div>
-              <div className="mt-40" data-cy="question-template-drawer-footer-container" id="questionTemplateDrawerFooterContainer">
-                <Form.Item data-cy="question-template-drawer-footer" id="questionTemplateDrawerFooter">
-                  <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8" data-cy="question-template-drawer-actions" id="questionTemplateDrawerActions">
+              <div
+                className="mt-40"
+                data-cy="question-template-drawer-footer-container"
+                id="questionTemplateDrawerFooterContainer"
+              >
+                <Form.Item
+                  data-cy="question-template-drawer-footer"
+                  id="questionTemplateDrawerFooter"
+                >
+                  <div
+                    className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8"
+                    data-cy="question-template-drawer-actions"
+                    id="questionTemplateDrawerActions"
+                  >
                     <Button
                       onClick={() => setIsOpen(false)}
                       className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"

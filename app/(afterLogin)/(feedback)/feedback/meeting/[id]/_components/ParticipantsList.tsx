@@ -120,7 +120,12 @@ export default function ParticipantsList({
     if (isEmp && isLoading) {
       return (
         <Spin
-          indicator={<LoadingOutlined id='feedback-meeting-components-participantslist-spin-employee-icon' data-cy='feedback-meeting-components-participantslist-spin-employee-icon' />}
+          indicator={
+            <LoadingOutlined
+              id="feedback-meeting-components-participantslist-spin-employee-icon"
+              data-cy="feedback-meeting-components-participantslist-spin-employee-icon"
+            />
+          }
           data-cy="feedback-meeting-components-participantslist-spin-employee"
         />
       );
@@ -132,23 +137,50 @@ export default function ParticipantsList({
         data-cy="feedback-meeting-components-participantslist-popconfirm-content"
         id="feedback-meeting-components-participantslist-popconfirm-content"
       >
-        <div className="flex items-center gap-3 mb-3" data-cy="feedback-meeting-components-participantslist-popconfirm-content-div" id="feedback-meeting-components-participantslist-popconfirm-content-div">
+        <div
+          className="flex items-center gap-3 mb-3"
+          data-cy="feedback-meeting-components-participantslist-popconfirm-content-div"
+          id="feedback-meeting-components-participantslist-popconfirm-content-div"
+        >
           <Avatar
             src={profileImage}
-            icon={<UserOutlined data-cy="feedback-meeting-components-participantslist-avatar-icon" id="feedback-meeting-components-participantslist-avatar-icon" />}
+            icon={
+              <UserOutlined
+                data-cy="feedback-meeting-components-participantslist-avatar-icon"
+                id="feedback-meeting-components-participantslist-avatar-icon"
+              />
+            }
             data-cy="feedback-meeting-components-participantslist-avatar"
           />
-          <div data-cy="feedback-meeting-components-participantslist-popconfirm-content-div-text" id="feedback-meeting-components-participantslist-popconfirm-content-div-text">
-            <Tooltip title={userName} data-cy={`feedback-meeting-components-tooltip-${userName}`}>
-              <p className="font-semibold text-sm" data-cy="feedback-meeting-components-participantslist-popconfirm-content-div-text-p" id="feedback-meeting-components-participantslist-popconfirm-content-div-text-p">
+          <div
+            data-cy="feedback-meeting-components-participantslist-popconfirm-content-div-text"
+            id="feedback-meeting-components-participantslist-popconfirm-content-div-text"
+          >
+            <Tooltip
+              title={userName}
+              data-cy={`feedback-meeting-components-tooltip-${userName}`}
+            >
+              <p
+                className="font-semibold text-sm"
+                data-cy="feedback-meeting-components-participantslist-popconfirm-content-div-text-p"
+                id="feedback-meeting-components-participantslist-popconfirm-content-div-text-p"
+              >
                 {' '}
                 {userName?.length >= 20
                   ? userName?.slice(0, 20) + '...'
                   : userName}
               </p>
             </Tooltip>
-            <Tooltip title={email} data-cy="feedback-meeting-components-participantslist-popconfirm-content-div-text-tooltip" id="feedback-meeting-components-participantslist-popconfirm-content-div-text-tooltip">
-              <div className="text-sm text-gray-500" data-cy="feedback-meeting-components-participantslist-popconfirm-content-div-text-div" id="feedback-meeting-components-participantslist-popconfirm-content-div-text-div">
+            <Tooltip
+              title={email}
+              data-cy="feedback-meeting-components-participantslist-popconfirm-content-div-text-tooltip"
+              id="feedback-meeting-components-participantslist-popconfirm-content-div-text-tooltip"
+            >
+              <div
+                className="text-sm text-gray-500"
+                data-cy="feedback-meeting-components-participantslist-popconfirm-content-div-text-div"
+                id="feedback-meeting-components-participantslist-popconfirm-content-div-text-div"
+              >
                 {email?.length >= 20 ? email?.slice(0, 20) + '...' : email}
               </div>
             </Tooltip>
@@ -182,7 +214,12 @@ export default function ParticipantsList({
               data-cy="feedback-meeting-components-participantslist-form-item-islate"
               id="feedback-meeting-components-participantslist-form-item-islate"
             >
-              <Checkbox id='feedback-meeting-components-participantslist-checkbox-islate' data-cy='feedback-meeting-components-participantslist-checkbox-islate'>Is Late</Checkbox>
+              <Checkbox
+                id="feedback-meeting-components-participantslist-checkbox-islate"
+                data-cy="feedback-meeting-components-participantslist-checkbox-islate"
+              >
+                Is Late
+              </Checkbox>
             </Form.Item>
 
             <Form.Item
@@ -192,7 +229,12 @@ export default function ParticipantsList({
               data-cy="feedback-meeting-components-participantslist-form-item-isabsent"
               id="feedback-meeting-components-participantslist-form-item-isabsent"
             >
-              <Checkbox id='feedback-meeting-components-participantslist-checkbox-isabsent' data-cy='feedback-meeting-components-participantslist-checkbox-isabsent'>Is Absent</Checkbox>
+              <Checkbox
+                id="feedback-meeting-components-participantslist-checkbox-isabsent"
+                data-cy="feedback-meeting-components-participantslist-checkbox-isabsent"
+              >
+                Is Absent
+              </Checkbox>
             </Form.Item>
           </div>
 
@@ -262,52 +304,69 @@ export default function ParticipantsList({
     );
 
     const details = (
+      <div
+        className="flex gap-2 items-center"
+        data-cy={`feedback-meeting-components-participantslist-details-${id}`}
+        id={`feedback-meeting-components-participantslist-details-${id}`}
+      >
+        <Avatar
+          src={profileImage}
+          icon={
+            <UserOutlined
+              data-cy={`feedback-meeting-components-participantslist-icon-${id}`}
+            />
+          }
+          data-cy={`feedback-meeting-components-participantslist-avatar-display-${id}`}
+        />
+        <div
+          data-cy={`feedback-meeting-components-participantslist-div-text-${id}`}
+          id={`feedback-meeting-components-participantslist-div-text-${id}`}
+        >
+          <span
+            className="text-[10px]"
+            data-cy={`feedback-meeting-components-participantslist-span-name-${id}`}
+            id={`feedback-meeting-components-participantslist-span-name-${id}`}
+          >
+            {userName?.length >= 20 ? userName?.slice(0, 20) + '...' : userName}
+          </span>
+          <Tooltip
+            title={email}
+            id={`feedback-meeting-components-participantslist-tooltip-email-${id}`}
+            data-cy={`feedback-meeting-components-participantslist-tooltip-email-${id}`}
+          >
             <div
-              className="flex gap-2 items-center"
-              data-cy={`feedback-meeting-components-participantslist-details-${id}`}
-              id={`feedback-meeting-components-participantslist-details-${id}`}
+              className="text-[8px] text-gray-500"
+              data-cy={`feedback-meeting-components-participantslist-span-email-${id}`}
+              id={`feedback-meeting-components-participantslist-span-email-${id}`}
             >
-              <Avatar
-                src={profileImage}
-                icon={<UserOutlined data-cy={`feedback-meeting-components-participantslist-icon-${id}`} />}
-                data-cy={`feedback-meeting-components-participantslist-avatar-display-${id}`}
-              />
-              <div data-cy={`feedback-meeting-components-participantslist-div-text-${id}`} id={`feedback-meeting-components-participantslist-div-text-${id}`}>
-                <span
-                  className="text-[10px]"
-                  data-cy={`feedback-meeting-components-participantslist-span-name-${id}`}
-                  id={`feedback-meeting-components-participantslist-span-name-${id}`}
-                >
-                  {userName?.length >= 20 ? userName?.slice(0, 20) + '...' : userName}
-                </span>
-                <Tooltip title={email} id={`feedback-meeting-components-participantslist-tooltip-email-${id}`} data-cy={`feedback-meeting-components-participantslist-tooltip-email-${id}`}>
-                  <div
-                    className="text-[8px] text-gray-500"
-                    data-cy={`feedback-meeting-components-participantslist-span-email-${id}`}
-                    id={`feedback-meeting-components-participantslist-span-email-${id}`}
-                  >
-                    {email?.length >= 20 ? email?.slice(0, 20) + '...' : email}
-                  </div>
-                </Tooltip>
-                {attendanceStatus == 'absent' ? (
-                  <div
-                    className="text-[8px] bg-red-100 text-red-500 py-[2px] min-w-10 rounded-lg px-2 mt-1 "
-                    data-cy={`feedback-meeting-components-participantslist-text-absent-${id}`}
-                    id={`feedback-meeting-components-participantslist-text-absent-${id}`}
-                  >
-                    Absent reason: <strong> {absentismReason}</strong>
-                  </div>
-                ) : attendanceStatus == 'late' ? (
-                  <div
-                    className="text-[8px] bg-yellow-100 text-yellow-500 py-[2px] min-w-10 rounded-lg px-2 mt-1"
-                    data-cy={`feedback-meeting-components-participantslist-text-late-${id}`}
-                    id={`feedback-meeting-components-participantslist-text-late-${id}`}
-                  >
-                    Late By: <strong id={`feedback-meeting-components-participantslist-text-late-strong-${id}`} data-cy={`feedback-meeting-components-participantslist-text-late-strong-${id}`}>{lateBy} min </strong>
-                  </div>
-                ) : null}
-              </div>
+              {email?.length >= 20 ? email?.slice(0, 20) + '...' : email}
             </div>
+          </Tooltip>
+          {attendanceStatus == 'absent' ? (
+            <div
+              className="text-[8px] bg-red-100 text-red-500 py-[2px] min-w-10 rounded-lg px-2 mt-1 "
+              data-cy={`feedback-meeting-components-participantslist-text-absent-${id}`}
+              id={`feedback-meeting-components-participantslist-text-absent-${id}`}
+            >
+              Absent reason: <strong> {absentismReason}</strong>
+            </div>
+          ) : attendanceStatus == 'late' ? (
+            <div
+              className="text-[8px] bg-yellow-100 text-yellow-500 py-[2px] min-w-10 rounded-lg px-2 mt-1"
+              data-cy={`feedback-meeting-components-participantslist-text-late-${id}`}
+              id={`feedback-meeting-components-participantslist-text-late-${id}`}
+            >
+              Late By:{' '}
+              <strong
+                id={`feedback-meeting-components-participantslist-text-late-strong-${id}`}
+                data-cy={`feedback-meeting-components-participantslist-text-late-strong-${id}`}
+              >
+                {lateBy} min{' '}
+              </strong>
+            </div>
+          ) : null}
+        </div>
+      </div>
     );
 
     return isEmp ? (
@@ -354,12 +413,20 @@ export default function ParticipantsList({
       data-cy={`feedback-meeting-components-participantslist-remove-content-${id}`}
       id={`feedback-meeting-components-participantslist-remove-content-${id}`}
     >
-      <p className="text-gray-800 text-base mb-6 text-left font-bold" id={`feedback-meeting-components-participantslist-remove-content-p-${id}`} data-cy={`feedback-meeting-components-participantslist-remove-content-p-${id}`}>
+      <p
+        className="text-gray-800 text-base mb-6 text-left font-bold"
+        id={`feedback-meeting-components-participantslist-remove-content-p-${id}`}
+        data-cy={`feedback-meeting-components-participantslist-remove-content-p-${id}`}
+      >
         Are you sure you want to remove
         <br data-cy="feedback-meeting-components-break" />
         this participant
       </p>
-      <div className="flex justify-center gap-4" id={`feedback-meeting-components-participantslist-remove-content-div-${id}`} data-cy={`feedback-meeting-components-participantslist-remove-content-div-${id}`}>
+      <div
+        className="flex justify-center gap-4"
+        id={`feedback-meeting-components-participantslist-remove-content-div-${id}`}
+        data-cy={`feedback-meeting-components-participantslist-remove-content-div-${id}`}
+      >
         <Button
           loading={deleteParticipantLoading}
           className="border border-gray-400 text-gray-800 w-full rounded-md hover:bg-gray-100"
@@ -386,10 +453,18 @@ export default function ParticipantsList({
       data-cy={`feedback-meeting-components-participantslist-confirm-content-${id}`}
       id={`feedback-meeting-components-participantslist-confirm-content-${id}`}
     >
-      <p className="text-gray-800 text-base mb-6 text-left font-bold" id={`feedback-meeting-components-participantslist-confirm-content-p-${id}`} data-cy={`feedback-meeting-components-participantslist-confirm-content-p-${id}`}>
+      <p
+        className="text-gray-800 text-base mb-6 text-left font-bold"
+        id={`feedback-meeting-components-participantslist-confirm-content-p-${id}`}
+        data-cy={`feedback-meeting-components-participantslist-confirm-content-p-${id}`}
+      >
         Are you sure you want to <br /> confirm MoM?
       </p>
-      <div className="flex justify-center gap-4" id={`feedback-meeting-components-participantslist-confirm-content-div-${id}`} data-cy={`feedback-meeting-components-participantslist-confirm-content-div-${id}`}>
+      <div
+        className="flex justify-center gap-4"
+        id={`feedback-meeting-components-participantslist-confirm-content-div-${id}`}
+        data-cy={`feedback-meeting-components-participantslist-confirm-content-div-${id}`}
+      >
         <Button
           loading={updateAttendeesLoading}
           className="border border-gray-400 text-gray-800 w-full rounded-md hover:bg-gray-100"
@@ -416,11 +491,19 @@ export default function ParticipantsList({
       data-cy={`feedback-meeting-components-participantslist-revert-content-${id}`}
       id={`feedback-meeting-components-participantslist-revert-content-${id}`}
     >
-      <p className="text-gray-800 text-base mb-6 text-left font-bold" id={`feedback-meeting-components-participantslist-revert-content-p-${id}`} data-cy={`feedback-meeting-components-participantslist-revert-content-p-${id}`}>
+      <p
+        className="text-gray-800 text-base mb-6 text-left font-bold"
+        id={`feedback-meeting-components-participantslist-revert-content-p-${id}`}
+        data-cy={`feedback-meeting-components-participantslist-revert-content-p-${id}`}
+      >
         Are you sure you want to <br />
         revert MoM?
       </p>
-      <div className="flex justify-center gap-4" id={`feedback-meeting-components-participantslist-revert-content-div-${id}`} data-cy={`feedback-meeting-components-participantslist-revert-content-div-${id}`}>
+      <div
+        className="flex justify-center gap-4"
+        id={`feedback-meeting-components-participantslist-revert-content-div-${id}`}
+        data-cy={`feedback-meeting-components-participantslist-revert-content-div-${id}`}
+      >
         <Button
           loading={updateAttendeesLoading}
           className="border border-gray-400 text-gray-800 w-full rounded-md hover:bg-gray-100"
@@ -475,9 +558,7 @@ export default function ParticipantsList({
           data-cy="feedback-meeting-components-participantslist-div-loading"
           id="feedback-meeting-components-participantslist-div-loading"
         >
-          <Spin
-            data-cy="feedback-meeting-components-participantslist-spin-loading"
-          />
+          <Spin data-cy="feedback-meeting-components-participantslist-spin-loading" />
         </div>
       ) : (
         meetingAttendees?.items?.map((p: any, i: number) => (
@@ -523,7 +604,11 @@ export default function ParticipantsList({
                     </Tag>
                   </>
                 ) : (
-                  <LoadingOutlined className="text-blue-500" id={`feedback-meeting-components-participantslist-loading-icon-${i}`} data-cy={`feedback-meeting-components-participantslist-loading-icon-${i}`} />
+                  <LoadingOutlined
+                    className="text-blue-500"
+                    id={`feedback-meeting-components-participantslist-loading-icon-${i}`}
+                    data-cy={`feedback-meeting-components-participantslist-loading-icon-${i}`}
+                  />
                 )
               ) : (
                 <Popconfirm

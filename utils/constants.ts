@@ -39,3 +39,4 @@ export const DEFAULT_TENANT_ID = tenantId;
 export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 export const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL;
+export const AI_REC_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL;
