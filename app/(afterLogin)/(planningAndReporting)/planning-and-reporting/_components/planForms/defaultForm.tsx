@@ -1,4 +1,4 @@
-import { Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
+import { Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import { MdCancel } from 'react-icons/md';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { NAME } from '@/types/enumTypes';
@@ -173,175 +173,130 @@ function DefaultCardForm({
               </div>
               <Row justify="space-between" align={'middle'} style={{ marginTop: '8px' }}>
                 <Col>
-                  <Space size={16}>
-                    {keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                      keyResult?.metricType?.name !== NAME.MILESTONE && (
-                        <Row align="middle" gutter={16}>
-                          <Col span={6}>
-                            <div className="text-xs flex items-center w-14 gap-1">
+                  <div className="mt-2">
+                    <Row gutter={[12, 12]} align="bottom">
+                      {keyResult?.metricType?.name !== NAME.ACHIEVE &&
+                        keyResult?.metricType?.name !== NAME.MILESTONE && (
+                          <Col xs={12} sm={8} md={8}>
+                            <Row align="middle" gutter={8} wrap={false}>
+                              <Col flex="none">
+                                <div className="text-xs flex items-center gap-1">
+                                  <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                                  Target
+                                </div>
+                              </Col>
+                              <Col flex="auto">
+                                <Form.Item
+                                  hidden={hasTargetValue}
+                                  {...field}
+                                  name={[field.name, 'targetValue']}
+                                  key={`${field.key}-targetValue`}
+                                  noStyle
+                                  rules={[
+                                    {
+                                      validator(nonused, value: any) {
+                                        if (
+                                          keyResult?.metricType?.name === NAME.ACHIEVE ||
+                                          keyResult?.metricType?.name === NAME.MILESTONE
+                                        ) {
+                                          return Promise.resolve();
+                                        }
+                                        if (value === null || value === undefined) {
+                                          return Promise.reject(new Error('Please enter a target value.'));
+                                        }
+                                        if (targetValue !== null && targetValue !== undefined) {
+                                          if (value <= targetValue) return Promise.resolve();
+                                        } else {
+                                          if (sumTargetValue(name) <= keyResult.targetValue - keyResult.currentValue) {
+                                            return Promise.resolve();
+                                          }
+                                        }
+                                        return Promise.reject(
+                                          new Error(
+                                            `Your target value shouldn't exceed the allowed limits. you have only ${Number(keyResult.targetValue - keyResult.currentValue).toLocaleString()}`,
+                                          ),
+                                        );
+                                      },
+                                    },
+                                  ]}
+                                >
+                                  <InputNumber
+                                    className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
+                                    defaultValue={0}
+                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                  />
+                                </Form.Item>
+                              </Col>
+                            </Row>
+                          </Col>
+                        )}
+
+                      <Col xs={12} sm={8} md={8}>
+                        <Row align="middle" gutter={8} wrap={false}>
+                          <Col flex="none">
+                            <div className="text-xs flex items-center gap-1">
                               <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
-                              Target
+                              Weight
                             </div>
                           </Col>
-                          <Col span={18}>
+                          <Col flex="auto">
                             <Form.Item
-                              hidden={hasTargetValue}
                               {...field}
-                              name={[field.name, 'targetValue']}
-                              key={`${field.key}-targetValue`}
+                              name={[field.name, 'weight']}
+                              key={`${field.key}-weight`}
                               noStyle
-                              rules={[
-                                {
-                                  /* eslint-disable @typescript-eslint/naming-convention */
-                                  validator(_, value: any) {
-                                    /* eslint-enable @typescript-eslint/naming-convention */
-                                    if (
-                                      keyResult?.metricType?.name === NAME.ACHIEVE ||
-                                      keyResult?.metricType?.name === NAME.MILESTONE
-                                    ) {
-                                      return Promise.resolve(); // Skip validation
-                                    }
-                                    // Handle null or undefined value
-                                    if (value === null || value === undefined) {
-                                      return Promise.reject(
-                                        new Error('Please enter a target value.'),
-                                      );
-                                    }
-
-                                    // Validate against the key result limits
-                                    if (
-                                      targetValue !== null &&
-                                      targetValue !== undefined
-                                    ) {
-                                      // Check if numericValue is within the targetValue
-                                      if (value <= targetValue) {
-                                        return Promise.resolve(); // Validation passed
-                                      }
-                                    } else {
-                                      // Fallback check if targetValue does not exist
-                                      if (
-                                        sumTargetValue(name) <=
-                                        keyResult.targetValue - keyResult.currentValue
-                                      ) {
-                                        return Promise.resolve(); // Validation passed
-                                      }
-                                    }
-
-                                    // If neither condition is satisfied, reject the promise
-                                    return Promise.reject(
-                                      new Error(
-                                        `Your target value shouldn't exceed the allowed limits. you have only ${Number(keyResult.targetValue - keyResult.currentValue).toLocaleString()}`,
-                                      ),
-                                    );
-                                  },
-                                },
-                              ]}
+                              rules={[{ required: true, message: 'Weight is required' }]}
                             >
                               <InputNumber
-                                className="w-28 text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:pt-1"
-                                defaultValue={0} // Set a default value to avoid null issues
-                                formatter={(value) => {
-                                  if (!value) return '';
-                                  const parts = `${value}`.split('.');
-                                  parts[0] = parts[0].replace(
-                                    /\B(?=(\d{3})+(?!\d))/g,
-                                    ',',
+                                placeholder={'0'}
+                                className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
+                                min={0}
+                                max={100}
+                                onChange={() => {
+                                  const fieldValue = form.getFieldValue(name) || [];
+                                  const totalWeight = fieldValue.reduce(
+                                    (sum: number, f: any) => Number(sum) + Number(f?.weight || 0),
+                                    0,
                                   );
-                                  return parts.join('.');
+                                  setWeight(name, totalWeight);
                                 }}
                               />
                             </Form.Item>
                           </Col>
                         </Row>
-                      )}
-                    <Row align="middle" gutter={16}>
-                      <Col span={6}>
-                        <div className="text-xs flex items-center  w-14 gap-1">
-                          <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
-                          Weight
-                        </div>
                       </Col>
-                      <Col span={18}>
-                        <Form.Item
-                          {...field}
-                          name={[field.name, 'weight']}
-                          key={`${field.key}-weight`} // Unique key for weight
-                          noStyle
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Weight is required',
-                            },
-                          ]}
-                        >
-                          <InputNumber
-                            placeholder={'0'}
-                            className="w-28 text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:pt-1"
-                            min={0}
-                            max={100}
-                            onChange={() => {
-                              const fieldValue = form.getFieldValue(name) || [];
-                              const totalWeight = fieldValue.reduce(
-                                (sum: number, field: any) =>
-                                  Number(sum) + Number(field?.weight || 0),
-                                0,
-                              );
-                              setWeight(name, totalWeight);
-                            }}
-                          />
-                        </Form.Item>
+
+                      <Col xs={12} sm={8} md={8}>
+                        <Row align="middle" gutter={8} wrap={false}>
+                          <Col flex="none">
+                            <div className="text-xs flex items-center gap-1">
+                              <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                              Priority
+                            </div>
+                          </Col>
+                          <Col flex="auto">
+                            <Form.Item
+                              {...field}
+                              name={[field.name, 'priority']}
+                              key={`${field.key}-priority`}
+                              noStyle
+                              rules={[{ required: true, message: 'Priority is required' }]}
+                            >
+                              <Select
+                                placeholder={<div className="text-xs">Priority</div>}
+                                className="w-full h-10"
+                                options={[
+                                  { label: <div className="text-error text-xs">High</div>, value: 'high' },
+                                  { label: <div className="text-warning text-xs">Medium</div>, value: 'medium' },
+                                  { label: <div className="text-success text-xs">Low</div>, value: 'low' },
+                                ]}
+                              />
+                            </Form.Item>
+                          </Col>
+                        </Row>
                       </Col>
                     </Row>
-                    <Row align="middle" gutter={16}>
-                      <Col span={6}>
-                        <div className="text-xs flex items-center w-14 gap-1">
-                          <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
-                          Priority
-                        </div>
-                      </Col>
-                      <Col span={18}>
-                        <Form.Item
-                          {...field}
-                          name={[field.name, 'priority']}
-                          key={`${field.key}-priority`} // Unique key for priority
-                          noStyle
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Priority is required',
-                            },
-                          ]}
-                        >
-                          <Select
-                            placeholder={
-                              <div className="text-xs">Select Priority</div>
-                            }
-                            className="w-32 h-10"
-                            options={[
-                              {
-                                label: (
-                                  <div className="text-error text-xs">High</div>
-                                ),
-                                value: 'high',
-                              },
-                              {
-                                label: (
-                                  <div className="text-warning text-xs">Medium</div>
-                                ),
-                                value: 'medium',
-                              },
-                              {
-                                label: (
-                                  <div className="text-success text-xs">Low</div>
-                                ),
-                                value: 'low',
-                              },
-                            ]}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Space>
+                  </div>
                 </Col>
               </Row>
 

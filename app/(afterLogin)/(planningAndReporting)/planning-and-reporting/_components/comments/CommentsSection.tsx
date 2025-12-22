@@ -11,6 +11,7 @@ interface CommentsSectionProps {
   isPlanCard: boolean; // true for plans, false for reports
   comments?: CommentsData[]; // Comments data from the backend
   isLoading?: boolean; // Loading state for comments
+  achieved?: number; // Total points achieved (for reporting mode)
 }
 
 export default function CommentsSection({
@@ -19,6 +20,7 @@ export default function CommentsSection({
   isPlanCard,
   comments = [],
   isLoading = false,
+  achieved = 0,
 }: CommentsSectionProps) {
   const [showComments, setShowComments] = useState(false);
   const [showAddComment, setShowAddComment] = useState(false);
@@ -77,6 +79,12 @@ export default function CommentsSection({
     }
   };
 
+  // Format achieved value as a proper number
+  const formattedAchieved = useMemo(() => {
+    const numValue = Number(achieved) || 0;
+    return Math.round(numValue);
+  }, [achieved]);
+
   return (
     <div className="mt-5">
       {/* Header: Avatars | Comments Count | Add Comment Button */}
@@ -111,15 +119,34 @@ export default function CommentsSection({
             {commentCount} Comments
           </span>
         </div>
-        <span
-          onClick={handleAddCommentClick}
-          className="cursor-pointer text-xs md:text-base font-bold transition-colors"
-          style={{ color: '#2563EB' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#1D4ED8'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#2563EB'; }}
-        >
-          Add Comment
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          {/* Total Points Display (only for reporting mode, above Add Comment) */}
+          {!isPlanCard && (
+            <span className="text-sm font-medium text-[#161A2C]">
+              Total Point:{' '}
+              <span
+                className={
+                  formattedAchieved > 84
+                    ? 'text-[#52C41A]'
+                    : formattedAchieved >= 64
+                      ? 'text-orange-500'
+                      : 'text-red-500'
+                }
+              >
+                {formattedAchieved}%
+              </span>
+            </span>
+          )}
+          <span
+            onClick={handleAddCommentClick}
+            className="cursor-pointer text-xs md:text-base font-bold transition-colors"
+            style={{ color: '#2563EB' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#1D4ED8'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#2563EB'; }}
+          >
+            Add Comment
+          </span>
+        </div>
       </div>
 
       {/* Comments List and Add Comment Form */}

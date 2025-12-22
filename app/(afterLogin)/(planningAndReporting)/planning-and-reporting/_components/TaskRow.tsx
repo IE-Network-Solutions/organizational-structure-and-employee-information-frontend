@@ -54,20 +54,11 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
   };
 
   return (
-    <div className="relative flex items-start gap-3 py-2 pl-8 group">
+    <div className="relative flex items-start gap-2 md:gap-3 py-2 pl-5 md:pl-8 group">
       {/* Horizontal connector line */}
-      <div className="absolute left-[7px] top-[1.1rem] w-[25px] h-[1px] bg-[#E5E7EB]" />
+      <div className="absolute left-[7px] top-[1.1rem] w-[13px] md:w-[25px] h-[1px] bg-[#E5E7EB]" />
 
-      {/* Vertical line cover for the last item to stop the line from going further down if needed.
-          However, the parent draws the main vertical line. 
-          If we want the line to stop at the connector of the last item, we might need to hide the parent's line 
-          or use a white box to cover it. 
-          Actually, the parent line goes from top to bottom. 
-          If this is the last item, the vertical line should conceptually stop at the horizontal connector.
-          The parent's line has `bottom-4`. It might extend too far.
-          A common trick is to have the vertical line be part of the item, but here it's in the parent.
-          Let's leave it for now, or use a white patch if it extends too far.
-      */}
+      {/* Vertical line cover for the last item */}
       {isLast && (
         <div className="absolute left-[7px] top-[1.1rem] bottom-0 w-[1px] bg-white z-20" />
       )}
@@ -81,13 +72,15 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
           {getTaskName()}
         </p>
 
-        <div className="w-full md:w-auto flex items-center justify-around md:justify-end gap-2 md:gap-3 mt-1 md:mt-0">
-          <div className="scale-75 origin-left md:scale-100">
+        <div className="w-full md:w-auto flex flex-wrap items-center justify-start md:justify-end gap-x-3 gap-y-1 mt-1 md:mt-0">
+          <div className="scale-90 md:scale-100 origin-left">
             <PriorityTag priority={task.priority} />
           </div>
 
           <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-            <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">• Weight</span>
+            <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">
+              <span className="hidden md:inline">• </span>Weight
+            </span>
             <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-semibold text-[#3730A3]">
               {formatNumber(task.weight)}
             </Tag>
@@ -95,7 +88,9 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
 
           {viewMode === 'planning' && task.target !== undefined && task.target !== 0 && metricType !== 'Milestone' && (
             <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-              <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">• Target</span>
+              <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">
+                <span className="hidden md:inline">• </span>Target
+              </span>
               <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-semibold text-[#3730A3]">
                 {formatNumber(task.target)}
               </Tag>
@@ -104,7 +99,9 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
 
           {viewMode === 'reporting' && task.achieved !== undefined && (
             <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-              <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">• Achieved</span>
+              <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">
+                <span className="hidden md:inline">• </span>Achieved
+              </span>
               <Tag className={`m-0 rounded border-none px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-semibold ${task.status === 'completed' ? 'bg-[#DCFCE7] text-[#166534]' :
                 task.status === 'failed' ? 'bg-[#FEE2E2] text-[#991B1B]' :
                   'bg-[#FFEDD5] text-[#9A3412]'

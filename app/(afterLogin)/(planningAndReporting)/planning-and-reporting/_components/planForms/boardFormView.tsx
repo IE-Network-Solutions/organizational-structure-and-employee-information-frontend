@@ -6,8 +6,7 @@ import {
   Input,
   InputNumber,
   Row,
-  Select,
-  Space,
+  Select
 } from 'antd';
 import { MdCancel } from 'react-icons/md';
 import { NAME } from '@/types/enumTypes';
@@ -41,6 +40,9 @@ function BoardCardForm({
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
   const { setClickStatus } = useClickStatus();
+
+  const showTarget = keyResult?.metricType?.name !== NAME.ACHIEVE &&
+    keyResult?.metricType?.name !== NAME.MILESTONE;
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -63,7 +65,9 @@ function BoardCardForm({
                   style={{ flex: 1, marginBottom: 0 }}
                 >
                   <Input
-                    disabled={isMKAsTask}
+                    disabled={
+                      form.getFieldValue(`board-${name}`)?.[subName]?.achieveMK
+                    }
                     placeholder="Add your tasks here"
                     className="text-[12px] h-10"
                     style={{ width: '100%' }}
@@ -88,213 +92,137 @@ function BoardCardForm({
                 <Input type="hidden" />
               </Form.Item>
               {/* <Divider className="mt-2 mb-2" /> */}
-              <Row justify="space-between" align={'middle'} style={{ marginTop: '8px' }}>
-                <Col>
-                  <Space size={16}>
-                    {keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                      keyResult?.metricType?.name !== NAME.MILESTONE && (
-                        <Row align="middle" gutter={16}>
-                          <Col span={6}>
-                            <div className="text-xs flex items-center w-14 gap-1">
-                              <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
-                              Target
-                            </div>
-                          </Col>
-                          <Col span={18}>
-                            <Form.Item
-                              hidden={hideTargetValue}
-                              {...restSubField}
-                              name={[subName, 'targetValue']}
-                              key={`${subName}-targetValue`}
-                              noStyle
-                              rules={[
-                                {
-                                  /* eslint-disable @typescript-eslint/naming-convention */
-                                  validator(_, value: any) {
-                                    /* eslint-enable @typescript-eslint/naming-convention */
-                                    // Check if keyResult is available
-                                    if (
-                                      !keyResult ||
-                                      !keyResult.targetValue ||
-                                      !keyResult.currentValue
-                                    ) {
-                                      return Promise.reject(
-                                        new Error('Key result data is incomplete.'),
-                                      );
-                                    }
-
-                                    // Skip validation for specific metric types
-                                    if (
-                                      keyResult?.metricType?.name === NAME.ACHIEVE ||
-                                      keyResult?.metricType?.name === NAME.MILESTONE
-                                    ) {
-                                      return Promise.resolve(); // Skip validation
-                                    }
-
-                                    // Handle null or undefined value
-                                    if (value === null || value === undefined) {
-                                      return Promise.reject(
-                                        new Error('Please enter a target value.'),
-                                      );
-                                    }
-
-                                    // Ensure value is a valid number
-                                    const numericValue = Number(value);
-                                    if (isNaN(numericValue)) {
-                                      return Promise.reject(
-                                        new Error('Please enter a valid number.'),
-                                      );
-                                    }
-                                    if (numericValue < 0) {
-                                      return Promise.reject(
-                                        new Error(
-                                          "Your target value shouldn't be negative.",
-                                        ),
-                                      );
-                                    }
-
-                                    // Validate against the key result limits
-                                    if (
-                                      targetValue !== null &&
-                                      targetValue !== undefined
-                                    ) {
-                                      // Check if numericValue is within the targetValue
-                                      if (numericValue <= targetValue) {
-                                        return Promise.resolve(); // Validation passed
-                                      }
-                                    } else {
-                                      // Fallback check if targetValue does not exist
-                                      if (
-                                        numericValue <=
-                                        keyResult.targetValue - keyResult.currentValue
-                                      ) {
-                                        return Promise.resolve(); // Validation passed
-                                      }
-                                    }
-
-                                    // If neither condition is satisfied, reject the promise
-                                    return Promise.reject(
-                                      new Error(
-                                        "Your target value shouldn't exceed the allowed limits.",
-                                      ),
-                                    );
-                                  },
+              <div className="mt-2">
+                <Row gutter={[12, 12]} align="bottom">
+                  {showTarget && (
+                    <Col xs={12} sm={8} md={6}>
+                      <Row align="middle" gutter={8} wrap={false}>
+                        <Col flex="none">
+                          <div className="text-xs flex items-center gap-1">
+                            <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                            Target
+                          </div>
+                        </Col>
+                        <Col flex="auto">
+                          <Form.Item
+                            hidden={hideTargetValue}
+                            {...restSubField}
+                            name={[subName, 'targetValue']}
+                            key={`${subName}-targetValue`}
+                            noStyle
+                            rules={[
+                              {
+                                validator(nonused, value: any) {
+                                  if (!keyResult || !keyResult.targetValue || !keyResult.currentValue) {
+                                    return Promise.reject(new Error('Key result data is incomplete.'));
+                                  }
+                                  if (keyResult?.metricType?.name === NAME.ACHIEVE || keyResult?.metricType?.name === NAME.MILESTONE) {
+                                    return Promise.resolve();
+                                  }
+                                  if (value === null || value === undefined) {
+                                    return Promise.reject(new Error('Please enter a target value.'));
+                                  }
+                                  const numericValue = Number(value);
+                                  if (isNaN(numericValue)) return Promise.reject(new Error('Please enter a valid number.'));
+                                  if (numericValue < 0) return Promise.reject(new Error("Your target value shouldn't be negative."));
+                                  if (targetValue !== null && targetValue !== undefined) {
+                                    if (numericValue <= targetValue) return Promise.resolve();
+                                  } else {
+                                    if (numericValue <= keyResult.targetValue - keyResult.currentValue) return Promise.resolve();
+                                  }
+                                  return Promise.reject(new Error("Your target value shouldn't exceed the allowed limits."));
                                 },
-                              ]}
-                            >
-                              <InputNumber
-                                className="w-28 text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:pt-1"
-                                defaultValue={0} // Set a default value to avoid null issues
-                                formatter={(value) => {
-                                  if (!value) return '';
-                                  const parts = `${value}`.split('.');
-                                  parts[0] = parts[0].replace(
-                                    /\B(?=(\d{3})+(?!\d))/g,
-                                    ',',
-                                  );
-                                  return parts.join('.');
-                                }}
-                              />
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      )}
-                    <Row align="middle" gutter={16}>
-                      <Col span={6}>
-                        <div className="text-xs flex items-center w-14 gap-1">
+                              },
+                            ]}
+                          >
+                            <InputNumber
+                              className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
+                              defaultValue={0}
+                              formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </Col>
+                  )}
+
+                  <Col xs={showTarget ? 12 : 12} sm={8} md={5}>
+                    <Row align="middle" gutter={8} wrap={false}>
+                      <Col flex="none">
+                        <div className="text-xs flex items-center gap-1">
                           <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
                           Weight
                         </div>
                       </Col>
-                      <Col span={18}>
+                      <Col flex="auto">
                         <Form.Item
                           {...restSubField}
                           name={[subName, 'weight']}
-                          key={`${subName}-weight`} // Unique key for weight
+                          key={`${subName}-weight`}
                           noStyle
-                          rules={[
-                            { required: true, message: 'Weight is required' },
-                          ]}
+                          rules={[{ required: true, message: 'Weight is required' }]}
                         >
                           <InputNumber
                             placeholder={'0'}
-                            className="w-20 sm:w-28 text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:pt-1"
+                            className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
                             min={0}
                             max={100}
                           />
                         </Form.Item>
                       </Col>
                     </Row>
-                    <Row align="middle" gutter={16}>
-                      <Col span={6}>
-                        <div className="text-xs flex items-center w-14 gap-1">
+                  </Col>
+
+                  <Col xs={12} sm={8} md={6}>
+                    <Row align="middle" gutter={8} wrap={false}>
+                      <Col flex="none">
+                        <div className="text-xs flex items-center gap-1">
                           <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
                           Priority
                         </div>
                       </Col>
-                      <Col span={18}>
+                      <Col flex="auto">
                         <Form.Item
                           {...restSubField}
                           name={[subName, 'priority']}
-                          key={`${subName}-priority`} // Unique key for priority
+                          key={`${subName}-priority`}
                           noStyle
-                          rules={[
-                            { required: true, message: 'Priority is required' },
-                          ]}
+                          rules={[{ required: true, message: 'Priority is required' }]}
                         >
                           <Select
-                            placeholder={
-                              <div className="text-xs">Select Priority</div>
-                            }
-                            className="w-32 h-10"
+                            placeholder={<div className="text-xs">Priority</div>}
+                            className="w-full h-10"
                             options={[
-                              {
-                                label: (
-                                  <div className="text-error text-xs">High</div>
-                                ),
-                                value: 'high',
-                              },
-                              {
-                                label: (
-                                  <div className="text-warning text-xs">Medium</div>
-                                ),
-                                value: 'medium',
-                              },
-                              {
-                                label: (
-                                  <div className="text-success text-xs">Low</div>
-                                ),
-                                value: 'low',
-                              },
+                              { label: <div className="text-error text-xs">High</div>, value: 'high' },
+                              { label: <div className="text-warning text-xs">Medium</div>, value: 'medium' },
+                              { label: <div className="text-success text-xs">Low</div>, value: 'low' },
                             ]}
                           />
                         </Form.Item>
                       </Col>
                     </Row>
-                  </Space>
-                </Col>
-                <Col>
-                  <Button
-                    id="add-task-button-for-planning-and-reporting"
-                    type="primary"
-                    className="mt-2 sm:mt-0"
-                    onClick={() => {
-                      form
-                        .validateFields([`board-${name}`, subName])
-                        .then(() => {
+                  </Col>
+
+                  <Col xs={showTarget ? 12 : 24} sm={24} md={showTarget ? 7 : 13} className="text-right">
+                    <Button
+                      id="add-task-button-for-planning-and-reporting"
+                      type="primary"
+                      className="h-10 px-6 font-semibold"
+                      onClick={() => {
+                        form.validateFields([`board-${name}`, subName]).then(() => {
                           const boardsKey = `board-${name}`;
-                          const currentBoardValues =
-                            form.getFieldValue([boardsKey, subName]) || [];
+                          const currentBoardValues = form.getFieldValue([boardsKey, subName]) || [];
                           handleAddName(currentBoardValues, name);
                           handleRemoveBoard(subName, name);
                           setMKAsATask(null);
                         });
-                    }}
-                  >
-                    Add Task
-                  </Button>
-                </Col>
-              </Row>
+                      }}
+                    >
+                      Add Task
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
             </Form.Item>
           ))}
         </>

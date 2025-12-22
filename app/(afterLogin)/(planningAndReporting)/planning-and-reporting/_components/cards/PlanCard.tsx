@@ -95,6 +95,47 @@ export default function PlanCard({
     return `${planDate.format('MMM D')} ${cadenceType} ${type}`;
   };
 
+  // Calculate total achieved points for the plan (sum of weights of completed tasks)
+  const totalAchieved = React.useMemo(() => {
+    if (viewMode !== 'reporting') return 0;
+
+    let total = 0;
+
+    // Helper to sum task weights
+    const sumTasks = (tasks: any[]) => {
+      tasks.forEach(task => {
+        const isCompleted = task.status === 'completed' || task.status === 'Done' || task.isAchieved === true;
+        if (isCompleted) {
+          total += Number(task.weight) || 0;
+        }
+      });
+    };
+
+    if (plan.keyResults && plan.keyResults.length > 0) {
+      plan.keyResults.forEach(kr => {
+        // Collect all tasks for this KR
+        const tasks: any[] = [];
+        if (kr.tasks) tasks.push(...kr.tasks);
+        kr.milestones?.forEach((m: any) => {
+          if (m.tasks) tasks.push(...m.tasks);
+          m.parentTask?.forEach((p: any) => {
+            if (p.tasks) tasks.push(...p.tasks);
+          });
+        });
+        kr.parentTask?.forEach((p: any) => {
+          if (p.tasks) tasks.push(...p.tasks);
+        });
+
+        sumTasks(tasks);
+      });
+    } else if (plan.tasks && plan.tasks.length > 0) {
+      // Handle flat plan structure
+      sumTasks(plan.tasks);
+    }
+
+    return total;
+  }, [plan, viewMode]);
+
   return (
     <article className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4">
       {/* Header with Title and Reprimand/Appreciation Badges */}
@@ -148,8 +189,8 @@ export default function PlanCard({
       {plan.keyResults && plan.keyResults.length > 0 ? (
         plan.keyResults.map((keyResult, krIndex) => (
           <div key={keyResult.id} className={krIndex > 0 ? "mt-4" : ""}>
-            <div className="rounded-3xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-6 md:px-12">
-              <div className="pl-2">
+            <div className="rounded-3xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-12">
+              <div className="pl-0 md:pl-2">
                 {/* Key Result Summary Bar */}
                 <div className="mb-4 hidden md:block">
                   <KRSummaryBar plan={plan} viewMode={viewMode} keyResult={keyResult} />
@@ -337,6 +378,7 @@ export default function PlanCard({
           planId={plan.id}
           isPlanCard={viewMode === 'planning'}
           comments={plan.comments}
+          achieved={totalAchieved}
         />
       </div>
     </article>

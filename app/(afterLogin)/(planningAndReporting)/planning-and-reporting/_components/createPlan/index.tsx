@@ -348,9 +348,7 @@ function CreatePlan() {
       achieveMK: achieveMK,
     };
 
-    setTimeout(() => {
-      form.setFieldsValue({ [boardsKey]: [...currentBoard, newTask] });
-    }, 0);
+    form.setFieldsValue({ [boardsKey]: [...currentBoard, newTask] });
   };
   const handleRemoveBoard = (index: number, kId: string) => {
     const boardsKey = `board-${kId}`;
@@ -372,14 +370,20 @@ function CreatePlan() {
         {/* AI Suggestions button + modal */}
         <AISuggestionsModal
           getKeyResults={() => {
-            const out: { id: string; title: string }[] = [];
+            const out: any[] = [];
 
             if (!planningPeriodHierarchy?.parentPlan) {
               // Weekly Plan: Get Key Results from Objectives
               objective?.items?.forEach((obj: any) => {
                 obj?.keyResults?.forEach((kr: any) => {
                   if (kr?.id && kr?.title) {
-                    out.push({ id: String(kr.id), title: kr.title });
+                    out.push({
+                      id: String(kr.id),
+                      title: kr.title,
+                      metricType: kr.metricType,
+                      milestones: kr.milestones,
+                      progress: kr.progress,
+                    });
                   }
                 });
               });
@@ -397,7 +401,13 @@ function CreatePlan() {
                 const krTitle = t?.keyResult?.title;
                 if (krId && krTitle && !seen.has(krId)) {
                   seen.add(krId);
-                  out.push({ id: krId, title: krTitle });
+                  out.push({
+                    id: krId,
+                    title: krTitle,
+                    metricType: t?.keyResult?.metricType,
+                    milestones: t?.keyResult?.milestones,
+                    progress: t?.keyResult?.progress,
+                  });
                 }
               });
             }

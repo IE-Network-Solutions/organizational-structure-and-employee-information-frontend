@@ -349,7 +349,7 @@ export const transformReportToPlanSummary = (
   const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   // Calculate total achieved
-  const achieved = allTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + (t.weight || 0), 0);
+  const achieved = allTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + (Number(t.weight) || 0), 0);
 
   const summary = transformedKeyResults[0]?.title || 'No key result specified';
   const statusLabel = dataItem?.plan?.isReportValidated ? 'Closed' : 'Open';

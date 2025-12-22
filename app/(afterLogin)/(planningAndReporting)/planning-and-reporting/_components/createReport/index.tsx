@@ -2,10 +2,12 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import {
     Button,
+    Col,
     Collapse,
     Form,
     Input,
     InputNumber,
+    Row,
     Spin,
 } from 'antd';
 
@@ -240,11 +242,11 @@ function CreateReport() {
     }, 0);
 
     const footer = (
-        <div className="relative flex items-center justify-center px-4 py-2">
-            <div className="flex items-center gap-4">
+        <div className="flex flex-col items-center justify-center px-4 py-4 gap-4 bg-gray-50 border-t border-gray-100">
+            <div className="flex items-center gap-3 w-full justify-center">
                 <Button
                     size="large"
-                    className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] w-32"
+                    className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] flex-1 max-w-[140px]"
                     onClick={onClose}
                 >
                     Cancel
@@ -252,7 +254,7 @@ function CreateReport() {
                 <Button
                     type="primary"
                     size="large"
-                    className="rounded-xl bg-[#574CFF] font-semibold w-32 hover:bg-[#4F46EF]"
+                    className="rounded-xl bg-[#574CFF] font-semibold flex-1 max-w-[140px] hover:bg-[#4F46EF]"
                     loading={createReportLoading}
                     onClick={() => form.submit()}
                 >
@@ -260,7 +262,7 @@ function CreateReport() {
                 </Button>
             </div>
 
-            <div className="absolute right-4">
+            <div className="flex items-center justify-center w-full">
                 <span className="text-sm font-medium text-[#161A2C]">
                     Total Point:{' '}
                     <span
@@ -283,28 +285,29 @@ function CreateReport() {
         const isDone = selectedStatuses[task.taskId] === 'Done';
         const isNot = selectedStatuses[task.taskId] === 'Not';
         const metricSymbol = keyresult?.metricType?.name === NAME.CURRENCY ? '$' : '#';
+        const showActualValue = (isDone || isNot) &&
+            keyresult?.metricType?.name !== NAME.ACHIEVE &&
+            keyresult?.metricType?.name !== NAME.MILESTONE;
 
         return (
-            <div key={task.taskId} className="mb-6 last:mb-0">
-                <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 pt-1">
-                        <p className="text-gray-800 text-sm font-medium leading-relaxed">
+            <div key={task.taskId} className="mb-6 last:mb-0 pb-6 border-b border-gray-100 last:border-b-0">
+                <Row gutter={[16, 16]} align="middle">
+                    <Col xs={24} sm={showActualValue ? 8 : 14} md={showActualValue ? 10 : 16}>
+                        <p className="text-gray-800 text-sm font-medium leading-relaxed m-0">
                             {task.taskName}
                         </p>
-                    </div>
+                    </Col>
 
-                    <div className="flex items-start gap-4">
-                        {/* Actual Value Input */}
-                        {(isDone || isNot) &&
-                            keyresult?.metricType?.name !== NAME.ACHIEVE &&
-                            keyresult?.metricType?.name !== NAME.MILESTONE && (
+                    <Col xs={24} sm={showActualValue ? 16 : 10} md={showActualValue ? 14 : 8}>
+                        <div className="flex items-center justify-between sm:justify-end gap-4 overflow-x-auto no-scrollbar">
+                            {/* Actual Value Input */}
+                            {showActualValue && (
                                 <Form.Item
                                     name={[task.taskId, 'actualValue']}
                                     className="mb-0"
                                     initialValue={Number(task?.actualValue)?.toLocaleString() || 0}
                                     rules={[
                                         {
-                                            // eslint-disable-next-line @typescript-eslint/naming-convention
                                             validator(unusedRule, value) {
                                                 if (!keyresult || !keyresult.targetValue) {
                                                     return Promise.reject(new Error('Key result data is incomplete.'));
@@ -318,10 +321,10 @@ function CreateReport() {
                                                 }
 
                                                 if (isDone && numericValue < task?.targetValue) {
-                                                    return Promise.reject(new Error(`Value should be at least ${Number(task?.targetValue)?.toLocaleString()}`));
+                                                    return Promise.reject(new Error(`Min ${Number(task?.targetValue)?.toLocaleString()}`));
                                                 }
                                                 if (isNot && numericValue > task?.targetValue) {
-                                                    return Promise.reject(new Error(`Value shouldn't exceed ${Number(task?.targetValue)?.toLocaleString()}`));
+                                                    return Promise.reject(new Error(`Max ${Number(task?.targetValue)?.toLocaleString()}`));
                                                 }
                                                 return Promise.resolve();
                                             },
@@ -329,105 +332,86 @@ function CreateReport() {
                                     ]}
                                 >
                                     <InputNumber
-                                        className="w-32 rounded-md border-gray-300"
+                                        className="w-24 sm:w-28 rounded-md border-gray-300 h-9"
                                         min={0}
-                                        formatter={(value) => {
-                                            if (!value) return '';
-                                            const parts = `${value}`.split('.');
-                                            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                                            return `${parts.join('.')}`;
-                                        }}
-                                        addonAfter={metricSymbol}
+                                        placeholder="Value"
+                                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                        addonAfter={<span className="text-[10px]">{metricSymbol}</span>}
                                         controls={false}
-                                        onChange={(value) => {
-                                            const statusValue = form.getFieldValue([task.taskId, 'status']);
-                                            if (statusValue === 'Done') {
-                                                form.setFieldsValue({
-                                                    [task.taskId]: {
-                                                        actualValue: value ? Number(value) : task?.targetValue,
-                                                    },
-                                                });
-                                            } else if (statusValue === 'Not') {
-                                                form.setFieldsValue({
-                                                    [task.taskId]: {
-                                                        actualValue: value ? Number(value) : 0,
-                                                    },
-                                                });
-                                            }
-                                        }}
                                     />
                                 </Form.Item>
                             )}
 
-                        {/* Status Toggle */}
-                        <Form.Item
-                            name={[task.taskId, 'status']}
-                            className="mb-0"
-                            rules={[{ required: true, message: '' }]}
-                        >
-                            <div className="flex items-center gap-3">
-                                {/* Done Option */}
-                                <div
-                                    className="cursor-pointer flex items-center gap-1.5"
-                                    onClick={() => {
-                                        setStatus(task.taskId, 'Done');
-                                        form.setFieldsValue({
-                                            [task.taskId]: {
-                                                status: 'Done',
-                                                actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
-                                            },
-                                        });
-                                    }}
-                                >
-                                    {isDone ? (
-                                        <FaCheckSquare className="text-[#52C41A] text-xl" />
-                                    ) : (
-                                        <FaRegSquare className="text-gray-300 text-xl" />
-                                    )}
-                                    <span className={`text-sm ${isDone ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                                        Done
-                                    </span>
-                                </div>
+                            {/* Status Toggle */}
+                            <Form.Item
+                                name={[task.taskId, 'status']}
+                                className="mb-0"
+                                rules={[{ required: true, message: '' }]}
+                            >
+                                <div className="flex items-center gap-4 bg-gray-50 p-1.5 rounded-lg border border-gray-100">
+                                    {/* Done Option */}
+                                    <div
+                                        className="cursor-pointer flex items-center gap-1.5 px-2 py-0.5 rounded transition hover:bg-white"
+                                        onClick={() => {
+                                            setStatus(task.taskId, 'Done');
+                                            form.setFieldsValue({
+                                                [task.taskId]: {
+                                                    status: 'Done',
+                                                    actualValue: Number(task?.targetValue ?? 0),
+                                                },
+                                            });
+                                        }}
+                                    >
+                                        {isDone ? (
+                                            <FaCheckSquare className="text-[#52C41A] text-lg" />
+                                        ) : (
+                                            <FaRegSquare className="text-gray-300 text-lg" />
+                                        )}
+                                        <span className={`text-[13px] ${isDone ? 'text-[#52C41A] font-semibold' : 'text-gray-500'}`}>
+                                            Done
+                                        </span>
+                                    </div>
 
-                                {/* Not Option */}
-                                <div
-                                    className="cursor-pointer flex items-center gap-1.5"
-                                    onClick={() => {
-                                        setStatus(task.taskId, 'Not');
-                                        form.setFieldsValue({
-                                            [task.taskId]: {
-                                                status: 'Not',
-                                                actualValue: 0,
-                                            },
-                                        });
-                                    }}
-                                >
-                                    {isNot ? (
-                                        <FaWindowClose className="text-[#FF4D4F] text-xl" />
-                                    ) : (
-                                        <FaRegSquare className="text-gray-300 text-xl" />
-                                    )}
-                                    <span className={`text-sm ${isNot ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                                        Not
-                                    </span>
+                                    {/* Not Option */}
+                                    <div
+                                        className="cursor-pointer flex items-center gap-1.5 px-2 py-0.5 rounded transition hover:bg-white"
+                                        onClick={() => {
+                                            setStatus(task.taskId, 'Not');
+                                            form.setFieldsValue({
+                                                [task.taskId]: {
+                                                    status: 'Not',
+                                                    actualValue: 0,
+                                                },
+                                            });
+                                        }}
+                                    >
+                                        {isNot ? (
+                                            <FaWindowClose className="text-[#FF4D4F] text-lg" />
+                                        ) : (
+                                            <FaRegSquare className="text-gray-300 text-lg" />
+                                        )}
+                                        <span className={`text-[13px] ${isNot ? 'text-[#FF4D4F] font-semibold' : 'text-gray-500'}`}>
+                                            Not
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        </Form.Item>
-                    </div>
-                </div>
+                            </Form.Item>
+                        </div>
+                    </Col>
+                </Row>
 
                 {/* Reason Box */}
                 {isNot && (
-                    <div className="mt-4">
+                    <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
                         <Form.Item
                             name={[task.taskId, 'customReason']}
                             className="mb-0"
                             rules={[{ required: true, message: 'Please provide a reason!' }]}
                         >
                             <TextArea
-                                rows={4}
+                                rows={3}
                                 placeholder="Please describe why this task was not completed..."
-                                className="w-full rounded-lg border-[#574CFF] border bg-white p-3 text-sm"
+                                className="w-full rounded-lg border-gray-200 bg-gray-50 p-3 text-sm focus:bg-white transition"
                                 style={{ resize: 'none' }}
                             />
                         </Form.Item>

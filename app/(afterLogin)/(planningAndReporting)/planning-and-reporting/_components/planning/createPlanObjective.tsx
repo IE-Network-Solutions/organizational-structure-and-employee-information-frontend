@@ -71,7 +71,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
 
   return (
-    <Collapse 
+    <Collapse
       expandIconPosition="end"
       bordered={false}
       className="[&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:border [&_.ant-collapse-item]:border-gray-200 [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:border-b-0 [&_.ant-collapse-content]:border-t-0 [&_.ant-collapse-content]:bg-transparent"
