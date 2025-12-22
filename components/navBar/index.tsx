@@ -1297,22 +1297,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 />
               )}
             </div>
-          )}
-
-          <NavBar page="" handleLogout={handleLogout} />
-        </Header>
-        <Content
-          className="overflow-y-hidden min-h-screen"
-          style={{
-            paddingInline: isMobile ? 8 : 24,
-            paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
-            transition: 'padding-left 0.3s ease',
-          }}
-        >
-          {isCheckingPermissions ? (
-            <div className="flex justify-center items-center h-screen">
-              <Skeleton active />
-            </div>
           </Sider>
 
           <Layout
