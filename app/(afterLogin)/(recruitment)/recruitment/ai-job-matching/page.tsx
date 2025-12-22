@@ -42,7 +42,11 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
       onClick={onClick}
       className="rounded-[28px] border border-blue-100 bg-white shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer p-6"
     >
-      <div className="space-y-4">
+      <div
+        id={`ai-job-card-${job.jobId}-content`}
+        data-cy={`ai-job-card-${job.jobId}-content`}
+        className="space-y-4"
+      >
         {/* Job Title */}
         <h3
           id={`ai-job-card-${job.jobId}-title`}
@@ -102,7 +106,11 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
           data-cy={`ai-job-card-${job.jobId}-matches`}
           className="pt-4 border-t border-blue-50"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <div
+            id={`ai-job-card-${job.jobId}-matches-content`}
+            data-cy={`ai-job-card-${job.jobId}-matches-content`}
+            className="flex flex-wrap items-center justify-between gap-3 text-sm"
+          >
             <span
               id={`ai-job-card-${job.jobId}-matches-label`}
               data-cy={`ai-job-card-${job.jobId}-matches-label`}
@@ -257,7 +265,13 @@ const AIJobMatchingPage: React.FC = () => {
           id="ai-job-matching-search"
           data-cy="ai-job-matching-search"
           placeholder="Search"
-          prefix={<SearchOutlined className="text-gray-400" />}
+          prefix={
+            <SearchOutlined
+              id="ai-job-matching-search-icon"
+              data-cy="ai-job-matching-search-icon"
+              className="text-gray-400"
+            />
+          }
           className="max-w-md rounded-lg border border-gray-200 bg-white shadow-sm"
           size="large"
         />
