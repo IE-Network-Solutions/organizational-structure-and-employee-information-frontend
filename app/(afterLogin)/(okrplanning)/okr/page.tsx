@@ -73,23 +73,39 @@ const OKR: React.FC<any> = () => {
     }
   }
   return (
-    <div id="okr-page-div-container" data-cy="okr-page-div-container" className={`h-auto w-full ${isMobile ? 'p-0' : 'p-4'}`}>
-      <div id="okr-page-div-header" data-cy="okr-page-div-header"
+    <div
+      id="okr-page-div-container"
+      data-cy="okr-page-div-container"
+      className={`h-auto w-full ${isMobile ? 'p-0' : 'p-4'}`}
+    >
+      <div
+        id="okr-page-div-header"
+        data-cy="okr-page-div-header"
         className={`${isMobile && 'mx-5 mt-6'} flex flex-wrap justify-between items-center`}
       >
         <CustomBreadcrumb
-          
           data-cy="okr-breadcrumb"
           title="Objective"
           subtitle="Employee's objective setting up"
         />
-        <div id="okr-page-div-buttons" data-cy="okr-page-div-buttons" className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
+        <div
+          id="okr-page-div-buttons"
+          data-cy="okr-page-div-buttons"
+          className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
+        >
           {userObjectives?.items?.length === 0 ||
           userObjectives?.items?.some(
             (item: any) => item?.isClosed == false,
           ) ? (
-            <div id="okr-page-div-buttons-content" data-cy="okr-page-div-buttons-content" className="py-4 px-2 flex justify-center items-center gap-4">
-              <AccessGuard data-cy="okr-page-access-guard" permissions={[Permissions.ViewOkrReports]}>
+            <div
+              id="okr-page-div-buttons-content"
+              data-cy="okr-page-div-buttons-content"
+              className="py-4 px-2 flex justify-center items-center gap-4"
+            >
+              <AccessGuard
+                data-cy="okr-page-access-guard"
+                permissions={[Permissions.ViewOkrReports]}
+              >
                 <CustomButton
                   id="okr-page-button-download"
                   data-cy="okr-page-button-download"

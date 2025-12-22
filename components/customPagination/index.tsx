@@ -52,6 +52,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                 ? 'bg-[#F8F8F8] text-[#111827] '
                 : 'bg-white text-[#111827] hover:bg-gray-100'
             }`}
+            data-cy="pagination-page-button"
           >
             {i}
           </button>,
@@ -73,6 +74,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               ? 'bg-[#F8F8F8] text-[#111827]'
               : 'bg-white text-[#111827] hover:bg-gray-100'
           }`}
+          data-cy="pagination-page-button"
         >
           1
         </button>,
@@ -96,7 +98,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         pageNumbers.push(
           <span
             key="leftEllipsis"
-            className={`${isMobile ? 'px-1' : 'px-2'} text-[#718096]`}
+            className="px-2"
+            data-cy="pagination-ellipsis"
           >
             ...
           </span>,
@@ -116,6 +119,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                 ? 'bg-[#F8F8F8] text-[#111827] '
                 : 'bg-white text-[#111827] hover:bg-gray-100'
             }`}
+            data-cy="pagination-page-button"
           >
             {i}
           </button>,
@@ -127,31 +131,29 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         pageNumbers.push(
           <span
             key="rightEllipsis"
-            className={`${isMobile ? 'px-1' : 'px-2'} text-[#718096]`}
+            className="px-2"
+            data-cy="pagination-ellipsis"
           >
             ...
           </span>,
         );
       }
 
-      // Always show last page (unless we're already showing it)
-      if (totalPages > 1) {
-        pageNumbers.push(
-          <button
-            key={totalPages}
-            onClick={() => handlePageChange(totalPages)}
-            className={`${
-              isMobile ? 'w-10 h-10' : 'w-8 h-8'
-            } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
-              current === totalPages
-                ? 'bg-[#F8F8F8] text-[#111827] '
-                : 'bg-white text-[#111827] hover:bg-gray-100'
-            }`}
-          >
-            {totalPages}
-          </button>,
-        );
-      }
+      // Always show last page
+      pageNumbers.push(
+        <button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          className={`w-8 h-8 flex items-center justify-center  rounded-[10px] ${
+            current === totalPages
+              ? 'bg-[#F8F8F8] text-[#111827] '
+              : 'bg-white text-[#111827]  hover:bg-gray-100'
+          }`}
+          data-cy="pagination-page-button"
+        >
+          {totalPages}
+        </button>,
+      );
     }
 
     return pageNumbers;
@@ -160,25 +162,19 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   const { isMobile } = useIsMobile();
   return (
     <div
-id={id} data-cy={dataCy}
-      className={`bg-white ${
-        isMobile
-          ? 'flex flex-col space-y-4 py-4 px-2'
-          : 'flex justify-between items-center py-6'
-      }`}
+      id={id}
+      data-cy={dataCy}
+      className="flex justify-between items-center py-6  bg-white"
     >
-      {/* Navigation Controls */}
       <div
-        className={`flex items-center justify-center ${isMobile ? 'order-1' : ''} ${
-          isMobile ? 'space-x-1' : 'space-x-2'
-        }`}
+        className="flex items-center space-x-2"
+        data-cy="pagination-controls"
       >
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
-          className={`${
-            isMobile ? 'w-10 h-10' : 'w-8 h-8'
-          } flex items-center justify-center border rounded-[10px] transition-colors ${
+          data-cy="pagination-prev-button"
+          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === 1
               ? 'text-[#111827] border-gray-200 opacity-50'
               : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
@@ -190,9 +186,8 @@ id={id} data-cy={dataCy}
         <button
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
-          className={`${
-            isMobile ? 'w-10 h-10' : 'w-8 h-8'
-          } flex items-center justify-center border rounded-[10px] transition-colors ${
+          data-cy="pagination-next-button"
+          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === totalPages
               ? 'text-[#111827] border-gray-200 opacity-50'
               : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'

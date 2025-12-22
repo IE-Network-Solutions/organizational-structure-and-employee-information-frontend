@@ -4,10 +4,14 @@ const CustomLabel = (
   label: React.ReactNode,
   { required }: { required: boolean },
 ) => (
-  <>
+  <div data-cy="custom-label">
     {label}
-    {required && <span className="text-error">*</span>}
-  </>
+    {required && (
+      <span className="text-error" data-cy="custom-label-required">
+        *
+      </span>
+    )}
+  </div>
 );
 
 export default CustomLabel;

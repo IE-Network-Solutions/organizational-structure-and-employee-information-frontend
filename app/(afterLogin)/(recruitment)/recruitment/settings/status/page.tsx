@@ -71,10 +71,18 @@ const Status: React.FC = () => {
     setCurrentPage(1);
   };
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      data-cy="talent-acquisition-status-page-container"
+    >
       {/* Header section */}
-      <div className="flex justify-between items-center mb-4">
-        <Title level={5}>Define New Status</Title>
+      <div
+        className="flex justify-between items-center mb-4"
+        data-cy="talent-acquisition-status-page-header"
+      >
+        <Title level={5} data-cy="talent-acquisition-status-page-title">
+          Define New Status
+        </Title>
         <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
           <Button
             type="primary"
@@ -82,9 +90,16 @@ const Status: React.FC = () => {
             data-cy="talent-acquisition-status-button-define-new"
             onClick={handleOpen}
             className="h-10 w-10 sm:w-auto"
-            icon={<FaPlus />}
+            icon={
+              <FaPlus data-cy="talent-acquisition-status-button-define-new-icon" />
+            }
           >
-            <span className="hidden lg:inline">Define New Status</span>
+            <span
+              className="hidden lg:inline"
+              data-cy="talent-acquisition-status-button-define-new-text"
+            >
+              Define New Status
+            </span>
           </Button>
         </AccessGuard>
       </div>

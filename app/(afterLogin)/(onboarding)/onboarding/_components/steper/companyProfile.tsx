@@ -117,8 +117,14 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
   ]);
 
   return (
-    <div className="flex-1 bg-gray-50 p-8 rounded-lg h-full my-8 items-center">
-      <div className="bg-white p-8 rounded-lg h-full">
+    <div
+      className="flex-1 bg-gray-50 p-8 rounded-lg h-full my-8 items-center"
+      data-cy="onboarding-company-profile-container"
+    >
+      <div
+        className="bg-white p-8 rounded-lg h-full"
+        data-cy="onboarding-company-profile-content"
+      >
         <Form form={form} layout="vertical">
           <Form.Item
             name="companyProfileImage"

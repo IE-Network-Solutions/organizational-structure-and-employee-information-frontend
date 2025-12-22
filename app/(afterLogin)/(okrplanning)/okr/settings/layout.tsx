@@ -25,7 +25,8 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'planning-period',
         icon: !isMobile ? (
-          <TbLayoutList data-cy="okr-settings-layout-planning-period-icon-display-icon"
+          <TbLayoutList
+            data-cy="okr-settings-layout-planning-period-icon-display-icon"
             className={
               currentItem === 'planning-period'
                 ? 'text-[#4DAEF0]'
@@ -34,7 +35,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900" data-cy="okr-settings-layout-planning-period-label-display-label">Planning Period</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-planning-period-label-display-label"
+          >
+            Planning Period
+          </p>
         ),
         className: currentItem === 'planning-period' ? 'px-4' : 'px-1',
       },
@@ -44,7 +50,8 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'planning-assignation',
         icon: !isMobile ? (
-          <TbLayoutList data-cy="okr-settings-layout-planning-assignation-icon-display-icon"
+          <TbLayoutList
+            data-cy="okr-settings-layout-planning-assignation-icon-display-icon"
             className={
               currentItem === 'planning-assignation'
                 ? 'text-[#4DAEF0]'
@@ -53,7 +60,10 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900" data-cy="okr-settings-layout-planning-assignation-label-display-label">
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-planning-assignation-label-display-label"
+          >
             Planning Assignation
           </p>
         ),
@@ -65,7 +75,8 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'define-okr-rule',
         icon: !isMobile ? (
-          <TbTargetArrow data-cy="okr-settings-layout-define-okr-rule-icon-display-icon"
+          <TbTargetArrow
+            data-cy="okr-settings-layout-define-okr-rule-icon-display-icon"
             className={
               currentItem === 'define-okr-rule'
                 ? 'text-[#4DAEF0]'
@@ -74,7 +85,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900" data-cy="okr-settings-layout-define-okr-rule-label-display-label">Define OKR Rule</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-define-okr-rule-label-display-label"
+          >
+            Define OKR Rule
+          </p>
         ),
         className: currentItem === 'define-okr-rule' ? 'px-4' : 'px-1',
       },
@@ -84,7 +100,8 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'criteria-management',
         icon: !isMobile ? (
-          <TbTarget data-cy="okr-settings-layout-criteria-management-icon-display-icon"
+          <TbTarget
+            data-cy="okr-settings-layout-criteria-management-icon-display-icon"
             className={
               currentItem === 'criteria-management'
                 ? 'text-[#4DAEF0]'
@@ -93,7 +110,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900" data-cy="okr-settings-layout-criteria-management-label-display-label">Criteria Management</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-criteria-management-label-display-label"
+          >
+            Criteria Management
+          </p>
         ),
         className: currentItem === 'criteria-management' ? 'px-4' : 'px-1',
       },
@@ -123,7 +145,8 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'target-assignment',
         icon: !isMobile ? (
-          <HiOutlineBriefcase data-cy="okr-settings-layout-target-assignment-icon-display-icon"
+          <HiOutlineBriefcase
+            data-cy="okr-settings-layout-target-assignment-icon-display-icon"
             className={
               currentItem === 'target-assignment'
                 ? 'text-[#4DAEF0]'
@@ -132,7 +155,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900" data-cy="okr-settings-layout-target-assignment-label-display-label">Target Assignment</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-target-assignment-label-display-label"
+          >
+            Target Assignment
+          </p>
         ),
         className: currentItem === 'target-assignment' ? 'px-4' : 'px-1',
       },
@@ -142,7 +170,8 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'define-appreciation',
         icon: !isMobile ? (
-          <TbAward data-cy="okr-settings-layout-define-appreciation-icon-display-icon"
+          <TbAward
+            data-cy="okr-settings-layout-define-appreciation-icon-display-icon"
             className={
               currentItem === 'define-appreciation'
                 ? 'text-[#4DAEF0]'
@@ -151,7 +180,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900" data-cy="okr-settings-layout-define-appreciation-label-display-label">Define Appreciation</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-define-appreciation-label-display-label"
+          >
+            Define Appreciation
+          </p>
         ),
         className: currentItem === 'define-appreciation' ? 'px-4' : 'px-1',
       },
@@ -161,7 +195,8 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'define-reprimand',
         icon: !isMobile ? (
-          <TbShieldCheck data-cy="okr-settings-layout-define-reprimand-icon-display-icon"
+          <TbShieldCheck
+            data-cy="okr-settings-layout-define-reprimand-icon-display-icon"
             className={
               currentItem === 'define-reprimand'
                 ? 'text-[#4DAEF0]'
@@ -170,7 +205,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900" data-cy="okr-settings-layout-define-reprimand-label-display-label">Define Reprimand</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-define-reprimand-label-display-label"
+          >
+            Define Reprimand
+          </p>
         ),
         className: currentItem === 'define-reprimand' ? 'px-4' : 'px-1',
       },
@@ -180,13 +220,21 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'edit-access',
         icon: !isMobile ? (
-          <TbEdit data-cy="okr-settings-layout-edit-access-icon-display-icon"
+          <TbEdit
+            data-cy="okr-settings-layout-edit-access-icon-display-icon"
             className={
               currentItem === 'edit-access' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
         ) : null,
-        label: <p className="font-bold text-sm text-gray-900" data-cy="okr-settings-layout-edit-access-label-display-label">Edit Access</p>,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-edit-access-label-display-label"
+          >
+            Edit Access
+          </p>
+        ),
         className: currentItem === 'edit-access' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/edit-access',
@@ -195,7 +243,8 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'check-in-rule',
         icon: !isMobile ? (
-          <BiCheckDouble data-cy="okr-settings-layout-check-in-rule-icon-display-icon"
+          <BiCheckDouble
+            data-cy="okr-settings-layout-check-in-rule-icon-display-icon"
             className={
               currentItem === 'check-in-rule'
                 ? 'text-[#4DAEF0]'
@@ -203,7 +252,14 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
             }
           />
         ) : null,
-        label: <p className="font-bold text-sm text-gray-900" data-cy="okr-settings-layout-check-in-rule-label-display-label">Check-in Rule</p>,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-check-in-rule-label-display-label"
+          >
+            Check-in Rule
+          </p>
+        ),
         className: currentItem === 'check-in-rule' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/check-in-rule',
@@ -231,7 +287,6 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
         <PageHeader
           title="Settings"
           description="OKR Settings"
-        
           data-cy="okr-settings-layout-header-display-header"
         ></PageHeader>
         <div
@@ -241,7 +296,6 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
         >
           <SidebarMenu
             menuItems={menuItems}
-       
             data-cy="okr-settings-layout-sidebar-display-menu"
           />
           <div

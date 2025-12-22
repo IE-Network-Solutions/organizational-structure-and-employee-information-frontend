@@ -100,7 +100,12 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
           data-cy="form-drawer-content"
           className="flex flex-col h-full"
         >
-          <Form id="form-drawer-form" data-cy="form-drawer-form" form={form} layout="vertical">
+          <Form
+            id="form-drawer-form"
+            data-cy="form-drawer-form"
+            form={form}
+            layout="vertical"
+          >
             <Form.Item
               id="FormName"
               data-cy="FormName"
@@ -269,7 +274,11 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
               valuePropName="checked"
               initialValue={false}
             >
-              <Switch id="form-drawer-anonymous-switch" data-cy="form-drawer-anonymous-switch" size="small" />
+              <Switch
+                id="form-drawer-anonymous-switch"
+                data-cy="form-drawer-anonymous-switch"
+                size="small"
+              />
             </Form.Item>
             <Form.Item
               id="form-drawer-permissions-item"
@@ -398,7 +407,10 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
               </Collapse> */}
             </Form.Item>
 
-            <Form.Item id="form-drawer-actions-item" data-cy="form-drawer-actions-item">
+            <Form.Item
+              id="form-drawer-actions-item"
+              data-cy="form-drawer-actions-item"
+            >
               <div
                 id="form-drawer-actions-container"
                 data-cy="form-drawer-actions-container"

@@ -69,6 +69,7 @@ const LeaveRequestSidebar = () => {
   } = useSetLeaveRequest();
   const [leaveRequest, setLeaveRequest] = useState<LeaveRequest>();
   const [isLoading, setIsLoading] = useState(false);
+  const [showApproverMessage, setShowApproverMessage] = useState(false);
 
   const [form] = Form.useForm();
 
@@ -134,6 +135,7 @@ const LeaveRequestSidebar = () => {
     setIsLoading(false);
     setLeaveRequestSidebarData(null);
     setIsShowLeaveRequestSidebar(false);
+    setShowApproverMessage(false);
   };
 
   useEffect(() => {
@@ -141,6 +143,7 @@ const LeaveRequestSidebar = () => {
     if (isShowLeaveRequestSidebar && !leaveRequestSidebarData) {
       setLeaveRequest(undefined);
       form.resetFields();
+      setShowApproverMessage(false);
     }
   }, [isShowLeaveRequestSidebar, leaveRequestSidebarData]);
 
@@ -156,6 +159,8 @@ const LeaveRequestSidebar = () => {
     }
   }, [isShowLeaveRequestSidebar, leaveRequestSidebarData, leaveRequest]);
 
+  const hasNoApprover = (approvalUserData?.length ?? 0) < 1 && (approvalDepartmentData?.length ?? 0) < 1;
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -168,26 +173,40 @@ const LeaveRequestSidebar = () => {
       'data-cy': 'time-attendance-leave-request-sidebar-cancel-button',
     },
     {
-      label:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
-          ? 'You lack an assigned approver.'
-          : leaveRequest
-            ? 'Update'
-            : 'Create',
+      label: leaveRequest ? 'Update' : 'Add',
       key: 'create',
-      className: 'h-[40px] sm:h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base bg-[#2563eb] border-[#2563eb] text-white hover:bg-[#1d4ed8] hover:border-[#1d4ed8] disabled:bg-[#2563eb] disabled:border-[#2563eb] disabled:text-white disabled:opacity-100 disabled:cursor-not-allowed',
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
+      disabled: hasNoApprover && !leaveRequest,
       onClick: () => form.submit(),
-      disabled:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
       id: 'time-attendance-leave-request-sidebar-submit-button',
       'data-cy': 'time-attendance-leave-request-sidebar-submit-button',
+      tooltip: hasNoApprover && !leaveRequest ? 'You lack approver please contact your team lead for more information' : undefined,
+      tooltipProps: hasNoApprover && !leaveRequest ? {
+        overlayInnerStyle: {
+          backgroundColor: 'white',
+          color: '#1f2937',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          maxWidth: '300px',
+          fontSize: '14px',
+          fontWeight: 500,
+        },
+        color: 'white',
+      } : undefined,
     },
   ];
 
   const onFinish = () => {
+    // Check if there's no approver assigned
+    if (approvalUserData?.length < 1 && approvalDepartmentData?.length < 1) {
+      setShowApproverMessage(true);
+      return;
+    }
+
     const value = form.getFieldsValue();
 
     updateLeaveRequest({
@@ -239,26 +258,27 @@ const LeaveRequestSidebar = () => {
 
   return (
     isShowLeaveRequestSidebar && (
-      <CustomDrawerLayout
-        data-cy="time-attendance-leave-request-sidebar-container"
-        open={isShowLeaveRequestSidebar}
-        onClose={onClose}
-        modalHeader={
-          <CustomDrawerHeader data-cy="time-attendance-leave-request-sidebar-header">
-            {leaveRequest ? 'Update' : 'Add New'} Leave Request
-          </CustomDrawerHeader>
-        }
-        footer={
-          <div
-            className="p-6 sm:p-0"
-            id="time-attendance-leave-request-sidebar-footer"
-            data-cy="time-attendance-leave-request-sidebar-footer"
-          >
-            <CustomDrawerFooterButton data-cy="time-attendance-leave-request-sidebar-footer-button" buttons={footerModalItems} />
-          </div>
-        }
-        width="400px"
-      >
+      <>
+        <CustomDrawerLayout
+          data-cy="time-attendance-leave-request-sidebar-container"
+          open={isShowLeaveRequestSidebar}
+          onClose={onClose}
+          modalHeader={
+            <CustomDrawerHeader data-cy="time-attendance-leave-request-sidebar-header">
+              {leaveRequest ? 'Update' : 'Add New'} Leave Request
+            </CustomDrawerHeader>
+          }
+          footer={
+            <div
+              className="p-6 sm:p-0"
+              id="time-attendance-leave-request-sidebar-footer"
+              data-cy="time-attendance-leave-request-sidebar-footer"
+            >
+              <CustomDrawerFooterButton data-cy="time-attendance-leave-request-sidebar-footer-button" buttons={footerModalItems} />
+            </div>
+          }
+          width="400px"
+        >
         <Spin
           spinning={isLoading || isLoadingRequest}
           data-cy="time-attendance-leave-request-sidebar-spin"
@@ -294,7 +314,11 @@ const LeaveRequestSidebar = () => {
                     leaveRequest?.status === LeaveRequestStatus.APPROVED
                   }
                   suffixIcon={
-                    <MdKeyboardArrowDown data-cy="time-attendance-leave-request-sidebar-type-select-icon" size={16} className="text-gray-900" />
+                    <MdKeyboardArrowDown
+                      data-cy="time-attendance-leave-request-sidebar-type-select-icon"
+                      size={16}
+                      className="text-gray-900"
+                    />
                   }
                   id="time-attendance-leave-request-sidebar-type-select"
                   data-cy="time-attendance-leave-request-sidebar-type-select"
@@ -316,8 +340,14 @@ const LeaveRequestSidebar = () => {
                   data-cy="time-attendance-leave-request-sidebar-half-day-radio"
                 />
               </Form.Item>
-              <Row data-cy="time-attendance-leave-request-sidebar-date-row" gutter={16}>
-                <Col data-cy="time-attendance-leave-request-sidebar-start-date-column" span={12}>
+              <Row
+                data-cy="time-attendance-leave-request-sidebar-date-row"
+                gutter={16}
+              >
+                <Col
+                  data-cy="time-attendance-leave-request-sidebar-start-date-column"
+                  span={12}
+                >
                   <Form.Item
                     name="startDate"
                     label="Start Date "
@@ -441,10 +471,26 @@ const LeaveRequestSidebar = () => {
                   data-cy="time-attendance-leave-request-sidebar-delegatee-select"
                 />
               </Form.Item>
+              {showApproverMessage && (
+                <div
+                  className="mt-6 mb-4 px-5 py-4 bg-white rounded-xl border-2 border-orange-200 shadow-md"
+                  id="time-attendance-leave-request-sidebar-approver-message"
+                  data-cy="time-attendance-leave-request-sidebar-approver-message"
+                >
+                  <p 
+                    className="text-base font-medium text-gray-800 m-0 leading-relaxed"
+                    id="time-attendance-leave-request-sidebar-approver-message-text"
+                    data-cy="time-attendance-leave-request-sidebar-approver-message-text"
+                  >
+                    You lack approver please contact your team lead for more information
+                  </p>
+                </div>
+              )}
             </Space.Compact>
           </Form>
         </Spin>
       </CustomDrawerLayout>
+      </>
     )
   );
 };

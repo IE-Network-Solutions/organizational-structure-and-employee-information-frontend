@@ -205,7 +205,9 @@ export const useGetAllRecognition = ({
 };
 
 // Fetch all recognition IDs without pagination (for select all functionality)
-const getAllRecognitionIds = async (searchValue: Record<string, string | undefined>) => {
+const getAllRecognitionIds = async (
+  searchValue: Record<string, string | undefined>,
+) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const queryString = [
@@ -226,7 +228,10 @@ const getAllRecognitionIds = async (searchValue: Record<string, string | undefin
   });
 };
 
-export const useGetAllRecognitionIds = (searchValue: Record<string, string | undefined>, enabled: boolean = false) => {
+export const useGetAllRecognitionIds = (
+  searchValue: Record<string, string | undefined>,
+  enabled: boolean = false,
+) => {
   return useQuery<any>(
     ['allRecognitionIds', searchValue],
     () => getAllRecognitionIds(searchValue),

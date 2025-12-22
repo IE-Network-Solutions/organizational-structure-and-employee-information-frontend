@@ -65,7 +65,8 @@ const CreateRuleSidebar = () => {
       loading: isFetching || isLoading,
       onClick: () => onClose(),
       id: 'time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button',
-      'data-cy':'time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button',
+      'data-cy':
+        'time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button',
     },
     {
       label: 'Create',
@@ -76,7 +77,8 @@ const CreateRuleSidebar = () => {
       loading: isFetching || isLoading,
       onClick: () => form.submit(),
       id: 'time-attendance-settings-attendance-rules-create-rule-sidebar-create-button',
-      'data-cy': 'time-attendance-settings-attendance-rules-create-rule-sidebar-create-button',
+      'data-cy':
+        'time-attendance-settings-attendance-rules-create-rule-sidebar-create-button',
     },
   ];
 
@@ -151,7 +153,10 @@ const CreateRuleSidebar = () => {
               id="time-attendance-settings-attendance-rules-create-rule-sidebar-form-row"
               data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-form-row"
             >
-              <Col data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-column" span={12}>
+              <Col
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-column"
+                span={12}
+              >
                 <Form.Item
                   label="Rule Name"
                   id="createRuleNameFieldId"
@@ -166,7 +171,10 @@ const CreateRuleSidebar = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-column" span={12}>
+              <Col
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-column"
+                span={12}
+              >
                 <Form.Item
                   label="Type"
                   id="createRuleTypeFieldId"
@@ -193,7 +201,10 @@ const CreateRuleSidebar = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-column" span={24}>
+              <Col
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-column"
+                span={24}
+              >
                 <Form.Item
                   label="Days Set"
                   id="createRuleDaysSetFieldId"

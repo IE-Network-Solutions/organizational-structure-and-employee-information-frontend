@@ -26,7 +26,11 @@ const AttendanceTableFilter = ({
   };
 
   return (
-    <div id="time-attendance-my-timesheet-attendance-table-filter-container" data-cy="time-attendance-my-timesheet-attendance-table-filter-container" className="flex flex-col sm:flex-row gap-4">
+    <div
+      id="time-attendance-my-timesheet-attendance-table-filter-container"
+      data-cy="time-attendance-my-timesheet-attendance-table-filter-container"
+      className="flex flex-col sm:flex-row gap-4"
+    >
       <DatePicker.RangePicker
         id="time-attendance-my-timesheet-attendance-table-filter-date-picker"
         data-cy="time-attendance-my-timesheet-attendance-table-filter-date-picker"

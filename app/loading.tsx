@@ -15,6 +15,7 @@ export default function RootLoading() {
         pointerEvents: 'none',
       }}
       aria-hidden
+      data-cy="root-loading"
     >
       <Spin size="large" />
     </div>

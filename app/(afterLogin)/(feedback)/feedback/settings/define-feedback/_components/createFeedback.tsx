@@ -75,13 +75,16 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
   };
 
   const modalHeader = (
-    <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <p>
+    <div
+      className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="create-feedback-modal-header"
+    >
+      <p data-cy="create-feedback-modal-header-title">
         {selectedFeedback === null
           ? `Add New ${activeTabName}`
           : `Edit New ${activeTabName}`}
       </p>
-      <p>{variantType} type</p>
+      <p data-cy="create-feedback-modal-header-subtitle">{variantType} type</p>
     </div>
   );
 
@@ -91,9 +94,22 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
       onClose={onCloseHandler}
       modalHeader={modalHeader}
       footer={
-        <Form.Item data-cy="create-feedback-form-footer" id="createFeedbackFormFooter">
-          <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5" data-cy="create-feedback-form-actions" id="createFeedbackFormActions">
-            <Button onClick={() => setOpen(false)} data-cy="create-feedback-form-cancel-button" id="createFeedbackFormCancelButton">Cancel</Button>
+        <Form.Item
+          data-cy="create-feedback-form-footer"
+          id="createFeedbackFormFooter"
+        >
+          <div
+            className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5"
+            data-cy="create-feedback-form-actions"
+            id="createFeedbackFormActions"
+          >
+            <Button
+              onClick={() => setOpen(false)}
+              data-cy="create-feedback-form-cancel-button"
+              id="createFeedbackFormCancelButton"
+            >
+              Cancel
+            </Button>
 
             {selectedFeedback?.id ? (
               <Button
@@ -147,7 +163,12 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
           data-cy="create-feedback-form-objective-field"
           id="createFeedbackFormObjectiveField"
         >
-          <Input className={commonClass} placeholder="Enter type name" data-cy="create-feedback-form-objective-input" id="createFeedbackFormObjectiveInput" />
+          <Input
+            className={commonClass}
+            placeholder="Enter type name"
+            data-cy="create-feedback-form-objective-input"
+            id="createFeedbackFormObjectiveInput"
+          />
         </Form.Item>
 
         {/* Description */}
@@ -191,7 +212,12 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
             id="createFeedbackFormPerspectiveSelect"
           >
             {perspectiveData?.map((perspective: any) => (
-              <Select.Option key={perspective.id} value={perspective.id} data-cy={`create-feedback-form-perspective-option-${perspective.id}`} id={`createFeedbackFormPerspectiveOption${perspective.id}`}>
+              <Select.Option
+                key={perspective.id}
+                value={perspective.id}
+                data-cy={`create-feedback-form-perspective-option-${perspective.id}`}
+                id={`createFeedbackFormPerspectiveOption${perspective.id}`}
+              >
                 {perspective.name}
               </Select.Option>
             ))}

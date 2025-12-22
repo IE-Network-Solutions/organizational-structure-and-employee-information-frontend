@@ -60,8 +60,12 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
               <Switch
                 id="carryOverSwitchAbleCardButtonId"
                 data-cy="time-attendance-settings-carry-over-rule-card-switch-able-button-id"
-                checkedChildren={<CheckOutlined data-cy="time-attendance-settings-carry-over-rule-card-switch-able-button-checked-icon" />}
-                unCheckedChildren={<CloseOutlined data-cy="time-attendance-settings-carry-over-rule-card-switch-able-button-unchecked-icon" />}
+                checkedChildren={
+                  <CheckOutlined data-cy="time-attendance-settings-carry-over-rule-card-switch-able-button-checked-icon" />
+                }
+                unCheckedChildren={
+                  <CloseOutlined data-cy="time-attendance-settings-carry-over-rule-card-switch-able-button-unchecked-icon" />
+                }
                 value={item.isActive}
                 onChange={(isActive) => {
                   setActive({

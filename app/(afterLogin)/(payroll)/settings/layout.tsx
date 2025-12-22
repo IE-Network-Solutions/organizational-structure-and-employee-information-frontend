@@ -157,7 +157,11 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
           id="payroll-settings-page-header-view-container"
           data-cy="payroll-settings-page-header-view-container"
         >
-          <PageHeader data-cy="payroll-settings-page-header-title-view-text" title="Settings" description="Payroll Settings" />
+          <PageHeader
+            data-cy="payroll-settings-page-header-title-view-text"
+            title="Settings"
+            description="Payroll Settings"
+          />
         </div>
         <div
           id="payroll-settings-layout-view-container"
@@ -168,7 +172,10 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
             id="payroll-settings-sidebar-view-container"
             data-cy="payroll-settings-sidebar-view-container"
           >
-            <SidebarMenu data-cy="payroll-settings-sidebar-menu-view-container" menuItems={menuItems} />
+            <SidebarMenu
+              data-cy="payroll-settings-sidebar-menu-view-container"
+              menuItems={menuItems}
+            />
           </div>
           <div
             id="payroll-settings-content-view-container"

@@ -34,7 +34,9 @@ const AllAllowancePage = () => {
             size="large"
             type="primary"
             id="createNewClosedHolidayFieldId"
-            icon={<FaPlus data-cy="compensation-deduction-all-create-button-icon" />}
+            icon={
+              <FaPlus data-cy="compensation-deduction-all-create-button-icon" />
+            }
             onClick={() => {}}
             className="h-10 w-10 sm:w-auto"
             disabled

@@ -20,6 +20,7 @@ import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { TbFileDownload } from 'react-icons/tb';
 import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalStatusesInfo';
 import ApprovalStatusCard from '@/components/common/approvalStatuses/approvalStatusCard';
+import ApprovalStatusCardSkeleton from '@/components/common/approvalStatuses/approvalStatusCardSkeleton';
 import Image from 'next/image';
 import { classNames } from '@/utils/classNames';
 
@@ -53,7 +54,7 @@ const LeaveRequestDetail = () => {
     leaveRequestSidebarData ?? '',
   );
 
-  const { data: logData } = useGetSingleApprovalLog(
+  const { data: logData, isLoading: isLogDataLoading } = useGetSingleApprovalLog(
     leaveRequestSidebarData ?? '',
     leaveRequestSidebarWorkflowData ?? '',
   );
@@ -78,6 +79,7 @@ const LeaveRequestDetail = () => {
     },
   ];
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
+  
   type ApprovalRecord = {
     approverId: string; // UUID
     userId: string; // UUID
@@ -103,7 +105,12 @@ const LeaveRequestDetail = () => {
             Leave Request Details
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton data-cy="time-attendance-leave-request-detail-footer-button" buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            data-cy="time-attendance-leave-request-detail-footer-button"
+            buttons={footerModalItems}
+          />
+        }
         width="40%"
         data-cy="time-attendance-leave-request-detail-sidebar"
       >
@@ -116,7 +123,10 @@ const LeaveRequestDetail = () => {
             <Spin data-cy="time-attendance-leave-request-detail-loading-spin" />
           </div>
         ) : (
-          <Spin spinning={isLoading} data-cy="time-attendance-leave-request-detail-content-spin">
+          <Spin
+            spinning={isLoading}
+            data-cy="time-attendance-leave-request-detail-content-spin"
+          >
             <div
               className="flex items-center gap-[15px] mb-8"
               id="time-attendance-leave-request-detail-requester-container"
@@ -192,7 +202,10 @@ const LeaveRequestDetail = () => {
                   {dayjs(leaveData?.items?.endAt).format(DATE_FORMAT)}
                 </div>
               </Col>
-              <Col data-cy="time-attendance-leave-request-detail-total-days-column" span={8}>
+              <Col
+                data-cy="time-attendance-leave-request-detail-total-days-column"
+                span={8}
+              >
                 <div
                   className={labelClass}
                   id="time-attendance-leave-request-detail-total-days-label"
@@ -212,13 +225,23 @@ const LeaveRequestDetail = () => {
                 </div>
               </Col>
               {leaveData?.items?.justificationDocument && (
-                <Col data-cy="time-attendance-leave-request-detail-attachment-column" span={24}>
+                <Col
+                  data-cy="time-attendance-leave-request-detail-attachment-column"
+                  span={24}
+                >
                   <div
                     className={labelClass}
                     id="time-attendance-leave-request-detail-attachment-label"
                     data-cy="time-attendance-leave-request-detail-attachment-label"
                   >
-                    Attachment <span id="time-attendance-leave-request-detail-attachment-label-asterisk" data-cy="time-attendance-leave-request-detail-attachment-label-asterisk" className="text-error">*</span>
+                    Attachment{' '}
+                    <span
+                      id="time-attendance-leave-request-detail-attachment-label-asterisk"
+                      data-cy="time-attendance-leave-request-detail-attachment-label-asterisk"
+                      className="text-error"
+                    >
+                      *
+                    </span>
                   </div>
                   <a
                     href={leaveData?.items?.justificationDocument}
@@ -252,8 +275,14 @@ const LeaveRequestDetail = () => {
                 id="time-attendance-leave-request-detail-next-approver-container"
                 data-cy="time-attendance-leave-request-detail-next-approver-container"
               >
-                <Divider data-cy="time-attendance-leave-request-detail-next-approver-divider" className="my-8 h-[5px] bg-gray-200" />
-                <div id="time-attendance-leave-request-detail-next-approver-content-container" data-cy="time-attendance-leave-request-detail-next-approver-content-container">
+                <Divider
+                  data-cy="time-attendance-leave-request-detail-next-approver-divider"
+                  className="my-8 h-[5px] bg-gray-200"
+                />
+                <div
+                  id="time-attendance-leave-request-detail-next-approver-content-container"
+                  data-cy="time-attendance-leave-request-detail-next-approver-content-container"
+                >
                   <div
                     className="flex items-center justify-between mt-5 mb-4"
                     id="time-attendance-leave-request-detail-next-approver-header"
@@ -277,7 +306,10 @@ const LeaveRequestDetail = () => {
                 </div>
               </div>
             )}
-            <Divider data-cy="time-attendance-leave-request-detail-approval-levels-divider" className="my-8 h-[5px] bg-gray-200" />
+            <Divider
+              data-cy="time-attendance-leave-request-detail-approval-levels-divider"
+              className="my-8 h-[5px] bg-gray-200"
+            />
             <div
               id="time-attendance-leave-request-detail-approval-levels-container"
               data-cy="time-attendance-leave-request-detail-approval-levels-container"
@@ -297,7 +329,18 @@ const LeaveRequestDetail = () => {
               >
                 <ApprovalStatusesInfo data-cy="time-attendance-leave-request-detail-approval-statuses-info-component" />
               </div>
-              {Array.isArray(logData) &&
+              {isLogDataLoading ? (
+                // Show skeleton loading while fetching approval log data
+                // eslint-disable-next-line react/no-array-index-key
+                Array.from({ length: 3 }).map((unusedItem, idx) => (
+                  <ApprovalStatusCardSkeleton 
+                    key={`skeleton-${idx}`}
+                    dataCyPrefix={`time-attendance-leave-request-detail-approval-status-card-skeleton-${idx}`}
+                  />
+                ))
+              ) : (
+                // Show actual approval status cards when data is loaded
+                Array.isArray(logData) &&
                 logData
                   ?.sort((a, b) => a.stepOrder - b.stepOrder)
                   ?.map((approvalCard: ApprovalRecord, idx: number) => (
@@ -308,9 +351,13 @@ const LeaveRequestDetail = () => {
                       userImage={userImage}
                       data-cy={`time-attendance-leave-request-detail-approval-status-card-${idx}`}
                     />
-                  ))}
+                  ))
+              )}
             </div>
-            <Divider data-cy="time-attendance-leave-request-detail-overall-status-divider" className="my-8 h-[5px] bg-gray-200" />
+            <Divider
+              data-cy="time-attendance-leave-request-detail-overall-status-divider"
+              className="my-8 h-[5px] bg-gray-200"
+            />
 
             <div
               id="time-attendance-leave-request-detail-overall-status-container"

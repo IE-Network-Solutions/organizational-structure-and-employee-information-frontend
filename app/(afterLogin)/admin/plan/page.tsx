@@ -656,7 +656,11 @@ const PlanPage = () => {
 
     const renderHeader = () => (
       <div id="step-header" data-cy="step-header" className="w-full mb-8">
-        <div id="step-indicators" data-cy="step-indicators" className="flex flex-col md:flex-row justify-between items-center gap-2">
+        <div
+          id="step-indicators"
+          data-cy="step-indicators"
+          className="flex flex-col md:flex-row justify-between items-center gap-2"
+        >
           {steps.map((step, index) => (
             <div
               key={index}
@@ -677,13 +681,21 @@ const PlanPage = () => {
               >
                 {index + 1}
               </span>
-              <span id={`step-title-${index}`} data-cy={`step-title-${index}`} className="text-lg font-bold whitespace-nowrap">
+              <span
+                id={`step-title-${index}`}
+                data-cy={`step-title-${index}`}
+                className="text-lg font-bold whitespace-nowrap"
+              >
                 {step.title}
               </span>
             </div>
           ))}
         </div>
-        <div id="step-progress-bar-container" data-cy="step-progress-bar-container" className="w-full h-[10px] bg-gray-200 rounded-full mt-4">
+        <div
+          id="step-progress-bar-container"
+          data-cy="step-progress-bar-container"
+          className="w-full h-[10px] bg-gray-200 rounded-full mt-4"
+        >
           <div
             id="step-progress-bar"
             data-cy="step-progress-bar"
@@ -697,17 +709,45 @@ const PlanPage = () => {
     switch (currentStep) {
       case 0:
         return (
-          <div id="step-0-container" data-cy="step-0-container" className="w-full p-8 bg-white rounded-lg">
+          <div
+            id="step-0-container"
+            data-cy="step-0-container"
+            className="w-full p-8 bg-white rounded-lg"
+          >
             {renderHeader()}
             {isLoading ? (
-              <div id="step-0-loading" data-cy="step-0-loading" className="mt-8">
-                <Skeleton active paragraph={{ rows: 6 }} data-cy="step-0-loading-skeleton" />
+              <div
+                id="step-0-loading"
+                data-cy="step-0-loading"
+                className="mt-8"
+              >
+                <Skeleton
+                  active
+                  paragraph={{ rows: 6 }}
+                  data-cy="step-0-loading-skeleton"
+                />
               </div>
             ) : (
-              <div id="step-0-content" data-cy="step-0-content" className="mt-8">
-                <div id="step-0-form" data-cy="step-0-form" className="flex flex-col rounded-lg border border-gray-200 pt-8 pb-10 px-8 max-w-[700px] min-h-[280px] mx-auto">
-                  <div id="step-0-current-quota-header" data-cy="step-0-current-quota-header" className="flex items-center justify-between gap-2">
-                    <span id="step-0-current-quota-label" data-cy="step-0-current-quota-label" className="text-2xl font-bold">
+              <div
+                id="step-0-content"
+                data-cy="step-0-content"
+                className="mt-8"
+              >
+                <div
+                  id="step-0-form"
+                  data-cy="step-0-form"
+                  className="flex flex-col rounded-lg border border-gray-200 pt-8 pb-10 px-8 max-w-[700px] min-h-[280px] mx-auto"
+                >
+                  <div
+                    id="step-0-current-quota-header"
+                    data-cy="step-0-current-quota-header"
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <span
+                      id="step-0-current-quota-label"
+                      data-cy="step-0-current-quota-label"
+                      className="text-2xl font-bold"
+                    >
                       Current User Quota
                     </span>
                     {activeSubscription &&
@@ -723,8 +763,16 @@ const PlanPage = () => {
                         </span>
                       )}
                   </div>
-                  <div id="step-0-quota-input-section" data-cy="step-0-quota-input-section" className="flex flex-col gap-2 mt-6 mb-2">
-                    <span id="step-0-quota-label" data-cy="step-0-quota-label" className="font-bold">
+                  <div
+                    id="step-0-quota-input-section"
+                    data-cy="step-0-quota-input-section"
+                    className="flex flex-col gap-2 mt-6 mb-2"
+                  >
+                    <span
+                      id="step-0-quota-label"
+                      data-cy="step-0-quota-label"
+                      className="font-bold"
+                    >
                       Update Number of user quota
                     </span>
                     <InputNumber
@@ -740,31 +788,59 @@ const PlanPage = () => {
                       disabled={isQuotaDisabled}
                     />
                     {quotaError && (
-                      <div id="step-0-quota-error" data-cy="step-0-quota-error" className="text-red-500 text-sm">{quotaError}</div>
+                      <div
+                        id="step-0-quota-error"
+                        data-cy="step-0-quota-error"
+                        className="text-red-500 text-sm"
+                      >
+                        {quotaError}
+                      </div>
                     )}
                     {isQuotaDisabled && (
-                      <div id="step-0-quota-disabled-message" data-cy="step-0-quota-disabled-message" className="text-gray-500 text-sm">
+                      <div
+                        id="step-0-quota-disabled-message"
+                        data-cy="step-0-quota-disabled-message"
+                        className="text-gray-500 text-sm"
+                      >
                         You can only update the subscription period at this
                         time. To change the user quota, please use the
                         &quot;Update User Quota&quot; button.
                       </div>
                     )}
                     {!isQuotaDisabled && !isQuotaChanged() && (
-                      <div id="step-0-quota-hint" data-cy="step-0-quota-hint" className="text-gray-500 text-sm">
+                      <div
+                        id="step-0-quota-hint"
+                        data-cy="step-0-quota-hint"
+                        className="text-gray-500 text-sm"
+                      >
                         Please change the quota value to continue
                       </div>
                     )}
                   </div>
-                  <div id="step-0-info-message" data-cy="step-0-info-message" className="text-sm flex items-center gap-2">
-                    <ExclamationCircleOutlined id="step-0-info-message-icon" data-cy="step-0-info-message-icon" />
-                    <span id="step-0-info-message-text" data-cy="step-0-info-message-text">
+                  <div
+                    id="step-0-info-message"
+                    data-cy="step-0-info-message"
+                    className="text-sm flex items-center gap-2"
+                  >
+                    <ExclamationCircleOutlined
+                      id="step-0-info-message-icon"
+                      data-cy="step-0-info-message-icon"
+                    />
+                    <span
+                      id="step-0-info-message-text"
+                      data-cy="step-0-info-message-text"
+                    >
                       Changes will take effect after the next billing period.
                     </span>
                   </div>
                 </div>
               </div>
             )}
-            <div id="step-0-actions" data-cy="step-0-actions" className="flex justify-center gap-4 mt-8">
+            <div
+              id="step-0-actions"
+              data-cy="step-0-actions"
+              className="flex justify-center gap-4 mt-8"
+            >
               <Button
                 id="step-0-cancel-button"
                 data-cy="step-0-cancel-button"
@@ -789,17 +865,45 @@ const PlanPage = () => {
         );
       case 1:
         return (
-          <div id="step-1-container" data-cy="step-1-container" className="w-full p-8 bg-white rounded-lg">
+          <div
+            id="step-1-container"
+            data-cy="step-1-container"
+            className="w-full p-8 bg-white rounded-lg"
+          >
             {renderHeader()}
             {isLoading ? (
-              <div id="step-1-loading" data-cy="step-1-loading" className="mt-8">
-                <Skeleton active paragraph={{ rows: 6 }} data-cy="step-1-loading-skeleton" />
+              <div
+                id="step-1-loading"
+                data-cy="step-1-loading"
+                className="mt-8"
+              >
+                <Skeleton
+                  active
+                  paragraph={{ rows: 6 }}
+                  data-cy="step-1-loading-skeleton"
+                />
               </div>
             ) : (
-              <div id="step-1-content" data-cy="step-1-content" className="mt-8">
-                <div id="step-1-form" data-cy="step-1-form" className="flex flex-col rounded-lg border border-gray-200 pt-8 pb-10 px-8 max-w-[700px] min-h-[280px] mx-auto">
-                  <div id="step-1-current-period-header" data-cy="step-1-current-period-header" className="flex items-center justify-between gap-2">
-                    <span id="step-1-current-period-label" data-cy="step-1-current-period-label" className="text-2xl font-bold">
+              <div
+                id="step-1-content"
+                data-cy="step-1-content"
+                className="mt-8"
+              >
+                <div
+                  id="step-1-form"
+                  data-cy="step-1-form"
+                  className="flex flex-col rounded-lg border border-gray-200 pt-8 pb-10 px-8 max-w-[700px] min-h-[280px] mx-auto"
+                >
+                  <div
+                    id="step-1-current-period-header"
+                    data-cy="step-1-current-period-header"
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <span
+                      id="step-1-current-period-label"
+                      data-cy="step-1-current-period-label"
+                      className="text-2xl font-bold"
+                    >
                       Current Subscription Period
                     </span>
                     {activeSubscription &&
@@ -817,11 +921,23 @@ const PlanPage = () => {
                         </span>
                       )}
                   </div>
-                  <div id="step-1-period-input-section" data-cy="step-1-period-input-section" className="flex flex-col gap-2 mt-6 mb-2">
-                    <span id="step-1-period-label" data-cy="step-1-period-label" className="font-bold">
+                  <div
+                    id="step-1-period-input-section"
+                    data-cy="step-1-period-input-section"
+                    className="flex flex-col gap-2 mt-6 mb-2"
+                  >
+                    <span
+                      id="step-1-period-label"
+                      data-cy="step-1-period-label"
+                      className="font-bold"
+                    >
                       Update Subscription Period
                     </span>
-                    <span id="step-1-period-current" data-cy="step-1-period-current" className="font-bold">
+                    <span
+                      id="step-1-period-current"
+                      data-cy="step-1-period-current"
+                      className="font-bold"
+                    >
                       {currentPeriodType?.code || 'jest'}
                     </span>
                     <Select
@@ -838,7 +954,12 @@ const PlanPage = () => {
                             (a.periodInMonths || 0) - (b.periodInMonths || 0),
                         )
                         .map((period) => (
-                          <Select.Option key={period.id} value={period.code} id={`step-1-period-option-${period.id}`} data-cy={`step-1-period-option-${period.id}`}>
+                          <Select.Option
+                            key={period.id}
+                            value={period.code}
+                            id={`step-1-period-option-${period.id}`}
+                            data-cy={`step-1-period-option-${period.id}`}
+                          >
                             {period.code} -{' '}
                             {currentPlan?.currency?.symbol || '$'}
                             {currentPlan?.periods?.find(
@@ -849,7 +970,11 @@ const PlanPage = () => {
                         ))}
                     </Select>
                     {isPeriodDisabled && (
-                      <div id="step-1-period-disabled-message" data-cy="step-1-period-disabled-message" className="text-gray-500 text-sm">
+                      <div
+                        id="step-1-period-disabled-message"
+                        data-cy="step-1-period-disabled-message"
+                        className="text-gray-500 text-sm"
+                      >
                         You can only update the user quota at this time. To
                         change the subscription period, please use the
                         &quot;Update Subscription Period&quot; button.
@@ -858,7 +983,11 @@ const PlanPage = () => {
                     {!isPeriodDisabled &&
                       !isPeriodChanged() &&
                       activeSubscription && (
-                        <div id="step-1-period-hint" data-cy="step-1-period-hint" className="text-gray-500 text-sm">
+                        <div
+                          id="step-1-period-hint"
+                          data-cy="step-1-period-hint"
+                          className="text-gray-500 text-sm"
+                        >
                           Please change the period value to continue
                         </div>
                       )}
@@ -866,7 +995,11 @@ const PlanPage = () => {
                 </div>
               </div>
             )}
-            <div id="step-1-actions" data-cy="step-1-actions" className="flex justify-center gap-4 mt-8">
+            <div
+              id="step-1-actions"
+              data-cy="step-1-actions"
+              className="flex justify-center gap-4 mt-8"
+            >
               <Button
                 id="step-1-cancel-button"
                 data-cy="step-1-cancel-button"
@@ -896,42 +1029,129 @@ const PlanPage = () => {
         );
       case 2:
         return (
-          <div id="step-2-container" data-cy="step-2-container" className="w-full p-8 bg-white rounded-lg">
+          <div
+            id="step-2-container"
+            data-cy="step-2-container"
+            className="w-full p-8 bg-white rounded-lg"
+          >
             {renderHeader()}
             {isLoading ? (
-              <div id="step-2-loading" data-cy="step-2-loading" className="mt-8">
-                <Skeleton active paragraph={{ rows: 6 }} data-cy="step-2-loading-skeleton" />
+              <div
+                id="step-2-loading"
+                data-cy="step-2-loading"
+                className="mt-8"
+              >
+                <Skeleton
+                  active
+                  paragraph={{ rows: 6 }}
+                  data-cy="step-2-loading-skeleton"
+                />
               </div>
             ) : (
-              <div id="step-2-content" data-cy="step-2-content" className="mt-8">
-                <div id="step-2-confirmation" data-cy="step-2-confirmation" className="flex flex-col rounded-lg border border-gray-200 pt-8 pb-10 px-8 max-w-[700px] min-h-[280px] mx-auto">
-                  <div id="step-2-plan-row" data-cy="step-2-plan-row" className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
-                    <span id="step-2-plan-label" data-cy="step-2-plan-label">Subscription Plan</span>
-                    <span id="step-2-plan-value" data-cy="step-2-plan-value">{currentPlan?.name || 'N/A'}</span>
+              <div
+                id="step-2-content"
+                data-cy="step-2-content"
+                className="mt-8"
+              >
+                <div
+                  id="step-2-confirmation"
+                  data-cy="step-2-confirmation"
+                  className="flex flex-col rounded-lg border border-gray-200 pt-8 pb-10 px-8 max-w-[700px] min-h-[280px] mx-auto"
+                >
+                  <div
+                    id="step-2-plan-row"
+                    data-cy="step-2-plan-row"
+                    className="flex items-center justify-between gap-2 mb-2 text-md font-bold"
+                  >
+                    <span id="step-2-plan-label" data-cy="step-2-plan-label">
+                      Subscription Plan
+                    </span>
+                    <span id="step-2-plan-value" data-cy="step-2-plan-value">
+                      {currentPlan?.name || 'N/A'}
+                    </span>
                   </div>
-                  <div id="step-2-period-row" data-cy="step-2-period-row" className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
-                    <span id="step-2-period-label" data-cy="step-2-period-label">Subscription Period</span>
-                    <span id="step-2-period-value" data-cy="step-2-period-value">{updatedPeriod || currentPeriodType?.code}</span>
+                  <div
+                    id="step-2-period-row"
+                    data-cy="step-2-period-row"
+                    className="flex items-center justify-between gap-2 mb-2 text-md font-bold"
+                  >
+                    <span
+                      id="step-2-period-label"
+                      data-cy="step-2-period-label"
+                    >
+                      Subscription Period
+                    </span>
+                    <span
+                      id="step-2-period-value"
+                      data-cy="step-2-period-value"
+                    >
+                      {updatedPeriod || currentPeriodType?.code}
+                    </span>
                   </div>
-                  <div id="step-2-current-quota-row" data-cy="step-2-current-quota-row" className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
-                    <span id="step-2-current-quota-label" data-cy="step-2-current-quota-label">Current User Quota</span>
-                    <span id="step-2-current-quota-value" data-cy="step-2-current-quota-value">{activeSubscription?.slotTotal || 0}</span>
+                  <div
+                    id="step-2-current-quota-row"
+                    data-cy="step-2-current-quota-row"
+                    className="flex items-center justify-between gap-2 mb-2 text-md font-bold"
+                  >
+                    <span
+                      id="step-2-current-quota-label"
+                      data-cy="step-2-current-quota-label"
+                    >
+                      Current User Quota
+                    </span>
+                    <span
+                      id="step-2-current-quota-value"
+                      data-cy="step-2-current-quota-value"
+                    >
+                      {activeSubscription?.slotTotal || 0}
+                    </span>
                   </div>
-                  <div id="step-2-new-quota-row" data-cy="step-2-new-quota-row" className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
-                    <span id="step-2-new-quota-label" data-cy="step-2-new-quota-label">New User Quota</span>
-                    <span id="step-2-new-quota-value" data-cy="step-2-new-quota-value">
+                  <div
+                    id="step-2-new-quota-row"
+                    data-cy="step-2-new-quota-row"
+                    className="flex items-center justify-between gap-2 mb-2 text-md font-bold"
+                  >
+                    <span
+                      id="step-2-new-quota-label"
+                      data-cy="step-2-new-quota-label"
+                    >
+                      New User Quota
+                    </span>
+                    <span
+                      id="step-2-new-quota-value"
+                      data-cy="step-2-new-quota-value"
+                    >
                       {(updatedQuota || 0) -
                         (activeSubscription?.slotTotal || 0)}
                     </span>
                   </div>
-                  <div id="step-2-total-quota-row" data-cy="step-2-total-quota-row" className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
-                    <span id="step-2-total-quota-label" data-cy="step-2-total-quota-label">Number of Total User Quota</span>
-                    <span id="step-2-total-quota-value" data-cy="step-2-total-quota-value">
+                  <div
+                    id="step-2-total-quota-row"
+                    data-cy="step-2-total-quota-row"
+                    className="flex items-center justify-between gap-2 mb-2 text-md font-bold"
+                  >
+                    <span
+                      id="step-2-total-quota-label"
+                      data-cy="step-2-total-quota-label"
+                    >
+                      Number of Total User Quota
+                    </span>
+                    <span
+                      id="step-2-total-quota-value"
+                      data-cy="step-2-total-quota-value"
+                    >
                       {updatedQuota || activeSubscription?.slotTotal || 0}
                     </span>
                   </div>
-                  <div id="step-2-total-amount-row" data-cy="step-2-total-amount-row" className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
-                    <span id="step-2-total-amount-label" data-cy="step-2-total-amount-label">
+                  <div
+                    id="step-2-total-amount-row"
+                    data-cy="step-2-total-amount-row"
+                    className="flex items-center justify-between gap-2 mb-4 text-lg font-bold"
+                  >
+                    <span
+                      id="step-2-total-amount-label"
+                      data-cy="step-2-total-amount-label"
+                    >
                       {(() => {
                         const quotaDifference = activeSubscription
                           ? (updatedQuota || 0) -
@@ -942,15 +1162,29 @@ const PlanPage = () => {
                           : `Total Amount for ${quotaDifference} User Quota`;
                       })()}
                     </span>
-                    <span id="step-2-total-amount-value" data-cy="step-2-total-amount-value">
+                    <span
+                      id="step-2-total-amount-value"
+                      data-cy="step-2-total-amount-value"
+                    >
                       {isCalculating
                         ? 'Calculating...'
                         : `${currentPlan?.currency?.symbol || '$'}${calculationResult?.totalAmount.toFixed(2)}`}
                     </span>
                   </div>
-                  <div id="step-2-info-section" data-cy="step-2-info-section" className="border-t border-gray-200 pt-4 mt-2">
-                    <div id="step-2-info-message" data-cy="step-2-info-message" className="text-sm text-gray-500 flex items-center gap-2">
-                      <ExclamationCircleOutlined id="step-2-info-message-icon" data-cy="step-2-info-message-icon" />
+                  <div
+                    id="step-2-info-section"
+                    data-cy="step-2-info-section"
+                    className="border-t border-gray-200 pt-4 mt-2"
+                  >
+                    <div
+                      id="step-2-info-message"
+                      data-cy="step-2-info-message"
+                      className="text-sm text-gray-500 flex items-center gap-2"
+                    >
+                      <ExclamationCircleOutlined
+                        id="step-2-info-message-icon"
+                        data-cy="step-2-info-message-icon"
+                      />
                       <span>
                         Changes will take effect after payment is completed and
                         processed.
@@ -960,7 +1194,11 @@ const PlanPage = () => {
                 </div>
               </div>
             )}
-            <div id="step-2-actions" data-cy="step-2-actions" className="flex justify-center gap-4 mt-8">
+            <div
+              id="step-2-actions"
+              data-cy="step-2-actions"
+              className="flex justify-center gap-4 mt-8"
+            >
               <Button
                 id="step-2-cancel-button"
                 data-cy="step-2-cancel-button"
@@ -991,22 +1229,54 @@ const PlanPage = () => {
         );
       case 3:
         return (
-          <div id="step-3-container" data-cy="step-3-container" className="w-full p-8 bg-white rounded-lg">
+          <div
+            id="step-3-container"
+            data-cy="step-3-container"
+            className="w-full p-8 bg-white rounded-lg"
+          >
             {renderHeader()}
             {isLoading ? (
-              <div id="step-3-loading" data-cy="step-3-loading" className="mt-8">
-                <Skeleton active paragraph={{ rows: 10 }} data-cy="step-3-loading-skeleton" />
+              <div
+                id="step-3-loading"
+                data-cy="step-3-loading"
+                className="mt-8"
+              >
+                <Skeleton
+                  active
+                  paragraph={{ rows: 10 }}
+                  data-cy="step-3-loading-skeleton"
+                />
               </div>
             ) : (
-              <div id="step-3-content" data-cy="step-3-content" className="mt-8">
-                <div id="step-3-invoice" data-cy="step-3-invoice" className="flex flex-col rounded-lg border border-gray-200 pt-4 pb-10 max-w-[700px] min-h-[280px] mx-auto">
-                  <div id="step-3-invoice-header" data-cy="step-3-invoice-header" className="flex items-center justify-between gap-2 border-b border-gray-200 pb-4 px-8">
-                    <span id="step-3-invoice-title" data-cy="step-3-invoice-title" className="text-2xl font-bold">
+              <div
+                id="step-3-content"
+                data-cy="step-3-content"
+                className="mt-8"
+              >
+                <div
+                  id="step-3-invoice"
+                  data-cy="step-3-invoice"
+                  className="flex flex-col rounded-lg border border-gray-200 pt-4 pb-10 max-w-[700px] min-h-[280px] mx-auto"
+                >
+                  <div
+                    id="step-3-invoice-header"
+                    data-cy="step-3-invoice-header"
+                    className="flex items-center justify-between gap-2 border-b border-gray-200 pb-4 px-8"
+                  >
+                    <span
+                      id="step-3-invoice-title"
+                      data-cy="step-3-invoice-title"
+                      className="text-2xl font-bold"
+                    >
                       {activeSubscription
                         ? 'Invoice for Subscription Update'
                         : 'Invoice for New Subscription'}
                       :{' '}
-                      <span id="step-3-invoice-date" data-cy="step-3-invoice-date" className="text-primary">
+                      <span
+                        id="step-3-invoice-date"
+                        data-cy="step-3-invoice-date"
+                        className="text-primary"
+                      >
                         {new Date().toLocaleDateString('en-US', {
                           month: 'long',
                           year: 'numeric',
@@ -1024,7 +1294,12 @@ const PlanPage = () => {
                       }
                     >
                       {isDownloading ? (
-                        <LoadingOutlined id="step-3-download-pdf-indicator" data-cy="step-3-download-pdf-indicator" style={{ fontSize: 25 }} spin />
+                        <LoadingOutlined
+                          id="step-3-download-pdf-indicator"
+                          data-cy="step-3-download-pdf-indicator"
+                          style={{ fontSize: 25 }}
+                          spin
+                        />
                       ) : (
                         <Image
                           src="/icons/file-download.svg"
@@ -1041,11 +1316,23 @@ const PlanPage = () => {
                     </button>
                   </div>
 
-                  <div id="step-3-payment-info" data-cy="step-3-payment-info" className="flex flex-col gap-2 border-b border-gray-200 mt-6 mb-2 pb-6 px-8">
-                    <div id="step-3-payment-info-title" data-cy="step-3-payment-info-title" className="text-2xl font-bold mb-4">
+                  <div
+                    id="step-3-payment-info"
+                    data-cy="step-3-payment-info"
+                    className="flex flex-col gap-2 border-b border-gray-200 mt-6 mb-2 pb-6 px-8"
+                  >
+                    <div
+                      id="step-3-payment-info-title"
+                      data-cy="step-3-payment-info-title"
+                      className="text-2xl font-bold mb-4"
+                    >
                       Invoice Payment Information
                     </div>
-                    <div id="step-3-payment-info-details" data-cy="step-3-payment-info-details" className="flex flex-col gap-2">
+                    <div
+                      id="step-3-payment-info-details"
+                      data-cy="step-3-payment-info-details"
+                      className="flex flex-col gap-2"
+                    >
                       {[
                         [
                           'Invoice Number:',
@@ -1085,7 +1372,11 @@ const PlanPage = () => {
                           data-cy={`step-3-payment-info-row-${index}`}
                           className="flex items-center justify-start gap-2"
                         >
-                          <span id={`step-3-payment-info-label-${index}`} data-cy={`step-3-payment-info-label-${index}`} className="text-md min-w-[90px] md:min-w-[150px]">
+                          <span
+                            id={`step-3-payment-info-label-${index}`}
+                            data-cy={`step-3-payment-info-label-${index}`}
+                            className="text-md min-w-[90px] md:min-w-[150px]"
+                          >
                             {label}
                           </span>
                           <span
@@ -1100,8 +1391,16 @@ const PlanPage = () => {
                     </div>
                   </div>
 
-                  <div id="step-3-operation-details" data-cy="step-3-operation-details" className="flex flex-col justify-between w-full gap-2 border-b border-gray-200 mt-6 mb-2 pb-6 px-8">
-                    <div id="step-3-operation-details-title" data-cy="step-3-operation-details-title" className="text-2xl font-bold mb-4">
+                  <div
+                    id="step-3-operation-details"
+                    data-cy="step-3-operation-details"
+                    className="flex flex-col justify-between w-full gap-2 border-b border-gray-200 mt-6 mb-2 pb-6 px-8"
+                  >
+                    <div
+                      id="step-3-operation-details-title"
+                      data-cy="step-3-operation-details-title"
+                      className="text-2xl font-bold mb-4"
+                    >
                       Operation Details
                     </div>
                     {[
@@ -1113,8 +1412,15 @@ const PlanPage = () => {
                           data-cy="step-3-plan-type-value"
                           className="flex items-center justify-center text-md font-bold border border-success rounded-lg px-2 gap-2"
                         >
-                          <span id="step-3-plan-type-indicator" data-cy="step-3-plan-type-indicator" className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"></span>
-                          <span id="step-3-plan-type-value-text" data-cy="step-3-plan-type-value-text">
+                          <span
+                            id="step-3-plan-type-indicator"
+                            data-cy="step-3-plan-type-indicator"
+                            className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"
+                          ></span>
+                          <span
+                            id="step-3-plan-type-value-text"
+                            data-cy="step-3-plan-type-value-text"
+                          >
                             {updatedSubscriptionValue?.invoices[0]
                               ?.paymentMetadata?.targetState?.plan?.name ||
                               'N/A'}
@@ -1140,17 +1446,41 @@ const PlanPage = () => {
                         data-cy={`step-3-operation-details-row-${index}`}
                         className="flex items-center justify-between w-full gap-2 mb-2"
                       >
-                        <span id={`step-3-operation-details-label-${index}`} data-cy={`step-3-operation-details-label-${index}`} className="text-md font-bold">{label}</span>
-                        <span id={`step-3-operation-details-value-${index}`} data-cy={`step-3-operation-details-value-${index}`} className="min-w-[150px] flex items-center justify-center">
+                        <span
+                          id={`step-3-operation-details-label-${index}`}
+                          data-cy={`step-3-operation-details-label-${index}`}
+                          className="text-md font-bold"
+                        >
+                          {label}
+                        </span>
+                        <span
+                          id={`step-3-operation-details-value-${index}`}
+                          data-cy={`step-3-operation-details-value-${index}`}
+                          className="min-w-[150px] flex items-center justify-center"
+                        >
                           {value}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  <div id="step-3-payment-section" data-cy="step-3-payment-section" className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
-                    <span id="step-3-payment-title" data-cy="step-3-payment-title" className="text-2xl font-bold">Pay</span>
-                    <div id="step-3-payment-actions" data-cy="step-3-payment-actions" className="flex justify-center gap-4 mt-8">
+                  <div
+                    id="step-3-payment-section"
+                    data-cy="step-3-payment-section"
+                    className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8"
+                  >
+                    <span
+                      id="step-3-payment-title"
+                      data-cy="step-3-payment-title"
+                      className="text-2xl font-bold"
+                    >
+                      Pay
+                    </span>
+                    <div
+                      id="step-3-payment-actions"
+                      data-cy="step-3-payment-actions"
+                      className="flex justify-center gap-4 mt-8"
+                    >
                       <Button
                         id="step-3-cancel-button"
                         data-cy="step-3-cancel-button"
@@ -1167,7 +1497,14 @@ const PlanPage = () => {
                         className="text-center flex justify-center items-center"
                         type="primary"
                         disabled={isLoading || isProcessingPayment}
-                        icon={isProcessingPayment ? <LoadingOutlined id="step-3-pay-button-indicator" data-cy="step-3-pay-button-indicator" /> : null}
+                        icon={
+                          isProcessingPayment ? (
+                            <LoadingOutlined
+                              id="step-3-pay-button-indicator"
+                              data-cy="step-3-pay-button-indicator"
+                            />
+                          ) : null
+                        }
                       >
                         {isProcessingPayment ? 'Processing...' : 'Pay Now'}
                       </Button>

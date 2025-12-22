@@ -428,12 +428,19 @@ const BasicInformationForm = ({ form }: any) => {
             }
             id="userNationalityId"
             data-cy="userNationalityId"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please select nationality' }]}
           >
             <Select
               loading={isLoadingNationality}
               placeholder="Select an option"
               allowClear
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                String(option?.children || '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
               id="basic-info-nationality-select"
               data-cy="basic-info-nationality-select"
             >

@@ -190,8 +190,14 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
       data-cy="okr-inline-ai-suggestions-wrapper-view-space"
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
+      <div
+        className="flex items-center justify-between mb-4"
+        data-cy="okr-inline-suggestions-header"
+      >
+        <div
+          className="flex items-center gap-2"
+          data-cy="okr-inline-suggestions-header-content"
+        >
           <ThunderboltFilled
             className="text-indigo-600"
             style={{ fontSize: '18px' }}

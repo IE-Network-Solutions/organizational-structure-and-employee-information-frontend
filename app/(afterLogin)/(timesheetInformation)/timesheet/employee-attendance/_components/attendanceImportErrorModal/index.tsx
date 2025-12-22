@@ -40,15 +40,29 @@ const AttendanceImportErrorModal: React.FC = () => {
 
       {message &&
         message.map((msg, index) => (
-          <p id={`time-attendance-employee-attendance-import-error-modal-message-${index}`} data-cy={`time-attendance-employee-attendance-import-error-modal-message-${index}`} key={index}>
+          <p
+            id={`time-attendance-employee-attendance-import-error-modal-message-${index}`}
+            data-cy={`time-attendance-employee-attendance-import-error-modal-message-${index}`}
+            key={index}
+          >
             Line {msg.line}: {msg.error}
           </p>
         ))}
       <br />
       <hr />
 
-      <div id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-div" data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-div" style={{ marginBottom: '12px' }}>
-        <h5 id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-title" data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-title" style={{ marginBottom: '8px' }}>Suggested Solutions:</h5>
+      <div
+        id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-div"
+        data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-div"
+        style={{ marginBottom: '12px' }}
+      >
+        <h5
+          id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-title"
+          data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-title"
+          style={{ marginBottom: '8px' }}
+        >
+          Suggested Solutions:
+        </h5>
 
         <ul
           id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul"
@@ -56,11 +70,19 @@ const AttendanceImportErrorModal: React.FC = () => {
           style={{ fontSize: '14px', lineHeight: '1.4', paddingLeft: '20px' }}
         >
           <li>-Please set your headers in the third line of the Excel file</li>
-          <li id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-2" data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-2">
+          <li
+            id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-2"
+            data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-2"
+          >
             -Please start setting your records on the fourth line of the Excel
             file
           </li>
-          <li id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-3" data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-3">-Check if the user ID imported exists</li>
+          <li
+            id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-3"
+            data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-3"
+          >
+            -Check if the user ID imported exists
+          </li>
         </ul>
       </div>
     </Modal>
