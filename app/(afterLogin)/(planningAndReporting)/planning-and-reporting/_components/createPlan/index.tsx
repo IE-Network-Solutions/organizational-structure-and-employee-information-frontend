@@ -73,14 +73,16 @@ function CreatePlan() {
 
     const lastReport = lastReportData.items[0];
     const failedTasks = lastReport.reportTask.filter(
-      (task: any) => task.isAchieved === false,
+      (task: any) => task.isAchieved === false || task?.status === 'Not',
     );
 
     // Group failed tasks by keyResultId and milestoneId
     const grouped: Record<string, Record<string | 'noMilestone', any[]>> = {};
 
     failedTasks.forEach((task: any) => {
-      const keyResultId = String(task?.planTask?.keyResultId || '');
+      const keyResultId = String(
+        task?.planTask?.keyResult?.id || task?.planTask?.keyResultId || '',
+      );
       const milestoneId = task?.planTask?.milestone?.id
         ? String(task.planTask.milestone.id)
         : 'noMilestone';
@@ -426,6 +428,8 @@ function CreatePlan() {
             return tasks.map((t: any) => ({
               id: String(t?.id || ''),
               task: t?.task || '',
+              krId: String(t?.keyResult?.id || ''),
+              milestoneId: t?.milestone?.id ? String(t.milestone.id) : null,
             }));
           }}
           form={form}

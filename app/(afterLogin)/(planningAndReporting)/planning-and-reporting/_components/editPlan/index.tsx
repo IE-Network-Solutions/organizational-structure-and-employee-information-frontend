@@ -188,6 +188,8 @@ function EditPlan() {
             return tasks.map((t: any) => ({
               id: String(t?.id || ''),
               task: t?.task || '',
+              krId: String(t?.keyResult?.id || ''),
+              milestoneId: t?.milestone?.id ? String(t.milestone.id) : null,
             }));
           }}
           form={form}

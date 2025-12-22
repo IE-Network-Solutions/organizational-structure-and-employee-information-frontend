@@ -553,8 +553,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     let boardKey, listName;
 
     if (isDaily && weeklyPlanTaskId) {
-      // Daily plan: use composite key with both keyResultId and parentTaskId
-      const compositeKey = `${targetKeyResultId}${weeklyPlanTaskId}`;
+      // Daily plan: use composite key with keyResultId, milestoneId, and parentTaskId
+      const selectedWeeklyTask = weeklyPlanTasks.find((t) => t.id === weeklyPlanTaskId);
+      const mId = (selectedWeeklyTask as any)?.milestoneId || '';
+      const compositeKey = `${targetKeyResultId}${mId}${weeklyPlanTaskId}`;
       boardKey = resolveBoardKeyForKR
         ? resolveBoardKeyForKR(compositeKey)
         : compositeKey;
