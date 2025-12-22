@@ -271,6 +271,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
+          title: <span>AI Job Matching</span>,
+          key: '/recruitment/ai-job-matching',
+          className: 'font-bold',
+          permissions: ['manage_recruitment_jobs'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
+        },
+        {
           title: <span>Candidates</span>,
           key: '/recruitment/candidate',
           className: 'font-bold',
@@ -1289,6 +1296,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   switcherIcon={null}
                 />
               )}
+            </div>
+          )}
+
+          <NavBar page="" handleLogout={handleLogout} />
+        </Header>
+        <Content
+          className="overflow-y-hidden min-h-screen"
+          style={{
+            paddingInline: isMobile ? 8 : 24,
+            paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+            transition: 'padding-left 0.3s ease',
+          }}
+        >
+          {isCheckingPermissions ? (
+            <div className="flex justify-center items-center h-screen">
+              <Skeleton active />
             </div>
           </Sider>
 
