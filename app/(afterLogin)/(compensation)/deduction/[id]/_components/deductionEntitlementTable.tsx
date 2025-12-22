@@ -34,7 +34,6 @@ const AllowanceEntitlementTable = () => {
       Amount: item.totalAmount,
       ApplicableTo: item.compensationItem.applicableTo,
     })) || [];
-
   const handleDelete = (id: string) => {
     deleteAllowanceEntitlement(id);
   };

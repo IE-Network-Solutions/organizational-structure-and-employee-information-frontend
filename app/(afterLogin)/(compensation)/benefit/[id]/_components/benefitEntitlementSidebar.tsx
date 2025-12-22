@@ -254,7 +254,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
     setData(newData);
     form.setFieldsValue({ payments: newData });
-  }, [totalAmount, settlementPeriod, payPeriods]);
+  }, [totalAmount, settlementPeriod, payPeriods, form]);
   const columns = [
     {
       dataIndex: 'amount',

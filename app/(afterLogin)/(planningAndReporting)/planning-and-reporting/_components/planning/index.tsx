@@ -119,7 +119,7 @@ function Planning() {
   });
   const { data: allUserPlanning } = useGetUserPlanning(
     planningPeriodId ?? '',
-    activeTab.toString(),
+    activePlanPeriod.toString(),
   );
 
   useEffect(() => {

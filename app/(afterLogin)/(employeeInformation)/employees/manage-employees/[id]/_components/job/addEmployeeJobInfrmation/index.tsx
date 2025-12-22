@@ -6,6 +6,8 @@ import WorkScheduleForm from '../../../../_components/allFormData/workScheduleFo
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useParams } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
 import { useEffect } from 'react';
 
 interface Ids {
@@ -16,11 +18,14 @@ interface Ids {
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   onJobInfoUpdated: onJobInfoUpdated,
+  id,
 }) => {
+  const { userId: userId2 } = useAuthenticationStore();
+
   const [form] = Form.useForm();
   const params = useParams();
-  // Always use the employee ID from URL params, never fallback to logged-in user ID
-  const userId = params?.id as string;
+  // Prioritize URL parameter over prop to ensure we use the employee ID from URL, not logged-in user's ID
+  const userId = (params?.id as string) ?? id ?? userId2;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
