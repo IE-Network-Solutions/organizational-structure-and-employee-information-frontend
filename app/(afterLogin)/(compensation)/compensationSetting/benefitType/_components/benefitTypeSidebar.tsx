@@ -115,7 +115,15 @@ const BenefitypeSideBar = () => {
       onClick: () => onClose(),
     },
     {
-      label: selectedBenefitRecord ? <span>Update</span> : <span>Create</span>,
+      label: selectedBenefitRecord ? (
+        <span data-cy="compensation-settings-benefit-sidebar-update-button-label">
+          Update
+        </span>
+      ) : (
+        <span data-cy="compensation-settings-benefit-sidebar-create-button-label">
+          Create
+        </span>
+      ),
       key: 'create',
       className: 'h-12',
       type: 'primary',
@@ -227,19 +235,23 @@ const BenefitypeSideBar = () => {
                   value="CREDIT"
                   data-cy="compensation-settings-benefit-sidebar-mode-credit"
                 >
-                  Credit
+                  Repayable
                 </Radio>
                 <Radio
                   value="DEBIT"
                   data-cy="compensation-settings-benefit-sidebar-mode-debit"
                 >
-                  Debit
+                  Non-repayable
                 </Radio>
               </Radio.Group>
             </Form.Item>
             {benefitMode == 'CREDIT' && (
               <>
-                <div id="compensation-settings-benefit-sidebar-rate-container" data-cy="compensation-settings-benefit-sidebar-rate-container" style={{ display: 'flex', gap: '20px' }}>
+                <div
+                  id="compensation-settings-benefit-sidebar-rate-container"
+                  data-cy="compensation-settings-benefit-sidebar-rate-container"
+                  style={{ display: 'flex', gap: '20px' }}
+                >
                   <Form.Item
                     id="compensation-settings-benefit-sidebar-rate-item"
                     data-cy="compensation-settings-benefit-sidebar-rate-item"
@@ -249,8 +261,12 @@ const BenefitypeSideBar = () => {
                     initialValue={!selectedBenefitRecord && false}
                   >
                     <Switch
-                      checkedChildren={<CheckOutlined data-cy="compensation-settings-benefit-sidebar-rate-switch-checked" />}
-                      unCheckedChildren={<CloseOutlined data-cy="compensation-settings-benefit-sidebar-rate-switch-unchecked" />}
+                      checkedChildren={
+                        <CheckOutlined data-cy="compensation-settings-benefit-sidebar-rate-switch-checked" />
+                      }
+                      unCheckedChildren={
+                        <CloseOutlined data-cy="compensation-settings-benefit-sidebar-rate-switch-unchecked" />
+                      }
                       onChange={onRateToggle}
                       id="compensation-settings-benefit-sidebar-rate-switch"
                       data-cy="compensation-settings-benefit-sidebar-rate-switch"
@@ -277,8 +293,12 @@ const BenefitypeSideBar = () => {
                     ]}
                   >
                     <Switch
-                      checkedChildren={<CheckOutlined data-cy="compensation-settings-benefit-sidebar-all-switch-checked" />}
-                      unCheckedChildren={<CloseOutlined data-cy="compensation-settings-benefit-sidebar-all-switch-unchecked" />}
+                      checkedChildren={
+                        <CheckOutlined data-cy="compensation-settings-benefit-sidebar-all-switch-checked" />
+                      }
+                      unCheckedChildren={
+                        <CloseOutlined data-cy="compensation-settings-benefit-sidebar-all-switch-unchecked" />
+                      }
                       checked={form.getFieldValue('isAllEmployee')}
                       onChange={handleAllEmployeeChange}
                       disabled={selectedBenefitRecord}
@@ -287,7 +307,11 @@ const BenefitypeSideBar = () => {
                     />
                   </Form.Item>
                 </div>
-                <div id="compensation-settings-benefit-sidebar-amount-container" data-cy="compensation-settings-benefit-sidebar-amount-container" style={{ display: 'flex', gap: '20px' }}>
+                <div
+                  id="compensation-settings-benefit-sidebar-amount-container"
+                  data-cy="compensation-settings-benefit-sidebar-amount-container"
+                  style={{ display: 'flex', gap: '20px' }}
+                >
                   <Form.Item
                     id="compensation-settings-benefit-sidebar-amount-item"
                     data-cy="compensation-settings-benefit-sidebar-amount-item"

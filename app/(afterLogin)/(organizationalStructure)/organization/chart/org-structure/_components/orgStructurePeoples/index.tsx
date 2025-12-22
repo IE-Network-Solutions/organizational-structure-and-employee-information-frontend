@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
@@ -18,10 +18,20 @@ import { DepartmentNode } from '../departmentNode';
 import { showDrawer } from '../menues/inex';
 import { useMergingDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
 import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
-import { Form } from 'antd';
+import { Button, Form, Space } from 'antd';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 import { useRouter } from 'next/navigation';
 import { useChartRef } from '../../../layout';
+import {
+  TransformWrapper,
+  TransformComponent,
+  ReactZoomPanPinchRef,
+} from 'react-zoom-pan-pinch';
+import {
+  ZoomInOutlined,
+  ZoomOutOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
 
 const renderTreeNodes = (
   data: Department[],
@@ -65,6 +75,7 @@ const renderTreeNodes = (
 
 const OrgChartComponent: React.FC = () => {
   const [form] = Form.useForm();
+  const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
 
   const {
     isFormVisible,
@@ -180,32 +191,6 @@ const OrgChartComponent: React.FC = () => {
 
   const router = useRouter();
 
-  // const items = [
-  //   {
-  //     key: 'structure',
-  //     label: 'Structure',
-  //   },
-  //   {
-  //     key: 'chart',
-  //     label: 'Chart',
-  //   },
-  // ];
-
-  // Handling menu click and navigation
-  // const onMenuClick = (e: any) => {
-  //   const key = e['key'] as string;
-  //   switch (key) {
-  //     case 'structure':
-  //       router.push('/organization/chart/org-structure');
-  //       break;
-  //     case 'chart':
-  //       router.push('/organization/chart/org-chart');
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
-
   return (
     <div
       className="w-full overflow-x-auto"
@@ -225,42 +210,147 @@ const OrgChartComponent: React.FC = () => {
         ) : (
           <div
             className="p-4 sm:p-2 md:p-6 lg:p-8"
-            ref={chartRef}
             data-cy="org-structure-tree-container"
             id="org-structure-tree-container"
           >
-            <Tree
-              label={
-                <DepartmentNode
-                  data-cy="org-structure-department-node"
-                  data={{
-                    id: orgStructureData?.id || '',
-                    name: orgStructureData?.name || '',
-                    department: orgStructureData?.department || [],
-                    branchId: orgStructureData?.branchId,
-                    description: '',
-                    collapsed: false,
-                  }}
-                  onEdit={() => {}}
-                  onAdd={() => handleAdd(orgStructureData)}
-                  onDelete={() => {}}
-                  isRoot={true}
-                />
-              }
-              lineWidth={'1px'}
-              lineColor={'#CBD5E0'}
-              lineBorderRadius={'10px'}
-              data-cy="org-org-structure-components-orgstructurepeoples-index-tree-1"
+            <TransformWrapper
+              data-cy="org-structure-transform-wrapper"
+              initialScale={1}
+              initialPositionX={0}
+              initialPositionY={0}
+              minScale={0.1}
+              maxScale={2.5}
+              centerOnInit
+              wheel={{
+                wheelDisabled: true,
+                touchPadDisabled: false,
+              }}
+              panning={{
+                wheelPanning: true,
+                allowLeftClickPan: false,
+              }}
+              ref={transformRef}
             >
-              {renderTreeNodes(
-                orgStructureData?.department || [],
-                handleEdit,
-                handleAdd,
-                handleDelete,
-                false,
-                setDepartmentTobeDeletedId,
-              )}
-            </Tree>
+              {({
+                zoomIn,
+                zoomOut,
+                resetTransform,
+                setTransform,
+                centerView,
+              }) => {
+                const handleWheelZoom = (
+                  event: React.WheelEvent<HTMLDivElement>,
+                ) => {
+                  if (!event.ctrlKey) return;
+                  event.preventDefault();
+
+                  const currentState = transformRef.current?.state;
+                  if (!currentState) return;
+
+                  const zoomStep = event.deltaY < 0 ? 0.1 : -0.1;
+                  const nextScale = Math.min(
+                    2.5,
+                    Math.max(0.1, currentState.scale + zoomStep),
+                  );
+                  setTransform(
+                    currentState.positionX,
+                    currentState.positionY,
+                    nextScale,
+                  );
+                };
+
+                return (
+                  <>
+                    {/* The Actual Content to Magnify */}
+                    <div
+                      data-cy="org-structure-transform-component"
+                      id="org-structure-transform-component"
+                      onWheel={handleWheelZoom}
+                    >
+                      <TransformComponent
+                        data-cy="org-structure-transform-component-transform-component"
+                        wrapperStyle={{
+                          width: '100%',
+                          height: '100%',
+                        }}
+                      >
+                        <div
+                          id="org-structure-chart"
+                          data-cy="org-structure-chart"
+                          ref={chartRef}
+                        >
+                          <Tree
+                            label={
+                              <DepartmentNode
+                                data-cy="org-structure-department-node"
+                                data={{
+                                  id: orgStructureData?.id || '',
+                                  name: orgStructureData?.name || '',
+                                  department:
+                                    orgStructureData?.department || [],
+                                  branchId: orgStructureData?.branchId,
+                                  description: '',
+                                  collapsed: false,
+                                }}
+                                onEdit={() => {}}
+                                onAdd={() => handleAdd(orgStructureData)}
+                                onDelete={() => {}}
+                                isRoot={true}
+                              />
+                            }
+                            lineWidth={'1px'}
+                            lineColor={'#CBD5E0'}
+                            lineBorderRadius={'10px'}
+                            data-cy="org-org-structure-components-orgstructurepeoples-index-tree-1"
+                          >
+                            {renderTreeNodes(
+                              orgStructureData?.department || [],
+                              handleEdit,
+                              handleAdd,
+                              handleDelete,
+                              false,
+                              setDepartmentTobeDeletedId,
+                            )}
+                          </Tree>
+                        </div>
+                      </TransformComponent>
+                    </div>
+                    <div
+                      data-cy="org-structure-transform-component-buttons"
+                      id="org-structure-transform-component-buttons"
+                    >
+                      <Space
+                        data-cy="org-structure-transform-component-buttons-space"
+                        id="org-structure-transform-component-buttons-space"
+                      >
+                        <Button
+                          data-cy="org-structure-transform-component-buttons-zoom-in"
+                          id="org-structure-transform-component-buttons-zoom-in"
+                          icon={<ZoomInOutlined />}
+                          onClick={() => zoomIn()}
+                        />
+                        <Button
+                          data-cy="org-structure-transform-component-buttons-zoom-out"
+                          id="org-structure-transform-component-buttons-zoom-out"
+                          icon={<ZoomOutOutlined />}
+                          onClick={() => zoomOut()}
+                        />
+                        <Button
+                          data-cy="org-structure-transform-component-buttons-reload"
+                          id="org-structure-transform-component-buttons-reload"
+                          icon={<ReloadOutlined />}
+                          onClick={() => {
+                            resetTransform();
+                            // Also center the view after reset
+                            centerView(1);
+                          }}
+                        />
+                      </Space>
+                    </div>
+                  </>
+                );
+              }}
+            </TransformWrapper>
           </div>
         )}
 

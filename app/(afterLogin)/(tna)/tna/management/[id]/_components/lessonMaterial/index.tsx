@@ -196,18 +196,39 @@ const CourseLessonMaterial = () => {
       onClose={() => onClose()}
       data-cy="tna-lesson-material-drawer"
       modalHeader={
-        <CustomDrawerHeader className="flex justify-center" data-cy="tna-lesson-material-header">
-          <div className="flex flex-wrap px-2 text-gray-900" id="tnaLessonMaterialHeaderContentId" data-cy="tna-lesson-material-header-content">
-            <span className="whitespace-normal break-words" data-cy="tna-lesson-material-header-content-text" id="tnaLessonMaterialHeaderContentTextId">
+        <CustomDrawerHeader
+          className="flex justify-center"
+          data-cy="tna-lesson-material-header"
+        >
+          <div
+            className="flex flex-wrap px-2 text-gray-900"
+            id="tnaLessonMaterialHeaderContentId"
+            data-cy="tna-lesson-material-header-content"
+          >
+            <span
+              className="whitespace-normal break-words"
+              data-cy="tna-lesson-material-header-content-text"
+              id="tnaLessonMaterialHeaderContentTextId"
+            >
               {lessonMaterial ? 'Update' : 'Add'}&nbsp;
-              <span className="text-primary" data-cy="tna-lesson-material-header-content-text-title" id="tnaLessonMaterialHeaderContentTextTitleId">{lesson?.title}</span>&nbsp; Course
-              Material
+              <span
+                className="text-primary"
+                data-cy="tna-lesson-material-header-content-text-title"
+                id="tnaLessonMaterialHeaderContentTextTitleId"
+              >
+                {lesson?.title}
+              </span>
+              &nbsp; Course Material
             </span>
           </div>
         </CustomDrawerHeader>
       }
       footer={
-        <CustomDrawerFooterButton className="p-4" buttons={footerModalItems} data-cy="tna-lesson-material-footer" />
+        <CustomDrawerFooterButton
+          className="p-4"
+          buttons={footerModalItems}
+          data-cy="tna-lesson-material-footer"
+        />
       }
       width="50%"
     >
@@ -228,7 +249,11 @@ const CourseLessonMaterial = () => {
           id="tnaLessonMaterialTitleItemId"
           data-cy="tna-lesson-material-title-item"
         >
-          <Input id="tnaCourseMaterialTitleFieldId" data-cy="tna-course-material-title-field" className="control" />
+          <Input
+            id="tnaCourseMaterialTitleFieldId"
+            data-cy="tna-course-material-title-field"
+            className="control"
+          />
         </Form.Item>
         <Form.Item
           name="description"
@@ -254,9 +279,16 @@ const CourseLessonMaterial = () => {
           rules={[{ required: true, message: 'Required' }]}
           className="form-item"
         >
-          <TextEditor className="mt-3" placeholder="Enter the Article" data-cy="tna-lesson-material-article-editor" />
+          <TextEditor
+            className="mt-3"
+            placeholder="Enter the Article"
+            data-cy="tna-lesson-material-article-editor"
+          />
         </Form.Item>
-        <Spin spinning={isFileUploadLoading.video} data-cy="tna-lesson-material-video-spinner">
+        <Spin
+          spinning={isFileUploadLoading.video}
+          data-cy="tna-lesson-material-video-spinner"
+        >
           <Form.Item
             name="videos"
             label="Video"
@@ -283,7 +315,10 @@ const CourseLessonMaterial = () => {
             />
           </Form.Item>
         </Spin>
-        <Spin spinning={isFileUploadLoading.attachment} data-cy="tna-lesson-material-attachment-spinner">
+        <Spin
+          spinning={isFileUploadLoading.attachment}
+          data-cy="tna-lesson-material-attachment-spinner"
+        >
           <Form.Item
             name="attachments"
             label="Attachment"
@@ -308,8 +343,16 @@ const CourseLessonMaterial = () => {
             />
           </Form.Item>
         </Spin>
-        <Row gutter={24} id="tnaLessonMaterialRowId" data-cy="tna-lesson-material-row">
-          <Col span={12} id="tnaLessonMaterialTimeColId" data-cy="tna-lesson-material-time-col">
+        <Row
+          gutter={24}
+          id="tnaLessonMaterialRowId"
+          data-cy="tna-lesson-material-row"
+        >
+          <Col
+            span={12}
+            id="tnaLessonMaterialTimeColId"
+            data-cy="tna-lesson-material-time-col"
+          >
             <Form.Item
               name="timeToFinishMinutes"
               label="Estimated time to Finish"
@@ -326,7 +369,11 @@ const CourseLessonMaterial = () => {
               />
             </Form.Item>
           </Col>
-          <Col span={12} id="tnaLessonMaterialOrderColId" data-cy="tna-lesson-material-order-col">
+          <Col
+            span={12}
+            id="tnaLessonMaterialOrderColId"
+            data-cy="tna-lesson-material-order-col"
+          >
             <Form.Item
               name="order"
               label="Insert Before"

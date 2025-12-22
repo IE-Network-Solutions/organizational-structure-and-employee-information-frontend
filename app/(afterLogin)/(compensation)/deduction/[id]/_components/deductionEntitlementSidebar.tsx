@@ -164,71 +164,71 @@ const AllowanceEntitlementSideBar = () => {
   return (
     <>
       {isAllowanceEntitlementSidebarOpen && (
-          <CustomDrawerLayout
-            open={isAllowanceEntitlementSidebarOpen}
-            onClose={onClose}
-            modalHeader={
-              <CustomDrawerHeader
-                className="flex justify-center"
-                data-cy="compensation-deduction-sidebar-header"
-              >
-                <span
-                  id="compensation-deduction-sidebar-title-text"
-                  data-cy="compensation-deduction-sidebar-title-text"
-                >
-                  Add Deduction Entitlement
-                </span>
-              </CustomDrawerHeader>
-            }
-            footer={
-              <div
-                className="flex flex-row gap-4 justify-center py-3"
-                id="compensation-deduction-sidebar-footer"
-                data-cy="compensation-deduction-sidebar-footer"
-              >
-                <Button
-                  type="default"
-                  className="h-10 px-3 w-40"
-                  size="large"
-                  loading={allUserLoading}
-                  onClick={() => onClose()}
-                  disabled={createAllowanceEntitlementLoading}
-                  id="compensation-deduction-sidebar-cancel-button"
-                  data-cy="compensation-deduction-sidebar-cancel-button"
-                >
-                  Cancel
-                </Button>
-
-                <Button
-                  type="primary"
-                  key="create"
-                  className="h-10 px-3 w-40"
-                  size="large"
-                  loading={createAllowanceEntitlementLoading}
-                  disabled={entitlementsLoading}
-                  onClick={() => form.submit()}
-                  id="compensation-deduction-sidebar-create-button"
-                  data-cy="compensation-deduction-sidebar-create-button"
-                >
-                  Create
-                </Button>
-              </div>
-            }
-            width="600px"
-            data-cy="compensation-deduction-sidebar-layout"
-          >
-            <Spin
-              spinning={allUserLoading}
-              data-cy="compensation-deduction-sidebar-loading"
+        <CustomDrawerLayout
+          open={isAllowanceEntitlementSidebarOpen}
+          onClose={onClose}
+          modalHeader={
+            <CustomDrawerHeader
+              className="flex justify-center"
+              data-cy="compensation-deduction-sidebar-header"
             >
-              <Form
-                layout="vertical"
-                form={form}
-                onFinish={onFormSubmit}
-                requiredMark={CustomLabel}
-                id="compensation-deduction-sidebar-form"
-                data-cy="compensation-deduction-sidebar-form"
+              <span
+                id="compensation-deduction-sidebar-title-text"
+                data-cy="compensation-deduction-sidebar-title-text"
               >
+                Add Deduction Entitlement
+              </span>
+            </CustomDrawerHeader>
+          }
+          footer={
+            <div
+              className="flex flex-row gap-4 justify-center py-3"
+              id="compensation-deduction-sidebar-footer"
+              data-cy="compensation-deduction-sidebar-footer"
+            >
+              <Button
+                type="default"
+                className="h-10 px-3 w-40"
+                size="large"
+                loading={allUserLoading}
+                onClick={() => onClose()}
+                disabled={createAllowanceEntitlementLoading}
+                id="compensation-deduction-sidebar-cancel-button"
+                data-cy="compensation-deduction-sidebar-cancel-button"
+              >
+                Cancel
+              </Button>
+
+              <Button
+                type="primary"
+                key="create"
+                className="h-10 px-3 w-40"
+                size="large"
+                loading={createAllowanceEntitlementLoading}
+                disabled={entitlementsLoading}
+                onClick={() => form.submit()}
+                id="compensation-deduction-sidebar-create-button"
+                data-cy="compensation-deduction-sidebar-create-button"
+              >
+                Create
+              </Button>
+            </div>
+          }
+          width="600px"
+          data-cy="compensation-deduction-sidebar-layout"
+        >
+          <Spin
+            spinning={allUserLoading}
+            data-cy="compensation-deduction-sidebar-loading"
+          >
+            <Form
+              layout="vertical"
+              form={form}
+              onFinish={onFormSubmit}
+              requiredMark={CustomLabel}
+              id="compensation-deduction-sidebar-form"
+              data-cy="compensation-deduction-sidebar-form"
+            >
               {/* <Form.Item
                 name="department"
                 label="Select Department"
@@ -357,7 +357,7 @@ const AllowanceEntitlementSideBar = () => {
               </div>
             </Form>
           </Spin>
-          </CustomDrawerLayout>
+        </CustomDrawerLayout>
       )}
 
       {/* Duplicate Confirmation Modal */}

@@ -8,9 +8,15 @@ function Page(): JSX.Element {
   const { activeTab, setActiveTab } = useWeeklyPriorityStore();
 
   return (
-    <div>
-      <div className="h-full min-h-screen w-auto p-4">
-        <div className="flex flex-wrap justify-between items-center">
+    <div data-cy="weekly-priority-page">
+      <div
+        className="h-full min-h-screen w-auto p-4"
+        data-cy="weekly-priority-content"
+      >
+        <div
+          className="flex flex-wrap justify-between items-center"
+          data-cy="weekly-priority-header"
+        >
           <CustomBreadcrumb
             className="text-sm"
             title="Weekly Priority"

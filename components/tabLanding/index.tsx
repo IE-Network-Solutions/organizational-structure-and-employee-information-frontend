@@ -40,7 +40,10 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   const { isMobile } = useIsMobile();
 
   return (
-    <div className="min-h-screen h-auto w-full bg-white p-4">
+    <div
+      className="min-h-screen h-auto w-full bg-white p-4"
+      data-cy="tab-landing-layout"
+    >
       <BlockWrapper className="bg-white ">
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb

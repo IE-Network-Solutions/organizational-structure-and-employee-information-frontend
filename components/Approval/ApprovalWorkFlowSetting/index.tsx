@@ -107,9 +107,12 @@ const ApprovalWorkFlowSettingComponent = ({
     setSelections({ SectionItemType: updatedSelections });
   };
   return (
-    <div>
-      <div className="mb-10">
-        <div className="text-2xl font-bold ">
+    <div data-cy="approval-workflow-setting-container">
+      <div className="mb-10" data-cy="approval-workflow-setting-header">
+        <div
+          className="text-2xl font-bold "
+          data-cy="approval-workflow-setting-title"
+        >
           {title
             ? title
             : approverType === 'Sequential'

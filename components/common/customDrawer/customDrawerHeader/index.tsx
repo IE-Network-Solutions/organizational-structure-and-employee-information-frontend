@@ -17,6 +17,7 @@ const CustomDrawerHeader: FC<CustomDrawerHeaderProps> = ({
         undefined,
         [className],
       )}
+      data-cy="custom-drawer-header"
     >
       {children}
     </div>

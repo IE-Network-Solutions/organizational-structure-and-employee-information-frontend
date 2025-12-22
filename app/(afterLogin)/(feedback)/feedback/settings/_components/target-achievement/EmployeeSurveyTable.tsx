@@ -132,7 +132,11 @@ const EmployeeSurveyTable: React.FC = () => {
       dataIndex: 'userId',
       key: 'userId',
       render: (userId: string) => (
-        <EmployeeDetails type="user" empId={userId} data-cy="employee-survey-table-employees-details" />
+        <EmployeeDetails
+          type="user"
+          empId={userId}
+          data-cy="employee-survey-table-employees-details"
+        />
       ),
     },
     {
@@ -140,7 +144,11 @@ const EmployeeSurveyTable: React.FC = () => {
       dataIndex: 'date',
       key: 'date',
       render: (notused: any, render: any) => (
-        <div className="text-xs text-gray-500" data-cy="employee-survey-table-month" id="employeeSurveyTableMonth">
+        <div
+          className="text-xs text-gray-500"
+          data-cy="employee-survey-table-month"
+          id="employeeSurveyTableMonth"
+        >
           {' '}
           {render?.month?.session?.name}-{render?.month?.name}
         </div>
@@ -151,7 +159,11 @@ const EmployeeSurveyTable: React.FC = () => {
       dataIndex: 'department',
       key: 'department',
       render: (notused: any, render: any) => (
-        <EmployeeDetails type="department" empId={render?.userId} data-cy="employee-survey-table-department" />
+        <EmployeeDetails
+          type="department"
+          empId={render?.userId}
+          data-cy="employee-survey-table-department"
+        />
       ),
     },
     {
@@ -166,8 +178,16 @@ const EmployeeSurveyTable: React.FC = () => {
       key: 'action',
       render: (ruleData: any, record: any) =>
         record?.monthId == month?.id && (
-          <div className="flex gap-2" data-cy="employee-survey-table-action-buttons" id="employeeSurveyTableActionButtons">
-            <Tooltip title="Edit" data-cy="employee-survey-table-edit-tooltip" id="employeeSurveyTableEditTooltip">
+          <div
+            className="flex gap-2"
+            data-cy="employee-survey-table-action-buttons"
+            id="employeeSurveyTableActionButtons"
+          >
+            <Tooltip
+              title="Edit"
+              data-cy="employee-survey-table-edit-tooltip"
+              id="employeeSurveyTableEditTooltip"
+            >
               <Button
                 onClick={() => handleVisibilityEdit(record)}
                 type="primary"
@@ -177,7 +197,11 @@ const EmployeeSurveyTable: React.FC = () => {
               ></Button>
             </Tooltip>
 
-            <Tooltip title="Delete" data-cy="employee-survey-table-delete-tooltip" id="employeeSurveyTableDeleteTooltip">
+            <Tooltip
+              title="Delete"
+              data-cy="employee-survey-table-delete-tooltip"
+              id="employeeSurveyTableDeleteTooltip"
+            >
               <Popconfirm
                 title="Are you sure you want to remove survey score?"
                 onConfirm={() => handleSurveyScore(record?.id)}
@@ -190,7 +214,9 @@ const EmployeeSurveyTable: React.FC = () => {
                 <Button
                   loading={deleteLoading}
                   className="text-red-100 bg-red-600 border-none"
-                  icon={<MdDelete data-cy="employee-survey-table-delete-icon" />}
+                  icon={
+                    <MdDelete data-cy="employee-survey-table-delete-icon" />
+                  }
                   data-cy="employee-survey-table-delete-button"
                   id="employeeSurveyTableDeleteButton"
                 ></Button>
@@ -207,13 +233,37 @@ const EmployeeSurveyTable: React.FC = () => {
     }
   };
   return (
-    <div className="p-6 bg-white rounded-lg" data-cy="employee-survey-table-page" id="employeeSurveyTablePage">
-      <div className="flex justify-end mb-4" data-cy="employee-survey-table-actions" id="employeeSurveyTableActions">
-        <Button onClick={() => setOpen(true)} type="primary" icon={<HiPlus />} data-cy="employee-survey-table-add-button" id="employeeSurveyTableAddButton">
-          <span className="text-xs" data-cy="employee-survey-table-add-button-text" id="employeeSurveyTableAddButtonText">Add Employee Survey</span>
+    <div
+      className="p-6 bg-white rounded-lg"
+      data-cy="employee-survey-table-page"
+      id="employeeSurveyTablePage"
+    >
+      <div
+        className="flex justify-end mb-4"
+        data-cy="employee-survey-table-actions"
+        id="employeeSurveyTableActions"
+      >
+        <Button
+          onClick={() => setOpen(true)}
+          type="primary"
+          icon={<HiPlus />}
+          data-cy="employee-survey-table-add-button"
+          id="employeeSurveyTableAddButton"
+        >
+          <span
+            className="text-xs"
+            data-cy="employee-survey-table-add-button-text"
+            id="employeeSurveyTableAddButtonText"
+          >
+            Add Employee Survey
+          </span>
         </Button>
       </div>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6" data-cy="employee-survey-table-filters" id="employeeSurveyTableFilters">
+      <div
+        className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6"
+        data-cy="employee-survey-table-filters"
+        id="employeeSurveyTableFilters"
+      >
         <Select
           showSearch
           placeholder="Search Employee"
@@ -299,7 +349,11 @@ const EmployeeSurveyTable: React.FC = () => {
         data-cy="employee-survey-table-pagination"
       />
 
-      <EmployeeSurveyDrawer onClose={() => setOpen(false)} open={open} data-cy="employee-survey-drawer" />
+      <EmployeeSurveyDrawer
+        onClose={() => setOpen(false)}
+        open={open}
+        data-cy="employee-survey-drawer"
+      />
       <EmployeeSurveyModal
         onClose={() => setOpenModal(false)}
         open={openModal}

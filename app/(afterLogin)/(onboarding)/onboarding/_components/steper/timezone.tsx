@@ -27,9 +27,18 @@ function TimeZone() {
   }, [getBrowserGMTOffset()]);
 
   return (
-    <div className="flex flex-col bg-gray-50 p-4 md:p-6 lg:p-8 rounded-lg my-4 md:my-6 lg:my-8 w-full h-full">
-      <div className="bg-white p-4 md:p-6 lg:p-8 rounded-lg w-full h-full">
-        <div className="flex flex-col md:flex-row justify-start items-center gap-2 md:gap-4 font-bold text-xl md:text-2xl text-black mt-4 md:mt-8">
+    <div
+      className="flex flex-col bg-gray-50 p-4 md:p-6 lg:p-8 rounded-lg my-4 md:my-6 lg:my-8 w-full h-full"
+      data-cy="onboarding-timezone-container"
+    >
+      <div
+        className="bg-white p-4 md:p-6 lg:p-8 rounded-lg w-full h-full"
+        data-cy="onboarding-timezone-content"
+      >
+        <div
+          className="flex flex-col md:flex-row justify-start items-center gap-2 md:gap-4 font-bold text-xl md:text-2xl text-black mt-4 md:mt-8"
+          data-cy="onboarding-timezone-title"
+        >
           Set up your Timezone
         </div>
         <TimezoneComponent autoDetectedTimeZone={detectedTimeZone} />

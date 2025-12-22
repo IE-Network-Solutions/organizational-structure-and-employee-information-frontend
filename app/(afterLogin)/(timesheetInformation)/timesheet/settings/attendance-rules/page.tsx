@@ -55,12 +55,21 @@ const Page = () => {
               id="time-attendance-settings-attendance-rules-add-rule-button"
               data-cy="time-attendance-settings-attendance-rules-add-rule-button"
               type="default"
-              icon={<FaPlus data-cy="time-attendance-settings-attendance-rules-add-rule-button-icon" />}
+              icon={
+                <FaPlus data-cy="time-attendance-settings-attendance-rules-add-rule-button-icon" />
+              }
               className="h-10 w-10 sm:w-auto"
               disabled={!attendanceNotificationType.length}
               onClick={() => setIsShowCreateRuleSidebar(true)}
             >
-              <span id="time-attendance-settings-attendance-rules-add-rule-button-label" data-cy="time-attendance-settings-attendance-rules-add-rule-button-label" className="hidden md:inline"> New Rule</span>
+              <span
+                id="time-attendance-settings-attendance-rules-add-rule-button-label"
+                data-cy="time-attendance-settings-attendance-rules-add-rule-button-label"
+                className="hidden md:inline"
+              >
+                {' '}
+                New Rule
+              </span>
             </Button>
           </AccessGuard>
           <AccessGuard
@@ -71,11 +80,20 @@ const Page = () => {
               id="time-attendance-settings-attendance-rules-add-type-button"
               data-cy="time-attendance-settings-attendance-rules-add-type-button"
               className="h-10 w-10 sm:w-auto"
-              icon={<FaPlus data-cy="time-attendance-settings-attendance-rules-add-type-button-icon" />}
+              icon={
+                <FaPlus data-cy="time-attendance-settings-attendance-rules-add-type-button-icon" />
+              }
               onClick={() => setIsShowRulesAddTypeSidebar(true)}
               type="primary"
             >
-              <span id="time-attendance-settings-attendance-rules-add-type-button-label" data-cy="time-attendance-settings-attendance-rules-add-type-button-label" className="hidden md:inline"> New Type</span>
+              <span
+                id="time-attendance-settings-attendance-rules-add-type-button-label"
+                data-cy="time-attendance-settings-attendance-rules-add-type-button-label"
+                className="hidden md:inline"
+              >
+                {' '}
+                New Type
+              </span>
             </Button>
           </AccessGuard>
         </div>

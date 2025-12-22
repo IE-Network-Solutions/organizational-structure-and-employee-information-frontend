@@ -93,7 +93,11 @@ const TnaDetailPage = () => {
       approvalWorkflowId ?? '',
     );
     return (
-      <div className="mx-1 text-sm" id="tnaReviewDetailApprovalListId" data-cy="tna-review-detail-approval-list">
+      <div
+        className="mx-1 text-sm"
+        id="tnaReviewDetailApprovalListId"
+        data-cy="tna-review-detail-approval-list"
+      >
         {Array.isArray(logData) &&
           logData
             ?.sort((a, b) => a.stepOrder - b.stepOrder)
@@ -110,13 +114,27 @@ const TnaDetailPage = () => {
     );
   };
   return (
-    <div className="page-wrap" id="tnaReviewDetailPageId" data-cy="tna-review-detail-page">
+    <div
+      className="page-wrap"
+      id="tnaReviewDetailPageId"
+      data-cy="tna-review-detail-page"
+    >
       <BlockWrapper data-cy="tna-review-detail-block-wrapper">
         <PageHeader
           title={
-            <div className="flex items-center gap-1 " id="tnaReviewDetailPageHeaderTitleId" data-cy="tna-review-detail-page-header-title">
+            <div
+              className="flex items-center gap-1 "
+              id="tnaReviewDetailPageHeaderTitleId"
+              data-cy="tna-review-detail-page-header-title"
+            >
               <Button
-                icon={<FaArrowLeftLong size={18} id="tnaReviewDetailPageHeaderBackIconId" data-cy="tna-review-detail-page-header-back-icon" />}
+                icon={
+                  <FaArrowLeftLong
+                    size={18}
+                    id="tnaReviewDetailPageHeaderBackIconId"
+                    data-cy="tna-review-detail-page-header-back-icon"
+                  />
+                }
                 className="text-gray-900 bg-transparent shadow-none"
                 id="tnaDetailActionButtonId"
                 data-cy="tna-detail-action-button"
@@ -130,13 +148,28 @@ const TnaDetailPage = () => {
           data-cy="tna-review-detail-page-header"
         />
         {!data?.items?.length ? (
-          <div className="flex justify-center" data-cy="tna-review-detail-page-spinner" id="tnaReviewDetailPageSpinnerId">
+          <div
+            className="flex justify-center"
+            data-cy="tna-review-detail-page-spinner"
+            id="tnaReviewDetailPageSpinnerId"
+          >
             <Spin data-cy="tna-review-detail-page-spinner-component" />
           </div>
         ) : (
-          <Spin spinning={isFetching} data-cy="tna-review-detail-page-spinner-component">
-            <div className="mt-6 rounded-lg border border-gray-200 p-6" data-cy="tna-review-detail-page-content" id="tnaReviewDetailPageContentId">
-              <div className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8" data-cy="tna-review-detail-page-user-card" id="tnaReviewDetailPageUserCardId">
+          <Spin
+            spinning={isFetching}
+            data-cy="tna-review-detail-page-spinner-component"
+          >
+            <div
+              className="mt-6 rounded-lg border border-gray-200 p-6"
+              data-cy="tna-review-detail-page-content"
+              id="tnaReviewDetailPageContentId"
+            >
+              <div
+                className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8"
+                data-cy="tna-review-detail-page-user-card"
+                id="tnaReviewDetailPageUserCardId"
+              >
                 {data.items[0].assignedUserId ? (
                   <UserCard
                     data={data}
@@ -156,10 +189,27 @@ const TnaDetailPage = () => {
                 )}
               </div>
 
-              <div id="tnaReviewDetailPageDetailsId" data-cy="tna-review-detail-page-details">
-                <div className="flex gap-2.5 text-sm mb-4" id="tnaReviewDetailPageRequesterId" data-cy="tna-review-detail-page-requester">
-                  <div className="w-1/3 text-gray-600" id="tnaReviewDetailPageRequesterLabelId" data-cy="tna-review-detail-page-requester-label">Requester</div>
-                  <div className="flex-1 " id="tnaReviewDetailPageRequesterValueId" data-cy="tna-review-detail-page-requester-value">
+              <div
+                id="tnaReviewDetailPageDetailsId"
+                data-cy="tna-review-detail-page-details"
+              >
+                <div
+                  className="flex gap-2.5 text-sm mb-4"
+                  id="tnaReviewDetailPageRequesterId"
+                  data-cy="tna-review-detail-page-requester"
+                >
+                  <div
+                    className="w-1/3 text-gray-600"
+                    id="tnaReviewDetailPageRequesterLabelId"
+                    data-cy="tna-review-detail-page-requester-label"
+                  >
+                    Requester
+                  </div>
+                  <div
+                    className="flex-1 "
+                    id="tnaReviewDetailPageRequesterValueId"
+                    data-cy="tna-review-detail-page-requester-value"
+                  >
                     <UserCard
                       data={data}
                       name={
@@ -176,16 +226,44 @@ const TnaDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 mb-4 text-sm font-semibold" id="tnaReviewDetailPageTrainingId" data-cy="tna-review-detail-page-training">
-                  <div className="w-1/3  text-gray-600" id="tnaReviewDetailPageTrainingLabelId" data-cy="tna-review-detail-page-training-label">Training</div>
-                  <div className="flex-1" id="tnaReviewDetailPageTrainingValueId" data-cy="tna-review-detail-page-training-value">
+                <div
+                  className="flex gap-2.5 mb-4 text-sm font-semibold"
+                  id="tnaReviewDetailPageTrainingId"
+                  data-cy="tna-review-detail-page-training"
+                >
+                  <div
+                    className="w-1/3  text-gray-600"
+                    id="tnaReviewDetailPageTrainingLabelId"
+                    data-cy="tna-review-detail-page-training-label"
+                  >
+                    Training
+                  </div>
+                  <div
+                    className="flex-1"
+                    id="tnaReviewDetailPageTrainingValueId"
+                    data-cy="tna-review-detail-page-training-value"
+                  >
                     {data.items[0].trainingNeedCategory?.name}
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 mb-4 text-sm" id="tnaReviewDetailPageStatusId" data-cy="tna-review-detail-page-status">
-                  <div className="w-1/3 text-gray-600" id="tnaReviewDetailPageStatusLabelId" data-cy="tna-review-detail-page-status-label">Status</div>
-                  <div className="flex-1" id="tnaReviewDetailPageStatusValueId" data-cy="tna-review-detail-page-status-value">
+                <div
+                  className="flex gap-2.5 mb-4 text-sm"
+                  id="tnaReviewDetailPageStatusId"
+                  data-cy="tna-review-detail-page-status"
+                >
+                  <div
+                    className="w-1/3 text-gray-600"
+                    id="tnaReviewDetailPageStatusLabelId"
+                    data-cy="tna-review-detail-page-status-label"
+                  >
+                    Status
+                  </div>
+                  <div
+                    className="flex-1"
+                    id="tnaReviewDetailPageStatusValueId"
+                    data-cy="tna-review-detail-page-status-value"
+                  >
                     <StatusBadge
                       theme={
                         TrainingNeedAssessmentStatusBadgeTheme[
@@ -199,9 +277,23 @@ const TnaDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 text-sm mb-4" id="tnaReviewDetailPageCertStatusId" data-cy="tna-review-detail-page-cert-status">
-                  <div className="w-1/3 text-gray-600" id="tnaReviewDetailPageCertStatusLabelId" data-cy="tna-review-detail-page-cert-status-label">Cert-Status</div>
-                  <div className="flex-1" id="tnaReviewDetailPageCertStatusValueId" data-cy="tna-review-detail-page-cert-status-value">
+                <div
+                  className="flex gap-2.5 text-sm mb-4"
+                  id="tnaReviewDetailPageCertStatusId"
+                  data-cy="tna-review-detail-page-cert-status"
+                >
+                  <div
+                    className="w-1/3 text-gray-600"
+                    id="tnaReviewDetailPageCertStatusLabelId"
+                    data-cy="tna-review-detail-page-cert-status-label"
+                  >
+                    Cert-Status
+                  </div>
+                  <div
+                    className="flex-1"
+                    id="tnaReviewDetailPageCertStatusValueId"
+                    data-cy="tna-review-detail-page-cert-status-value"
+                  >
                     <StatusBadge
                       theme={
                         TrainingNeedAssessmentCertStatusBadgeTheme[
@@ -215,18 +307,46 @@ const TnaDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 text-sm mb-4" id="tnaReviewDetailPageCompletedOnId" data-cy="tna-review-detail-page-completed-on">
-                  <div className="w-1/3 text-gray-600" id="tnaReviewDetailPageCompletedOnLabelId" data-cy="tna-review-detail-page-completed-on-label">Completed on</div>
-                  <div className="flex-1" id="tnaReviewDetailPageCompletedOnValueId" data-cy="tna-review-detail-page-completed-on-value">
+                <div
+                  className="flex gap-2.5 text-sm mb-4"
+                  id="tnaReviewDetailPageCompletedOnId"
+                  data-cy="tna-review-detail-page-completed-on"
+                >
+                  <div
+                    className="w-1/3 text-gray-600"
+                    id="tnaReviewDetailPageCompletedOnLabelId"
+                    data-cy="tna-review-detail-page-completed-on-label"
+                  >
+                    Completed on
+                  </div>
+                  <div
+                    className="flex-1"
+                    id="tnaReviewDetailPageCompletedOnValueId"
+                    data-cy="tna-review-detail-page-completed-on-value"
+                  >
                     {data.items[0].completedAt
                       ? dayjs(data.items[0].completedAt).format(DATE_FORMAT)
                       : '-'}
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 mb-4" id="tnaReviewDetailPageAttachmentsId" data-cy="tna-review-detail-page-attachments">
-                  <div className="w-1/3 text-gray-600" id="tnaReviewDetailPageAttachmentsLabelId" data-cy="tna-review-detail-page-attachments-label">Attachments</div>
-                  <div className="flex-1 flex items-center gap-2.5 flex-wrap" id="tnaReviewDetailPageAttachmentsListId" data-cy="tna-review-detail-page-attachments-list">
+                <div
+                  className="flex gap-2.5 mb-4"
+                  id="tnaReviewDetailPageAttachmentsId"
+                  data-cy="tna-review-detail-page-attachments"
+                >
+                  <div
+                    className="w-1/3 text-gray-600"
+                    id="tnaReviewDetailPageAttachmentsLabelId"
+                    data-cy="tna-review-detail-page-attachments-label"
+                  >
+                    Attachments
+                  </div>
+                  <div
+                    className="flex-1 flex items-center gap-2.5 flex-wrap"
+                    id="tnaReviewDetailPageAttachmentsListId"
+                    data-cy="tna-review-detail-page-attachments-list"
+                  >
                     {data.items[0].trainingProofs?.map((proof) =>
                       proof.attachmentFile ? (
                         <FileButton
@@ -242,17 +362,33 @@ const TnaDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 text-sm" id="tnaReviewDetailPageDetailInfoId" data-cy="tna-review-detail-page-detail-info">
-                  <div className="w-[200px] text-gray-600" id="tnaReviewDetailPageDetailInfoLabelId" data-cy="tna-review-detail-page-detail-info-label">
+                <div
+                  className="flex gap-2.5 text-sm"
+                  id="tnaReviewDetailPageDetailInfoId"
+                  data-cy="tna-review-detail-page-detail-info"
+                >
+                  <div
+                    className="w-[200px] text-gray-600"
+                    id="tnaReviewDetailPageDetailInfoLabelId"
+                    data-cy="tna-review-detail-page-detail-info-label"
+                  >
                     Detailed information
                   </div>
-                  <div className="flex-1 font-semibold" id="tnaReviewDetailPageDetailInfoValueId" data-cy="tna-review-detail-page-detail-info-value">
+                  <div
+                    className="flex-1 font-semibold"
+                    id="tnaReviewDetailPageDetailInfoValueId"
+                    data-cy="tna-review-detail-page-detail-info-value"
+                  >
                     {data.items[0].detail}
                   </div>
                 </div>
               </div>
 
-              <div className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8" id="tnaReviewDetailPageApproverSectionId" data-cy="tna-review-detail-page-approver-section">
+              <div
+                className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8"
+                id="tnaReviewDetailPageApproverSectionId"
+                data-cy="tna-review-detail-page-approver-section"
+              >
                 {data.items[0].assignedUserId ? (
                   <UserCard
                     data={data}
@@ -271,12 +407,23 @@ const TnaDetailPage = () => {
                   '-'
                 )}
               </div>
-              <div id="tnaReviewDetailPageApprovalLevelsId" data-cy="tna-review-detail-page-approval-levels">
-                <div className="text-lg font-semibold text-gray-900" id="tnaReviewDetailPageApprovalLevelsTitleId" data-cy="tna-review-detail-page-approval-levels-title">
+              <div
+                id="tnaReviewDetailPageApprovalLevelsId"
+                data-cy="tna-review-detail-page-approval-levels"
+              >
+                <div
+                  className="text-lg font-semibold text-gray-900"
+                  id="tnaReviewDetailPageApprovalLevelsTitleId"
+                  data-cy="tna-review-detail-page-approval-levels-title"
+                >
                   Approval Levels Status
                 </div>
 
-                <div className="my-2.5" id="tnaReviewDetailPageApprovalStatusesInfoId" data-cy="tna-review-detail-page-approval-statuses-info">
+                <div
+                  className="my-2.5"
+                  id="tnaReviewDetailPageApprovalStatusesInfoId"
+                  data-cy="tna-review-detail-page-approval-statuses-info"
+                >
                   <ApprovalStatusesInfo data-cy="tna-review-detail-page-approval-statuses-info-component" />
                 </div>
                 <ApprovalList
@@ -287,14 +434,28 @@ const TnaDetailPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-end mt-6" id="tnaReviewDetailPageActionsId" data-cy="tna-review-detail-page-actions">
-              <AccessGuard permissions={[Permissions.UpdateTna]} id="tnaReviewDetailPageUpdateGuardId" data-cy="tna-review-detail-page-update-guard">
+            <div
+              className="flex justify-end mt-6"
+              id="tnaReviewDetailPageActionsId"
+              data-cy="tna-review-detail-page-actions"
+            >
+              <AccessGuard
+                permissions={[Permissions.UpdateTna]}
+                id="tnaReviewDetailPageUpdateGuardId"
+                data-cy="tna-review-detail-page-update-guard"
+              >
                 <CustomButton
                   title="Update TNA"
                   type="primary"
                   id="tnaUpdateCustomButtonId"
                   data-cy="tna-update-custom-button"
-                  icon={<FiEdit2 size={16} id="tnaReviewDetailPageUpdateIconId" data-cy="tna-review-detail-page-update-icon" />}
+                  icon={
+                    <FiEdit2
+                      size={16}
+                      id="tnaReviewDetailPageUpdateIconId"
+                      data-cy="tna-review-detail-page-update-icon"
+                    />
+                  }
                   size="large"
                   disabled={
                     data.items[0].certStatus ===

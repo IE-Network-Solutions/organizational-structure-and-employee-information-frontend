@@ -27,7 +27,10 @@ const ReprimandDrawer: React.FC<RepDrawerProps> = ({
   const { data: repTypes } = useGetReprimandType();
 
   const renderEmployeeOption = (option: any) => (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div
+      style={{ display: 'flex', alignItems: 'center' }}
+      data-cy={`reprimand-drawer-employee-option-${option.id}`}
+    >
       <Avatar size={20} icon={<UserOutlined />} />
       {option.firstName}
     </div>

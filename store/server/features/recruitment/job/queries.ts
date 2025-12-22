@@ -118,7 +118,6 @@ const downloadJobCandidatesExcel = async (
     url,
     method: 'GET',
     headers,
-    skipEncryption: true, // Skip encryption for file downloads
     responseType: 'json', // Backend returns JSON with downloadUrl
   });
 

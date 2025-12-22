@@ -19,21 +19,34 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
 03:41 PM`;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <Title level={2} className="text-center mb-4">
+    <div className="p-6 max-w-6xl mx-auto" data-cy="okr-instructions-demo">
+      <div className="mb-8" data-cy="okr-instructions-demo-header">
+        <Title
+          level={2}
+          className="text-center mb-4"
+          data-cy="okr-instructions-demo-title"
+        >
           OKR Instructions Display Demo
         </Title>
-        <Paragraph className="text-center text-gray-600">
+        <Paragraph
+          className="text-center text-gray-600"
+          data-cy="okr-instructions-demo-description"
+        >
           This demo shows how backend AI responses about OKR creation are
           professionally formatted and displayed in the UI.
         </Paragraph>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        data-cy="okr-instructions-demo-content"
+      >
         {/* Raw Response */}
         <Card title="Raw Backend Response" className="h-fit">
-          <div className="bg-gray-50 p-4 rounded-lg border">
+          <div
+            className="bg-gray-50 p-4 rounded-lg border"
+            data-cy="okr-instructions-demo-raw-response"
+          >
             <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
               {sampleResponse}
             </pre>
@@ -41,11 +54,17 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
         </Card>
 
         {/* Formatted Displays */}
-        <div className="space-y-6">
+        <div className="space-y-6" data-cy="okr-instructions-demo-formatted">
           {/* Chat Format Preview */}
           <Card title="Chat Bot Format (Compact)" className="h-fit">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
-              <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div
+              className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg"
+              data-cy="okr-instructions-demo-chat-format-container"
+            >
+              <div
+                className="bg-white p-4 rounded-lg shadow-sm"
+                data-cy="okr-instructions-demo-chat-format-content"
+              >
                 <AIResponseFormatter
                   response={sampleResponse}
                   compact={true}

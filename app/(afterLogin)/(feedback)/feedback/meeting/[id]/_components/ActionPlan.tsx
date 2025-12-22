@@ -67,7 +67,13 @@ export default function ActionPlan({
           </div>
         ) : (
           meetingActionPlan?.items.map((item: any, index: number) => (
-            <ActionPlanCard canEdit={canEdit} key={index} {...item} data-cy={`feedback-meeting-components-actionplan-item-${index}`} id={`feedback-meeting-components-actionplan-item-${index}`} />
+            <ActionPlanCard
+              canEdit={canEdit}
+              key={index}
+              {...item}
+              data-cy={`feedback-meeting-components-actionplan-item-${index}`}
+              id={`feedback-meeting-components-actionplan-item-${index}`}
+            />
           ))
         )}
 

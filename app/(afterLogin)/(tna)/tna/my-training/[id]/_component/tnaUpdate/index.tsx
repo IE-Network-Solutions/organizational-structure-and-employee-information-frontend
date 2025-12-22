@@ -140,7 +140,10 @@ const TnaUpdateSidebar = () => {
         onClose={() => onClose()}
         data-cy="tna-my-training-update-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start" data-cy="tna-my-training-update-header">
+          <CustomDrawerHeader
+            className="flex justify-start"
+            data-cy="tna-my-training-update-header"
+          >
             TNA Update
           </CustomDrawerHeader>
         }
@@ -171,14 +174,28 @@ const TnaUpdateSidebar = () => {
             id="tnaMyTrainingUpdateTitleItemId"
             data-cy="tna-my-training-update-title-item"
           >
-            <Input className="control" id="tnaMyTrainingUpdateTitleInputId" data-cy="tna-my-training-update-title-input" />
+            <Input
+              className="control"
+              id="tnaMyTrainingUpdateTitleInputId"
+              data-cy="tna-my-training-update-title-input"
+            />
           </Form.Item>
 
-          <Form.List name="trainingProofs" data-cy="tna-my-training-update-proof-list">
+          <Form.List
+            name="trainingProofs"
+            data-cy="tna-my-training-update-proof-list"
+          >
             {(fields, { add, remove }) =>
               fields.map(({ key, name, ...restField }) => (
-                <React.Fragment key={key} data-cy={`tna-my-training-update-proof-fragment-${key}`}>
-                  <Flex gap={10} id={`tnaMyTrainingUpdateProofFlex${key}Id`} data-cy={`tna-my-training-update-proof-flex-${key}`}>
+                <React.Fragment
+                  key={key}
+                  data-cy={`tna-my-training-update-proof-fragment-${key}`}
+                >
+                  <Flex
+                    gap={10}
+                    id={`tnaMyTrainingUpdateProofFlex${key}Id`}
+                    data-cy={`tna-my-training-update-proof-flex-${key}`}
+                  >
                     <Form.Item
                       {...restField}
                       name={[name, 'attachmentFile']}
@@ -211,7 +228,12 @@ const TnaUpdateSidebar = () => {
                     )}
                   </Flex>
 
-                  <Flex gap={10} align="center" id={`tnaMyTrainingUpdateLinkFlex${key}Id`} data-cy={`tna-my-training-update-link-flex-${key}`}>
+                  <Flex
+                    gap={10}
+                    align="center"
+                    id={`tnaMyTrainingUpdateLinkFlex${key}Id`}
+                    data-cy={`tna-my-training-update-link-flex-${key}`}
+                  >
                     <Form.Item
                       {...restField}
                       name={[name, 'link']}
@@ -279,7 +301,12 @@ const TnaUpdateSidebar = () => {
               id="tnaUpdateCertificationStatusFieldId"
               data-cy="tna-update-certification-status-field"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" data-cy="tna-my-training-update-cert-status-suffix-icon" id="tnaMyTrainingUpdateCertStatusSuffixIconId" />
+                <MdKeyboardArrowDown
+                  size={16}
+                  className="text-gray-900"
+                  data-cy="tna-my-training-update-cert-status-suffix-icon"
+                  id="tnaMyTrainingUpdateCertStatusSuffixIconId"
+                />
               }
               options={trainingNeedAssessmentCertStatusOptions}
             />
