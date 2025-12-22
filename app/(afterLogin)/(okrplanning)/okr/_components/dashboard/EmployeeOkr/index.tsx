@@ -182,8 +182,14 @@ const EmployeeOKRTable: React.FC = () => {
   }, [sessionIds, refetch]);
 
   return (
-    <div className="py-6">
+    <div
+      id="okr-employee-okr-table-container"
+      data-cy="okr-employee-okr-table-container"
+      className="py-6"
+    >
       <Table
+        id="okr-employee-okr-table"
+        data-cy="okr-employee-okr-table"
         columns={columns}
         dataSource={dataSource}
         pagination={false}
@@ -194,6 +200,7 @@ const EmployeeOKRTable: React.FC = () => {
 
       {isMobile || isTablet ? (
         <CustomMobilePagination
+          data-cy="okr-employee-okr-mobile-pagination"
           totalResults={employeeOkr?.meta?.totalItems ?? 0}
           pageSize={employeePageSize}
           onChange={onPageChange}
@@ -201,6 +208,7 @@ const EmployeeOKRTable: React.FC = () => {
         />
       ) : (
         <CustomPagination
+          data-cy="okr-employee-okr-desktop-pagination"
           current={employeeOkr?.meta?.currentPage ?? 0}
           total={employeeOkr?.meta?.totalItems ?? 0}
           pageSize={employeePageSize}

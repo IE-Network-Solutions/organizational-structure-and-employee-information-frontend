@@ -67,19 +67,38 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
   ]);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="h-auto w-auto bg-[#f5f5f5]">
-        <PageHeader
-          title="Settings"
-          description="Compensation Settings"
-          className="hidden sm:block"
-          horizontalPadding="0px"
-        ></PageHeader>
-        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
-          <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="flex-1 h-max overflow-x-auto sm:mr-4">
-            {children}
-          </BlockWrapper>
+    <div
+      className="min-h-screen bg-[#f5f5f5]"
+      id="compensation-settings-layout-wrapper"
+      data-cy="compensation-settings-layout-wrapper"
+    >
+      <div
+        className="h-auto w-auto bg-[#f5f5f5]"
+        id="compensation-settings-layout-body"
+        data-cy="compensation-settings-layout-body"
+      >
+          <PageHeader
+            title="Settings"
+            description="Compensation Settings"
+            className="hidden sm:block"
+            horizontalPadding="0px"
+            data-cy="compensation-settings-layout-header-title"
+          />
+        <div
+          className="flex flex-col lg:flex-row gap-3 sm:gap-6"
+          id="compensation-settings-layout-content"
+          data-cy="compensation-settings-layout-content"
+        >
+            <SidebarMenu
+              menuItems={menuItems}
+              data-cy="compensation-settings-layout-sidebar-menu"
+            />
+            <BlockWrapper
+              className="flex-1 h-max overflow-x-auto sm:mr-4"
+              data-cy="compensation-settings-layout-block-wrapper-content"
+            >
+              {children}
+            </BlockWrapper>
         </div>
       </div>
     </div>

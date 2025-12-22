@@ -22,7 +22,14 @@ const AllowanceAmount = ({
   const { data: basicSalaryData, error } = useGetBasicSalaryById(employeeId);
 
   if (error || !basicSalaryData) {
-    return <span>-</span>;
+    return (
+      <span
+        id={`compensation-allowance-amount-error-${employeeId}`}
+        data-cy={`compensation-allowance-amount-error-${employeeId}`}
+      >
+        -
+      </span>
+    );
   }
 
   const employeeBasicSalary =
@@ -32,11 +39,25 @@ const AllowanceAmount = ({
   if (allowanceType.isRate && allowanceType.defaultAmount) {
     const calculatedAmount =
       (employeeBasicSalary * Number(allowanceType.defaultAmount)) / 100;
-    return <span>{calculatedAmount ? calculatedAmount : '-'}</span>;
+    return (
+      <span
+        id={`compensation-allowance-amount-rate-${employeeId}`}
+        data-cy={`compensation-allowance-amount-rate-${employeeId}`}
+      >
+        {calculatedAmount ? calculatedAmount : '-'}
+      </span>
+    );
   }
 
   // For fixed amounts, use the totalAmount
-  return <span>{allowance.totalAmount ? allowance.totalAmount : '-'}</span>;
+  return (
+    <span
+      id={`compensation-allowance-amount-fixed-${employeeId}`}
+      data-cy={`compensation-allowance-amount-fixed-${employeeId}`}
+    >
+      {allowance.totalAmount ? allowance.totalAmount : '-'}
+    </span>
+  );
 };
 
 const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
@@ -107,26 +128,51 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       key: 'dateNaming',
       sorter: true,
       render: (notused: any, record: any) => (
-        <div data-testid={`allowance-employee-${record?.employeeId}`}>
+        <div
+          data-testid={`allowance-employee-${record?.employeeId}`}
+          id={`compensation-allowance-all-employee-${record?.employeeId}`}
+          data-cy={`compensation-allowance-all-employee-${record?.employeeId}`}
+        >
           <EmployeeDetails empId={record?.employeeId} />
         </div>
       ),
     },
     ...(Array.isArray(allAllowanceEntitlementData)
       ? allAllowanceEntitlementData.map((item: any) => ({
-          title: <span className="text-xs truncate">{item?.name}</span>,
+          title: (
+            <span
+              className="text-xs truncate"
+              id={`compensation-allowance-column-title-${item?.id}`}
+              data-cy={`compensation-allowance-column-title-${item?.id}`}
+            >
+              {item?.name}
+            </span>
+          ),
           dataIndex: item?.id,
           key: item?.id,
           render: (text: string, record: any) => {
             const allowanceData = record[item?.id];
 
             if (!allowanceData) {
-              return <div data-testid={`allowance-amount-${item?.id}`}>-</div>;
+              return (
+                <div
+                  data-testid={`allowance-amount-${item?.id}`}
+                  id={`compensation-allowance-amount-empty-${item?.id}`}
+                  data-cy={`compensation-allowance-amount-empty-${item?.id}`}
+                >
+                  -
+                </div>
+              );
             }
 
             return (
-              <div data-testid={`allowance-amount-${item?.id}`}>
+              <div
+                data-testid={`allowance-amount-${item?.id}`}
+                id={`compensation-allowance-amount-value-${item?.id}`}
+                data-cy={`compensation-allowance-amount-value-${item?.id}`}
+              >
                 <AllowanceAmount
+                  data-cy="compensation-allowance-amount"
                   employeeId={allowanceData.employeeId}
                   allowance={allowanceData.allowance}
                   allowanceType={allowanceData.allowanceType}
@@ -144,20 +190,31 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   );
 
   return (
-    <div data-testid="all-allowance-table-container">
-      <Spin spinning={isLoading} data-testid="allowance-table-loading">
-        <div className="overflow-x-auto">
+    <div
+      data-testid="all-allowance-table-container"
+      id="compensation-allowance-all-table-container"
+      data-cy="compensation-allowance-all-table-container"
+    >
+      <Spin data-cy="compensation-allowance-all-table-loading" spinning={isLoading} data-testid="allowance-table-loading">
+        <div
+          className="overflow-x-auto"
+          id="compensation-allowance-all-table-scroll"
+          data-cy="compensation-allowance-all-table-scroll"
+        >
           <Table
             className="mt-6"
             columns={columns}
             dataSource={paginatedData}
             pagination={false}
             data-testid="allowance-table"
+            id="compensation-allowance-all-table-display"
+            data-cy="compensation-allowance-all-table-display"
           />
         </div>
 
         {isMobile || isTablet ? (
           <CustomMobilePagination
+            data-cy="compensation-allowance-all-table-mobile-pagination"
             totalResults={filteredDataSource.length}
             pageSize={pageSize}
             onChange={(page, size) => {
@@ -171,6 +228,7 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
           />
         ) : (
           <CustomPagination
+            data-cy="compensation-allowance-all-table-pagination"
             current={currentPage}
             total={filteredDataSource.length}
             pageSize={pageSize}

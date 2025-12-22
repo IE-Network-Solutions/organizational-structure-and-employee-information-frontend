@@ -20,6 +20,7 @@ const updateProfileImageMutation = async (formData: FormData) => {
       tenantId: tenantId,
       'Content-Type': 'multipart/form-data', // Required for file uploads
     },
+    skipEncryption: true,
   });
 };
 
@@ -34,6 +35,7 @@ const deleteProfileImageMutation = async (id: string) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     },
+    skipEncryption: true,
   });
 };
 

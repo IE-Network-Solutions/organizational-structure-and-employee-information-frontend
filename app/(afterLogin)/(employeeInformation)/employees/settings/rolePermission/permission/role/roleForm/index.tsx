@@ -14,6 +14,12 @@ import { useGetPermissionGroups } from '@/store/server/features/employees/settin
 import { GroupPermissionItem } from '@/store/server/features/employees/settings/groupPermission/interface';
 import { useGetPermissions } from '@/store/server/features/employees/settings/permission/queries';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const ListOfRoles = () => {
   const [form] = Form.useForm();
   const [groupPermissionList, setGroupPermissionList] = useState<any>([]);
@@ -127,8 +133,14 @@ const ListOfRoles = () => {
     setCurrentModal(null);
   };
 
+  const modalSlug = toSlug(selectedRole ?? 'permission-role');
+
   const modalTitle = (
-    <div className="flex w-full justify-center items-center text-md font-extrabold">
+    <div
+      className="flex w-full justify-center items-center text-md font-extrabold"
+      id={`settings-permission-role-modal-title-${modalSlug}`}
+      data-cy={`settings-permission-role-modal-title-${modalSlug}`}
+    >
       {currentModal === 'editRoleModal' ? 'Edit Role' : 'New Role'}
     </div>
   );
@@ -146,6 +158,7 @@ const ListOfRoles = () => {
         setSelectedRole(null);
         setCurrentModal(null);
       }}
+      data-cy={`settings-permission-role-modal-${modalSlug}`}
     >
       <Form
         form={form}
@@ -155,47 +168,91 @@ const ListOfRoles = () => {
           currentModal === 'editRoleModal' ? handleRoleUpdate : handleCreateRole
         }
         className="p-4 sm:p-2 md:p-4 lg:p-6"
+        id={`settings-permission-role-form-${modalSlug}`}
+        data-cy={`settings-permission-role-form-${modalSlug}`}
       >
-        <div className="grid">
+        <div
+          className="grid"
+          id={`settings-permission-role-form-wrapper-${modalSlug}`}
+          data-cy={`settings-permission-role-form-wrapper-${modalSlug}`}
+        >
           {currentModal === 'editRoleModal' && (
-            <Form.Item name="id">
-              <Input type="hidden" />
+            <Form.Item
+              name="id"
+              id={`settings-permission-role-id-item-${modalSlug}`}
+            >
+              <Input
+                type="hidden"
+                data-cy={`settings-permission-role-id-input-${modalSlug}`}
+              />
             </Form.Item>
           )}
-          <div className="mb-1">
+          <div
+            className="mb-1"
+            id={`settings-permission-role-name-wrapper-${modalSlug}`}
+            data-cy={`settings-permission-role-name-wrapper-${modalSlug}`}
+          >
             <Form.Item
               name="name"
               label={
-                <p className="text-xs font-bold text-gray-600">Role name</p>
+                <p
+                  className="text-xs font-bold text-gray-600"
+                  id={`settings-permission-role-name-label-${modalSlug}`}
+                  data-cy={`settings-permission-role-name-label-${modalSlug}`}
+                >
+                  Role name
+                </p>
               }
               rules={[{ required: true, message: 'Enter group name!' }]}
+              data-cy={`settings-permission-role-name-item-${modalSlug}`}
             >
               <Input
                 id="roleNameId"
                 className="h-10 text-xs text-gray-600"
                 placeholder="Enter group name"
+                data-cy={`settings-permission-role-name-input-${modalSlug}`}
               />
             </Form.Item>
           </div>
-          <div className="mb-1">
+          <div
+            className="mb-1"
+            id={`settings-permission-role-description-wrapper-${modalSlug}`}
+            data-cy={`settings-permission-role-description-wrapper-${modalSlug}`}
+          >
             <Form.Item
               name="description"
               label={
-                <p className="text-xs font-bold text-gray-600">
+                <p
+                  className="text-xs font-bold text-gray-600"
+                  id={`settings-permission-role-description-label-${modalSlug}`}
+                  data-cy={`settings-permission-role-description-label-${modalSlug}`}
+                >
                   Role Description
                 </p>
               }
               rules={[{ required: true, message: 'Enter role description!' }]}
+              data-cy={`settings-permission-role-description-item-${modalSlug}`}
             >
               <Input
                 id="roleDescriptionId"
                 className="h-10 text-xs text-gray-600"
                 placeholder="Enter role description"
+                data-cy={`settings-permission-role-description-input-${modalSlug}`}
               />
             </Form.Item>
           </div>
-          <div className="mb-1">
-            <p className="text-xs font-bold text-gray-600">Group Permission</p>
+          <div
+            className="mb-1"
+            id={`settings-permission-role-group-wrapper-${modalSlug}`}
+            data-cy={`settings-permission-role-group-wrapper-${modalSlug}`}
+          >
+            <p
+              className="text-xs font-bold text-gray-600"
+              id={`settings-permission-role-group-label-${modalSlug}`}
+              data-cy={`settings-permission-role-group-label-${modalSlug}`}
+            >
+              Group Permission
+            </p>
             <Select
               id="groupDescriptionForRole"
               mode="tags"
@@ -210,25 +267,47 @@ const ListOfRoles = () => {
                   label: item?.name,
                 }),
               )}
+              data-cy={`settings-permission-role-group-select-${modalSlug}`}
             />
-            <p className="flex gap-2 text-xs text-gray-600 mt-2">
-              <RiErrorWarningFill className="mt-1" />
-              <span>
+            <p
+              className="flex gap-2 text-xs text-gray-600 mt-2"
+              id={`settings-permission-role-group-helper-${modalSlug}`}
+              data-cy={`settings-permission-role-group-helper-${modalSlug}`}
+            >
+              <RiErrorWarningFill
+                className="mt-1"
+                data-cy={`settings-permission-role-group-helper-icon-${modalSlug}`}
+              />
+              <span
+                id={`settings-permission-role-group-helper-text-${modalSlug}`}
+                data-cy={`settings-permission-role-group-helper-text-${modalSlug}`}
+              >
                 Group permission allows you to get a bundle of permissions in
                 one place.
               </span>
             </p>
           </div>
-          <div className="mb-1">
+          <div
+            className="mb-1"
+            id={`settings-permission-role-permission-wrapper-${modalSlug}`}
+            data-cy={`settings-permission-role-permission-wrapper-${modalSlug}`}
+          >
             <Form.Item
               name="permission"
               className="h-auto"
               label={
-                <p className="text-xs font-bold text-gray-600">Permission</p>
+                <p
+                  className="text-xs font-bold text-gray-600"
+                  id={`settings-permission-role-permission-label-${modalSlug}`}
+                  data-cy={`settings-permission-role-permission-label-${modalSlug}`}
+                >
+                  Permission
+                </p>
               }
               rules={[
                 { required: true, message: 'Select the Permission List!' },
               ]}
+              data-cy={`settings-permission-role-permission-item-${modalSlug}`}
             >
               <Select
                 mode="tags"
@@ -241,16 +320,36 @@ const ListOfRoles = () => {
                   value: item?.id,
                   label: item?.name,
                 }))}
+                data-cy={`settings-permission-role-permission-select-${modalSlug}`}
               />
             </Form.Item>
-            <p className="flex gap-2 text-xs text-gray-600 mt-2">
-              <RiErrorWarningFill className="mt-1" />
-              <span>This is a set of permissions assigned to the roles.</span>
+            <p
+              className="flex gap-2 text-xs text-gray-600 mt-2"
+              id={`settings-permission-role-permission-helper-${modalSlug}`}
+              data-cy={`settings-permission-role-permission-helper-${modalSlug}`}
+            >
+              <RiErrorWarningFill
+                className="mt-1"
+                data-cy={`settings-permission-role-permission-helper-icon-${modalSlug}`}
+              />
+              <span
+                id={`settings-permission-role-permission-helper-text-${modalSlug}`}
+                data-cy={`settings-permission-role-permission-helper-text-${modalSlug}`}
+              >
+                This is a set of permissions assigned to the roles.
+              </span>
             </p>
           </div>
         </div>
-        <Form.Item>
-          <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+        <Form.Item
+          id={`settings-permission-role-actions-item-${modalSlug}`}
+          data-cy={`settings-permission-role-actions-item-${modalSlug}`}
+        >
+          <div
+            className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+            id={`settings-permission-role-actions-${modalSlug}`}
+            data-cy={`settings-permission-role-actions-${modalSlug}`}
+          >
             <Button
               id="cancelButtonForRole"
               className="px-6 py-3 text-xs font-bold"
@@ -259,6 +358,7 @@ const ListOfRoles = () => {
                 setSelectedRole(null);
                 setCurrentModal(null);
               }}
+              data-cy={`settings-permission-role-cancel-btn-${modalSlug}`}
             >
               Cancel
             </Button>
@@ -267,6 +367,7 @@ const ListOfRoles = () => {
               className="px-6 py-3 text-xs font-bold"
               htmlType="submit"
               type="primary"
+              data-cy={`settings-permission-role-submit-btn-${modalSlug}`}
             >
               {currentModal !== 'editRoleModal' ? 'Create' : 'Update'}
             </Button>

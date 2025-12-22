@@ -209,3 +209,45 @@ export const useGetAllIncentiveData = (
       fetchAllIncentiveData(employeeName, year, session, month, page, current),
   );
 };
+
+// Fetch all incentive IDs without pagination (for select all functionality)
+const fetchAllIncentiveIds = async (
+  employeeName: string,
+  year: string,
+  session: string | string[],
+  month: string,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${INCENTIVE_URL}/incentives/get-all-incentives?limit=10000&page=1`,
+    method: 'POST',
+    headers,
+    data: {
+      userId: employeeName,
+      year: year,
+      sessionId: session,
+      monthId: month,
+    },
+  });
+};
+
+export const useGetAllIncentiveIds = (
+  employeeName: string,
+  year: string,
+  session: string,
+  month: string,
+  enabled: boolean = false,
+) => {
+  return useQuery<any>(
+    ['allIncentiveIds', employeeName, year, session, month],
+    () => fetchAllIncentiveIds(employeeName, year, session, month),
+    {
+      enabled,
+    },
+  );
+};

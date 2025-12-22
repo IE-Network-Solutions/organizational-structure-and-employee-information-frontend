@@ -3,7 +3,7 @@ import { Payment } from '@/types/tenant-management';
 import { crudRequest } from '@/utils/crudRequest';
 import { TENANT_MGMT_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
-import { useQuery, useMutation } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 
 const getPayments = async (data: Partial<PaymentRequestBody>) => {
@@ -60,9 +60,15 @@ const initiatePayment = async (
 
 // Hook for initiating payment
 export const useInitiatePayment = () => {
+  const queryClient = useQueryClient();
   return useMutation<
     ApiResponse<InitiatePaymentResponse>,
     Error,
     { invoiceId: string; data: InitiatePaymentRequest }
-  >(({ invoiceId, data }) => initiatePayment(invoiceId, data));
+  >(({ invoiceId, data }) => initiatePayment(invoiceId, data), {
+    onSuccess: () => {
+      queryClient.invalidateQueries('invoices');
+      queryClient.invalidateQueries('subscriptions');
+    },
+  });
 };

@@ -13,10 +13,14 @@ interface VPDashboardProps {
 
 function VpDashBoardWithID({ params: { employeeId } }: VPDashboardProps) {
   return (
-    <div className="h-auto w-full p-8 bg-white rounded-md ">
-      <VPChart id={employeeId} />
-      <CriteriaCard id={employeeId} />
-      <VPGraph id={employeeId} />
+    <div
+      className="h-auto w-full p-8 bg-white rounded-md "
+      id="okr-vpdashboard-container-display-div"
+      data-cy="okr-vpdashboard-container-display-div"
+    >
+      <VPChart data-cy="okr-vpdashboard-chart" id={employeeId} />
+      <CriteriaCard data-cy="okr-vpdashboard-criteria-card" id={employeeId} />
+      <VPGraph data-cy="okr-vpdashboard-graphs" id={employeeId} />
     </div>
   );
 }

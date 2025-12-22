@@ -301,20 +301,32 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const modalHeader = (
-    <div className="flex justify-center text-2xl font-extrabold text-gray-800 p-4">
+    <div
+      id="okr-edit-objective-modal-header"
+      data-cy="okr-edit-objective-modal-header"
+      className="flex justify-center text-2xl font-extrabold text-gray-800 p-4"
+    >
       Edit OKR
     </div>
   );
 
   const footer = (
-    <div className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5">
+    <div
+      id="okr-edit-objective-modal-footer"
+      data-cy="okr-edit-objective-modal-footer"
+      className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5"
+    >
       <CustomButton
+        id="okr-edit-objective-cancel-button"
+        data-cy="okr-edit-objective-cancel-button"
         type="default"
         title="Cancel"
         onClick={handleModalClose}
         style={{ marginRight: 8, height: '40px' }}
       />
       <CustomButton
+        id="okr-edit-objective-save-button"
+        data-cy="okr-edit-objective-save-button"
         loading={isLoading}
         title={'Save'}
         type="primary"
@@ -428,15 +440,24 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const keyResultMenu = (
-    <Menu onClick={handleAddKeyResultType}>
+    <Menu
+      data-cy="okr-edit-objective-key-result-menu"
+      onClick={handleAddKeyResultType}
+    >
       {keyResultTypes.map((type) => (
-        <Menu.Item key={type.value}>{type.label}</Menu.Item>
+        <Menu.Item
+          data-cy="okr-edit-objective-key-result-menu-item"
+          key={type.value}
+        >
+          {type.label}
+        </Menu.Item>
       ))}
     </Menu>
   );
 
   return (
     <Modal
+      data-cy="okr-edit-objective-modal"
       open={props?.open}
       onCancel={handleModalClose}
       footer={footer}
@@ -455,6 +476,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     >
       <Form
         id="edit-objective-form"
+        data-cy="okr-edit-objective-form"
         form={form}
         layout="vertical"
         className="w-full"
@@ -467,16 +489,29 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         }}
       >
         {/* OKR Section Title */}
-        <div id="objective-section-header" className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        <div
+          id="objective-section-header"
+          data-cy="okr-edit-objective-section-header"
+          className="mb-6"
+        >
+          <h2
+            id="okr-edit-objective-section-title"
+            data-cy="okr-edit-objective-section-title"
+            className="text-xl font-semibold text-gray-800 mb-4"
+          >
             Objective
           </h2>
         </div>
 
         {isMobile ? (
-          <div id="mobile-objective-form" className="flex flex-col w-full">
+          <div
+            id="mobile-objective-form"
+            data-cy="okr-edit-objective-mobile-form"
+            className="flex flex-col w-full"
+          >
             <Form.Item
               id="mobile-title-input"
+              data-cy="okr-edit-objective-mobile-title-input"
               className="h-11 mb-10"
               name="title"
               label="Objective"
@@ -489,6 +524,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             >
               <Input
                 id="mobile-title-input-field"
+                data-cy="okr-edit-objective-mobile-title-input-field"
                 allowClear
                 disabled={isEditDisabled}
                 className="h-11 w-full"
@@ -498,9 +534,14 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 }}
               />
             </Form.Item>
-            <div className="flex w-full gap-4 mb-10">
+            <div
+              id="okr-edit-objective-mobile-alignment-select-container"
+              data-cy="okr-edit-objective-mobile-alignment-select-container"
+              className="flex w-full gap-4 mb-10"
+            >
               <Form.Item
                 id="mobile-alignment-select"
+                data-cy="okr-edit-objective-mobile-alignment-select"
                 className="h-11 w-1/2 mb-0"
                 name="allignedKeyResultId"
                 label="Alignment"
@@ -513,6 +554,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               >
                 <Select
                   id="mobile-alignment-select-dropdown"
+                  data-cy="okr-edit-objective-mobile-alignment-select-dropdown"
                   className="h-11"
                   showSearch
                   disabled={isEditDisabled}
@@ -526,7 +568,11 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   }
                 >
                   {keyResultByUser?.items?.map((keyResult: any) => (
-                    <Select.Option key={keyResult.id} value={keyResult.id}>
+                    <Select.Option
+                      data-cy="okr-edit-objective-mobile-alignment-option"
+                      key={keyResult.id}
+                      value={keyResult.id}
+                    >
                       {keyResult.title}
                     </Select.Option>
                   ))}
@@ -534,6 +580,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               </Form.Item>
               <Form.Item
                 id="mobile-deadline-picker"
+                data-cy="okr-edit-objective-mobile-deadline-picker"
                 className="h-11 w-1/2 mb-0"
                 name="ObjectiveDeadline"
                 label="Objective Deadline"
@@ -543,6 +590,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               >
                 <DatePicker
                   id="mobile-deadline-picker-field"
+                  data-cy="okr-edit-objective-mobile-deadline-picker-field"
                   className="w-full h-11"
                   format="YYYY-MM-DD"
                   disabled={isEditDisabled}
@@ -559,15 +607,21 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 />
               </Form.Item>
             </div>
-            <div className="w-full flex justify-end mb-10">
+            <div
+              id="okr-edit-objective-mobile-add-keyresult-container"
+              data-cy="okr-edit-objective-mobile-add-keyresult-container"
+              className="w-full flex justify-end mb-10"
+            >
               <Dropdown
                 overlay={keyResultMenu}
                 trigger={['click']}
                 className=""
+                data-cy="okr-edit-objective-mobile-add-keyresult-dropdown"
               >
                 <Button
                   type="default"
                   id="mobile-add-keyresult-button"
+                  data-cy="okr-edit-objective-mobile-add-keyresult-button"
                   disabled={isEditDisabled}
                   className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
                   aria-label="Add Key Result"
@@ -578,9 +632,14 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             </div>
           </div>
         ) : (
-          <div id="desktop-objective-form" className="flex gap-4 w-full">
+          <div
+            id="desktop-objective-form"
+            data-cy="okr-edit-objective-desktop-form"
+            className="flex gap-4 w-full"
+          >
             <Form.Item
               id="desktop-title-input"
+              data-cy="okr-edit-objective-desktop-title-input"
               className="h-11 mb-10 flex-1"
               name="title"
               label="Objective"
@@ -593,6 +652,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             >
               <Input
                 id="desktop-title-input-field"
+                data-cy="okr-edit-objective-desktop-title-input-field"
                 allowClear
                 disabled={isEditDisabled}
                 className="h-11 w-full"
@@ -607,6 +667,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             </Form.Item>
             <Form.Item
               id="desktop-alignment-select"
+              data-cy="okr-edit-objective-desktop-alignment-select"
               className="h-11 mb-10 w-1/4"
               name="allignedKeyResultId"
               label="Alignment"
@@ -619,6 +680,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             >
               <Select
                 id="desktop-alignment-select-dropdown"
+                data-cy="okr-edit-objective-desktop-alignment-dropdown"
                 className="h-11 w-full"
                 showSearch
                 disabled={isEditDisabled}
@@ -635,7 +697,11 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 }
               >
                 {keyResultByUser?.items?.map((keyResult: any) => (
-                  <Select.Option key={keyResult.id} value={keyResult.id}>
+                  <Select.Option
+                    data-cy="okr-edit-objective-desktop-alignment-option"
+                    key={keyResult.id}
+                    value={keyResult.id}
+                  >
                     {keyResult.title}
                   </Select.Option>
                 ))}
@@ -643,6 +709,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             </Form.Item>
             <Form.Item
               id="desktop-deadline-picker"
+              data-cy="okr-edit-objective-desktop-deadline-picker"
               className="h-11 mb-10 w-1/4"
               name="ObjectiveDeadline"
               label="Objective Deadline"
@@ -650,6 +717,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             >
               <DatePicker
                 id="desktop-deadline-picker-field"
+                data-cy="okr-edit-objective-desktop-deadline-picker-field"
                 className="w-full h-11"
                 format="YYYY-MM-DD"
                 disabled={isEditDisabled}
@@ -671,11 +739,24 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         {/* Key Result Section with inline title and buttons */}
         <div
           id="key-result-section-header"
+          data-cy="okr-edit-objective-key-result-section-header"
           className="flex justify-between items-center mb-6 mt-8"
         >
-          <h2 className="text-xl font-semibold text-gray-800">Key Result</h2>
-          <div className="flex gap-2">
+          <h2
+            id="okr-edit-objective-key-result-section-title"
+            data-cy="okr-edit-objective-key-result-section-title"
+            className="text-xl font-semibold text-gray-800"
+          >
+            Key Result
+          </h2>
+          <div
+            id="okr-edit-objective-key-result-actions"
+            data-cy="okr-edit-objective-key-result-actions"
+            className="flex gap-2"
+          >
             <Button
+              id="okr-edit-ai-inline-suggestions-toggle-button"
+              data-cy="okr-edit-ai-inline-suggestions-toggle-button"
               type="primary"
               ghost
               onClick={() => setShowAISuggestions(!showAISuggestions)}
@@ -697,10 +778,15 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               </svg>
               AI Suggestions
             </Button>
-            <Dropdown overlay={keyResultMenu} trigger={['click']}>
+            <Dropdown
+              overlay={keyResultMenu}
+              trigger={['click']}
+              data-cy="okr-edit-objective-add-keyresult-dropdown"
+            >
               <Button
                 type="default"
                 id="desktop-add-keyresult-button"
+                data-cy="okr-edit-objective-desktop-add-keyresult-button"
                 disabled={isEditDisabled}
                 className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm px-4 py-2 rounded-lg"
                 aria-label="Add Key Result"
@@ -729,6 +815,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
 
         {/* AI Inline Suggestions */}
         <OKRInlineSuggestions
+          data-cy="okr-edit-objective-ai-suggestions"
           objectiveTitle={objectiveValue?.title || ''}
           addKeyResult={addKeyResult}
           getCurrentTotalWeight={getCurrentTotalWeight}
@@ -740,15 +827,21 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         {/* Key Results Section */}
         <div
           id="key-results-container"
+          data-cy="okr-edit-objective-key-results-container"
           className="bg-white rounded-lg mt-5 w-full h-96 overflow-y-auto scrollbar-hide"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
           }}
         >
-          <div id="key-results-list" className="space-y-4">
+          <div
+            id="key-results-list"
+            data-cy="okr-edit-objective-key-results-list"
+            className="space-y-4"
+          >
             {objectiveValue?.keyResults?.map((keyValue: any, index: number) => (
               <KeyResultView
+                data-cy="okr-edit-objective-key-result-view"
                 key={index}
                 objective={objective}
                 keyValue={keyValue}
@@ -758,6 +851,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             ))}
             {objective?.keyResults?.map((keyItem: any, index: number) => (
               <KeyResultForm
+                data-cy="okr-edit-objective-key-result-form"
                 key={index}
                 keyItem={keyItem}
                 index={index}
@@ -773,9 +867,14 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             objective?.keyResults?.length > 0) && (
             <div
               id="total-weight-display"
+              data-cy="okr-edit-objective-total-weight"
               className="flex justify-end mt-4 mb-4"
             >
-              <span className="text-sm text-gray-500">
+              <span
+                id="total-weight-text"
+                data-cy="okr-edit-objective-total-weight-text"
+                className="text-sm text-gray-500"
+              >
                 Total Key Results Weight:{' '}
                 <strong>
                   {[

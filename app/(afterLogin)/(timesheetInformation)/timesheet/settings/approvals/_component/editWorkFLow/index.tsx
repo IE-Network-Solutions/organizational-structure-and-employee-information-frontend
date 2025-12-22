@@ -126,6 +126,8 @@ const EditWorkFLow = () => {
         padding: '0px',
         margin: '0px',
       }}
+      id="time-attendance-settings-approvals-edit-workflow-card"
+      data-cy="time-attendance-settings-approvals-edit-workflow-card"
     >
       <EditApproverComponent
         editModal={editModal}
@@ -147,6 +149,7 @@ const EditWorkFLow = () => {
         deletedApprover={deletedApprover}
         setDeleteModal={setDeleteModal}
         setDeletedApprover={setDeletedApprover}
+        data-cy="time-attendance-settings-approvals-edit-workflow-component"
       />
     </Card>
   );
