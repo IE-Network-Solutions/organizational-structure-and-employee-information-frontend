@@ -87,6 +87,15 @@ export const useGetActivePayroll = (
     },
   );
 
+// export const useGetActivePayrollsForExport = (searchParams = '') =>
+//   useQuery(
+//     ['payrollForExport', searchParams],
+//     () => getActivePayrollsForExport(searchParams),
+//     {
+//       enabled: true,
+//     },
+//   );
+
 const getPayrollHistory = async (id = '') => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;

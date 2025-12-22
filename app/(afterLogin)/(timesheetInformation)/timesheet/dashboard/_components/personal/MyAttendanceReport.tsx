@@ -1,9 +1,10 @@
 import { useGetUserAttendanceHistory } from '@/store/server/features/timesheet/dashboard/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
-import { Card, DatePicker, Select, Spin, Tag } from 'antd';
-import React from 'react';
+import { Card, DatePicker, Select, Spin, Tag, Modal } from 'antd';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
+import CustomButton from '@/components/common/buttons/customButton';
 
 const { RangePicker } = DatePicker;
 
@@ -22,6 +23,7 @@ interface AttendanceHistory {
 }
 
 const MyAttendanceReport: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { userId } = useAuthenticationStore();
   const {
     statusOnAttendance,
@@ -48,8 +50,46 @@ const MyAttendanceReport: React.FC = () => {
     { value: 'absent', label: 'Absent' },
   ];
 
+  const MobileFilterContent = () => (
+    <div className="flex flex-col gap-4">
+      <h3 className="text-lg font-medium mb-2">Filter</h3>
+
+      {/* Status Filter */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Status</label>
+        <Select
+          placeholder="Select Status"
+          allowClear
+          value={statusOnAttendance}
+          className="w-full h-12"
+          onChange={(value) => setStatusOnAttendance(value)}
+          options={statusOptions}
+        />
+      </div>
+
+      {/* Date Range */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Date Range</label>
+        <RangePicker
+          allowClear
+          className="w-full h-12"
+          onChange={(value) => {
+            if (value && value[0] && value[1]) {
+              setStartDateOnAttendance(value[0].format('YYYY-MM-DD'));
+              setEndDateOnAttendance(value[1].format('YYYY-MM-DD'));
+            } else {
+              setStartDateOnAttendance('');
+              setEndDateOnAttendance('');
+            }
+          }}
+        />
+      </div>
+    </div>
+  );
+
   return (
-    <Card
+    <div className="px-3 sm:px-0">
+       <Card
       bodyStyle={{ padding: '10px 16px' }}
       className="shadow"
       id="time-attendance-personal-attendance-report-card"
@@ -184,6 +224,42 @@ const MyAttendanceReport: React.FC = () => {
         )}
       </div>
     </Card>
+
+      {/* Mobile Filter Modal */}
+      <Modal
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={
+          <div className="flex gap-2 justify-center mt-4">
+            <CustomButton
+              onClick={() => setIsModalOpen(false)}
+              className="px-6 py-2 border rounded-lg text-sm text-gray-900"
+              title="Cancel"
+              type="default"
+            />
+            <CustomButton
+              title="Apply Filter"
+              type="primary"
+              onClick={() => {
+                setIsModalOpen(false);
+              }}
+              className="px-6 py-2 text-white rounded-lg text-sm"
+            />
+          </div>
+        }
+        className="!m-4 sm:hidden"
+        style={{
+          top: '20%',
+          transform: 'translateY(-50%)',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
+        width="90%"
+        centered
+      >
+        <MobileFilterContent />
+      </Modal>
+    </div>
   );
 };
 
