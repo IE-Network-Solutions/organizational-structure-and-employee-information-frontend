@@ -211,7 +211,6 @@ const OrgChartComponent: React.FC = () => {
         ) : (
           <div
             className="p-4 sm:p-2 md:p-6 lg:p-8"
-            ref={chartRef}
             data-cy="org-chart-tree-container"
             id="org-chart-tree-container"
           >
@@ -276,30 +275,39 @@ const OrgChartComponent: React.FC = () => {
                           height: '50vh',
                         }}
                       >
-                        <Tree
-                          label={
-                            <DepartmentNode
-                              data={{
-                                id: 'root',
-                                name: `${orgStructureData?.name}` || '',
-                                department: orgStructureData?.department || [],
-                                branchId: orgStructureData?.branchId,
-                                description: '',
-                                collapsed: false,
-                                employeeJobInformation:
-                                  orgStructureData?.employeeJobInformation ??
-                                  [],
-                              }}
-                              data-cy="org-chart-department-node-tree-node-label"
-                            />
-                          }
-                          lineWidth={'2px'}
-                          lineColor={'#CBD5E0'}
-                          lineBorderRadius={'10px'}
-                          data-cy="org-chart-tree"
+                        <div
+                          id="org-chart-chart"
+                          data-cy="org-chart-chart"
+                          ref={chartRef}
                         >
-                          {renderTreeNodes(orgStructureData?.department || [])}
-                        </Tree>
+                          <Tree
+                            label={
+                              <DepartmentNode
+                                data={{
+                                  id: 'root',
+                                  name: `${orgStructureData?.name}` || '',
+                                  department:
+                                    orgStructureData?.department || [],
+                                  branchId: orgStructureData?.branchId,
+                                  description: '',
+                                  collapsed: false,
+                                  employeeJobInformation:
+                                    orgStructureData?.employeeJobInformation ??
+                                    [],
+                                }}
+                                data-cy="org-chart-department-node-tree-node-label"
+                              />
+                            }
+                            lineWidth={'2px'}
+                            lineColor={'#CBD5E0'}
+                            lineBorderRadius={'10px'}
+                            data-cy="org-chart-tree"
+                          >
+                            {renderTreeNodes(
+                              orgStructureData?.department || [],
+                            )}
+                          </Tree>
+                        </div>
                       </TransformComponent>
                     </div>
                     <div
