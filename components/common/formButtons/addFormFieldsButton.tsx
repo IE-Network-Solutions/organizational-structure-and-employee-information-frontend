@@ -21,6 +21,7 @@ const AddFormFieldsButton: FC<AddFormFieldsButtonProps> = ({
         undefined,
         [className],
       )}
+      data-cy="add-form-fields-button"
     >
       <Button
         icon={<LuPlus size={18} />}

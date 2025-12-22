@@ -230,8 +230,13 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
             id={`time-attendance-leave-management-row-attachment-link-${formatLinkToUploadFile(link).name}`}
             data-cy={`time-attendance-leave-management-row-attachment-link-${formatLinkToUploadFile(link).name}`}
           >
-            <div data-cy="time-attendance-leave-management-row-attachment-link-name">{formatLinkToUploadFile(link).name}</div>
-            <TbFileDownload data-cy="time-attendance-leave-management-row-attachment-link-icon" size={14} />
+            <div data-cy="time-attendance-leave-management-row-attachment-link-name">
+              {formatLinkToUploadFile(link).name}
+            </div>
+            <TbFileDownload
+              data-cy="time-attendance-leave-management-row-attachment-link-icon"
+              size={14}
+            />
           </a>
         ) : (
           '-'
@@ -246,7 +251,10 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           id={`time-attendance-leave-management-row-status-${text}`}
           data-cy={`time-attendance-leave-management-row-status-${text}`}
         >
-          <StatusBadge data-cy="time-attendance-leave-management-row-status-badge" theme={LeaveRequestStatusBadgeTheme[text]}>
+          <StatusBadge
+            data-cy="time-attendance-leave-management-row-status-badge"
+            theme={LeaveRequestStatusBadgeTheme[text]}
+          >
             {text}
           </StatusBadge>
         </div>
@@ -257,15 +265,15 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       dataIndex: 'action',
       key: 'action',
       render: (item: LeaveRequest) => (
-          <ActionButtons
-            data-cy="time-attendance-leave-management-row-action-buttons"
-            id={item?.id ?? null}
-            onDetail={() => {
-              setIsShowLeaveRequestManagementSidebar(true);
-              setLeaveRequestId(item.id);
-              setLeaveRequestWorkflowId(item.approvalWorkflowId);
-            }}
-          />
+        <ActionButtons
+          data-cy="time-attendance-leave-management-row-action-buttons"
+          id={item?.id ?? null}
+          onDetail={() => {
+            setIsShowLeaveRequestManagementSidebar(true);
+            setLeaveRequestId(item.id);
+            setLeaveRequestWorkflowId(item.approvalWorkflowId);
+          }}
+        />
       ),
     },
   ];
@@ -350,7 +358,10 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       id="time-attendance-leave-management-table-wrapper"
       data-cy="time-attendance-leave-management-table-wrapper"
     >
-        <LeaveManagementTableFilter data-cy="time-attendance-leave-management-table-filter" onChange={onFilterChange} />
+      <LeaveManagementTableFilter
+        data-cy="time-attendance-leave-management-table-filter"
+        onChange={onFilterChange}
+      />
       <div
         id="time-attendance-leave-management-table-container"
         data-cy="time-attendance-leave-management-table-container"
@@ -379,25 +390,25 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           />
         </div>
         {isMobile || isTablet ? (
-            <CustomMobilePagination
-              data-cy="time-attendance-leave-management-table-mobile-pagination"
-              totalResults={data?.meta?.totalItems ?? 0}
-              pageSize={pageSize}
-              onChange={onPageChange}
-              onShowSizeChange={onPageChange}
-            />
+          <CustomMobilePagination
+            data-cy="time-attendance-leave-management-table-mobile-pagination"
+            totalResults={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
         ) : (
-            <CustomPagination
-              data-cy="time-attendance-leave-management-table-pagination"
-              current={currentPage}
-              total={data?.meta?.totalItems ?? 0}
-              pageSize={pageSize}
-              onChange={onPageChange}
-              onShowSizeChange={(pageSize) => {
-                setPageSize(pageSize);
-                setCurrentPage(1);
-              }}
-            />
+          <CustomPagination
+            data-cy="time-attendance-leave-management-table-pagination"
+            current={currentPage}
+            total={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setCurrentPage(1);
+            }}
+          />
         )}
       </div>
     </div>

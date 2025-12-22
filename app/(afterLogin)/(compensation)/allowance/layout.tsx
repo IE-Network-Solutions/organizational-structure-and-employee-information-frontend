@@ -24,10 +24,19 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: allowance.id,
             label: (
-              <div title={allowance.name} className=" font-bold">
-                {allowance.name?.length > 15
-                  ? allowance.name?.slice(0, 15) + '...'
-                  : allowance.name || 'Unnamed Allowance'}
+              <div
+                title={allowance.name}
+                className=" font-bold"
+                data-cy={`allowance-menu-item-${allowance.id}`}
+              >
+                <span
+                  data-cy={`allowance-menu-item-label-${allowance.id}`}
+                  className="font-bold"
+                >
+                  {allowance.name?.length > 15
+                    ? allowance.name?.slice(0, 15) + '...'
+                    : allowance.name || 'Unnamed Allowance'}
+                </span>
               </div>
             ),
           },
@@ -37,7 +46,13 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'allAllowance',
-          label: <div className=" font-bold">All Allowances</div>,
+          label: (
+            <div className=" font-bold" data-cy="allowance-menu-item-all">
+              <span data-cy="allowance-menu-item-all-label">
+                All Allowances
+              </span>
+            </div>
+          ),
         },
         link: '/allowance/allAllowance',
       };
@@ -72,7 +87,10 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           id="compensation-allowance-layout-content"
           data-cy="compensation-allowance-layout-content"
         >
-          <SidebarMenu data-cy="compensation-allowance-layout-sidebar-menu" menuItems={sidebarMenuItems} />
+          <SidebarMenu
+            data-cy="compensation-allowance-layout-sidebar-menu"
+            menuItems={sidebarMenuItems}
+          />
 
           <BlockWrapper
             className="flex-1 h-max overflow-x-auto"

@@ -90,7 +90,10 @@ const TimezoneSelect = () => {
               data-cy="time-attendance-settings-time-zone-timezone-select"
             />
           </Form.Item>
-          <Form.Item id="time-attendance-settings-time-zone-submit-field" data-cy="time-attendance-settings-time-zone-submit-field">
+          <Form.Item
+            id="time-attendance-settings-time-zone-submit-field"
+            data-cy="time-attendance-settings-time-zone-submit-field"
+          >
             <AccessGuard
               permissions={[Permissions.UpdateTimeZone]}
               data-cy="time-attendance-settings-time-zone-submit-button-access-guard"

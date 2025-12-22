@@ -20,11 +20,18 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/recruitment/settings/status') ? 'lg:ml-4' : ''}`}
+            data-cy="talent-acquisition-settings-layout-sidebar-menu-item-status"
           >
             <TbNotes
               className={`hidden lg:block ${pathname.includes('/recruitment/settings/status') ? 'text-[#1677FF]' : ''}`}
+              data-cy="talent-acquisition-settings-layout-sidebar-menu-item-status-icon"
             />
-            <p className="menu-item-label">Define Status</p>
+            <p
+              className="menu-item-label"
+              data-cy="talent-acquisition-settings-layout-sidebar-menu-item-status-label"
+            >
+              Define Status
+            </p>
           </div>
         ),
       },

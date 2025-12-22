@@ -58,17 +58,21 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
     setOpenEdit(true);
   };
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6" data-cy="reprimand-detail-page">
       {/* Back button and actions */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0">
+      <div
+        className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0"
+        data-cy="reprimand-detail-header"
+      >
         <Button
           href="/monitoring-evaluation/reprimand-appreciation"
           className="mb-4 text-lg font-semibold"
           type="text"
+          data-cy="reprimand-detail-back-button"
         >
           ← Detail
         </Button>
-        <div className="flex space-x-2">
+        <div className="flex space-x-2" data-cy="reprimand-detail-actions">
           <Button
             className="bg-blue text-white border-none"
             icon={<EditOutlined />}

@@ -67,7 +67,10 @@ const VariablePayTable = () => {
           id={`compensation-benefit-variable-pay-employee-${text}`}
           data-cy={`compensation-benefit-variable-pay-employee-${text}`}
         >
-          <EmployeeDetails data-cy={`compensation-benefit-variable-pay-employee-details-${text}`} empId={text} />
+          <EmployeeDetails
+            data-cy={`compensation-benefit-variable-pay-employee-details-${text}`}
+            empId={text}
+          />
         </div>
       ),
     },
@@ -151,8 +154,12 @@ const VariablePayTable = () => {
       id="compensation-benefit-variable-pay-table-container"
       data-cy="compensation-benefit-variable-pay-table-container"
     >
-      <VariablePayFilter tableData={tableData} />
-      <div id="compensation-benefit-variable-pay-table-wrapper" data-cy="compensation-benefit-variable-pay-table-wrapper" data-testid="variable-pay-table-wrapper">
+      <VariablePayFilter data-cy="compensation-benefit-variable-pay-filter" />
+      <div
+        id="compensation-benefit-variable-pay-table-wrapper"
+        data-cy="compensation-benefit-variable-pay-table-wrapper"
+        data-testid="variable-pay-table-wrapper"
+      >
         <Spin
           spinning={isLoading || isFetching || refreshLoading}
           data-testid="variable-pay-table-loading"
@@ -175,38 +182,41 @@ const VariablePayTable = () => {
           </div>
 
           {isMobile || isTablet ? (
-              <CustomMobilePagination
-                data-cy="compensation-benefit-variable-pay-mobile-pagination"
-                totalResults={filteredDataSource.length}
-                pageSize={pageSize}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-                onShowSizeChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-              />
+            <CustomMobilePagination
+              data-cy="compensation-benefit-variable-pay-mobile-pagination"
+              totalResults={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+            />
           ) : (
-              <CustomPagination
-                data-cy="compensation-benefit-variable-pay-pagination"
-                current={currentPage}
-                total={filteredDataSource.length}
-                pageSize={pageSize}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-                onShowSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-                data-testid="variable-pay-pagination"
-              />
+            <CustomPagination
+              data-cy="compensation-benefit-variable-pay-pagination"
+              current={currentPage}
+              total={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              data-testid="variable-pay-pagination"
+            />
           )}
 
-            <VariablePayModal data-cy="compensation-benefit-variable-pay-modal" data={filteredDataSource} />
+          <VariablePayModal
+            data-cy="compensation-benefit-variable-pay-modal"
+            data={filteredDataSource}
+          />
         </Spin>
       </div>
     </div>

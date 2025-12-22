@@ -24,10 +24,16 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: deduction.id,
             label: (
-              <div title={deduction?.name} className=" font-bold">
-                {deduction?.name?.length > 15
-                  ? deduction.name?.slice(0, 15) + '...'
-                  : deduction.name || 'Unnamed Allowance'}
+              <div
+                title={deduction?.name}
+                className=" font-bold"
+                data-cy={`deduction-menu-item-${deduction.id}`}
+              >
+                <span data-cy={`deduction-menu-item-label-${deduction.id}`}>
+                  {deduction?.name?.length > 15
+                    ? deduction.name?.slice(0, 15) + '...'
+                    : deduction.name || 'Unnamed Allowance'}
+                </span>
               </div>
             ),
           },
@@ -37,7 +43,13 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'allDeduction',
-          label: <div className=" font-bold">All Deductions</div>,
+          label: (
+            <div className=" font-bold" data-cy="deduction-menu-item-all">
+              <span data-cy="deduction-menu-item-all-label">
+                All Deductions
+              </span>
+            </div>
+          ),
         },
         link: '/deduction/allDeduction',
       };
@@ -59,30 +71,30 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         id="compensation-deduction-layout-body"
         data-cy="compensation-deduction-layout-body"
       >
-          <PageHeader
-            title="Deduction"
-            description="Deduction"
-            className="hidden sm:block"
-            horizontalPadding="0px"
-            data-cy="compensation-deduction-layout-header-title"
-          />
+        <PageHeader
+          title="Deduction"
+          description="Deduction"
+          className="hidden sm:block"
+          horizontalPadding="0px"
+          data-cy="compensation-deduction-layout-header-title"
+        />
 
         <div
           className="flex flex-col lg:flex-row gap-3 sm:gap-6"
           id="compensation-deduction-layout-content"
           data-cy="compensation-deduction-layout-content"
         >
-            <SidebarMenu
-              menuItems={sidebarMenuItems}
-              data-cy="compensation-deduction-layout-sidebar-menu"
-            />
+          <SidebarMenu
+            menuItems={sidebarMenuItems}
+            data-cy="compensation-deduction-layout-sidebar-menu"
+          />
 
-            <BlockWrapper
-              className="flex-1 h-max overflow-x-auto sm:mr-4"
-              data-cy="compensation-deduction-layout-block-wrapper-content"
-            >
-              {children}
-            </BlockWrapper>
+          <BlockWrapper
+            className="flex-1 h-max overflow-x-auto sm:mr-4"
+            data-cy="compensation-deduction-layout-block-wrapper-content"
+          >
+            {children}
+          </BlockWrapper>
         </div>
       </div>
     </div>

@@ -50,23 +50,43 @@ const Weekly = ({
     });
   };
   return (
-    <div className="h-[350px] overflow-y-auto scrollbar-track-primary scrollbar-none">
+    <div
+      className="h-[350px] overflow-y-auto scrollbar-track-primary scrollbar-none"
+      data-cy="dashboard-plan-weekly-container"
+    >
       {planTaskArray?.length > 0 ? (
         planTaskArray?.map((item: any) => (
-          <div key={item?.keyResultId} className="flex flex-col pb-3">
-            <div className="text-base font-bold flex gap-3 pb-3 items-center ">
-              <BsKey className="text-primary" />
-              {item?.task?.[0]?.keyResult?.title}
+          <div
+            key={item?.keyResultId}
+            className="flex flex-col pb-3"
+            data-cy="dashboard-plan-weekly-key-result-group"
+          >
+            <div
+              className="text-base font-bold flex gap-3 pb-3 items-center "
+              data-cy="dashboard-plan-weekly-key-result-header"
+            >
+              <BsKey
+                className="text-primary"
+                data-cy="dashboard-plan-weekly-key-result-icon"
+              />
+              <span data-cy="dashboard-plan-weekly-key-result-title">
+                {item?.task?.[0]?.keyResult?.title}
+              </span>
             </div>
-            <div className="">
+            <div className="" data-cy="dashboard-plan-weekly-tasks-container">
               {item?.task?.map((task: any) => (
-                <div className="pb-2" key={task?.id}>
+                <div
+                  className="pb-2"
+                  key={task?.id}
+                  data-cy={`dashboard-plan-weekly-task-item-${task?.id}`}
+                >
                   <Checkbox
                     checked={task?.status == 'pre-achieved'}
                     onChange={() =>
                       onChange(task?.id, task?.status, activePlanPeriod?.id)
                     }
                     disabled={task?.status == 'completed'}
+                    data-cy={`dashboard-plan-weekly-task-checkbox-${task?.id}`}
                   >
                     <div
                       className={`text-base font-medium text-slate-500 ${
@@ -74,8 +94,13 @@ const Weekly = ({
                           ? 'line-through text-slate-400'
                           : ''
                       }`}
+                      data-cy={`dashboard-plan-weekly-task-text-${task?.id}`}
                     >
-                      {task?.task}
+                      <span
+                        data-cy={`dashboard-plan-weekly-task-text-content-${task?.id}`}
+                      >
+                        {task?.task}
+                      </span>
                     </div>
                   </Checkbox>
                 </div>
@@ -84,8 +109,13 @@ const Weekly = ({
           </div>
         ))
       ) : (
-        <div className="text-lg font-light flex h-full justify-center items-center ">
-          Add your plans to view them here
+        <div
+          className="text-lg font-light flex h-full justify-center items-center "
+          data-cy="dashboard-plan-weekly-empty"
+        >
+          <span data-cy="dashboard-plan-weekly-empty-text">
+            Add your plans to view them here
+          </span>
         </div>
       )}
     </div>

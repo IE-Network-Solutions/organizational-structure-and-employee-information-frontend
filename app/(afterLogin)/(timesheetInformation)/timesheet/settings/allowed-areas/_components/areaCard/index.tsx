@@ -23,7 +23,10 @@ const AreaCard: FC<AreaCardProps> = ({ item }) => {
       id={`time-attendance-settings-allowed-areas-card-${item.id}-container`}
       data-cy={`time-attendance-settings-allowed-areas-card-${item.id}-container`}
     >
-      <Spin spinning={isLoading} data-cy={`time-attendance-settings-allowed-areas-card-${item.id}-spin`}>
+      <Spin
+        spinning={isLoading}
+        data-cy={`time-attendance-settings-allowed-areas-card-${item.id}-spin`}
+      >
         <div
           className="flex items-center gap-3 px-4 py-2.5"
           id={`time-attendance-settings-allowed-areas-card-${item.id}-content`}

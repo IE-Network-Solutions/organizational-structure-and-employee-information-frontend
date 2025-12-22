@@ -60,17 +60,21 @@ function DetailPage({ params: { id } }: AppreciationDetailProps) {
     setOpenEdit(true);
   };
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6" data-cy="appreciation-detail-page">
       {/* Back button */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0">
+      <div
+        className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0"
+        data-cy="appreciation-detail-header"
+      >
         <Button
           href="/monitoring-evaluation/reprimand-appreciation"
           className="mb-4 text-lg font-semibold"
           type="text"
+          data-cy="appreciation-detail-back-button"
         >
           ← Detail
         </Button>
-        <div className="flex space-x-2">
+        <div className="flex space-x-2" data-cy="appreciation-detail-actions">
           <AccessGuard permissions={[Permissions.EditAppreciationAndReprimand]}>
             <Button
               className="bg-blue text-white border-none"

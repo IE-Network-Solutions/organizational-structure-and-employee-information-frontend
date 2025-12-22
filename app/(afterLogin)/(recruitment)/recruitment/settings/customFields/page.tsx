@@ -20,19 +20,34 @@ const CustomAddJobFields: React.FC = () => {
     setIsCustomFieldsDrawerOpen(true);
   };
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
-      <div className="flex items-center justify-between">
-        <Title level={5}>Custom Fields</Title>
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      data-cy="talent-acquisition-custom-fields-page-container"
+    >
+      <div
+        className="flex items-center justify-between"
+        data-cy="talent-acquisition-custom-fields-page-header"
+      >
+        <Title level={5} data-cy="talent-acquisition-custom-fields-page-title">
+          Custom Fields
+        </Title>
         <AccessGuard permissions={[Permissions.CreateCustomFields]}>
           <Button
             type="primary"
             id="createUserButton"
             data-cy="talent-acquisition-custom-fields-button-new"
             className="h-10 w-10 sm:w-auto"
-            icon={<FaPlus />}
+            icon={
+              <FaPlus data-cy="talent-acquisition-custom-fields-button-new-icon" />
+            }
             onClick={showDrawer}
           >
-            <span className="hidden lg:inline">New Field</span>
+            <span
+              className="hidden lg:inline"
+              data-cy="talent-acquisition-custom-fields-button-new-text"
+            >
+              New Field
+            </span>
           </Button>
         </AccessGuard>
       </div>

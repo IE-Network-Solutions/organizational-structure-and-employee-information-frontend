@@ -80,14 +80,26 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
     }
   }, [courseData]);
   return (
-    <div className="page-wrap bg-[#f5f5f5] pt-4" id="tnaManagementLayoutId" data-cy="tna-management-layout">
+    <div
+      className="page-wrap bg-[#f5f5f5] pt-4"
+      id="tnaManagementLayoutId"
+      data-cy="tna-management-layout"
+    >
       {isLoading ? (
-        <div className="flex justify-center p-5" id="tnaManagementLayoutLoadingId" data-cy="tna-management-layout-loading">
+        <div
+          className="flex justify-center p-5"
+          id="tnaManagementLayoutLoadingId"
+          data-cy="tna-management-layout-loading"
+        >
           <Spin data-cy="tna-management-layout-spinner" />
         </div>
       ) : course ? (
         <>
-          <Breadcrumb items={breadcrumbItems} className="mb-2" data-cy="tna-management-layout-breadcrumb" />
+          <Breadcrumb
+            items={breadcrumbItems}
+            className="mb-2"
+            data-cy="tna-management-layout-breadcrumb"
+          />
           <PageHeader
             title={
               lessonMaterial ? lessonMaterial.title : 'Training & Learning'

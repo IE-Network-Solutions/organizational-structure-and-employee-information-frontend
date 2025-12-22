@@ -239,7 +239,11 @@ const ApprovalTable = () => {
         </div>
         <Avatar
           size={24}
-          icon={<UserOutlined data-cy={`time-attendance-approval-table-employee-${userId}-avatar-icon`} />}
+          icon={
+            <UserOutlined
+              data-cy={`time-attendance-approval-table-employee-${userId}-avatar-icon`}
+            />
+          }
           data-cy={`time-attendance-approval-table-employee-${userId}-avatar`}
         />
         <div
@@ -300,7 +304,10 @@ const ApprovalTable = () => {
       title: 'Status',
       dataIndex: 'status',
       render: (text: LeaveRequestStatus) => (
-        <StatusBadge data-cy={`time-attendance-approval-table-status-badge-${text}`} theme={LeaveRequestStatusBadgeTheme[text]}>
+        <StatusBadge
+          data-cy={`time-attendance-approval-table-status-badge-${text}`}
+          theme={LeaveRequestStatusBadgeTheme[text]}
+        >
           {text}
         </StatusBadge>
       ),
@@ -375,7 +382,13 @@ const ApprovalTable = () => {
               <Button
                 type="text"
                 size="small"
-                icon={<AiOutlineReload data-cy="time-attendance-approval-table-refresh-button-icon" size={14} className="text-gray-600" />}
+                icon={
+                  <AiOutlineReload
+                    data-cy="time-attendance-approval-table-refresh-button-icon"
+                    size={14}
+                    className="text-gray-600"
+                  />
+                }
                 onClick={() => refetch()}
                 id="time-attendance-approval-table-refresh-button"
                 data-cy="time-attendance-approval-table-refresh-button"
@@ -414,7 +427,10 @@ const ApprovalTable = () => {
                   id="time-attendance-approval-table-approve-all-button"
                   data-cy="time-attendance-approval-table-approve-all-button"
                 >
-                  <Spin data-cy="time-attendance-approval-table-approve-all-spin" spinning={allApproveIsLoading} />
+                  <Spin
+                    data-cy="time-attendance-approval-table-approve-all-spin"
+                    spinning={allApproveIsLoading}
+                  />
                   Approve All
                 </Button>
               </Popconfirm>
@@ -440,7 +456,10 @@ const ApprovalTable = () => {
                   id="time-attendance-approval-table-reject-all-button"
                   data-cy="time-attendance-approval-table-reject-all-button"
                 >
-                  <Spin spinning={allRejectIsLoading} data-cy="time-attendance-approval-table-reject-all-spin" />
+                  <Spin
+                    spinning={allRejectIsLoading}
+                    data-cy="time-attendance-approval-table-reject-all-spin"
+                  />
                   Reject All
                 </Button>
               </Popconfirm>

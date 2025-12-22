@@ -40,12 +40,14 @@ const NumericForm: React.FC<OKRFormProps> = ({
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          data-cy={`okr-numeric-form-remove-icon-${index}`}
         >
           <path
             d="M6 6L14 14M6 14L14 6"
             stroke="white"
             strokeWidth="2"
             strokeLinecap="round"
+            data-cy={`okr-numeric-form-remove-path-${index}`}
           />
         </svg>
       </button>
@@ -296,11 +298,19 @@ const NumericForm: React.FC<OKRFormProps> = ({
                   )?.id || ''
                 }
               >
-                <Option data-cy={`okr-numeric-mobile-type-option-${index}`} value="" disabled>
+                <Option
+                  data-cy={`okr-numeric-mobile-type-option-${index}`}
+                  value=""
+                  disabled
+                >
                   Please select a metric type
                 </Option>
                 {metrics?.items?.map((metric) => (
-                  <Option data-cy={`okr-numeric-mobile-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                  <Option
+                    data-cy={`okr-numeric-mobile-type-option-${index}-${metric?.id}`}
+                    key={metric?.id}
+                    value={metric?.id}
+                  >
                     {metric?.name}
                   </Option>
                 ))}

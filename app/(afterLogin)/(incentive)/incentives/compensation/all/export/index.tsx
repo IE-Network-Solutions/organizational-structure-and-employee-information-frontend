@@ -83,8 +83,23 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
         }}
       >
         {/* Generate All (Boolean) */}
-        <Form.Item id="export-modal-form-generate-all" data-cy="export-modal-form-generate-all" name="generateAll" valuePropName="checked">
-          <Checkbox id="export-modal-form-generate-all-checkbox" data-cy="export-modal-form-generate-all-checkbox"><span id="export-modal-form-generate-all-text" data-cy="export-modal-form-generate-all-text">Generate All</span></Checkbox>
+        <Form.Item
+          id="export-modal-form-generate-all"
+          data-cy="export-modal-form-generate-all"
+          name="generateAll"
+          valuePropName="checked"
+        >
+          <Checkbox
+            id="export-modal-form-generate-all-checkbox"
+            data-cy="export-modal-form-generate-all-checkbox"
+          >
+            <span
+              id="export-modal-form-generate-all-text"
+              data-cy="export-modal-form-generate-all-text"
+            >
+              Generate All
+            </span>
+          </Checkbox>
         </Form.Item>
 
         <Form.Item
@@ -103,7 +118,12 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
             onChange={handleFiscalYearChange}
           >
             {fiscalYear?.items?.map((year: any) => (
-              <Select.Option id={`export-modal-form-fiscal-year-option-${year.id}`} data-cy={`export-modal-form-fiscal-year-option-${year.id}`} key={year.id} value={year.id}>
+              <Select.Option
+                id={`export-modal-form-fiscal-year-option-${year.id}`}
+                data-cy={`export-modal-form-fiscal-year-option-${year.id}`}
+                key={year.id}
+                value={year.id}
+              >
                 {year?.name}
               </Select.Option>
             ))}
@@ -129,7 +149,12 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
             disabled={!selectedFiscalYear || filteredSessions?.length === 0}
           >
             {filteredSessions.map((session: any) => (
-              <Select.Option id={`export-modal-form-sessions-option-${session?.id}`} data-cy={`export-modal-form-sessions-option-${session?.id}`} key={session?.id} value={session?.id}>
+              <Select.Option
+                id={`export-modal-form-sessions-option-${session?.id}`}
+                data-cy={`export-modal-form-sessions-option-${session?.id}`}
+                key={session?.id}
+                value={session?.id}
+              >
                 {session?.name}
               </Select.Option>
             ))}
@@ -137,12 +162,30 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
         </Form.Item>
 
         {/* Submit Button */}
-        <Form.Item id="export-modal-form-actions" data-cy="export-modal-form-actions">
-          <div id="export-modal-form-actions-wrapper" data-cy="export-modal-form-actions-wrapper" className="flex justify-end mt-6">
-            <Button id="export-modal-cancel-button" data-cy="export-modal-cancel-button" onClick={handleModalClose} className="mr-2">
+        <Form.Item
+          id="export-modal-form-actions"
+          data-cy="export-modal-form-actions"
+        >
+          <div
+            id="export-modal-form-actions-wrapper"
+            data-cy="export-modal-form-actions-wrapper"
+            className="flex justify-end mt-6"
+          >
+            <Button
+              id="export-modal-cancel-button"
+              data-cy="export-modal-cancel-button"
+              onClick={handleModalClose}
+              className="mr-2"
+            >
               Cancel
             </Button>
-            <Button id="export-modal-submit-button" data-cy="export-modal-submit-button" type="primary" htmlType="submit" loading={submitPending}>
+            <Button
+              id="export-modal-submit-button"
+              data-cy="export-modal-submit-button"
+              type="primary"
+              htmlType="submit"
+              loading={submitPending}
+            >
               Export
             </Button>
           </div>

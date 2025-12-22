@@ -4,11 +4,19 @@ import CriteriaCard from '../../(okrplanning)/okr/dashboard/_components/vpDashbo
 
 const VPDashBoard = () => {
   return (
-    <>
-      <div className="flex items-center justify-start px-6 ">
-        <div className="my-5 pr-2">
-          <div className="text-2xl font-bold">VP</div>
-          <div className="text-sm text-gray-500 font-medium">
+    <div data-cy="vp-dashboard-container">
+      <div
+        className="flex items-center justify-start px-6 "
+        data-cy="vp-dashboard-header-container"
+      >
+        <div className="my-5 pr-2" data-cy="vp-dashboard-header-content">
+          <div className="text-2xl font-bold" data-cy="vp-dashboard-title">
+            VP
+          </div>
+          <div
+            className="text-sm text-gray-500 font-medium"
+            data-cy="vp-dashboard-subtitle"
+          >
             Manage your variable pay
           </div>
         </div>
@@ -16,7 +24,7 @@ const VPDashBoard = () => {
 
       <VPChart />
       <CriteriaCard />
-    </>
+    </div>
   );
 };
 export default VPDashBoard;

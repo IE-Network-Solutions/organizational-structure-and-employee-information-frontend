@@ -10,13 +10,41 @@ const IncentiveDetail: React.FC<IncentiveUserInfoProps> = ({ detailId }) => {
     useFetchIncentiveUserDetails(detailId);
 
   return (
-    <div id="incentive-detail-container" data-cy="incentive-detail-container" className="my-3">
-      <Row id="incentive-detail-row" data-cy="incentive-detail-row" gutter={[10, 30]}>
-        <Col id="incentive-detail-formula-label-col" data-cy="incentive-detail-formula-label-col" xs={12} sm={12} md={8} lg={8} xl={8}>
+    <div
+      id="incentive-detail-container"
+      data-cy="incentive-detail-container"
+      className="my-3"
+    >
+      <Row
+        id="incentive-detail-row"
+        data-cy="incentive-detail-row"
+        gutter={[10, 30]}
+      >
+        <Col
+          id="incentive-detail-formula-label-col"
+          data-cy="incentive-detail-formula-label-col"
+          xs={12}
+          sm={12}
+          md={8}
+          lg={8}
+          xl={8}
+        >
           Formula
         </Col>
-        <Col id="incentive-detail-formula-value-col" data-cy="incentive-detail-formula-value-col" xs={12} sm={12} md={12} lg={12} xl={12}>
-          <span id="incentive-detail-formula-value" data-cy="incentive-detail-formula-value" className="text-gray-900 font-semibold">
+        <Col
+          id="incentive-detail-formula-value-col"
+          data-cy="incentive-detail-formula-value-col"
+          xs={12}
+          sm={12}
+          md={12}
+          lg={12}
+          xl={12}
+        >
+          <span
+            id="incentive-detail-formula-value"
+            data-cy="incentive-detail-formula-value"
+            className="text-gray-900 font-semibold"
+          >
             {userDetail?.Formula?.expression
               ? userDetail?.Formula?.expression
               : '-'}
@@ -28,7 +56,10 @@ const IncentiveDetail: React.FC<IncentiveUserInfoProps> = ({ detailId }) => {
         {userDetail?.breakdown &&
           Array.isArray(userDetail?.breakdown) &&
           userDetail?.breakdown?.map((item: any, index: number) => (
-            <React.Fragment key={index} data-cy={`incentive-detail-breakdown-fragment-${index}`}>
+            <React.Fragment
+              key={index}
+              data-cy={`incentive-detail-breakdown-fragment-${index}`}
+            >
               <Col
                 id={`incentive-detail-breakdown-label-col-${index}`}
                 data-cy={`incentive-detail-breakdown-label-col-${index}`}
@@ -41,27 +72,79 @@ const IncentiveDetail: React.FC<IncentiveUserInfoProps> = ({ detailId }) => {
               >
                 {item?.criterionKey}
               </Col>
-              <Col id={`incentive-detail-breakdown-value-col-${index}`} data-cy={`incentive-detail-breakdown-value-col-${index}`} xs={12} sm={12} md={12} lg={12} xl={12}>
-                <span id={`incentive-detail-breakdown-value-${index}`} data-cy={`incentive-detail-breakdown-value-${index}`} className="text-gray-900 font-semibold">
+              <Col
+                id={`incentive-detail-breakdown-value-col-${index}`}
+                data-cy={`incentive-detail-breakdown-value-col-${index}`}
+                xs={12}
+                sm={12}
+                md={12}
+                lg={12}
+                xl={12}
+              >
+                <span
+                  id={`incentive-detail-breakdown-value-${index}`}
+                  data-cy={`incentive-detail-breakdown-value-${index}`}
+                  className="text-gray-900 font-semibold"
+                >
                   {item?.score ?? 'N/A'}
                 </span>
               </Col>
             </React.Fragment>
           ))}
 
-        <Col id="incentive-detail-bonus-label-col" data-cy="incentive-detail-bonus-label-col" xs={12} sm={12} md={8} lg={8} xl={8}>
+        <Col
+          id="incentive-detail-bonus-label-col"
+          data-cy="incentive-detail-bonus-label-col"
+          xs={12}
+          sm={12}
+          md={8}
+          lg={8}
+          xl={8}
+        >
           Bonus
         </Col>
-        <Col id="incentive-detail-bonus-value-col" data-cy="incentive-detail-bonus-value-col" xs={12} sm={12} md={12} lg={12} xl={12}>
-          <span id="incentive-detail-bonus-value" data-cy="incentive-detail-bonus-value" className="text-gray-900 font-semibold">
+        <Col
+          id="incentive-detail-bonus-value-col"
+          data-cy="incentive-detail-bonus-value-col"
+          xs={12}
+          sm={12}
+          md={12}
+          lg={12}
+          xl={12}
+        >
+          <span
+            id="incentive-detail-bonus-value"
+            data-cy="incentive-detail-bonus-value"
+            className="text-gray-900 font-semibold"
+          >
             {userDetail?.Bonus}
           </span>
         </Col>
-        <Col id="incentive-detail-status-label-col" data-cy="incentive-detail-status-label-col" xs={12} sm={12} md={8} lg={8} xl={8}>
+        <Col
+          id="incentive-detail-status-label-col"
+          data-cy="incentive-detail-status-label-col"
+          xs={12}
+          sm={12}
+          md={8}
+          lg={8}
+          xl={8}
+        >
           Status
         </Col>
-        <Col id="incentive-detail-status-value-col" data-cy="incentive-detail-status-value-col" xs={12} sm={12} md={12} lg={12} xl={12}>
-          <span id="incentive-detail-status-value-wrapper" data-cy="incentive-detail-status-value-wrapper" className="text-gray-900 font-semibold">
+        <Col
+          id="incentive-detail-status-value-col"
+          data-cy="incentive-detail-status-value-col"
+          xs={12}
+          sm={12}
+          md={12}
+          lg={12}
+          xl={12}
+        >
+          <span
+            id="incentive-detail-status-value-wrapper"
+            data-cy="incentive-detail-status-value-wrapper"
+            className="text-gray-900 font-semibold"
+          >
             <Tag
               id="incentive-detail-status-tag"
               data-cy="incentive-detail-status-tag"
