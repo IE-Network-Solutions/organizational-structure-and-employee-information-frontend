@@ -207,15 +207,19 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
               title={
                 <div className="text-sm text-black">
                   <div className="space-y-1">
-                    {resignationSubmittedDate === null ? (
-                      <div>• <strong>Initiate Resignation:</strong> starts removing the employee</div>
-                    ) : (
-                      <div>• <strong>End Employment:</strong> completes the employment termination after resignation</div>
+                    {employeeData?.deletedAt === null && (
+                      resignationSubmittedDate === null ? (
+                        <div>• <strong>Initiate Resignation:</strong> starts removing the employee</div>
+                      ) : (
+                        <div>• <strong>End Employment:</strong> completes the employment termination after resignation</div>
+                      )
                     )}
-                    {employeeData?.deletedAt === null ? (
-                      <div>• <strong>Deactivate Employee:</strong> revokes the employees access</div>
-                    ) : (
-                      <div>• <strong>ReActivate Employee:</strong> reactivates a previously deactivated employee account</div>
+                    {resignationSubmittedDate === null && (
+                      employeeData?.deletedAt === null ? (
+                        <div>• <strong>Deactivate Employee:</strong> revokes the employees access</div>
+                      ) : (
+                        <div>• <strong>ReActivate Employee:</strong> reactivates a previously deactivated employee account</div>
+                      )
                     )}
                   </div>
                 </div>
