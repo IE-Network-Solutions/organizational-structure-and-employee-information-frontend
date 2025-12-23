@@ -62,42 +62,42 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
           data-cy={`ai-job-card-${job.jobId}-info`}
           className="flex items-center gap-8 text-sm text-gray-500 flex-nowrap"
         >
+          <span
+            id={`ai-job-card-${job.jobId}-location`}
+            data-cy={`ai-job-card-${job.jobId}-location`}
+            className="flex items-center gap-2"
+          >
+            <EnvironmentOutlined
+              id={`ai-job-card-${job.jobId}-location-icon`}
+              data-cy={`ai-job-card-${job.jobId}-location-icon`}
+              className="text-gray-400 text-base"
+            />
             <span
-              id={`ai-job-card-${job.jobId}-location`}
-              data-cy={`ai-job-card-${job.jobId}-location`}
-              className="flex items-center gap-2"
+              id={`ai-job-card-${job.jobId}-location-text`}
+              data-cy={`ai-job-card-${job.jobId}-location-text`}
+              className="text-sm font-medium text-gray-700"
             >
-              <EnvironmentOutlined
-                id={`ai-job-card-${job.jobId}-location-icon`}
-                data-cy={`ai-job-card-${job.jobId}-location-icon`}
-                className="text-gray-400 text-base"
-              />
-              <span
-                id={`ai-job-card-${job.jobId}-location-text`}
-                data-cy={`ai-job-card-${job.jobId}-location-text`}
-                className="text-sm font-medium text-gray-700"
-              >
-                {locationLabel}
-              </span>
+              {locationLabel}
             </span>
+          </span>
+          <span
+            id={`ai-job-card-${job.jobId}-posted-date`}
+            data-cy={`ai-job-card-${job.jobId}-posted-date`}
+            className="flex items-center gap-1 text-sm text-gray-500"
+          >
+            <ClockCircleOutlined
+              id={`ai-job-card-${job.jobId}-posted-date-icon`}
+              data-cy={`ai-job-card-${job.jobId}-posted-date-icon`}
+              className="text-gray-400 text-base"
+            />
             <span
-              id={`ai-job-card-${job.jobId}-posted-date`}
-              data-cy={`ai-job-card-${job.jobId}-posted-date`}
-              className="flex items-center gap-1 text-sm text-gray-500"
+              id={`ai-job-card-${job.jobId}-posted-date-text`}
+              data-cy={`ai-job-card-${job.jobId}-posted-date-text`}
+              className="text-sm text-gray-400"
             >
-              <ClockCircleOutlined
-                id={`ai-job-card-${job.jobId}-posted-date-icon`}
-                data-cy={`ai-job-card-${job.jobId}-posted-date-icon`}
-                className="text-gray-400 text-base"
-              />
-              <span
-                id={`ai-job-card-${job.jobId}-posted-date-text`}
-                data-cy={`ai-job-card-${job.jobId}-posted-date-text`}
-                className="text-sm text-gray-400"
-              >
-                {formattedPostedDate}
-              </span>
+              {formattedPostedDate}
             </span>
+          </span>
         </div>
 
         {/* AI Matches */}
@@ -173,10 +173,7 @@ const AIJobMatchingPage: React.FC = () => {
           data-cy="ai-job-matching-spinner-container"
           className="flex items-center justify-center min-h-96"
         >
-          <div
-            id="ai-job-matching-spinner"
-            data-cy="ai-job-matching-spinner"
-          >
+          <div id="ai-job-matching-spinner" data-cy="ai-job-matching-spinner">
             <Spin size="large" />
           </div>
         </div>
