@@ -51,7 +51,7 @@ const BenefitypeSideBar = () => {
         mode: selectedBenefitRecord.mode,
       });
     }
-  }, [selectedBenefitRecord, form]);
+  }, [selectedBenefitRecord, form, setBenefitMode, setIsAllEmployee]);
 
   const onClose = () => {
     form.resetFields();
