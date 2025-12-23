@@ -67,8 +67,8 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
         {getStatusIcon()}
       </div>
 
-      <div className="flex flex-1 flex-col md:flex-row items-start md:justify-between gap-x-4 gap-y-1">
-        <p className="text-[10px] md:text-sm font-medium leading-relaxed text-[#5A5C80] w-full md:max-w-[60%] line-clamp-2">
+      <div className="flex flex-1 flex-col md:flex-row items-start md:justify-between gap-x-4 gap-y-1 min-w-0">
+        <p className="text-[10px] md:text-sm font-medium leading-relaxed text-[#5A5C80] w-full md:max-w-[60%] truncate" title={getTaskName()}>
           {getTaskName()}
         </p>
 

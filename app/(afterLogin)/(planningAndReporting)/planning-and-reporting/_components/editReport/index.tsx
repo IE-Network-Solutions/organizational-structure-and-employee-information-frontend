@@ -147,19 +147,20 @@ function EditReport() {
   }, 0);
 
   const footer = (
-    <div className="flex flex-col items-center justify-center px-4 py-4 gap-4 bg-gray-50 border-t border-gray-100">
-      <div className="flex items-center gap-3 w-full justify-center">
+    <div className="flex items-center justify-between w-full">
+      <div className="flex-1"></div>
+      <div className="flex justify-center gap-4 flex-1">
         <Button
-          size="large"
-          className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] flex-1 max-w-[140px]"
+          className="py-6 px-10 rounded-xl"
           onClick={onClose}
+          disabled={editReportLoading}
         >
           Cancel
         </Button>
         <Button
+          id="update-report-button-for-planning-and-reporting"
           type="primary"
-          size="large"
-          className="rounded-xl bg-[#574CFF] font-semibold flex-1 max-w-[140px] hover:bg-[#4F46EF]"
+          className="py-6 px-10 rounded-xl bg-[#574CFF] hover:bg-[#4F46EF]"
           loading={editReportLoading}
           onClick={() => form.submit()}
         >
@@ -167,21 +168,23 @@ function EditReport() {
         </Button>
       </div>
 
-      <div className="flex items-center justify-center w-full">
-        <span className="text-sm font-medium text-[#161A2C]">
-          Total Point:{' '}
-          <span
-            className={
-              totalWeight > 84
-                ? 'text-[#52C41A]'
-                : totalWeight >= 64
-                  ? 'text-orange-500'
-                  : 'text-red-500'
-            }
-          >
-            {totalWeight}%
+      <div className="flex-1 flex justify-end">
+        <div className="my-2 font-bold mx-6">
+          <span className="text-sm font-medium text-[#161A2C]">
+            Total Point:{' '}
+            <span
+              className={
+                totalWeight > 84
+                  ? 'text-[#52C41A]'
+                  : totalWeight >= 64
+                    ? 'text-orange-500'
+                    : 'text-red-500'
+              }
+            >
+              {totalWeight}%
+            </span>
           </span>
-        </span>
+        </div>
       </div>
     </div>
   );
@@ -207,7 +210,7 @@ function EditReport() {
             sm={showActualValue ? 8 : 14}
             md={showActualValue ? 10 : 16}
           >
-            <p className="text-gray-800 text-sm font-medium leading-relaxed m-0">
+            <p className="text-gray-800 text-sm font-medium leading-relaxed m-0 truncate" title={task.taskName}>
               {task.taskName}
             </p>
           </Col>

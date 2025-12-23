@@ -54,13 +54,12 @@ function BoardCardForm({
               key={key}
               style={{ marginBottom: 0 }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', width: '100%', marginBottom: '16px' }} className="[&_.ant-form-item-explain-error]:text-[11px]">
                 <Form.Item
                   {...restSubField}
                   name={[subName, 'task']}
                   key={`${subName}-task`} // Unique key for task
                   rules={[{ required: true, message: 'Task is required' }]}
-                  noStyle // Use noStyle to avoid nested Form.Item issues
                   initialValue={isMKAsTask ? mkAsATask?.title : ''}
                   style={{ flex: 1, marginBottom: 0 }}
                 >
@@ -76,6 +75,7 @@ function BoardCardForm({
                 <MdCancel
                   className="text-primary cursor-pointer"
                   size={20}
+                  style={{ marginTop: '10px' }}
                   onClick={() => {
                     removeSub(subName);
                     setClickStatus(milestoneId + '', false);
@@ -92,8 +92,8 @@ function BoardCardForm({
                 <Input type="hidden" />
               </Form.Item>
               {/* <Divider className="mt-2 mb-2" /> */}
-              <div className="mt-2">
-                <Row gutter={[12, 12]} align="bottom">
+              <div className="mt-2 [&_.ant-form-item-explain-error]:text-[11px]">
+                <Row gutter={[12, 12]} align="top">
                   {showTarget && (
                     <Col xs={12} sm={8} md={6}>
                       <Row align="middle" gutter={8} wrap={false}>
@@ -109,7 +109,7 @@ function BoardCardForm({
                             {...restSubField}
                             name={[subName, 'targetValue']}
                             key={`${subName}-targetValue`}
-                            noStyle
+                            style={{ marginBottom: 0 }}
                             rules={[
                               {
                                 validator(nonused, value: any) {
@@ -159,7 +159,7 @@ function BoardCardForm({
                           {...restSubField}
                           name={[subName, 'weight']}
                           key={`${subName}-weight`}
-                          noStyle
+                          style={{ marginBottom: 0 }}
                           rules={[
                             { required: true, message: 'Weight is required' },
                             {
@@ -196,7 +196,7 @@ function BoardCardForm({
                           {...restSubField}
                           name={[subName, 'priority']}
                           key={`${subName}-priority`}
-                          noStyle
+                          style={{ marginBottom: 0 }}
                           rules={[{ required: true, message: 'Priority is required' }]}
                         >
                           <Select
@@ -219,8 +219,17 @@ function BoardCardForm({
                       type="primary"
                       className="h-10 px-6 font-semibold"
                       onClick={() => {
-                        form.validateFields([`board-${name}`, subName]).then(() => {
-                          const boardsKey = `board-${name}`;
+                        const boardsKey = `board-${name}`;
+                        const fieldsToValidate = [
+                          [boardsKey, subName, 'task'],
+                          [boardsKey, subName, 'weight'],
+                          [boardsKey, subName, 'priority'],
+                        ];
+                        if (showTarget && !hideTargetValue) {
+                          fieldsToValidate.push([boardsKey, subName, 'targetValue']);
+                        }
+
+                        form.validateFields(fieldsToValidate).then(() => {
                           const currentBoardValues = form.getFieldValue([boardsKey, subName]) || [];
                           handleAddName(currentBoardValues, name);
                           handleRemoveBoard(subName, name);

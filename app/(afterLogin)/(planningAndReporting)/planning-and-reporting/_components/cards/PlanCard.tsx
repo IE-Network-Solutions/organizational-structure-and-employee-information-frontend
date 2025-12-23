@@ -157,9 +157,9 @@ export default function PlanCard({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 px-1">
+      <div className="flex flex-nowrap items-center justify-between gap-2 md:gap-4 mb-4 px-1 min-w-0">
         <UserInfo owner={plan.owner} notificationCount={plan.notificationCount} />
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
           {plan.status && <StatusBadge status={plan.status} />}
           {canApprove && (
             <Dropdown overlay={approvalMenu} trigger={['click']}>

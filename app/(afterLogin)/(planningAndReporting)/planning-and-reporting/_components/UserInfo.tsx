@@ -60,10 +60,10 @@ export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
         </Avatar>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs md:text-base font-semibold leading-tight text-[#161A2C] line-clamp-2">
+        <p className="text-xs md:text-base font-semibold leading-tight text-[#161A2C] truncate" title={owner.name}>
           {owner.name}
         </p>
-        <p className="text-xs md:text-sm leading-tight text-[#8F94A3]">{owner.role}</p>
+        <p className="text-xs md:text-sm leading-tight text-[#8F94A3] truncate" title={owner.role}>{owner.role}</p>
       </div>
       {notificationCount !== undefined && notificationCount > 0 && (
         <div className="ml-auto flex items-center gap-2">

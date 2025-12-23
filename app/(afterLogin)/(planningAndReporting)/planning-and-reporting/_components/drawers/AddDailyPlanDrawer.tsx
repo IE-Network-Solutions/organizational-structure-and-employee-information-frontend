@@ -379,7 +379,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                             <>
                                                 {fields.map((field) => {
                                                     return (
-                                                        <div key={field.key} className="flex items-start gap-3">
+                                                        <div key={field.key} className="flex items-start gap-3 [&_.ant-form-item-explain-error]:text-[11px]">
                                                             {/* Hidden fields for metadata */}
                                                             <Form.Item name={[field.name, 'keyResultId']} hidden initialValue={group.keyResultId}>
                                                                 <Input type="hidden" />
@@ -420,6 +420,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                 name={[field.name, 'priority']}
                                                                 initialValue="High"
                                                                 className="mb-0"
+                                                                rules={[{ required: true, message: 'Required' }]}
                                                             >
                                                                 <Select
                                                                     options={priorityOptions}
@@ -433,6 +434,17 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                 name={[field.name, 'weight']}
                                                                 initialValue={0}
                                                                 className="mb-0"
+                                                                rules={[
+                                                                    { required: true, message: 'Required' },
+                                                                    {
+                                                                        validator: (nonused, value) => {
+                                                                            if (value !== undefined && value !== null && value <= 0) {
+                                                                                return Promise.reject(new Error('> 0'));
+                                                                            }
+                                                                            return Promise.resolve();
+                                                                        },
+                                                                    },
+                                                                ]}
                                                             >
                                                                 <InputNumber<number>
                                                                     min={0}
@@ -478,18 +490,33 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                         type="primary"
                                                         className="bg-[#574CFF] hover:bg-[#4F46EF] rounded-lg font-medium px-6"
                                                         onClick={() => {
-                                                            add({
-                                                                task: '',
-                                                                priority: 'High',
-                                                                weight: 0,
-                                                                targetValue: group.targetValue || 0,
-                                                                keyResultId: group.keyResultId,
-                                                                milestoneId: group.milestoneId || null,
-                                                                parentTaskId: group.parentTaskId || null,
-                                                                planningPeriodId: planningPeriodId || '',
-                                                                planningUserId: planningUserId || '',
-                                                                userId: userId,
-                                                                parentPlanId: parentPlanId || '',
+                                                            const currentGroupFields = fields.flatMap((field) => {
+                                                                const base = [formFieldName, field.name];
+                                                                const groupFields = [
+                                                                    [...base, 'task'],
+                                                                    [...base, 'priority'],
+                                                                    [...base, 'weight'],
+                                                                ];
+                                                                if (group.targetValue !== null && group.targetValue !== undefined) {
+                                                                    groupFields.push([...base, 'targetValue']);
+                                                                }
+                                                                return groupFields;
+                                                            });
+
+                                                            form.validateFields(currentGroupFields).then(() => {
+                                                                add({
+                                                                    task: '',
+                                                                    priority: 'High',
+                                                                    weight: 0,
+                                                                    targetValue: group.targetValue || 0,
+                                                                    keyResultId: group.keyResultId,
+                                                                    milestoneId: group.milestoneId || null,
+                                                                    parentTaskId: group.parentTaskId || null,
+                                                                    planningPeriodId: planningPeriodId || '',
+                                                                    planningUserId: planningUserId || '',
+                                                                    userId: userId,
+                                                                    parentPlanId: parentPlanId || '',
+                                                                });
                                                             });
                                                         }}
                                                     >
@@ -528,10 +555,10 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                             {group.tasks.map((task) => (
                                 <div key={task.id} className="flex flex-col gap-3">
                                     <div className="flex items-start justify-between gap-4">
-                                        <div className="flex-1 text-[#5A5C80] text-sm pt-2">
+                                        <div className="flex-1 text-[#5A5C80] text-sm pt-2 min-w-0 truncate" title={task.description}>
                                             {task.description}
                                         </div>
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2 sm:gap-4">
                                             {task.showValueInput && (
                                                 <div className="relative w-[140px]">
                                                     <Input
@@ -547,8 +574,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                     className={`flex items-center gap-1.5 cursor-pointer ${task.status === 'done' ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
                                                     onClick={() => handleStatusChange(group.id, task.id, 'done')}
                                                 >
-                                                    <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${task.status === 'done' ? 'bg-[#00C48C] border-[#00C48C]' : 'border-[#E5E7EB] bg-white'}`}>
-                                                        {task.status === 'done' && <CheckOutlined className="text-white text-xs" />}
+                                                    <div className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${task.status === 'done' ? 'bg-[#00C48C] border-[#00C48C]' : 'bg-white border-[#E5E7EB]'}`}>
+                                                        {task.status === 'done' && <CheckOutlined className="text-white text-[10px]" />}
                                                     </div>
                                                     <span className="text-sm text-[#161A2C]">Done</span>
                                                 </div>
@@ -557,8 +584,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                     className={`flex items-center gap-1.5 cursor-pointer ${task.status === 'not' ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
                                                     onClick={() => handleStatusChange(group.id, task.id, 'not')}
                                                 >
-                                                    <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${task.status === 'not' ? 'bg-[#FF4D4F] border-[#FF4D4F]' : 'border-[#E5E7EB] bg-white'}`}>
-                                                        {task.status === 'not' && <CloseOutlined className="text-white text-xs" />}
+                                                    <div className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${task.status === 'not' ? 'bg-[#FF4D4F] border-[#FF4D4F]' : 'bg-white border-[#E5E7EB]'}`}>
+                                                        {task.status === 'not' && <CloseOutlined className="text-white text-[10px]" />}
                                                     </div>
                                                     <span className="text-sm text-[#161A2C]">Not</span>
                                                 </div>
@@ -620,11 +647,11 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                         {viewMode === 'planning' ? (
                             <Tooltip title={totalWeight !== 100 ? "Summation of all task's weights must be equal to 100!" : ''}>
                                 <span className="text-sm font-medium text-[#8F94A3]">
-                                    Weight Point: <span className={totalWeight === 100 ? 'text-[#52C41A]' : 'text-[#161A2C]'}>{totalWeight}%</span>
+                                    <span className="md:hidden">WP:</span> <span className="hidden md:inline">Weight Point:</span> <span className={totalWeight === 100 ? 'text-[#52C41A]' : 'text-[#161A2C]'}>{totalWeight}%</span>
                                 </span>
                             </Tooltip>
                         ) : (
-                            <span className="text-sm font-medium text-[#161A2C]">Total Point: <span className="text-[#00C48C]">85%</span></span>
+                            <span className="text-sm font-medium text-[#161A2C]"><span className="md:hidden">TP:</span> <span className="hidden md:inline">Total Point:</span> <span className="text-[#00C48C]">85%</span></span>
                         )}
                     </div>
                 </div>

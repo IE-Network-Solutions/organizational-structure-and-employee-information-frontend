@@ -19,7 +19,7 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
-import { FaCheckSquare, FaRegSquare, FaWindowClose } from 'react-icons/fa';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 
 const { TextArea } = Input;
@@ -242,19 +242,20 @@ function CreateReport() {
     }, 0);
 
     const footer = (
-        <div className="flex flex-col items-center justify-center px-4 py-4 gap-4 bg-gray-50 border-t border-gray-100">
-            <div className="flex items-center gap-3 w-full justify-center">
+        <div className="flex items-center justify-between w-full">
+            <div className="flex-1"></div>
+            <div className="flex justify-center gap-4 flex-1">
                 <Button
-                    size="large"
-                    className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] flex-1 max-w-[140px]"
+                    className="py-6 px-10 rounded-xl"
                     onClick={onClose}
+                    disabled={createReportLoading}
                 >
                     Cancel
                 </Button>
                 <Button
+                    id="submit-report-button-for-planning-and-reporting"
                     type="primary"
-                    size="large"
-                    className="rounded-xl bg-[#574CFF] font-semibold flex-1 max-w-[140px] hover:bg-[#4F46EF]"
+                    className="py-6 px-10 rounded-xl bg-[#574CFF] hover:bg-[#4F46EF]"
                     loading={createReportLoading}
                     onClick={() => form.submit()}
                 >
@@ -262,21 +263,23 @@ function CreateReport() {
                 </Button>
             </div>
 
-            <div className="flex items-center justify-center w-full">
-                <span className="text-sm font-medium text-[#161A2C]">
-                    Total Point:{' '}
-                    <span
-                        className={
-                            totalWeight > 84
-                                ? 'text-[#52C41A]'
-                                : totalWeight >= 64
-                                    ? 'text-orange-500'
-                                    : 'text-red-500'
-                        }
-                    >
-                        {totalWeight}%
+            <div className="flex-1 flex justify-end">
+                <div className="my-2 font-bold mx-6">
+                    <span className="text-sm font-medium text-[#161A2C]">
+                        <span className="md:hidden">TP:</span> <span className="hidden md:inline">Total Point:</span>{' '}
+                        <span
+                            className={
+                                totalWeight > 84
+                                    ? 'text-[#52C41A]'
+                                    : totalWeight >= 64
+                                        ? 'text-orange-500'
+                                        : 'text-red-500'
+                            }
+                        >
+                            {totalWeight}%
+                        </span>
                     </span>
-                </span>
+                </div>
             </div>
         </div>
     );
@@ -292,14 +295,14 @@ function CreateReport() {
         return (
             <div key={task.taskId} className="mb-6 last:mb-0 pb-6 border-b border-gray-100 last:border-b-0">
                 <Row gutter={[16, 16]} align="middle">
-                    <Col xs={24} sm={showActualValue ? 8 : 14} md={showActualValue ? 10 : 16}>
-                        <p className="text-gray-800 text-sm font-medium leading-relaxed m-0">
+                    <Col xs={showActualValue ? 7 : 11} sm={showActualValue ? 8 : 14} md={showActualValue ? 10 : 16}>
+                        <p className="text-gray-800 text-sm font-medium leading-relaxed m-0 truncate" title={task.taskName}>
                             {task.taskName}
                         </p>
                     </Col>
 
-                    <Col xs={24} sm={showActualValue ? 16 : 10} md={showActualValue ? 14 : 8}>
-                        <div className="flex items-center justify-between sm:justify-end gap-4 overflow-x-auto no-scrollbar">
+                    <Col xs={showActualValue ? 17 : 13} sm={showActualValue ? 16 : 10} md={showActualValue ? 14 : 8}>
+                        <div className="flex items-center justify-end gap-2 sm:gap-4 overflow-x-auto no-scrollbar">
                             {/* Actual Value Input */}
                             {showActualValue && (
                                 <Form.Item
@@ -332,7 +335,7 @@ function CreateReport() {
                                     ]}
                                 >
                                     <InputNumber
-                                        className="w-24 sm:w-28 rounded-md border-gray-300 h-9"
+                                        className="w-16 sm:w-28 rounded-md border-gray-300 h-9"
                                         min={0}
                                         placeholder="Value"
                                         formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -348,10 +351,10 @@ function CreateReport() {
                                 className="mb-0"
                                 rules={[{ required: true, message: '' }]}
                             >
-                                <div className="flex items-center gap-4 bg-gray-50 p-1.5 rounded-lg border border-gray-100">
+                                <div className="flex items-center gap-2 sm:gap-4 bg-transparent p-0 border-none">
                                     {/* Done Option */}
                                     <div
-                                        className="cursor-pointer flex items-center gap-1.5 px-2 py-0.5 rounded transition hover:bg-white"
+                                        className="cursor-pointer flex items-center gap-1.5 px-0 py-0 transition opacity-100 hover:opacity-80"
                                         onClick={() => {
                                             setStatus(task.taskId, 'Done');
                                             form.setFieldsValue({
@@ -362,19 +365,17 @@ function CreateReport() {
                                             });
                                         }}
                                     >
-                                        {isDone ? (
-                                            <FaCheckSquare className="text-[#52C41A] text-lg" />
-                                        ) : (
-                                            <FaRegSquare className="text-gray-300 text-lg" />
-                                        )}
-                                        <span className={`text-[13px] ${isDone ? 'text-[#52C41A] font-semibold' : 'text-gray-500'}`}>
+                                        <div className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${isDone ? 'bg-[#00C48C] border-[#00C48C]' : 'bg-white border-[#E5E7EB]'}`}>
+                                            {isDone && <CheckOutlined className="text-white text-[10px]" />}
+                                        </div>
+                                        <span className={`text-[13px] text-[#161A2C]`}>
                                             Done
                                         </span>
                                     </div>
 
                                     {/* Not Option */}
                                     <div
-                                        className="cursor-pointer flex items-center gap-1.5 px-2 py-0.5 rounded transition hover:bg-white"
+                                        className="cursor-pointer flex items-center gap-1.5 px-0 py-0 transition opacity-100 hover:opacity-80"
                                         onClick={() => {
                                             setStatus(task.taskId, 'Not');
                                             form.setFieldsValue({
@@ -385,12 +386,10 @@ function CreateReport() {
                                             });
                                         }}
                                     >
-                                        {isNot ? (
-                                            <FaWindowClose className="text-[#FF4D4F] text-lg" />
-                                        ) : (
-                                            <FaRegSquare className="text-gray-300 text-lg" />
-                                        )}
-                                        <span className={`text-[13px] ${isNot ? 'text-[#FF4D4F] font-semibold' : 'text-gray-500'}`}>
+                                        <div className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${isNot ? 'bg-[#FF4D4F] border-[#FF4D4F]' : 'bg-white border-[#E5E7EB]'}`}>
+                                            {isNot && <CloseOutlined className="text-white text-[10px]" />}
+                                        </div>
+                                        <span className={`text-[13px] text-[#161A2C]`}>
                                             Not
                                         </span>
                                     </div>
