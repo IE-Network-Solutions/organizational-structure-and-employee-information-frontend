@@ -1226,7 +1226,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className="overflow-y-hidden min-h-screen"
           style={{
             paddingInline: isMobile ? 8 : 24,
-            paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+            paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             transition: 'padding-left 0.3s ease',
           }}
         >
