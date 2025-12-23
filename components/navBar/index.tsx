@@ -296,7 +296,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           key: '/recruitment/ai-job-matching',
           className: 'font-bold',
           permissions: ['manage_recruitment_jobs'],
-          disabled: hasEndedFiscalYear || isSubscriptionExpired,
+          disabled: hasEndedFiscalYear,
+          //  || isSubscriptionExpired,
         },
         {
           title: <span>Candidates</span>,
@@ -1164,6 +1165,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               expandedKeys={expandedKeys}
               selectedKeys={selectedKeys}
               onSelect={handleSelect}
+              onExpand={handleExpand}
               onDoubleClick={handleDoubleClick}
               className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
               switcherIcon={null}
@@ -1199,34 +1201,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           {isMobile && (
             <div className="w-full h-full p-[10px] flex justify-center items-center">
               <Button
-                href="/dashboard"
-                className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-5 mx-4 rounded-lg "
-              >
-                <div className="text-black font-bold font-['Manrope'] leading-normal">
-                  Dashboard
-                </div>
-                <AppstoreOutlined size={24} className="text-black" />
-              </Button>
-            )}
-
-            <div className="relative">
-              <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
-              {isLoading || subscriptionLoading ? (
-                <SidebarSkeleton />
-              ) : (
-                <Tree
-                  treeData={getResponsiveTreeData(filteredMenuItems, collapsed)}
-                  showLine={{ showLeafIcon: false }}
-                  defaultExpandAll={false}
-                  expandedKeys={expandedKeys}
-                  selectedKeys={selectedKeys}
-                  onSelect={handleSelect}
-                  onExpand={handleExpand}
-                  onDoubleClick={handleDoubleClick}
-                  className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
-                  switcherIcon={null}
-                />
-              )}
+                className="w-full h-full"
+                onClick={toggleMobileCollapsed}
+                icon={
+                  !mobileCollapsed ? (
+                    <IoCloseOutline
+                      size={24}
+                      className="text-gray-500 border-none"
+                    />
+                  ) : (
+                    <MenuOutlined
+                      size={24}
+                      className="text-gray-500 border-none"
+                    />
+                  )
+                }
+              />
             </div>
           )}
 
@@ -1248,42 +1238,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             <div
               className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
               style={{
-                paddingInline: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 0 : collapsed ? 100 : 300,
-                transition: 'padding-left 0.3s ease',
+                borderRadius: borderRadiusLG,
+                marginTop: `${isMobile ? '85px' : '94px'}`,
+                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
               }}
             >
-              {isCheckingPermissions ? (
-                <div className="flex justify-center items-center h-screen">
-                  <Skeleton active />
-                </div>
-              ) : (
-                <div
-                  className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-                  style={{
-                    borderRadius: borderRadiusLG,
-                    marginTop: `${isMobile ? '85px' : collapsed ? '94px' : '94px'}`,
-                    marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
-                  }}
-                >
-                  {children}
-                </div>
-              )}
-              <CreateEmployeeJobInformation
-                onInfoSubmition={() => {
-                  handleUserInfoUpdate();
-                }}
-                id={userId}
-              />
-              <JobInfoAccessModal
-                open={isModalOpen}
-                onClose={handleCancel}
-                onConfirm={handleOk}
-              />
-            </Content>
-          </Layout>
-        </>
-      )}
+              {children}
+            </div>
+          )}
+          <CreateEmployeeJobInformation
+            onInfoSubmition={() => {
+              handleUserInfoUpdate();
+            }}
+            id={userId}
+          />
+          <JobInfoAccessModal
+            open={isModalOpen}
+            onClose={handleCancel}
+            onConfirm={handleOk}
+          />
+        </Content>
+      </Layout>
     </Layout>
   );
 };

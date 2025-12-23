@@ -139,80 +139,84 @@ const AttendanceReport: React.FC = () => {
 
   return (
     <>
-     <Card
-      title={false}
-      className="h-[522px]"
-      id="time-attendance-attendance-report-layout-card"
-      data-cy="time-attendance-attendance-report-layout-card"
-    >
-      <div
-        className="flex flex-col sm:flex-row justify-between items-center sm:items-center mb-4 gap-4 w-full"
-        id="time-attendance-attendance-report-header-div"
-        data-cy="time-attendance-attendance-report-header-div"
+      <Card
+        title={false}
+        className="h-[522px]"
+        id="time-attendance-attendance-report-layout-card"
+        data-cy="time-attendance-attendance-report-layout-card"
       >
-        <p
-          className="text-[16px] text-black font-semibold w-64"
-          id="time-attendance-attendance-report-title-text"
-          data-cy="time-attendance-attendance-report-title-text"
-        >
-          Attendance report
-        </p>
-
         <div
-          className="flex flex-col sm:flex-row gap-2  sm:items-center"
-          id="time-attendance-attendance-report-filter-container-div"
-          data-cy="time-attendance-attendance-report-filter-container-div"
+          className="flex flex-col sm:flex-row justify-between items-center sm:items-center mb-4 gap-4 w-full"
+          id="time-attendance-attendance-report-header-div"
+          data-cy="time-attendance-attendance-report-header-div"
         >
-          <Select
-            showSearch
-            placeholder="Select employee"
-            allowClear
-            filterOption={(input: any, option: any) =>
-              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-            options={employeeOptions}
-            maxTagCount={1}
-            className="w-[400px] h-14"
-            onChange={(value) => setUserIdOnAttendanceReport(value)}
-            id="time-attendance-attendance-report-employee-select"
-            data-cy="time-attendance-attendance-report-employee-select"
-          />
+          <p
+            className="text-[16px] text-black font-semibold w-64"
+            id="time-attendance-attendance-report-title-text"
+            data-cy="time-attendance-attendance-report-title-text"
+          >
+            Attendance report
+          </p>
 
-          <Select
-            showSearch
-            placeholder="Select department"
-            allowClear
-            filterOption={(input: any, option: any) =>
-              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-            options={departmentOptions}
-            maxTagCount={1}
-            className="w-40 h-14"
-            onChange={(value) => setDepartmentOnAttendanceReport(value)}
-            id="time-attendance-attendance-report-department-select"
-            data-cy="time-attendance-attendance-report-department-select"
-          />
-
-          <RangePicker
-            className="w-48 h-14"
-            onChange={(value) => {
-              if (value) {
-                setStartDateAttendanceReport(
-                  value[0]?.format('YYYY-MM-DD') || '',
-                );
-                setEndDateAttendanceReport(
-                  value[1]?.format('YYYY-MM-DD') || '',
-                );
-              } else {
-                setStartDateAttendanceReport('');
-                setEndDateAttendanceReport('');
+          <div
+            className="flex flex-col sm:flex-row gap-2  sm:items-center"
+            id="time-attendance-attendance-report-filter-container-div"
+            data-cy="time-attendance-attendance-report-filter-container-div"
+          >
+            <Select
+              showSearch
+              placeholder="Select employee"
+              allowClear
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
               }
-            }}
-            id="time-attendance-attendance-report-date-range-picker"
-            data-cy="time-attendance-attendance-report-date-range-picker"
-          />
+              options={employeeOptions}
+              maxTagCount={1}
+              className="w-[400px] h-14"
+              onChange={(value) => setUserIdOnAttendanceReport(value)}
+              id="time-attendance-attendance-report-employee-select"
+              data-cy="time-attendance-attendance-report-employee-select"
+            />
+
+            <Select
+              showSearch
+              placeholder="Select department"
+              allowClear
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={departmentOptions}
+              maxTagCount={1}
+              className="w-40 h-14"
+              onChange={(value) => setDepartmentOnAttendanceReport(value)}
+              id="time-attendance-attendance-report-department-select"
+              data-cy="time-attendance-attendance-report-department-select"
+            />
+
+            <RangePicker
+              className="w-48 h-14"
+              onChange={(value) => {
+                if (value) {
+                  setStartDateAttendanceReport(
+                    value[0]?.format('YYYY-MM-DD') || '',
+                  );
+                  setEndDateAttendanceReport(
+                    value[1]?.format('YYYY-MM-DD') || '',
+                  );
+                } else {
+                  setStartDateAttendanceReport('');
+                  setEndDateAttendanceReport('');
+                }
+              }}
+              id="time-attendance-attendance-report-date-range-picker"
+              data-cy="time-attendance-attendance-report-date-range-picker"
+            />
+          </div>
         </div>
-      </div>
 
         {/* Mobile Filters */}
         <div className="md:hidden">
@@ -246,26 +250,26 @@ const AttendanceReport: React.FC = () => {
         </div>
 
         {/* Content */}
-           <Spin
-        spinning={loading}
-        data-cy="time-attendance-attendance-report-loading-spin"
-      >
-        <div
-          className="grid grid-cols-12 gap-6 items-start"
-          id="time-attendance-attendance-report-grid-container-div"
-          data-cy="time-attendance-attendance-report-grid-container-div"
+        <Spin
+          spinning={loading}
+          data-cy="time-attendance-attendance-report-loading-spin"
         >
-          {/* Doughnut Chart */}
           <div
-            className="col-span-12 md:col-span-7 flex justify-center"
-            id="time-attendance-attendance-report-chart-panel-div"
-            data-cy="time-attendance-attendance-report-chart-panel-div"
+            className="grid grid-cols-12 gap-6 items-start"
+            id="time-attendance-attendance-report-grid-container-div"
+            data-cy="time-attendance-attendance-report-grid-container-div"
           >
+            {/* Doughnut Chart */}
             <div
-              className=""
-              id="time-attendance-attendance-report-chart-wrapper-div"
-              data-cy="time-attendance-attendance-report-chart-wrapper-div"
+              className="col-span-12 md:col-span-7 flex justify-center"
+              id="time-attendance-attendance-report-chart-panel-div"
+              data-cy="time-attendance-attendance-report-chart-panel-div"
             >
+              <div
+                className=""
+                id="time-attendance-attendance-report-chart-wrapper-div"
+                data-cy="time-attendance-attendance-report-chart-wrapper-div"
+              >
                 {attendanceStats?.users?.length === 0 ? (
                   <div className="flex justify-center items-center h-64">
                     <p className="text-gray-500 text-[14px] font-semibold">
@@ -302,124 +306,124 @@ const AttendanceReport: React.FC = () => {
               </div>
             </div>
 
-          {/* Attendance List */}
-          <div
-            className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none"
-            id="time-attendance-attendance-report-list-panel-div"
-            data-cy="time-attendance-attendance-report-list-panel-div"
-          >
-            {attendanceStats?.users?.length === 0 ? (
-              <div
-                className="flex justify-center items-center h-64"
-                id="time-attendance-attendance-report-list-empty-div"
-                data-cy="time-attendance-attendance-report-list-empty-div"
-              >
-                <p
-                  className="text-gray-500 text-[14px] font-semibold"
-                  id="time-attendance-attendance-report-list-empty-text"
-                  data-cy="time-attendance-attendance-report-list-empty-text"
-                >
-                  No Record Found
-                </p>
-              </div>
-            ) : (
-              attendanceStats?.users?.map((item: any, index: any) => (
+            {/* Attendance List */}
+            <div
+              className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none"
+              id="time-attendance-attendance-report-list-panel-div"
+              data-cy="time-attendance-attendance-report-list-panel-div"
+            >
+              {attendanceStats?.users?.length === 0 ? (
                 <div
-                  key={index}
-                  className="bg-white rounded-xl md:px-4 px-2 min-h-[70px] border flex items-center justify-between"
-                  id={`time-attendance-attendance-report-record-${index}-container-div`}
-                  data-cy={`time-attendance-attendance-report-record-${index}-container-div`}
+                  className="flex justify-center items-center h-64"
+                  id="time-attendance-attendance-report-list-empty-div"
+                  data-cy="time-attendance-attendance-report-list-empty-div"
                 >
-                  {/* Left Side */}
-                  <div
-                    className="flex flex-col space-y-1"
-                    id={`time-attendance-attendance-report-record-${index}-left-column`}
-                    data-cy={`time-attendance-attendance-report-record-${index}-left-column`}
+                  <p
+                    className="text-gray-500 text-[14px] font-semibold"
+                    id="time-attendance-attendance-report-list-empty-text"
+                    data-cy="time-attendance-attendance-report-list-empty-text"
                   >
-                    <div
-                      className="flex items-center gap-1"
-                      id={`time-attendance-attendance-report-record-${index}-profile-row`}
-                      data-cy={`time-attendance-attendance-report-record-${index}-profile-row`}
-                    >
-                      {item.profileImage ? (
-                        <Avatar
-                          className="w-6 h-6"
-                          src={item.profileImage}
-                          data-cy={`time-attendance-attendance-report-record-${index}-avatar-image`}
-                        />
-                      ) : (
-                        <Avatar
-                          className="w-6 h-6 text-[12px]"
-                          data-cy={`time-attendance-attendance-report-record-${index}-avatar-fallback`}
-                        >
-                          {item.name.split(' ')[0].charAt(0) +
-                            item.name.split(' ')[1].charAt(0)}
-                        </Avatar>
-                      )}
-                      <p
-                        className="text-[12px] font-medium"
-                        id={`time-attendance-attendance-report-record-${index}-name-text`}
-                        data-cy={`time-attendance-attendance-report-record-${index}-name-text`}
-                      >
-                        {item.name}
-                      </p>
-                    </div>
-
-                    <div
-                      id={`time-attendance-attendance-report-record-${index}-status-container-div`}
-                      data-cy={`time-attendance-attendance-report-record-${index}-status-container-div`}
-                    >
-                      <span
-                        className={`text-[12px] px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late' ? 'bg-[#FFDE6533] text-[#E6BB20]' : item.status === 'absent' ? ' bg-[#E0313733] text-[#E03137]' : 'bg-indigo-100 text-indigo-700'}`}
-                        id={`time-attendance-attendance-report-record-${index}-status-pill`}
-                        data-cy={`time-attendance-attendance-report-record-${index}-status-pill`}
-                      >
-                        {item.status === 'ontime' ? 'On Time' : item.status}{' '}
-                        {item.status === 'late' || item.status === 'ontime'
-                          ? `${dayjs(item.recordTime, 'HH:mm:ss').format('hh:mm A')}`
-                          : ''}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Right Side */}
-                  <div
-                    className="flex flex-col space-y-2"
-                    id={`time-attendance-attendance-report-record-${index}-right-column`}
-                    data-cy={`time-attendance-attendance-report-record-${index}-right-column`}
-                  >
-                    <p
-                      className="text-[16px] font-medium text-black"
-                      id={`time-attendance-attendance-report-record-${index}-date-text`}
-                      data-cy={`time-attendance-attendance-report-record-${index}-date-text`}
-                    >
-                      {`${dayjs(item.attendanceDate).format('DD MMM YYYY')}`}
-                    </p>
-                    <div
-                      className="mt-1 flex justify-end gap-2"
-                      id={`time-attendance-attendance-report-record-${index}-metrics-row`}
-                      data-cy={`time-attendance-attendance-report-record-${index}-metrics-row`}
-                    >
-                      <span
-                        className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center"
-                        id={`time-attendance-attendance-report-record-${index}-lates-pill`}
-                        data-cy={`time-attendance-attendance-report-record-${index}-lates-pill`}
-                      >
-                        L: {item.totalLates}
-                      </span>
-                      <span
-                        className="text-xs bg-[#FF575733] text-[#FF5757] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center"
-                        id={`time-attendance-attendance-report-record-${index}-absences-pill`}
-                        data-cy={`time-attendance-attendance-report-record-${index}-absences-pill`}
-                      >
-                        A: {item.totalAbsences}
-                      </span>
-                    </div>
-                  </div>
+                    No Record Found
+                  </p>
                 </div>
-              ))
-            )}
-          </div>
+              ) : (
+                attendanceStats?.users?.map((item: any, index: any) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-xl md:px-4 px-2 min-h-[70px] border flex items-center justify-between"
+                    id={`time-attendance-attendance-report-record-${index}-container-div`}
+                    data-cy={`time-attendance-attendance-report-record-${index}-container-div`}
+                  >
+                    {/* Left Side */}
+                    <div
+                      className="flex flex-col space-y-1"
+                      id={`time-attendance-attendance-report-record-${index}-left-column`}
+                      data-cy={`time-attendance-attendance-report-record-${index}-left-column`}
+                    >
+                      <div
+                        className="flex items-center gap-1"
+                        id={`time-attendance-attendance-report-record-${index}-profile-row`}
+                        data-cy={`time-attendance-attendance-report-record-${index}-profile-row`}
+                      >
+                        {item.profileImage ? (
+                          <Avatar
+                            className="w-6 h-6"
+                            src={item.profileImage}
+                            data-cy={`time-attendance-attendance-report-record-${index}-avatar-image`}
+                          />
+                        ) : (
+                          <Avatar
+                            className="w-6 h-6 text-[12px]"
+                            data-cy={`time-attendance-attendance-report-record-${index}-avatar-fallback`}
+                          >
+                            {item.name.split(' ')[0].charAt(0) +
+                              item.name.split(' ')[1].charAt(0)}
+                          </Avatar>
+                        )}
+                        <p
+                          className="text-[12px] font-medium"
+                          id={`time-attendance-attendance-report-record-${index}-name-text`}
+                          data-cy={`time-attendance-attendance-report-record-${index}-name-text`}
+                        >
+                          {item.name}
+                        </p>
+                      </div>
+
+                      <div
+                        id={`time-attendance-attendance-report-record-${index}-status-container-div`}
+                        data-cy={`time-attendance-attendance-report-record-${index}-status-container-div`}
+                      >
+                        <span
+                          className={`text-[12px] px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late' ? 'bg-[#FFDE6533] text-[#E6BB20]' : item.status === 'absent' ? ' bg-[#E0313733] text-[#E03137]' : 'bg-indigo-100 text-indigo-700'}`}
+                          id={`time-attendance-attendance-report-record-${index}-status-pill`}
+                          data-cy={`time-attendance-attendance-report-record-${index}-status-pill`}
+                        >
+                          {item.status === 'ontime' ? 'On Time' : item.status}{' '}
+                          {item.status === 'late' || item.status === 'ontime'
+                            ? `${dayjs(item.recordTime, 'HH:mm:ss').format('hh:mm A')}`
+                            : ''}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right Side */}
+                    <div
+                      className="flex flex-col space-y-2"
+                      id={`time-attendance-attendance-report-record-${index}-right-column`}
+                      data-cy={`time-attendance-attendance-report-record-${index}-right-column`}
+                    >
+                      <p
+                        className="text-[16px] font-medium text-black"
+                        id={`time-attendance-attendance-report-record-${index}-date-text`}
+                        data-cy={`time-attendance-attendance-report-record-${index}-date-text`}
+                      >
+                        {`${dayjs(item.attendanceDate).format('DD MMM YYYY')}`}
+                      </p>
+                      <div
+                        className="mt-1 flex justify-end gap-2"
+                        id={`time-attendance-attendance-report-record-${index}-metrics-row`}
+                        data-cy={`time-attendance-attendance-report-record-${index}-metrics-row`}
+                      >
+                        <span
+                          className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center"
+                          id={`time-attendance-attendance-report-record-${index}-lates-pill`}
+                          data-cy={`time-attendance-attendance-report-record-${index}-lates-pill`}
+                        >
+                          L: {item.totalLates}
+                        </span>
+                        <span
+                          className="text-xs bg-[#FF575733] text-[#FF5757] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center"
+                          id={`time-attendance-attendance-report-record-${index}-absences-pill`}
+                          data-cy={`time-attendance-attendance-report-record-${index}-absences-pill`}
+                        >
+                          A: {item.totalAbsences}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </Spin>
       </Card>

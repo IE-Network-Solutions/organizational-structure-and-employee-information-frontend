@@ -54,10 +54,11 @@ const LeaveRequestDetail = () => {
     leaveRequestSidebarData ?? '',
   );
 
-  const { data: logData, isLoading: isLogDataLoading } = useGetSingleApprovalLog(
-    leaveRequestSidebarData ?? '',
-    leaveRequestSidebarWorkflowData ?? '',
-  );
+  const { data: logData, isLoading: isLogDataLoading } =
+    useGetSingleApprovalLog(
+      leaveRequestSidebarData ?? '',
+      leaveRequestSidebarWorkflowData ?? '',
+    );
 
   const { data: approverLog } = useGetSingleApproval(
     leaveRequestSidebarData ?? '',
@@ -79,7 +80,7 @@ const LeaveRequestDetail = () => {
     },
   ];
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
-  
+
   type ApprovalRecord = {
     approverId: string; // UUID
     userId: string; // UUID
@@ -329,30 +330,28 @@ const LeaveRequestDetail = () => {
               >
                 <ApprovalStatusesInfo data-cy="time-attendance-leave-request-detail-approval-statuses-info-component" />
               </div>
-              {isLogDataLoading ? (
-                // Show skeleton loading while fetching approval log data
-                // eslint-disable-next-line react/no-array-index-key
-                Array.from({ length: 3 }).map((unusedItem, idx) => (
-                  <ApprovalStatusCardSkeleton 
-                    key={`skeleton-${idx}`}
-                    dataCyPrefix={`time-attendance-leave-request-detail-approval-status-card-skeleton-${idx}`}
-                  />
-                ))
-              ) : (
-                // Show actual approval status cards when data is loaded
-                Array.isArray(logData) &&
-                logData
-                  ?.sort((a, b) => a.stepOrder - b.stepOrder)
-                  ?.map((approvalCard: ApprovalRecord, idx: number) => (
-                    <ApprovalStatusCard
-                      key={idx}
-                      data={approvalCard}
-                      userName={userData}
-                      userImage={userImage}
-                      data-cy={`time-attendance-leave-request-detail-approval-status-card-${idx}`}
+              {isLogDataLoading
+                ? // Show skeleton loading while fetching approval log data
+                  // eslint-disable-next-line react/no-array-index-key
+                  Array.from({ length: 3 }).map((unusedItem, idx) => (
+                    <ApprovalStatusCardSkeleton
+                      key={`skeleton-${idx}`}
+                      dataCyPrefix={`time-attendance-leave-request-detail-approval-status-card-skeleton-${idx}`}
                     />
                   ))
-              )}
+                : // Show actual approval status cards when data is loaded
+                  Array.isArray(logData) &&
+                  logData
+                    ?.sort((a, b) => a.stepOrder - b.stepOrder)
+                    ?.map((approvalCard: ApprovalRecord, idx: number) => (
+                      <ApprovalStatusCard
+                        key={idx}
+                        data={approvalCard}
+                        userName={userData}
+                        userImage={userImage}
+                        data-cy={`time-attendance-leave-request-detail-approval-status-card-${idx}`}
+                      />
+                    ))}
             </div>
             <Divider
               data-cy="time-attendance-leave-request-detail-overall-status-divider"
