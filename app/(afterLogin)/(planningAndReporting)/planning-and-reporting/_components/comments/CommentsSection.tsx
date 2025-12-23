@@ -24,6 +24,7 @@ export default function CommentsSection({
 }: CommentsSectionProps) {
   const [showComments, setShowComments] = useState(false);
   const [showAddComment, setShowAddComment] = useState(false);
+  const [resetToggle, setResetToggle] = useState(0);
   const { data: allUsers } = useGetAllUsers();
 
   // Get unique commenters from comments
@@ -68,6 +69,7 @@ export default function CommentsSection({
   };
 
   const handleAddCommentClick = () => {
+    setResetToggle((prev) => prev + 1);
     setShowAddComment(true);
     setShowComments(true); // Also show comments list when adding
   };
@@ -164,6 +166,8 @@ export default function CommentsSection({
               planId={planId}
               isPlanCard={isPlanCard}
               showAddForm={showAddComment}
+              resetToggle={resetToggle}
+              onEdit={() => setShowAddComment(true)}
               onFormSubmit={() => setShowAddComment(false)}
             />
           )}

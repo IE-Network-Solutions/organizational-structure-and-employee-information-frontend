@@ -40,7 +40,7 @@ const updateComment = async (
   try {
     return crudRequest({
       url: `${OKR_URL}/plan-comments/${commentId}`,
-      method: 'patch',
+      method: 'PATCH',
       data: updatedComment,
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -63,7 +63,7 @@ const deleteComment = async (commentId: string) => {
   try {
     return crudRequest({
       url: `${OKR_URL}/plan-comments/${commentId}`,
-      method: 'delete',
+      method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
         tenantId: tenantId, // Pass tenantId in the headers

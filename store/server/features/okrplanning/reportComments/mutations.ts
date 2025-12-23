@@ -37,7 +37,7 @@ const deleteComment = async (commentId: string) => {
   try {
     return crudRequest({
       url: `${OKR_URL}/report-comments/${commentId}`,
-      method: 'delete',
+      method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
         tenantId: tenantId, // Pass tenantId in the headers
@@ -62,7 +62,7 @@ const updateComment = async (
   try {
     return crudRequest({
       url: `${OKR_URL}/report-comments/${commentId}`,
-      method: 'patch',
+      method: 'PATCH',
       data: updatedComment,
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -131,8 +131,8 @@ export const useUpdateReportComment = () => {
         queryClient.invalidateQueries('reportComments');
 
         NotificationMessage.success({
-          message: 'comment Successfully deleted ',
-          description: 'okr report comment deleted successfully',
+          message: 'comment Successfully updated ',
+          description: 'okr report comment updated successfully',
         });
       },
     },

@@ -245,12 +245,22 @@ function DefaultCardForm({
                               name={[field.name, 'weight']}
                               key={`${field.key}-weight`}
                               noStyle
-                              rules={[{ required: true, message: 'Weight is required' }]}
+                              rules={[
+                                { required: true, message: 'Weight is required' },
+                                {
+                                  validator: (nonused, value) => {
+                                    if (value !== undefined && value !== null && value <= 0) {
+                                      return Promise.reject(new Error('Weight must be greater than 0'));
+                                    }
+                                    return Promise.resolve();
+                                  },
+                                },
+                              ]}
                             >
                               <InputNumber
                                 placeholder={'0'}
                                 className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
-                                min={0}
+                                min={1}
                                 max={100}
                                 onChange={() => {
                                   const fieldValue = form.getFieldValue(name) || [];
