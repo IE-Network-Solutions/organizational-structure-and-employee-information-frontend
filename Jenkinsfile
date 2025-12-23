@@ -1,9 +1,8 @@
-
 pipeline {
     agent any
 
     options {
-        timeout(time: 20, unit: 'MINUTES')
+        timeout(time: 15, unit: 'MINUTES')
     }
 
     stages {
@@ -23,12 +22,15 @@ pipeline {
                         if (branchName.contains('develop')) {
                             env.REMOTE_SERVER = REMOTE_SERVER_TEST
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+                            env.SECRET_KEY = 'peptest'
                         } else if (branchName.contains('staging')) {
                             env.REMOTE_SERVER = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
+                            env.SECRET_KEY = 'pepproduction'
                         } else if (branchName.contains('production')) {
                             env.REMOTE_SERVER = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+                            env.SECRET_KEY = 'pepproduction'
                         }
                     }
                 }
@@ -37,52 +39,51 @@ pipeline {
 
         stage('Fetch Application Variables') {
             steps {
+                sshagent(credentials: [env.SECRET_KEY]) {
                 script {
-                    withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
                         def secretsFile = env.SECRETS_PATH
 
                         env.REPO_URL = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL ${secretsFile} | cut -d= -f2'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.BRANCH_NAME = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep BRANCH_NAME ${secretsFile} | cut -d= -f2'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep BRANCH_NAME ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.REPO_DIR = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_DIR ${secretsFile} | cut -d= -f2'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_DIR ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.DOCKERHUB_REPO = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep DOCKERHUB_REPO ${secretsFile} | cut -d= -f2'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep DOCKERHUB_REPO ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.SERVICE_NAME = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep SERVICE_NAME ${secretsFile} | cut -d= -f2'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep SERVICE_NAME ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
-
                         env.VAULT_ADDR = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_ADDR ${secretsFile} | cut -d= -f2'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_ADDR ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.VAULT_USERNAME = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_USERNAME ${secretsFile} | cut -d= -f2'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_USERNAME ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.VAULT_PASSWORD = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_PASSWORD ${secretsFile} | cut -d= -f2'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_PASSWORD ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.VAULT_SECRET_PATH = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_SECRET_PATH ${secretsFile} | cut -d= -f2'",
+                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_SECRET_PATH ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
                     }
@@ -92,9 +93,9 @@ pipeline {
 
         stage('Prepare Repository') {
             steps {
-                withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
+                sshagent(credentials: [env.SECRET_KEY]) {
                     sh """
-                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                             if [ -d "${env.REPO_DIR}" ]; then
                                 sudo chown -R \$USER:\$USER ${env.REPO_DIR}
                                 sudo chmod -R 755 ${env.REPO_DIR}
@@ -107,9 +108,9 @@ pipeline {
 
         stage('Pull Latest Changes') {
             steps {
-                withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
+                sshagent(credentials: [env.SECRET_KEY]) {
                     sh """
-                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                             if [ ! -d "${env.REPO_DIR}/.git" ]; then
                                 git clone ${env.REPO_URL} -b ${env.BRANCH_NAME} ${env.REPO_DIR}
                             else
@@ -123,12 +124,16 @@ pipeline {
 
         stage('Build and Push Docker Image') {
             steps {
-                withCredentials([
-                    usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
-                    string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
-                ]) {
+                sshagent(credentials: [env.SECRET_KEY]) {
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'dockerhub',
+                            usernameVariable: 'DOCKERHUB_USERNAME',
+                            passwordVariable: 'DOCKERHUB_PASSWORD'
+                        )
+                    ]) {
                     sh """
-                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} "
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} "
                             set -e
 
                             echo 'Logging into Docker Hub...'
@@ -156,21 +161,24 @@ pipeline {
                 }
             }
         }
+        }
 
         stage('Deploy Service') {
             steps {
-                withCredentials([
-                    usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
-                    string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
-                ]) {
+                sshagent(credentials: [env.SECRET_KEY]) {
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'dockerhub',
+                            usernameVariable: 'DOCKERHUB_USERNAME',
+                            passwordVariable: 'DOCKERHUB_PASSWORD'
+                        )
+                    ]) {
                     sh """
-                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                             set -ex
 
-                            echo "Logging into Docker Hub..."
                             echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin || { echo "Docker login failed"; exit 1; }
 
-                            echo "Pulling image ${DOCKERHUB_REPO}:${BRANCH_NAME}..."
                             docker pull ${DOCKERHUB_REPO}:${BRANCH_NAME} || { echo "Docker pull failed"; exit 1; }
 
                             if docker service inspect ${SERVICE_NAME} >/dev/null 2>&1; then
@@ -180,26 +188,24 @@ pipeline {
                                     --with-registry-auth \\
                                     --force ${SERVICE_NAME} || { echo "Service update failed"; exit 1; }
                             else
-                                echo "Creating new stack..."
                                 if [ "${BRANCH_NAME}" = "staging" ]; then
                                     docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
                                 else
                                     docker stack deploy --with-registry-auth -c docker-compose.yml pep || { echo "Stack deploy (prod/develop) failed"; exit 1; }
                                 fi
                             fi
-
-                            echo "Deployment completed successfully."
                         '
                     """
                 }
             }
         }
+        }
 
         stage('Verify Deployment') {
             steps {
-                withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
+                sshagent(credentials: [env.SECRET_KEY]) {
                     sh """
-                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                             echo "Verifying deployment status..."
 
                             for i in {1..20}; do
@@ -229,16 +235,16 @@ pipeline {
 
     post {
         success {
-            withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
+            sshagent(credentials: [env.SECRET_KEY]) {
                 sh """
-                    sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                        if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
-                            echo "Cleaning up stopped containers for service ${env.SERVICE_NAME}..."
-                            docker ps -a \\
-                                --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}" \\
-                                --filter "status=exited" -q | xargs -r docker rm -f
-                        fi
-                    '
+                   ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                    if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
+                        echo "Cleaning up stopped containers for service ${env.SERVICE_NAME}..."
+                        docker ps -a \
+                            --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}" \
+                            --filter "status=exited" -q | xargs -r docker rm -f
+                    fi
+                '
                 """
             }
         }
@@ -251,12 +257,29 @@ pipeline {
                     <html>
                         <head>
                             <style>
-                                body { font-family: Arial, sans-serif; color: #333333; line-height: 1.6; }
-                                h2 { color: #e74c3c; }
-                                .details { margin-top: 20px; }
-                                .label { font-weight: bold; }
-                                .link { color: #3498db; text-decoration: none; }
-                                .footer { margin-top: 30px; font-size: 0.9em; color: #7f8c8d; }
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    color: #333333;
+                                    line-height: 1.6;
+                                }
+                                h2 {
+                                    color: #e74c3c;
+                                }
+                                .details {
+                                    margin-top: 20px;
+                                }
+                                .label {
+                                    font-weight: bold;
+                                }
+                                .link {
+                                    color: #3498db;
+                                    text-decoration: none;
+                                }
+                                .footer {
+                                    margin-top: 30px;
+                                    font-size: 0.9em;
+                                    color: #7f8c8d;
+                                }
                             </style>
                         </head>
                         <body>
