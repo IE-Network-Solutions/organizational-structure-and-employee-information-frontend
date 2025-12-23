@@ -2,7 +2,7 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
-import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, MenuOutlined, FileTextOutlined } from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
@@ -621,6 +621,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
+          <FileTextOutlined
+            style={{ fontSize: 18 }}
+            className={
+              expandedKeys.includes('/audit-log') ? 'text-blue' : ''
+            }
+          />
+          <span>Audit Log</span>
+        </span>
+      ),
+      key: '/audit-log',
+      className: 'font-bold',
+      permissions: ['view_audit_log'],
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12">
           <CiSettings
             size={18}
             className={expandedKeys.includes('admin-menu') ? 'text-blue' : ''}
@@ -663,9 +680,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return true;
     }
 
-    // If no subscription data or no modules, hide all items except admin menu for admins
+    // Audit Log should always be visible for admin users
+    if (menuKey === '/audit-log' && isAdmin) {
+      return true;
+    }
+
+    // If no subscription data or no modules, hide all items except admin menu and audit log for admins
     if (!activeSubscription || !availableModules.length) {
-      return menuKey === 'admin-menu' && isAdmin;
+      return (menuKey === 'admin-menu' && isAdmin) || (menuKey === '/audit-log' && isAdmin);
     }
 
     // Map menu keys to module descriptions
@@ -680,12 +702,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       '/timesheet': '/timesheet',
       '/compensation': '/compensation',
       '/incentive': '/incentive',
+      '/audit-log': '/audit-log',
       '/admin': '/admin',
     };
 
     const modulePath = menuToModuleMap[menuKey];
     if (!modulePath) {
-      return menuKey === 'admin-menu' && isAdmin; // Only show admin menu for admins if no mapping found
+      return (menuKey === 'admin-menu' && isAdmin) || (menuKey === '/audit-log' && isAdmin); // Only show admin menu and audit log for admins if no mapping found
     }
 
     // Check if any module in the subscription matches the menu path
@@ -1084,6 +1107,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const filteredMenuItems = filteredTreeData
     .map((item) => {
+      // Audit Log and Admin menu should always be visible for admin users
+      if ((item.key === '/audit-log' || item.key === 'admin-menu') && isAdmin) {
+        return item;
+      }
+
       const hasAccess = AccessGuard.checkAccess({
         permissions: item.permissions,
       });
