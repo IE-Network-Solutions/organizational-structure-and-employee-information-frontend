@@ -74,10 +74,7 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
   const columns = [
     {
       title: (
-        <span
-          id="ai-applicant-column-name"
-          data-cy="ai-applicant-column-name"
-        >
+        <span id="ai-applicant-column-name" data-cy="ai-applicant-column-name">
           Name
         </span>
       ),
@@ -192,10 +189,7 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
       className="rounded-2xl border border-gray-100 shadow-sm"
       data-cy="ai-job-applicants-card"
       title={
-        <span
-          id="ai-job-applicants-title"
-          data-cy="ai-job-applicants-title"
-        >
+        <span id="ai-job-applicants-title" data-cy="ai-job-applicants-title">
           All Applicants
         </span>
       }
