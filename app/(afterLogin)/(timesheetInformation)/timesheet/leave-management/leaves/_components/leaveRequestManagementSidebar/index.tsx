@@ -35,10 +35,8 @@ const LeaveRequestManagementSidebar = () => {
   const { data: leaveData, isLoading } = useGetSingleLeaveRequest(
     leaveRequestId ?? '',
   );
-  const { data: logData, isLoading: isLogDataLoading } = useGetSingleApprovalLog(
-    leaveRequestId ?? '',
-    leaveRequestWorkflowId ?? '',
-  );
+  const { data: logData, isLoading: isLogDataLoading } =
+    useGetSingleApprovalLog(leaveRequestId ?? '', leaveRequestWorkflowId ?? '');
   const { data: employeeData } = useGetAllUsers();
   const userData = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
@@ -67,7 +65,7 @@ const LeaveRequestManagementSidebar = () => {
   ];
 
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
-  
+
   type ApprovalRecord = {
     approverId: string; // UUID
     userId: string; // UUID
@@ -287,20 +285,23 @@ const LeaveRequestManagementSidebar = () => {
                 Approval Levels Status
               </div>
 
-                <div id="time-attendance-leave-management-sidebar-approval-levels-status-info" data-cy="time-attendance-leave-management-sidebar-approval-levels-status-info" className="my-2.5">
-                  <ApprovalStatusesInfo data-cy="time-attendance-leave-management-sidebar-approval-levels-status-info-component"  />
-                </div>
-                {isLogDataLoading ? (
-                  // Show skeleton loading while fetching approval log data
+              <div
+                id="time-attendance-leave-management-sidebar-approval-levels-status-info"
+                data-cy="time-attendance-leave-management-sidebar-approval-levels-status-info"
+                className="my-2.5"
+              >
+                <ApprovalStatusesInfo data-cy="time-attendance-leave-management-sidebar-approval-levels-status-info-component" />
+              </div>
+              {isLogDataLoading
+                ? // Show skeleton loading while fetching approval log data
                   // eslint-disable-next-line react/no-array-index-key
                   Array.from({ length: 3 }).map((unusedItem, idx) => (
-                    <ApprovalStatusCardSkeleton 
+                    <ApprovalStatusCardSkeleton
                       key={`skeleton-${idx}`}
                       dataCyPrefix={`time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton-${idx}`}
                     />
                   ))
-                ) : (
-                  // Show actual approval status cards when data is loaded
+                : // Show actual approval status cards when data is loaded
                   Array.isArray(logData) &&
                   logData
                     ?.sort((a, b) => a.stepOrder - b.stepOrder)
@@ -312,22 +313,9 @@ const LeaveRequestManagementSidebar = () => {
                         userName={userData}
                         userImage={userImage}
                       />
-                    ))
-                )}
-              </div>
-              {Array.isArray(logData) &&
-                logData
-                  ?.sort((a, b) => a.stepOrder - b.stepOrder)
-                  ?.map((approvalCard: ApprovalRecord, idx: number) => (
-                    <ApprovalStatusCard
-                      data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card"
-                      key={idx}
-                      data={approvalCard}
-                      userName={userData}
-                      userImage={userImage}
-                    />
-                  ))}
+                    ))}
             </div>
+
             <Divider
               data-cy="time-attendance-leave-management-sidebar-approval-levels-status-divider"
               className="my-8 h-[5px] bg-gray-200"
