@@ -88,6 +88,7 @@ export enum APPROVALTYPES {
   LEAVE = 'Leave',
   BRANCHREQUEST = 'BranchRequest',
   TNA = 'TNA',
+  PAYROLL = 'Payroll',
 }
 
 // Enum for aggregate operators
