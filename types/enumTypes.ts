@@ -12,6 +12,11 @@ export enum ActionPlanStatus {
   PENDING = 'pending',
 }
 
+export enum ActionPlanSourceType {
+  MEETING = 'MEETING',
+  SURVEY = 'SURVEY',
+}
+
 export const PlanningType = [
   { key: 'myPlan', value: 'my plan' },
   { key: 'allPlan', value: 'all Plan' },
