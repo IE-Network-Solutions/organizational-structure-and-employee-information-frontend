@@ -78,7 +78,7 @@ const AddApprover = () => {
       handleLevelChange={handleLevelChange}
       handleUserChange={handleUserChange}
       users={users}
-      data-cy="settings-approvals-add-approver-component"
+      data-cy="settings-payroll-approvals-add-approver-component"
     />
   );
 };

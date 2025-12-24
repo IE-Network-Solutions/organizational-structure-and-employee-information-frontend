@@ -160,7 +160,7 @@ const EditWorkFLow = () => {
       deletedApprover={deletedApprover}
       setDeleteModal={setDeleteModal}
       setDeletedApprover={setDeletedApprover}
-      data-cy="settings-approvals-edit-approver-component"
+      data-cy="settings-payroll-approvals-edit-approver-component"
     />
   );
 };

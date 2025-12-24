@@ -8,7 +8,6 @@ import ApprovalTable from './_component/ApprovalTable';
 import { FaPlus } from 'react-icons/fa';
 import PermissionWraper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { IoArrowBack } from 'react-icons/io5';
 import { PayrollApprovalWorkFlow } from './_component/payrollapprovalWorkFlow';
 import PayrollApprovalWorkFlowSetting from './_component/payrollApprovalWorkFlowSetting';
 
@@ -76,7 +75,7 @@ const Approvals = () => {
     );
   };
 
-  const pageSlug = 'approvals-settings';
+  const pageSlug = 'approvals-payroll-settings';
 
   return (
     <div

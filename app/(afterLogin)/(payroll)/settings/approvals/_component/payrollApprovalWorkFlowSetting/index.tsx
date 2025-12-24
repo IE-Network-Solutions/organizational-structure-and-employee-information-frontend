@@ -112,14 +112,23 @@ const PayrollApprovalWorkFlowSetting = ({
   const pageSlug = 'approvals-settings';
 
   return (
-    <div data-cy="approval-workflow-setting-container">
-      <div className="mb-10 flex " data-cy="approval-workflow-setting-header">
+    <div
+      id="approval-payroll-workflow-setting-container"
+      data-cy="approval-payroll-workflow-setting-container"
+    >
+      <div
+        className="mb-10 flex "
+        id="approval-payroll-workflow-setting-header"
+        data-cy="approval-payroll-workflow-setting-header"
+      >
         <Button
           className="flex items-center justify-center font-bold text-black border-none"
           onClick={() => setDepartmentApproval(false)}
-          id={`settings-${pageSlug}-workflow-setting-back-btn`}
-          data-cy={`settings-${pageSlug}-workflow-setting-back-btn`}
-          icon={<IoArrowBack data-cy="settings-approvals-back-btn-icon" />}
+          id={`settings-${pageSlug}-payroll-workflow-setting-back-btn`}
+          data-cy={`settings-${pageSlug}-payroll-workflow-setting-back-btn`}
+          icon={
+            <IoArrowBack data-cy="settings-payroll-workflow-setting-back-btn-icon" />
+          }
         />
         <PageHeader
           size="small"
@@ -138,8 +147,18 @@ const PayrollApprovalWorkFlowSetting = ({
           }
         />
       </div>
-      <div className="px-8">
-        <Form form={form} onFinish={handleSubmit} layout="vertical">
+      <div
+        className="px-8"
+        id="approval-payroll-workflow-setting-form"
+        data-cy="approval-payroll-workflow-setting-form"
+      >
+        <Form
+          form={form}
+          onFinish={handleSubmit}
+          layout="vertical"
+          id="approval-payroll-workflow-setting-form"
+          data-cy="approval-payroll-workflow-setting-form"
+        >
           <Form.Item
             className="text-lg  font-bold mt-3 mb-1"
             name="workFlownName"
@@ -147,18 +166,37 @@ const PayrollApprovalWorkFlowSetting = ({
             rules={[
               { required: true, message: 'Please enter a workFlow name!' },
             ]}
+            id="approval-payroll-workflow-setting-workflow-name"
+            data-cy="approval-payroll-workflow-setting-workflow-name"
           >
-            <Input className="w-full h-10" placeholder="Enter WorkFlow Name" />
+            <Input
+              className="w-full h-10"
+              placeholder="Enter WorkFlow Name"
+              id="approval-payroll-workflow-setting-workflow-name-input"
+              data-cy="approval-payroll-workflow-setting-workflow-name-input"
+            />
           </Form.Item>
-          <div className="font-medium mb-3 text-gray-500">WorkfLow Name </div>
+          <div
+            className="font-medium mb-3 text-gray-500"
+            id="approval-payroll-workflow-setting-workflow-name-label"
+            data-cy="approval-payroll-workflow-setting-workflow-name-label"
+          >
+            WorkfLow Name{' '}
+          </div>
 
           <Form.Item
             className="text-lg font-bold mt-3 mb-1"
             name="description"
             label="Description"
             rules={[{ required: true, message: 'Please enter a description!' }]}
+            id="approval-payroll-workflow-setting-description"
+            data-cy="approval-payroll-workflow-setting-description"
           >
-            <Input.TextArea placeholder="Enter Description" />
+            <Input.TextArea
+              placeholder="Enter Description"
+              id="approval-payroll-workflow-setting-description-input"
+              data-cy="approval-payroll-workflow-setting-description-input"
+            />
           </Form.Item>
 
           <Form.Item
@@ -168,13 +206,36 @@ const PayrollApprovalWorkFlowSetting = ({
             rules={[
               { required: true, message: 'Please select a workflow option!' },
             ]}
+            id="approval-payroll-workflow-setting-workflow-applies-type"
+            data-cy="approval-payroll-workflow-setting-workflow-applies-type"
           >
-            <Radio.Group onChange={onRadioChange}>
-              <Radio value={'Department'}>Department</Radio>
-              <Radio disabled value={'Hierarchy'}>
+            <Radio.Group
+              onChange={onRadioChange}
+              id="approval-payroll-workflow-setting-workflow-applies-type-radio-group"
+              data-cy="approval-payroll-workflow-setting-workflow-applies-type-radio-group"
+            >
+              <Radio
+                value={'Department'}
+                id="approval-payroll-workflow-setting-workflow-applies-type-radio-group-department"
+                data-cy="approval-payroll-workflow-setting-workflow-applies-type-radio-group-department"
+              >
+                Department
+              </Radio>
+              <Radio
+                disabled
+                value={'Hierarchy'}
+                id="approval-payroll-workflow-setting-workflow-applies-type-radio-group-hierarchy"
+                data-cy="approval-payroll-workflow-setting-workflow-applies-type-radio-group-hierarchy"
+              >
                 Hierarchy
               </Radio>
-              <Radio value={'User'}>User</Radio>
+              <Radio
+                value={'User'}
+                id="approval-payroll-workflow-setting-workflow-applies-type-radio-group-user"
+                data-cy="approval-payroll-workflow-setting-workflow-applies-type-radio-group-user"
+              >
+                User
+              </Radio>
             </Radio.Group>
           </Form.Item>
 
@@ -187,6 +248,8 @@ const PayrollApprovalWorkFlowSetting = ({
                 message: `Please select ${workflowApplies ? workflowApplies : ''}!`,
               },
             ]}
+            id="approval-payroll-workflow-setting-workflow-applies-id"
+            data-cy="approval-payroll-workflow-setting-workflow-applies-id"
           >
             <Select
               className="w-full h-10 mb-1"
@@ -223,13 +286,29 @@ const PayrollApprovalWorkFlowSetting = ({
                   return [];
                 }
               })()}
+              id="approval-payroll-workflow-setting-workflow-applies-id-select"
+              data-cy="approval-payroll-workflow-setting-workflow-applies-id-select"
             />
           </Form.Item>
-          <div className="font-medium mb-3 text-gray-500">
+          <div
+            className="font-medium mb-3 text-gray-500"
+            id="approval-payroll-workflow-setting-workflow-applies-id-select-description"
+            data-cy="approval-payroll-workflow-setting-workflow-applies-id-select-description"
+          >
             Select to which {workflowApplies} this workflow applies to.
           </div>
-          <div className="my-3">
-            <div className="text-lg font-bold ">Number Of Level</div>
+          <div
+            className="my-3"
+            id="approval-payroll-workflow-setting-number-of-level"
+            data-cy="approval-payroll-workflow-setting-number-of-level"
+          >
+            <div
+              className="text-lg font-bold "
+              id="approval-payroll-workflow-setting-number-of-level-title"
+              data-cy="approval-payroll-workflow-setting-number-of-level-title"
+            >
+              Number Of Level
+            </div>
             <Select
               showSearch
               optionFilterProp="label"
@@ -248,9 +327,15 @@ const PayrollApprovalWorkFlowSetting = ({
                   label: `${i + 1}`,
                 }),
               )}
+              id="approval-payroll-workflow-setting-number-of-level-select"
+              data-cy="approval-payroll-workflow-setting-number-of-level-select"
             />
 
-            <div className="font-medium mb-3 text-gray-500">
+            <div
+              className="font-medium mb-3 text-gray-500"
+              id="approval-payroll-workflow-setting-number-of-level-select-description"
+              data-cy="approval-payroll-workflow-setting-number-of-level-select-description"
+            >
               Select Number of specific approval stage or level within the
               process
             </div>
@@ -261,8 +346,18 @@ const PayrollApprovalWorkFlowSetting = ({
               _,
               index,
             ) => (
-              <div key={index} className="px-10 my-1">
-                <div>Level: {index + 1}</div>
+              <div
+                key={index}
+                className="px-10 my-1"
+                id="approval-payroll-workflow-setting-level"
+                data-cy="approval-payroll-workflow-setting-level"
+              >
+                <div
+                  id="approval-payroll-workflow-setting-level-title"
+                  data-cy="approval-payroll-workflow-setting-level-title"
+                >
+                  Level: {index + 1}
+                </div>
                 <Form.Item
                   className="font-semibold text-xs"
                   name={`assignedUser_${index}`}
@@ -286,6 +381,8 @@ const PayrollApprovalWorkFlowSetting = ({
                       },
                     },
                   ]}
+                  id="approval-payroll-workflow-setting-level-select"
+                  data-cy="approval-payroll-workflow-setting-level-select"
                 >
                   <Select
                     className="w-full  my-3"
@@ -309,15 +406,29 @@ const PayrollApprovalWorkFlowSetting = ({
                         label:
                           `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
                       }))}
+                    id="approval-payroll-workflow-setting-level-select"
+                    data-cy="approval-payroll-workflow-setting-level-select"
                   />
                 </Form.Item>
               </div>
             ),
           )}
 
-          <Form.Item>
-            <Row className="flex justify-center gap-3">
-              <Button type="primary" htmlType="submit">
+          <Form.Item
+            id="approval-payroll-workflow-setting-submit-button"
+            data-cy="approval-payroll-workflow-setting-submit-button"
+          >
+            <Row
+              className="flex justify-center gap-3"
+              id="approval-payroll-workflow-setting-submit-button-row"
+              data-cy="approval-payroll-workflow-setting-submit-button-row"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="approval-payroll-workflow-setting-submit-button"
+                data-cy="approval-payroll-workflow-setting-submit-button"
+              >
                 Submit
               </Button>
             </Row>

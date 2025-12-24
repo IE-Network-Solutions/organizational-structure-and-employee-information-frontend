@@ -46,19 +46,19 @@ const ApprovalBranchFilter = () => {
   return (
     <div
       className="flex sm:block"
-      id="settings-approvals-filter"
-      data-cy="settings-approvals-filter"
+      id="settings-payroll-approvals-filter"
+      data-cy="settings-payroll-approvals-filter"
     >
       <ApprovalFilterComponent
         searchParams={searchParams}
         handleSearchInput={handleSearchInput}
         handleDepartmentChange={handleDepartmentChange}
-        data-cy="settings-approvals-filter-component"
+        data-cy="settings-payroll-approvals-filter-component"
       />
       <AccessGuard
         permissions={[Permissions.CreateApprovalWorkFlow]}
-        id="settings-approvals-filter-button-guard"
-        data-cy="settings-approvals-filter-button-guard"
+        id="settings-payroll-approvals-filter-button-guard"
+        data-cy="settings-payroll-approvals-filter-button-guard"
       >
         <Button
           title="Set Approval"
@@ -67,12 +67,12 @@ const ApprovalBranchFilter = () => {
           icon={<FaPlus />}
           onClick={() => setAddDepartmentApproval(true)}
           type="primary"
-          data-cy="settings-approvals-filter-button"
+          data-cy="settings-payroll-approvals-filter-button"
         >
           <span
             className="hidden sm:inline"
-            data-cy="settings-approvals-filter-button-text"
-            id="settings-approvals-filter-button-text"
+            data-cy="settings-payroll-approvals-filter-button-text"
+            id="settings-payroll-approvals-filter-button-text"
           >
             Set Approval
           </span>

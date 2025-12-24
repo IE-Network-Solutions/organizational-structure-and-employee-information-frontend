@@ -35,7 +35,11 @@ const PayrollApprovalCreator = ({
       width="40%"
       footer={null}
     >
-      <div className="pb-[60px]">
+      <div
+        className="pb-[60px]"
+        id="settings-payroll-approvals-creator-container"
+        data-cy="settings-payroll-approvals-creator-container"
+      >
         <Form
           form={form}
           onFinish={handleSubmit}
@@ -43,6 +47,8 @@ const PayrollApprovalCreator = ({
           initialValues={{
             workFlownName: selectedItem?.name,
           }}
+          id="settings-payroll-approvals-creator-form"
+          data-cy="settings-payroll-approvals-creator-form"
         >
           <Form.Item
             className="text-lg font-bold mt-3 mb-1"
@@ -51,12 +57,27 @@ const PayrollApprovalCreator = ({
             rules={[
               { required: true, message: 'Please enter a workflow name!' },
             ]}
+            id="settings-payroll-approvals-creator-workflow-name"
+            data-cy="settings-payroll-approvals-creator-workflow-name"
           >
-            <Input disabled placeholder="Enter Workflow Name" />
+            <Input
+              disabled
+              placeholder="Enter Workflow Name"
+              id="settings-payroll-approvals-creator-workflow-name-input"
+              data-cy="settings-payroll-approvals-creator-workflow-name-input"
+            />
           </Form.Item>
 
-          <div className="my-3">
-            <div className="text-lg font-bold ">
+          <div
+            className="my-3"
+            id="settings-payroll-approvals-creator-levels"
+            data-cy="settings-payroll-approvals-creator-levels"
+          >
+            <div
+              className="text-lg font-bold"
+              id="settings-payroll-approvals-creator-levels-title"
+              data-cy="settings-payroll-approvals-creator-levels-title"
+            >
               {approverType === 'Parallel' ? 'Approvers' : 'Level'}
             </div>
             <Select
@@ -77,9 +98,15 @@ const PayrollApprovalCreator = ({
                   label: `${i + 1}`,
                 }),
               )}
+              id="settings-payroll-approvals-creator-levels-select"
+              data-cy="settings-payroll-approvals-creator-levels-select"
             />
 
-            <div className="font-medium">
+            <div
+              className="font-medium"
+              id="settings-payroll-approvals-creator-levels-description"
+              data-cy="settings-payroll-approvals-creator-levels-description"
+            >
               This is the specific approval stage or level within the process
             </div>
           </div>
@@ -88,9 +115,17 @@ const PayrollApprovalCreator = ({
               _,
               index,
             ) => (
-              <div key={index} className="px-10 my-1 ">
+              <div
+                key={index}
+                className="px-10 my-1"
+                id="settings-payroll-approvals-creator-levels-container"
+                data-cy="settings-payroll-approvals-creator-levels-container"
+              >
                 {approverType !== 'Parallel' && (
-                  <div>
+                  <div
+                    id="settings-payroll-approvals-creator-levels-container-title"
+                    data-cy="settings-payroll-approvals-creator-levels-container-title"
+                  >
                     Additional Levels:{' '}
                     {selectedItem?.approvers?.length + index + 1}
                   </div>
@@ -104,8 +139,14 @@ const PayrollApprovalCreator = ({
                     rules={[
                       { required: true, message: 'Please enter a level!' },
                     ]}
+                    id="settings-payroll-approvals-creator-levels-container-level"
+                    data-cy="settings-payroll-approvals-creator-levels-container-level"
                   >
-                    <Input placeholder="Enter level" />
+                    <Input
+                      placeholder="Enter level"
+                      id="settings-payroll-approvals-creator-levels-container-level-input"
+                      data-cy="settings-payroll-approvals-creator-levels-container-level-input"
+                    />
                   </Form.Item>
                 )}
 
@@ -114,6 +155,8 @@ const PayrollApprovalCreator = ({
                   name={`assignedUser_${index}`}
                   label={`Assign User `}
                   rules={[{ required: true, message: 'Please select a user!' }]}
+                  id="settings-payroll-approvals-creator-levels-container-assign-user"
+                  data-cy="settings-payroll-approvals-creator-levels-container-assign-user"
                 >
                   <Select
                     className="min-w-52 my-3"
@@ -130,15 +173,29 @@ const PayrollApprovalCreator = ({
                       value: list?.id,
                       label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
                     }))}
+                    id="settings-payroll-approvals-creator-levels-container-assign-user-select"
+                    data-cy="settings-payroll-approvals-creator-levels-container-assign-user-select"
                   />
                 </Form.Item>
               </div>
             ),
           )}
 
-          <Form.Item>
-            <Row className="flex justify-end gap-3">
-              <Button type="primary" htmlType="submit">
+          <Form.Item
+            id="settings-payroll-approvals-creator-levels-container-submit"
+            data-cy="settings-payroll-approvals-creator-levels-container-submit"
+          >
+            <Row
+              className="flex justify-end gap-3"
+              id="settings-payroll-approvals-creator-levels-container-submit-row"
+              data-cy="settings-payroll-approvals-creator-levels-container-submit-row"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="settings-payroll-approvals-creator-levels-container-submit-row-button"
+                data-cy="settings-payroll-approvals-creator-levels-container-submit-row-button"
+              >
                 Submit
               </Button>
             </Row>

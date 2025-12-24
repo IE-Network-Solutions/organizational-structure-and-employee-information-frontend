@@ -51,11 +51,19 @@ const PayrollApprovalTable = ({
 }) => {
   const { isMobile, isTablet } = useIsMobile();
   return (
-    <div data-cy="approval-list-table-container">
-      <div className="mt-2 w-full" data-cy="approval-list-table-wrapper">
+    <div
+      id="approval-payroll-list-table-container"
+      data-cy="approval-payroll-list-table-container"
+    >
+      <div
+        className="mt-2 w-full"
+        id="approval-payroll-list-table-wrapper"
+        data-cy="approval-payroll-list-table-wrapper"
+      >
         <div
           className="overflow-x-auto scrollbar-none"
-          data-cy="approval-list-table-scroll"
+          id="approval-payroll-list-table-scroll-container"
+          data-cy="approval-payroll-list-table-scroll-container"
         >
           <Table
             columns={columns}
@@ -63,6 +71,8 @@ const PayrollApprovalTable = ({
             pagination={false}
             loading={isEmployeeLoading}
             scroll={{ x: 730 }}
+            id="approval-payroll-list-table-scroll"
+            data-cy="approval-payroll-list-table-scroll"
           />
         </div>
       </div>
@@ -72,6 +82,8 @@ const PayrollApprovalTable = ({
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={onPageChange}
+          id="approval-payroll-list-table-mobile-pagination"
+          data-cy="approval-payroll-list-table-mobile-pagination"
         />
       ) : (
         <CustomPagination
@@ -82,6 +94,8 @@ const PayrollApprovalTable = ({
           onShowSizeChange={(pageSize) => {
             onPageChange(1, pageSize);
           }}
+          id="approval-payroll-list-table-pagination"
+          data-cy="approval-payroll-list-table-pagination"
         />
       )}
     </div>

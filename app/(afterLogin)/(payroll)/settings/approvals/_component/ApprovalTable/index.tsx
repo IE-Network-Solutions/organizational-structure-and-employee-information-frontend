@@ -2,7 +2,6 @@
 
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { Button, Tooltip, Skeleton } from 'antd';
 import Image from 'next/image';
@@ -47,17 +46,13 @@ const ApprovalTable = () => {
     searchParams,
   } = useApprovalBranchStore();
   const { data: employeeData, isLoading: isUserDataLoading } = useGetAllUsers();
-  const { data: department } = useGetDepartments();
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
   const getEmployeeInformation = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;
   };
-  const getDepartmentInformation = (id: string) => {
-    const departments = department?.find((item: any) => item.id === id);
-    return departments;
-  };
+
   const { mutate: deleteApproval } = useDeleteApprovalWorkFLow();
   const { data: allFilterData, isLoading: isEmployeeLoading } =
     useApprovalFilter(
@@ -82,31 +77,31 @@ const ApprovalTable = () => {
   const UserInfoSkeleton = () => (
     <div
       className="flex items-center gap-2"
-      id="settings-approvals-row-assignee-skeleton"
-      data-cy="settings-approvals-row-assignee-skeleton"
+      id="settings-payroll-approvals-row-assignee-skeleton"
+      data-cy="settings-payroll-approvals-row-assignee-skeleton"
     >
       <Skeleton.Avatar
         active
         size="small"
         shape="circle"
-        data-cy="settings-approvals-row-assignee-skeleton-avatar"
+        data-cy="settings-payroll-approvals-row-assignee-skeleton-avatar"
       />
       <div
         className="flex flex-col gap-1"
-        id="settings-approvals-row-assignee-skeleton-info"
-        data-cy="settings-approvals-row-assignee-skeleton-info"
+        id="settings-payroll-approvals-row-assignee-skeleton-info"
+        data-cy="settings-payroll-approvals-row-assignee-skeleton-info"
       >
         <Skeleton.Input
           active
           size="small"
           style={{ width: 80, height: 14 }}
-          data-cy="settings-approvals-row-assignee-skeleton-name"
+          data-cy="settings-payroll-approvals-row-assignee-skeleton-name"
         />
         <Skeleton.Input
           active
           size="small"
           style={{ width: 60, height: 12 }}
-          data-cy="settings-approvals-row-assignee-skeleton-email"
+          data-cy="settings-payroll-approvals-row-assignee-skeleton-email"
         />
       </div>
     </div>
@@ -139,8 +134,8 @@ const ApprovalTable = () => {
     return (
       <div
         className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200"
-        id="settings-approvals-row-assignee-avatar"
-        data-cy="settings-approvals-row-assignee-avatar"
+        id="settings-payroll-approvals-row-assignee-avatar"
+        data-cy="settings-payroll-approvals-row-assignee-avatar"
       >
         <Image
           src={getImageSrc() || '/placeholder.svg'}
@@ -148,8 +143,8 @@ const ApprovalTable = () => {
           layout="fill"
           className="object-cover"
           onError={() => setImageError(true)}
-          id={`settings-approvals-row-assignee-avatar-image-${userId}`}
-          data-cy={`settings-approvals-row-assignee-avatar-image-${userId}`}
+          id={`settings-payroll-approvals-row-assignee-avatar-image-${userId}`}
+          data-cy={`settings-payroll-approvals-row-assignee-avatar-image-${userId}`}
         />
       </div>
     );
@@ -170,14 +165,14 @@ const ApprovalTable = () => {
             overflow: 'hidden',
             overflowY: 'scroll',
           }}
-          id={`settings-approvals-row-assignee-${rowSlug}`}
-          data-cy={`settings-approvals-row-assignee-${rowSlug}`}
+          id={`settings-payroll-approvals-row-assignee-${rowSlug}`}
+          data-cy={`settings-payroll-approvals-row-assignee-${rowSlug}`}
         >
           {isUserDataLoading ? (
             // Show skeleton loaders while user data is loading
             <>
-              <UserInfoSkeleton data-cy="settings-approvals-row-assignee-skeleton" />
-              <UserInfoSkeleton data-cy="settings-approvals-row-assignee-skeleton" />
+              <UserInfoSkeleton data-cy="settings-payroll-approvals-row-assignee-skeleton" />
+              <UserInfoSkeleton data-cy="settings-payroll-approvals-row-assignee-skeleton" />
             </>
           ) : (
             item?.approvers?.map((employee: any, empIndex: number) => {
@@ -188,39 +183,39 @@ const ApprovalTable = () => {
                   <div
                     key={empIndex}
                     className="flex items-center gap-2"
-                    id={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
-                    data-cy={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
+                    id={`settings-payroll-approvals-row-assignee-${rowSlug}-${empIndex}`}
+                    data-cy={`settings-payroll-approvals-row-assignee-${rowSlug}-${empIndex}`}
                   >
                     <div
                       className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200"
-                      id={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
-                      data-cy={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
+                      id={`settings-payroll-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
+                      data-cy={`settings-payroll-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
                     >
                       <Image
                         src={Avatar || '/placeholder.svg'}
                         alt="Default avatar"
                         layout="fill"
                         className="object-cover"
-                        id={`settings-approvals-row-assignee-avatar-image-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-approvals-row-assignee-avatar-image-${rowSlug}-${empIndex}`}
+                        id={`settings-payroll-approvals-row-assignee-avatar-image-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-payroll-approvals-row-assignee-avatar-image-${rowSlug}-${empIndex}`}
                       />
                     </div>
                     <div
                       className="flex flex-col justify-center"
-                      id={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
-                      data-cy={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
+                      id={`settings-payroll-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
+                      data-cy={`settings-payroll-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
                     >
                       <p
                         className="text-gray-400"
-                        id={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
+                        id={`settings-payroll-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-payroll-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
                       >
                         User not found
                       </p>
                       <p
                         className="font-extralight text-[12px] text-gray-400"
-                        id={`settings-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
+                        id={`settings-payroll-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-payroll-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
                       >
                         -
                       </p>
@@ -250,33 +245,33 @@ const ApprovalTable = () => {
                       {userInfo.email}
                     </div>
                   }
-                  id={`settings-approvals-row-assignee-tooltip-${rowSlug}-${empIndex}`}
-                  data-cy={`settings-approvals-row-assignee-tooltip-${rowSlug}-${empIndex}`}
+                  id={`settings-payroll-approvals-row-assignee-tooltip-${rowSlug}-${empIndex}`}
+                  data-cy={`settings-payroll-approvals-row-assignee-tooltip-${rowSlug}-${empIndex}`}
                 >
                   <div
                     className="flex items-center flex-wrap sm:flex-row gap-2"
-                    id={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
-                    data-cy={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
+                    id={`settings-payroll-approvals-row-assignee-${rowSlug}-${empIndex}`}
+                    data-cy={`settings-payroll-approvals-row-assignee-${rowSlug}-${empIndex}`}
                   >
                     <UserAvatar
                       userId={employee?.userId}
-                      data-cy={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
+                      data-cy={`settings-payroll-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
                     />
                     <div
                       className="flex flex-wrap flex-col justify-center"
-                      id={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
-                      data-cy={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
+                      id={`settings-payroll-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
+                      data-cy={`settings-payroll-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
                     >
                       <p
-                        id={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
+                        id={`settings-payroll-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-payroll-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
                       >
                         {displayName || '-'}
                       </p>
                       <p
                         className="font-extralight text-[12px]"
-                        id={`settings-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
+                        id={`settings-payroll-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-payroll-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
                       >
                         {displayEmail || '-'}
                       </p>
@@ -292,18 +287,18 @@ const ApprovalTable = () => {
       action: (
         <div
           className="flex gap-1 text-white"
-          id={`settings-approvals-row-actions-${rowSlug}`}
-          data-cy={`settings-approvals-row-actions-${rowSlug}`}
+          id={`settings-payroll-approvals-row-actions-${rowSlug}`}
+          data-cy={`settings-payroll-approvals-row-actions-${rowSlug}`}
         >
           <AccessGuard
             permissions={[Permissions.UpdateApprover]}
-            id={`settings-approvals-row-edit-guard-${rowSlug}`}
-            data-cy={`settings-approvals-row-edit-guard-${rowSlug}`}
+            id={`settings-payroll-approvals-row-edit-guard-${rowSlug}`}
+            data-cy={`settings-payroll-approvals-row-edit-guard-${rowSlug}`}
           >
             <Tooltip
               title={'Edit Approver'}
-              id={`settings-approvals-row-edit-btn-${rowSlug}`}
-              data-cy={`settings-approvals-row-edit-btn-${rowSlug}`}
+              id={`settings-payroll-approvals-row-edit-btn-${rowSlug}`}
+              data-cy={`settings-payroll-approvals-row-edit-btn-${rowSlug}`}
             >
               <Button
                 id={`editUserButton${item?.id}`}
@@ -319,11 +314,11 @@ const ApprovalTable = () => {
                       : '-',
                   );
                 }}
-                data-cy={`settings-approvals-row-edit-btn-${rowSlug}`}
+                data-cy={`settings-payroll-approvals-row-edit-btn-${rowSlug}`}
                 icon={
                   <FaPencil
-                    id={`settings-approvals-row-edit-icon-${rowSlug}`}
-                    data-cy={`settings-approvals-row-edit-icon-${rowSlug}`}
+                    id={`settings-payroll-approvals-row-edit-icon-${rowSlug}`}
+                    data-cy={`settings-payroll-approvals-row-edit-icon-${rowSlug}`}
                   />
                 }
               />
@@ -331,12 +326,12 @@ const ApprovalTable = () => {
           </AccessGuard>
           <AccessGuard
             permissions={[Permissions.DeleteApprover]}
-            id={`settings-approvals-row-delete-guard-${rowSlug}`}
-            data-cy={`settings-approvals-row-delete-guard-${rowSlug}`}
+            id={`settings-payroll-approvals-row-delete-guard-${rowSlug}`}
+            data-cy={`settings-payroll-approvals-row-delete-guard-${rowSlug}`}
           >
             <Tooltip
               title={'Delete Employee'}
-              id={`settings-approvals-row-delete-btn-${rowSlug}`}
+              id={`settings-payroll-approvals-row-delete-btn-${rowSlug}`}
               data-cy={`settings-approvals-row-delete-btn-${rowSlug}`}
             >
               <Button
@@ -346,11 +341,11 @@ const ApprovalTable = () => {
                   setDeleteModal(true);
                   setDeletedItem(item?.id);
                 }}
-                data-cy={`settings-approvals-row-delete-btn-${rowSlug}`}
+                data-cy={`settings-payroll-approvals-row-delete-btn-${rowSlug}`}
                 icon={
                   <RiDeleteBin6Line
-                    id={`settings-approvals-row-delete-icon-${rowSlug}`}
-                    data-cy={`settings-approvals-row-delete-icon-${rowSlug}`}
+                    id={`settings-payroll-approvals-row-delete-icon-${rowSlug}`}
+                    data-cy={`settings-payroll-approvals-row-delete-icon-${rowSlug}`}
                   />
                 }
               />
@@ -358,13 +353,13 @@ const ApprovalTable = () => {
           </AccessGuard>
           <AccessGuard
             permissions={[Permissions.CreateApprover]}
-            id={`settings-approvals-row-add-guard-${rowSlug}`}
-            data-cy={`settings-approvals-row-add-guard-${rowSlug}`}
+            id={`settings-payroll-approvals-row-add-guard-${rowSlug}`}
+            data-cy={`settings-payroll-approvals-row-add-guard-${rowSlug}`}
           >
             <Tooltip
               title={'Add Approver'}
-              id={`settings-approvals-row-tooltip=${rowSlug}`}
-              data-cy={`settings-approvals-tooltip=${rowSlug}`}
+              id={`settings-payroll-approvals-row-tooltip=${rowSlug}`}
+              data-cy={`settings-payroll-approvals-tooltip=${rowSlug}`}
             >
               <Button
                 id={`editUserButton${item?.id}`}
@@ -379,11 +374,11 @@ const ApprovalTable = () => {
                       : '-',
                   );
                 }}
-                data-cy={`settings-approvals-row-add-btn-${rowSlug}`}
+                data-cy={`settings-payroll-approvals-row-add-btn-${rowSlug}`}
                 icon={
                   <FaPlus
-                    id={`settings-approvals-row-add-icon-${rowSlug}`}
-                    data-cy={`settings-approvals-row-add-icon-${rowSlug}`}
+                    id={`settings-payroll-approvals-row-add-icon-${rowSlug}`}
+                    data-cy={`settings-payroll-approvals-row-add-icon-${rowSlug}`}
                   />
                 }
               />
@@ -396,24 +391,28 @@ const ApprovalTable = () => {
 
   return (
     <div
-      id="settings-approvals-table-container"
-      data-cy="settings-approvals-table-container"
+      id="settings-payroll-approvals-table-container"
+      data-cy="settings-payroll-approvals-table-container"
     >
       <DeleteModal
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}
         onCancel={() => setDeleteModal(false)}
-        data-cy="settings-approvals-delete-modal"
+        data-cy="settings-payroll-approvals-delete-modal"
       />
-      {editModal && <EditWorkFLow data-cy="settings-approvals-edit-workflow" />}
-      {addModal && <AddApprover data-cy="settings-approvals-add-approver" />}
+      {editModal && (
+        <EditWorkFLow data-cy="settings-payroll-approvals-edit-workflow" />
+      )}
+      {addModal && (
+        <AddApprover data-cy="settings-payroll-approvals-add-approver" />
+      )}
       <PayrollApprovalTable
         data={data}
         isEmployeeLoading={isEmployeeLoading}
         allFilterData={allFilterData}
         onPageChange={onPageChange}
         pageSize={pageSize}
-        data-cy="settings-approvals-table-component"
+        data-cy="settings-payroll-approvals-table-component"
       />
     </div>
   );
