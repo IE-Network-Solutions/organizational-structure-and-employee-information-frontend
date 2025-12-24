@@ -30,12 +30,7 @@ const statusHighlightColors: Record<string, string> = {
 };
 
 // Status border colors
-const statusBorderColors: Record<string, string> = {
-  pending: '#fadb14', // Gold border
-  solved: '#52c41a', // Green border
-  Pending: '#fadb14',
-  Solved: '#52c41a',
-};
+
 
 const capitalizeFirstLetter = (value: string) => {
   if (!value) return value;
