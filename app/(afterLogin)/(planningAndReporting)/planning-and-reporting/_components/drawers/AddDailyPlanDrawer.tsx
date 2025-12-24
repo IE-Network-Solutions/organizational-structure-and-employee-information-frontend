@@ -497,9 +497,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                     [...base, 'priority'],
                                                                     [...base, 'weight'],
                                                                 ];
-                                                                if (group.targetValue !== null && group.targetValue !== undefined) {
-                                                                    groupFields.push([...base, 'targetValue']);
-                                                                }
+                                                                // targetValue is excluded from validation - only min={0} prevents negative values
                                                                 return groupFields;
                                                             });
 

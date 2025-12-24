@@ -192,35 +192,9 @@ function DefaultCardForm({
                                   name={[field.name, 'targetValue']}
                                   key={`${field.key}-targetValue`}
                                   noStyle
-                                  rules={[
-                                    {
-                                      validator(nonused, value: any) {
-                                        if (
-                                          keyResult?.metricType?.name === NAME.ACHIEVE ||
-                                          keyResult?.metricType?.name === NAME.MILESTONE
-                                        ) {
-                                          return Promise.resolve();
-                                        }
-                                        if (value === null || value === undefined) {
-                                          return Promise.reject(new Error('Please enter a target value.'));
-                                        }
-                                        if (targetValue !== null && targetValue !== undefined) {
-                                          if (value <= targetValue) return Promise.resolve();
-                                        } else {
-                                          if (sumTargetValue(name) <= keyResult.targetValue - keyResult.currentValue) {
-                                            return Promise.resolve();
-                                          }
-                                        }
-                                        return Promise.reject(
-                                          new Error(
-                                            `Your target value shouldn't exceed the allowed limits. you have only ${Number(keyResult.targetValue - keyResult.currentValue).toLocaleString()}`,
-                                          ),
-                                        );
-                                      },
-                                    },
-                                  ]}
                                 >
                                   <InputNumber
+                                    min={0}
                                     className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
                                     defaultValue={0}
                                     formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
