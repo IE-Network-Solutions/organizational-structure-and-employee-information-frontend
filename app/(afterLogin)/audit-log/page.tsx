@@ -38,18 +38,6 @@ const AuditLogPage = () => {
   const { isMobile, isTablet } = useIsMobile();
   const { data: allUsers, isLoading: isLoadingUsers, error: usersError } = useGetAllUsers();
 
-  // Debug: Log the data structure
-  useEffect(() => {
-    console.log('=== ALL USERS DATA ===');
-    console.log('allUsers:', allUsers);
-    console.log('allUsers?.items:', allUsers?.items);
-    console.log('isLoadingUsers:', isLoadingUsers);
-    console.log('usersError:', usersError);
-    if (usersError) {
-      console.error('Error loading users:', usersError);
-    }
-  }, [allUsers, isLoadingUsers, usersError]);
-
   const queryParams = useMemo(() => {
     const params = {
       module: selectedModule ?? null,
