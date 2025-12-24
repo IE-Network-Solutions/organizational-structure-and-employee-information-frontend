@@ -43,6 +43,15 @@ function BoardCardForm({
 
   const showTarget = keyResult?.metricType?.name !== NAME.ACHIEVE &&
     keyResult?.metricType?.name !== NAME.MILESTONE;
+
+  const sumTargetValue = (name: string) => {
+    const formValues = form.getFieldsValue();
+    const total = formValues[`board-${name}`]?.reduce(
+      (sum: number, task: any) => sum + (Number(task.targetValue) || 0),
+      0,
+    ) || 0;
+    return total;
+  };
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -110,6 +119,40 @@ function BoardCardForm({
                             name={[subName, 'targetValue']}
                             key={`${subName}-targetValue`}
                             style={{ marginBottom: 0 }}
+                            rules={[
+                              {
+                                validator(nonused, value: any) {
+                                  // Allow empty/null values (optional field)
+                                  if (value === null || value === undefined || value === '') {
+                                    return Promise.resolve();
+                                  }
+                                  
+                                  // Skip validation for Milestone and Achieve metric types
+                                  if (keyResult?.metricType?.name === NAME.ACHIEVE || keyResult?.metricType?.name === NAME.MILESTONE) {
+                                    return Promise.resolve();
+                                  }
+                                  
+                                  if (!keyResult || !keyResult.targetValue || !keyResult.currentValue) {
+                                    return Promise.resolve(); // Skip validation if key result data is incomplete
+                                  }
+                                  
+                                  const numericValue = Number(value);
+                                  if (isNaN(numericValue)) {
+                                    return Promise.reject(new Error('Please enter a valid number.'));
+                                  }
+                                  
+                                  // Check if total exceeds key result's available target
+                                  if (targetValue !== null && targetValue !== undefined) {
+                                    if (numericValue <= targetValue) return Promise.resolve();
+                                  } else {
+                                    if (sumTargetValue(name) <= keyResult.targetValue - keyResult.currentValue) {
+                                      return Promise.resolve();
+                                    }
+                                  }
+                                  return Promise.reject(new Error("Target value exceeds limit."));
+                                },
+                              },
+                            ]}
                           >
                             <InputNumber
                               min={0}
