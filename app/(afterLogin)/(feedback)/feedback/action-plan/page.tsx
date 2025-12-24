@@ -207,20 +207,24 @@ const columns: ColumnsType<any> = [
   {
     title: 'Priority',
     dataIndex: 'priority',
-    render: (priority: keyof typeof priorityColors, record) => (
+    render: (priority: keyof typeof priorityColors, record) =>
       !priority ? (
-        <span data-cy={`feedback-action-plan-table-cell-priority-${record.key}`} id={`feedback-action-plan-table-cell-priority-${record.key}`}>—</span>
+        <span
+          data-cy={`feedback-action-plan-table-cell-priority-${record.key}`}
+          id={`feedback-action-plan-table-cell-priority-${record.key}`}
+        >
+          —
+        </span>
       ) : (
-      <Tag
-        className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
-        color={priorityColors[priority]}
-        data-cy={`feedback-action-plan-table-cell-priority-${record.key}`}
-        id={`feedback-action-plan-table-cell-priority-${record.key}`}
-      >
-        {priority}
-      </Tag>
-      )
-    ),
+        <Tag
+          className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
+          color={priorityColors[priority]}
+          data-cy={`feedback-action-plan-table-cell-priority-${record.key}`}
+          id={`feedback-action-plan-table-cell-priority-${record.key}`}
+        >
+          {priority}
+        </Tag>
+      ),
   },
   {
     title: 'Status',
@@ -228,7 +232,11 @@ const columns: ColumnsType<any> = [
     render: (status: keyof typeof statusColors, record) => (
       <Tag
         className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
-        color={statusColors[capitalizeFirstLetter(status) as keyof typeof statusColors]}
+        color={
+          statusColors[
+            capitalizeFirstLetter(status) as keyof typeof statusColors
+          ]
+        }
         data-cy={`feedback-action-plan-table-cell-status-${record.key}`}
         id={`feedback-action-plan-table-cell-status-${record.key}`}
       >
@@ -410,7 +418,6 @@ export default function ActionPlansPage() {
             <Select
               allowClear
               className="h-12"
-
               placeholder="Select type"
               data-cy="feedback-action-plan-page-select-source-type"
               id="feedback-action-plan-page-select-source-type"
@@ -428,7 +435,6 @@ export default function ActionPlansPage() {
                 id="feedback-action-plan-page-option-source-survey"
               >
                 Survey
-
               </Option>
             </Select>
           </Form.Item>
@@ -476,10 +482,34 @@ export default function ActionPlansPage() {
             data-cy="feedback-action-plan-page-form-item-priority"
             id="feedback-action-plan-page-form-item-priority"
           >
-            <Select allowClear className="h-12" placeholder="Select priority" data-cy="feedback-action-plan-page-select-priority" id="feedback-action-plan-page-select-priority">
-              <Option value="High" data-cy="feedback-action-plan-page-option-priority-high" id="feedback-action-plan-page-option-priority-high">High</Option>
-              <Option value="Medium" data-cy="feedback-action-plan-page-option-priority-medium" id="feedback-action-plan-page-option-priority-medium">Medium</Option>
-              <Option value="Low" data-cy="feedback-action-plan-page-option-priority-low" id="feedback-action-plan-page-option-priority-low">Low</Option>
+            <Select
+              allowClear
+              className="h-12"
+              placeholder="Select priority"
+              data-cy="feedback-action-plan-page-select-priority"
+              id="feedback-action-plan-page-select-priority"
+            >
+              <Option
+                value="High"
+                data-cy="feedback-action-plan-page-option-priority-high"
+                id="feedback-action-plan-page-option-priority-high"
+              >
+                High
+              </Option>
+              <Option
+                value="Medium"
+                data-cy="feedback-action-plan-page-option-priority-medium"
+                id="feedback-action-plan-page-option-priority-medium"
+              >
+                Medium
+              </Option>
+              <Option
+                value="Low"
+                data-cy="feedback-action-plan-page-option-priority-low"
+                id="feedback-action-plan-page-option-priority-low"
+              >
+                Low
+              </Option>
             </Select>
           </Form.Item>
 
@@ -500,8 +530,11 @@ export default function ActionPlansPage() {
         </div>
       </Form>
 
-      <div className="mt-4 overflow-x-auto scrollbar-none" data-cy="feedback-action-plan-page-div-table-container" id="feedback-action-plan-page-div-table-container">
-
+      <div
+        className="mt-4 overflow-x-auto scrollbar-none"
+        data-cy="feedback-action-plan-page-div-table-container"
+        id="feedback-action-plan-page-div-table-container"
+      >
         <Table
           columns={columns}
           dataSource={data}
@@ -604,17 +637,14 @@ export default function ActionPlansPage() {
             </Form.Item>
 
             <Form.Item
-
               name="sourceType"
               label="Type"
               data-cy="feedback-action-plan-page-modal-form-item-source-type"
               id="feedback-action-plan-page-modal-form-item-source-type"
-
             >
               <Select
                 allowClear
                 className="h-12"
-
                 placeholder="Select type"
                 data-cy="feedback-action-plan-page-modal-select-source-type"
                 id="feedback-action-plan-page-modal-select-source-type"
@@ -636,12 +666,40 @@ export default function ActionPlansPage() {
               </Select>
             </Form.Item>
 
-            <Form.Item name="priority" label="Priority" data-cy="feedback-action-plan-page-modal-form-item-priority" id="feedback-action-plan-page-modal-form-item-priority">
-              <Select allowClear className="h-12" placeholder="Select priority" data-cy="feedback-action-plan-page-modal-select-priority" id="feedback-action-plan-page-modal-select-priority">
-                <Option value="High" data-cy="feedback-action-plan-page-modal-option-priority-high" id="feedback-action-plan-page-modal-option-priority-high">High</Option>
-                <Option value="Medium" data-cy="feedback-action-plan-page-modal-option-priority-medium" id="feedback-action-plan-page-modal-option-priority-medium">Medium</Option>
-                <Option value="Low" data-cy="feedback-action-plan-page-modal-option-priority-low" id="feedback-action-plan-page-modal-option-priority-low">Low</Option>
-
+            <Form.Item
+              name="priority"
+              label="Priority"
+              data-cy="feedback-action-plan-page-modal-form-item-priority"
+              id="feedback-action-plan-page-modal-form-item-priority"
+            >
+              <Select
+                allowClear
+                className="h-12"
+                placeholder="Select priority"
+                data-cy="feedback-action-plan-page-modal-select-priority"
+                id="feedback-action-plan-page-modal-select-priority"
+              >
+                <Option
+                  value="High"
+                  data-cy="feedback-action-plan-page-modal-option-priority-high"
+                  id="feedback-action-plan-page-modal-option-priority-high"
+                >
+                  High
+                </Option>
+                <Option
+                  value="Medium"
+                  data-cy="feedback-action-plan-page-modal-option-priority-medium"
+                  id="feedback-action-plan-page-modal-option-priority-medium"
+                >
+                  Medium
+                </Option>
+                <Option
+                  value="Low"
+                  data-cy="feedback-action-plan-page-modal-option-priority-low"
+                  id="feedback-action-plan-page-modal-option-priority-low"
+                >
+                  Low
+                </Option>
               </Select>
             </Form.Item>
 
