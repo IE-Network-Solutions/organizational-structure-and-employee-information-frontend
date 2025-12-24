@@ -211,9 +211,15 @@ const Payroll = () => {
     if (exportBank) exportTasks.push(handleExportBank(selectedData));
 
     if (bankLetter) {
-      // Calculate total net pay for selected items
       const totalNetPay = selectedData.reduce(
-        (sum: number, item: any) => sum + (item.netPay || 0),
+        (sum: number, item: any) => {
+          const netPay = item.netPay;
+          const numericNetPay =
+            typeof netPay === 'string'
+              ? parseFloat(netPay.replace(/,/g, '')) || 0
+              : Number(netPay) || 0;
+          return sum + numericNetPay;
+        },
         0,
       );
       exportTasks.push(Promise.resolve(handleBankLetter(totalNetPay)));
@@ -767,16 +773,21 @@ const Payroll = () => {
   };
 
   const handleBankLetter = async (amount: any) => {
-    if (!amount) {
+    const numericAmount =
+      typeof amount === 'string'
+        ? parseFloat(amount.replace(/,/g, ''))
+        : Number(amount);
+
+    if (!amount || isNaN(numericAmount) || numericAmount <= 0) {
       notification.error({
         message: 'Amount Missing',
-        description: 'Please provide the amount for the bank letter.',
+        description: 'Please provide the valid amount for the bank letter.',
       });
       return;
     }
     setLoading(true);
     try {
-      await generateBankLetter(amount);
+      await generateBankLetter(numericAmount);
     } catch (error) {
       notification.error({
         message: 'Error Generating Bank Letter',
