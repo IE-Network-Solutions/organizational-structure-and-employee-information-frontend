@@ -177,10 +177,7 @@ export default function StatusDropdown({
     statusHighlightColors[normalizedStatus] ||
     statusHighlightColors[currentStatus] ||
     '#f0f0f0';
-  const borderColor =
-    statusBorderColors[normalizedStatus] ||
-    statusBorderColors[currentStatus] ||
-    '#d9d9d9';
+ 
 
   return (
     <Dropdown

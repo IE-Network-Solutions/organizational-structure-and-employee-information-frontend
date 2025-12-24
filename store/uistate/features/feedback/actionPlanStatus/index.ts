@@ -36,6 +36,7 @@ export const useActionPlanStatusStore = create<ActionPlanStatusState>((set, get)
   
   clearOptimisticStatus: (actionPlanId: string) =>
     set((state) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [actionPlanId]: _, ...rest } = state.optimisticStatuses;
       return { optimisticStatuses: rest };
     }),
