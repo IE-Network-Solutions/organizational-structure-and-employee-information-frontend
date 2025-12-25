@@ -64,7 +64,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
     sendResignationID(resignationId, {
       onSuccess: () => {
         refetchEmployee();
-        setActiveTab('6');
+        setActiveTab('5');
       },
     });
   };
@@ -197,12 +197,13 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           >
             <BasicInfo id={id} data-cy="employee-detail-basic-info" />
           </div>
-          <Card
-            loading={isLoading}
-            className="mb-3 relative"
-            id="employee-detail-actions-card"
-            data-cy="employee-detail-actions-card"
-          >
+          {!offboardingTermination?.isActive && (
+            <Card
+              loading={isLoading}
+              className="mb-3 relative"
+              id="employee-detail-actions-card"
+              data-cy="employee-detail-actions-card"
+            >
             <Tooltip
               title={
                 <div className="text-sm text-black">
@@ -348,6 +349,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
               </AccessGuard>
             )}
           </Card>
+          )}
         </Col>
         <Col
           lg={16}
