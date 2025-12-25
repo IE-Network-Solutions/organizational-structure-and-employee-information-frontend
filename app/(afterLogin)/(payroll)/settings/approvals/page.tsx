@@ -10,6 +10,8 @@ import PermissionWraper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { PayrollApprovalWorkFlow } from './_component/payrollapprovalWorkFlow';
 import PayrollApprovalWorkFlowSetting from './_component/payrollApprovalWorkFlowSetting';
+import { useApprovalFilter } from '@/store/server/features/approver/queries';
+import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
 
 const Approvals = () => {
   const {
@@ -22,6 +24,15 @@ const Approvals = () => {
     workflowApplies,
     selections,
   } = useApprovalStore();
+  const { userCurrentPage, pageSize, searchParams } = useApprovalBranchStore();
+  const { data: allFilterData } = useApprovalFilter(
+    pageSize,
+    userCurrentPage,
+    searchParams?.entityType ? searchParams.entityType : '',
+    searchParams?.entityId ? searchParams.entityId : '',
+    searchParams?.name || '',
+    APPROVALTYPES.PAYROLL,
+  );
 
   const onChange = (value: string) => {
     setApproverType(value);
@@ -143,6 +154,7 @@ const Approvals = () => {
                 icon={<FaPlus />}
                 id={`settings-${pageSlug}-add-approval-btn`}
                 data-cy={`settings-${pageSlug}-add-approval-btn`}
+                disabled={allFilterData?.items?.length >= 1}
               >
                 <span
                   className="hidden sm:inline"

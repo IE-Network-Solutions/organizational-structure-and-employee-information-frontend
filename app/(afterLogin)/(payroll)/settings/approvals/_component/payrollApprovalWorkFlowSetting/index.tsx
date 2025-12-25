@@ -1,18 +1,12 @@
 'use client';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import React, { useEffect } from 'react';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { Select, Button, Form, Row, Input, Radio } from 'antd';
+import { Select, Button, Form, Row, Input } from 'antd';
 import { RadioChangeEvent } from 'antd/lib';
 import { HierarchyList } from '@/store/server/features/approver/interface';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { IoArrowBack } from 'react-icons/io5';
-
-interface Department {
-  id: string;
-  name: string;
-}
 
 interface User {
   id: string;
@@ -32,41 +26,10 @@ const PayrollApprovalWorkFlowSetting = ({
   form: any;
   title?: string;
 }) => {
-  const HierarchyList: HierarchyList[] = [
-    {
-      id: '1',
-      name: 'CEO',
-    },
-    {
-      id: '2',
-      name: 'CXO',
-    },
-    {
-      id: '3',
-      name: 'Manager',
-    },
-    {
-      id: '4',
-      name: 'Team Leader',
-    },
-    {
-      id: '5',
-      name: 'Senior Developer',
-    },
-    {
-      id: '6',
-      name: 'Junior Developer',
-    },
-    {
-      id: '7',
-      name: 'Intern',
-    },
-  ];
   useEffect(() => {
     isSuccess && form.resetFields();
   }, [isSuccess]);
 
-  const { data: department } = useGetDepartments();
   const { data: users } = useGetAllUsers();
   const {
     approverType,
@@ -80,16 +43,6 @@ const PayrollApprovalWorkFlowSetting = ({
     setWorkflowUserId,
     setDepartmentApproval,
   } = useApprovalStore();
-
-  const onRadioChange = (e: RadioChangeEvent) => {
-    setWorkflowApplies(e.target.value);
-    form.setFieldsValue({ workflowAppliesId: null });
-    setWorkflowUserId(null);
-  };
-
-  const handleWorkflowUserChange = (value: string) => {
-    setWorkflowUserId(value);
-  };
 
   const handleUserChange = (value: string, index: number) => {
     const updatedSelections = [...selections.SectionItemType];
@@ -181,7 +134,7 @@ const PayrollApprovalWorkFlowSetting = ({
             id="approval-payroll-workflow-setting-workflow-name-label"
             data-cy="approval-payroll-workflow-setting-workflow-name-label"
           >
-            WorkfLow Name{' '}
+            WorkfLow Name
           </div>
 
           <Form.Item
@@ -199,104 +152,6 @@ const PayrollApprovalWorkFlowSetting = ({
             />
           </Form.Item>
 
-          <Form.Item
-            className="text-lg font-bold mt-3"
-            name="workflowAppliesType"
-            label="Workflow Applies Type"
-            rules={[
-              { required: true, message: 'Please select a workflow option!' },
-            ]}
-            id="approval-payroll-workflow-setting-workflow-applies-type"
-            data-cy="approval-payroll-workflow-setting-workflow-applies-type"
-          >
-            <Radio.Group
-              onChange={onRadioChange}
-              id="approval-payroll-workflow-setting-workflow-applies-type-radio-group"
-              data-cy="approval-payroll-workflow-setting-workflow-applies-type-radio-group"
-            >
-              <Radio
-                value={'Department'}
-                id="approval-payroll-workflow-setting-workflow-applies-type-radio-group-department"
-                data-cy="approval-payroll-workflow-setting-workflow-applies-type-radio-group-department"
-              >
-                Department
-              </Radio>
-              <Radio
-                disabled
-                value={'Hierarchy'}
-                id="approval-payroll-workflow-setting-workflow-applies-type-radio-group-hierarchy"
-                data-cy="approval-payroll-workflow-setting-workflow-applies-type-radio-group-hierarchy"
-              >
-                Hierarchy
-              </Radio>
-              <Radio
-                value={'User'}
-                id="approval-payroll-workflow-setting-workflow-applies-type-radio-group-user"
-                data-cy="approval-payroll-workflow-setting-workflow-applies-type-radio-group-user"
-              >
-                User
-              </Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          <Form.Item
-            className="text-lg font-bold"
-            name="workflowAppliesId"
-            rules={[
-              {
-                required: true,
-                message: `Please select ${workflowApplies ? workflowApplies : ''}!`,
-              },
-            ]}
-            id="approval-payroll-workflow-setting-workflow-applies-id"
-            data-cy="approval-payroll-workflow-setting-workflow-applies-id"
-          >
-            <Select
-              className="w-full h-10 mb-1"
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              style={{ width: 120 }}
-              placeholder={`Select ${workflowApplies ? workflowApplies : ''} `}
-              onChange={handleWorkflowUserChange}
-              options={(() => {
-                if (workflowApplies === 'Department') {
-                  return (
-                    department?.map((list: Department) => ({
-                      value: list.id,
-                      label: list.name,
-                    })) || []
-                  );
-                } else if (workflowApplies === 'Hierarchy') {
-                  return (
-                    HierarchyList.map((list) => ({
-                      value: list.name,
-                      label: list.name,
-                    })) || []
-                  );
-                } else if (workflowApplies === 'User') {
-                  return (
-                    users?.items?.map((list: User) => ({
-                      value: list.id,
-                      label:
-                        `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
-                    })) || []
-                  );
-                } else {
-                  return [];
-                }
-              })()}
-              id="approval-payroll-workflow-setting-workflow-applies-id-select"
-              data-cy="approval-payroll-workflow-setting-workflow-applies-id-select"
-            />
-          </Form.Item>
-          <div
-            className="font-medium mb-3 text-gray-500"
-            id="approval-payroll-workflow-setting-workflow-applies-id-select-description"
-            data-cy="approval-payroll-workflow-setting-workflow-applies-id-select-description"
-          >
-            Select to which {workflowApplies} this workflow applies to.
-          </div>
           <div
             className="my-3"
             id="approval-payroll-workflow-setting-number-of-level"

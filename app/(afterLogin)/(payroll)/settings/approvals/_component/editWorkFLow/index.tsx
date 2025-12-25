@@ -1,4 +1,3 @@
-import EditApproverComponent from '@/components/Approval/editApprover';
 import {
   useDeleteApprover,
   useDeleteParallelApprover,
@@ -9,6 +8,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
 import { Form } from 'antd';
 import React, { useEffect } from 'react';
+import EditPayrollApproval from '../editPayrollApproval';
 
 const EditWorkFLow = () => {
   const {
@@ -140,7 +140,7 @@ const EditWorkFLow = () => {
     }
   };
   return (
-    <EditApproverComponent
+    <EditPayrollApproval
       editModal={editModal}
       handleSubmit={handleSubmit}
       form={form}
