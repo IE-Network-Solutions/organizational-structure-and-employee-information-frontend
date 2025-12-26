@@ -40,7 +40,7 @@ const AuditLogPage = () => {
 
   const queryParams = useMemo(() => {
     const params = {
-      module: selectedModule ?? null,
+      module: selectedModule ?? 'all',
       page: currentPage,
       limit: pageSize,
       orderBy: 'performedAt',
@@ -90,6 +90,13 @@ const AuditLogPage = () => {
     return log.remarks || '--';
   };
 
+  // Helper function to get module display name from module value
+  const getModuleDisplayName = (moduleValue: string | undefined): string => {
+    if (!moduleValue) return '--';
+    const module = AUDIT_LOG_MODULES.find(m => m.value === moduleValue);
+    return module ? module.label : moduleValue;
+  };
+
   const columns = [
     {
       title: 'Log ID',
@@ -113,9 +120,16 @@ const AuditLogPage = () => {
     },
     {
       title: 'Module',
-      dataIndex: 'entityType',
-      key: 'entityType',
-      render: (entityType: string) => entityType || '--',
+      dataIndex: 'module',
+      key: 'module',
+      render: (_: any, record: any) => {
+        // If a specific module is selected, show that module's display name
+        if (selectedModule) {
+          return getModuleDisplayName(selectedModule);
+        }
+        // Otherwise, use the module field from the record (when module='all')
+        return getModuleDisplayName(record?.module);
+      },
     },
     {
       title: 'Performed by',

@@ -65,7 +65,7 @@ const getAggregateAuditLogs = async (
   
   // Build query parameters
   const queryParams: Record<string, any> = {
-    module: params.module ?? null,
+    module: params.module ?? 'all',
     page: params.page || 1,
     limit: params.limit || 10,
     orderBy: params.orderBy || 'performedAt',
@@ -98,8 +98,8 @@ export const useGetAggregateAuditLogs = (
   params: AggregateAuditLogParams = {},
   isEnabled: boolean = true,
 ) => {
-  // Disable keepPreviousData when module is null to avoid showing cached data
-  // When module is null, backend returns empty result, so we want to show that immediately
+  // Keep previous data when module is defined (including 'all')
+  // This provides a smoother UX by showing cached data while fetching new data
   const shouldKeepPreviousData = params.module !== null && params.module !== undefined;
   
   return useQuery<ApiResponse<AuditLog>>(
