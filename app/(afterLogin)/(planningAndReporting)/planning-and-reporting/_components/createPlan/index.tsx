@@ -319,22 +319,9 @@ function CreatePlan() {
       resetWeights();
     }
   }, [open, form, resetWeights]);
-  const handleAddName = (
-    currentBoardValues: Record<string, string>,
-    kId: string,
-  ) => {
-    const namesKey = `names-${kId}`;
-    const names = form.getFieldValue(namesKey) || [];
-    form.setFieldsValue({ [namesKey]: [...names, currentBoardValues] });
-    const fieldValue = form.getFieldValue(namesKey);
-    const totalWeight = fieldValue.reduce((sum: number, field: any) => {
-      return Number(sum) + Number(field?.weight || 0);
-    }, 0);
-    setWeight(namesKey, totalWeight);
-  };
   const handleAddBoard = (kId: string) => {
-    const boardsKey = `board-${kId}`;
-    const currentBoard = form.getFieldValue(boardsKey) || [];
+    const namesKey = `names-${kId}`;
+    const currentNames = form.getFieldValue(namesKey) || [];
 
     // Always grab the latest mkAsATask value to avoid stale reads
     const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
@@ -350,16 +337,8 @@ function CreatePlan() {
       achieveMK: achieveMK,
     };
 
-    form.setFieldsValue({ [boardsKey]: [...currentBoard, newTask] });
-  };
-  const handleRemoveBoard = (index: number, kId: string) => {
-    const boardsKey = `board-${kId}`;
-
-    const boards = form.getFieldValue(boardsKey) || [];
-    if (index > -1 && index < boards.length) {
-      boards.splice(index, 1);
-      form.setFieldsValue({ [boardsKey]: boards });
-    }
+    form.setFieldsValue({ [namesKey]: [newTask, ...currentNames] });
+    setMKAsATask(null);
   };
 
   const modalHeader = (
@@ -434,7 +413,7 @@ function CreatePlan() {
           }}
           form={form}
           handleAddBoard={handleAddBoard}
-          handleAddName={handleAddName}
+          handleAddName={() => { }} // Placeholder as it's no longer used for tasks
           planTypeName={planningPeriodHierarchy?.name || 'Weekly'}
           hasParentPlan={!!planningPeriodHierarchy?.parentPlan}
           resolveListNameForKR={(krId: string) => `names-${krId}`}
@@ -539,8 +518,6 @@ function CreatePlan() {
                 mkAsATask={!!mkAsATask}
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
-                handleAddName={handleAddName}
-                handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
                 failedTasksByKeyResult={failedTasksByKeyResult}
               />
@@ -554,8 +531,6 @@ function CreatePlan() {
                 mkAsATask={!!mkAsATask}
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
-                handleAddName={handleAddName}
-                handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
                 failedTasksByKeyResult={failedTasksByKeyResult}
               />

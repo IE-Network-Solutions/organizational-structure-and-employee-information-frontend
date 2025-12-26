@@ -615,42 +615,33 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       return;
     }
 
-    // Use the same logic for both weekly and daily plans
-    const boardFormKey = `board-${boardKey}`;
-    const boardFormValues = form.getFieldValue(boardFormKey) || [];
+    // Add the task data directly to the names list
+    const updatedList = [taskData, ...existingList];
+    form.setFieldsValue({ [listName]: updatedList });
 
-    // Add the task data to the first position (index 0) in the board form
-    boardFormValues[0] = taskData;
-    form.setFieldsValue({ [boardFormKey]: boardFormValues });
+    // Handle weight calculation if handleAddName is provided (mostly for EditPlan context)
+    if (handleAddName) {
+      const totalWeight = updatedList.reduce(
+        (sum: number, f: { weight?: number }) => sum + Number(f?.weight ?? 0),
+        0
+      );
+      // In EditPlan, handleAddName usually handles setWeight
+      handleAddName(taskData, boardKey);
+    } else {
+      // In CreatePlan, we can manually trigger weight update if needed, 
+      // but PlanningAndReportingStore handles this via watching the form or direct setWeight calls
+      const totalWeight = updatedList.reduce(
+        (sum: number, f: { weight?: number }) => sum + Number(f?.weight ?? 0),
+        0
+      );
+      PlanningAndReportingStore.getState().setWeight(listName, totalWeight);
+    }
 
-    // Give the form a moment to update
-    setTimeout(async () => {
-      try {
-        // Validate the board form fields
-        await form.validateFields([
-          [boardFormKey, 0, 'task'],
-          [boardFormKey, 0, 'weight'],
-          [boardFormKey, 0, 'priority'],
-        ]);
-
-        // Call handleAddName to save the task (this handles the names list and weight calculation)
-        if (handleAddName) {
-          handleAddName(taskData, boardKey);
-        }
-
-        // Clear the board form after adding
-        form.setFieldsValue({ [boardFormKey]: [] });
-
-        // Remove the suggestion from the list after successfully adding.
-        // If the list becomes empty, ask to switch to another key result (weekly only).
-        if (items.length === 1) {
-          askAnother();
-        }
-        setItems((prev) => prev.filter((item, i) => i !== index));
-      } catch (error) {
-        // Validation failed - error is expected during form validation
-      }
-    }, 100);
+    // Remove the suggestion from the list after successfully adding.
+    if (items.length === 1) {
+      askAnother();
+    }
+    setItems((prev) => prev.filter((item, i) => i !== index));
   };
 
   return (

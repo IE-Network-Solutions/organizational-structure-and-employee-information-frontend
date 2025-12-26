@@ -119,20 +119,22 @@ export default function KRSummaryBar({ plan, viewMode, keyResult }: KRSummaryBar
     }
     // For decimals, remove only trailing zeros after the decimal point
     const str = num.toString();
-    if (str.includes('.')) {
-      return str.replace(/\.?0+$/, '');
-    }
     return str;
   };
 
+  const toSentenceCase = (str: string): string => {
+    if (!str) return 'N/A';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   return (
-    <div className="flex flex-wrap items-center gap-2.5">
-      <StatPill label="Metric" value={metricType || 'N/A'} variant="milestone" />
+    <div className="flex flex-wrap items-center gap-8">
+      <StatPill label="metric" value={toSentenceCase(metricType)} variant="milestone" />
       {!isMilestone && (
-        <StatPill label="Target" value={formatNumber(values.target)} variant="target" />
+        <StatPill label="target" value={formatNumber(values.target)} variant="target" />
       )}
-      <StatPill label="Achieved" value={formatNumber(values.achieved)} variant="achieved" />
-      <StatPill label="KR progress" value={`${values.progress}%`} variant="progress" />
+      <StatPill label="achieved" value={formatNumber(values.achieved)} variant="achieved" />
+      <StatPill label="krProgress" value={`${values.progress}%`} variant="progress" />
     </div>
   );
 }

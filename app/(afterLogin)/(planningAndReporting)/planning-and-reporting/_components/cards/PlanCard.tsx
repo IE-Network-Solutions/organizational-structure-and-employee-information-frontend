@@ -189,7 +189,7 @@ export default function PlanCard({
       {plan.keyResults && plan.keyResults.length > 0 ? (
         plan.keyResults.map((keyResult, krIndex) => (
           <div key={keyResult.id} className={krIndex > 0 ? "mt-4" : ""}>
-            <div className="rounded-3xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-12">
+            <div className="rounded-xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-6">
               <div className="pl-0 md:pl-2">
                 {/* Key Result Summary Bar */}
                 <div className="mb-4 hidden md:block">
@@ -242,8 +242,8 @@ export default function PlanCard({
                   <div key={parentTask.id} className="relative mb-4">
                     {/* Parent Task Header */}
                     <div className="flex items-center gap-3 mb-1 relative z-10">
-                      <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#FEF3C7] flex-shrink-0">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+                      <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
                       </div>
                       <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
                         {parentTask.task || parentTask.title || parentTask.name}
@@ -306,8 +306,8 @@ export default function PlanCard({
                       <div key={parentTask.id} className="relative mt-4">
                         {/* Parent Task Header */}
                         <div className="flex items-center gap-3 mb-1 relative z-10">
-                          <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#FEF3C7] flex-shrink-0">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+                          <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
                           </div>
                           <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
                             {parentTask.task || parentTask.title || parentTask.name}
@@ -341,7 +341,7 @@ export default function PlanCard({
         ))
       ) : (
         /* Fallback to flat tasks if no key results */
-        <div className="rounded-3xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-12">
+        <div className="rounded-xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-6">
           <div className="pl-2">
             <div className="mb-4 hidden md:block">
               <KRSummaryBar plan={plan} viewMode={viewMode} />

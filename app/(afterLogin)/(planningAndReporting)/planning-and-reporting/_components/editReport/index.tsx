@@ -151,13 +151,6 @@ function EditReport() {
       <div className="flex-1"></div>
       <div className="flex justify-center gap-4 flex-1">
         <Button
-          className="py-6 px-10 rounded-xl"
-          onClick={onClose}
-          disabled={editReportLoading}
-        >
-          Cancel
-        </Button>
-        <Button
           id="update-report-button-for-planning-and-reporting"
           type="primary"
           className="py-6 px-10 rounded-xl bg-[#574CFF] hover:bg-[#4F46EF]"
@@ -165,6 +158,13 @@ function EditReport() {
           onClick={() => form.submit()}
         >
           Update Report
+        </Button>
+        <Button
+          className="py-6 px-10 rounded-xl"
+          onClick={onClose}
+          disabled={editReportLoading}
+        >
+          Cancel
         </Button>
       </div>
 
@@ -200,10 +200,7 @@ function EditReport() {
       keyresult?.metricType?.name !== NAME.MILESTONE;
 
     return (
-      <div
-        key={task.taskId}
-        className="mb-6 last:mb-0 pb-6 border-b border-gray-100 last:border-b-0"
-      >
+      <div key={task.taskId} className="mb-5 last:mb-0">
         <Row gutter={[16, 16]} align="middle">
           <Col
             xs={24}
@@ -358,7 +355,7 @@ function EditReport() {
               <TextArea
                 rows={3}
                 placeholder="Please describe why this task was not completed..."
-                className="w-full rounded-lg border-gray-200 bg-gray-50 p-3 text-sm focus:bg-white transition"
+                className="w-full rounded-lg border-gray-200 bg-white p-3 text-sm focus:bg-white transition"
                 style={{ resize: 'none' }}
               />
             </Form.Item>
@@ -390,62 +387,41 @@ function EditReport() {
               className="px-2"
             >
               <Collapse
-                defaultActiveKey={formattedData?.map(
-                  (nonused: any, index: number) => String(index),
-                )}
+                defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((_: any, i: number) => `kr-${obj.id || ''}-${i}`))}
                 expandIconPosition="end"
                 bordered={false}
-                className="bg-transparent [&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:border [&_.ant-collapse-item]:border-gray-200 [&_.ant-collapse-item]:!border-b [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:border-b-0 [&_.ant-collapse-content]:border-t-0 [&_.ant-collapse-content]:bg-transparent"
+                className="bg-transparent [&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-xl [&_.ant-collapse-item]:!border-t [&_.ant-collapse-item]:!border-b [&_.ant-collapse-item]:!border-l [&_.ant-collapse-item]:!border-r [&_.ant-collapse-item]:!border-gray-200 [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
               >
-                {formattedData?.map(
-                  (objective: any, resultIndex: number) => (
+                {formattedData?.map((objective: any) =>
+                  objective?.keyResults?.map((keyresult: any, index: number) => (
                     <Collapse.Panel
                       header={
-                        <span className="text-lg font-bold text-gray-900">
-                          {objective?.title}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-gray-900 whitespace-nowrap">
+                            {planningPeriodName}-task :
+                          </span>
+                          <span className="text-gray-700 font-normal">
+                            {keyresult?.title}
+                          </span>
+                        </div>
                       }
-                      key={String(resultIndex)}
-                      className="!p-0"
+                      key={`kr-${objective.id || ''}-${index}`}
                     >
-                      <div className="space-y-6 mt-2">
-                        {objective?.keyResults?.map(
-                          (keyresult: any, index: number) => (
-                            <div
-                              key={index}
-                              className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm"
-                            >
-                              {/* Key Result Header */}
-                              <div className="bg-[#F9FAFB] px-6 py-4 border-b border-gray-200 flex items-start gap-2">
-                                <span className="font-bold text-gray-900 whitespace-nowrap">
-                                  Key-Result :
-                                </span>
-                                <span className="text-gray-700 font-medium">
-                                  {keyresult?.title}
-                                </span>
-                              </div>
-
-                              {/* Tasks Body */}
-                              <div className="p-6">
-                                {/* Milestone Tasks */}
-                                {keyresult?.milestones?.map(
-                                  (milestone: any) =>
-                                    milestone?.tasks?.map((task: any) =>
-                                      renderTaskRow(task, keyresult),
-                                    ),
-                                )}
-
-                                {/* Direct Tasks */}
-                                {keyresult?.tasks?.map((task: any) =>
-                                  renderTaskRow(task, keyresult),
-                                )}
-                              </div>
-                            </div>
+                      <div className="py-2">
+                        {/* Milestone Tasks */}
+                        {keyresult?.milestones?.map((milestone: any) =>
+                          milestone?.tasks?.map((task: any) =>
+                            renderTaskRow(task, keyresult),
                           ),
+                        )}
+
+                        {/* Direct Tasks */}
+                        {keyresult?.tasks?.map((task: any) =>
+                          renderTaskRow(task, keyresult),
                         )}
                       </div>
                     </Collapse.Panel>
-                  ),
+                  )),
                 )}
               </Collapse>
             </Form>

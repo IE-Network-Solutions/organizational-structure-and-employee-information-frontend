@@ -94,8 +94,8 @@ function EditPlan() {
   };
 
   const handleAddBoard = (kId: string) => {
-    const boardsKey = `board-${kId}`;
-    const board = form.getFieldValue(boardsKey) || [];
+    const namesKey = `names-${kId}`;
+    const names = form.getFieldValue(namesKey) || [];
 
     // Always grab the latest mkAsATask value to avoid stale reads
     const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
@@ -109,18 +109,11 @@ function EditPlan() {
       weight: undefined,
       targetValue: undefined,
       achieveMK: achieveMK,
+      planId: planGroupData?.id,
     };
 
-    form.setFieldsValue({ [boardsKey]: [...board, newTask] });
-  };
-  const handleRemoveBoard = (index: number, kId: string) => {
-    const boardsKey = `board-${kId}`;
-
-    const boards = form.getFieldValue(boardsKey) || [];
-    if (index > -1 && index < boards.length) {
-      boards.splice(index, 1);
-      form.setFieldsValue({ [boardsKey]: boards });
-    }
+    form.setFieldsValue({ [namesKey]: [newTask, ...names] });
+    setMKAsATask(null);
   };
 
   const modalHeader = (
@@ -370,8 +363,6 @@ function EditPlan() {
                 mkAsATask={!!mkAsATask}
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
-                handleAddName={handleAddName}
-                handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
               />
             ) : (
@@ -384,8 +375,6 @@ function EditPlan() {
                 mkAsATask={!!mkAsATask}
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
-                handleAddName={handleAddName}
-                handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
               />
             )}

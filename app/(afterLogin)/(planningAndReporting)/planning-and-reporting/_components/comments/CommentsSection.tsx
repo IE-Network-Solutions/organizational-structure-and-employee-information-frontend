@@ -90,7 +90,7 @@ export default function CommentsSection({
   return (
     <div className="mt-5">
       {/* Header: Avatars | Comments Count | Add Comment Button */}
-      <div className="flex items-center justify-between w-full">
+      <div className="flex items-end justify-between w-full">
         <div
           className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={handleCommentsClick}
@@ -121,19 +121,18 @@ export default function CommentsSection({
             {commentCount} Comments
           </span>
         </div>
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col items-end gap-0.5">
           {/* Total Points Display (only for reporting mode, above Add Comment) */}
           {!isPlanCard && (
-            <span className="text-sm font-medium text-[#161A2C]">
-              Total Point:{' '}
+            <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
+              total point:{' '}
               <span
-                className={
-                  formattedAchieved > 84
+                className={`font-medium ${formattedAchieved > 84
                     ? 'text-[#52C41A]'
                     : formattedAchieved >= 64
                       ? 'text-orange-500'
                       : 'text-red-500'
-                }
+                  }`}
               >
                 {formattedAchieved}%
               </span>
@@ -141,7 +140,7 @@ export default function CommentsSection({
           )}
           <span
             onClick={handleAddCommentClick}
-            className="cursor-pointer text-xs md:text-base font-bold transition-colors"
+            className="cursor-pointer text-xs md:text-sm font-bold transition-colors"
             style={{ color: '#2563EB' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = '#1D4ED8'; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = '#2563EB'; }}

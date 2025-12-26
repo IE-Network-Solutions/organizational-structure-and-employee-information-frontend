@@ -127,7 +127,7 @@ function Page() {
   }, [selectedTab?.id, setActivePlanPeriodId]);
 
   return (
-    <div className="min-h-screen w-full bg-gray-100 px-12">
+    <div className="min-h-screen w-full bg-gray-100 px-4 md:px-6">
       <div className="h-full w-auto">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">

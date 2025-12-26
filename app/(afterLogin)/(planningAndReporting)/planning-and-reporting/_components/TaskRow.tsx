@@ -78,20 +78,20 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
           </div>
 
           <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-            <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">
-              <span className="hidden md:inline">• </span>Weight
+            <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
+              <span className="hidden md:inline" style={{ color: '#574CFF' }}>• </span>weight
             </span>
-            <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-semibold text-[#3730A3]">
+            <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-normal text-[#3730A3]">
               {formatNumber(task.weight)}
             </Tag>
           </div>
 
           {viewMode === 'planning' && task.target !== undefined && task.target !== 0 && metricType !== 'Milestone' && (
             <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-              <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">
-                <span className="hidden md:inline">• </span>Target
+              <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
+                <span className="hidden md:inline" style={{ color: '#574CFF' }}>• </span>target
               </span>
-              <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-semibold text-[#3730A3]">
+              <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-normal text-[#3730A3]">
                 {formatNumber(task.target)}
               </Tag>
             </div>
@@ -99,10 +99,10 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
 
           {viewMode === 'reporting' && task.achieved !== undefined && (
             <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-              <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">
-                <span className="hidden md:inline">• </span>Achieved
+              <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
+                <span className="hidden md:inline" style={{ color: '#574CFF' }}>• </span>achieved
               </span>
-              <Tag className={`m-0 rounded border-none px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-semibold ${task.status === 'completed' ? 'bg-[#DCFCE7] text-[#166534]' :
+              <Tag className={`m-0 rounded border-none px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-normal ${task.status === 'completed' ? 'bg-[#DCFCE7] text-[#166534]' :
                 task.status === 'failed' ? 'bg-[#FEE2E2] text-[#991B1B]' :
                   'bg-[#FFEDD5] text-[#9A3412]'
                 }`}>

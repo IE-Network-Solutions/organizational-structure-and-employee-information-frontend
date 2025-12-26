@@ -104,7 +104,7 @@ function BoardCardForm({
               <div className="mt-2 [&_.ant-form-item-explain-error]:text-[11px]">
                 <Row gutter={[12, 12]} align="top">
                   {showTarget && (
-                    <Col xs={12} sm={8} md={6}>
+                    <Col flex="none">
                       <Row align="middle" gutter={8} wrap={false}>
                         <Col flex="none">
                           <div className="text-xs flex items-center gap-1">
@@ -112,7 +112,7 @@ function BoardCardForm({
                             Target
                           </div>
                         </Col>
-                        <Col flex="auto">
+                        <Col flex="none" style={{ width: '80px' }}>
                           <Form.Item
                             hidden={hideTargetValue}
                             {...restSubField}
@@ -126,21 +126,21 @@ function BoardCardForm({
                                   if (value === null || value === undefined || value === '') {
                                     return Promise.resolve();
                                   }
-                                  
+
                                   // Skip validation for Milestone and Achieve metric types
                                   if (keyResult?.metricType?.name === NAME.ACHIEVE || keyResult?.metricType?.name === NAME.MILESTONE) {
                                     return Promise.resolve();
                                   }
-                                  
+
                                   if (!keyResult || !keyResult.targetValue || !keyResult.currentValue) {
                                     return Promise.resolve(); // Skip validation if key result data is incomplete
                                   }
-                                  
+
                                   const numericValue = Number(value);
                                   if (isNaN(numericValue)) {
                                     return Promise.reject(new Error('Please enter a valid number.'));
                                   }
-                                  
+
                                   // Check if total exceeds key result's available target
                                   if (targetValue !== null && targetValue !== undefined) {
                                     if (numericValue <= targetValue) return Promise.resolve();
@@ -166,7 +166,7 @@ function BoardCardForm({
                     </Col>
                   )}
 
-                  <Col xs={showTarget ? 12 : 12} sm={8} md={5}>
+                  <Col flex="none">
                     <Row align="middle" gutter={8} wrap={false}>
                       <Col flex="none">
                         <div className="text-xs flex items-center gap-1">
@@ -174,7 +174,7 @@ function BoardCardForm({
                           Weight
                         </div>
                       </Col>
-                      <Col flex="auto">
+                      <Col flex="none" style={{ width: '80px' }}>
                         <Form.Item
                           {...restSubField}
                           name={[subName, 'weight']}
@@ -203,7 +203,7 @@ function BoardCardForm({
                     </Row>
                   </Col>
 
-                  <Col xs={12} sm={8} md={6}>
+                  <Col flex="none">
                     <Row align="middle" gutter={8} wrap={false}>
                       <Col flex="none">
                         <div className="text-xs flex items-center gap-1">
@@ -211,7 +211,7 @@ function BoardCardForm({
                           Priority
                         </div>
                       </Col>
-                      <Col flex="auto">
+                      <Col flex="none" style={{ width: '120px' }}>
                         <Form.Item
                           {...restSubField}
                           name={[subName, 'priority']}
@@ -233,11 +233,11 @@ function BoardCardForm({
                     </Row>
                   </Col>
 
-                  <Col xs={showTarget ? 12 : 24} sm={24} md={showTarget ? 7 : 13} className="text-right">
+                  <Col flex="auto" className="text-right">
                     <Button
                       id="add-task-button-for-planning-and-reporting"
                       type="primary"
-                      className="h-10 px-6 font-semibold"
+                      className="font-semibold"
                       onClick={() => {
                         const boardsKey = `board-${name}`;
                         const fieldsToValidate = [

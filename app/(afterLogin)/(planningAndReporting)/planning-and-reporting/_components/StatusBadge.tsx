@@ -1,5 +1,6 @@
 import React from 'react';
-import { CheckOutlined, MoreOutlined } from '@ant-design/icons';
+import { CheckOutlined } from '@ant-design/icons';
+import { PiDotsThreeCircle } from 'react-icons/pi';
 import dayjs from 'dayjs';
 import { PlanStatus } from './types';
 
@@ -20,7 +21,7 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
       return '#10B981'; // Green for closed/success
     }
     if (status.tone === 'warning' || !isClosed) {
-      return '#F59E0B'; // Amber/Orange for open/warning
+      return '#FFD666'; // Light Yellow for pending/warning
     }
     // Fallback to the tone value if it's already a color code
     return status.tone;
@@ -32,7 +33,7 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
         className="flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded-full text-white flex-shrink-0"
         style={{ backgroundColor: getBackgroundColor() }}
       >
-        {isClosed ? <CheckOutlined className="text-sm md:text-lg" /> : <MoreOutlined className="text-sm md:text-lg" />}
+        {isClosed ? <CheckOutlined className="text-sm md:text-lg" /> : <PiDotsThreeCircle className="text-base md:text-2xl" />}
       </div>
       <div className="flex flex-col min-w-0">
         <p className="text-xs md:text-sm font-bold leading-tight text-[#161A2C] line-clamp-1">
