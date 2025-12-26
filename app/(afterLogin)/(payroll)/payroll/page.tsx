@@ -47,6 +47,7 @@ import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
+import { useRouter } from 'next/navigation';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,6 +103,8 @@ const Payroll = () => {
         (item: any) => item.type === 'ALLOWANCE' && item.isActive,
       )
     : [];
+
+  const router = useRouter();
 
   useEffect(() => {
     // Check if division filter is applied
@@ -1054,6 +1057,11 @@ const Payroll = () => {
     setPageSize(pageSize);
     setCurrentPage(1);
   };
+
+  const routerToReconcilation = () => {
+    router.push(`/payroll/reconcilation`);
+  };
+
   return (
     <div
       id="payroll-dashboard-view-container"
@@ -1106,6 +1114,14 @@ const Payroll = () => {
               </Button>
             </Tooltip>
           </AccessGuard>
+          <Button
+            id="payroll-reconcilation-click-button"
+            data-cy="payroll-reconcilation-click-button"
+            className={`text-[#3636F0] bg-[#B2B2FF] border-none p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+            onClick={() => routerToReconcilation()}
+          >
+            {isMobile ? <PiExportLight size={24} /> : 'Reconcilation'}
+          </Button>
 
           {!isMobile && (
             <AccessGuard
