@@ -133,7 +133,11 @@ const Pension = () => {
             data-cy={`payroll-pension-save-click-button-${record.id}`}
             type="primary"
             loading={updatePensionRule}
-            icon={<SaveOutlined data-cy={`payroll-pension-save-click-button-${record.id}`}  />}
+            icon={
+              <SaveOutlined
+                data-cy={`payroll-pension-save-click-button-${record.id}`}
+              />
+            }
             onClick={() => handleSave()}
           >
             Save
@@ -142,7 +146,11 @@ const Pension = () => {
           <Button
             data-cy={`payroll-pension-edit-click-button-${record.id}`}
             type="link"
-            icon={<EditOutlined data-cy={`payroll-pension-edit-click-button-${record.id}`} />}
+            icon={
+              <EditOutlined
+                data-cy={`payroll-pension-edit-click-button-${record.id}`}
+              />
+            }
             onClick={() => handleEdit(record)}
           />
         );
@@ -173,7 +181,7 @@ const Pension = () => {
           data-cy="payroll-pension-add-click-button"
           className="h-10 w-10 sm:w-auto"
           type="primary"
-         onClick={handleAddRule}
+          onClick={handleAddRule}
           disabled={pensionRule && pensionRule.length > 0}
           icon={<FaPlus data-cy="payroll-pension-add-click-button-icon" />}
         >

@@ -34,4 +34,6 @@ export interface ScheduleState {
   setEditMode: (isEdit: boolean) => void;
   setDeleteMode: (isDelete: boolean) => void;
   setScheduleName: (scheduleName: string) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }

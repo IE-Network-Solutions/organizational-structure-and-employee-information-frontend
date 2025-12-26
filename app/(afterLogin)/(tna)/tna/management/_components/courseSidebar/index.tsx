@@ -96,10 +96,7 @@ const CourseCategorySidebar = () => {
       value: dept?.id,
       key: dept?.id,
       children: buildDepartmentTree(
-        dept?.children ??
-          dept?.childDepartments ??
-          dept?.subDepartments ??
-          [],
+        dept?.children ?? dept?.childDepartments ?? dept?.subDepartments ?? [],
       ),
     }));
   };
@@ -185,11 +182,7 @@ const CourseCategorySidebar = () => {
   const courseForForm = listingCourse ?? assignmentCourse ?? null;
 
   const getEmployeeName = (employee: any) => {
-    const name = [
-      employee?.firstName,
-      employee?.middleName,
-      employee?.lastName,
-    ]
+    const name = [employee?.firstName, employee?.middleName, employee?.lastName]
       .filter(Boolean)
       .join(' ');
     return name || employee?.fullName || employee?.name || '-';
@@ -227,10 +220,13 @@ const CourseCategorySidebar = () => {
           }),
         ),
       );
-      return departmentIds.reduce((acc, deptId, index) => {
-        acc[deptId] = extractUsers(responses[index]);
-        return acc;
-      }, {} as Record<string, any[]>);
+      return departmentIds.reduce(
+        (acc, deptId, index) => {
+          acc[deptId] = extractUsers(responses[index]);
+          return acc;
+        },
+        {} as Record<string, any[]>,
+      );
     },
     [extractUsers, tenantId],
   );
@@ -258,7 +254,7 @@ const CourseCategorySidebar = () => {
     );
 
     setSelectedDepartmentIds(value);
-    
+
     // Update selected users based on removed departments
     if (removed.length) {
       const remainingSet = new Set<string>();
@@ -286,9 +282,7 @@ const CourseCategorySidebar = () => {
           setDepartmentUsersMap({ ...departmentUsersMap, ...result });
           const next = new Set(selectedUserIds);
           added.forEach((deptId) => {
-            (result[deptId] ?? []).forEach((user) =>
-              next.add(String(user.id)),
-            );
+            (result[deptId] ?? []).forEach((user) => next.add(String(user.id)));
           });
           setSelectedUserIds(Array.from(next));
         })
@@ -427,7 +421,11 @@ const CourseCategorySidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: courseId ? <span>Edit</span> : <span>Create</span>,
+      label: courseId ? (
+        <span data-cy="edit-label">Edit</span>
+      ) : (
+        <span data-cy="create-label">Create</span>
+      ),
       key: 'create',
       className: 'h-12',
       type: 'primary',
@@ -497,7 +495,10 @@ const CourseCategorySidebar = () => {
         onClose={() => onClose()}
         data-cy="tna-course-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start font-extrabold text-xl px-2" data-cy="tna-course-sidebar-header">
+          <CustomDrawerHeader
+            className="flex justify-start font-extrabold text-xl px-2"
+            data-cy="tna-course-sidebar-header"
+          >
             {courseId ? <span>Edit Course</span> : <span>Add course </span>}
           </CustomDrawerHeader>
         }
@@ -528,7 +529,11 @@ const CourseCategorySidebar = () => {
             id="tnaCourseSidebarTitleItemId"
             data-cy="tna-course-sidebar-title-item"
           >
-            <Input id="tnaCourseNameFieldId" data-cy="tna-course-name-field" className="control h-10" />
+            <Input
+              id="tnaCourseNameFieldId"
+              data-cy="tna-course-name-field"
+              className="control h-10"
+            />
           </Form.Item>
           <Form.Item
             name="courseCategoryId"
@@ -680,7 +685,11 @@ const CourseCategorySidebar = () => {
             </Spin>
           </div>
         </Form>
-        <div className="flex justify-center m-5" id="tnaCourseSidebarDraftButtonContainerId" data-cy="tna-course-sidebar-draft-button-container">
+        <div
+          className="flex justify-center m-5"
+          id="tnaCourseSidebarDraftButtonContainerId"
+          data-cy="tna-course-sidebar-draft-button-container"
+        >
           <Button
             type="primary"
             htmlType="button"

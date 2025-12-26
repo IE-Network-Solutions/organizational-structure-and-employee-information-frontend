@@ -330,10 +330,9 @@ const LeaveSection: React.FC = () => {
             </Spin>
           </div>
 
-          <LeaveSectionGraph
-            data-cy="time-attendance-leave-section-graph-display-component"
-          />
+          <LeaveSectionGraph data-cy="time-attendance-leave-section-graph-display-component" />
         </div>
+        <LeaveSectionGraph data-cy="time-attendance-leave-section-graph-display-component" />
       </div>
 
       {/* Mobile Filter Modal */}

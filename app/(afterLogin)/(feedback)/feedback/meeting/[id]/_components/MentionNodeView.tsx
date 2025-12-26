@@ -9,10 +9,22 @@ export default function MentionNodeView({ node }: any) {
   return (
     <NodeViewWrapper
       as="span"
-      className="mention inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full" data-cy="feedback-meeting-components-mentionnodeview" id="feedback-meeting-components-mentionnodeview"
+      className="mention inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full"
+      data-cy="feedback-meeting-components-mentionnodeview"
+      id="feedback-meeting-components-mentionnodeview"
     >
-      <Avatar size={20} src={profileImage} alt={label} data-cy="feedback-meeting-components-mentionnodeview-avatar" />
-      <span data-cy="feedback-meeting-components-mentionnodeview-label" id="feedback-meeting-components-mentionnodeview-label">{label}</span>
+      <Avatar
+        size={20}
+        src={profileImage}
+        alt={label}
+        data-cy="feedback-meeting-components-mentionnodeview-avatar"
+      />
+      <span
+        data-cy="feedback-meeting-components-mentionnodeview-label"
+        id="feedback-meeting-components-mentionnodeview-label"
+      >
+        {label}
+      </span>
     </NodeViewWrapper>
   );
 }

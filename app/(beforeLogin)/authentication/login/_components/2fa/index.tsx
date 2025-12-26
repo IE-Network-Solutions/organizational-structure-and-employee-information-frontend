@@ -88,13 +88,25 @@ const TwoFactorAuth = () => {
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
       style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      data-cy="authentication-2fa-container"
     >
-      <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
-        <p className="flex justify-center font-semibold">
+      <div
+        className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5"
+        data-cy="authentication-2fa-form-container"
+      >
+        <p
+          className="flex justify-center font-semibold"
+          data-cy="authentication-2fa-logo"
+        >
           <SimpleLogo />
         </p>
-        <h5 className="text-center my-2">Two-Step Authentication</h5>
-        <p className="text-center text-xs mb-6">
+        <h5 className="text-center my-2" data-cy="authentication-2fa-title">
+          Two-Step Authentication
+        </h5>
+        <p
+          className="text-center text-xs mb-6"
+          data-cy="authentication-2fa-description"
+        >
           To continue, please enter the 6-digit verification code sent to your
           email address {twoFactorAuthEmail.replace(/(?<=.{3}).(?=.*@)/g, '*')}
         </p>

@@ -13,7 +13,7 @@ import { useGetActiveEmployee } from '@/store/server/features/employees/employee
 
 const { Option } = Select;
 
-const VariablePayFilter = () => {
+const VariablePayFilter: React.FC = () => {
   const {
     searchParams,
     setSearchParams,
@@ -138,7 +138,9 @@ const VariablePayFilter = () => {
           <Button
             type="default"
             className="flex justify-center w-10 h-10 hover:bg-gray-100 border-gray-200"
-            icon={<LuSettings2 data-cy="compensation-benefit-variable-pay-mobile-filter-toggle-icon" />}
+            icon={
+              <LuSettings2 data-cy="compensation-benefit-variable-pay-mobile-filter-toggle-icon" />
+            }
             onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
             data-testid="mobile-filter-toggle"
             id="compensation-benefit-variable-pay-mobile-filter-toggle"
@@ -151,7 +153,13 @@ const VariablePayFilter = () => {
             type="text"
             size="small"
             className="w-10 h-10"
-            icon={<AiOutlineReload data-cy="compensation-benefit-variable-pay-mobile-refresh-icon" size={24} className="text-gray-600" />}
+            icon={
+              <AiOutlineReload
+                data-cy="compensation-benefit-variable-pay-mobile-refresh-icon"
+                size={24}
+                className="text-gray-600"
+              />
+            }
             onClick={() => refetch()}
             disabled={refreshLoading || isFetching}
             data-testid="mobile-refresh-button"
@@ -165,7 +173,12 @@ const VariablePayFilter = () => {
             type="text"
             size="small"
             className="w-10 h-10"
-            icon={<MdOutlineUploadFile data-cy="compensation-benefit-variable-pay-mobile-send-icon" size={24} />}
+            icon={
+              <MdOutlineUploadFile
+                data-cy="compensation-benefit-variable-pay-mobile-send-icon"
+                size={24}
+              />
+            }
             onClick={handleOpenModal}
             data-testid="mobile-send-payroll-button"
             id="compensation-benefit-variable-pay-mobile-send-button"
@@ -182,7 +195,10 @@ const VariablePayFilter = () => {
           data-cy="compensation-benefit-variable-pay-desktop-filter"
         >
           {/* Search Select */}
-          <Col data-cy="compensation-benefit-variable-pay-mobile-search-select" md={5}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-mobile-search-select"
+            md={5}
+          >
             <Select
               data-cy="compensation-benefit-variable-pay-mobile-search-select"
               showSearch
@@ -203,7 +219,10 @@ const VariablePayFilter = () => {
           </Col>
 
           {/* Session Select */}
-          <Col data-cy="compensation-benefit-variable-pay-desktop-session-select" md={5}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-desktop-session-select"
+            md={5}
+          >
             <Select
               data-cy="compensation-benefit-variable-pay-desktop-session-select"
               placeholder="Select Session"
@@ -213,7 +232,11 @@ const VariablePayFilter = () => {
               data-testid="session-select"
             >
               {activeCalender?.sessions?.map((session) => (
-                <Option data-cy="compensation-benefit-variable-pay-desktop-session-select-option" key={session?.id} value={session?.id}>
+                <Option
+                  data-cy="compensation-benefit-variable-pay-desktop-session-select-option"
+                  key={session?.id}
+                  value={session?.id}
+                >
                   {session?.name}
                 </Option>
               ))}
@@ -221,7 +244,10 @@ const VariablePayFilter = () => {
           </Col>
 
           {/* Month Select */}
-          <Col data-cy="compensation-benefit-variable-pay-desktop-month-select" md={4}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-desktop-month-select"
+            md={4}
+          >
             <Select
               data-cy="compensation-benefit-variable-pay-desktop-month-select"
               placeholder="Select Month"
@@ -234,7 +260,11 @@ const VariablePayFilter = () => {
               data-testid="month-select"
             >
               {sessionMonths.map((month) => (
-                <Option data-cy="compensation-benefit-variable-pay-desktop-month-select-option" key={month?.id} value={month?.id}>
+                <Option
+                  data-cy="compensation-benefit-variable-pay-desktop-month-select-option"
+                  key={month?.id}
+                  value={month?.id}
+                >
                   {month?.name}
                 </Option>
               ))}
@@ -242,7 +272,10 @@ const VariablePayFilter = () => {
           </Col>
 
           {/* Refresh Button */}
-          <Col data-cy="compensation-benefit-variable-pay-desktop-refresh-button" md={4}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-desktop-refresh-button"
+            md={4}
+          >
             <Button
               data-cy="compensation-benefit-variable-pay-desktop-refresh-button"
               title="Refresh VP"
@@ -252,14 +285,21 @@ const VariablePayFilter = () => {
               disabled={refreshLoading || isFetching}
               data-testid="desktop-refresh-button"
             >
-              <span id="compensation-benefit-variable-pay-desktop-refresh-button-text" data-cy="compensation-benefit-variable-pay-desktop-refresh-button-text" className="truncate">
+              <span
+                id="compensation-benefit-variable-pay-desktop-refresh-button-text"
+                data-cy="compensation-benefit-variable-pay-desktop-refresh-button-text"
+                className="truncate"
+              >
                 {refreshLoading || isFetching ? <Spin /> : 'Refresh VP'}
               </span>
             </Button>
           </Col>
 
           {/* Send to Payroll Button */}
-          <Col data-cy="compensation-benefit-variable-pay-desktop-send-button" md={4}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-desktop-send-button"
+            md={4}
+          >
             <Button
               data-cy="compensation-benefit-variable-pay-desktop-send-button"
               title="Send to Payroll"
@@ -268,7 +308,13 @@ const VariablePayFilter = () => {
               onClick={handleOpenModal}
               data-testid="desktop-send-payroll-button"
             >
-              <span id="compensation-benefit-variable-pay-desktop-send-button-text" data-cy="compensation-benefit-variable-pay-desktop-send-button-text" className="truncate">Send to Payroll</span>
+              <span
+                id="compensation-benefit-variable-pay-desktop-send-button-text"
+                data-cy="compensation-benefit-variable-pay-desktop-send-button-text"
+                className="truncate"
+              >
+                Send to Payroll
+              </span>
             </Button>
           </Col>
         </Col>
@@ -321,7 +367,11 @@ const VariablePayFilter = () => {
           data-testid="mobile-session-select"
         >
           {activeCalender?.sessions?.map((session) => (
-            <Option data-cy="compensation-benefit-variable-pay-mobile-filter-modal-session-select-option" key={session?.id} value={session?.id}>
+            <Option
+              data-cy="compensation-benefit-variable-pay-mobile-filter-modal-session-select-option"
+              key={session?.id}
+              value={session?.id}
+            >
               {session?.name}
             </Option>
           ))}
@@ -339,7 +389,11 @@ const VariablePayFilter = () => {
           data-testid="mobile-month-select"
         >
           {sessionMonths.map((month) => (
-            <Option data-cy="compensation-benefit-variable-pay-mobile-filter-modal-month-select-option" key={month?.id} value={month?.id}>
+            <Option
+              data-cy="compensation-benefit-variable-pay-mobile-filter-modal-month-select-option"
+              key={month?.id}
+              value={month?.id}
+            >
               {month?.name}
             </Option>
           ))}

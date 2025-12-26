@@ -43,8 +43,15 @@ const LessonPage = () => {
 
   return (
     lessonMaterial && (
-      <div className="mt-6 max-w-[895px] mx-auto" id="tnaLessonPageContainerId" data-cy="tna-lesson-page-container">
-        <div id="tnaLessonPageVideoContainerId" data-cy="tna-lesson-page-video-container">
+      <div
+        className="mt-6 max-w-[895px] mx-auto"
+        id="tnaLessonPageContainerId"
+        data-cy="tna-lesson-page-container"
+      >
+        <div
+          id="tnaLessonPageVideoContainerId"
+          data-cy="tna-lesson-page-video-container"
+        >
           <ReactPlayer
             url={lessonMaterial.videos[0]}
             className="w-full aspect-video"
@@ -56,9 +63,23 @@ const LessonPage = () => {
         </div>
 
         {lessonMaterial.article && (
-          <div className="lesson-material-article mt-6" id="tnaLessonPageArticleContainerId" data-cy="tna-lesson-page-article-container">
-            <div className="my-4 text-lg font-bold text-gray-900" id="tnaLessonPageArticleTitleId" data-cy="tna-lesson-page-article-title">Details</div>
-            <div className="ql-container ql-snow" id="tnaLessonPageArticleContentId" data-cy="tna-lesson-page-article-content">
+          <div
+            className="lesson-material-article mt-6"
+            id="tnaLessonPageArticleContainerId"
+            data-cy="tna-lesson-page-article-container"
+          >
+            <div
+              className="my-4 text-lg font-bold text-gray-900"
+              id="tnaLessonPageArticleTitleId"
+              data-cy="tna-lesson-page-article-title"
+            >
+              Details
+            </div>
+            <div
+              className="ql-container ql-snow"
+              id="tnaLessonPageArticleContentId"
+              data-cy="tna-lesson-page-article-content"
+            >
               <div
                 className="ql-editor p-0"
                 dangerouslySetInnerHTML={{ __html: lessonMaterial.article }}
@@ -69,12 +90,24 @@ const LessonPage = () => {
           </div>
         )}
 
-        <div className="mt-6" id="tnaLessonPageAttachmentsContainerId" data-cy="tna-lesson-page-attachments-container">
-          <div className="text-lg font-bold text-gray-900 mb-3" id="tnaLessonPageAttachmentsTitleId" data-cy="tna-lesson-page-attachments-title">
+        <div
+          className="mt-6"
+          id="tnaLessonPageAttachmentsContainerId"
+          data-cy="tna-lesson-page-attachments-container"
+        >
+          <div
+            className="text-lg font-bold text-gray-900 mb-3"
+            id="tnaLessonPageAttachmentsTitleId"
+            data-cy="tna-lesson-page-attachments-title"
+          >
             Attachments
           </div>
 
-          <div className="flex flex-wrap gap-2.5" id="tnaLessonPageAttachmentsListId" data-cy="tna-lesson-page-attachments-list">
+          <div
+            className="flex flex-wrap gap-2.5"
+            id="tnaLessonPageAttachmentsListId"
+            data-cy="tna-lesson-page-attachments-list"
+          >
             {lessonMaterial.attachments.map((link) => (
               <FileButton
                 key={link}
@@ -86,7 +119,11 @@ const LessonPage = () => {
           </div>
         </div>
 
-        <div className="flex justify-center gap-5 mt-10" id="tnaLessonPageNavigationId" data-cy="tna-lesson-page-navigation">
+        <div
+          className="flex justify-center gap-5 mt-10"
+          id="tnaLessonPageNavigationId"
+          data-cy="tna-lesson-page-navigation"
+        >
           <Button
             className="h-[66px] w-[160px]"
             size="large"

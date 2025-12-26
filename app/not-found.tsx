@@ -6,7 +6,10 @@ import { useRouter } from 'next/navigation';
 export default function Custom404() {
   const router = useRouter();
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen bg-gray-100"
+      data-cy="not-found-page"
+    >
       <Image
         width={200}
         height={200}

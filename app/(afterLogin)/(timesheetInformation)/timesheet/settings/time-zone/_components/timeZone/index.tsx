@@ -106,7 +106,10 @@ const TimezoneComponent = ({
             data-cy="time-attendance-settings-time-zone-component-timezone-select"
           />
         </Form.Item>
-        <Form.Item id="time-attendance-settings-time-zone-component-submit-field" data-cy="time-attendance-settings-time-zone-component-submit-field">
+        <Form.Item
+          id="time-attendance-settings-time-zone-component-submit-field"
+          data-cy="time-attendance-settings-time-zone-component-submit-field"
+        >
           <Button
             type="primary"
             htmlType="submit"

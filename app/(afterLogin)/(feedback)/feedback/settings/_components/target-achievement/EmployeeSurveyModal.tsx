@@ -61,13 +61,21 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyDrawerProps> = ({
   };
 
   const modalHeader = (
-    <div className="flex  text-lg font-extrabold text-gray-800 " data-cy="employee-survey-modal-header" id="employeeSurveyModalHeader">
+    <div
+      className="flex  text-lg font-extrabold text-gray-800 "
+      data-cy="employee-survey-modal-header"
+      id="employeeSurveyModalHeader"
+    >
       Create Employee Survey
     </div>
   );
 
   const footer = (
-    <div className="w-full flex justify-end items-center gap-4 pt-4" data-cy="employee-survey-modal-footer" id="employeeSurveyModalFooter">
+    <div
+      className="w-full flex justify-end items-center gap-4 pt-4"
+      data-cy="employee-survey-modal-footer"
+      id="employeeSurveyModalFooter"
+    >
       <Button
         type="default"
         onClick={handleDrawerClose}

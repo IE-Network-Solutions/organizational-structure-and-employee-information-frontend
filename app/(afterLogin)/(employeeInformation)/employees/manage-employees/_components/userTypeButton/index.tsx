@@ -6,7 +6,7 @@ const userTypeButton = (val: string) => {
       <Button
         id="roleTypeOwner"
         data-cy="roleTypeOwner"
-        className="text-[#41a9f0] text-xs font-medium w-[90px] px-[30px] bg-[#add5f0]"
+        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50"
       >
         ON BOARDING
       </Button>
@@ -16,7 +16,7 @@ const userTypeButton = (val: string) => {
       <Button
         id="roleTypeAdmin"
         data-cy="roleTypeAdmin"
-        className="text-[#5555f4] text-xs font-medium w-[90px] px-[30px]  bg-[#b2b2ff]"
+        className="text-indigo-700 text-xs font-medium w-[90px] px-[30px] bg-white border border-indigo-700 hover:bg-indigo-50"
       >
         Permanent
       </Button>
@@ -26,7 +26,7 @@ const userTypeButton = (val: string) => {
       <Button
         id="roleTypeSuper"
         data-cy="roleTypeProbation"
-        className="text-[#9f7dff] text-xs font-medium w-[90px] px-[30px]  bg-[#f4f0ff]"
+        className="text-violet-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-violet-600 hover:bg-violet-50"
       >
         PROBATION
       </Button>
@@ -36,7 +36,7 @@ const userTypeButton = (val: string) => {
       <Button
         id="roleTypeOnLeave" // Note: I changed this id because it's same with the above Button
         data-cy="roleTypeOnLeave"
-        className="text-[#e86064] text-xs font-medium w-[90px] px-[30px] bg-[#ffedec]"
+        className="text-red-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-red-600 hover:bg-red-50"
       >
         ON LEAVE
       </Button>
@@ -46,7 +46,7 @@ const userTypeButton = (val: string) => {
       <Button
         id="roleTypeNull"
         data-cy="roleTypeNull"
-        className="text-white text-xs font-medium w-[90px] px-[30px] bg-sky-600"
+        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50"
       >
         Unknown
       </Button>
@@ -56,7 +56,7 @@ const userTypeButton = (val: string) => {
       <Button
         id="roleTypeOther"
         data-cy="roleTypeOther"
-        className="bg-indigo-400 text-xs font-medium px-[30px]  text-white"
+        className="bg-white text-indigo-600 text-xs font-medium px-[30px] border border-indigo-600 hover:bg-indigo-50"
         title={val}
       >
         {val?.slice(0, 20)}

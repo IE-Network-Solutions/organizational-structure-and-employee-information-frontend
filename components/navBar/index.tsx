@@ -1,5 +1,5 @@
 'use client';
-import React, { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
 import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
@@ -8,7 +8,7 @@ import {
   MdOutlineKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
-import { Layout, Button, theme, Tree, Skeleton, Dropdown } from 'antd';
+import { Layout, Button, theme, Tree, Skeleton, Dropdown, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
@@ -87,12 +87,40 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
   };
 
+  const loadExpandedKeysFromStorage = (): (string | number | bigint)[] => {
+    if (typeof window === 'undefined') return [];
+
+    try {
+      const saved = localStorage.getItem('navBar-expandedKeys');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.slice(0, 1);
+        }
+      }
+    } catch (error: any) {
+      message.error('Error loading expandedKeys from localStorage:', error);
+    }
+    return [];
+  };
+
+  const saveExpandedKeysToStorage = (keys: (string | number | bigint)[]) => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      localStorage.setItem('navBar-expandedKeys', JSON.stringify(keys));
+    } catch (error: any) {
+      message.error('Error saving expandedKeys to localStorage:', error);
+    }
+  };
+
   const [expandedKeys, setExpandedKeys] = useState<
     (string | number | bigint)[]
-  >([]);
+  >(loadExpandedKeysFromStorage);
   const [selectedKeys, setSelectedKeys] = useState<
     (string | number | bigint)[]
   >([pathname]);
+  const hasInitialized = useRef(false);
 
   // ===========> Fiscal Year Ended Section <=================
 
@@ -168,7 +196,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const treeData: CustomMenuItem[] = [
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          className="flex items-center gap-2 h-12"
+          data-cy="nav-item-settings"
+        >
           <CiSettings
             size={18}
             className={
@@ -259,6 +290,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           key: '/recruitment/jobs',
           className: 'font-bold',
           permissions: ['manage_recruitment_jobs'],
+        },
+        {
+          title: <span>AI Job Matching</span>,
+          key: '/recruitment/ai-job-matching',
+          className: 'font-bold',
+          permissions: ['manage_recruitment_jobs'],
+          disabled: hasEndedFiscalYear,
+          //  || isSubscriptionExpired,
         },
         {
           title: <span>Candidates</span>,
@@ -777,15 +816,80 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     checkPermissions();
   }, [pathname, router]);
 
+  const findParentMenuKey = (
+    pathname: string,
+    menuItems: CustomMenuItem[],
+  ): string | null => {
+    for (const item of menuItems) {
+      if (item.children) {
+        const matchesChild = item.children.some((child) => {
+          const childKey = String(child.key);
+          return (
+            pathname === childKey ||
+            pathname.startsWith(childKey + '/') ||
+            (childKey.includes('[id]') &&
+              pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
+          );
+        });
+
+        if (matchesChild) {
+          return String(item.key);
+        }
+
+        const nestedParent = findParentMenuKey(pathname, item.children);
+        if (nestedParent) {
+          return String(item.key);
+        }
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    saveExpandedKeysToStorage(expandedKeys);
+  }, [expandedKeys]);
+
+  useEffect(() => {
+    if (pathname === '/dashboard' || pathname === '/') {
+      setExpandedKeys([]);
+      return;
+    }
+    const parentKey = findParentMenuKey(pathname, treeData);
+    if (parentKey) {
+      setExpandedKeys((prev) => {
+        if (prev.length !== 1 || prev[0] !== parentKey) {
+          return [parentKey];
+        }
+        return prev;
+      });
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    const savedKeys = loadExpandedKeysFromStorage();
+    if (savedKeys.length > 0) {
+      if (expandedKeys.length === 0) {
+        setExpandedKeys(savedKeys);
+      }
+      return;
+    }
+
+    const parentKey = findParentMenuKey(pathname, treeData);
+    if (parentKey && expandedKeys.length === 0) {
+      setExpandedKeys([parentKey]);
+    }
+  }, []);
+
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;
     if (!selectedKey) return;
 
     if (info.node.children) {
       setExpandedKeys((prev) =>
-        prev.includes(selectedKey)
-          ? prev.filter((key) => key !== selectedKey)
-          : [...prev, selectedKey],
+        prev.includes(selectedKey) ? [] : [selectedKey],
       );
       return;
     }
@@ -795,6 +899,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       triggerRouteLoaderStart();
       router.push(path);
       setSelectedKeys([selectedKey]);
+    }
+  };
+
+  const handleExpand = (expandedKeys: (string | number | bigint)[]) => {
+    if (expandedKeys.length > 0) {
+      setExpandedKeys([expandedKeys[expandedKeys.length - 1]]);
+    } else {
+      setExpandedKeys([]);
     }
   };
 
@@ -932,9 +1044,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   setExpandedKeys((prev) =>
-                    prev.includes(item.key)
-                      ? prev.filter((key) => key !== item.key)
-                      : [...prev, item.key],
+                    prev.includes(item.key) ? [] : [item.key],
                   );
                 }}
               >
@@ -1055,6 +1165,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               expandedKeys={expandedKeys}
               selectedKeys={selectedKeys}
               onSelect={handleSelect}
+              onExpand={handleExpand}
               onDoubleClick={handleDoubleClick}
               className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
               switcherIcon={null}
@@ -1115,7 +1226,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className="overflow-y-hidden min-h-screen"
           style={{
             paddingInline: isMobile ? 8 : 24,
-            paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+            paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             transition: 'padding-left 0.3s ease',
           }}
         >

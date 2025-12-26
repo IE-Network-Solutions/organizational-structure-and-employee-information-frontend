@@ -25,7 +25,10 @@ const ReprimandEditDrawer: React.FC<RepDrawerProps> = ({
   const { mutate: updateRepLog } = useUpdateRepLog();
 
   const renderEmployeeOption = (option: any) => (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div
+      style={{ display: 'flex', alignItems: 'center' }}
+      data-cy={`reprimand-edit-drawer-employee-option-${option.id}`}
+    >
       <Avatar size={20} icon={<UserOutlined />} />
       {option.firstName}
     </div>

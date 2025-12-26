@@ -115,7 +115,11 @@ const RecognitionTypeSelector: React.FC<RecognitionTypeSelectorProps> = ({
           data-cy="recognition-type-selector-date-field"
           id="recognitionTypeSelectorDateField"
         >
-          <RangePicker style={{ width: '100%' }} data-cy="recognition-type-selector-date-picker" id="recognitionTypeSelectorDatePicker" />
+          <RangePicker
+            style={{ width: '100%' }}
+            data-cy="recognition-type-selector-date-picker"
+            id="recognitionTypeSelectorDatePicker"
+          />
         </Form.Item>
       </Form>
     </div>

@@ -38,7 +38,9 @@ const Page = () => {
         >
           <Button
             type="primary"
-            icon={<FaPlus data-cy="time-attendance-settings-leave-types-and-policies-add-button-icon" />}
+            icon={
+              <FaPlus data-cy="time-attendance-settings-leave-types-and-policies-add-button-icon" />
+            }
             id={`createNewTypesAndPoliciesButtonId`}
             data-cy="time-attendance-settings-leave-types-and-policies-add-button-id"
             onClick={() => setIsShowTypeAndPoliciesSidebar(true)}

@@ -49,11 +49,12 @@ const UserLeaveBalance: React.FC = () => {
       userIdOnLeaveBalance ? userIdOnLeaveBalance : (userId as string),
       '',
     );
-  const { data: leaveBalanceExpiring, isLoading: leaveBalanceExpiringLoading } = useGetLeaveBalanceExpiring(
-    userId as string,
-    leaveTypeId || '',
-    monthsAheadOnLeaveBalanceExpiring,
-  );
+  const { data: leaveBalanceExpiring, isLoading: leaveBalanceExpiringLoading } =
+    useGetLeaveBalanceExpiring(
+      userId as string,
+      leaveTypeId || '',
+      monthsAheadOnLeaveBalanceExpiring,
+    );
 
   const statusColors: { [key: string]: string } = {
     approved: 'text-[#3636F0] bg-[#B2B2FF]',
@@ -256,10 +257,20 @@ const UserLeaveBalance: React.FC = () => {
                   id={`time-attendance-user-leave-balance-type-card-${index}-balance-value`}
                   data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value`}
                 >
-                  <span id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`} data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`} className="">
+                  <span
+                    id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`}
+                    data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`}
+                    className=""
+                  >
                     {Math.round(item.totalBalance)}
                   </span>
-                  <span id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`} data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`} className="text-[10px] mr-2 font-bold ">days</span>
+                  <span
+                    id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`}
+                    data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`}
+                    className="text-[10px] mr-2 font-bold "
+                  >
+                    days
+                  </span>
                 </div>
                 <div
                   className="text-sm font-medium text-black "
@@ -495,90 +506,91 @@ const UserLeaveBalance: React.FC = () => {
                   data-cy="time-attendance-user-leave-balance-utilization-skeleton"
                 />
               )}
-              {userLeaveBalance?.data?.utilizedLeaves && userLeaveBalance?.data?.utilizedLeaves.length > 0
-                ? userLeaveBalance?.data?.utilizedLeaves.map((leave: any) => (
+              {userLeaveBalance?.data?.utilizedLeaves &&
+              userLeaveBalance?.data?.utilizedLeaves.length > 0 ? (
+                userLeaveBalance?.data?.utilizedLeaves.map((leave: any) => (
+                  <div
+                    key={leave.leaveRequestId}
+                    className="border border-gray-200 rounded-xl pb-1"
+                    id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}`}
+                    data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}`}
+                  >
                     <div
-                      key={leave.leaveRequestId}
-                      className="border border-gray-200 rounded-xl pb-1"
-                      id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}`}
-                      data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}`}
+                      className="flex items-start justify-between px-4 py-2"
+                      id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-content-div`}
+                      data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-content-div`}
                     >
                       <div
-                        className="flex items-start justify-between px-4 py-2"
-                        id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-content-div`}
-                        data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-content-div`}
+                        className="space-y-1"
+                        id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-details-column`}
+                        data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-details-column`}
                       >
                         <div
-                          className="space-y-1"
-                          id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-details-column`}
-                          data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-details-column`}
+                          className="flex items-center"
+                          id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-days-row`}
+                          data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-days-row`}
                         >
-                          <div
-                            className="flex items-center"
-                            id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-days-row`}
-                            data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-days-row`}
+                          <span
+                            className="text-[16px] font-bold text-black"
+                            id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-days-text`}
+                            data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-days-text`}
                           >
-                            <span
-                              className="text-[16px] font-bold text-black"
-                              id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-days-text`}
-                              data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-days-text`}
-                            >
-                              {leave.totalDays}{' '}
-                              {leave.totalDays > 1 ? 'Days' : 'Day'}
-                            </span>
-                          </div>
-                          <p
-                            className="text-[14px] text-[#111827] font-regular"
-                            id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-date-range-text`}
-                            data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-date-range-text`}
-                          >
-                            {dayjs(leave.startDate).format('DD MMM YYYY')} -{' '}
-                            {dayjs(leave.endDate).format('DD MMM YYYY')}
-                          </p>
+                            {leave.totalDays}{' '}
+                            {leave.totalDays > 1 ? 'Days' : 'Day'}
+                          </span>
                         </div>
-                        <div
-                          className="text-right space-y-1"
-                          id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-meta-column`}
-                          data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-meta-column`}
+                        <p
+                          className="text-[14px] text-[#111827] font-regular"
+                          id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-date-range-text`}
+                          data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-date-range-text`}
                         >
-                          <p
-                            className="text-[14px] text-[#111827] font-regular"
-                            id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-requested-text`}
-                            data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-requested-text`}
-                          >
-                            Requested:{' '}
-                            {dayjs(leave.createdAt).format('DD MMM YYYY')}
-                          </p>
-                          <Tag
-                            style={{ marginInlineEnd: 0 }}
-                            className={`${
-                              statusColors[leave.status.toLowerCase()] ||
-                              'text-gray-500 bg-gray-500/20'
-                            } font-bold border-none text-[12px] px-3 py-0.5  h-6 rounded-md capitalize`}
-                            id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-status-tag`}
-                            data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-status-tag`}
-                          >
-                            {leave.status}
-                          </Tag>
-                        </div>
+                          {dayjs(leave.startDate).format('DD MMM YYYY')} -{' '}
+                          {dayjs(leave.endDate).format('DD MMM YYYY')}
+                        </p>
+                      </div>
+                      <div
+                        className="text-right space-y-1"
+                        id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-meta-column`}
+                        data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-meta-column`}
+                      >
+                        <p
+                          className="text-[14px] text-[#111827] font-regular"
+                          id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-requested-text`}
+                          data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-requested-text`}
+                        >
+                          Requested:{' '}
+                          {dayjs(leave.createdAt).format('DD MMM YYYY')}
+                        </p>
+                        <Tag
+                          style={{ marginInlineEnd: 0 }}
+                          className={`${
+                            statusColors[leave.status.toLowerCase()] ||
+                            'text-gray-500 bg-gray-500/20'
+                          } font-bold border-none text-[12px] px-3 py-0.5  h-6 rounded-md capitalize`}
+                          id={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-status-tag`}
+                          data-cy={`time-attendance-user-leave-balance-utilization-card-${leave.leaveRequestId}-status-tag`}
+                        >
+                          {leave.status}
+                        </Tag>
                       </div>
                     </div>
-                  ))
-                : (
-                  <div
-                    className="flex justify-center items-center h-96"
-                    id="time-attendance-user-leave-balance-utilization-empty-div"
-                    data-cy="time-attendance-user-leave-balance-utilization-empty-div"
-                  >
-                    <p
-                      className="text-gray-500 text-[14px] font-medium"
-                      id="time-attendance-user-leave-balance-utilization-empty-text"
-                      data-cy="time-attendance-user-leave-balance-utilization-empty-text"
-                    >
-                      No Record Found
-                    </p>
                   </div>
-                )}
+                ))
+              ) : (
+                <div
+                  className="flex justify-center items-center h-96"
+                  id="time-attendance-user-leave-balance-utilization-empty-div"
+                  data-cy="time-attendance-user-leave-balance-utilization-empty-div"
+                >
+                  <p
+                    className="text-gray-500 text-[14px] font-medium"
+                    id="time-attendance-user-leave-balance-utilization-empty-text"
+                    data-cy="time-attendance-user-leave-balance-utilization-empty-text"
+                  >
+                    No Record Found
+                  </p>
+                </div>
+              )}
             </div>
           </Spin>
         </Card>

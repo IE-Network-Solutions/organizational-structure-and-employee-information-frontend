@@ -141,9 +141,12 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
         onFinish={onFinish}
         name="actionPlansForm"
         data-cy="feedback-meeting-components-addactionplan-form"
-        id='feedback-meeting-components-addactionplan-form'
+        id="feedback-meeting-components-addactionplan-form"
       >
-        <Form.List name="actionPlans" data-cy="feedback-meeting-components-addactionplan-list">
+        <Form.List
+          name="actionPlans"
+          data-cy="feedback-meeting-components-addactionplan-list"
+        >
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
@@ -243,10 +246,33 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                     data-cy={`feedback-meeting-components-addactionplan-priority-${key}`}
                     id={`feedback-meeting-components-addactionplan-priority-select-${key}`}
                   >
-                    <Select placeholder="Select priority" className="h-[54px]" data-cy={`feedback-meeting-components-addactionplan-priority-select-${key}`} id={`feedback-meeting-components-addactionplan-priority-select-${key}`}>
-                      <Option value="High" data-cy={`feedback-meeting-components-addactionplan-priority-option-high-${key}`} id={`feedback-meeting-components-addactionplan-priority-option-high-${key}`}>High</Option>
-                      <Option value="Medium" data-cy={`feedback-meeting-components-addactionplan-priority-option-medium-${key}`} id={`feedback-meeting-components-addactionplan-priority-option-medium-${key}`}>Medium</Option>
-                      <Option value="Low" data-cy={`feedback-meeting-components-addactionplan-priority-option-low-${key}`} id={`feedback-meeting-components-addactionplan-priority-option-low-${key}`}>Low</Option>
+                    <Select
+                      placeholder="Select priority"
+                      className="h-[54px]"
+                      data-cy={`feedback-meeting-components-addactionplan-priority-select-${key}`}
+                      id={`feedback-meeting-components-addactionplan-priority-select-${key}`}
+                    >
+                      <Option
+                        value="High"
+                        data-cy={`feedback-meeting-components-addactionplan-priority-option-high-${key}`}
+                        id={`feedback-meeting-components-addactionplan-priority-option-high-${key}`}
+                      >
+                        High
+                      </Option>
+                      <Option
+                        value="Medium"
+                        data-cy={`feedback-meeting-components-addactionplan-priority-option-medium-${key}`}
+                        id={`feedback-meeting-components-addactionplan-priority-option-medium-${key}`}
+                      >
+                        Medium
+                      </Option>
+                      <Option
+                        value="Low"
+                        data-cy={`feedback-meeting-components-addactionplan-priority-option-low-${key}`}
+                        id={`feedback-meeting-components-addactionplan-priority-option-low-${key}`}
+                      >
+                        Low
+                      </Option>
                     </Select>
                   </Form.Item>
                   {actionPlanData && (
@@ -260,10 +286,32 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       data-cy={`feedback-meeting-components-addactionplan-status-${key}`}
                       id={`feedback-meeting-components-addactionplan-status-select-${key}`}
                     >
-                      <Select placeholder="Select status" className="h-[54px]" data-cy={`feedback-meeting-components-addactionplan-status-select-${key}`}>
-                        <Option value="Pending" data-cy={`feedback-meeting-components-addactionplan-status-option-pending-${key}`} id={`feedback-meeting-components-addactionplan-status-option-pending-${key}`}>Pending</Option>
-                        <Option value="In_Progress" data-cy={`feedback-meeting-components-addactionplan-status-option-in-progress-${key}`} id={`feedback-meeting-components-addactionplan-status-option-in-progress-${key}`}>In progress </Option>
-                        <Option value="Completed" data-cy={`feedback-meeting-components-addactionplan-status-option-completed-${key}`} id={`feedback-meeting-components-addactionplan-status-option-completed-${key}`}>Completed </Option>
+                      <Select
+                        placeholder="Select status"
+                        className="h-[54px]"
+                        data-cy={`feedback-meeting-components-addactionplan-status-select-${key}`}
+                      >
+                        <Option
+                          value="Pending"
+                          data-cy={`feedback-meeting-components-addactionplan-status-option-pending-${key}`}
+                          id={`feedback-meeting-components-addactionplan-status-option-pending-${key}`}
+                        >
+                          Pending
+                        </Option>
+                        <Option
+                          value="In_Progress"
+                          data-cy={`feedback-meeting-components-addactionplan-status-option-in-progress-${key}`}
+                          id={`feedback-meeting-components-addactionplan-status-option-in-progress-${key}`}
+                        >
+                          In progress{' '}
+                        </Option>
+                        <Option
+                          value="Completed"
+                          data-cy={`feedback-meeting-components-addactionplan-status-option-completed-${key}`}
+                          id={`feedback-meeting-components-addactionplan-status-option-completed-${key}`}
+                        >
+                          Completed{' '}
+                        </Option>
                       </Select>
                     </Form.Item>
                   )}
@@ -287,7 +335,10 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                 </div>
               ))}
               {actionPlanData == null && (
-                <Form.Item data-cy="feedback-meeting-components-addactionplan-button-add-plan" id="feedback-meeting-components-addactionplan-button-add-plan">
+                <Form.Item
+                  data-cy="feedback-meeting-components-addactionplan-button-add-plan"
+                  id="feedback-meeting-components-addactionplan-button-add-plan"
+                >
                   <Button
                     type="primary"
                     onClick={() => add()}

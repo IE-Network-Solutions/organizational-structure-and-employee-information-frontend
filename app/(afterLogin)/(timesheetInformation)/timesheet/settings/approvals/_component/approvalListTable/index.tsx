@@ -308,7 +308,9 @@ const ApprovalListTable = () => {
                         );
                       }}
                     >
-                      <FaPlus data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-button-icon`} />
+                      <FaPlus
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-button-icon`}
+                      />
                     </Button>
                   </Tooltip>
                 </AccessGuard>
@@ -340,7 +342,9 @@ const ApprovalListTable = () => {
                         );
                       }}
                     >
-                      <FaPencil data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-button-icon`} />
+                      <FaPencil
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-button-icon`}
+                      />
                     </Button>
                   </Tooltip>
                 </AccessGuard>
@@ -361,7 +365,9 @@ const ApprovalListTable = () => {
                         setDeletedItem(item?.id);
                       }}
                     >
-                      <RiDeleteBin6Line data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-button-icon`} />
+                      <RiDeleteBin6Line
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-button-icon`}
+                      />
                     </Button>
                   </Tooltip>
                 </AccessGuard>
@@ -402,8 +408,12 @@ const ApprovalListTable = () => {
         onCancel={() => setDeleteModal(false)}
         data-cy="time-attendance-settings-approvals-table-delete-modal"
       />
-      {editModal && <EditWorkFLow data-cy="time-attendance-settings-approvals-table-edit-workflow" />}
-      {addModal && <AddApprover data-cy="time-attendance-settings-approvals-table-add-approver" />}
+      {editModal && (
+        <EditWorkFLow data-cy="time-attendance-settings-approvals-table-edit-workflow" />
+      )}
+      {addModal && (
+        <AddApprover data-cy="time-attendance-settings-approvals-table-add-approver" />
+      )}
       <ApproverListTable
         data={isDataLoading ? [] : data}
         isEmployeeLoading={isDataLoading}
@@ -493,7 +503,10 @@ const ApprovalListTable = () => {
           </div>
 
           {/* Action Buttons */}
-          <Form.Item id="time-attendance-settings-approvals-table-transfer-modal-actions" data-cy="time-attendance-settings-approvals-table-transfer-modal-actions">
+          <Form.Item
+            id="time-attendance-settings-approvals-table-transfer-modal-actions"
+            data-cy="time-attendance-settings-approvals-table-transfer-modal-actions"
+          >
             <div
               className="flex justify-end space-x-8"
               id="time-attendance-settings-approvals-table-transfer-modal-buttons"

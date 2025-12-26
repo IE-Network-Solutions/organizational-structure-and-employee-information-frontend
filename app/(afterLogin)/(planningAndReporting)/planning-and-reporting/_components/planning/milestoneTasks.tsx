@@ -44,6 +44,7 @@ const TruncateWithTooltip: React.FC<{
       ref={textRef}
       className={`truncate ${className}`}
       style={{ maxWidth: '100%', display: 'inline-block', ...style }}
+      data-cy="milestone-tasks-truncate-text"
     >
       {text}
     </span>

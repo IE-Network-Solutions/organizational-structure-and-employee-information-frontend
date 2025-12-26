@@ -34,7 +34,13 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
           id={`time-attendance-leave-balance-card-${title}-info-button`}
           data-cy={`time-attendance-leave-balance-card-${title}-info-button`}
           type="text"
-          icon={<FiInfo data-cy="time-attendance-leave-balance-card-info-button-icon" size={18} className="text-gray-400" />}
+          icon={
+            <FiInfo
+              data-cy="time-attendance-leave-balance-card-info-button-icon"
+              size={18}
+              className="text-gray-400"
+            />
+          }
         />
       </div>
       <div

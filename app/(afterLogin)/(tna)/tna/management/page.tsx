@@ -52,14 +52,22 @@ const TnaManagementPage = () => {
 
   // Use the appropriate data based on permission
   // Note: /learning/course returns {items: [...]} but /my-courses returns [...] directly
-  const isFetchingCourse = hasViewAllCoursePermission ? isFetchingAllCourses : isFetchingMyCourses;
-  const isLoading = hasViewAllCoursePermission ? isLoadingAllCourses : isLoadingMyCourses;
-  const refetch = hasViewAllCoursePermission ? refetchAllCourses : refetchMyCourses;
+  const isFetchingCourse = hasViewAllCoursePermission
+    ? isFetchingAllCourses
+    : isFetchingMyCourses;
+  const isLoading = hasViewAllCoursePermission
+    ? isLoadingAllCourses
+    : isLoadingMyCourses;
+  const refetch = hasViewAllCoursePermission
+    ? refetchAllCourses
+    : refetchMyCourses;
 
   // Normalize the data format - handle both {items: [...]} and direct array [...]
   const normalizedCourses = hasViewAllCoursePermission
-    ? allCoursesData?.items ?? []
-    : Array.isArray(myCoursesData) ? myCoursesData : myCoursesData?.items ?? [];
+    ? (allCoursesData?.items ?? [])
+    : Array.isArray(myCoursesData)
+      ? myCoursesData
+      : (myCoursesData?.items ?? []);
 
   useEffect(() => {
     if (!isShowCourseSidebar) {
@@ -92,15 +100,31 @@ const TnaManagementPage = () => {
   }, 500);
 
   return (
-    <div className="page-wrap bg-[#f5f5f5] mt-4 " id="tnaManagementPageId" data-cy="tna-management-page">
+    <div
+      className="page-wrap bg-[#f5f5f5] mt-4 "
+      id="tnaManagementPageId"
+      data-cy="tna-management-page"
+    >
       <PageHeader
         title="Training & Learning"
         description="Training and Learning module"
         data-cy="tna-management-page-header"
       >
-        <Flex gap={16} className="pt-4" id="tnaManagementPageHeaderActionsId" data-cy="tna-management-page-header-actions">
-          <CourseFilter onChange={onFilterChange} data-cy="tna-management-filter" />
-          <AccessGuard permissions={[Permissions.CreateCourse]} data-cy="tna-management-create-course-guard" id="tna-management-create-course-guard">
+        <Flex
+          gap={16}
+          className="pt-4"
+          id="tnaManagementPageHeaderActionsId"
+          data-cy="tna-management-page-header-actions"
+        >
+          <CourseFilter
+            onChange={onFilterChange}
+            data-cy="tna-management-filter"
+          />
+          <AccessGuard
+            permissions={[Permissions.CreateCourse]}
+            data-cy="tna-management-create-course-guard"
+            id="tna-management-create-course-guard"
+          >
             <Button
               id="tnaAddCourseActionButtonId"
               data-cy="tna-add-course-action-button"
@@ -111,19 +135,35 @@ const TnaManagementPage = () => {
               loading={isFetching}
               onClick={() => setIsShowCourseSidebar(true)}
             >
-              <span className="hidden sm:block" data-cy="tna-management-add-course-button-text">Add Course</span>
+              <span
+                className="hidden sm:block"
+                data-cy="tna-management-add-course-button-text"
+              >
+                Add Course
+              </span>
             </Button>
           </AccessGuard>
         </Flex>
       </PageHeader>
 
       {isLoading ? (
-        <div className="flex justify-center p-5" id="tnaManagementLoadingId" data-cy="tna-management-loading">
+        <div
+          className="flex justify-center p-5"
+          id="tnaManagementLoadingId"
+          data-cy="tna-management-loading"
+        >
           <Spin data-cy="tna-management-spinner-spin" />
         </div>
       ) : (
-        <Spin spinning={isFetchingCourse} data-cy="tna-management-spinner-spinning">
-          <div className="grid grid-cols-course-list gap-6 mt-8" id="tnaManagementCourseGridId" data-cy="tna-management-course-grid">
+        <Spin
+          spinning={isFetchingCourse}
+          data-cy="tna-management-spinner-spinning"
+        >
+          <div
+            className="grid grid-cols-course-list gap-6 mt-8"
+            id="tnaManagementCourseGridId"
+            data-cy="tna-management-course-grid"
+          >
             {normalizedCourses.map((item) => {
               // Users with ViewAllCourse permission can see ALL courses including drafts
               if (hasViewAllCoursePermission) {

@@ -93,7 +93,11 @@ const TnaDetailPage = () => {
       approvalWorkflowId ?? '',
     );
     return (
-      <div className="mx-1 text-sm" id="tnaMyTrainingDetailApprovalListId" data-cy="tna-my-training-detail-approval-list">
+      <div
+        className="mx-1 text-sm"
+        id="tnaMyTrainingDetailApprovalListId"
+        data-cy="tna-my-training-detail-approval-list"
+      >
         {Array.isArray(logData) &&
           logData
             ?.sort((a, b) => a.stepOrder - b.stepOrder)
@@ -110,13 +114,27 @@ const TnaDetailPage = () => {
     );
   };
   return (
-    <div className="page-wrap" id="tnaMyTrainingDetailPageId" data-cy="tna-my-training-detail-page">
+    <div
+      className="page-wrap"
+      id="tnaMyTrainingDetailPageId"
+      data-cy="tna-my-training-detail-page"
+    >
       <BlockWrapper data-cy="tna-my-training-detail-block-wrapper">
         <PageHeader
           title={
-            <div className="flex items-center gap-1" id="tnaMyTrainingDetailPageHeaderTitleId" data-cy="tna-my-training-detail-page-header-title">
+            <div
+              className="flex items-center gap-1"
+              id="tnaMyTrainingDetailPageHeaderTitleId"
+              data-cy="tna-my-training-detail-page-header-title"
+            >
               <Button
-                icon={<FaArrowLeftLong size={18} data-cy="tna-my-training-detail-page-header-back-button" id="tnaMyTrainingDetailPageHeaderBackButtonId" />}
+                icon={
+                  <FaArrowLeftLong
+                    size={18}
+                    data-cy="tna-my-training-detail-page-header-back-button"
+                    id="tnaMyTrainingDetailPageHeaderBackButtonId"
+                  />
+                }
                 className="text-gray-900 bg-transparent shadow-none"
                 id="tnaDetailActionButtonId"
                 data-cy="tna-detail-action-button"
@@ -130,13 +148,28 @@ const TnaDetailPage = () => {
           data-cy="tna-my-training-detail-page-header"
         />
         {!data?.items?.length ? (
-          <div className="flex justify-center" data-cy="tna-my-training-detail-page-spinner" id="tnaMyTrainingDetailPageSpinnerId">
+          <div
+            className="flex justify-center"
+            data-cy="tna-my-training-detail-page-spinner"
+            id="tnaMyTrainingDetailPageSpinnerId"
+          >
             <Spin data-cy="tna-my-training-detail-page-spinner-component" />
           </div>
         ) : (
-          <Spin spinning={isFetching} data-cy="tna-my-training-detail-page-spinner-component">
-            <div className="mt-6 rounded-lg border border-gray-200 p-6" data-cy="tna-my-training-detail-page-content" id="tnaMyTrainingDetailPageContentId">
-              <div className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8" data-cy="tna-my-training-detail-page-user-card" id="tnaMyTrainingDetailPageUserCardId">
+          <Spin
+            spinning={isFetching}
+            data-cy="tna-my-training-detail-page-spinner-component"
+          >
+            <div
+              className="mt-6 rounded-lg border border-gray-200 p-6"
+              data-cy="tna-my-training-detail-page-content"
+              id="tnaMyTrainingDetailPageContentId"
+            >
+              <div
+                className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8"
+                data-cy="tna-my-training-detail-page-user-card"
+                id="tnaMyTrainingDetailPageUserCardId"
+              >
                 {data.items[0].assignedUserId ? (
                   <UserCard
                     data={data}
@@ -156,10 +189,27 @@ const TnaDetailPage = () => {
                 )}
               </div>
 
-              <div id="tnaMyTrainingDetailPageDetailsId" data-cy="tna-my-training-detail-page-details">
-                <div className="flex gap-2.5 text-sm mb-4" id="tnaMyTrainingDetailPageRequesterId" data-cy="tna-my-training-detail-page-requester">
-                  <div className="w-[200px] text-gray-600" id="tnaMyTrainingDetailPageRequesterLabelId" data-cy="tna-my-training-detail-page-requester-label">Requester</div>
-                  <div className="flex-1" id="tnaMyTrainingDetailPageRequesterValueId" data-cy="tna-my-training-detail-page-requester-value">
+              <div
+                id="tnaMyTrainingDetailPageDetailsId"
+                data-cy="tna-my-training-detail-page-details"
+              >
+                <div
+                  className="flex gap-2.5 text-sm mb-4"
+                  id="tnaMyTrainingDetailPageRequesterId"
+                  data-cy="tna-my-training-detail-page-requester"
+                >
+                  <div
+                    className="w-[200px] text-gray-600"
+                    id="tnaMyTrainingDetailPageRequesterLabelId"
+                    data-cy="tna-my-training-detail-page-requester-label"
+                  >
+                    Requester
+                  </div>
+                  <div
+                    className="flex-1"
+                    id="tnaMyTrainingDetailPageRequesterValueId"
+                    data-cy="tna-my-training-detail-page-requester-value"
+                  >
                     <UserCard
                       data={data}
                       name={
@@ -176,16 +226,44 @@ const TnaDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 mb-4 text-sm font-semibold" id="tnaMyTrainingDetailPageTrainingId" data-cy="tna-my-training-detail-page-training">
-                  <div className="w-[200px]  text-gray-600" id="tnaMyTrainingDetailPageTrainingLabelId" data-cy="tna-my-training-detail-page-training-label">Training</div>
-                  <div className="flex-1" id="tnaMyTrainingDetailPageTrainingValueId" data-cy="tna-my-training-detail-page-training-value">
+                <div
+                  className="flex gap-2.5 mb-4 text-sm font-semibold"
+                  id="tnaMyTrainingDetailPageTrainingId"
+                  data-cy="tna-my-training-detail-page-training"
+                >
+                  <div
+                    className="w-[200px]  text-gray-600"
+                    id="tnaMyTrainingDetailPageTrainingLabelId"
+                    data-cy="tna-my-training-detail-page-training-label"
+                  >
+                    Training
+                  </div>
+                  <div
+                    className="flex-1"
+                    id="tnaMyTrainingDetailPageTrainingValueId"
+                    data-cy="tna-my-training-detail-page-training-value"
+                  >
                     {data.items[0].trainingNeedCategory?.name}
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 mb-4 text-sm" id="tnaMyTrainingDetailPageStatusId" data-cy="tna-my-training-detail-page-status">
-                  <div className="w-[200px] text-gray-600" id="tnaMyTrainingDetailPageStatusLabelId" data-cy="tna-my-training-detail-page-status-label">Status</div>
-                  <div className="flex-1" id="tnaMyTrainingDetailPageStatusValueId" data-cy="tna-my-training-detail-page-status-value">
+                <div
+                  className="flex gap-2.5 mb-4 text-sm"
+                  id="tnaMyTrainingDetailPageStatusId"
+                  data-cy="tna-my-training-detail-page-status"
+                >
+                  <div
+                    className="w-[200px] text-gray-600"
+                    id="tnaMyTrainingDetailPageStatusLabelId"
+                    data-cy="tna-my-training-detail-page-status-label"
+                  >
+                    Status
+                  </div>
+                  <div
+                    className="flex-1"
+                    id="tnaMyTrainingDetailPageStatusValueId"
+                    data-cy="tna-my-training-detail-page-status-value"
+                  >
                     <StatusBadge
                       theme={
                         TrainingNeedAssessmentStatusBadgeTheme[
@@ -199,9 +277,23 @@ const TnaDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 text-sm mb-4" id="tnaMyTrainingDetailPageCertStatusId" data-cy="tna-my-training-detail-page-cert-status">
-                  <div className="w-[200px] text-gray-600" id="tnaMyTrainingDetailPageCertStatusLabelId" data-cy="tna-my-training-detail-page-cert-status-label">Cert-Status</div>
-                  <div className="flex-1" id="tnaMyTrainingDetailPageCertStatusValueId" data-cy="tna-my-training-detail-page-cert-status-value">
+                <div
+                  className="flex gap-2.5 text-sm mb-4"
+                  id="tnaMyTrainingDetailPageCertStatusId"
+                  data-cy="tna-my-training-detail-page-cert-status"
+                >
+                  <div
+                    className="w-[200px] text-gray-600"
+                    id="tnaMyTrainingDetailPageCertStatusLabelId"
+                    data-cy="tna-my-training-detail-page-cert-status-label"
+                  >
+                    Cert-Status
+                  </div>
+                  <div
+                    className="flex-1"
+                    id="tnaMyTrainingDetailPageCertStatusValueId"
+                    data-cy="tna-my-training-detail-page-cert-status-value"
+                  >
                     <StatusBadge
                       theme={
                         TrainingNeedAssessmentCertStatusBadgeTheme[
@@ -215,18 +307,46 @@ const TnaDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 text-sm mb-4" id="tnaMyTrainingDetailPageCompletedOnId" data-cy="tna-my-training-detail-page-completed-on">
-                  <div className="w-[200px] text-gray-600" id="tnaMyTrainingDetailPageCompletedOnLabelId" data-cy="tna-my-training-detail-page-completed-on-label">Completed on</div>
-                  <div className="flex-1" id="tnaMyTrainingDetailPageCompletedOnValueId" data-cy="tna-my-training-detail-page-completed-on-value">
+                <div
+                  className="flex gap-2.5 text-sm mb-4"
+                  id="tnaMyTrainingDetailPageCompletedOnId"
+                  data-cy="tna-my-training-detail-page-completed-on"
+                >
+                  <div
+                    className="w-[200px] text-gray-600"
+                    id="tnaMyTrainingDetailPageCompletedOnLabelId"
+                    data-cy="tna-my-training-detail-page-completed-on-label"
+                  >
+                    Completed on
+                  </div>
+                  <div
+                    className="flex-1"
+                    id="tnaMyTrainingDetailPageCompletedOnValueId"
+                    data-cy="tna-my-training-detail-page-completed-on-value"
+                  >
                     {data.items[0].completedAt
                       ? dayjs(data.items[0].completedAt).format(DATE_FORMAT)
                       : '-'}
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 mb-4" id="tnaMyTrainingDetailPageAttachmentsId" data-cy="tna-my-training-detail-page-attachments">
-                  <div className="w-[200px] text-gray-600" id="tnaMyTrainingDetailPageAttachmentsLabelId" data-cy="tna-my-training-detail-page-attachments-label">Attachments</div>
-                  <div className="flex-1 flex items-center gap-2.5 flex-wrap" id="tnaMyTrainingDetailPageAttachmentsListId" data-cy="tna-my-training-detail-page-attachments-list">
+                <div
+                  className="flex gap-2.5 mb-4"
+                  id="tnaMyTrainingDetailPageAttachmentsId"
+                  data-cy="tna-my-training-detail-page-attachments"
+                >
+                  <div
+                    className="w-[200px] text-gray-600"
+                    id="tnaMyTrainingDetailPageAttachmentsLabelId"
+                    data-cy="tna-my-training-detail-page-attachments-label"
+                  >
+                    Attachments
+                  </div>
+                  <div
+                    className="flex-1 flex items-center gap-2.5 flex-wrap"
+                    id="tnaMyTrainingDetailPageAttachmentsListId"
+                    data-cy="tna-my-training-detail-page-attachments-list"
+                  >
                     {data.items[0].trainingProofs?.map((proof) =>
                       proof.attachmentFile ? (
                         <FileButton
@@ -242,17 +362,33 @@ const TnaDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2.5 text-sm" id="tnaMyTrainingDetailPageDetailInfoId" data-cy="tna-my-training-detail-page-detail-info">
-                  <div className="w-[200px] text-gray-600" id="tnaMyTrainingDetailPageDetailInfoLabelId" data-cy="tna-my-training-detail-page-detail-info-label">
+                <div
+                  className="flex gap-2.5 text-sm"
+                  id="tnaMyTrainingDetailPageDetailInfoId"
+                  data-cy="tna-my-training-detail-page-detail-info"
+                >
+                  <div
+                    className="w-[200px] text-gray-600"
+                    id="tnaMyTrainingDetailPageDetailInfoLabelId"
+                    data-cy="tna-my-training-detail-page-detail-info-label"
+                  >
                     Detailed information
                   </div>
-                  <div className="flex-1 font-semibold" id="tnaMyTrainingDetailPageDetailInfoValueId" data-cy="tna-my-training-detail-page-detail-info-value">
+                  <div
+                    className="flex-1 font-semibold"
+                    id="tnaMyTrainingDetailPageDetailInfoValueId"
+                    data-cy="tna-my-training-detail-page-detail-info-value"
+                  >
                     {data.items[0].detail}
                   </div>
                 </div>
               </div>
 
-              <div className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8" id="tnaMyTrainingDetailPageApproverSectionId" data-cy="tna-my-training-detail-page-approver-section">
+              <div
+                className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8"
+                id="tnaMyTrainingDetailPageApproverSectionId"
+                data-cy="tna-my-training-detail-page-approver-section"
+              >
                 {data.items[0].assignedUserId ? (
                   <UserCard
                     data={data}
@@ -271,12 +407,23 @@ const TnaDetailPage = () => {
                   '-'
                 )}
               </div>
-              <div id="tnaMyTrainingDetailPageApprovalLevelsId" data-cy="tna-my-training-detail-page-approval-levels">
-                <div className="text-lg font-semibold text-gray-900" id="tnaMyTrainingDetailPageApprovalLevelsTitleId" data-cy="tna-my-training-detail-page-approval-levels-title">
+              <div
+                id="tnaMyTrainingDetailPageApprovalLevelsId"
+                data-cy="tna-my-training-detail-page-approval-levels"
+              >
+                <div
+                  className="text-lg font-semibold text-gray-900"
+                  id="tnaMyTrainingDetailPageApprovalLevelsTitleId"
+                  data-cy="tna-my-training-detail-page-approval-levels-title"
+                >
                   Approval Levels Status
                 </div>
 
-                <div className="my-2.5" id="tnaMyTrainingDetailPageApprovalStatusesInfoId" data-cy="tna-my-training-detail-page-approval-statuses-info">
+                <div
+                  className="my-2.5"
+                  id="tnaMyTrainingDetailPageApprovalStatusesInfoId"
+                  data-cy="tna-my-training-detail-page-approval-statuses-info"
+                >
                   <ApprovalStatusesInfo data-cy="tna-my-training-detail-page-approval-statuses-info-component" />
                 </div>
                 <ApprovalList
@@ -287,8 +434,16 @@ const TnaDetailPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-end mt-6" id="tnaMyTrainingDetailPageActionsId" data-cy="tna-my-training-detail-page-actions">
-              <AccessGuard permissions={[Permissions.UpdateTna]} id="tnaMyTrainingDetailPageUpdateGuardId" data-cy="tna-my-training-detail-page-update-guard">
+            <div
+              className="flex justify-end mt-6"
+              id="tnaMyTrainingDetailPageActionsId"
+              data-cy="tna-my-training-detail-page-actions"
+            >
+              <AccessGuard
+                permissions={[Permissions.UpdateTna]}
+                id="tnaMyTrainingDetailPageUpdateGuardId"
+                data-cy="tna-my-training-detail-page-update-guard"
+              >
                 <CustomButton
                   title="Update TNA"
                   type="primary"

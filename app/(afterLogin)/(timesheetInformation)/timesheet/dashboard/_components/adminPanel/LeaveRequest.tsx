@@ -303,33 +303,6 @@ const LeaveRequest = () => {
                 id="time-attendance-leave-request-employee-select"
                 data-cy="time-attendance-leave-request-employee-select"
               />
-              <DatePicker.RangePicker
-                className="w-44 h-12"
-                value={
-                  startDateOnLeaveRequest && endDateOnLeaveRequest
-                    ? [
-                        dayjs(startDateOnLeaveRequest),
-                        dayjs(endDateOnLeaveRequest),
-                      ]
-                    : null
-                }
-                onChange={(value: any) => {
-                  if (value && value[0] && value[1]) {
-                    setStartDateOnLeaveRequest(
-                      value[0]?.format('YYYY-MM-DD') || '',
-                    );
-                    setEndDateOnLeaveRequest(
-                      value[1]?.format('YYYY-MM-DD') || '',
-                    );
-                  } else {
-                    // Reset to default empty strings when cleared
-                    setStartDateOnLeaveRequest('');
-                    setEndDateOnLeaveRequest('');
-                  }
-                }}
-                id="time-attendance-leave-request-date-range-picker"
-                data-cy="time-attendance-leave-request-date-range-picker"
-              />
             </div>
             {/* Mobile Filters */}
             <div className="md:hidden block">
@@ -364,7 +337,11 @@ const LeaveRequest = () => {
 
             {pendingLeaveRequests?.users?.length > 0 ? (
               <div
-                className="h-64 overflow-y-auto scrollbar-none space-y-4"
+                className="h-64 overflow-y-auto space-y-4 pr-2"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#3636f0 #f3f4f6',
+                }}
                 id="time-attendance-leave-request-users-scroll-div"
                 data-cy="time-attendance-leave-request-users-scroll-div"
               >
@@ -381,7 +358,7 @@ const LeaveRequest = () => {
                       data-cy={`time-attendance-leave-request-card-${index}-header-div`}
                     >
                       <div
-                        className="flex items-center space-x-2 mb-1 "
+                        className="flex items-center space-x-2 mb-1"
                         id={`time-attendance-leave-request-card-${index}-profile-row`}
                         data-cy={`time-attendance-leave-request-card-${index}-profile-row`}
                       >
@@ -471,6 +448,33 @@ const LeaveRequest = () => {
               id="time-attendance-leave-request-chart-filters-div"
               data-cy="time-attendance-leave-request-chart-filters-div"
             >
+              <DatePicker.RangePicker
+                className="w-full h-12"
+                value={
+                  startDateOnLeaveRequest && endDateOnLeaveRequest
+                    ? [
+                        dayjs(startDateOnLeaveRequest),
+                        dayjs(endDateOnLeaveRequest),
+                      ]
+                    : null
+                }
+                onChange={(value: any) => {
+                  if (value && value[0] && value[1]) {
+                    setStartDateOnLeaveRequest(
+                      value[0]?.format('YYYY-MM-DD') || '',
+                    );
+                    setEndDateOnLeaveRequest(
+                      value[1]?.format('YYYY-MM-DD') || '',
+                    );
+                  } else {
+                    // Reset to default empty strings when cleared
+                    setStartDateOnLeaveRequest('');
+                    setEndDateOnLeaveRequest('');
+                  }
+                }}
+                id="time-attendance-leave-request-date-range-picker"
+                data-cy="time-attendance-leave-request-date-range-picker"
+              />
               <Select
                 showSearch
                 placeholder="Select Leave Type"
