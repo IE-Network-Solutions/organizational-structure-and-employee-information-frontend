@@ -5,6 +5,7 @@ import { PAYROLL_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 
 const getPendingPayrollApprovals = async (
+  payPeriodId?: string,
   page?: number,
   limit?: number,
   orderBy?: string,
@@ -16,6 +17,7 @@ const getPendingPayrollApprovals = async (
   
   const queryParams = new URLSearchParams();
   
+  if (payPeriodId) queryParams.append('payPeriodId', payPeriodId);
   if (page) queryParams.append('page', page.toString());
   if (limit) queryParams.append('limit', limit.toString());
   if (orderBy) queryParams.append('orderBy', orderBy);
@@ -36,6 +38,7 @@ const getPendingPayrollApprovals = async (
 };
 
 export const useGetPendingPayrollApprovals = (
+  payPeriodId?: string,
   page?: number,
   limit?: number,
   orderBy?: string,
@@ -43,8 +46,8 @@ export const useGetPendingPayrollApprovals = (
 ) => {
   const token = useAuthenticationStore.getState().token;
   return useQuery(
-    ['pendingPayrollApprovals', page, limit, orderBy, orderDirection],
-    () => getPendingPayrollApprovals(page, limit, orderBy, orderDirection),
+    ['pendingPayrollApprovals', payPeriodId, page, limit, orderBy, orderDirection],
+    () => getPendingPayrollApprovals(payPeriodId, page, limit, orderBy, orderDirection),
     {
       keepPreviousData: true,
       enabled: !!token,
