@@ -195,16 +195,22 @@ function CreatePlan() {
                       task?.id,
                     );
 
-                    const boardsKey = `board-${compositeKey}`;
-                    const existingBoard = form.getFieldValue(boardsKey) || [];
+                    const namesKey = `names-${compositeKey}`;
+                    const existingBoard = form.getFieldValue(namesKey) || [];
 
                     if (existingBoard.length === 0) {
-                      formUpdates[boardsKey] = matchingFailedTasks.map(
+                      formUpdates[namesKey] = matchingFailedTasks.map(
                         (failedTask: any) => ({
                           task: failedTask.task,
                           priority: failedTask.priority,
                           weight: failedTask.weight,
                           targetValue: failedTask.targetValue,
+                          userId: userId,
+                          planningPeriodId: planningPeriodId,
+                          planningUserId: planningUserId,
+                          keyResultId: failedTask.keyResultId,
+                          milestoneId: failedTask.milestoneId,
+                          parentTaskId: failedTask.parentTaskId,
                         }),
                       );
                     }
@@ -248,17 +254,23 @@ function CreatePlan() {
 
                         if (matchingFailedTasks.length > 0) {
                           const compositeKey = buildKey(krId, mlId, taskId);
-                          const boardsKey = `board-${compositeKey}`;
+                          const namesKey = `names-${compositeKey}`;
                           const existingBoard =
-                            form.getFieldValue(boardsKey) || [];
+                            form.getFieldValue(namesKey) || [];
 
                           if (existingBoard.length === 0) {
-                            formUpdates[boardsKey] = matchingFailedTasks.map(
+                            formUpdates[namesKey] = matchingFailedTasks.map(
                               (failedTask: any) => ({
                                 task: failedTask.task,
                                 priority: failedTask.priority,
                                 weight: failedTask.weight,
                                 targetValue: failedTask.targetValue,
+                                userId: userId,
+                                planningPeriodId: planningPeriodId,
+                                planningUserId: planningUserId,
+                                keyResultId: failedTask.keyResultId,
+                                milestoneId: failedTask.milestoneId,
+                                parentTaskId: failedTask.parentTaskId,
                               }),
                             );
                           }
@@ -268,16 +280,22 @@ function CreatePlan() {
                   });
                 } else if (milestoneKey === 'noMilestone' && !kr?.milestones) {
                   // Handle key results without milestones
-                  const boardsKey = `board-${krId}`;
-                  const existingBoard = form.getFieldValue(boardsKey) || [];
+                  const namesKey = `names-${krId}`;
+                  const existingBoard = form.getFieldValue(namesKey) || [];
 
                   if (existingBoard.length === 0) {
-                    formUpdates[boardsKey] = failedTasks.map(
+                    formUpdates[namesKey] = failedTasks.map(
                       (failedTask: any) => ({
                         task: failedTask.task,
                         priority: failedTask.priority,
                         weight: failedTask.weight,
                         targetValue: failedTask.targetValue,
+                        userId: userId,
+                        planningPeriodId: planningPeriodId,
+                        planningUserId: planningUserId,
+                        keyResultId: failedTask.keyResultId,
+                        milestoneId: failedTask.milestoneId,
+                        parentTaskId: failedTask.parentTaskId,
                       }),
                     );
                   }
@@ -291,6 +309,17 @@ function CreatePlan() {
       // Apply all form updates at once
       if (Object.keys(formUpdates).length > 0) {
         form.setFieldsValue(formUpdates);
+
+        // Update weights for each auto-populated key
+        Object.entries(formUpdates).forEach(([key, tasks]: [string, any]) => {
+          if (key.startsWith('names-')) {
+            const calculatedWeight = tasks.reduce(
+              (sum: number, task: any) => sum + Number(task.weight || 0),
+              0,
+            );
+            setWeight(key, calculatedWeight);
+          }
+        });
       }
 
       hasAutoPopulated.current = true;
@@ -319,16 +348,37 @@ function CreatePlan() {
       resetWeights();
     }
   }, [open, form, resetWeights]);
+  const handleAddName = (
+    currentBoardValues: Record<string, string>,
+    kId: string,
+  ) => {
+    const namesKey = `names-${kId}`;
+    const names = form.getFieldValue(namesKey) || [];
+    form.setFieldsValue({ [namesKey]: [...names, currentBoardValues] });
+    const fieldValue = form.getFieldValue(namesKey);
+    const totalWeight = fieldValue.reduce((sum: number, field: any) => {
+      return Number(sum) + Number(field?.weight || 0);
+    }, 0);
+    setWeight(namesKey, totalWeight);
+  };
   const handleAddBoard = (kId: string) => {
     const namesKey = `names-${kId}`;
-    const currentNames = form.getFieldValue(namesKey) || [];
+    const currentBoard = form.getFieldValue(namesKey) || [];
 
     // Always grab the latest mkAsATask value to avoid stale reads
     const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
-    const taskTitle = latestMkAsATask?.title || '';
-    const achieveMK = !!latestMkAsATask;
 
-    // Create a task object - if mkAsATask exists, use its title
+    // VALIDATION: Only use mkAsATask if it belongs to this Key Result
+    // Check if mkAsATask.mid matches the current kId (exact match or for milestones, kId ends with mid)
+    const shouldUseMkAsATask =
+      latestMkAsATask?.mid &&
+      (kId === latestMkAsATask.mid || // Exact match (for Key Result without milestone)
+        kId.endsWith(latestMkAsATask.mid)); // Ends with match (for milestone: "krId+mlId" where mid is "mlId")
+
+    const taskTitle = shouldUseMkAsATask ? latestMkAsATask.title : '';
+    const achieveMK = shouldUseMkAsATask;
+
+    // Create a task object - if mkAsATask exists and matches, use its title
     const newTask = {
       task: taskTitle,
       priority: undefined,
@@ -337,17 +387,25 @@ function CreatePlan() {
       achieveMK: achieveMK,
     };
 
-    form.setFieldsValue({ [namesKey]: [newTask, ...currentNames] });
-    setMKAsATask(null);
+    setTimeout(() => {
+      form.setFieldsValue({ [namesKey]: [...currentBoard, newTask] });
+    }, 0);
   };
 
+
   const modalHeader = (
-    <div className="relative flex items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <div>
-        Create {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'New'}{' '}
-        Plan
+    <div
+      className="flex items-center justify-center text-2xl font-bold text-[#161A2C] p-4 relative"
+      data-cy="create-plan-modal-header"
+    >
+      <div data-cy="create-plan-modal-header-title">
+        {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'Daily'} Plan
       </div>
-      <div className="absolute right-4 top-1/2 -translate-y-1/2">
+      <div
+        className="absolute right-4 top-1/2 -translate-y-1/2"
+        id="planning-ai-suggestions-wrapper-view-space"
+        data-cy="planning-ai-suggestions-wrapper-view-space"
+      >
         {/* AI Suggestions button + modal */}
         <AISuggestionsModal
           getKeyResults={() => {
@@ -413,7 +471,7 @@ function CreatePlan() {
           }}
           form={form}
           handleAddBoard={handleAddBoard}
-          handleAddName={() => { }} // Placeholder as it's no longer used for tasks
+          handleAddName={handleAddName}
           planTypeName={planningPeriodHierarchy?.name || 'Weekly'}
           hasParentPlan={!!planningPeriodHierarchy?.parentPlan}
           resolveListNameForKR={(krId: string) => `names-${krId}`}
@@ -455,11 +513,11 @@ function CreatePlan() {
         </Button>
       </div>
       <div className="flex-1 flex justify-end">
-        <div className="my-2 font-bold mx-6">
-          <span className="hidden sm:inline">Total Weights: </span>
-          <span className="sm:hidden">W: </span>
-          {Math.round(Number(totalWeight) || 0)} / 100
-        </div>
+        <span className="text-sm font-medium text-[#161A2C]">
+          <span className="md:hidden">WP:</span>{' '}
+          <span className="hidden sm:inline">Weight Point:</span>{' '}
+          {Math.round(Number(totalWeight) || 0)}%
+        </span>
       </div>
     </div>
   );
@@ -518,6 +576,7 @@ function CreatePlan() {
                 mkAsATask={!!mkAsATask}
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
+                handleAddName={handleAddName}
                 weights={weights}
                 failedTasksByKeyResult={failedTasksByKeyResult}
               />
@@ -531,6 +590,7 @@ function CreatePlan() {
                 mkAsATask={!!mkAsATask}
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
+                handleAddName={handleAddName}
                 weights={weights}
                 failedTasksByKeyResult={failedTasksByKeyResult}
               />

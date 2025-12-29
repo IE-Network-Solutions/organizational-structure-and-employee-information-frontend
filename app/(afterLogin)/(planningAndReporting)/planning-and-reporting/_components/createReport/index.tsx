@@ -266,7 +266,7 @@ function CreateReport() {
             <div className="flex-1 flex justify-end">
                 <div className="my-2 font-bold mx-6">
                     <span className="text-sm font-medium text-[#161A2C]">
-                        <span className="md:hidden">TP:</span> <span className="hidden md:inline">Total Point:</span>{' '}
+                        <span className="md:hidden">WP:</span> <span className="hidden md:inline">Weight Point:</span>{' '}
                         <span
                             className={
                                 totalWeight > 84
@@ -439,10 +439,10 @@ function CreateReport() {
                             className="px-2"
                         >
                             <Collapse
-                                defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((_: any, i: number) => `kr-${obj.id || ''}-${i}`))}
+                                defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((nonused: any, i: number) => `kr-${obj.id || ''}-${i}`))}
                                 expandIconPosition="end"
                                 bordered={false}
-                                className="bg-transparent [&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-xl [&_.ant-collapse-item]:!border-t [&_.ant-collapse-item]:!border-b [&_.ant-collapse-item]:!border-l [&_.ant-collapse-item]:!border-r [&_.ant-collapse-item]:!border-gray-200 [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
+                                className="bg-transparent"
                             >
                                 {formattedData?.map((objective: any) =>
                                     objective?.keyResults?.map((keyresult: any, index: number) => (
@@ -458,6 +458,10 @@ function CreateReport() {
                                                 </div>
                                             }
                                             key={`kr-${objective.id || ''}-${index}`}
+                                            className="mb-4 rounded-xl overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
+                                            style={{
+                                                border: '1px solid #e5e7eb',
+                                            }}
                                         >
                                             <div className="py-2">
                                                 {/* Milestone Tasks */}

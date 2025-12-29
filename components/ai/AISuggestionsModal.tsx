@@ -35,6 +35,9 @@ interface AISuggestionsModalProps {
   resolveListNameForKR?: (krId: string) => string; // returns form list name e.g., names-<id or composite>
   resolveBoardKeyForKR?: (krId: string) => string; // what to pass to handleAddBoard
   hasParentPlan?: boolean; // Explicitly indicates if this is a child plan (e.g., Daily under Weekly)
+  userId?: string;
+  planningPeriodId?: string;
+  planningUserId?: string;
 }
 
 const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
@@ -46,6 +49,9 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   resolveListNameForKR,
   resolveBoardKeyForKR,
   hasParentPlan,
+  userId,
+  planningPeriodId,
+  planningUserId,
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -591,6 +597,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       weight: item.weight,
       priority: (item.priority || 'medium').toLowerCase(),
       targetValue: typeof item.target === 'number' ? item.target : 0,
+      userId: userId,
+      planningPeriodId: planningPeriodId,
+      planningUserId: planningUserId,
+      keyResultId: targetKeyResultId,
       // Always false for generated tasks; only true when planning milestone itself elsewhere
       achieveMK: false,
       // If adding under a milestone, include milestoneId
@@ -615,21 +625,15 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       return;
     }
 
-    // Add the task data directly to the names list
-    const updatedList = [taskData, ...existingList];
-    form.setFieldsValue({ [listName]: updatedList });
-
-    // Handle weight calculation if handleAddName is provided (mostly for EditPlan context)
+    // Handle task addition and weight calculation
     if (handleAddName) {
-      const totalWeight = updatedList.reduce(
-        (sum: number, f: { weight?: number }) => sum + Number(f?.weight ?? 0),
-        0
-      );
-      // In EditPlan, handleAddName usually handles setWeight
+      // Delegate to handleAddName if provided (standard approach in CreatePlan/EditPlan)
       handleAddName(taskData, boardKey);
     } else {
-      // In CreatePlan, we can manually trigger weight update if needed, 
-      // but PlanningAndReportingStore handles this via watching the form or direct setWeight calls
+      // Add directly and update weights manually if no handler provided (fallback)
+      const updatedList = [taskData, ...existingList];
+      form.setFieldsValue({ [listName]: updatedList });
+
       const totalWeight = updatedList.reduce(
         (sum: number, f: { weight?: number }) => sum + Number(f?.weight ?? 0),
         0

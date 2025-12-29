@@ -1,6 +1,5 @@
 import React from 'react';
-import { Collapse, Button, Divider, Tooltip, Dropdown } from 'antd';
-import { FaPlus } from 'react-icons/fa';
+import { Collapse, Button, Divider, Dropdown } from 'antd';
 import { BsKey } from 'react-icons/bs';
 import DefaultCardForm from '../planForms/defaultForm';
 import { NAME } from '@/types/enumTypes';
@@ -20,6 +19,8 @@ interface KeyResult {
     name: string;
   };
   progress?: string;
+  currentValue?: number;
+  targetValue?: number;
   milestones?: Milestone[];
   weight?: number;
 }
@@ -39,11 +40,8 @@ interface CollapseComponentProps {
   planningUserId: string;
   mkAsATask: boolean | null;
   setMKAsATask: (value: any) => void;
-  handleAddBoard: (
-    id: string,
-    keyResultId?: string | null,
-    milestoneId?: string | null,
-  ) => void;
+  handleAddBoard: (id: string) => void;
+  handleAddName: (values: Record<string, any>, key: string) => void;
   weights: Record<string, number>;
   failedTasksByKeyResult?: Record<
     string,
@@ -60,7 +58,6 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   mkAsATask,
   setMKAsATask,
   handleAddBoard,
-  weights,
 }) => {
   const { statuses, setClickStatus } = useClickStatus();
 
@@ -69,7 +66,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
     <Collapse
       expandIconPosition="end"
       bordered={false}
-      className="[&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:!border-t [&_.ant-collapse-item]:!border-b [&_.ant-collapse-item]:!border-l [&_.ant-collapse-item]:!border-r [&_.ant-collapse-item]:!border-gray-200 [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:border-b-0 [&_.ant-collapse-content]:border-t-0 [&_.ant-collapse-content]:bg-transparent"
+      className=""
       defaultActiveKey={0}
       expandIcon={({ isActive }) => <UpOutlined rotate={isActive ? 180 : 0} />}
     >
@@ -82,6 +79,10 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
             </div>
           }
           key={panelIndex}
+          className="mb-4 rounded-lg overflow-hidden [&_.ant-collapse-header]:border-b-0 [&_.ant-collapse-content]:border-t-0 [&_.ant-collapse-content]:bg-transparent"
+          style={{
+            border: '1px solid #e5e7eb',
+          }}
         >
           {e?.keyResults?.map((kr, resultIndex) => {
             const hasMilestone = (kr?.milestones?.length ?? 0) > 0;
@@ -91,18 +92,19 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
             return (
               <div key={resultIndex} className="border-2 border-gray-200 rounded-lg p-2 mb-4">
-                <div className="flex items-start gap-3 mt-2 mb-3 justify-between flex-wrap">
-                  <div className="flex items-center gap-3 min-w-0 ml-4">
-                    <BsKey size={24} className="text-[#574CFF] flex-shrink-0" />
-                    <span className="text-sm font-normal truncate max-w-[260px] md:max-w-[420px]">
-                      {kr?.title}
-                    </span>
-                  </div>
+                <div className="flex flex-col gap-2 mt-2 mb-3">
+                  {/* Row 1: Key Icon + Title (+ Weight for Milestone) */}
+                  <div className="flex items-center justify-between gap-3 min-w-0">
+                    <div className="flex items-center gap-3 ml-4">
+                      <BsKey size={24} className="text-[#574CFF] flex-shrink-0" />
+                      <span className="text-sm font-bold text-[#161A2C] truncate max-w-[260px] md:max-w-[420px]">
+                        {kr?.title}
+                      </span>
+                    </div>
 
-                  <div className="flex items-center gap-3 justify-end flex-wrap">
-                    {kr?.weight !== undefined && (
+                    {kr?.metricType?.name === NAME.MILESTONE && kr?.weight !== undefined && (
                       <div className="flex items-center gap-2 mr-2">
-                        <span className="text-xs flex items-center gap-1.5 text-gray-500">
+                        <span className="text-xs flex items-center gap-1.5 text-gray-400">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
                           Weight
                         </span>
@@ -111,50 +113,99 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         </div>
                       </div>
                     )}
+                  </div>
 
-                    {!hasMilestone && (
-                      <div className="flex items-center gap-3">
-                        {kr?.metricType?.name === NAME.ACHIEVE ? (
-                          <Dropdown.Button
-                            type="primary"
-                            icon={<DownOutlined />}
-                            disabled={Number(kr?.progress) == 100}
-                            menu={{
-                              items: [
-                                {
-                                  key: 'plan-keyresult-as-task',
-                                  label: 'Plan Key Result as a Task',
-                                  disabled:
-                                    Number(kr?.progress) == 100 ||
-                                    form?.getFieldValue(`names-${kr?.id}`)?.some((i: any) => i?.achieveMK),
-                                  onClick: () => {
-                                    setMKAsATask({ title: kr?.title, mid: kr?.id });
-                                    handleAddBoard(kr?.id);
-                                  },
-                                },
-                              ],
-                            }}
-                            onClick={() => {
-                              setMKAsATask(null);
-                              handleAddBoard(kr?.id, String(kr?.id || ''), null);
-                            }}
-                          >
-                            Add plan Task
-                          </Dropdown.Button>
-                        ) : (
-                          <Button
-                            id={`plan-as-task_${kr?.id ?? ''}`}
-                            onClick={() =>
-                              handleAddBoard(kr?.id, String(kr?.id || ''), null)
-                            }
-                            type="primary"
-                            disabled={Number(kr?.progress) == 100}
-                          >
-                            Add plan Task
-                          </Button>
+                  {/* Row 2: Progress (Left) + Weight/Actions (Right) */}
+                  <div className="flex items-center justify-between flex-wrap gap-4 ml-4">
+                    <div className="flex items-center gap-6">
+                      {/* Dynamic Progress Indicator */}
+                      {(kr?.metricType?.name === NAME.NUMERIC ||
+                        kr?.metricType?.name === NAME.CURRENCY ||
+                        kr?.metricType?.name === NAME.PERCENTAGE ||
+                        kr?.metricType?.name === NAME.KPI) && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs flex items-center gap-1.5 text-gray-400">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                              Progress
+                            </span>
+                            <div className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs flex items-center justify-center min-w-[45px]">
+                              {kr?.metricType?.name === NAME.PERCENTAGE ? (
+                                <span className="text-[#574CFF] font-bold">{kr?.progress}%</span>
+                              ) : (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-[#574CFF] font-bold">
+                                    {kr?.metricType?.name === NAME.CURRENCY ? '$' : ''}
+                                    {(kr?.currentValue ?? 0).toLocaleString()}
+                                  </span>
+                                  <span className="text-gray-500">from</span>
+                                  <span className="text-[#574CFF] font-bold">
+                                    {kr?.metricType?.name === NAME.CURRENCY ? '$' : ''}
+                                    {(kr?.targetValue ?? 0).toLocaleString()}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         )}
-                      </div>
-                    )}
+                    </div>
+
+                    <div className="flex items-center gap-6 mr-2">
+                      {kr?.weight !== undefined && kr?.metricType?.name !== NAME.MILESTONE && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs flex items-center gap-1.5 text-gray-500">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                            Weight
+                          </span>
+                          <div className="rounded-lg bg-[#E8E7FF] text-[#574CFF] font-bold px-3 py-1 text-xs flex items-center justify-center min-w-[45px]">
+                            {kr.weight}%
+                          </div>
+                        </div>
+                      )}
+
+                      {!hasMilestone && (
+                        <div className="flex items-center gap-3">
+                          {kr?.metricType?.name === NAME.ACHIEVE ? (
+                            <Dropdown.Button
+                              type="primary"
+                              icon={<DownOutlined />}
+                              disabled={Number(kr?.progress) == 100}
+                              menu={{
+                                items: [
+                                  {
+                                    key: 'plan-keyresult-as-task',
+                                    label: 'Plan Key Result as a Task',
+                                    disabled:
+                                      Number(kr?.progress) == 100 ||
+                                      form?.getFieldValue(`names-${kr?.id}`)?.some((i: any) => i?.achieveMK),
+                                    onClick: () => {
+                                      setMKAsATask({ title: kr?.title, mid: kr?.id });
+                                      handleAddBoard(kr?.id);
+                                    },
+                                  },
+                                ],
+                              }}
+                              onClick={() => {
+                                setMKAsATask(null);
+                                handleAddBoard(kr?.id);
+                              }}
+                            >
+                              Add plan Task
+                            </Dropdown.Button>
+                          ) : (
+                            <Button
+                              id={`plan-as-task_${kr?.id ?? ''}`}
+                              onClick={() =>
+                                handleAddBoard(kr?.id)
+                              }
+                              type="primary"
+                              disabled={Number(kr?.progress) == 100}
+                            >
+                              Add plan Task
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -202,11 +253,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                   }}
                                   onClick={() => {
                                     setMKAsATask(null);
-                                    handleAddBoard(
-                                      kr?.id + ml?.id,
-                                      String(kr?.id || ''),
-                                      ml?.id ? String(ml.id) : null,
-                                    );
+                                    handleAddBoard(kr?.id + ml?.id);
                                   }}
                                 >
                                   Add plan Task

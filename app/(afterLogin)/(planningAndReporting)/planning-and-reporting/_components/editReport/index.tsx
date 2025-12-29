@@ -387,7 +387,7 @@ function EditReport() {
               className="px-2"
             >
               <Collapse
-                defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((_: any, i: number) => `kr-${obj.id || ''}-${i}`))}
+                defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((nonused: any, i: number) => `kr-${obj.id || ''}-${i}`))}
                 expandIconPosition="end"
                 bordered={false}
                 className="bg-transparent [&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-xl [&_.ant-collapse-item]:!border-t [&_.ant-collapse-item]:!border-b [&_.ant-collapse-item]:!border-l [&_.ant-collapse-item]:!border-r [&_.ant-collapse-item]:!border-gray-200 [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"

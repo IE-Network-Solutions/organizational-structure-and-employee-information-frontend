@@ -238,37 +238,45 @@ export default function PlanCard({
                 )}
 
                 {/* Parent Tasks (grouped tasks under key result) */}
-                {keyResult.parentTask && keyResult.parentTask.map((parentTask: any) => (
-                  <div key={parentTask.id} className="relative mb-4">
-                    {/* Parent Task Header */}
-                    <div className="flex items-center gap-3 mb-1 relative z-10">
-                      <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                {keyResult.parentTask && keyResult.parentTask.map((parentTask: any) => {
+                  const parentTaskName = parentTask.task || parentTask.title || parentTask.name;
+                  const krTitle = keyResult.title || keyResult.name;
+                  const isRedundant = parentTaskName === krTitle;
+
+                  return (
+                    <div key={parentTask.id} className="relative mb-4">
+                      {/* Parent Task Header - skip if same as KR title */}
+                      {!isRedundant && (
+                        <div className="flex items-center gap-3 mb-1 relative z-10">
+                          <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                          </div>
+                          <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                            {parentTaskName}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Vertical line connecting Parent Task to Sub-tasks */}
+                      {parentTask.tasks && parentTask.tasks.length > 0 && (
+                        <div className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`} />
+                      )}
+
+                      {/* Sub-tasks under Parent Task */}
+                      <div className={`flex flex-col gap-0 ${isRedundant ? 'pt-0' : 'pt-1'}`}>
+                        {parentTask.tasks && parentTask.tasks.map((task: any, index: number) => (
+                          <TaskRow
+                            key={task.id}
+                            task={task}
+                            viewMode={viewMode}
+                            isLast={index === parentTask.tasks.length - 1}
+                            metricType={keyResult.metricType?.name}
+                          />
+                        ))}
                       </div>
-                      <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
-                        {parentTask.task || parentTask.title || parentTask.name}
-                      </p>
                     </div>
-
-                    {/* Vertical line connecting Parent Task to Sub-tasks */}
-                    {parentTask.tasks && parentTask.tasks.length > 0 && (
-                      <div className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]" />
-                    )}
-
-                    {/* Sub-tasks under Parent Task */}
-                    <div className="flex flex-col gap-0 pt-1">
-                      {parentTask.tasks && parentTask.tasks.map((task: any, index: number) => (
-                        <TaskRow
-                          key={task.id}
-                          task={task}
-                          viewMode={viewMode}
-                          isLast={index === parentTask.tasks.length - 1}
-                          metricType={keyResult.metricType?.name}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
 
                 {/* Milestones */}
                 {keyResult.milestones && keyResult.milestones.map((milestone) => (
@@ -283,8 +291,8 @@ export default function PlanCard({
                       </p>
                     </div>
 
-                    {/* Vertical line connecting Milestone to Tasks */}
-                    {milestone.tasks && milestone.tasks.length > 0 && (
+                    {/* Vertical line connecting Milestone to Tasks/ParentTasks */}
+                    {((milestone.tasks && milestone.tasks.length > 0) || (milestone.parentTask && milestone.parentTask.length > 0)) && (
                       <div className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]" />
                     )}
 
@@ -302,37 +310,45 @@ export default function PlanCard({
                     </div>
 
                     {/* Parent Tasks within Milestone */}
-                    {milestone.parentTask && milestone.parentTask.map((parentTask: any) => (
-                      <div key={parentTask.id} className="relative mt-4">
-                        {/* Parent Task Header */}
-                        <div className="flex items-center gap-3 mb-1 relative z-10">
-                          <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                    {milestone.parentTask && milestone.parentTask.map((parentTask: any) => {
+                      const parentTaskName = parentTask.task || parentTask.title || parentTask.name;
+                      const milestoneName = milestone.title || milestone.name;
+                      const isRedundant = parentTaskName === milestoneName;
+
+                      return (
+                        <div key={parentTask.id} className={`relative ${isRedundant ? 'mt-0' : 'mt-4'}`}>
+                          {/* Parent Task Header - skip if name matches milestone title */}
+                          {!isRedundant && (
+                            <div className="flex items-center gap-3 mb-1 relative z-10">
+                              <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                              </div>
+                              <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                                {parentTaskName}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Vertical line connecting Parent Task to Sub-tasks */}
+                          {parentTask.tasks && parentTask.tasks.length > 0 && (
+                            <div className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`} />
+                          )}
+
+                          {/* Sub-tasks under Parent Task */}
+                          <div className={`flex flex-col gap-0 ${isRedundant ? 'pt-0' : 'pt-1'}`}>
+                            {parentTask.tasks && parentTask.tasks.map((task: any, index: number) => (
+                              <TaskRow
+                                key={task.id}
+                                task={task}
+                                viewMode={viewMode}
+                                isLast={index === parentTask.tasks.length - 1}
+                                metricType={keyResult.metricType?.name}
+                              />
+                            ))}
                           </div>
-                          <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
-                            {parentTask.task || parentTask.title || parentTask.name}
-                          </p>
                         </div>
-
-                        {/* Vertical line connecting Parent Task to Sub-tasks */}
-                        {parentTask.tasks && parentTask.tasks.length > 0 && (
-                          <div className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]" />
-                        )}
-
-                        {/* Sub-tasks under Parent Task */}
-                        <div className="flex flex-col gap-0 pt-1">
-                          {parentTask.tasks && parentTask.tasks.map((task: any, index: number) => (
-                            <TaskRow
-                              key={task.id}
-                              task={task}
-                              viewMode={viewMode}
-                              isLast={index === parentTask.tasks.length - 1}
-                              metricType={keyResult.metricType?.name}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ))}
               </div>

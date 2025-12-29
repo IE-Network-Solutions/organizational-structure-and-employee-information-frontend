@@ -192,6 +192,9 @@ function EditPlan() {
           hasParentPlan={!!planningPeriodHierarchy?.parentPlan}
           resolveListNameForKR={(krId: string) => `names-${krId}`}
           resolveBoardKeyForKR={(krId: string) => krId}
+          userId={userId}
+          planningPeriodId={planningPeriodId}
+          planningUserId={planningUserId}
         />
       </div>
     </div>
@@ -201,8 +204,31 @@ function EditPlan() {
     const mergeValues = (obj: any) => {
       return Object.entries(obj)
         .filter(([key]) => key.startsWith('names-'))
-        .map(([, value]) => value)
-        .filter((value) => Array.isArray(value))
+        .map(([key, value]: [string, any]) => {
+          if (!Array.isArray(value)) return [];
+          const extractedKRId = key.replace('names-', '');
+
+          return value.map((task: any) => ({
+            ...task,
+            // Ensure all required fields are present and are strings
+            userId: String(task.userId || userId || ''),
+            planningPeriodId: String(
+              task.planningPeriodId || planningPeriodId || '',
+            ),
+            planningUserId: String(
+              task.planningUserId || planningUserId || '',
+            ),
+            // keyResultId is required.
+            keyResultId: String(
+              task.keyResultId ||
+              (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
+              '',
+            ),
+            // milestoneId and parentTaskId can be null but should be strings if they exist
+            milestoneId: task.milestoneId ? String(task.milestoneId) : null,
+            parentTaskId: task.parentTaskId ? String(task.parentTaskId) : null,
+          }));
+        })
         .flat();
     };
     const finalValues = mergeValues(values);

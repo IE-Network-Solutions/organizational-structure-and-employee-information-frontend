@@ -1,7 +1,7 @@
 import { Col, Form, Input, InputNumber, Row, Select } from 'antd';
-import { MdCancel } from 'react-icons/md';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { NAME } from '@/types/enumTypes';
+import { CloseCircleFilled } from '@ant-design/icons';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface DefaultCardInterface {
@@ -153,15 +153,15 @@ function DefaultCardForm({
                     style={{ flex: 1, marginBottom: 0 }}
                   >
                     <Input
-                      className={`text-[12px] h-10 ${form.getFieldValue(name)[field.name].achieveMK}`}
+                      className={`text-[12px] h-10 ${form.getFieldValue(name)[field.name].achieveMK} border-gray-200 rounded-lg`}
                       disabled={form.getFieldValue(name)[field.name].achieveMK} // Disable if milestoneId exists
                       placeholder="Add your tasks here"
                       style={{ width: '100%' }}
                     />
                   </Form.Item>
-                  <MdCancel
-                    className="text-primary cursor-pointer"
-                    size={20}
+                  <CloseCircleFilled
+                    className="text-[#3D41FF] cursor-pointer hover:text-[#3236e6] transition-colors"
+                    style={{ fontSize: '20px' }}
                     onClick={() => {
                       setClickStatus(milestoneId + '', false);
                       remove(field.name);
@@ -182,8 +182,8 @@ function DefaultCardForm({
                         <Col flex="none">
                           <Row align="middle" gutter={8} wrap={false}>
                             <Col flex="none">
-                              <div className="text-xs flex items-center gap-1">
-                                <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                              <div className="text-xs flex items-center gap-1.5 text-gray-500">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
                                 Target
                               </div>
                             </Col>
