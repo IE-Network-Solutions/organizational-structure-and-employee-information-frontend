@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Table, Select, Tag, Avatar, Row, Col } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetAggregateAuditLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 import { AggregateAuditLogParams } from '@/store/server/features/tenant-management/audit-logs/interface';
@@ -28,7 +29,7 @@ const AUDIT_LOG_MODULES = [
 ];
 
 const AuditLogPage = () => {
-  
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined);
@@ -306,6 +307,14 @@ const AuditLogPage = () => {
           scroll={{ x: true }}
           data-cy="audit-log-table"
           id="audit-log-table"
+          className="cursor-pointer"
+          onRow={(record) => ({
+            onClick: () => {
+              // Store the record data in sessionStorage for the detail page to use
+              sessionStorage.setItem(`audit-log-${record.id}`, JSON.stringify(record));
+              router.push(`/audit-log/${record.id}`);
+            },
+          })}
           locale={{
             emptyText: 'No data available',
           }}

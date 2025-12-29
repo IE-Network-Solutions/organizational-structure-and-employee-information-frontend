@@ -99,7 +99,6 @@ export const useGetAggregateAuditLogs = (
   isEnabled: boolean = true,
 ) => {
   // Keep previous data when module is defined (including 'all')
-  // This provides a smoother UX by showing cached data while fetching new data
   const shouldKeepPreviousData = params.module !== null && params.module !== undefined;
   
   return useQuery<ApiResponse<AuditLog>>(
