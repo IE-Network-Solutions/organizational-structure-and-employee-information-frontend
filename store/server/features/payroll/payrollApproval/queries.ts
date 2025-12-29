@@ -54,7 +54,7 @@ export const useGetPendingPayrollApprovals = (
   );
 };
 
-const getPayrollApprovalByPayPeriodId = async (payPeriodId: string) => {
+const getPayrollApprovalByPayPeriodId = async () => {
   const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${PAYROLL_URL}/payroll-approval/pay-period`,
@@ -67,7 +67,7 @@ export const useGetPayrollApprovalByPayPeriodId = (payPeriodId?: string) => {
   const token = useAuthenticationStore.getState().token;
   return useQuery(
     ['payrollApprovalByPayPeriodId', payPeriodId],
-    () => getPayrollApprovalByPayPeriodId(payPeriodId!),
+    () => getPayrollApprovalByPayPeriodId(),
     {
       keepPreviousData: true,
       enabled: !!token && !!payPeriodId,
