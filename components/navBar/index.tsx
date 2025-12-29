@@ -643,7 +643,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/audit-log',
       className: 'font-bold',
       permissions: ['view_audit_log'],
-      disabled: hasEndedFiscalYear || isSubscriptionExpired,
+      disabled: hasEndedFiscalYear,
     },
     {
       title: (
@@ -681,140 +681,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
   ];
-  // Get active subscription and its modules
-
-  // Function to check if a menu item is available in the subscription
-  const isMenuItemAvailable = (menuKey: string): boolean => {
-    // Admin menu should always be visible for admin users
-    if (menuKey === 'admin-menu' && isAdmin) {
-      return true;
-    }
-
-    // Audit Log should always be visible for admin users
-    if (menuKey === '/audit-log' && isAdmin) {
-      return true;
-    }
-
-    // If no subscription data or no modules, hide all items except admin menu and audit log for admins
-    if (!activeSubscription || !availableModules.length) {
-      return (menuKey === 'admin-menu' && isAdmin) || (menuKey === '/audit-log' && isAdmin);
-    }
-
-    // Map menu keys to module descriptions
-    const menuToModuleMap: Record<string, string> = {
-      '/organization': '/organization',
-      '/employees': '/employees',
-      '/recruitment': '/recruitment',
-      '/okr-menu': '/okr',
-      '/feedback': '/feedback',
-      '/tna': '/tna',
-      '/payroll-menu': '/payroll',
-      '/timesheet': '/timesheet',
-      '/compensation': '/compensation',
-      '/incentive': '/incentive',
-      '/audit-log': '/audit-log',
-      '/admin': '/admin',
-    };
-
-    const modulePath = menuToModuleMap[menuKey];
-    if (!modulePath) {
-      return (menuKey === 'admin-menu' && isAdmin) || (menuKey === '/audit-log' && isAdmin); // Only show admin menu and audit log for admins if no mapping found
-    }
-
-    // Check if any module in the subscription matches the menu path
-    return availableModules.some(
-      (module) => module.module?.description === modulePath,
-    );
-  };
-
-  // Filter treeData based on available modules
-  const getFilteredTreeData = (): CustomMenuItem[] => {
-    return treeData
-      .map((item) => {
-        // Check if the main menu item is available
-        const isMainItemAvailable = isMenuItemAvailable(item.key);
-
-        if (!isMainItemAvailable) {
-          return null; // Don't show this menu item
-        }
-
-        // Filter children based on availability
-        const filteredChildren = item.children?.filter(() => {
-          // For child items, we can be more permissive or use the same logic
-          // For now, if parent is available, show all children
-          return true;
-        });
-
-        return {
-          ...item,
-          children: filteredChildren,
-        };
-      })
-      .filter((item): item is NonNullable<typeof item> => item !== null);
-  };
-
-  // Check if we should show the sidebar at all
-
-  useEffect(() => {
-    refetch();
-  }, [token]);
-
-  // ===========> Fiscal Year Ended Section <=================
-
-  // Separate array for routes that should be accessible but not shown in navigation
-  const hiddenRoutes: { key: string; permissions: string[] }[] = [
-    {
-      key: '/dashboard',
-      permissions: [], // No permissions required
-    },
-    {
-      key: '/',
-      permissions: [], // No permissions required
-    },
-    {
-      key: '/employees/manage-employees/[id]',
-      permissions: [], // No permissions required
-    },
-    {
-      key: '/employee-information/[id]',
-      permissions: [], // No permissions required
-    },
-  ];
-
-  const getRoutesAndPermissions = (
-    menuItems: CustomMenuItem[],
-  ): { route: string; permissions: string[] }[] => {
-    const routes: { route: string; permissions: string[] }[] = [];
-
-    const traverse = (items: CustomMenuItem[]) => {
-      items.forEach((item) => {
-        if (item.key && item.permissions) {
-          routes.push({
-            route: item.key,
-            permissions: item.permissions,
-          });
-        }
-
-        if (item.children) {
-          traverse(item.children);
-        }
-      });
-    };
-
-    // First add hidden routes
-    hiddenRoutes.forEach((route) => {
-      if (route.key && route.permissions) {
-        routes.push({
-          route: route.key,
-          permissions: route.permissions,
-        });
-      }
-    });
-
-    // Then add visible menu routes
-    traverse(menuItems);
-    return routes;
-  };
 
   // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
   const isRouteMatch = (routePattern: string, pathname: string) => {
@@ -1116,13 +982,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     } catch (error) {}
   };
 
-  const filteredMenuItems = getFilteredTreeData()
+  const filteredMenuItems = treeData
     .map((item) => {
-      // Audit Log and Admin menu should always be visible for admin users
-      if ((item.key === '/audit-log' || item.key === 'admin-menu') && isAdmin) {
-        return item;
-      }
-
       const hasAccess = AccessGuard.checkAccess({
         permissions: item.permissions,
       });
