@@ -123,7 +123,7 @@ const AuditLogPage = () => {
       title: 'Module',
       dataIndex: 'module',
       key: 'module',
-      render: (_unused: any, record: any) => {
+      render: (unusedValue: any, record: any) => {
         // If a specific module is selected, show that module's display name
         if (selectedModule) {
           return getModuleDisplayName(selectedModule);
@@ -136,7 +136,7 @@ const AuditLogPage = () => {
       title: 'Performed by',
       dataIndex: 'performedBy',
       key: 'performedBy',
-      render: (_unused: any, record: any) => {
+      render: (unusedValue: any, record: any) => {
         const user = record?.performedByUser;
         const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : null;
         return (
@@ -175,7 +175,7 @@ const AuditLogPage = () => {
     {
       title: 'Remarks',
       key: 'remarks',
-      render: (_unused: any, record: AuditLog) => getRemarks(record),
+      render: (unusedValue: any, record: AuditLog) => getRemarks(record),
     },
   ];
 
