@@ -114,6 +114,8 @@ const AuditLogPage = () => {
           color={getActionColor(action)} 
           className="capitalize"
           style={{ border: 'none' }}
+          data-cy={`audit-log-action-tag-${action}`}
+          id={`audit-log-action-tag-${action}`}
         >
           {action}
         </Tag>
@@ -140,13 +142,15 @@ const AuditLogPage = () => {
         const user = record?.performedByUser;
         const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : null;
         return (
-          <div className="flex items-center gap-2">
-            <Avatar
-              size={32}
-              src={user?.profileImage}
-              icon={!user?.profileImage ? <UserOutlined /> : undefined}
-            />
-            <span>{fullName || 'Unknown User'}</span>
+          <div className="flex items-center gap-2" data-cy={`audit-log-performed-by-${record?.id}`} id={`audit-log-performed-by-${record?.id}`}>
+            <div data-cy={`audit-log-user-avatar-${record?.id}`} id={`audit-log-user-avatar-${record?.id}`}>
+              <Avatar
+                size={32}
+                src={user?.profileImage}
+                icon={!user?.profileImage ? <UserOutlined /> : undefined}
+              />
+            </div>
+            <span data-cy={`audit-log-user-name-${record?.id}`} id={`audit-log-user-name-${record?.id}`}>{fullName || 'Unknown User'}</span>
           </div>
         );
       },
@@ -159,6 +163,8 @@ const AuditLogPage = () => {
             setOrderDirection(orderDirection === 'DESC' ? 'ASC' : 'DESC');
             setCurrentPage(1);
           }}
+          data-cy="audit-log-performed-at-header"
+          id="audit-log-performed-at-header"
         >
           <span>Performed at</span>
           {orderDirection === 'DESC' ? (
@@ -204,18 +210,20 @@ const AuditLogPage = () => {
       data-cy="audit-log-page-container"
       id="audit-log-page-container"
     >
-      <CustomBreadcrumb
-        title="Audit log"
-        subtitle="Track all the events that have happened in the system"
-      />
+      <div data-cy="audit-log-breadcrumb-container" id="audit-log-breadcrumb-container">
+        <CustomBreadcrumb
+          title="Audit log"
+          subtitle="Track all the events that have happened in the system"
+        />
+      </div>
 
       <div
         className="mt-6 mb-4"
         data-cy="audit-log-filters-container"
         id="audit-log-filters-container"
       >
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={16} md={14} lg={14}>
+        <Row gutter={[16, 16]} data-cy="audit-log-filters-row" id="audit-log-filters-row">
+          <Col xs={24} sm={16} md={14} lg={14} data-cy="audit-log-person-filter-col" id="audit-log-person-filter-col">
             <Select
               placeholder="Search by person"
               value={selectedUserId}
@@ -238,19 +246,19 @@ const AuditLogPage = () => {
                 ? allUsers.items.map((user: any) => {
                     const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown User';
                     return (
-                      <Option key={user.id} value={user.id}>
+                      <Option key={user.id} value={user.id} data-cy={`audit-log-user-option-${user.id}`} id={`audit-log-user-option-${user.id}`}>
                         {fullName}
                       </Option>
                     );
                   })
                 : !isLoadingUsers && (
-                    <Option disabled value="">
+                    <Option disabled value="" data-cy="audit-log-no-users-option" id="audit-log-no-users-option">
                       No users found
                     </Option>
                   )}
             </Select>
           </Col>
-          <Col xs={24} sm={8} md={5} lg={5}>
+          <Col xs={24} sm={8} md={5} lg={5} data-cy="audit-log-module-filter-col" id="audit-log-module-filter-col">
             <Select
               placeholder="All Modules"
               value={selectedModule}
@@ -264,13 +272,13 @@ const AuditLogPage = () => {
               id="audit-log-module-select"
             >
               {AUDIT_LOG_MODULES.map((module) => (
-                <Option key={module.value} value={module.value}>
+                <Option key={module.value} value={module.value} data-cy={`audit-log-module-option-${module.value}`} id={`audit-log-module-option-${module.value}`}>
                   {module.label}
                 </Option>
               ))}
             </Select>
           </Col>
-          <Col xs={24} sm={8} md={5} lg={5}>
+          <Col xs={24} sm={8} md={5} lg={5} data-cy="audit-log-action-filter-col" id="audit-log-action-filter-col">
             <Select
               placeholder="All Actions"
               value={selectedAction}
@@ -284,7 +292,7 @@ const AuditLogPage = () => {
               id="audit-log-action-select"
             >
               {actions.map((action) => (
-                <Option key={action} value={action}>
+                <Option key={action} value={action} data-cy={`audit-log-action-option-${action}`} id={`audit-log-action-option-${action}`}>
                   {action}
                 </Option>
               ))}
@@ -314,6 +322,8 @@ const AuditLogPage = () => {
               sessionStorage.setItem(`audit-log-${record.id}`, JSON.stringify(record));
               router.push(`/audit-log/${record.id}`);
             },
+            'data-cy': `audit-log-table-row-${record.id}`,
+            id: `audit-log-table-row-${record.id}`,
           })}
           locale={{
             emptyText: 'No data available',

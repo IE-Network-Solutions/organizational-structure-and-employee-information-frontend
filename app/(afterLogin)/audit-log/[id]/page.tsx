@@ -56,13 +56,13 @@ const renderObjectFields = (obj: any) => {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" data-cy="audit-log-object-fields-container" id="audit-log-object-fields-container">
       {filteredEntries.map(([key, value]) => (
-        <div key={key} className="grid grid-cols-1 md:grid-cols-12 gap-y-2 md:gap-0">
-          <span className="text-gray-500 text-sm col-span-3 capitalize">
+        <div key={key} className="grid grid-cols-1 md:grid-cols-12 gap-y-2 md:gap-0" data-cy={`audit-log-field-${key}`} id={`audit-log-field-${key}`}>
+          <span className="text-gray-500 text-sm col-span-3 capitalize" data-cy={`audit-log-field-label-${key}`} id={`audit-log-field-label-${key}`}>
             {key.replace(/([A-Z])/g, ' $1').trim()}:
           </span>
-          <span className="text-gray-700 col-span-9">
+          <span className="text-gray-700 col-span-9" data-cy={`audit-log-field-value-${key}`} id={`audit-log-field-value-${key}`}>
             {typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value || '--')}
           </span>
         </div>
@@ -148,9 +148,9 @@ const AuditLogDetailPage = () => {
   );
 
   return (
-    <div className="bg-white min-h-screen p-4 md:p-6" ref={contentRef}>
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0">
-        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => router.back()} className="text-lg font-semibold p-0">
+    <div className="bg-white min-h-screen p-4 md:p-6" ref={contentRef} data-cy="audit-log-detail-page-container" id="audit-log-detail-page-container">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0" data-cy="audit-log-detail-header" id="audit-log-detail-header">
+        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => router.back()} className="text-lg font-semibold p-0" data-cy="audit-log-detail-back-button" id="audit-log-detail-back-button">
           Audit log
         </Button>
         <Button
@@ -160,74 +160,88 @@ const AuditLogDetailPage = () => {
           className="bg-blue-600 border-none"
           loading={isExporting}
           disabled={isExporting}
+          data-cy="audit-log-detail-export-button"
+          id="audit-log-detail-export-button"
         >
           Export detail
         </Button>
       </div>
 
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold mb-2">Audit log</h1>
-        <p className="text-gray-500">
+      <div className="mb-4" data-cy="audit-log-detail-title-section" id="audit-log-detail-title-section">
+        <h1 className="text-2xl font-bold mb-2" data-cy="audit-log-detail-title" id="audit-log-detail-title">Audit log</h1>
+        <p className="text-gray-500" data-cy="audit-log-detail-subtitle" id="audit-log-detail-subtitle">
           Track all the events that have happened in {getModuleDisplayName(auditLog?.module).toLowerCase()}
         </p>
       </div>
 
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={12}>
-          <Card title="Audit ID" loading={isLoading}>
+      <Row gutter={[16, 16]} data-cy="audit-log-detail-content-row" id="audit-log-detail-content-row">
+        <Col xs={24} lg={12} data-cy="audit-log-detail-audit-id-col" id="audit-log-detail-audit-id-col">
+          <Card title="Audit ID" loading={isLoading} data-cy="audit-log-detail-audit-id-card" id="audit-log-detail-audit-id-card">
             <Divider />
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-gray-500 text-sm mb-2">Performed by</h4>
-                <div className="flex items-center space-x-3">
-                  <Avatar size={40} src={performedByUser?.profileImage} icon={!performedByUser?.profileImage ? <UserOutlined /> : undefined} />
-                  <span className="text-lg font-semibold">{fullName}</span>
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6" data-cy="audit-log-detail-performed-by-action-section" id="audit-log-detail-performed-by-action-section">
+              <div data-cy="audit-log-detail-performed-by-section" id="audit-log-detail-performed-by-section">
+                <h4 className="text-gray-500 text-sm mb-2" data-cy="audit-log-detail-performed-by-label" id="audit-log-detail-performed-by-label">Performed by</h4>
+                <div className="flex items-center space-x-3" data-cy="audit-log-detail-performed-by-content" id="audit-log-detail-performed-by-content">
+                  <div data-cy="audit-log-detail-performed-by-avatar" id="audit-log-detail-performed-by-avatar">
+                    <Avatar size={40} src={performedByUser?.profileImage} icon={!performedByUser?.profileImage ? <UserOutlined /> : undefined} />
+                  </div>
+                  <span className="text-lg font-semibold" data-cy="audit-log-detail-performed-by-name" id="audit-log-detail-performed-by-name">{fullName}</span>
                 </div>
               </div>
-              <div>
-                <h4 className="text-gray-500 text-sm mb-2">Action</h4>
-                <Tag color={getActionColor(auditLog?.action)} className="capitalize text-sm px-3 py-1" style={{ border: 'none' }}>
+              <div data-cy="audit-log-detail-action-section" id="audit-log-detail-action-section">
+                <h4 className="text-gray-500 text-sm mb-2" data-cy="audit-log-detail-action-label" id="audit-log-detail-action-label">Action</h4>
+                <Tag color={getActionColor(auditLog?.action)} className="capitalize text-sm px-3 py-1" style={{ border: 'none' }} data-cy="audit-log-detail-action-tag" id="audit-log-detail-action-tag">
                   {auditLog?.action || '--'}
                 </Tag>
               </div>
             </div>
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-gray-500 text-sm mb-2">Performed At</h4>
-                <p>{formatDate(auditLog?.performedAt)}</p>
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6" data-cy="audit-log-detail-performed-at-type-section" id="audit-log-detail-performed-at-type-section">
+              <div data-cy="audit-log-detail-performed-at-section" id="audit-log-detail-performed-at-section">
+                <h4 className="text-gray-500 text-sm mb-2" data-cy="audit-log-detail-performed-at-label" id="audit-log-detail-performed-at-label">Performed At</h4>
+                <p data-cy="audit-log-detail-performed-at-value" id="audit-log-detail-performed-at-value">{formatDate(auditLog?.performedAt)}</p>
               </div>
-              <div>
-                <h4 className="text-gray-500 text-sm mb-2">Type (This is entity)</h4>
-                <p>{getModuleDisplayName(auditLog?.module)}</p>
+              <div data-cy="audit-log-detail-type-section" id="audit-log-detail-type-section">
+                <h4 className="text-gray-500 text-sm mb-2" data-cy="audit-log-detail-type-label" id="audit-log-detail-type-label">Type (This is entity)</h4>
+                <p data-cy="audit-log-detail-type-value" id="audit-log-detail-type-value">{getModuleDisplayName(auditLog?.module)}</p>
               </div>
             </div>
           </Card>
         </Col>
 
-        <Col xs={24} lg={12}>
-          <div className="space-y-4">
+        <Col xs={24} lg={12} data-cy="audit-log-detail-values-col" id="audit-log-detail-values-col">
+          <div className="space-y-4" data-cy="audit-log-detail-values-container" id="audit-log-detail-values-container">
             <Card
               title={<CardTitle icon={<TbRefresh className="text-gray-600" />}>Previous Values</CardTitle>}
               loading={isLoading}
+              data-cy="audit-log-detail-previous-values-card"
+              id="audit-log-detail-previous-values-card"
             >
               <Divider />
-              {auditLog?.previousValue ? renderObjectFields(auditLog.previousValue) : <span className="text-gray-500">--</span>}
+              <div data-cy="audit-log-detail-previous-values-content" id="audit-log-detail-previous-values-content">
+                {auditLog?.previousValue ? renderObjectFields(auditLog.previousValue) : <span className="text-gray-500">--</span>}
+              </div>
             </Card>
             <Card
               title={<CardTitle icon={<TbRefresh className="text-gray-600" />}>New Values</CardTitle>}
               loading={isLoading}
+              data-cy="audit-log-detail-new-values-card"
+              id="audit-log-detail-new-values-card"
             >
               <Divider />
-              {auditLog?.newValue ? renderObjectFields(auditLog.newValue) : <span className="text-gray-500">--</span>}
+              <div data-cy="audit-log-detail-new-values-content" id="audit-log-detail-new-values-content">
+                {auditLog?.newValue ? renderObjectFields(auditLog.newValue) : <span className="text-gray-500">--</span>}
+              </div>
             </Card>
             <Card
               title={<CardTitle icon={<TbRefresh className="text-gray-600" />}>Additional Information</CardTitle>}
               loading={isLoading}
+              data-cy="audit-log-detail-additional-info-card"
+              id="audit-log-detail-additional-info-card"
             >
               <Divider />
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-y-2 md:gap-0">
-                <span className="text-gray-500 text-sm col-span-3">Remarks:</span>
-                <span className="text-gray-700 col-span-9">{auditLog?.remarks || '--'}</span>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-y-2 md:gap-0" data-cy="audit-log-detail-additional-info-content" id="audit-log-detail-additional-info-content">
+                <span className="text-gray-500 text-sm col-span-3" data-cy="audit-log-detail-remarks-label" id="audit-log-detail-remarks-label">Remarks:</span>
+                <span className="text-gray-700 col-span-9" data-cy="audit-log-detail-remarks-value" id="audit-log-detail-remarks-value">{auditLog?.remarks || '--'}</span>
               </div>
             </Card>
           </div>
