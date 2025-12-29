@@ -1,7 +1,7 @@
 'use client';
-import React from 'react';
+import React, { useRef } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Tooltip, Modal, Avatar, Skeleton } from 'antd';
+import { Card, Tooltip, Modal, Avatar, Skeleton, Space, Button } from 'antd';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
 import DepartmentForm from '@/app/(afterLogin)/(onboarding)/onboarding/_components/departmentForm.tsx';
@@ -10,6 +10,16 @@ import { BiUser } from 'react-icons/bi';
 import OrgChartSkeleton from '../../../org-structure/_components/loading/orgStructureLoading';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useChartRef } from '../../../layout';
+import {
+  TransformWrapper,
+  TransformComponent,
+  ReactZoomPanPinchRef,
+} from 'react-zoom-pan-pinch';
+import {
+  ZoomInOutlined,
+  ZoomOutOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
 
 interface DepartmentNodeProps {
   data: any;
@@ -180,6 +190,8 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible(false);
   };
 
+  const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+
   return (
     <Card
       className="border-none"
@@ -199,33 +211,140 @@ const OrgChartComponent: React.FC = () => {
         ) : (
           <div
             className="p-4 sm:p-2 md:p-6 lg:p-8"
-            ref={chartRef}
             data-cy="org-chart-tree-container"
             id="org-chart-tree-container"
           >
-            <Tree
-              label={
-                <DepartmentNode
-                  data={{
-                    id: 'root',
-                    name: `${orgStructureData?.name}` || '',
-                    department: orgStructureData?.department || [],
-                    branchId: orgStructureData?.branchId,
-                    description: '',
-                    collapsed: false,
-                    employeeJobInformation:
-                      orgStructureData?.employeeJobInformation ?? [],
-                  }}
-                  data-cy="org-chart-department-node-tree-node-label"
-                />
-              }
-              lineWidth={'2px'}
-              lineColor={'#CBD5E0'}
-              lineBorderRadius={'10px'}
-              data-cy="org-chart-tree"
+            <TransformWrapper
+              data-cy="org-chart-transform-wrapper"
+              initialScale={0.5}
+              initialPositionX={0}
+              initialPositionY={0}
+              minScale={0.1}
+              maxScale={2.5}
+              centerOnInit
+              wheel={{
+                wheelDisabled: true,
+                touchPadDisabled: false,
+              }}
+              panning={{
+                wheelPanning: true,
+                allowLeftClickPan: false,
+              }}
+              ref={transformRef}
             >
-              {renderTreeNodes(orgStructureData?.department || [])}
-            </Tree>
+              {({
+                zoomIn,
+                zoomOut,
+                resetTransform,
+                setTransform,
+                centerView,
+              }) => {
+                const handleWheelZoom = (
+                  event: React.WheelEvent<HTMLDivElement>,
+                ) => {
+                  if (!event.ctrlKey) return;
+                  event.preventDefault();
+
+                  const currentState = transformRef.current?.state;
+                  if (!currentState) return;
+
+                  const zoomStep = event.deltaY < 0 ? 0.1 : -0.1;
+                  const nextScale = Math.min(
+                    2.5,
+                    Math.max(0.1, currentState.scale + zoomStep),
+                  );
+                  setTransform(
+                    currentState.positionX,
+                    currentState.positionY,
+                    nextScale,
+                  );
+                };
+
+                return (
+                  <>
+                    {/* The Actual Content to Magnify */}
+                    <div
+                      data-cy="org-chart-transform-component"
+                      id="org-chart-transform-component"
+                      onWheel={handleWheelZoom}
+                    >
+                      <TransformComponent
+                        data-cy="org-chart-transform-component-transform-component"
+                        wrapperStyle={{
+                          width: '100%',
+                          height: '50vh',
+                        }}
+                      >
+                        <div
+                          id="org-chart-chart"
+                          data-cy="org-chart-chart"
+                          ref={chartRef}
+                        >
+                          <Tree
+                            label={
+                              <DepartmentNode
+                                data={{
+                                  id: 'root',
+                                  name: `${orgStructureData?.name}` || '',
+                                  department:
+                                    orgStructureData?.department || [],
+                                  branchId: orgStructureData?.branchId,
+                                  description: '',
+                                  collapsed: false,
+                                  employeeJobInformation:
+                                    orgStructureData?.employeeJobInformation ??
+                                    [],
+                                }}
+                                data-cy="org-chart-department-node-tree-node-label"
+                              />
+                            }
+                            lineWidth={'2px'}
+                            lineColor={'#CBD5E0'}
+                            lineBorderRadius={'10px'}
+                            data-cy="org-chart-tree"
+                          >
+                            {renderTreeNodes(
+                              orgStructureData?.department || [],
+                            )}
+                          </Tree>
+                        </div>
+                      </TransformComponent>
+                    </div>
+                    <div
+                      data-cy="org-chart-transform-component-buttons"
+                      id="org-chart-transform-component-buttons"
+                    >
+                      <Space
+                        data-cy="org-chart-transform-component-buttons-space"
+                        id="org-chart-transform-component-buttons-space"
+                      >
+                        <Button
+                          data-cy="org-chart-transform-component-buttons-zoom-in"
+                          id="org-chart-transform-component-buttons-zoom-in"
+                          icon={<ZoomInOutlined />}
+                          onClick={() => zoomIn()}
+                        />
+                        <Button
+                          data-cy="org-chart-transform-component-buttons-zoom-out"
+                          id="org-chart-transform-component-buttons-zoom-out"
+                          icon={<ZoomOutOutlined />}
+                          onClick={() => zoomOut()}
+                        />
+                        <Button
+                          data-cy="org-chart-transform-component-buttons-reload"
+                          id="org-chart-transform-component-buttons-reload"
+                          icon={<ReloadOutlined />}
+                          onClick={() => {
+                            resetTransform();
+                            centerView(0.5);
+                          }}
+                        />
+                      </Space>
+                    </div>
+                  </>
+                );
+              }}
+            </TransformWrapper>
           </div>
         )}
 

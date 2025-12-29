@@ -77,7 +77,9 @@ const AddParticipantsPopconfirm = ({
     <div data-cy="feedback-meeting-components-addparticipant-div">
       <Button
         loading={loading}
-        icon={<FaPlus data-cy="feedback-meeting-components-addparticipant-icon-plus" />}
+        icon={
+          <FaPlus data-cy="feedback-meeting-components-addparticipant-icon-plus" />
+        }
         type="primary"
         onClick={() => setVisible(true)}
         data-cy="feedback-meeting-components-addparticipant-button-open"
@@ -100,7 +102,11 @@ const AddParticipantsPopconfirm = ({
             onFinish={handleConfirm}
             data-cy="feedback-meeting-components-addparticipant-form"
           >
-            <div className="border p-2 mb-2 rounded-md w-full" id="feedback-meeting-components-addparticipant-form-div-participants" data-cy="feedback-meeting-components-addparticipant-form-div-participants">
+            <div
+              className="border p-2 mb-2 rounded-md w-full"
+              id="feedback-meeting-components-addparticipant-form-div-participants"
+              data-cy="feedback-meeting-components-addparticipant-form-div-participants"
+            >
               <Form.Item
                 rules={[
                   {
@@ -128,20 +134,46 @@ const AddParticipantsPopconfirm = ({
               </Form.Item>
             </div>
 
-            <div className="border p-2 mb-2 rounded-md w-full" id="feedback-meeting-components-addparticipant-form-div-guests" data-cy="feedback-meeting-components-addparticipant-form-div-guests">
-              <Form.List name="guests" data-cy="feedback-meeting-components-addparticipant-list-guests">
+            <div
+              className="border p-2 mb-2 rounded-md w-full"
+              id="feedback-meeting-components-addparticipant-form-div-guests"
+              data-cy="feedback-meeting-components-addparticipant-form-div-guests"
+            >
+              <Form.List
+                name="guests"
+                data-cy="feedback-meeting-components-addparticipant-list-guests"
+              >
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} id={`feedback-meeting-components-addparticipant-item-${key}`} data-cy={`feedback-meeting-components-addparticipant-item-${key}`}>
+                      <div
+                        key={key}
+                        id={`feedback-meeting-components-addparticipant-item-${key}`}
+                        data-cy={`feedback-meeting-components-addparticipant-item-${key}`}
+                      >
                         <Form.Item
                           {...restField}
                           name={[name, 'name']}
                           label={
-                            <div className="relative w-96 " id={`feedback-meeting-components-addparticipant-item-label-${key}`} data-cy={`feedback-meeting-components-addparticipant-item-label-${key}`}>
-                              <span id={`feedback-meeting-components-addparticipant-item-label-span-${key}`} data-cy={`feedback-meeting-components-addparticipant-item-label-span-${key}`}>Name</span>
+                            <div
+                              className="relative w-96 "
+                              id={`feedback-meeting-components-addparticipant-item-label-${key}`}
+                              data-cy={`feedback-meeting-components-addparticipant-item-label-${key}`}
+                            >
+                              <span
+                                id={`feedback-meeting-components-addparticipant-item-label-span-${key}`}
+                                data-cy={`feedback-meeting-components-addparticipant-item-label-span-${key}`}
+                              >
+                                Name
+                              </span>
                               <Button
-                                icon={<MdClose size={12} id={`feedback-meeting-components-addparticipant-button-remove-guest-icon-${key}`} data-cy={`feedback-meeting-components-addparticipant-button-remove-guest-icon-${key}`} />}
+                                icon={
+                                  <MdClose
+                                    size={12}
+                                    id={`feedback-meeting-components-addparticipant-button-remove-guest-icon-${key}`}
+                                    data-cy={`feedback-meeting-components-addparticipant-button-remove-guest-icon-${key}`}
+                                  />
+                                }
                                 type="link"
                                 className="absolute right-0 top-1/2 -translate-y-1/2 text-black"
                                 onClick={() => remove(name)}
@@ -170,7 +202,11 @@ const AddParticipantsPopconfirm = ({
                             },
                           ]}
                         >
-                          <Input placeholder="Name" id={`feedback-meeting-components-addparticipant-input-name-${key}`} data-cy={`feedback-meeting-components-addparticipant-input-name-${key}`} />
+                          <Input
+                            placeholder="Name"
+                            id={`feedback-meeting-components-addparticipant-input-name-${key}`}
+                            data-cy={`feedback-meeting-components-addparticipant-input-name-${key}`}
+                          />
                         </Form.Item>
 
                         <Form.Item
@@ -211,14 +247,33 @@ const AddParticipantsPopconfirm = ({
                             },
                           ]}
                         >
-                          <Input placeholder="Email" id={`feedback-meeting-components-addparticipant-input-email-${key}`} data-cy={`feedback-meeting-components-addparticipant-input-email-${key}`} />
+                          <Input
+                            placeholder="Email"
+                            id={`feedback-meeting-components-addparticipant-input-email-${key}`}
+                            data-cy={`feedback-meeting-components-addparticipant-input-email-${key}`}
+                          />
                         </Form.Item>
                       </div>
                     ))}
-                    <div className="flex items-center justify-end gap-2 mt-2" id='feedback-meeting-components-addparticipant-div-add-guest' data-cy='feedback-meeting-components-addparticipant-div-add-guest'>
-                      <span id="feedback-meeting-components-addparticipant-span-add-guest" data-cy="feedback-meeting-components-addparticipant-span-add-guest">Add Guest</span>
+                    <div
+                      className="flex items-center justify-end gap-2 mt-2"
+                      id="feedback-meeting-components-addparticipant-div-add-guest"
+                      data-cy="feedback-meeting-components-addparticipant-div-add-guest"
+                    >
+                      <span
+                        id="feedback-meeting-components-addparticipant-span-add-guest"
+                        data-cy="feedback-meeting-components-addparticipant-span-add-guest"
+                      >
+                        Add Guest
+                      </span>
                       <Button
-                        icon={<FaPlus size={12} id="feedback-meeting-components-addparticipant-button-add-guest-icon" data-cy="feedback-meeting-components-addparticipant-button-add-guest-icon" />}
+                        icon={
+                          <FaPlus
+                            size={12}
+                            id="feedback-meeting-components-addparticipant-button-add-guest-icon"
+                            data-cy="feedback-meeting-components-addparticipant-button-add-guest-icon"
+                          />
+                        }
                         type="default"
                         onClick={() => add()}
                         className="w-6 h-6 p-0 flex items-center justify-center"

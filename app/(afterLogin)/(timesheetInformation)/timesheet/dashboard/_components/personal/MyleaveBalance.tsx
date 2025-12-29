@@ -38,6 +38,7 @@ const MyleaveBalance: React.FC = () => {
     rejected: 'text-[#e03137] bg-[#f9d6d7]',
     cancelled: 'text-gray-500 bg-gray-500/20',
   };
+
   return (
     <div
       id="time-attendance-personal-leave-balance-container-view"
@@ -98,14 +99,14 @@ const MyleaveBalance: React.FC = () => {
                 </Tooltip>
                 <Tag
                   className={`font-bold border-none py-0.5 ${
-                    item.leaveType.isFixed
+                    item?.leaveType?.isFixed
                       ? 'bg-[#B2B2FF] text-[#3636F0]'
                       : 'bg-[#55C79033] text-[#0CAF60]'
                   }`}
                   id={`time-attendance-personal-leave-balance-card-${index}-type-tag`}
                   data-cy={`time-attendance-personal-leave-balance-card-${index}-type-tag`}
                 >
-                  {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
+                  {item?.leaveType?.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
               </div>
               <div
@@ -145,7 +146,6 @@ const MyleaveBalance: React.FC = () => {
           </Card>
         ))}
       </div>
-
       {/* Entitlement and Utilization */}
       <div
         className="grid grid-cols-12 gap-4 mt-4"
@@ -154,7 +154,7 @@ const MyleaveBalance: React.FC = () => {
       >
         <Card
           bodyStyle={{ padding: '0px' }}
-          className="shadow-sm rounded-lg col-span-3 h-fit"
+          className="shadow-sm rounded-lg md:col-span-3 col-span-12 h-fit"
           loading={userLeaveBalanceLoading}
           id="time-attendance-personal-leave-balance-totals-card"
           data-cy="time-attendance-personal-leave-balance-totals-card"
@@ -342,11 +342,16 @@ const MyleaveBalance: React.FC = () => {
           </div>
         </Card>
 
+        {/* Utilization Card */}
         <Card
-          bodyStyle={{ padding: '16px 24px' }}
-          className="shadow-sm col-span-9 mb-5"
+          bodyStyle={{ padding: '16px 20px' }}
+          className="shadow-sm md:col-span-9 col-span-12 mb-5"
           title={
-            <span id="time-attendance-personal-leave-balance-utilization-title-text" data-cy="time-attendance-personal-leave-balance-utilization-title-text" className="text-[12px] font-bold text-black">
+            <span
+              id="time-attendance-personal-leave-balance-utilization-title-text"
+              data-cy="time-attendance-personal-leave-balance-utilization-title-text"
+              className="text-[12px] font-bold text-black"
+            >
               Utilization
             </span>
           }

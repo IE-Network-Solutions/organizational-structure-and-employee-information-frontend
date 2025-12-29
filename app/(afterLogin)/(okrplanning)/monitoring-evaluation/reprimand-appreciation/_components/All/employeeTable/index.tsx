@@ -37,7 +37,14 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       dataIndex: 'type',
       key: 'type',
       render: (type: AppreciationType) => {
-        return <span className="ml-2">{type?.name || 'Unknown Type'}</span>;
+        return (
+          <span
+            className="ml-2"
+            data-cy={`employee-table-type-${type?.id || 'unknown'}`}
+          >
+            {type?.name || 'Unknown Type'}
+          </span>
+        );
       },
     },
     {
@@ -47,7 +54,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       render: (recipientId: string) => {
         const user = employeeInfo(recipientId); // Fetch employee info
         return (
-          <div className="flex md:flex-row flex-col items-center">
+          <div
+            className="flex md:flex-row flex-col items-center"
+            data-cy={`employee-table-recipient-${recipientId}`}
+          >
             {user?.profileImage ? (
               <Avatar
                 size={40}

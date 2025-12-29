@@ -116,8 +116,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   };
 
   return (
-    <div className="w-full">
-      <div className="relative">
+    <div className="w-full" data-cy="location-search">
+      <div className="relative" data-cy="location-search-input-container">
         <Input
           value={searchQuery}
           onChange={handleInputChange}

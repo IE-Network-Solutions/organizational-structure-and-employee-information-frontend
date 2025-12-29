@@ -191,21 +191,62 @@ const InvoiceItem = () => {
   };
 
   return (
-    <div id="invoice-detail-page" data-cy="invoice-detail-page" className="h-auto w-auto px-6 py-6">
-      <CustomBreadcrumb title="Invoice Details" subtitle="" data-cy="invoice-detail-page-breadcrumb" />
+    <div
+      id="invoice-detail-page"
+      data-cy="invoice-detail-page"
+      className="h-auto w-auto px-6 py-6"
+    >
+      <CustomBreadcrumb
+        title="Invoice Details"
+        subtitle=""
+        data-cy="invoice-detail-page-breadcrumb"
+      />
 
-      <div id="invoice-detail-container" data-cy="invoice-detail-container" className="mt-8">
-        <div id="invoice-detail-card" data-cy="invoice-detail-card" className="flex flex-col bg-white rounded-lg border border-gray-200 pt-4 pb-10 max-w-[700px] min-h-[280px] mx-auto">
+      <div
+        id="invoice-detail-container"
+        data-cy="invoice-detail-container"
+        className="mt-8"
+      >
+        <div
+          id="invoice-detail-card"
+          data-cy="invoice-detail-card"
+          className="flex flex-col bg-white rounded-lg border border-gray-200 pt-4 pb-10 max-w-[700px] min-h-[280px] mx-auto"
+        >
           {isInvoiceLoading ? (
-            <div id="invoice-detail-loading" data-cy="invoice-detail-loading" className="flex flex-col h-full" style={{ margin: '20px' }}>
-              <Skeleton paragraph={{ rows: 6 }} active data-cy="invoice-detail-loading-skeleton" />
+            <div
+              id="invoice-detail-loading"
+              data-cy="invoice-detail-loading"
+              className="flex flex-col h-full"
+              style={{ margin: '20px' }}
+            >
+              <Skeleton
+                paragraph={{ rows: 6 }}
+                active
+                data-cy="invoice-detail-loading-skeleton"
+              />
             </div>
           ) : (
-            <div id="invoice-detail-content" data-cy="invoice-detail-content" className="flex flex-col">
-              <div id="invoice-detail-header" data-cy="invoice-detail-header" className="flex items-center justify-between gap-2 border-b border-gray-200 pb-4 px-8">
-                <span id="invoice-detail-title" data-cy="invoice-detail-title" className="text-2xl font-bold">
+            <div
+              id="invoice-detail-content"
+              data-cy="invoice-detail-content"
+              className="flex flex-col"
+            >
+              <div
+                id="invoice-detail-header"
+                data-cy="invoice-detail-header"
+                className="flex items-center justify-between gap-2 border-b border-gray-200 pb-4 px-8"
+              >
+                <span
+                  id="invoice-detail-title"
+                  data-cy="invoice-detail-title"
+                  className="text-2xl font-bold"
+                >
                   Invoice {invoiceData?.invoiceNumber}:{' '}
-                  <span id="invoice-detail-date" data-cy="invoice-detail-date" className="text-primary">
+                  <span
+                    id="invoice-detail-date"
+                    data-cy="invoice-detail-date"
+                    className="text-primary"
+                  >
                     {formatDate(invoiceData?.invoiceAt)}
                   </span>
                 </span>
@@ -217,7 +258,12 @@ const InvoiceItem = () => {
                   disabled={isDownloading || isPdfLoading || !pdfUrl}
                 >
                   {isDownloading || isPdfLoading ? (
-                    <LoadingOutlined style={{ fontSize: 25 }} spin id="invoice-detail-download-button-indicator" data-cy="invoice-detail-download-button-indicator" />
+                    <LoadingOutlined
+                      style={{ fontSize: 25 }}
+                      spin
+                      id="invoice-detail-download-button-indicator"
+                      data-cy="invoice-detail-download-button-indicator"
+                    />
                   ) : (
                     <Image
                       src="/icons/file-download.svg"
@@ -234,11 +280,23 @@ const InvoiceItem = () => {
                 </button>
               </div>
 
-              <div id="invoice-payment-info" data-cy="invoice-payment-info" className="flex flex-col gap-2 border-b border-gray-200 mt-6 mb-2 pb-6 px-8">
-                <div id="invoice-payment-info-title" data-cy="invoice-payment-info-title" className="text-2xl font-bold mb-4">
+              <div
+                id="invoice-payment-info"
+                data-cy="invoice-payment-info"
+                className="flex flex-col gap-2 border-b border-gray-200 mt-6 mb-2 pb-6 px-8"
+              >
+                <div
+                  id="invoice-payment-info-title"
+                  data-cy="invoice-payment-info-title"
+                  className="text-2xl font-bold mb-4"
+                >
                   Invoice Payment Information
                 </div>
-                <div id="invoice-payment-info-details" data-cy="invoice-payment-info-details" className="flex flex-col gap-2">
+                <div
+                  id="invoice-payment-info-details"
+                  data-cy="invoice-payment-info-details"
+                  className="flex flex-col gap-2"
+                >
                   {[
                     ['Invoice Number:', `#${invoiceData?.invoiceNumber || ''}`],
                     ['Issue Date:', formatDate(invoiceData?.invoiceAt)],
@@ -266,16 +324,30 @@ const InvoiceItem = () => {
                       data-cy={`invoice-payment-info-row-${index}`}
                       className="flex items-center justify-start gap-2"
                     >
-                      <span id={`invoice-payment-info-label-${index}`} data-cy={`invoice-payment-info-label-${index}`} className="text-md min-w-[90px] md:min-w-[150px]">
+                      <span
+                        id={`invoice-payment-info-label-${index}`}
+                        data-cy={`invoice-payment-info-label-${index}`}
+                        className="text-md min-w-[90px] md:min-w-[150px]"
+                      >
                         {label}
                       </span>
-                      <span id={`invoice-payment-info-value-${index}`} data-cy={`invoice-payment-info-value-${index}`} className="text-md font-bold">{value}</span>
+                      <span
+                        id={`invoice-payment-info-value-${index}`}
+                        data-cy={`invoice-payment-info-value-${index}`}
+                        className="text-md font-bold"
+                      >
+                        {value}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div id="invoice-details-section" data-cy="invoice-details-section" className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
+              <div
+                id="invoice-details-section"
+                data-cy="invoice-details-section"
+                className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8"
+              >
                 {[
                   [
                     'Plan Type',
@@ -285,8 +357,17 @@ const InvoiceItem = () => {
                       data-cy="invoice-plan-type-value"
                       className="flex items-center justify-center text-md font-bold border border-success rounded-lg px-2 gap-2"
                     >
-                      <span id="invoice-plan-type-indicator" data-cy="invoice-plan-type-indicator" className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"></span>
-                      <span id="invoice-plan-type-value-text" data-cy="invoice-plan-type-value-text">{currentPlan?.name || 'N/A'}</span>
+                      <span
+                        id="invoice-plan-type-indicator"
+                        data-cy="invoice-plan-type-indicator"
+                        className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"
+                      ></span>
+                      <span
+                        id="invoice-plan-type-value-text"
+                        data-cy="invoice-plan-type-value-text"
+                      >
+                        {currentPlan?.name || 'N/A'}
+                      </span>
                     </span>,
                   ],
                   [
@@ -302,13 +383,23 @@ const InvoiceItem = () => {
                   ],
                   [
                     'Amount',
-                    <span key="amount" id="invoice-amount-value" data-cy="invoice-amount-value" className="text-md font-bold">
+                    <span
+                      key="amount"
+                      id="invoice-amount-value"
+                      data-cy="invoice-amount-value"
+                      className="text-md font-bold"
+                    >
                       {invoiceData?.totalAmount}
                     </span>,
                   ],
                   [
                     'Notes',
-                    <span key="notes" id="invoice-notes-value" data-cy="invoice-notes-value" className="text-md">
+                    <span
+                      key="notes"
+                      id="invoice-notes-value"
+                      data-cy="invoice-notes-value"
+                      className="text-md"
+                    >
                       {invoiceData?.notes || '-'}
                     </span>,
                   ],
@@ -319,8 +410,18 @@ const InvoiceItem = () => {
                     data-cy={`invoice-details-row-${index}`}
                     className="flex items-center justify-between w-full gap-2 mb-2"
                   >
-                    <span id={`invoice-details-label-${index}`} data-cy={`invoice-details-label-${index}`} className="text-md font-bold">{label}</span>
-                    <span id={`invoice-details-value-${index}`} data-cy={`invoice-details-value-${index}`} className="min-w-[150px] flex items-center justify-center">
+                    <span
+                      id={`invoice-details-label-${index}`}
+                      data-cy={`invoice-details-label-${index}`}
+                      className="text-md font-bold"
+                    >
+                      {label}
+                    </span>
+                    <span
+                      id={`invoice-details-value-${index}`}
+                      data-cy={`invoice-details-value-${index}`}
+                      className="min-w-[150px] flex items-center justify-center"
+                    >
                       {value}
                     </span>
                   </div>
@@ -328,14 +429,36 @@ const InvoiceItem = () => {
               </div>
 
               {invoiceData?.status?.toLowerCase() === 'pending' && (
-                <div id="invoice-payment-section" data-cy="invoice-payment-section" className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
-                  <span id="invoice-payment-title" data-cy="invoice-payment-title" className="text-2xl font-bold">Pay</span>
+                <div
+                  id="invoice-payment-section"
+                  data-cy="invoice-payment-section"
+                  className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8"
+                >
+                  <span
+                    id="invoice-payment-title"
+                    data-cy="invoice-payment-title"
+                    className="text-2xl font-bold"
+                  >
+                    Pay
+                  </span>
                 </div>
               )}
 
-              <div id="invoice-actions" data-cy="invoice-actions" className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
-                <div id="invoice-actions-container" data-cy="invoice-actions-container" className="flex justify-around gap-2 mt-4">
-                  <div id="invoice-actions-buttons" data-cy="invoice-actions-buttons" className="flex justify-center gap-4 mt-8">
+              <div
+                id="invoice-actions"
+                data-cy="invoice-actions"
+                className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8"
+              >
+                <div
+                  id="invoice-actions-container"
+                  data-cy="invoice-actions-container"
+                  className="flex justify-around gap-2 mt-4"
+                >
+                  <div
+                    id="invoice-actions-buttons"
+                    data-cy="invoice-actions-buttons"
+                    className="flex justify-center gap-4 mt-8"
+                  >
                     <Button
                       id="invoice-dashboard-button"
                       data-cy="invoice-dashboard-button"
@@ -353,7 +476,14 @@ const InvoiceItem = () => {
                         className="text-center flex justify-center items-center"
                         type="primary"
                         disabled={isInvoiceLoading || isProcessingPayment}
-                        icon={isProcessingPayment ? <LoadingOutlined id="invoice-pay-button-indicator" data-cy="invoice-pay-button-indicator" /> : null}
+                        icon={
+                          isProcessingPayment ? (
+                            <LoadingOutlined
+                              id="invoice-pay-button-indicator"
+                              data-cy="invoice-pay-button-indicator"
+                            />
+                          ) : null
+                        }
                       >
                         {isProcessingPayment ? 'Processing...' : 'Pay Now'}
                       </Button>

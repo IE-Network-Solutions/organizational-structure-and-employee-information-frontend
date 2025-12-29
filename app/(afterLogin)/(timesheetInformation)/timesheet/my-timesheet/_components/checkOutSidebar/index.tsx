@@ -164,7 +164,11 @@ const CheckOutSidebar = () => {
               value={selectedType}
               labelRender={selectLabel}
               suffixIcon={
-                <MdKeyboardArrowDown data-cy="time-attendance-check-out-sidebar-type-select-input-icon" size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown
+                  data-cy="time-attendance-check-out-sidebar-type-select-input-icon"
+                  size={16}
+                  className="text-gray-900"
+                />
               }
               onChange={setSelectedType}
               id="time-attendance-check-out-sidebar-type-select-input"

@@ -70,7 +70,10 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
               dropdownStyle={{ left: '50%', transform: 'translateX(-50%)' }}
               suffixIcon={
                 <div className="flex items-center justify-center w-full h-full text-black">
-                  <VscSettings size={20} data-cy="okr-criteria-filters-mobile-select-icon-display-icon" />
+                  <VscSettings
+                    size={20}
+                    data-cy="okr-criteria-filters-mobile-select-icon-display-icon"
+                  />
                 </div>
               }
               id="okr-criteria-filters-mobile-select"

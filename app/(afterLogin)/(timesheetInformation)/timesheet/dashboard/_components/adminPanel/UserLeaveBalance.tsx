@@ -7,18 +7,21 @@ import {
   Tag,
   Spin,
   Tooltip,
+  Modal,
 } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useGetUserLeaveBalance } from '@/store/server/features/timesheet/dashboard/queries';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
 import dayjs from 'dayjs';
+import CustomButton from '@/components/common/buttons/customButton';
 import { useGetLeaveBalanceExpiring } from '@/store/server/features/timesheet/leaveExpiry/queries';
 
 const UserLeaveBalance: React.FC = () => {
   const [form] = Form.useForm();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const searchParams = useSearchParams();
   const userId = searchParams.get('user');
   const {
@@ -68,6 +71,48 @@ const UserLeaveBalance: React.FC = () => {
     value: i.id,
     label: i?.firstName + ' ' + i?.middleName + ' ' + i?.lastName,
   }));
+
+  const MobileFilterContent = () => (
+    <div className="flex flex-col gap-4">
+      <h3 className="text-lg font-medium mb-2">Filter</h3>
+
+      {/* Leave Type */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Leave Type</label>
+        <Select
+          showSearch
+          placeholder="Select Leave Type"
+          allowClear
+          value={leaveTypeId}
+          className="w-full h-12"
+          onChange={(value) => setLeaveTypeId(value)}
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+          }
+          options={leaveOptions}
+        />
+      </div>
+
+      {/* Date Range */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Date Range</label>
+        <DatePicker.RangePicker
+          allowClear
+          className="w-full h-12"
+          onChange={(value) => {
+            if (value) {
+              setStartDate(value[0] ? value[0].format('YYYY-MM-DD') : '');
+              setEndDate(value[1] ? value[1].format('YYYY-MM-DD') : '');
+            } else {
+              setStartDate('');
+              setEndDate('');
+            }
+          }}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div
       id="time-attendance-user-leave-balance-layout-div"
@@ -212,10 +257,20 @@ const UserLeaveBalance: React.FC = () => {
                   id={`time-attendance-user-leave-balance-type-card-${index}-balance-value`}
                   data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value`}
                 >
-                  <span id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`} data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`} className="">
+                  <span
+                    id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`}
+                    data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-text`}
+                    className=""
+                  >
                     {Math.round(item.totalBalance)}
                   </span>
-                  <span id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`} data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`} className="text-[10px] mr-2 font-bold ">days</span>
+                  <span
+                    id={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`}
+                    data-cy={`time-attendance-user-leave-balance-type-card-${index}-balance-value-days-text`}
+                    className="text-[10px] mr-2 font-bold "
+                  >
+                    days
+                  </span>
                 </div>
                 <div
                   className="text-sm font-medium text-black "
@@ -425,7 +480,6 @@ const UserLeaveBalance: React.FC = () => {
             </div>
           </div>
         </Card>
-
         <Card
           bodyStyle={{ padding: '16px 24px' }}
           className="shadow-sm col-span-9 mb-5"
@@ -452,7 +506,8 @@ const UserLeaveBalance: React.FC = () => {
                   data-cy="time-attendance-user-leave-balance-utilization-skeleton"
                 />
               )}
-              {userLeaveBalance?.data?.utilizedLeaves.length > 0 ? (
+              {userLeaveBalance?.data?.utilizedLeaves &&
+              userLeaveBalance?.data?.utilizedLeaves.length > 0 ? (
                 userLeaveBalance?.data?.utilizedLeaves.map((leave: any) => (
                   <div
                     key={leave.leaveRequestId}
@@ -540,6 +595,41 @@ const UserLeaveBalance: React.FC = () => {
           </Spin>
         </Card>
       </div>
+
+      {/* Mobile Filter Modal */}
+      <Modal
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={
+          <div className="flex gap-2 justify-center mt-4">
+            <CustomButton
+              onClick={() => setIsModalOpen(false)}
+              className="px-6 py-2 border rounded-lg text-sm text-gray-900"
+              title="Cancel"
+              type="default"
+            />
+            <CustomButton
+              title="Apply Filter"
+              type="primary"
+              onClick={() => {
+                setIsModalOpen(false);
+              }}
+              className="px-6 py-2 text-white rounded-lg text-sm"
+            />
+          </div>
+        }
+        className="!m-4 md:hidden"
+        style={{
+          top: '20%',
+          transform: 'translateY(-50%)',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
+        width="90%"
+        centered
+      >
+        <MobileFilterContent />
+      </Modal>
     </div>
   );
 };

@@ -151,7 +151,11 @@ const QuestionSetForm = () => {
   };
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4" data-cy="question-set-form-header" id="questionSetFormHeader">
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="question-set-form-header"
+      id="questionSetFormHeader"
+    >
       Add New {activeTabName}
     </div>
   );
@@ -248,7 +252,11 @@ const QuestionSetForm = () => {
     if (!requiresOptions) return null;
 
     return (
-      <div style={{ marginTop: '8px' }} data-cy={`question-set-form-question-options-${q.id}`} id={`questionSetFormQuestionOptions${q.id}`}>
+      <div
+        style={{ marginTop: '8px' }}
+        data-cy={`question-set-form-question-options-${q.id}`}
+        id={`questionSetFormQuestionOptions${q.id}`}
+      >
         <div
           style={{
             display: 'flex',
@@ -258,15 +266,30 @@ const QuestionSetForm = () => {
           data-cy={`question-set-form-question-options-header-${q.id}`}
           id={`questionSetFormQuestionOptionsHeader${q.id}`}
         >
-          <p data-cy={`question-set-form-question-options-label-${q.id}`} id={`questionSetFormQuestionOptionsLabel${q.id}`}>Options:</p>
+          <p
+            data-cy={`question-set-form-question-options-label-${q.id}`}
+            id={`questionSetFormQuestionOptionsLabel${q.id}`}
+          >
+            Options:
+          </p>
           {q.field?.length < 2 && (
-            <p style={{ color: 'red', fontSize: '12px', margin: 0 }} data-cy={`question-set-form-question-options-warning-${q.id}`} id={`questionSetFormQuestionOptionsWarning${q.id}`}>
+            <p
+              style={{ color: 'red', fontSize: '12px', margin: 0 }}
+              data-cy={`question-set-form-question-options-warning-${q.id}`}
+              id={`questionSetFormQuestionOptionsWarning${q.id}`}
+            >
               At least 2 options are required
             </p>
           )}
         </div>
         {q?.field?.map((opt: any) => (
-          <Space key={opt.id} align="baseline" style={{ marginBottom: '8px' }} data-cy={`question-set-form-question-option-${q.id}-${opt.id}`} id={`questionSetFormQuestionOption${q.id}${opt.id}`}>
+          <Space
+            key={opt.id}
+            align="baseline"
+            style={{ marginBottom: '8px' }}
+            data-cy={`question-set-form-question-option-${q.id}-${opt.id}`}
+            id={`questionSetFormQuestionOption${q.id}${opt.id}`}
+          >
             <Input
               placeholder="Enter option value"
               required
@@ -307,8 +330,15 @@ const QuestionSetForm = () => {
       onClose={() => setOpen(false)}
       modalHeader={modalHeader}
       footer={
-        <Form.Item data-cy="question-set-form-footer" id="questionSetFormFooter">
-          <div className="w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5" data-cy="question-set-form-actions" id="questionSetFormActions">
+        <Form.Item
+          data-cy="question-set-form-footer"
+          id="questionSetFormFooter"
+        >
+          <div
+            className="w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5"
+            data-cy="question-set-form-actions"
+            id="questionSetFormActions"
+          >
             <Popconfirm
               title="Are you sure you want to reset the form?"
               onConfirm={() => {
@@ -321,7 +351,13 @@ const QuestionSetForm = () => {
               data-cy="question-set-form-reset-confirm"
               id="questionSetFormResetConfirm"
             >
-              <Button type="default" data-cy="question-set-form-reset-button" id="questionSetFormResetButton">Reset</Button>
+              <Button
+                type="default"
+                data-cy="question-set-form-reset-button"
+                id="questionSetFormResetButton"
+              >
+                Reset
+              </Button>
             </Popconfirm>
             {editableData === null ? (
               <Button
@@ -350,7 +386,13 @@ const QuestionSetForm = () => {
       width="40%"
       data-cy="question-set-form-drawer"
     >
-      <Form layout="vertical" form={form} onFinish={handleSubmit} data-cy="question-set-form" id="questionSetForm">
+      <Form
+        layout="vertical"
+        form={form}
+        onFinish={handleSubmit}
+        data-cy="question-set-form"
+        id="questionSetForm"
+      >
         <Form.Item
           label="Name"
           name="name"
@@ -358,7 +400,10 @@ const QuestionSetForm = () => {
           data-cy="question-set-form-name-field"
           id="questionSetFormNameField"
         >
-          <Input data-cy="question-set-form-name-input" id="questionSetFormNameInput" />
+          <Input
+            data-cy="question-set-form-name-input"
+            id="questionSetFormNameInput"
+          />
         </Form.Item>
         {editableData !== null && (
           <>
@@ -378,7 +423,10 @@ const QuestionSetForm = () => {
               data-cy="question-set-form-conversation-type-id-field"
               id="questionSetFormConversationTypeIdField"
             >
-              <Input data-cy="question-set-form-conversation-type-id-input" id="questionSetFormConversationTypeIdInput" />
+              <Input
+                data-cy="question-set-form-conversation-type-id-input"
+                id="questionSetFormConversationTypeIdInput"
+              />
             </Form.Item>
           </>
         )}
@@ -397,7 +445,10 @@ const QuestionSetForm = () => {
           data-cy="question-set-form-active-field"
           id="questionSetFormActiveField"
         >
-          <Switch data-cy="question-set-form-active-switch" id="questionSetFormActiveSwitch" />
+          <Switch
+            data-cy="question-set-form-active-switch"
+            id="questionSetFormActiveSwitch"
+          />
         </Form.Item>
 
         <Form.Item
@@ -409,8 +460,17 @@ const QuestionSetForm = () => {
           id="questionSetFormQuestionsField"
         >
           {questions?.map((q: any) => (
-            <div key={q.id} style={{ marginBottom: '16px' }} data-cy={`question-set-form-question-${q.id}`} id={`questionSetFormQuestion${q.id}`}>
-              <div style={{ display: 'flex', marginBottom: '8px' }} data-cy={`question-set-form-question-input-container-${q.id}`} id={`questionSetFormQuestionInputContainer${q.id}`}>
+            <div
+              key={q.id}
+              style={{ marginBottom: '16px' }}
+              data-cy={`question-set-form-question-${q.id}`}
+              id={`questionSetFormQuestion${q.id}`}
+            >
+              <div
+                style={{ display: 'flex', marginBottom: '8px' }}
+                data-cy={`question-set-form-question-input-container-${q.id}`}
+                id={`questionSetFormQuestionInputContainer${q.id}`}
+              >
                 <Input
                   placeholder="Enter question"
                   value={q.question}
@@ -438,15 +498,55 @@ const QuestionSetForm = () => {
                   data-cy={`question-set-form-question-field-type-${q.id}`}
                   id={`questionSetFormQuestionFieldType${q.id}`}
                 >
-                  <Option value={FieldType.MULTIPLE_CHOICE} data-cy="question-set-form-question-field-type-multiple-choice" id="questionSetFormQuestionFieldTypeMultipleChoice">
+                  <Option
+                    value={FieldType.MULTIPLE_CHOICE}
+                    data-cy="question-set-form-question-field-type-multiple-choice"
+                    id="questionSetFormQuestionFieldTypeMultipleChoice"
+                  >
                     Multiple Choice
                   </Option>
-                  <Option value={FieldType.CHECKBOX} data-cy="question-set-form-question-field-type-checkbox" id="questionSetFormQuestionFieldTypeCheckbox">Check Box</Option>
-                  <Option value={FieldType.SHORT_TEXT} data-cy="question-set-form-question-field-type-short-text" id="questionSetFormQuestionFieldTypeShortText">Short Text</Option>
-                  <Option value={FieldType.PARAGRAPH} data-cy="question-set-form-question-field-type-paragraph" id="questionSetFormQuestionFieldTypeParagraph">Paragraph</Option>
-                  <Option value={FieldType.TIME} data-cy="question-set-form-question-field-type-time" id="questionSetFormQuestionFieldTypeTime">Time</Option>
-                  <Option value={FieldType.DROPDOWN} data-cy="question-set-form-question-field-type-dropdown" id="questionSetFormQuestionFieldTypeDropdown">Dropdown</Option>
-                  <Option value={FieldType.RADIO} data-cy="question-set-form-question-field-type-radio" id="questionSetFormQuestionFieldTypeRadio">Radio</Option>
+                  <Option
+                    value={FieldType.CHECKBOX}
+                    data-cy="question-set-form-question-field-type-checkbox"
+                    id="questionSetFormQuestionFieldTypeCheckbox"
+                  >
+                    Check Box
+                  </Option>
+                  <Option
+                    value={FieldType.SHORT_TEXT}
+                    data-cy="question-set-form-question-field-type-short-text"
+                    id="questionSetFormQuestionFieldTypeShortText"
+                  >
+                    Short Text
+                  </Option>
+                  <Option
+                    value={FieldType.PARAGRAPH}
+                    data-cy="question-set-form-question-field-type-paragraph"
+                    id="questionSetFormQuestionFieldTypeParagraph"
+                  >
+                    Paragraph
+                  </Option>
+                  <Option
+                    value={FieldType.TIME}
+                    data-cy="question-set-form-question-field-type-time"
+                    id="questionSetFormQuestionFieldTypeTime"
+                  >
+                    Time
+                  </Option>
+                  <Option
+                    value={FieldType.DROPDOWN}
+                    data-cy="question-set-form-question-field-type-dropdown"
+                    id="questionSetFormQuestionFieldTypeDropdown"
+                  >
+                    Dropdown
+                  </Option>
+                  <Option
+                    value={FieldType.RADIO}
+                    data-cy="question-set-form-question-field-type-radio"
+                    id="questionSetFormQuestionFieldTypeRadio"
+                  >
+                    Radio
+                  </Option>
                 </Select>
 
                 <Checkbox

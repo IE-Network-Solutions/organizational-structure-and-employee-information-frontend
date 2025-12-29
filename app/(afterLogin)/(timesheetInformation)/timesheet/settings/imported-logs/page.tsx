@@ -65,7 +65,13 @@ const Page = () => {
         >
           <Button
             type="default"
-            icon={<LuSettings2 size={24} className="text-gray-600" data-cy="time-attendance-settings-imported-logs-mobile-filter-button-icon" />}
+            icon={
+              <LuSettings2
+                size={24}
+                className="text-gray-600"
+                data-cy="time-attendance-settings-imported-logs-mobile-filter-button-icon"
+              />
+            }
             onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
             className="flex items-center justify-center w-12 h-12 hover:bg-gray-50 border-gray-200"
             id="time-attendance-settings-imported-logs-mobile-filter-button"

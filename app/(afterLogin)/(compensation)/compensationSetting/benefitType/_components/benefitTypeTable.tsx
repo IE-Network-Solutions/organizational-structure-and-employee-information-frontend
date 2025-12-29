@@ -165,23 +165,23 @@ const BenefitTypeTable = () => {
       dataIndex: 'status',
       key: 'status',
       render: (rule: any, record: any) => (
-          <AccessGuard
-            id={`compensation-settings-benefit-type-status-access-guard-${record.id}`}
-            data-cy={`compensation-settings-benefit-type-status-access-guard-${record.id}`}
-            permissions={[
-              Permissions.UpdateAllowanceType,
-              Permissions.DeleteAllowanceType,
-            ]}
-          >
-            <Switch
-              id={`compensation-settings-benefit-type-status-switch-${record.id}`}
-              data-cy={`compensation-settings-benefit-type-status-switch-${record.id}`}
-              loading={loadingId === record.id}
-              onClick={() => updateStatus(record.id)}
-              checked={record.isActive}
-              data-testid={`benefit-type-status-${record.id}`}
-            />
-          </AccessGuard>
+        <AccessGuard
+          id={`compensation-settings-benefit-type-status-access-guard-${record.id}`}
+          data-cy={`compensation-settings-benefit-type-status-access-guard-${record.id}`}
+          permissions={[
+            Permissions.UpdateAllowanceType,
+            Permissions.DeleteAllowanceType,
+          ]}
+        >
+          <Switch
+            id={`compensation-settings-benefit-type-status-switch-${record.id}`}
+            data-cy={`compensation-settings-benefit-type-status-switch-${record.id}`}
+            loading={loadingId === record.id}
+            onClick={() => updateStatus(record.id)}
+            checked={record.isActive}
+            data-testid={`benefit-type-status-${record.id}`}
+          />
+        </AccessGuard>
       ),
     },
     {

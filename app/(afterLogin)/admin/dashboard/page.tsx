@@ -282,14 +282,22 @@ const AdminDashboard = () => {
     (sub) => sub.isActive === true,
   );
   return (
-    <div id="admin-dashboard" data-cy="admin-dashboard" className="h-auto w-auto px-6 py-6">
+    <div
+      id="admin-dashboard"
+      data-cy="admin-dashboard"
+      className="h-auto w-auto px-6 py-6"
+    >
       <CustomBreadcrumb
         title="Hi, Admin"
         subtitle="Manage Tenant Billing, Invoices, and Profile Information"
         data-cy="admin-dashboard-breadcrumb"
       />
 
-      <div id="dashboard-cards" data-cy="dashboard-cards" className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5">
+      <div
+        id="dashboard-cards"
+        data-cy="dashboard-cards"
+        className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5"
+      >
         {dashboardData.map((item, idx) => {
           const valueData = dashboardValues.find((v) => v.id === item.id);
           return (
@@ -314,22 +322,52 @@ const AdminDashboard = () => {
               }}
             >
               {isLoading ? (
-                <Skeleton active paragraph={{ rows: 2 }} data-cy="dashboard-card-loading-skeleton" />
+                <Skeleton
+                  active
+                  paragraph={{ rows: 2 }}
+                  data-cy="dashboard-card-loading-skeleton"
+                />
               ) : (
                 <>
-                  <div id={`dashboard-card-${item.id}-header`} data-cy={`dashboard-card-${item.id}-header`} className="flex flex-col gap-2 pt-6 pl-4 pr-4 pb-4">
-                    <div id={`dashboard-card-${item.id}-icon`} data-cy={`dashboard-card-${item.id}-icon`} className="bg-gray-100 rounded-md py-2 px-3 w-fit">
+                  <div
+                    id={`dashboard-card-${item.id}-header`}
+                    data-cy={`dashboard-card-${item.id}-header`}
+                    className="flex flex-col gap-2 pt-6 pl-4 pr-4 pb-4"
+                  >
+                    <div
+                      id={`dashboard-card-${item.id}-icon`}
+                      data-cy={`dashboard-card-${item.id}-icon`}
+                      className="bg-gray-100 rounded-md py-2 px-3 w-fit"
+                    >
                       {React.cloneElement(item.icon, {
                         style: { color: item.color },
                         size: 24,
                       })}
                     </div>
-                    <div id={`dashboard-card-${item.id}-label`} data-cy={`dashboard-card-${item.id}-label`} className="text-sm text-gray-500">{item.overview}</div>
+                    <div
+                      id={`dashboard-card-${item.id}-label`}
+                      data-cy={`dashboard-card-${item.id}-label`}
+                      className="text-sm text-gray-500"
+                    >
+                      {item.overview}
+                    </div>
                   </div>
 
-                  <div id={`dashboard-card-${item.id}-content`} data-cy={`dashboard-card-${item.id}-content`} className="flex flex-col">
-                    <div id={`dashboard-card-${item.id}-value-container`} data-cy={`dashboard-card-${item.id}-value-container`} className="p-4 pt-0">
-                      <div id={`dashboard-card-${item.id}-value`} data-cy={`dashboard-card-${item.id}-value`} className="text-1xl font-bold flex items-center justify-between">
+                  <div
+                    id={`dashboard-card-${item.id}-content`}
+                    data-cy={`dashboard-card-${item.id}-content`}
+                    className="flex flex-col"
+                  >
+                    <div
+                      id={`dashboard-card-${item.id}-value-container`}
+                      data-cy={`dashboard-card-${item.id}-value-container`}
+                      className="p-4 pt-0"
+                    >
+                      <div
+                        id={`dashboard-card-${item.id}-value`}
+                        data-cy={`dashboard-card-${item.id}-value`}
+                        className="text-1xl font-bold flex items-center justify-between"
+                      >
                         {valueData?.value}
                       </div>
                     </div>
@@ -341,12 +379,20 @@ const AdminDashboard = () => {
         })}
       </div>
 
-      <div id="tenant-plans-title" data-cy="tenant-plans-title" className="text-2xl font-bold mb-5">
+      <div
+        id="tenant-plans-title"
+        data-cy="tenant-plans-title"
+        className="text-2xl font-bold mb-5"
+      >
         Tenant Plan & Available Upgrades
       </div>
 
       {isLoading ? (
-        <div id="tenant-plans-loading" data-cy="tenant-plans-loading" className="flex flex-col md:flex-row gap-4">
+        <div
+          id="tenant-plans-loading"
+          data-cy="tenant-plans-loading"
+          className="flex flex-col md:flex-row gap-4"
+        >
           {[1, 2].map((index) => (
             <div
               key={index}
@@ -358,7 +404,11 @@ const AdminDashboard = () => {
                 minHeight: '571px',
               }}
             >
-              <Skeleton active paragraph={{ rows: 10 }} data-cy="tenant-plans-loading-skeleton" />
+              <Skeleton
+                active
+                paragraph={{ rows: 10 }}
+                data-cy="tenant-plans-loading-skeleton"
+              />
             </div>
           ))}
         </div>
@@ -385,10 +435,26 @@ const AdminDashboard = () => {
     ${plan.id === currentPlan?.id ? 'md:min-w-[542px]' : 'md:min-w-[435px] bg-white'}
     min-h-[571px] w-full md:w-auto `}
                   >
-                    <div id={`tenant-plan-${plan.id}-content`} data-cy={`tenant-plan-${plan.id}-content`} className="flex flex-col gap-2">
-                      <div id={`tenant-plan-${plan.id}-header`} data-cy={`tenant-plan-${plan.id}-header`} className="flex justify-between text-lg font-extrabold mb-2">
-                        <span id={`tenant-plan-${plan.id}-name`} data-cy={`tenant-plan-${plan.id}-name`}>{plan.name}</span>
-                        <div id={`tenant-plan-${plan.id}-status`} data-cy={`tenant-plan-${plan.id}-status`}>
+                    <div
+                      id={`tenant-plan-${plan.id}-content`}
+                      data-cy={`tenant-plan-${plan.id}-content`}
+                      className="flex flex-col gap-2"
+                    >
+                      <div
+                        id={`tenant-plan-${plan.id}-header`}
+                        data-cy={`tenant-plan-${plan.id}-header`}
+                        className="flex justify-between text-lg font-extrabold mb-2"
+                      >
+                        <span
+                          id={`tenant-plan-${plan.id}-name`}
+                          data-cy={`tenant-plan-${plan.id}-name`}
+                        >
+                          {plan.name}
+                        </span>
+                        <div
+                          id={`tenant-plan-${plan.id}-status`}
+                          data-cy={`tenant-plan-${plan.id}-status`}
+                        >
                           {' '}
                           {/* {plan.id === currentPlan?.id && (
                             <div className="text-sm rounded-lg bg-white font-bold p-2">
@@ -406,7 +472,11 @@ const AdminDashboard = () => {
                           )} */}
                           {activeSubscription &&
                             plan.id === currentPlan?.id && (
-                              <div id={`tenant-plan-${plan.id}-expires`} data-cy={`tenant-plan-${plan.id}-expires`} className="text-sm rounded-lg bg-white font-bold p-2 ">
+                              <div
+                                id={`tenant-plan-${plan.id}-expires`}
+                                data-cy={`tenant-plan-${plan.id}-expires`}
+                                className="text-sm rounded-lg bg-white font-bold p-2 "
+                              >
                                 Expires in{' '}
                                 <span
                                   id={`tenant-plan-${plan.id}-expires-days`}
@@ -441,9 +511,20 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       {!plan.isFree && (
-                        <div id={`tenant-plan-${plan.id}-pricing`} data-cy={`tenant-plan-${plan.id}-pricing`} className="flex gap-5 items-center">
-                          <div id={`tenant-plan-${plan.id}-main-price`} data-cy={`tenant-plan-${plan.id}-main-price`}>
-                            <div id={`tenant-plan-${plan.id}-price`} data-cy={`tenant-plan-${plan.id}-price`} className="text-5xl font-bold">
+                        <div
+                          id={`tenant-plan-${plan.id}-pricing`}
+                          data-cy={`tenant-plan-${plan.id}-pricing`}
+                          className="flex gap-5 items-center"
+                        >
+                          <div
+                            id={`tenant-plan-${plan.id}-main-price`}
+                            data-cy={`tenant-plan-${plan.id}-main-price`}
+                          >
+                            <div
+                              id={`tenant-plan-${plan.id}-price`}
+                              data-cy={`tenant-plan-${plan.id}-price`}
+                              className="text-5xl font-bold"
+                            >
                               {plan.currency.symbol}
                               {plan.id === currentPlan?.id
                                 ? plan.periods?.find(
@@ -453,11 +534,18 @@ const AdminDashboard = () => {
                                   )?.periodSlotPrice
                                 : plan.slotPrice}
                             </div>
-                            <div id={`tenant-plan-${plan.id}-price-label`} data-cy={`tenant-plan-${plan.id}-price-label`} className="text-sm text-gray-500">
+                            <div
+                              id={`tenant-plan-${plan.id}-price-label`}
+                              data-cy={`tenant-plan-${plan.id}-price-label`}
+                              className="text-sm text-gray-500"
+                            >
                               per user billed annually
                             </div>
                           </div>
-                          <div id={`tenant-plan-${plan.id}-other-periods`} data-cy={`tenant-plan-${plan.id}-other-periods`}>
+                          <div
+                            id={`tenant-plan-${plan.id}-other-periods`}
+                            data-cy={`tenant-plan-${plan.id}-other-periods`}
+                          >
                             {plan.periods
                               ?.filter(
                                 (period) =>
@@ -479,21 +567,47 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                       )}
-                      <div id={`tenant-plan-${plan.id}-features-title`} data-cy={`tenant-plan-${plan.id}-features-title`} className="mt-8 mb-6 font-bold">
+                      <div
+                        id={`tenant-plan-${plan.id}-features-title`}
+                        data-cy={`tenant-plan-${plan.id}-features-title`}
+                        className="mt-8 mb-6 font-bold"
+                      >
                         Get in depth with our system
                       </div>
-                      <div id={`tenant-plan-${plan.id}-features`} data-cy={`tenant-plan-${plan.id}-features`} className="flex flex-col gap-5">
+                      <div
+                        id={`tenant-plan-${plan.id}-features`}
+                        data-cy={`tenant-plan-${plan.id}-features`}
+                        className="flex flex-col gap-5"
+                      >
                         {plan.planDetails &&
                           plan.planDetails.map((detail, index) => (
-                            <div key={index} id={`tenant-plan-${plan.id}-feature-${index}`} data-cy={`tenant-plan-${plan.id}-feature-${index}`} className="flex gap-2 font-bold">
-                              <Checkbox id={`tenant-plan-${plan.id}-feature-checkbox-${index}`} data-cy={`tenant-plan-${plan.id}-feature-checkbox-${index}`} checked={true} />
-                              <span id={`tenant-plan-${plan.id}-feature-text-${index}`} data-cy={`tenant-plan-${plan.id}-feature-text-${index}`}>{detail}</span>
+                            <div
+                              key={index}
+                              id={`tenant-plan-${plan.id}-feature-${index}`}
+                              data-cy={`tenant-plan-${plan.id}-feature-${index}`}
+                              className="flex gap-2 font-bold"
+                            >
+                              <Checkbox
+                                id={`tenant-plan-${plan.id}-feature-checkbox-${index}`}
+                                data-cy={`tenant-plan-${plan.id}-feature-checkbox-${index}`}
+                                checked={true}
+                              />
+                              <span
+                                id={`tenant-plan-${plan.id}-feature-text-${index}`}
+                                data-cy={`tenant-plan-${plan.id}-feature-text-${index}`}
+                              >
+                                {detail}
+                              </span>
                             </div>
                           ))}
                       </div>
                     </div>
                     {plan.id === currentPlan?.id ? (
-                      <div id={`tenant-plan-${plan.id}-current-actions`} data-cy={`tenant-plan-${plan.id}-current-actions`} className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4">
+                      <div
+                        id={`tenant-plan-${plan.id}-current-actions`}
+                        data-cy={`tenant-plan-${plan.id}-current-actions`}
+                        className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4"
+                      >
                         {plan.isFree !== true && (
                           <Tooltip
                             title={
@@ -502,7 +616,10 @@ const AdminDashboard = () => {
                             placement="bottom"
                             data-cy={`tenant-plan-${plan.id}-update-quota-button-tooltip`}
                           >
-                            <span className="w-full md:w-auto" data-cy={`tenant-plan-${plan.id}-update-quota-button-container`}>
+                            <span
+                              className="w-full md:w-auto"
+                              data-cy={`tenant-plan-${plan.id}-update-quota-button-container`}
+                            >
                               <Button
                                 id={`tenant-plan-${plan.id}-update-quota-button`}
                                 data-cy={`tenant-plan-${plan.id}-update-quota-button`}
@@ -526,7 +643,10 @@ const AdminDashboard = () => {
                             placement="bottom"
                             data-cy={`tenant-plan-${plan.id}-update-period-button-tooltip`}
                           >
-                            <span className="w-full md:w-auto" data-cy={`tenant-plan-${plan.id}-update-period-button-container`}>
+                            <span
+                              className="w-full md:w-auto"
+                              data-cy={`tenant-plan-${plan.id}-update-period-button-container`}
+                            >
                               <Button
                                 id={`tenant-plan-${plan.id}-update-period-button`}
                                 data-cy={`tenant-plan-${plan.id}-update-period-button`}
@@ -545,7 +665,10 @@ const AdminDashboard = () => {
                           </Tooltip>
                         )}
                         {plan.isFree !== true && (
-                          <span className="w-full md:w-auto" data-cy={`tenant-plan-${plan.id}-pay-bill-button-container`}>
+                          <span
+                            className="w-full md:w-auto"
+                            data-cy={`tenant-plan-${plan.id}-pay-bill-button-container`}
+                          >
                             <Button
                               id={`tenant-plan-${plan.id}-pay-bill-button`}
                               data-cy={`tenant-plan-${plan.id}-pay-bill-button`}
@@ -563,7 +686,11 @@ const AdminDashboard = () => {
                         )}
                       </div>
                     ) : (
-                      <div id={`tenant-plan-${plan.id}-upgrade-actions`} data-cy={`tenant-plan-${plan.id}-upgrade-actions`} className="flex justify-center mt-8">
+                      <div
+                        id={`tenant-plan-${plan.id}-upgrade-actions`}
+                        data-cy={`tenant-plan-${plan.id}-upgrade-actions`}
+                        className="flex justify-center mt-8"
+                      >
                         <Tooltip
                           title={
                             !isLatestInvoicePaid() ? getDisabledTooltip() : ''
@@ -571,7 +698,10 @@ const AdminDashboard = () => {
                           placement="bottom"
                           data-cy={`tenant-plan-${plan.id}-upgrade-button-tooltip`}
                         >
-                          <span className="w-full" data-cy={`tenant-plan-${plan.id}-upgrade-button-container`}>
+                          <span
+                            className="w-full"
+                            data-cy={`tenant-plan-${plan.id}-upgrade-button-container`}
+                          >
                             <CustomButton
                               id={`tenant-plan-${plan.id}-upgrade-button`}
                               data-cy={`tenant-plan-${plan.id}-upgrade-button`}
@@ -596,8 +726,16 @@ const AdminDashboard = () => {
                   </div>
                 ))
             ) : (
-              <div id="tenant-plans-empty" data-cy="tenant-plans-empty" className="w-full py-10 text-center">
-                <p id="tenant-plans-empty-message" data-cy="tenant-plans-empty-message" className="text-gray-500 text-lg">
+              <div
+                id="tenant-plans-empty"
+                data-cy="tenant-plans-empty"
+                className="w-full py-10 text-center"
+              >
+                <p
+                  id="tenant-plans-empty-message"
+                  data-cy="tenant-plans-empty-message"
+                  className="text-gray-500 text-lg"
+                >
                   No plans available. Please check back later.
                 </p>
               </div>
@@ -606,7 +744,13 @@ const AdminDashboard = () => {
         </>
       )}
 
-      <div id="billing-history-title" data-cy="billing-history-title" className="text-2xl font-bold mb-5">Tenant Billing History</div>
+      <div
+        id="billing-history-title"
+        data-cy="billing-history-title"
+        className="text-2xl font-bold mb-5"
+      >
+        Tenant Billing History
+      </div>
 
       <InvoicesTable
         data={invoices}

@@ -22,10 +22,16 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: allowance.id,
             label: (
-              <div className=" font-bold" title={allowance.name}>
-                {allowance.name?.length > 15
-                  ? allowance.name?.slice(0, 15) + '...'
-                  : allowance.name || 'Unnamed Allowance'}
+              <div
+                className=" font-bold"
+                title={allowance.name}
+                data-cy={`benefit-menu-item-${allowance.id}`}
+              >
+                <span data-cy={`benefit-menu-item-label-${allowance.id}`}>
+                  {allowance.name?.length > 15
+                    ? allowance.name?.slice(0, 15) + '...'
+                    : allowance.name || 'Unnamed Allowance'}
+                </span>
               </div>
             ),
           },
@@ -35,7 +41,16 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'variablePay',
-          label: <div className=" font-bold">Variable Pay</div>,
+          label: (
+            <div
+              className=" font-bold"
+              data-cy="benefit-menu-item-variable-pay"
+            >
+              <span data-cy="benefit-menu-item-variable-pay-label">
+                Variable Pay
+              </span>
+            </div>
+          ),
         },
         link: '/benefit/variablePay',
       };
@@ -78,14 +93,20 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
             id="compensation-benefit-layout-sidebar"
             data-cy="compensation-benefit-layout-sidebar"
           >
-            <SidebarMenu data-cy="compensation-benefit-layout-sidebar-menu" menuItems={sidebarMenuItems} />
+            <SidebarMenu
+              data-cy="compensation-benefit-layout-sidebar-menu"
+              menuItems={sidebarMenuItems}
+            />
           </div>
 
           <div
             id="compensation-benefit-layout-block-wrapper"
             data-cy="compensation-benefit-layout-block-wrapper"
           >
-            <BlockWrapper data-cy="compensation-benefit-layout-block-wrapper-content" className="flex-1 h-max overflow-x-auto">
+            <BlockWrapper
+              data-cy="compensation-benefit-layout-block-wrapper-content"
+              className="flex-1 h-max overflow-x-auto"
+            >
               {children}
             </BlockWrapper>
           </div>

@@ -21,7 +21,7 @@ const UserCard: FC<UserCardProps> = ({
 }) => {
   // const sizeWH = size === 'medium' ? 40 : 24;
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3" data-cy="user-card">
       {data ? (
         <Avatar size={25} src={data?.profileImage} />
       ) : (
