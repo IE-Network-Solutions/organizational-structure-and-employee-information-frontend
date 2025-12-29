@@ -121,6 +121,26 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       },
       link: '/okr/settings/criteria-management',
     },
+
+    {
+      item: {
+        key: 'target-assignment',
+        icon: !isMobile ? (
+          <HiOutlineBriefcase
+            className={
+              currentItem === 'target-assignment'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p className="font-bold text-sm text-gray-900">Target Assignment</p>
+        ),
+        className: currentItem === 'target-assignment' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/target-assignment',
+    },
     {
       item: {
         key: 'target-assignment',

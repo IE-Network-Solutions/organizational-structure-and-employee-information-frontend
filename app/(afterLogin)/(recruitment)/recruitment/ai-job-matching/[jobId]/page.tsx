@@ -409,11 +409,11 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                         </div>
 
                         {/* Candidate Info */}
-                          <div
-                            id={`ai-candidate-info-${candidate.candidateId}`}
-                            data-cy={`ai-candidate-info-${candidate.candidateId}`}
-                            className="flex-1 min-w-0"
-                          >
+                        <div
+                          id={`ai-candidate-info-${candidate.candidateId}`}
+                          data-cy={`ai-candidate-info-${candidate.candidateId}`}
+                          className="flex-1 min-w-0"
+                        >
                           <div className="flex items-start justify-between mb-3 gap-4">
                             <div
                               id={`ai-candidate-basic-info-${candidate.candidateId}`}
@@ -712,11 +712,11 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                       className="pb-4 border-b border-gray-200"
                     >
                       <div className="flex items-start justify-between gap-3">
-                          <div
-                            id="ai-candidate-detail-header-left"
-                            data-cy="ai-candidate-detail-header-left"
-                            className="flex items-center gap-3 flex-1"
-                          >
+                        <div
+                          id="ai-candidate-detail-header-left"
+                          data-cy="ai-candidate-detail-header-left"
+                          className="flex items-center gap-3 flex-1"
+                        >
                           <div
                             id="ai-candidate-detail-avatar"
                             data-cy="ai-candidate-detail-avatar"

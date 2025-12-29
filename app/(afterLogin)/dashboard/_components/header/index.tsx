@@ -69,6 +69,7 @@ const Header = () => {
                 />
               </div>
             </div>
+
             <div className="text-gray-500  w-full text-start text-xs">
               Average OKR
             </div>

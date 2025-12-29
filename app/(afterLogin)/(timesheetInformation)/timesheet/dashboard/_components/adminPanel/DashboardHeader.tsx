@@ -48,8 +48,8 @@ const DashboardHeader: React.FC = () => {
               onClick={() => setActiveTab('admin')}
               className={
                 activeTab === 'admin'
-                  ? ' px-8  h-12 bg-white text-black text-sm rounded-md transition-all duration-300 shadow-md'
-                  : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
+                  ? 'flex-1 sm:flex-none sm:px-6 lg:px-8 h-10 sm:h-12 bg-white text-black text-sm rounded-md transition-all duration-300 shadow-md font-medium'
+                  : 'flex-1 sm:flex-none sm:px-4 lg:px-6 h-full bg-transparent text-black text-sm transition-all duration-300 font-medium'
               }
               id="time-attendance-dashboard-header-admin-button"
               data-cy="time-attendance-dashboard-header-admin-button"
@@ -60,8 +60,8 @@ const DashboardHeader: React.FC = () => {
               onClick={() => setActiveTab('personal')}
               className={
                 activeTab === 'personal'
-                  ? ' px-8 h-12 bg-white text-black text-sm rounded-md transition-all duration-300 shadow-md'
-                  : ' px-4  h-full bg-transparent text-black text-sm transition-all duration-300'
+                  ? 'flex-1 sm:flex-none sm:px-6 lg:px-8 h-10 sm:h-12 bg-white text-black text-sm rounded-md transition-all duration-300 shadow-md font-medium'
+                  : 'flex-1 sm:flex-none sm:px-4 lg:px-6 h-full bg-transparent text-black text-sm transition-all duration-300 font-medium'
               }
               id="time-attendance-dashboard-header-personal-button"
               data-cy="time-attendance-dashboard-header-personal-button"

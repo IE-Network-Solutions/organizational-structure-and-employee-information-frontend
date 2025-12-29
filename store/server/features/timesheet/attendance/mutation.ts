@@ -17,6 +17,7 @@ const attendanceImport = async (file: string) => {
     method: 'POST',
     headers: requestHeaders,
     data: { file },
+    // skipEncryption: true,
   });
 };
 

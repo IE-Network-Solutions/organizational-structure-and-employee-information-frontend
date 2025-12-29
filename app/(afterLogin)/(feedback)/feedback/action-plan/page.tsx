@@ -16,6 +16,7 @@ import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { useGetAllActionPlan } from '@/store/server/features/CFR/meeting/action-plan/queries';
+import { ActionPlanSourceType } from '@/types/enumTypes';
 import CustomPagination from '@/components/customPagination';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
@@ -32,12 +33,21 @@ const statusColors = {
   Completed: 'green',
   Pending: 'gold',
   Unresolved: 'red',
+  Solved: 'green',
 };
 
 const priorityColors = {
   High: 'red',
   Medium: 'orange',
   Low: 'green',
+};
+
+const capitalizeFirstLetter = (value: any) => {
+  if (!value) return value;
+  const str = String(value).trim();
+  if (!str) return value;
+  const normalized = str.replace(/_/g, ' ').toLowerCase();
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 };
 
 const EmployeeDetails = ({
@@ -112,6 +122,19 @@ const EmployeeDetails = ({
 // Table Columns
 const columns: ColumnsType<any> = [
   {
+    title: 'Name',
+    dataIndex: 'name',
+    render: (text, record) => (
+      <p
+        className="text-[12px] max-w-xs truncate"
+        data-cy={`feedback-action-plan-table-cell-name-${record.key}`}
+        id={`feedback-action-plan-table-cell-name-${record.key}`}
+      >
+        {text || '—'}
+      </p>
+    ),
+  },
+  {
     title: 'Issues',
     dataIndex: 'issue',
     render: (text, record) => (
@@ -121,6 +144,19 @@ const columns: ColumnsType<any> = [
         id={`feedback-action-plan-table-cell-issue-${record.key}`}
       >
         {text}
+      </p>
+    ),
+  },
+  {
+    title: 'Type',
+    dataIndex: 'sourceType',
+    render: (val, record) => (
+      <p
+        className="text-[12px] max-w-xs truncate"
+        data-cy={`feedback-action-plan-table-cell-type-${record.key}`}
+        id={`feedback-action-plan-table-cell-type-${record.key}`}
+      >
+        {val ? capitalizeFirstLetter(val) : '—'}
       </p>
     ),
   },
@@ -171,16 +207,24 @@ const columns: ColumnsType<any> = [
   {
     title: 'Priority',
     dataIndex: 'priority',
-    render: (priority: keyof typeof priorityColors, record) => (
-      <Tag
-        className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
-        color={priorityColors[priority]}
-        data-cy={`feedback-action-plan-table-cell-priority-${record.key}`}
-        id={`feedback-action-plan-table-cell-priority-${record.key}`}
-      >
-        {priority}
-      </Tag>
-    ),
+    render: (priority: keyof typeof priorityColors, record) =>
+      !priority ? (
+        <span
+          data-cy={`feedback-action-plan-table-cell-priority-${record.key}`}
+          id={`feedback-action-plan-table-cell-priority-${record.key}`}
+        >
+          —
+        </span>
+      ) : (
+        <Tag
+          className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
+          color={priorityColors[priority]}
+          data-cy={`feedback-action-plan-table-cell-priority-${record.key}`}
+          id={`feedback-action-plan-table-cell-priority-${record.key}`}
+        >
+          {priority}
+        </Tag>
+      ),
   },
   {
     title: 'Status',
@@ -188,11 +232,15 @@ const columns: ColumnsType<any> = [
     render: (status: keyof typeof statusColors, record) => (
       <Tag
         className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
-        color={statusColors[status]}
+        color={
+          statusColors[
+            capitalizeFirstLetter(status) as keyof typeof statusColors
+          ]
+        }
         data-cy={`feedback-action-plan-table-cell-status-${record.key}`}
         id={`feedback-action-plan-table-cell-status-${record.key}`}
       >
-        {status}
+        {capitalizeFirstLetter(status)}
       </Tag>
     ),
   },
@@ -225,6 +273,7 @@ export default function ActionPlansPage() {
     label: `${i?.firstName} ${i?.middleName} ${i?.lastName}`,
   }));
   const empId = Form.useWatch('empId', form) || null;
+  const sourceType = Form.useWatch('sourceType', form) || null;
   const priority = Form.useWatch('priority', form) || null;
   const status = Form.useWatch('status', form) || null;
   const dateRange = Form.useWatch('dateRange', form) || null;
@@ -247,15 +296,21 @@ export default function ActionPlansPage() {
     status,
     startAt,
     endAt,
+    sourceType,
   );
   const data = actionPlan?.items?.map((item: any) => ({
     key: item.id,
-    issue: item.issue,
-    description: item.description,
+    name: item?.sourceName ?? '—',
+    sourceType: item?.sourceType ?? null,
+    issue: item?.description ?? item?.issue,
+    description: item?.actionToBeTaken ?? item?.description,
     deadline: item.deadline,
     priority: item.priority,
     status: item.status,
-    responsible: item.responsibleUsers.map((ru: any) => ru.responsibleId),
+    responsible:
+      item?.responsiblePerson ||
+      item?.responsibleUsers?.map((ru: any) => ru.responsibleId) ||
+      [],
   }));
 
   const { isMobile } = useIsMobile();
@@ -320,6 +375,7 @@ export default function ActionPlansPage() {
           meetingType: null,
           departments: [],
           dateRange: null,
+          sourceType: null,
         }}
         data-cy="feedback-action-plan-page-form"
         id="feedback-action-plan-page-form"
@@ -331,7 +387,7 @@ export default function ActionPlansPage() {
         >
           <Form.Item
             name="empId"
-            className={isMobile ? 'col-span-12' : 'col-span-3 my-2'}
+            className={isMobile ? 'col-span-12' : 'col-span-3 m-0'}
             data-cy="feedback-action-plan-page-form-item-employee"
             id="feedback-action-plan-page-form-item-employee"
           >
@@ -354,44 +410,38 @@ export default function ActionPlansPage() {
           </Form.Item>
 
           <Form.Item
-            name="priority"
-            className={isMobile ? 'col-span-12' : 'col-span-3 m-0'}
-            data-cy="feedback-action-plan-page-form-item-priority"
-            id="feedback-action-plan-page-form-item-priority"
+            name="sourceType"
+            className={isMobile ? 'col-span-12' : 'col-span-2 m-0'}
+            data-cy="feedback-action-plan-page-form-item-source-type"
+            id="feedback-action-plan-page-form-item-source-type"
           >
             <Select
               allowClear
               className="h-12"
-              placeholder="Select priority"
-              data-cy="feedback-action-plan-page-select-priority"
-              id="feedback-action-plan-page-select-priority"
+              placeholder="Select type"
+              data-cy="feedback-action-plan-page-select-source-type"
+              id="feedback-action-plan-page-select-source-type"
             >
               <Option
-                value="High"
-                data-cy="feedback-action-plan-page-option-priority-high"
-                id="feedback-action-plan-page-option-priority-high"
+                value={ActionPlanSourceType.MEETING}
+                data-cy="feedback-action-plan-page-option-source-meeting"
+                id="feedback-action-plan-page-option-source-meeting"
               >
-                High
+                Meeting
               </Option>
               <Option
-                value="Medium"
-                data-cy="feedback-action-plan-page-option-priority-medium"
-                id="feedback-action-plan-page-option-priority-medium"
+                value={ActionPlanSourceType.SURVEY}
+                data-cy="feedback-action-plan-page-option-source-survey"
+                id="feedback-action-plan-page-option-source-survey"
               >
-                Medium
-              </Option>
-              <Option
-                value="Low"
-                data-cy="feedback-action-plan-page-option-priority-low"
-                id="feedback-action-plan-page-option-priority-low"
-              >
-                Low
+                Survey
               </Option>
             </Select>
           </Form.Item>
+
           <Form.Item
             name="status"
-            className={isMobile ? 'col-span-12' : 'col-span-3 m-0'}
+            className={isMobile ? 'col-span-12' : 'col-span-2 m-0'}
             data-cy="feedback-action-plan-page-form-item-status"
             id="feedback-action-plan-page-form-item-status"
           >
@@ -427,6 +477,43 @@ export default function ActionPlansPage() {
           </Form.Item>
 
           <Form.Item
+            name="priority"
+            className={isMobile ? 'col-span-12' : 'col-span-2 m-0'}
+            data-cy="feedback-action-plan-page-form-item-priority"
+            id="feedback-action-plan-page-form-item-priority"
+          >
+            <Select
+              allowClear
+              className="h-12"
+              placeholder="Select priority"
+              data-cy="feedback-action-plan-page-select-priority"
+              id="feedback-action-plan-page-select-priority"
+            >
+              <Option
+                value="High"
+                data-cy="feedback-action-plan-page-option-priority-high"
+                id="feedback-action-plan-page-option-priority-high"
+              >
+                High
+              </Option>
+              <Option
+                value="Medium"
+                data-cy="feedback-action-plan-page-option-priority-medium"
+                id="feedback-action-plan-page-option-priority-medium"
+              >
+                Medium
+              </Option>
+              <Option
+                value="Low"
+                data-cy="feedback-action-plan-page-option-priority-low"
+                id="feedback-action-plan-page-option-priority-low"
+              >
+                Low
+              </Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
             name="dateRange"
             className={isMobile ? 'col-span-12' : 'col-span-3 m-0'}
             data-cy="feedback-action-plan-page-form-item-date-range"
@@ -442,8 +529,9 @@ export default function ActionPlansPage() {
           </Form.Item>
         </div>
       </Form>
+
       <div
-        className="overflow-x-auto scrollbar-none"
+        className="mt-4 overflow-x-auto scrollbar-none"
         data-cy="feedback-action-plan-page-div-table-container"
         id="feedback-action-plan-page-div-table-container"
       >
@@ -452,6 +540,7 @@ export default function ActionPlansPage() {
           dataSource={data}
           pagination={false}
           loading={isLoading}
+          scroll={{ x: 'max-content' }}
           data-cy="feedback-action-plan-page-table"
           id="feedback-action-plan-page-table"
         />
@@ -513,6 +602,7 @@ export default function ActionPlansPage() {
             meetingType: null,
             departments: [],
             dateRange: null,
+            sourceType: null,
           }}
           data-cy="feedback-action-plan-page-modal-form"
           id="feedback-action-plan-page-modal-form"
@@ -544,6 +634,36 @@ export default function ActionPlansPage() {
                 id="feedback-action-plan-page-modal-select-employee"
                 disabled={!isOwner}
               />
+            </Form.Item>
+
+            <Form.Item
+              name="sourceType"
+              label="Type"
+              data-cy="feedback-action-plan-page-modal-form-item-source-type"
+              id="feedback-action-plan-page-modal-form-item-source-type"
+            >
+              <Select
+                allowClear
+                className="h-12"
+                placeholder="Select type"
+                data-cy="feedback-action-plan-page-modal-select-source-type"
+                id="feedback-action-plan-page-modal-select-source-type"
+              >
+                <Option
+                  value={ActionPlanSourceType.MEETING}
+                  data-cy="feedback-action-plan-page-modal-option-source-meeting"
+                  id="feedback-action-plan-page-modal-option-source-meeting"
+                >
+                  Meeting
+                </Option>
+                <Option
+                  value={ActionPlanSourceType.SURVEY}
+                  data-cy="feedback-action-plan-page-modal-option-source-survey"
+                  id="feedback-action-plan-page-modal-option-source-survey"
+                >
+                  Survey
+                </Option>
+              </Select>
             </Form.Item>
 
             <Form.Item

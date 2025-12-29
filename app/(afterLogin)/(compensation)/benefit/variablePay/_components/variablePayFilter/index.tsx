@@ -29,6 +29,7 @@ const VariablePayFilter: React.FC = () => {
   const allEmployeesIds: string[] = activeEmployee?.items?.map(
     (employee: any) => employee.id,
   );
+
   const {
     refetch,
     isLoading: refreshLoading,

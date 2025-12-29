@@ -9,6 +9,7 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalStatusesInfo';
 import ApprovalStatusCard from '@/components/common/approvalStatuses/approvalStatusCard';
+import ApprovalStatusCardSkeleton from '@/components/common/approvalStatuses/approvalStatusCardSkeleton';
 import UserCard from '@/components/common/userCard/userCard';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import dayjs from 'dayjs';
@@ -34,10 +35,8 @@ const LeaveRequestManagementSidebar = () => {
   const { data: leaveData, isLoading } = useGetSingleLeaveRequest(
     leaveRequestId ?? '',
   );
-  const { data: logData } = useGetSingleApprovalLog(
-    leaveRequestId ?? '',
-    leaveRequestWorkflowId ?? '',
-  );
+  const { data: logData, isLoading: isLogDataLoading } =
+    useGetSingleApprovalLog(leaveRequestId ?? '', leaveRequestWorkflowId ?? '');
   const { data: employeeData } = useGetAllUsers();
   const userData = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
@@ -66,6 +65,7 @@ const LeaveRequestManagementSidebar = () => {
   ];
 
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
+
   type ApprovalRecord = {
     approverId: string; // UUID
     userId: string; // UUID
@@ -292,19 +292,30 @@ const LeaveRequestManagementSidebar = () => {
               >
                 <ApprovalStatusesInfo data-cy="time-attendance-leave-management-sidebar-approval-levels-status-info-component" />
               </div>
-              {Array.isArray(logData) &&
-                logData
-                  ?.sort((a, b) => a.stepOrder - b.stepOrder)
-                  ?.map((approvalCard: ApprovalRecord, idx: number) => (
-                    <ApprovalStatusCard
-                      data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card"
-                      key={idx}
-                      data={approvalCard}
-                      userName={userData}
-                      userImage={userImage}
+              {isLogDataLoading
+                ? // Show skeleton loading while fetching approval log data
+                  // eslint-disable-next-line react/no-array-index-key
+                  Array.from({ length: 3 }).map((unusedItem, idx) => (
+                    <ApprovalStatusCardSkeleton
+                      key={`skeleton-${idx}`}
+                      dataCyPrefix={`time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton-${idx}`}
                     />
-                  ))}
+                  ))
+                : // Show actual approval status cards when data is loaded
+                  Array.isArray(logData) &&
+                  logData
+                    ?.sort((a, b) => a.stepOrder - b.stepOrder)
+                    ?.map((approvalCard: ApprovalRecord, idx: number) => (
+                      <ApprovalStatusCard
+                        data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card"
+                        key={idx}
+                        data={approvalCard}
+                        userName={userData}
+                        userImage={userImage}
+                      />
+                    ))}
             </div>
+
             <Divider
               data-cy="time-attendance-leave-management-sidebar-approval-levels-status-divider"
               className="my-8 h-[5px] bg-gray-200"
