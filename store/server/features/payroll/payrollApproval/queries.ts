@@ -17,7 +17,6 @@ const getPendingPayrollApprovals = async (
   
   const queryParams = new URLSearchParams();
   
-  if (payPeriodId) queryParams.append('payPeriodId', payPeriodId);
   if (page) queryParams.append('page', page.toString());
   if (limit) queryParams.append('limit', limit.toString());
   if (orderBy) queryParams.append('orderBy', orderBy);
@@ -58,7 +57,7 @@ export const useGetPendingPayrollApprovals = (
 const getPayrollApprovalByPayPeriodId = async (payPeriodId: string) => {
   const requestHeaders = await requestHeader();
   return crudRequest({
-    url: `${PAYROLL_URL}/payroll-approval/pay-period/${payPeriodId}`,
+    url: `${PAYROLL_URL}/payroll-approval/pay-period`,
     method: 'GET',
     headers: requestHeaders,
   });
