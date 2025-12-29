@@ -753,8 +753,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       .filter((item): item is NonNullable<typeof item> => item !== null);
   };
 
-  const filteredTreeData = getFilteredTreeData();
-
   // Check if we should show the sidebar at all
 
   useEffect(() => {
@@ -1118,7 +1116,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     } catch (error) {}
   };
 
-  const filteredMenuItems = treeData
+  const filteredMenuItems = getFilteredTreeData()
     .map((item) => {
       // Audit Log and Admin menu should always be visible for admin users
       if ((item.key === '/audit-log' || item.key === 'admin-menu') && isAdmin) {

@@ -37,7 +37,7 @@ const AuditLogPage = () => {
   const [selectedAction, setSelectedAction] = useState<string | undefined>(undefined);
   const [orderDirection, setOrderDirection] = useState<'ASC' | 'DESC'>('DESC');
   const { isMobile, isTablet } = useIsMobile();
-  const { data: allUsers, isLoading: isLoadingUsers, error: usersError } = useGetAllUsers();
+  const { data: allUsers, isLoading: isLoadingUsers } = useGetAllUsers();
 
   const queryParams = useMemo(() => {
     const params = {
@@ -94,8 +94,8 @@ const AuditLogPage = () => {
   // Helper function to get module display name from module value
   const getModuleDisplayName = (moduleValue: string | undefined): string => {
     if (!moduleValue) return '--';
-    const module = AUDIT_LOG_MODULES.find(m => m.value === moduleValue);
-    return module ? module.label : moduleValue;
+    const moduleItem = AUDIT_LOG_MODULES.find(m => m.value === moduleValue);
+    return moduleItem ? moduleItem.label : moduleValue;
   };
 
   const columns = [
@@ -123,7 +123,7 @@ const AuditLogPage = () => {
       title: 'Module',
       dataIndex: 'module',
       key: 'module',
-      render: (_: any, record: any) => {
+      render: (_unused: any, record: any) => {
         // If a specific module is selected, show that module's display name
         if (selectedModule) {
           return getModuleDisplayName(selectedModule);
@@ -136,7 +136,7 @@ const AuditLogPage = () => {
       title: 'Performed by',
       dataIndex: 'performedBy',
       key: 'performedBy',
-      render: (_: any, record: any) => {
+      render: (_unused: any, record: any) => {
         const user = record?.performedByUser;
         const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : null;
         return (
@@ -175,7 +175,7 @@ const AuditLogPage = () => {
     {
       title: 'Remarks',
       key: 'remarks',
-      render: (_: any, record: AuditLog) => getRemarks(record),
+      render: (_unused: any, record: AuditLog) => getRemarks(record),
     },
   ];
 

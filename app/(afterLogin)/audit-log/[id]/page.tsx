@@ -84,8 +84,7 @@ const AuditLogDetailPage = () => {
     if (storedData) {
       try {
         setAuditLog(JSON.parse(storedData));
-      } catch (e) {
-        console.error('Error parsing audit log data:', e);
+      } catch {
         router.push('/audit-log');
       }
     } else {
@@ -134,8 +133,7 @@ const AuditLogDetailPage = () => {
 
       pdf.save(`Audit_Log_${id}_${dayjs().format('YYYY-MM-DD')}.pdf`);
       notification.success({ message: 'Export Successful', description: 'The audit log detail PDF has been downloaded.' });
-    } catch (error) {
-      console.error('Export error:', error);
+    } catch {
       notification.error({ message: 'Export Failed', description: 'Unable to generate PDF. Please try again.' });
     } finally {
       setIsExporting(false);
