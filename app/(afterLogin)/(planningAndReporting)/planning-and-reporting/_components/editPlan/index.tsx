@@ -389,6 +389,7 @@ function EditPlan() {
                 mkAsATask={!!mkAsATask}
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
+                handleAddName={handleAddName}
                 weights={weights}
               />
             ) : (
@@ -401,6 +402,7 @@ function EditPlan() {
                 mkAsATask={!!mkAsATask}
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
+                handleAddName={handleAddName}
                 weights={weights}
               />
             )}
