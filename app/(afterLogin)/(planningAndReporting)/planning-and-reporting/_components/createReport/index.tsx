@@ -448,11 +448,11 @@ function CreateReport() {
                                     objective?.keyResults?.map((keyresult: any, index: number) => (
                                         <Collapse.Panel
                                             header={
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-bold text-gray-900 whitespace-nowrap">
+                                                <div className="flex items-center gap-2 min-w-0 w-full">
+                                                    <span className="font-bold text-gray-900 whitespace-nowrap flex-shrink-0">
                                                         {planningPeriodName}-task :
                                                     </span>
-                                                    <span className="text-gray-700 font-normal">
+                                                    <span className="text-gray-700 font-normal truncate flex-1 min-w-0" title={keyresult?.title}>
                                                         {keyresult?.title}
                                                     </span>
                                                 </div>

@@ -388,7 +388,7 @@ function CreatePlan() {
     };
 
     setTimeout(() => {
-      form.setFieldsValue({ [namesKey]: [...currentBoard, newTask] });
+      form.setFieldsValue({ [namesKey]: [newTask, ...currentBoard] });
     }, 0);
   };
 
@@ -512,9 +512,9 @@ function CreatePlan() {
           Cancel
         </Button>
       </div>
-      <div className="flex-1 flex justify-end">
+      <div className="flex-1 flex justify-end pr-4 sm:pr-0">
         <span className="text-sm font-medium text-[#161A2C]">
-          <span className="md:hidden">WP:</span>{' '}
+          <span className="sm:hidden">WP:</span>{' '}
           <span className="hidden sm:inline">Weight Point:</span>{' '}
           {Math.round(Number(totalWeight) || 0)}%
         </span>

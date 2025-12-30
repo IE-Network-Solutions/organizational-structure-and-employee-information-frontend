@@ -104,11 +104,11 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                         return (
                                             <div key={task.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                                                 <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/20">
-                                                    <div className="text-sm">
-                                                        <strong className="text-gray-950">
+                                                    <div className="text-sm flex items-center min-w-0 w-full pr-2">
+                                                        <strong className="text-gray-950 flex-shrink-0 whitespace-nowrap">
                                                             {planningPeriodHierarchy?.parentPlan?.name || 'Parent'}-task :
                                                         </strong>
-                                                        <span className="ml-2 text-gray-700">{task.task}</span>
+                                                        <span className="ml-2 text-gray-700 truncate flex-1 min-w-0" title={task.task}>{task.task}</span>
                                                     </div>
                                                 </div>
 
@@ -158,11 +158,11 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                 return (
                                     <div key={task.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                                         <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/20">
-                                            <div className="text-sm">
-                                                <strong className="text-gray-950">
+                                            <div className="text-sm flex items-center min-w-0 w-full pr-2">
+                                                <strong className="text-gray-950 flex-shrink-0 whitespace-nowrap">
                                                     {planningPeriodHierarchy?.parentPlan?.name || 'Parent'}-task :
                                                 </strong>
-                                                <span className="ml-2 text-gray-700">{task.task}</span>
+                                                <span className="ml-2 text-gray-700 truncate flex-1 min-w-0" title={task.task}>{task.task}</span>
                                             </div>
                                         </div>
 

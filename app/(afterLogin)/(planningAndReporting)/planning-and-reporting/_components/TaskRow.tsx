@@ -72,7 +72,7 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
           {getTaskName()}
         </p>
 
-        <div className="w-full md:w-auto flex flex-wrap items-center justify-start md:justify-end gap-x-3 gap-y-1 mt-1 md:mt-0">
+        <div className="w-full md:w-auto flex md:flex-wrap items-center justify-between md:justify-end gap-x-3 gap-y-1 mt-1 md:mt-0">
           <div className="scale-90 md:scale-100 origin-left">
             <PriorityTag priority={task.priority} />
           </div>

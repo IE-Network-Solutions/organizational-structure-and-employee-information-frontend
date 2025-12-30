@@ -95,9 +95,9 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                 <div className="flex flex-col gap-2 mt-2 mb-3">
                   {/* Row 1: Key Icon + Title (+ Weight for Milestone) */}
                   <div className="flex items-center justify-between gap-3 min-w-0">
-                    <div className="flex items-center gap-3 ml-4">
+                    <div className="flex items-center gap-3 ml-4 min-w-0 flex-1">
                       <BsKey size={24} className="text-[#574CFF] flex-shrink-0" />
-                      <span className="text-sm font-bold text-[#161A2C] truncate max-w-[260px] md:max-w-[420px]">
+                      <span className="text-sm font-bold text-[#161A2C] truncate flex-1 min-w-0" title={kr?.title}>
                         {kr?.title}
                       </span>
                     </div>
@@ -189,7 +189,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                 handleAddBoard(kr?.id);
                               }}
                             >
-                              Add plan Task
+                              <span className="sm:hidden">Add Task</span>
+                              <span className="hidden sm:inline">Add plan Task</span>
                             </Dropdown.Button>
                           ) : (
                             <Button
@@ -200,7 +201,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               type="primary"
                               disabled={Number(kr?.progress) == 100}
                             >
-                              Add plan Task
+                              <span className="sm:hidden">Add Task</span>
+                              <span className="hidden sm:inline">Add plan Task</span>
                             </Button>
                           )}
                         </div>
@@ -217,9 +219,9 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                       <div key={ml?.id}>
                         <div className="ml-4 mt-2">
                           <div className="flex items-center justify-between mb-2 flex-wrap gap-3">
-                            <div className="flex items-center">
-                              <span className="font-bold">Milestone:</span>
-                              <span className="text-xs ml-2">{ml?.title}</span>
+                            <div className="flex items-center min-w-0 flex-1 mr-2">
+                              <span className="font-bold flex-shrink-0">Milestone:</span>
+                              <span className="text-xs ml-2 truncate min-w-0 flex-1" title={ml?.title}>{ml?.title}</span>
                             </div>
                             <div className="flex items-center gap-3">
                               <span id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}>
@@ -256,7 +258,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                     handleAddBoard(kr?.id + ml?.id);
                                   }}
                                 >
-                                  Add plan Task
+                                  <span className="sm:hidden">Add Task</span>
+                                  <span className="hidden sm:inline">Add plan Task</span>
                                 </Dropdown.Button>
                               </span>
                             </div>

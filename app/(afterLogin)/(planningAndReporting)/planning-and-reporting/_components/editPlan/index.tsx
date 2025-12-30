@@ -67,11 +67,7 @@ function EditPlan() {
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
-  // const modalHeader = (
-  //   <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-  //     Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
-  //   </div>
-  // );
+
 
   const handleAddName = (
     currentBoardValues: Record<string, string | number>,
@@ -80,7 +76,7 @@ function EditPlan() {
     const namesKey = `names-${kId}`;
     const names = form.getFieldValue(namesKey) || [];
     currentBoardValues = { ...currentBoardValues, planId: planGroupData?.id };
-    form.setFieldsValue({ [namesKey]: [...names, currentBoardValues] });
+    form.setFieldsValue({ [namesKey]: [currentBoardValues, ...names] });
     const fieldValue = form.getFieldValue(namesKey);
 
     const totalWeight = fieldValue.reduce(
@@ -348,11 +344,11 @@ function EditPlan() {
           Cancel
         </Button>
       </div>
-      <div className="flex-1 flex justify-end">
-        <div className="my-2 font-bold mx-6">
+      <div className="flex-1 flex justify-end pr-4 sm:pr-0">
+        <div className="my-2 font-bold mx-0 sm:mx-6">
           <span className="hidden sm:inline">Total Weights: </span>
-          <span className="sm:hidden">W: </span>
-          {Math.round(Number(totalWeight) || 0)} / 100
+          <span className="sm:hidden">WP: </span>
+          {Math.round(Number(totalWeight) || 0)}%
         </div>
       </div>
     </div>
