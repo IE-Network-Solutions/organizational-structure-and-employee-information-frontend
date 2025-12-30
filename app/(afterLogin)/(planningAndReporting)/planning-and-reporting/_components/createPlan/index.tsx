@@ -499,8 +499,8 @@ function CreatePlan() {
             loading={isLoading}
             disabled={totalWeight !== 100}
           >
-            <span className="sm:hidden">Plan</span>
-            <span className="hidden sm:inline">Create Plan</span>
+            <span className="md:hidden">Plan</span>
+            <span className="hidden md:inline">Create Plan</span>
           </Button>
         </Tooltip>
 
@@ -514,9 +514,9 @@ function CreatePlan() {
         </Button>
       </div>
       <div className="flex-1 flex justify-end pr-4 sm:pr-0">
-        <span className="text-sm font-medium text-[#161A2C]">
-          <span className="sm:hidden">WP:</span>{' '}
-          <span className="hidden sm:inline">Weight Point:</span>{' '}
+        <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
+          <span className="md:hidden">WP:</span>{' '}
+          <span className="hidden md:inline">Weight Point:</span>{' '}
           {Math.round(Number(totalWeight) || 0)}%
         </span>
       </div>

@@ -252,8 +252,8 @@ function CreateReport() {
                     loading={createReportLoading}
                     onClick={() => form.submit()}
                 >
-                    <span className="sm:hidden">Report</span>
-                    <span className="hidden sm:inline">Create Report</span>
+                    <span className="md:hidden">Report</span>
+                    <span className="hidden md:inline">Create Report</span>
                 </Button>
                 <Button
                     className="py-3 px-6 sm:py-6 sm:px-10 rounded-xl"
@@ -266,7 +266,7 @@ function CreateReport() {
 
             <div className="flex-1 flex justify-end">
                 <div className="my-2 font-bold mx-6">
-                    <span className="text-sm font-medium text-[#161A2C]">
+                    <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
                         <span className="md:hidden">WP:</span> <span className="hidden md:inline">Weight Point:</span>{' '}
                         <span
                             className={

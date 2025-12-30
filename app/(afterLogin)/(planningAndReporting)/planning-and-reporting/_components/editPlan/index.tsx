@@ -345,9 +345,9 @@ function EditPlan() {
         </Button>
       </div>
       <div className="flex-1 flex justify-end pr-4 sm:pr-0">
-        <div className="my-2 font-bold mx-0 sm:mx-6">
-          <span className="hidden sm:inline">Total Weights: </span>
-          <span className="sm:hidden">WP: </span>
+        <div className="my-2 font-bold mx-0 sm:mx-6 whitespace-nowrap">
+          <span className="hidden md:inline">Weight Point: </span>
+          <span className="md:hidden">WP: </span>
           {Math.round(Number(totalWeight) || 0)}%
         </div>
       </div>
