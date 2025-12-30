@@ -624,15 +624,19 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
             closable={false}
             className="[&_.ant-drawer-header]:border-b-0 [&_.ant-drawer-header]:pt-6 [&_.ant-drawer-header]:pb-2"
             footer={
-                <div className="relative flex items-center justify-center px-4 py-2">
+                <div className="relative flex items-center justify-center px-4 my-3 sm:my-0 sm:py-2">
                     <div className="flex items-center gap-4">
-                        <Button size="large" className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] w-32" onClick={onClose}>
+                        <Button 
+                            size="large" 
+                            className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] w-32 !py-2 sm:!py-6" 
+                            onClick={onClose}
+                        >
                             Cancel
                         </Button>
                         <Button
                             type="primary"
                             size="large"
-                            className="rounded-xl bg-[#574CFF] font-semibold w-32 hover:bg-[#4F46EF]"
+                            className="rounded-xl bg-[#574CFF] font-semibold w-32 hover:bg-[#4F46EF] !py-2 sm:!py-6"
                             onClick={viewMode === 'planning' ? handleSubmit : onClose}
                             loading={isCreating}
                             disabled={viewMode === 'planning' && totalWeight !== 100}

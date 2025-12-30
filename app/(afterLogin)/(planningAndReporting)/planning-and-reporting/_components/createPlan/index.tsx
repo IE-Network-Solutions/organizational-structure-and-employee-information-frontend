@@ -488,24 +488,25 @@ function CreatePlan() {
           title={
             totalWeight !== 100
               ? "Summation of all task's weights must be equal to 100!"
-              : 'Submit'
+              : 'Create Plan'
           }
         >
           <Button
             id="submit-plan-button-for-planning-and-reporting"
-            className="py-6 px-10"
+            className="py-3 px-6 sm:py-6 sm:px-10"
             type="primary"
             onClick={() => form.submit()}
             loading={isLoading}
             disabled={totalWeight !== 100}
           >
-            Submit
+            <span className="sm:hidden">Plan</span>
+            <span className="hidden sm:inline">Create Plan</span>
           </Button>
         </Tooltip>
 
         <Button
           id="cancel-plan-button-for-planning-and-reporting"
-          className="py-6 px-10"
+          className="py-3 px-6 sm:py-6 sm:px-10"
           onClick={onClose}
           disabled={isLoading}
         >

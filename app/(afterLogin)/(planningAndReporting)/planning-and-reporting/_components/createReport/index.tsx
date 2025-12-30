@@ -248,14 +248,15 @@ function CreateReport() {
                 <Button
                     id="submit-report-button-for-planning-and-reporting"
                     type="primary"
-                    className="py-6 px-10 rounded-xl bg-[#574CFF] hover:bg-[#4F46EF]"
+                    className="py-3 px-6 sm:py-6 sm:px-10 rounded-xl bg-[#574CFF] hover:bg-[#4F46EF]"
                     loading={createReportLoading}
                     onClick={() => form.submit()}
                 >
-                    Create Report
+                    <span className="sm:hidden">Report</span>
+                    <span className="hidden sm:inline">Create Report</span>
                 </Button>
                 <Button
-                    className="py-6 px-10 rounded-xl"
+                    className="py-3 px-6 sm:py-6 sm:px-10 rounded-xl"
                     onClick={onClose}
                     disabled={createReportLoading}
                 >
