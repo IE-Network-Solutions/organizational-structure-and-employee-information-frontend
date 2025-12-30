@@ -268,6 +268,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   },
                 });
               })
+              //eslint-disable-next-line @typescript-eslint/no-unused-vars
               .catch((error) => {
                 NotificationMessage.error({
                   message: 'Error',
