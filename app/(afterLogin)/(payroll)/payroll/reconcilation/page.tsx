@@ -4,9 +4,13 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { Button, Card, Col, Row, Select, Table } from 'antd';
+import { FaEye } from 'react-icons/fa';
 import { PiExportLight } from 'react-icons/pi';
+import PayrollReconcilationModal from './_components/modal';
+import { useState } from 'react';
 
 const PayrollReconcilation = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const columns = [
     {
       title: 'Types',
@@ -83,7 +87,11 @@ const PayrollReconcilation = () => {
       variance: 2000000,
       variancePercentage: 12.7,
       impact: 'Increase due to new hires',
-      action: 'View Details',
+      action: (
+        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
+          <FaEye />
+        </Button>
+      ),
     },
     {
       key: '2',
@@ -93,7 +101,14 @@ const PayrollReconcilation = () => {
       variance: 70000,
       variancePercentage: 15.5,
       impact: 'High OT hours',
-      action: 'View Details',
+      action: (
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none"
+        >
+          <FaEye />
+        </Button>
+      ),
     },
     {
       key: '3',
@@ -103,7 +118,11 @@ const PayrollReconcilation = () => {
       variance: 60000,
       variancePercentage: 5,
       impact: 'Minor adjustment',
-      action: 'View Details',
+      action: (
+        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
+          <FaEye />
+        </Button>
+      ),
     },
     {
       key: '4',
@@ -113,7 +132,11 @@ const PayrollReconcilation = () => {
       variance: 20000,
       variancePercentage: 2.5,
       impact: '--',
-      action: 'View Details',
+      action: (
+        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
+          <FaEye />
+        </Button>
+      ),
     },
     {
       key: '5',
@@ -123,7 +146,11 @@ const PayrollReconcilation = () => {
       variance: -20000,
       variancePercentage: -6.6,
       impact: 'Reduction in penalties',
-      action: 'View Details',
+      action: (
+        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
+          <FaEye />
+        </Button>
+      ),
     },
   ];
 
@@ -174,35 +201,35 @@ const PayrollReconcilation = () => {
           </Col>
         </Row>
 
-        <div className="flex 2xl:grid 2xl:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid lg:grid-cols-3 xl:grid-cols-3 md:grid-cols-1 gap-12">
           {/* Total Payroll Cost */}
           <Card className="rounded-xl shadow-sm border">
-            <p className="text-gray-500 text-sm mb-2">Total Payroll Cost</p>
-            <p className="text-2xl font-semibold text-gray-900">
-              ETB 8,900,000
+            <p className="text-black text-sm mb-2 font-semibold">
+              Total Payroll Cost
             </p>
+            <p className="text-2xl font-bold text-black">ETB 8,900,000</p>
 
-            <p className="text-sm text-gray-500 mt-3">
+            <p className="text-sm text-black mt-3 font-semibold">
               Previous: <span className="font-semibold">6,900,000</span>
             </p>
           </Card>
           {/* Net Variance */}
           <Card className="rounded-xl shadow-sm border">
-            <p className="text-gray-500 text-sm mb-2">Net Variance</p>
-            <p className="text-2xl font-semibold text-gray-900">
-              + ETB 8,900,000
+            <p className="text-black text-sm mb-2 font-semibold">
+              Net Variance
             </p>
+            <p className="text-2xl font-bold text-black">+ ETB 8,900,000</p>
 
             <p className="text-sm text-red-500 mt-3">12.7 ↑ Increase +3.03%</p>
           </Card>
           {/* Headcount Impact */}
           <Card className="rounded-xl shadow-sm border">
-            <p className="text-gray-500 text-sm mb-2">Headcount Impact</p>
-            <p className="text-2xl font-semibold text-gray-900">
-              150 Employees
+            <p className="text-black text-sm mb-2 font-semibold">
+              Headcount Impact
             </p>
+            <p className="text-2xl font-bold text-black">150 Employees</p>
 
-            <div className="flex gap-4 text-sm mt-3 text-gray-500">
+            <div className="flex gap-4 text-sm mt-3 text-black">
               <p>
                 Previous: <span className="font-semibold">130</span>
               </p>
@@ -213,13 +240,17 @@ const PayrollReconcilation = () => {
           </Card>
         </div>
 
-        <div className="w-full mt-6">
+        <div className="w-full mt-6 overflow-x-auto">
           <Table
             dataSource={payrollVarianceData}
             columns={columns}
             pagination={false}
           />
         </div>
+        <PayrollReconcilationModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+        />
       </BlockWrapper>
     </div>
   );
