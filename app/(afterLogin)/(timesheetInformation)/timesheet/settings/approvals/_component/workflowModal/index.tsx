@@ -176,7 +176,7 @@ const WorkflowModal = ({
           id="approval-workflow-name"
         >
           <div
-            className="flex justify-between gap-4"
+            className="flex flex-col md:flex-row md:justify-between gap-4"
             data-cy="approval-workflow-type"
             id="approval-workflow-type"
           >
@@ -246,7 +246,7 @@ const WorkflowModal = ({
           id="approval-workflow-name-label"
           className="font-medium mb-3 text-gray-500"
         >
-          WorkfLow Name{' '}
+          WorkfLow Name
         </div>
 
         <Form.Item

@@ -463,7 +463,7 @@ const ApprovalListTable = () => {
           data-cy="time-attendance-settings-approvals-table-transfer-modal-form"
         >
           <div
-            className="flex justify-between gap-4"
+            className="flex flex-col md:flex-row md:justify-between gap-4"
             id="time-attendance-settings-approvals-table-transfer-modal-form-fields"
             data-cy="time-attendance-settings-approvals-table-transfer-modal-form-fields"
           >
@@ -534,7 +534,7 @@ const ApprovalListTable = () => {
             data-cy="time-attendance-settings-approvals-table-transfer-modal-actions"
           >
             <div
-              className="flex justify-between mt-4"
+              className="flex flex-col md:flex-row md:justify-between gap-4 mt-4"
               id="time-attendance-settings-approvals-table-transfer-modal-buttons"
               data-cy="time-attendance-settings-approvals-table-transfer-modal-buttons"
             >
@@ -552,7 +552,7 @@ const ApprovalListTable = () => {
                   Create New
                 </Button>
               </div>
-              <div className="space-x-8">
+              <div className="sm:space-x-8 space-x-2">
                 <Button
                   className={`${commonClass} px-10 h-10`}
                   type="default"
