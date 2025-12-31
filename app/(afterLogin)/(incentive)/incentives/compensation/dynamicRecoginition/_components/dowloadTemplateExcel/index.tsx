@@ -183,7 +183,10 @@ const DownloadExcelButton: React.FC = () => {
       id="download-excel-button-popover"
       data-cy="download-excel-button-popover"
       content={
-        <div id="download-excel-button-popover-content" data-cy="download-excel-button-popover-content">
+        <div
+          id="download-excel-button-popover-content"
+          data-cy="download-excel-button-popover-content"
+        >
           {childRecognitionData?.map((item: any) => (
             <div
               id={`download-excel-button-popover-item-${item?.id}`}
@@ -201,11 +204,29 @@ const DownloadExcelButton: React.FC = () => {
                   : ''
               }`}
             >
-              <div id={`download-excel-button-popover-item-content-${item?.id}`} data-cy={`download-excel-button-popover-item-content-${item?.id}`} className="flex items-center justify-between">
-                <span id={`download-excel-button-popover-item-name-${item?.id}`} data-cy={`download-excel-button-popover-item-name-${item?.id}`} className="flex-1">{item?.name}</span>
+              <div
+                id={`download-excel-button-popover-item-content-${item?.id}`}
+                data-cy={`download-excel-button-popover-item-content-${item?.id}`}
+                className="flex items-center justify-between"
+              >
+                <span
+                  id={`download-excel-button-popover-item-name-${item?.id}`}
+                  data-cy={`download-excel-button-popover-item-name-${item?.id}`}
+                  className="flex-1"
+                >
+                  {item?.name}
+                </span>
                 {loadingItems[item?.id] && (
-                  <div id={`download-excel-button-popover-item-spinner-${item?.id}`} data-cy={`download-excel-button-popover-item-spinner-${item?.id}`} className="flex-shrink-0 w-6 h-6 flex items-center justify-center ml-2">
-                    <div id={`download-excel-button-popover-item-spinner-inner-${item?.id}`} data-cy={`download-excel-button-popover-item-spinner-inner-${item?.id}`} className="w-6 h-6 border-4 border-blue-800 border-t-transparent rounded-full animate-spin shadow-sm"></div>
+                  <div
+                    id={`download-excel-button-popover-item-spinner-${item?.id}`}
+                    data-cy={`download-excel-button-popover-item-spinner-${item?.id}`}
+                    className="flex-shrink-0 w-6 h-6 flex items-center justify-center ml-2"
+                  >
+                    <div
+                      id={`download-excel-button-popover-item-spinner-inner-${item?.id}`}
+                      data-cy={`download-excel-button-popover-item-spinner-inner-${item?.id}`}
+                      className="w-6 h-6 border-4 border-blue-800 border-t-transparent rounded-full animate-spin shadow-sm"
+                    ></div>
                   </div>
                 )}
               </div>

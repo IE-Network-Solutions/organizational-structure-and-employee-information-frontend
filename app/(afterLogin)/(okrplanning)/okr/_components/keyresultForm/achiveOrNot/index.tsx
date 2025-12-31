@@ -40,12 +40,14 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          data-cy={`okr-achieve-form-remove-icon-${index}`}
         >
           <path
             d="M6 6L14 14M6 14L14 6"
             stroke="white"
             strokeWidth="2"
             strokeLinecap="round"
+            data-cy={`okr-achieve-form-remove-path-${index}`}
           />
         </svg>
       </button>
@@ -102,8 +104,10 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             >
               {metrics?.items?.map((metric) => (
                 <Option
-                data-cy={`okr-achieve-desktop-type-option-${index}-${metric?.id}`}
-                key={metric?.id} value={metric?.id}>
+                  data-cy={`okr-achieve-desktop-type-option-${index}-${metric?.id}`}
+                  key={metric?.id}
+                  value={metric?.id}
+                >
                   {metric?.name}
                 </Option>
               ))}
@@ -214,7 +218,11 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 value={keyItem.key_type}
               >
                 {metrics?.items?.map((metric) => (
-                  <Option data-cy={`okr-achieve-mobile-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                  <Option
+                    data-cy={`okr-achieve-mobile-type-option-${index}-${metric?.id}`}
+                    key={metric?.id}
+                    value={metric?.id}
+                  >
                     {metric?.name}
                   </Option>
                 ))}

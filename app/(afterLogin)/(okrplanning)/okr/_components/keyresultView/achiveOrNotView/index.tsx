@@ -13,7 +13,6 @@ import dayjs from 'dayjs';
 import { VscClose } from 'react-icons/vsc';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 
@@ -39,15 +38,11 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
       handleKeyResultChange(value, index, field);
     }
   };
-
-  const { mutate: deleteKeyResult } = useDeleteKeyResult();
-
+  
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
   function handleKeyResultDelete(id: string) {
-    deleteKeyResult(id, {
-      onSuccess: () => {
-        removeKeyResultValue(index);
-      },
-    });
+    // Remove from local state only - deletion will happen on Save
+    removeKeyResultValue(index);
   }
   const { isMobile } = useIsMobile();
   const viewPrefix = keyValue?.id
@@ -163,7 +158,12 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                   data-cy={`${viewPrefix}-desktop-metric-select`}
                 >
                   {metrics?.items?.map((metric: any) => (
-                    <Select.Option id={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`} data-cy={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                    <Select.Option
+                      id={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`}
+                      data-cy={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`}
+                      key={metric?.id}
+                      value={metric?.id}
+                    >
                       {metric?.name}
                     </Select.Option>
                   ))}
@@ -215,7 +215,11 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
 
           {/* Deadline */}
           <div className="w-48 ml-2">
-            <Form.Item id={`${viewPrefix}-desktop-deadline-input-item`} data-cy={`${viewPrefix}-desktop-deadline-input-item`} className="w-full font-bold mb-0">
+            <Form.Item
+              id={`${viewPrefix}-desktop-deadline-input-item`}
+              data-cy={`${viewPrefix}-desktop-deadline-input-item`}
+              className="w-full font-bold mb-0"
+            >
               <DatePicker
                 id={`key-result-deadline-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -313,7 +317,12 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                   data-cy={`${viewPrefix}-mobile-metric-select`}
                 >
                   {metrics?.items?.map((metric: any) => (
-                    <Select.Option id={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`} data-cy={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                    <Select.Option
+                      id={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`}
+                      data-cy={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`}
+                      key={metric?.id}
+                      value={metric?.id}
+                    >
                       {metric?.name}
                     </Select.Option>
                   ))}
@@ -359,7 +368,11 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
               />
             </Form.Item>
 
-            <Form.Item id={`${viewPrefix}-mobile-deadline-input-item`} data-cy={`${viewPrefix}-mobile-deadline-input-item`} className="w-32 font-bold mb-0">
+            <Form.Item
+              id={`${viewPrefix}-mobile-deadline-input-item`}
+              data-cy={`${viewPrefix}-mobile-deadline-input-item`}
+              className="w-32 font-bold mb-0"
+            >
               <DatePicker
                 id={`key-result-deadline-mobile-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}

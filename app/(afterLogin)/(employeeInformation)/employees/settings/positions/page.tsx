@@ -1,7 +1,8 @@
 'use client';
-import { Button, Card, Typography } from 'antd';
+import { Button, Card, Typography, Input } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
+import { SearchOutlined } from '@ant-design/icons';
 import PositionCards from './positionCards';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import CreatePosition from './createPosition';
@@ -11,7 +12,8 @@ import { Permissions } from '@/types/commons/permissionEnum';
 const { Title } = Typography;
 
 const Positions: React.FC = () => {
-  const { setOpenPositionDrawer } = usePositionState();
+  const { setOpenPositionDrawer, searchTerm, setSearchTerm } =
+    usePositionState();
 
   const showDrawer = () => {
     setOpenPositionDrawer(true);
@@ -61,6 +63,22 @@ const Positions: React.FC = () => {
               </span>
             </Button>
           </AccessGuard>
+        </div>
+        <div
+          className="mt-4 mb-4"
+          id="settings-positions-search-container"
+          data-cy="settings-positions-search-container"
+        >
+          <Input
+            placeholder="Search employee Position"
+            className="w-full h-12 rounded-lg border-gray-200"
+            allowClear
+            suffix={<SearchOutlined className="text-gray-400" />}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchTerm}
+            id="settings-positions-search-input"
+            data-cy="settings-positions-search-input"
+          />
         </div>
         <div
           id="settings-positions-card-list"

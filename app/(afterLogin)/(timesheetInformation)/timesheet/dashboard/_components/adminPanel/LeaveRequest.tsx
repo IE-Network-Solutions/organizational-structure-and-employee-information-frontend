@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Card, DatePicker, Select, Avatar, Spin } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Card, DatePicker, Select, Avatar, Spin, Modal } from 'antd';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -17,6 +17,8 @@ import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timeshe
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import randomColor from 'random-color';
+import CustomButton from '@/components/common/buttons/customButton';
+import { LuSettings2 } from 'react-icons/lu';
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +30,7 @@ ChartJS.register(
 );
 
 const LeaveRequest = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     userIdOnLeaveRequest,
     setUserIdOnLeaveRequest,
@@ -185,7 +188,63 @@ const LeaveRequest = () => {
     label: i?.title,
   }));
 
-  // Generate random colors for leave types (component level)
+  const MobileFilterContent = () => (
+    <div className="flex flex-col gap-4">
+      <h3 className="text-lg font-medium mb-2">Filter</h3>
+
+      {/* Leave Type */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Leave Type</label>
+        <Select
+          showSearch
+          placeholder="Select Leave Type"
+          allowClear
+          value={leaveTypeOnLeaveRequest}
+          className="w-full h-12"
+          onChange={(value) => setLeaveTypeOnLeaveRequest(value)}
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+          }
+          options={leaveTypeOption}
+        />
+      </div>
+
+      {/* Department */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Department</label>
+        <Select
+          showSearch
+          placeholder="Select Department"
+          allowClear
+          value={departmentOnLeaveRequest}
+          className="w-full h-12"
+          onChange={(value) => setDepartmentOnLeaveRequest(value)}
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+          }
+          options={departmentOptions}
+        />
+      </div>
+
+      {/* Date Range */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Date Range</label>
+        <DatePicker.RangePicker
+          allowClear
+          className="w-full h-12"
+          onChange={(value: any) => {
+            if (value) {
+              setStartDateOnLeaveRequest(value[0]?.format('YYYY-MM-DD') || '');
+              setEndDateOnLeaveRequest(value[1]?.format('YYYY-MM-DD') || '');
+            } else {
+              setStartDateOnLeaveRequest('');
+              setEndDateOnLeaveRequest('');
+            }
+          }}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <Spin
@@ -244,38 +303,45 @@ const LeaveRequest = () => {
                 id="time-attendance-leave-request-employee-select"
                 data-cy="time-attendance-leave-request-employee-select"
               />
-              <DatePicker.RangePicker
-                className="w-44 h-12"
-                value={
-                  startDateOnLeaveRequest && endDateOnLeaveRequest
-                    ? [
-                        dayjs(startDateOnLeaveRequest),
-                        dayjs(endDateOnLeaveRequest),
-                      ]
-                    : null
-                }
-                onChange={(value: any) => {
-                  if (value && value[0] && value[1]) {
-                    setStartDateOnLeaveRequest(
-                      value[0]?.format('YYYY-MM-DD') || '',
-                    );
-                    setEndDateOnLeaveRequest(
-                      value[1]?.format('YYYY-MM-DD') || '',
-                    );
-                  } else {
-                    // Reset to default empty strings when cleared
-                    setStartDateOnLeaveRequest('');
-                    setEndDateOnLeaveRequest('');
-                  }
-                }}
-                id="time-attendance-leave-request-date-range-picker"
-                data-cy="time-attendance-leave-request-date-range-picker"
-              />
+            </div>
+            {/* Mobile Filters */}
+            <div className="md:hidden block">
+              <div className="flex justify-between gap-4 w-full mb-4">
+                <div className="flex-1">
+                  <Select
+                    showSearch
+                    placeholder="Search Employee"
+                    className="w-full h-12"
+                    allowClear
+                    onChange={(value: any) => setUserIdOnLeaveRequest(value)}
+                    filterOption={(input: any, option: any) =>
+                      (option?.label ?? '')
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={employeeOptions}
+                  />
+                </div>
+                <div>
+                  <CustomButton
+                    type="default"
+                    size="small"
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
+                    title=""
+                    icon={<LuSettings2 size={20} />}
+                  />
+                </div>
+              </div>
             </div>
 
             {pendingLeaveRequests?.users?.length > 0 ? (
               <div
-                className="h-64 overflow-y-auto scrollbar-none space-y-4"
+                className="h-64 overflow-y-auto space-y-4 pr-2"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#3636f0 #f3f4f6',
+                }}
                 id="time-attendance-leave-request-users-scroll-div"
                 data-cy="time-attendance-leave-request-users-scroll-div"
               >
@@ -292,7 +358,7 @@ const LeaveRequest = () => {
                       data-cy={`time-attendance-leave-request-card-${index}-header-div`}
                     >
                       <div
-                        className="flex items-center space-x-2 mb-1 "
+                        className="flex items-center space-x-2 mb-1"
                         id={`time-attendance-leave-request-card-${index}-profile-row`}
                         data-cy={`time-attendance-leave-request-card-${index}-profile-row`}
                       >
@@ -382,6 +448,33 @@ const LeaveRequest = () => {
               id="time-attendance-leave-request-chart-filters-div"
               data-cy="time-attendance-leave-request-chart-filters-div"
             >
+              <DatePicker.RangePicker
+                className="w-full h-12"
+                value={
+                  startDateOnLeaveRequest && endDateOnLeaveRequest
+                    ? [
+                        dayjs(startDateOnLeaveRequest),
+                        dayjs(endDateOnLeaveRequest),
+                      ]
+                    : null
+                }
+                onChange={(value: any) => {
+                  if (value && value[0] && value[1]) {
+                    setStartDateOnLeaveRequest(
+                      value[0]?.format('YYYY-MM-DD') || '',
+                    );
+                    setEndDateOnLeaveRequest(
+                      value[1]?.format('YYYY-MM-DD') || '',
+                    );
+                  } else {
+                    // Reset to default empty strings when cleared
+                    setStartDateOnLeaveRequest('');
+                    setEndDateOnLeaveRequest('');
+                  }
+                }}
+                id="time-attendance-leave-request-date-range-picker"
+                data-cy="time-attendance-leave-request-date-range-picker"
+              />
               <Select
                 showSearch
                 placeholder="Select Leave Type"
@@ -429,6 +522,41 @@ const LeaveRequest = () => {
             </div>
           </div>
         </div>
+
+        {/* Mobile Filter Modal */}
+        <Modal
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={
+            <div className="flex gap-2 justify-center mt-4">
+              <CustomButton
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2 border rounded-lg text-sm text-gray-900"
+                title="Cancel"
+                type="default"
+              />
+              <CustomButton
+                title="Apply Filter"
+                type="primary"
+                onClick={() => {
+                  setIsModalOpen(false);
+                }}
+                className="px-6 py-2 text-white rounded-lg text-sm"
+              />
+            </div>
+          }
+          className="!m-4 md:hidden"
+          style={{
+            top: '20%',
+            transform: 'translateY(-50%)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}
+          width="90%"
+          centered
+        >
+          <MobileFilterContent />
+        </Modal>
       </Card>
     </Spin>
   );

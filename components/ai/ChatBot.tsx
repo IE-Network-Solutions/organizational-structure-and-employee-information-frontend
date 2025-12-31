@@ -431,7 +431,10 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                   );
                 })}
                 {isLoading && (
-                  <div className="flex flex-row items-start gap-3" data-cy="chatbot-loading-container">
+                  <div
+                    className="flex flex-row items-start gap-3"
+                    data-cy="chatbot-loading-container"
+                  >
                     <Avatar
                       size={36}
                       className="bg-white border border-[rgba(91,79,255,0.15)] p-[6px] text-white"

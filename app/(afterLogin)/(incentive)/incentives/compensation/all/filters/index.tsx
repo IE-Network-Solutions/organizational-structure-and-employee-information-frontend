@@ -106,9 +106,22 @@ const IncentiveFilter: React.FC = () => {
 
   const Filters = (
     <>
-      <Row id="incentive-filter-row" data-cy="incentive-filter-row" gutter={[16, 10]} justify="space-between">
+      <Row
+        id="incentive-filter-row"
+        data-cy="incentive-filter-row"
+        gutter={[16, 10]}
+        justify="space-between"
+      >
         {!(isMobile || isTablet) && (
-          <Col id="incentive-filter-employee-col" data-cy="incentive-filter-employee-col" xs={24} sm={24} md={24} lg={10} xl={10}>
+          <Col
+            id="incentive-filter-employee-col"
+            data-cy="incentive-filter-employee-col"
+            xs={24}
+            sm={24}
+            md={24}
+            lg={10}
+            xl={10}
+          >
             <Select
               id="incentive-filter-employee-select"
               data-cy="incentive-filter-employee-select"
@@ -126,16 +139,41 @@ const IncentiveFilter: React.FC = () => {
               }
             >
               {employeeData?.items?.map((items: any) => (
-                <Select.Option id={`incentive-filter-employee-option-${items?.id}`} data-cy={`incentive-filter-employee-option-${items?.id}`} key={items?.id} value={items?.id}>
+                <Select.Option
+                  id={`incentive-filter-employee-option-${items?.id}`}
+                  data-cy={`incentive-filter-employee-option-${items?.id}`}
+                  key={items?.id}
+                  value={items?.id}
+                >
                   {items?.firstName + ' ' + items?.middleName}
                 </Select.Option>
               ))}
             </Select>
           </Col>
         )}
-        <Col id="incentive-filter-date-col" data-cy="incentive-filter-date-col" xs={24} sm={24} md={24} lg={14} xl={14}>
-          <Row id="incentive-filter-date-row" data-cy="incentive-filter-date-row" gutter={[8, 16]}>
-            <Col id="incentive-filter-year-col" data-cy="incentive-filter-year-col" xs={24} sm={24} md={24} lg={8} xl={8}>
+        <Col
+          id="incentive-filter-date-col"
+          data-cy="incentive-filter-date-col"
+          xs={24}
+          sm={24}
+          md={24}
+          lg={14}
+          xl={14}
+        >
+          <Row
+            id="incentive-filter-date-row"
+            data-cy="incentive-filter-date-row"
+            gutter={[8, 16]}
+          >
+            <Col
+              id="incentive-filter-year-col"
+              data-cy="incentive-filter-year-col"
+              xs={24}
+              sm={24}
+              md={24}
+              lg={8}
+              xl={8}
+            >
               <Select
                 id="incentive-filter-year-select"
                 data-cy="incentive-filter-year-select"
@@ -145,13 +183,26 @@ const IncentiveFilter: React.FC = () => {
                 onChange={handleCreatedByYear}
               >
                 {fiscalYear?.items?.map((year: any) => (
-                  <Select.Option id={`incentive-filter-year-option-${year.id}`} data-cy={`incentive-filter-year-option-${year.id}`} key={year.id} value={year.id}>
+                  <Select.Option
+                    id={`incentive-filter-year-option-${year.id}`}
+                    data-cy={`incentive-filter-year-option-${year.id}`}
+                    key={year.id}
+                    value={year.id}
+                  >
                     {year?.name}
                   </Select.Option>
                 ))}
               </Select>
             </Col>
-            <Col id="incentive-filter-session-col" data-cy="incentive-filter-session-col" xs={24} sm={24} md={24} lg={8} xl={8}>
+            <Col
+              id="incentive-filter-session-col"
+              data-cy="incentive-filter-session-col"
+              xs={24}
+              sm={24}
+              md={24}
+              lg={8}
+              xl={8}
+            >
               <Select
                 id="incentive-filter-session-select"
                 data-cy="incentive-filter-session-select"
@@ -168,13 +219,26 @@ const IncentiveFilter: React.FC = () => {
                   fiscalYear?.items
                     ?.find((year: any) => year.id === selectedYear)
                     ?.sessions?.map((session: any) => (
-                      <Select.Option id={`incentive-filter-session-option-${session.id}`} data-cy={`incentive-filter-session-option-${session.id}`} key={session.id} value={session.id}>
+                      <Select.Option
+                        id={`incentive-filter-session-option-${session.id}`}
+                        data-cy={`incentive-filter-session-option-${session.id}`}
+                        key={session.id}
+                        value={session.id}
+                      >
                         {session.name}
                       </Select.Option>
                     ))}
               </Select>
             </Col>
-            <Col id="incentive-filter-month-col" data-cy="incentive-filter-month-col" xs={24} sm={24} md={24} lg={8} xl={8}>
+            <Col
+              id="incentive-filter-month-col"
+              data-cy="incentive-filter-month-col"
+              xs={24}
+              sm={24}
+              md={24}
+              lg={8}
+              xl={8}
+            >
               <Select
                 id="incentive-filter-month-select"
                 data-cy="incentive-filter-month-select"
@@ -185,7 +249,12 @@ const IncentiveFilter: React.FC = () => {
                 disabled={!selectedSessionMonths?.length}
               >
                 {selectedSessionMonths?.map((month: any) => (
-                  <Select.Option id={`incentive-filter-month-option-${month?.id}`} data-cy={`incentive-filter-month-option-${month?.id}`} key={month?.id} value={month?.id}>
+                  <Select.Option
+                    id={`incentive-filter-month-option-${month?.id}`}
+                    data-cy={`incentive-filter-month-option-${month?.id}`}
+                    key={month?.id}
+                    value={month?.id}
+                  >
                     {month?.name}
                   </Select.Option>
                 ))}
@@ -198,9 +267,17 @@ const IncentiveFilter: React.FC = () => {
   );
 
   return (
-    <div id="incentive-filter-container" data-cy="incentive-filter-container" className="my-7 mx-1">
+    <div
+      id="incentive-filter-container"
+      data-cy="incentive-filter-container"
+      className="my-7 mx-1"
+    >
       {isMobile || isTablet ? (
-        <div id="incentive-filter-mobile-wrapper" data-cy="incentive-filter-mobile-wrapper" className="flex justify-end m-2 space-x-4">
+        <div
+          id="incentive-filter-mobile-wrapper"
+          data-cy="incentive-filter-mobile-wrapper"
+          className="flex justify-end m-2 space-x-4"
+        >
           <Select
             id="incentive-filter-mobile-employee-select"
             data-cy="incentive-filter-mobile-employee-select"
@@ -218,12 +295,21 @@ const IncentiveFilter: React.FC = () => {
             }
           >
             {employeeData?.items?.map((items: any) => (
-              <Select.Option id={`incentive-filter-mobile-employee-option-${items?.id}`} data-cy={`incentive-filter-mobile-employee-option-${items?.id}`} key={items?.id} value={items?.id}>
+              <Select.Option
+                id={`incentive-filter-mobile-employee-option-${items?.id}`}
+                data-cy={`incentive-filter-mobile-employee-option-${items?.id}`}
+                key={items?.id}
+                value={items?.id}
+              >
                 {items?.firstName + ' ' + items?.middleName}
               </Select.Option>
             ))}
           </Select>
-          <div id="incentive-filter-mobile-settings-wrapper" data-cy="incentive-filter-mobile-settings-wrapper" className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
+          <div
+            id="incentive-filter-mobile-settings-wrapper"
+            data-cy="incentive-filter-mobile-settings-wrapper"
+            className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3"
+          >
             <LuSettings2
               id="incentive-filter-mobile-settings-icon"
               data-cy="incentive-filter-mobile-settings-icon"
@@ -238,7 +324,11 @@ const IncentiveFilter: React.FC = () => {
             open={showMobileFilter}
             onCancel={() => setShowMobileFilter(false)}
             modalRender={(modal) => (
-              <div id="incentive-filter-mobile-modal-content" data-cy="incentive-filter-mobile-modal-content" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+              <div
+                id="incentive-filter-mobile-modal-content"
+                data-cy="incentive-filter-mobile-modal-content"
+                style={{ maxHeight: '70vh', overflowY: 'auto' }}
+              >
                 {modal}
               </div>
             )}

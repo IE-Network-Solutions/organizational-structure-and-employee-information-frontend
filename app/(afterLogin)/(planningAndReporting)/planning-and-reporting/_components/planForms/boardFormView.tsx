@@ -36,6 +36,7 @@ function BoardCardForm({
   isMKAsTask = false,
   keyResult,
   targetValue,
+  parentPlanId,
   milestoneId,
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();

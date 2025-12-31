@@ -70,8 +70,17 @@ const IncentiveSettingsTable: React.FC = () => {
       formulaById?.expression !== null ? (
         recognitionData?.recognitionCriteria?.map(
           (criterion: RecognitionCriteria, index: string) => (
-            <Skeleton data-cy={`incentive-settings-table-criterion-skeleton-${index}`} active loading={responseLoading} key={index}>
-              <div id={`incentive-settings-table-criterion-wrapper-${index}`} data-cy={`incentive-settings-table-criterion-wrapper-${index}`} className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
+            <Skeleton
+              data-cy={`incentive-settings-table-criterion-skeleton-${index}`}
+              active
+              loading={responseLoading}
+              key={index}
+            >
+              <div
+                id={`incentive-settings-table-criterion-wrapper-${index}`}
+                data-cy={`incentive-settings-table-criterion-wrapper-${index}`}
+                className=" flex-col flex-wrap inline-block space-x-1 space-y-2"
+              >
                 <span
                   id={`incentive-settings-table-criterion-${index}`}
                   data-cy={`incentive-settings-table-criterion-${index}`}
@@ -85,13 +94,21 @@ const IncentiveSettingsTable: React.FC = () => {
           ),
         )
       ) : (
-        <Skeleton data-cy="incentive-settings-table-empty-skeleton" active loading={responseLoading}>
+        <Skeleton
+          data-cy="incentive-settings-table-empty-skeleton"
+          active
+          loading={responseLoading}
+        >
           {' '}
           <>-</>
         </Skeleton>
       ),
     action: (
-      <div id="incentive-settings-table-action-wrapper" data-cy="incentive-settings-table-action-wrapper" className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+      <div
+        id="incentive-settings-table-action-wrapper"
+        data-cy="incentive-settings-table-action-wrapper"
+        className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center"
+      >
         <Pencil
           id="incentive-settings-table-action-pencil"
           data-cy="incentive-settings-table-action-pencil"
@@ -104,7 +121,10 @@ const IncentiveSettingsTable: React.FC = () => {
   };
 
   return (
-    <div id="incentive-settings-table-container" data-cy="incentive-settings-table-container">
+    <div
+      id="incentive-settings-table-container"
+      data-cy="incentive-settings-table-container"
+    >
       <Table
         id="incentive-settings-table"
         data-cy="incentive-settings-table"

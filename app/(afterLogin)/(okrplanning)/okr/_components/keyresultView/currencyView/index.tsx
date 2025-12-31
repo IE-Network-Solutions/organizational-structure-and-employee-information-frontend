@@ -14,7 +14,6 @@ import { VscClose } from 'react-icons/vsc';
 import { CiDollar } from 'react-icons/ci';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 
@@ -40,15 +39,11 @@ const CurrencyView: React.FC<OKRProps> = ({
       handleKeyResultChange(value, index, field);
     }
   };
-
-  const { mutate: deleteKeyResult } = useDeleteKeyResult();
-
+  
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
   function handleKeyResultDelete(id: string) {
-    deleteKeyResult(id, {
-      onSuccess: () => {
-        removeKeyResultValue(index);
-      },
-    });
+    // Remove from local state only - deletion will happen on Save
+    removeKeyResultValue(index);
   }
 
   // const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
@@ -219,7 +214,11 @@ const CurrencyView: React.FC<OKRProps> = ({
 
           {/* Deadline */}
           <div className="w-48 ml-2">
-            <Form.Item id={`${viewPrefix}-desktop-deadline-input-item`} data-cy={`${viewPrefix}-desktop-deadline-input-item`} className="w-full font-bold mb-0">
+            <Form.Item
+              id={`${viewPrefix}-desktop-deadline-input-item`}
+              data-cy={`${viewPrefix}-desktop-deadline-input-item`}
+              className="w-full font-bold mb-0"
+            >
               <DatePicker
                 id={`key-result-deadline-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -240,7 +239,11 @@ const CurrencyView: React.FC<OKRProps> = ({
                 data-cy={`${viewPrefix}-desktop-deadline-picker`}
               />
               {!keyValue.deadline && (
-                <div id={`${viewPrefix}-desktop-deadline-item-error`} data-cy={`${viewPrefix}-desktop-deadline-item-error`} className="text-red-500 font-semibold absolute top-[30px]">
+                <div
+                  id={`${viewPrefix}-desktop-deadline-item-error`}
+                  data-cy={`${viewPrefix}-desktop-deadline-item-error`}
+                  className="text-red-500 font-semibold absolute top-[30px]"
+                >
                   Deadline is required
                 </div>
               )}
@@ -363,7 +366,11 @@ const CurrencyView: React.FC<OKRProps> = ({
               />
             </Form.Item>
 
-            <Form.Item id={`${viewPrefix}-mobile-deadline-input-item`} data-cy={`${viewPrefix}-mobile-deadline-input-item`} className="w-32 font-bold mb-0">
+            <Form.Item
+              id={`${viewPrefix}-mobile-deadline-input-item`}
+              data-cy={`${viewPrefix}-mobile-deadline-input-item`}
+              className="w-32 font-bold mb-0"
+            >
               <DatePicker
                 id={`key-result-deadline-mobile-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -400,7 +407,11 @@ const CurrencyView: React.FC<OKRProps> = ({
           id={`${viewPrefix}-desktop-values-row`}
           data-cy={`${viewPrefix}-desktop-values-row`}
         >
-          <Form.Item id={`${viewPrefix}-desktop-initial-input-item`} data-cy={`${viewPrefix}-desktop-initial-input-item`} className="flex-1 mb-0">
+          <Form.Item
+            id={`${viewPrefix}-desktop-initial-input-item`}
+            data-cy={`${viewPrefix}-desktop-initial-input-item`}
+            className="flex-1 mb-0"
+          >
             <InputNumber
               id={`key-result-initial-${index}`}
               min={0}
@@ -441,7 +452,11 @@ const CurrencyView: React.FC<OKRProps> = ({
             id={`${viewPrefix}-mobile-values-row`}
             data-cy={`${viewPrefix}-mobile-values-row`}
           >
-            <Form.Item id={`${viewPrefix}-mobile-initial-input-item`} data-cy={`${viewPrefix}-mobile-initial-input-item`} className="flex-1 mb-0">
+            <Form.Item
+              id={`${viewPrefix}-mobile-initial-input-item`}
+              data-cy={`${viewPrefix}-mobile-initial-input-item`}
+              className="flex-1 mb-0"
+            >
               <InputNumber
                 id={`key-result-initial-mobile-${index}`}
                 min={0}
@@ -455,7 +470,11 @@ const CurrencyView: React.FC<OKRProps> = ({
                 data-cy={`${viewPrefix}-mobile-initial-input`}
               />
             </Form.Item>
-            <Form.Item id={`${viewPrefix}-mobile-target-input-item`} data-cy={`${viewPrefix}-mobile-target-input-item`} className="flex-1 mb-0">
+            <Form.Item
+              id={`${viewPrefix}-mobile-target-input-item`}
+              data-cy={`${viewPrefix}-mobile-target-input-item`}
+              className="flex-1 mb-0"
+            >
               <InputNumber
                 id={`key-result-target-mobile-${index}`}
                 min={0}

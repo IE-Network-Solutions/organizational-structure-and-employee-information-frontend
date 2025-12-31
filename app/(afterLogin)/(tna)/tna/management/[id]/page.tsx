@@ -11,7 +11,11 @@ const CoursePage = () => {
     {
       key: 'overview',
       id: 'tabOverviewId',
-      label: <div className="font-semibold">Overview</div>,
+      label: (
+        <div className="font-semibold" data-cy="tab-overview-label">
+          Overview
+        </div>
+      ),
       children: <CourseOverview />,
     },
     {
@@ -24,11 +28,23 @@ const CoursePage = () => {
 
   return course ? (
     <>
-      <div className="py-6 pr-2 pl-8 bg-[#B2B2FF66] flex items-center gap-8 mt-8" id="tnaCoursePageHeaderId" data-cy="tna-course-page-header">
-        <h3 className="text-[32px] leading-normal text-gray-900 flex-1" id="tnaCoursePageTitleId" data-cy="tna-course-page-title">
+      <div
+        className="py-6 pr-2 pl-8 bg-[#B2B2FF66] flex items-center gap-8 mt-8"
+        id="tnaCoursePageHeaderId"
+        data-cy="tna-course-page-header"
+      >
+        <h3
+          className="text-[32px] leading-normal text-gray-900 flex-1"
+          id="tnaCoursePageTitleId"
+          data-cy="tna-course-page-title"
+        >
           {course.title}
         </h3>
-        <div className="h-[265px] w-[435px] rounded-2xl overflow-hidden hidden sm:block  " id="tnaCoursePageThumbnailContainerId" data-cy="tna-course-page-thumbnail-container">
+        <div
+          className="h-[265px] w-[435px] rounded-2xl overflow-hidden hidden sm:block  "
+          id="tnaCoursePageThumbnailContainerId"
+          data-cy="tna-course-page-thumbnail-container"
+        >
           <img
             src={course.thumbnail ?? ''}
             alt={course.title}

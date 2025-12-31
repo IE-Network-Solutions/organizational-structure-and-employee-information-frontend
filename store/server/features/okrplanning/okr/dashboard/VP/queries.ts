@@ -22,7 +22,7 @@ const getVpScoreCalculate = async (id: number | string) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/user-vp-scoring/calculate/vp/${id}`,
-    method: 'GET',
+    method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,

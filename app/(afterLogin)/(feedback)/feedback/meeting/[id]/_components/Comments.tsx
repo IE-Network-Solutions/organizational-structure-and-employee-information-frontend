@@ -219,7 +219,11 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
             data-cy={`feedback-meeting-components-comments-grid-${comment.id}`}
             id={`feedback-meeting-components-comments-grid-${comment.id}`}
           >
-            <EmployeeDetails type="all" empId={comment.userId} data-cy={`feedback-meeting-components-comments-employee-details-${comment.id}`} />
+            <EmployeeDetails
+              type="all"
+              empId={comment.userId}
+              data-cy={`feedback-meeting-components-comments-employee-details-${comment.id}`}
+            />
 
             <div
               className="text-gray-700 font-semibold text-[12px]"
@@ -235,7 +239,11 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
                   data-cy={`feedback-meeting-components-comments-action-menu-${comment.id}`}
                 />
               ) : (
-                <LoadingOutlined className="text-gray-500" id={`feedback-meeting-components-comments-loading-icon-${comment.id}`} data-cy={`feedback-meeting-components-comments-loading-icon-${comment.id}`} />
+                <LoadingOutlined
+                  className="text-gray-500"
+                  id={`feedback-meeting-components-comments-loading-icon-${comment.id}`}
+                  data-cy={`feedback-meeting-components-comments-loading-icon-${comment.id}`}
+                />
               ))}
           </div>
         </Row>
@@ -247,7 +255,11 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
           className="w-full mt-4"
           data-cy="feedback-meeting-components-comments-form"
         >
-          <div className="w-full flex flex-col gap-2" id='feedback-meeting-components-comments-div-editor' data-cy='feedback-meeting-components-comments-div-editor'>
+          <div
+            className="w-full flex flex-col gap-2"
+            id="feedback-meeting-components-comments-div-editor"
+            data-cy="feedback-meeting-components-comments-div-editor"
+          >
             <EditorContent
               className="min-h-20 border rounded-md px-2 py-1 focus:outline-none"
               editor={editor}
@@ -257,7 +269,7 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
             <div
               className="flex  justify-end mr-0"
               data-cy="feedback-meeting-components-comments-div-submit"
-              id='feedback-meeting-components-comments-div-submit'
+              id="feedback-meeting-components-comments-div-submit"
             >
               <Button
                 loading={createLoading || updateLoading}

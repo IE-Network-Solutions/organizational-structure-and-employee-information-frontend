@@ -28,7 +28,7 @@ type Props = {
 
 const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
   return (
-    <div className="ml-4">
+    <div className="ml-4" data-cy="tasks-displayer-container">
       {tasks?.map((task: Task) => (
         <Row
           key={task.taskId}

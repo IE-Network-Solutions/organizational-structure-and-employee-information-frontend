@@ -56,7 +56,8 @@ const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
             data-cy="payroll-summary-card-growth-view-text"
             style={{ color: 'green' }}
           >
-            <ArrowUpOutlined data-cy="payroll-summary-card-growth-view-icon" /> {growth || '--'} vs last pay period
+            <ArrowUpOutlined data-cy="payroll-summary-card-growth-view-icon" />{' '}
+            {growth || '--'} vs last pay period
           </span>
         </div>
       </Card>

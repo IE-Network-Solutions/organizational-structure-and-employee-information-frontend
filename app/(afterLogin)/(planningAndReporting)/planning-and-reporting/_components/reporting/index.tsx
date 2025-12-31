@@ -92,7 +92,7 @@ function Reporting() {
   )?.planningPeriodId;
 
   const { data: allUserPlanning, isLoading: getUserPlanningLoading } =
-    useGetUserPlanning(planningPeriodId ?? '', activeTab.toString());
+    useGetUserPlanning(planningPeriodId ?? '', activePlanPeriod.toString());
   const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '',

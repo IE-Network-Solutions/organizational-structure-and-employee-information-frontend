@@ -139,9 +139,11 @@ export default function RouteTopLoader() {
         pointerEvents: 'none',
         transition: 'height 150ms ease',
       }}
+      data-cy="route-top-loader"
     >
       <div
         className="anianimate-pulse"
+        data-cy="route-top-loader-bar"
         style={{
           width: `${Math.round(progress * 100)}%`,
           height: 2,

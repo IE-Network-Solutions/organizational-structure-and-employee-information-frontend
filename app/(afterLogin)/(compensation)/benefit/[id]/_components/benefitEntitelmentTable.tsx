@@ -68,8 +68,11 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
           id={`compensation-benefit-entitlement-employee-${record?.userId}`}
           data-cy={`compensation-benefit-entitlement-employee-${record?.userId}`}
         >
-          {' '} 
-          <EmployeeDetails data-cy={`compensation-benefit-entitlement-employee-details-${record?.userId}`} empId={record?.userId} />
+          {' '}
+          <EmployeeDetails
+            data-cy={`compensation-benefit-entitlement-employee-details-${record?.userId}`}
+            empId={record?.userId}
+          />
         </div>
       ),
     },
@@ -181,83 +184,92 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
       id="compensation-benefit-entitlement-table-container"
       data-cy="compensation-benefit-entitlement-table-container"
     >
-      <Spin data-cy="compensation-benefit-entitlement-table-loading" spinning={isLoading}>
-      {employeeBenefitData == null ? (
-        <>
-          <div
-            className="overflow-x-auto scrollbar-hide"
-            id="compensation-benefit-entitlement-table-scroll"
-            data-cy="compensation-benefit-entitlement-table-scroll"
-          >
-            <Table
-              data-cy="compensation-benefit-entitlement-table"
-              className="mt-6"
-              columns={columns}
-              dataSource={paginatedData}
-              pagination={false}
-            />
-          </div>
-          {isMobile || isTablet ? (
+      <Spin
+        data-cy="compensation-benefit-entitlement-table-loading"
+        spinning={isLoading}
+      >
+        {employeeBenefitData == null ? (
+          <>
             <div
-              id="compensation-benefit-entitlement-mobile-pagination"
-              data-cy="compensation-benefit-entitlement-mobile-pagination"
+              className="overflow-x-auto scrollbar-hide"
+              id="compensation-benefit-entitlement-table-scroll"
+              data-cy="compensation-benefit-entitlement-table-scroll"
             >
-              <CustomMobilePagination
+              <Table
+                data-cy="compensation-benefit-entitlement-table"
+                className="mt-6"
+                columns={columns}
+                dataSource={paginatedData}
+                pagination={false}
+              />
+            </div>
+            {isMobile || isTablet ? (
+              <div
+                id="compensation-benefit-entitlement-mobile-pagination"
                 data-cy="compensation-benefit-entitlement-mobile-pagination"
-                totalResults={filteredDataSource.length}
-                pageSize={pageSize}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-                onShowSizeChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-              />
-            </div>
-          ) : (
-            <div
-              id="compensation-benefit-entitlement-pagination"
-              data-cy="compensation-benefit-entitlement-pagination"
-            >
-              <CustomPagination
+              >
+                <CustomMobilePagination
+                  data-cy="compensation-benefit-entitlement-mobile-pagination"
+                  totalResults={filteredDataSource.length}
+                  pageSize={pageSize}
+                  onChange={(page, size) => {
+                    setCurrentPage(page);
+                    setPageSize(size);
+                  }}
+                  onShowSizeChange={(page, size) => {
+                    setCurrentPage(page);
+                    setPageSize(size);
+                  }}
+                />
+              </div>
+            ) : (
+              <div
+                id="compensation-benefit-entitlement-pagination"
                 data-cy="compensation-benefit-entitlement-pagination"
-                current={currentPage}
-                total={filteredDataSource.length}
-                pageSize={pageSize}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-                onShowSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
-          )}
-        </>
-      ) : (
+              >
+                <CustomPagination
+                  data-cy="compensation-benefit-entitlement-pagination"
+                  current={currentPage}
+                  total={filteredDataSource.length}
+                  pageSize={pageSize}
+                  onChange={(page, size) => {
+                    setCurrentPage(page);
+                    setPageSize(size);
+                  }}
+                  onShowSizeChange={(size) => {
+                    setPageSize(size);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          <div
+            id="compensation-benefit-tracking-container"
+            data-cy="compensation-benefit-tracking-container"
+          >
+            <BenefitTracking data-cy="compensation-benefit-tracking" />
+          </div>
+        )}
         <div
-          id="compensation-benefit-tracking-container"
-          data-cy="compensation-benefit-tracking-container"
+          id="compensation-benefit-sidebar-create"
+          data-cy="compensation-benefit-sidebar-create"
         >
-          <BenefitTracking data-cy="compensation-benefit-tracking" />
+          <BenefitEntitlementSideBar
+            data-cy="compensation-benefit-sidebar-create"
+            title={title}
+          />
         </div>
-      )}
-      <div
-        id="compensation-benefit-sidebar-create"
-        data-cy="compensation-benefit-sidebar-create"
-      >
-        <BenefitEntitlementSideBar data-cy="compensation-benefit-sidebar-create" title={title} />
-      </div>
-      <div
-        id="compensation-benefit-sidebar-edit"
-        data-cy="compensation-benefit-sidebar-edit"
-      >
-        <BenefitEntitlementSideBarEdit data-cy="compensation-benefit-sidebar-edit" title={title} />
-      </div>
+        <div
+          id="compensation-benefit-sidebar-edit"
+          data-cy="compensation-benefit-sidebar-edit"
+        >
+          <BenefitEntitlementSideBarEdit
+            data-cy="compensation-benefit-sidebar-edit"
+            title={title}
+          />
+        </div>
       </Spin>
     </div>
   );

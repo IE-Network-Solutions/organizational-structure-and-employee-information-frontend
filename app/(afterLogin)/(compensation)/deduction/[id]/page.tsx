@@ -145,10 +145,10 @@ const SingleDeductionPage = () => {
           </div>
         )}
 
-          <BenefitEntitlementTable
-            title={deductionData?.name ? deductionData?.name : ''}
-            data-cy="compensation-deduction-entitlement-table"
-          />
+        <BenefitEntitlementTable
+          title={deductionData?.name ? deductionData?.name : ''}
+          data-cy="compensation-deduction-entitlement-table"
+        />
       </div>
     </div>
   );

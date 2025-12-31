@@ -78,7 +78,7 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
   }, [selectedPermissions, selectedRoleOnOption, form]);
 
   if (permissionError || roleError) {
-    return <div>Error loading data</div>; // Handle errors gracefully
+    return <div data-cy="role-permission-form-error">Error loading data</div>; // Handle errors gracefully
   }
   return (
     <div id="role-permission-form" data-cy="role-permission-form">

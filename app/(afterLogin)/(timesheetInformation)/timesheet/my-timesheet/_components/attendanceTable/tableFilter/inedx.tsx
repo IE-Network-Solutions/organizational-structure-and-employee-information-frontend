@@ -60,12 +60,26 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
         id="time-attendance-attendance-table-filter-form"
         data-cy="time-attendance-attendance-table-filter-form"
       >
-        <Row id="time-attendance-attendance-table-filter-row" data-cy="time-attendance-attendance-table-filter-row" gutter={16} align="middle">
-          <Col id="time-attendance-attendance-table-filter-mobile-button-col" data-cy="time-attendance-attendance-table-filter-mobile-button-col" className="block sm:hidden">
+        <Row
+          id="time-attendance-attendance-table-filter-row"
+          data-cy="time-attendance-attendance-table-filter-row"
+          gutter={16}
+          align="middle"
+        >
+          <Col
+            id="time-attendance-attendance-table-filter-mobile-button-col"
+            data-cy="time-attendance-attendance-table-filter-mobile-button-col"
+            className="block sm:hidden"
+          >
             <Button
               type="default"
               className="flex justify-center w-10 h-10 hover:bg-gray-100 border-gray-200"
-              icon={<LuSettings2 data-cy="time-attendance-attendance-table-filter-mobile-button-icon" className="text-gray-600" />}
+              icon={
+                <LuSettings2
+                  data-cy="time-attendance-attendance-table-filter-mobile-button-icon"
+                  className="text-gray-600"
+                />
+              }
               onClick={() => {
                 mobileForm.setFieldsValue(form.getFieldsValue());
                 setShowLeaveHistoryFilter(true);
@@ -103,7 +117,11 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                 allowClear={true}
                 className="w-full h-[40px]"
                 suffixIcon={
-                  <MdKeyboardArrowDown data-cy="time-attendance-attendance-table-filter-location-select-icon" size={16} className="text-gray-900" />
+                  <MdKeyboardArrowDown
+                    data-cy="time-attendance-attendance-table-filter-location-select-icon"
+                    size={16}
+                    className="text-gray-900"
+                  />
                 }
                 options={formatToOptions(allowedAreas, 'title', 'id')}
                 id="time-attendance-attendance-table-filter-location-select"
@@ -122,7 +140,11 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                 allowClear={true}
                 className="w-full h-[40px]"
                 suffixIcon={
-                  <MdKeyboardArrowDown data-cy="time-attendance-attendance-table-filter-type-select-icon" size={16} className="text-gray-900" />
+                  <MdKeyboardArrowDown
+                    data-cy="time-attendance-attendance-table-filter-type-select-icon"
+                    size={16}
+                    className="text-gray-900"
+                  />
                 }
                 options={attendanceRecordTypeOption}
                 id="time-attendance-attendance-table-filter-type-select"
@@ -249,7 +271,11 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               allowClear={true}
               className="w-full h-[40px]"
               suffixIcon={
-                <MdKeyboardArrowDown data-cy="time-attendance-attendance-table-filter-mobile-location-select-icon" size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown
+                  data-cy="time-attendance-attendance-table-filter-mobile-location-select-icon"
+                  size={16}
+                  className="text-gray-900"
+                />
               }
               options={formatToOptions(allowedAreas, 'title', 'id')}
               id="time-attendance-attendance-table-filter-mobile-location-select"
@@ -268,7 +294,11 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               allowClear={true}
               className="w-full h-[40px]"
               suffixIcon={
-                <MdKeyboardArrowDown data-cy="time-attendance-attendance-table-filter-mobile-type-select-icon" size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown
+                  data-cy="time-attendance-attendance-table-filter-mobile-type-select-icon"
+                  size={16}
+                  className="text-gray-900"
+                />
               }
               options={attendanceRecordTypeOption}
               id="time-attendance-attendance-table-filter-mobile-type-select"

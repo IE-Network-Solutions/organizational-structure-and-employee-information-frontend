@@ -275,14 +275,22 @@ const BillingPage = () => {
     subscriptionsLoading;
 
   return (
-    <div id="billing-page" data-cy="billing-page" className="h-auto w-auto px-6 py-6">
+    <div
+      id="billing-page"
+      data-cy="billing-page"
+      className="h-auto w-auto px-6 py-6"
+    >
       <CustomBreadcrumb
         title="Billing & Invoices"
         subtitle="Complete Billing Overview"
         data-cy="billing-page-breadcrumb"
       />
 
-      <div id="billing-cards" data-cy="billing-cards" className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5">
+      <div
+        id="billing-cards"
+        data-cy="billing-cards"
+        className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5"
+      >
         {dashboardData.map((item, idx) => {
           const valueData = dashboardValues.find((v) => v.id === item.id);
           return (
@@ -307,21 +315,47 @@ const BillingPage = () => {
               }}
             >
               {isLoading ? (
-                <Skeleton active paragraph={{ rows: 2 }} data-cy="billing-card-loading-skeleton" />
+                <Skeleton
+                  active
+                  paragraph={{ rows: 2 }}
+                  data-cy="billing-card-loading-skeleton"
+                />
               ) : (
                 <>
-                  <div id={`billing-card-${item.id}-header`} data-cy={`billing-card-${item.id}-header`} className="flex flex-row items-center gap-2 pt-6 pl-4 pr-4 pb-4">
-                    <div id={`billing-card-${item.id}-icon`} data-cy={`billing-card-${item.id}-icon`} className="bg-gray-100 rounded-md py-2 px-3 w-fit">
+                  <div
+                    id={`billing-card-${item.id}-header`}
+                    data-cy={`billing-card-${item.id}-header`}
+                    className="flex flex-row items-center gap-2 pt-6 pl-4 pr-4 pb-4"
+                  >
+                    <div
+                      id={`billing-card-${item.id}-icon`}
+                      data-cy={`billing-card-${item.id}-icon`}
+                      className="bg-gray-100 rounded-md py-2 px-3 w-fit"
+                    >
                       {React.cloneElement(item.icon, {
                         style: { color: item.color },
                         size: 24,
                       })}
                     </div>
-                    <div id={`billing-card-${item.id}-label`} data-cy={`billing-card-${item.id}-label`} className="text-sm text-gray-500">{item.overview}</div>
+                    <div
+                      id={`billing-card-${item.id}-label`}
+                      data-cy={`billing-card-${item.id}-label`}
+                      className="text-sm text-gray-500"
+                    >
+                      {item.overview}
+                    </div>
                   </div>
 
-                  <div id={`billing-card-${item.id}-content`} data-cy={`billing-card-${item.id}-content`} className="flex flex-col">
-                    <div id={`billing-card-${item.id}-value-container`} data-cy={`billing-card-${item.id}-value-container`} className="p-4 pt-0">
+                  <div
+                    id={`billing-card-${item.id}-content`}
+                    data-cy={`billing-card-${item.id}-content`}
+                    className="flex flex-col"
+                  >
+                    <div
+                      id={`billing-card-${item.id}-value-container`}
+                      data-cy={`billing-card-${item.id}-value-container`}
+                      className="p-4 pt-0"
+                    >
                       <div
                         id={`billing-card-${item.id}-value`}
                         data-cy={`billing-card-${item.id}-value`}
@@ -338,7 +372,11 @@ const BillingPage = () => {
         })}
       </div>
 
-      <div id="billing-invoices-section" data-cy="billing-invoices-section" className="mb-[35px] mt-[25px] ">
+      <div
+        id="billing-invoices-section"
+        data-cy="billing-invoices-section"
+        className="mb-[35px] mt-[25px] "
+      >
         <InvoicesTable
           data={invoices}
           loading={isLoading}

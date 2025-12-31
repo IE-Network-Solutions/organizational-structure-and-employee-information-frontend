@@ -50,8 +50,13 @@ const AllCandidateTable: React.FC = () => {
       title: 'AI score',
       dataIndex: 'score',
       render: () => (
-        <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
-          90%
+        <span
+          className="bg-green-100 px-4 rounded text-green-800 text-xs"
+          data-cy="talent-acquisition-hrflow-table-ai-score"
+        >
+          <span data-cy="talent-acquisition-hrflow-table-ai-score-text">
+            90%
+          </span>
         </span>
       ),
     },
@@ -146,9 +151,17 @@ const AllCandidateTable: React.FC = () => {
       {
         key: 'moveToTalentPool',
         label: (
-          <div className="text-primary font-normal text-sm flex items-center justify-start gap-1">
-            Move to Talent Pool
-            <IoIosArrowForward size={12} />
+          <div
+            className="text-primary font-normal text-sm flex items-center justify-start gap-1"
+            data-cy="talent-acquisition-hrflow-table-menu-item-move-to-talent-pool"
+          >
+            <span data-cy="talent-acquisition-hrflow-table-menu-item-move-to-talent-pool-text">
+              Move to Talent Pool
+            </span>
+            <IoIosArrowForward
+              size={12}
+              data-cy="talent-acquisition-hrflow-table-menu-item-move-to-talent-pool-icon"
+            />
           </div>
         ),
         onClick: () => handleMenuClick('moveToTalentPool', item),
