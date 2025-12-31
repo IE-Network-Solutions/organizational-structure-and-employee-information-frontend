@@ -156,6 +156,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employee-information/[id]',
       permissions: [], // Allow all users to access employee information
     },
+    {
+      key: '/feedback/action-plan',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
+    {
+      key: '/feedback/meeting',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
+    {
+      key: '/feedback/categories',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
   ];
 
   const getRoutesAndPermissions = (
