@@ -73,6 +73,8 @@ function BoardCardForm({
                   style={{ flex: 1, marginBottom: 0 }}
                 >
                   <Input
+                    id={`board-form-task-input-${name}-${subName}`}
+                    data-cy={`board-form-task-input-${name}-${subName}`}
                     disabled={
                       form.getFieldValue(`board-${name}`)?.[subName]?.achieveMK
                     }
@@ -82,6 +84,8 @@ function BoardCardForm({
                   />
                 </Form.Item>
                 <MdCancel
+                  id={`board-form-remove-button-${name}-${subName}`}
+                  data-cy={`board-form-remove-button-${name}-${subName}`}
                   className="text-primary cursor-pointer"
                   size={20}
                   style={{ marginTop: '10px' }}
@@ -155,6 +159,8 @@ function BoardCardForm({
                             ]}
                           >
                             <InputNumber
+                              id={`board-form-target-input-${name}-${subName}`}
+                              data-cy={`board-form-target-input-${name}-${subName}`}
                               min={0}
                               className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
                               defaultValue={0}
@@ -193,6 +199,8 @@ function BoardCardForm({
                           ]}
                         >
                           <InputNumber
+                            id={`board-form-weight-input-${name}-${subName}`}
+                            data-cy={`board-form-weight-input-${name}-${subName}`}
                             placeholder={'0'}
                             className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
                             min={1}
@@ -220,6 +228,8 @@ function BoardCardForm({
                           rules={[{ required: true, message: 'Priority is required' }]}
                         >
                           <Select
+                            id={`board-form-priority-select-${name}-${subName}`}
+                            data-cy={`board-form-priority-select-${name}-${subName}`}
                             placeholder={<div className="text-xs">Priority</div>}
                             className="w-full h-10"
                             options={[
@@ -236,6 +246,7 @@ function BoardCardForm({
                   <Col flex="auto" className="text-right">
                     <Button
                       id="add-task-button-for-planning-and-reporting"
+                      data-cy="add-task-button-for-planning-and-reporting"
                       type="primary"
                       className="font-semibold"
                       onClick={() => {

@@ -63,6 +63,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
 
   return (
+    <div id="planning-objective-collapse" data-cy="planning-objective-collapse">
     <Collapse
       expandIconPosition="end"
       bordered={false}
@@ -72,6 +73,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
     >
       {objective?.items?.map((e, panelIndex) => (
         <Collapse.Panel
+          id={`planning-objective-panel-${panelIndex}`}
+          data-cy={`planning-objective-panel-${panelIndex}`}
           forceRender={true}
           header={
             <div className="p-2">
@@ -166,6 +169,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         <div className="flex items-center gap-3">
                           {kr?.metricType?.name === NAME.ACHIEVE ? (
                             <Dropdown.Button
+                              id={`plan-keyresult-dropdown-${kr?.id ?? ''}`}
+                              data-cy={`plan-keyresult-dropdown-${kr?.id ?? ''}`}
                               type="primary"
                               icon={<DownOutlined />}
                               disabled={Number(kr?.progress) == 100}
@@ -195,6 +200,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                           ) : (
                             <Button
                               id={`plan-as-task_${kr?.id ?? ''}`}
+                              data-cy={`plan-as-task_${kr?.id ?? ''}`}
                               onClick={() =>
                                 handleAddBoard(kr?.id)
                               }
@@ -226,6 +232,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                             <div className="flex items-center gap-3">
                               <span id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}>
                                 <Dropdown.Button
+                                  id={`plan-milestone-dropdown-${kr?.id ?? ''}-${ml?.id ?? ''}`}
+                                  data-cy={`plan-milestone-dropdown-${kr?.id ?? ''}-${ml?.id ?? ''}`}
                                   type="primary"
                                   icon={<DownOutlined />}
                                   disabled={ml?.status === 'Completed'}
@@ -317,6 +325,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
         </Collapse.Panel>
       ))}
     </Collapse>
+    </div>
   );
 };
 

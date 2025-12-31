@@ -350,6 +350,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                     return (
                         <div key={group.id} className="rounded-2xl border border-[#F1F2F6] bg-white p-6 shadow-sm">
                             <div
+                                id={`daily-plan-collapse-header-${group.id}`}
+                                data-cy={`daily-plan-collapse-header-${group.id}`}
                                 className="mb-4 flex items-center justify-between cursor-pointer"
                                 onClick={() => togglePlanningGroupCollapse(group.id)}
                             >
@@ -410,6 +412,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                 className="flex-1 mb-0"
                                                             >
                                                                 <Input
+                                                                    id={`daily-plan-task-input-${group.id}-${field.name}`}
+                                                                    data-cy={`daily-plan-task-input-${group.id}-${field.name}`}
                                                                     placeholder="Enter task description"
                                                                     className="rounded-lg border-[#E5E7EB] py-2"
                                                                 />
@@ -423,6 +427,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                 rules={[{ required: true, message: 'Required' }]}
                                                             >
                                                                 <Select
+                                                                    id={`daily-plan-priority-select-${group.id}-${field.name}`}
+                                                                    data-cy={`daily-plan-priority-select-${group.id}-${field.name}`}
                                                                     options={priorityOptions}
                                                                     className="w-[100px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!items-center"
                                                                     popupClassName="rounded-lg"
@@ -447,6 +453,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                 ]}
                                                             >
                                                                 <InputNumber<number>
+                                                                    id={`daily-plan-weight-input-${group.id}-${field.name}`}
+                                                                    data-cy={`daily-plan-weight-input-${group.id}-${field.name}`}
                                                                     min={0}
                                                                     max={100}
                                                                     className="w-[80px] rounded-lg border-[#E5E7EB]"
@@ -464,6 +472,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                     className="mb-0"
                                                                 >
                                                                     <InputNumber<number>
+                                                                        id={`daily-plan-target-input-${group.id}-${field.name}`}
+                                                                        data-cy={`daily-plan-target-input-${group.id}-${field.name}`}
                                                                         min={0}
                                                                         className="w-[140px] rounded-lg border-[#E5E7EB] text-right"
                                                                         controls={false}
@@ -475,6 +485,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
 
                                                             {/* Remove button */}
                                                             <Button
+                                                                id={`daily-plan-remove-button-${group.id}-${field.name}`}
+                                                                data-cy={`daily-plan-remove-button-${group.id}-${field.name}`}
                                                                 type="text"
                                                                 icon={<CloseCircleFilled className="text-[#574CFF] text-xl" />}
                                                                 className="flex items-center justify-center mt-1 hover:bg-transparent"
@@ -487,6 +499,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                 {/* Add Task button */}
                                                 <div className="flex justify-end mt-2 sm:mt-0">
                                                     <Button
+                                                        id={`daily-plan-add-task-button-${group.id}`}
+                                                        data-cy={`daily-plan-add-task-button-${group.id}`}
                                                         type="primary"
                                                         className="bg-[#574CFF] hover:bg-[#4F46EF] rounded-lg font-medium px-6"
                                                         onClick={() => {
@@ -538,6 +552,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
             {reportingTasks.map((group) => (
                 <div key={group.id} className="rounded-2xl border border-[#F1F2F6] bg-white p-6 shadow-sm">
                     <div
+                        id={`daily-report-collapse-header-${group.id}`}
+                        data-cy={`daily-report-collapse-header-${group.id}`}
                         className="mb-4 flex items-center justify-between cursor-pointer"
                         onClick={() => toggleReportingGroupCollapse(group.id)}
                     >
@@ -560,6 +576,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                             {task.showValueInput && (
                                                 <div className="relative w-[140px]">
                                                     <Input
+                                                        id={`daily-report-value-input-${group.id}-${task.id}`}
+                                                        data-cy={`daily-report-value-input-${group.id}-${task.id}`}
                                                         defaultValue={task.value?.toLocaleString()}
                                                         className="rounded-lg border-[#E5E7EB] py-1.5 pr-8 text-right"
                                                     />
@@ -569,6 +587,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
 
                                             <div className="flex items-center gap-3">
                                                 <div
+                                                    id={`daily-report-status-done-${group.id}-${task.id}`}
+                                                    data-cy={`daily-report-status-done-${group.id}-${task.id}`}
                                                     className={`flex items-center gap-1.5 cursor-pointer ${task.status === 'done' ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
                                                     onClick={() => handleStatusChange(group.id, task.id, 'done')}
                                                 >
@@ -579,6 +599,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                 </div>
 
                                                 <div
+                                                    id={`daily-report-status-not-${group.id}-${task.id}`}
+                                                    data-cy={`daily-report-status-not-${group.id}-${task.id}`}
                                                     className={`flex items-center gap-1.5 cursor-pointer ${task.status === 'not' ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
                                                     onClick={() => handleStatusChange(group.id, task.id, 'not')}
                                                 >
@@ -594,6 +616,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                     {task.status === 'not' && (
                                         <div className="mt-2">
                                             <Input.TextArea
+                                                id={`daily-report-comment-textarea-${group.id}-${task.id}`}
+                                                data-cy={`daily-report-comment-textarea-${group.id}-${task.id}`}
                                                 placeholder="Why was this not completed?"
                                                 defaultValue={task.comment}
                                                 rows={3}
@@ -627,6 +651,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                 <div className="relative flex items-center justify-center px-4 my-3 sm:my-0 sm:py-2">
                     <div className="flex items-center gap-4">
                         <Button 
+                            id="daily-plan-drawer-cancel-button"
+                            data-cy="daily-plan-drawer-cancel-button"
                             size="large" 
                             className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] w-32 !py-2 sm:!py-6" 
                             onClick={onClose}
@@ -634,6 +660,8 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                             Cancel
                         </Button>
                         <Button
+                            id={`daily-plan-drawer-${viewMode === 'planning' ? 'plan' : 'report'}-button`}
+                            data-cy={`daily-plan-drawer-${viewMode === 'planning' ? 'plan' : 'report'}-button`}
                             type="primary"
                             size="large"
                             className="rounded-xl bg-[#574CFF] font-semibold w-32 hover:bg-[#4F46EF] !py-2 sm:!py-6"

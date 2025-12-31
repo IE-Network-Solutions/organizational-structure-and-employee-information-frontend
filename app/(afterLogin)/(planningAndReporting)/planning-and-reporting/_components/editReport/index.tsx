@@ -266,6 +266,8 @@ function EditReport() {
                   ]}
                 >
                   <InputNumber
+                    id={`edit-report-actual-value-input-${task.taskId}`}
+                    data-cy={`edit-report-actual-value-input-${task.taskId}`}
                     className="w-24 sm:w-28 rounded-md border-gray-300 h-9"
                     min={0}
                     placeholder="Value"
@@ -289,6 +291,8 @@ function EditReport() {
                 <div className="flex items-center gap-4 bg-gray-50 p-1.5 rounded-lg border border-gray-100">
                   {/* Done Option */}
                   <div
+                    id={`edit-report-status-done-${task.taskId}`}
+                    data-cy={`edit-report-status-done-${task.taskId}`}
                     className="cursor-pointer flex items-center gap-1.5 px-2 py-0.5 rounded transition hover:bg-white"
                     onClick={() => {
                       setStatus(task.taskId, 'Done');
@@ -314,6 +318,8 @@ function EditReport() {
 
                   {/* Not Option */}
                   <div
+                    id={`edit-report-status-not-${task.taskId}`}
+                    data-cy={`edit-report-status-not-${task.taskId}`}
                     className="cursor-pointer flex items-center gap-1.5 px-2 py-0.5 rounded transition hover:bg-white"
                     onClick={() => {
                       setStatus(task.taskId, 'Not');
@@ -353,6 +359,8 @@ function EditReport() {
               ]}
             >
               <TextArea
+                id={`edit-report-comment-textarea-${task.taskId}`}
+                data-cy={`edit-report-comment-textarea-${task.taskId}`}
                 rows={3}
                 placeholder="Please describe why this task was not completed..."
                 className="w-full rounded-lg border-gray-200 bg-white p-3 text-sm focus:bg-white transition"
@@ -386,6 +394,7 @@ function EditReport() {
               onFinish={handleOnFinish}
               className="px-2"
             >
+              <div id="edit-report-collapse" data-cy="edit-report-collapse">
               <Collapse
                 defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((nonused: any, i: number) => `kr-${obj.id || ''}-${i}`))}
                 expandIconPosition="end"
@@ -395,6 +404,8 @@ function EditReport() {
                 {formattedData?.map((objective: any) =>
                   objective?.keyResults?.map((keyresult: any, index: number) => (
                     <Collapse.Panel
+                      id={`edit-report-panel-${objective.id || ''}-${index}`}
+                      data-cy={`edit-report-panel-${objective.id || ''}-${index}`}
                       header={
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-gray-900 whitespace-nowrap">
@@ -424,6 +435,7 @@ function EditReport() {
                   )),
                 )}
               </Collapse>
+              </div>
             </Form>
           ) : (
             <div className="flex justify-center items-center h-64">

@@ -326,6 +326,8 @@ function EditPlan() {
           }
         >
           <Button
+            id="edit-plan-submit-button"
+            data-cy="edit-plan-submit-button"
             className="py-3 px-6 sm:py-6 sm:px-10"
             type="primary"
             onClick={() => form.submit()}
@@ -337,6 +339,8 @@ function EditPlan() {
         </Tooltip>
 
         <Button
+          id="edit-plan-cancel-button"
+          data-cy="edit-plan-cancel-button"
           className="py-3 px-6 sm:py-6 sm:px-10"
           onClick={onClose}
           disabled={isLoading}

@@ -247,6 +247,7 @@ function CreateReport() {
             <div className="flex justify-center gap-4 flex-1">
                 <Button
                     id="submit-report-button-for-planning-and-reporting"
+                    data-cy="submit-report-button-for-planning-and-reporting"
                     type="primary"
                     className="py-3 px-6 sm:py-6 sm:px-10 rounded-xl bg-[#574CFF] hover:bg-[#4F46EF]"
                     loading={createReportLoading}
@@ -256,6 +257,8 @@ function CreateReport() {
                     <span className="hidden md:inline">Create Report</span>
                 </Button>
                 <Button
+                    id="cancel-report-button-for-planning-and-reporting"
+                    data-cy="cancel-report-button-for-planning-and-reporting"
                     className="py-3 px-6 sm:py-6 sm:px-10 rounded-xl"
                     onClick={onClose}
                     disabled={createReportLoading}
@@ -336,6 +339,8 @@ function CreateReport() {
                                     ]}
                                 >
                                     <InputNumber
+                                        id={`create-report-actual-value-input-${task.taskId}`}
+                                        data-cy={`create-report-actual-value-input-${task.taskId}`}
                                         className="w-16 sm:w-28 rounded-md border-gray-300 h-9"
                                         min={0}
                                         placeholder="Value"
@@ -355,6 +360,8 @@ function CreateReport() {
                                 <div className="flex items-center gap-2 sm:gap-4 bg-transparent p-0 border-none">
                                     {/* Done Option */}
                                     <div
+                                        id={`create-report-status-done-${task.taskId}`}
+                                        data-cy={`create-report-status-done-${task.taskId}`}
                                         className="cursor-pointer flex items-center gap-1.5 px-0 py-0 transition opacity-100 hover:opacity-80"
                                         onClick={() => {
                                             setStatus(task.taskId, 'Done');
@@ -376,6 +383,8 @@ function CreateReport() {
 
                                     {/* Not Option */}
                                     <div
+                                        id={`create-report-status-not-${task.taskId}`}
+                                        data-cy={`create-report-status-not-${task.taskId}`}
                                         className="cursor-pointer flex items-center gap-1.5 px-0 py-0 transition opacity-100 hover:opacity-80"
                                         onClick={() => {
                                             setStatus(task.taskId, 'Not');
@@ -409,6 +418,8 @@ function CreateReport() {
                             rules={[{ required: true, message: 'Please provide a reason!' }]}
                         >
                             <TextArea
+                                id={`create-report-comment-textarea-${task.taskId}`}
+                                data-cy={`create-report-comment-textarea-${task.taskId}`}
                                 rows={3}
                                 placeholder="Please describe why this task was not completed..."
                                 className="w-full rounded-lg border-gray-200 bg-white p-3 text-sm focus:bg-white transition"
@@ -439,6 +450,7 @@ function CreateReport() {
                             onFinish={handleOnFinish}
                             className="px-2"
                         >
+                            <div id="create-report-collapse" data-cy="create-report-collapse">
                             <Collapse
                                 defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((nonused: any, i: number) => `kr-${obj.id || ''}-${i}`))}
                                 expandIconPosition="end"
@@ -448,6 +460,8 @@ function CreateReport() {
                                 {formattedData?.map((objective: any) =>
                                     objective?.keyResults?.map((keyresult: any, index: number) => (
                                         <Collapse.Panel
+                                            id={`create-report-panel-${objective.id || ''}-${index}`}
+                                            data-cy={`create-report-panel-${objective.id || ''}-${index}`}
                                             header={
                                                 <div className="flex items-center gap-2 min-w-0 w-full">
                                                     <span className="font-bold text-gray-900 whitespace-nowrap flex-shrink-0">
@@ -481,6 +495,7 @@ function CreateReport() {
                                     ))
                                 )}
                             </Collapse>
+                            </div>
                         </Form>
                     </Spin>
                 ) : (

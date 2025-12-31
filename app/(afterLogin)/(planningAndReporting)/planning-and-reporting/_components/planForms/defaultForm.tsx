@@ -153,6 +153,8 @@ function DefaultCardForm({
                     style={{ flex: 1, marginBottom: 0 }}
                   >
                     <Input
+                      id={`default-form-task-input-${name}-${field.name}`}
+                      data-cy={`default-form-task-input-${name}-${field.name}`}
                       className={`text-[12px] h-10 ${form.getFieldValue(name)[field.name].achieveMK} border-gray-200 rounded-lg`}
                       disabled={form.getFieldValue(name)[field.name].achieveMK} // Disable if milestoneId exists
                       placeholder="Add your tasks here"
@@ -160,6 +162,8 @@ function DefaultCardForm({
                     />
                   </Form.Item>
                   <CloseCircleFilled
+                    id={`default-form-remove-button-${name}-${field.name}`}
+                    data-cy={`default-form-remove-button-${name}-${field.name}`}
                     className="text-[#3D41FF] cursor-pointer hover:text-[#3236e6] transition-colors"
                     style={{ fontSize: '20px' }}
                     onClick={() => {
@@ -233,6 +237,8 @@ function DefaultCardForm({
                                 ]}
                               >
                                 <InputNumber
+                                  id={`default-form-target-input-${name}-${field.name}`}
+                                  data-cy={`default-form-target-input-${name}-${field.name}`}
                                   min={0}
                                   className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
                                   defaultValue={0}
@@ -279,6 +285,8 @@ function DefaultCardForm({
                                   rules={[{ required: true, message: 'Priority is required' }]}
                                 >
                                   <Select
+                                    id={`default-form-priority-select-${name}-${field.name}`}
+                                    data-cy={`default-form-priority-select-${name}-${field.name}`}
                                     placeholder={<div className="text-xs">Priority</div>}
                                     className="w-full h-10 priority-select [&_.ant-select-selector]:!bg-transparent [&_.ant-select-selector]:!border-[#D9D9D9]"
                                     dropdownStyle={{ borderRadius: '8px' }}
@@ -348,6 +356,8 @@ function DefaultCardForm({
                             ]}
                           >
                             <InputNumber
+                              id={`default-form-weight-input-${name}-${field.name}`}
+                              data-cy={`default-form-weight-input-${name}-${field.name}`}
                               placeholder={'0'}
                               className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
                               min={1}

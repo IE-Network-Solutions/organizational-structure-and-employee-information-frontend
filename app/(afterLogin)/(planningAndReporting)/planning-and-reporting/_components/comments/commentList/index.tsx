@@ -237,6 +237,8 @@ const CommentList = ({
                     >
                         <div className="relative">
                             <Input.TextArea
+                                id={`planning-comment-textarea-${planId || 'new'}`}
+                                data-cy={`planning-comment-textarea-${planId || 'new'}`}
                                 placeholder={editingCommentId ? "" : "Add your comment here"}
                                 className={`rounded-2xl border-[#E5E7EB] px-4 pr-12 transition-colors ${editingCommentId ? 'bg-indigo-50 border-indigo-200' : 'bg-[#F9FAFB]'}`}
                                 style={{ height: '88px', paddingRight: '48px', resize: 'none' }}
@@ -251,6 +253,8 @@ const CommentList = ({
                             />
                             <div className="absolute right-2 top-2 flex flex-col gap-1">
                                 <Button
+                                    id={`planning-comment-submit-button-${planId || 'new'}`}
+                                    data-cy={`planning-comment-submit-button-${planId || 'new'}`}
                                     loading={isLoading}
                                     type="text"
                                     htmlType="submit"
@@ -259,6 +263,8 @@ const CommentList = ({
                                 />
                                 {editingCommentId && (
                                     <Button
+                                        id={`planning-comment-cancel-button-${planId || 'new'}`}
+                                        data-cy={`planning-comment-cancel-button-${planId || 'new'}`}
                                         type="text"
                                         size="small"
                                         onClick={() => {

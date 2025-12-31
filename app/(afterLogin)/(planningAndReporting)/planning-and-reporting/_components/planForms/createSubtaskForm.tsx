@@ -87,7 +87,12 @@ function SubTaskComponent({
                     label={<div className="text-xs">Task</div>}
                     className="mb-0"
                   >
-                    <Input className="text-xs h-10" placeholder="Task name" />
+                    <Input 
+                      id={`subtask-task-input-${field.name}-${subField.name}`}
+                      data-cy={`subtask-task-input-${field.name}-${subField.name}`}
+                      className="text-xs h-10" 
+                      placeholder="Task name" 
+                    />
                   </Form.Item>
                 </Col>
                 <Col xs={12} sm={8} lg={5}>
@@ -104,6 +109,8 @@ function SubTaskComponent({
                       </Col>
                       <Col flex="auto">
                         <InputNumber
+                          id={`subtask-target-input-${field.name}-${subField.name}`}
+                          data-cy={`subtask-target-input-${field.name}-${subField.name}`}
                           className="w-full text-xs h-10 [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:flex [&_.ant-input-number-input]:items-center"
                           placeholder="20"
                           min={0}
@@ -132,6 +139,8 @@ function SubTaskComponent({
                       </Col>
                       <Col flex="auto">
                         <Select
+                          id={`subtask-priority-select-${field.name}-${subField.name}`}
+                          data-cy={`subtask-priority-select-${field.name}-${subField.name}`}
                           className="w-full h-10 text-xs"
                           options={[
                             {
@@ -161,9 +170,15 @@ function SubTaskComponent({
                     key={`weight-${subField.key}`}
                     hidden
                   >
-                    <InputNumber defaultValue={0} />
+                    <InputNumber 
+                      id={`subtask-weight-input-${field.name}-${subField.name}`}
+                      data-cy={`subtask-weight-input-${field.name}-${subField.name}`}
+                      defaultValue={0} 
+                    />
                   </Form.Item>
                   <MdCancel
+                    id={`subtask-remove-button-${field.name}-${subField.name}`}
+                    data-cy={`subtask-remove-button-${field.name}-${subField.name}`}
                     className="text-primary cursor-pointer hover:text-red-500 transition-colors"
                     size={24}
                     onClick={() => subOpt.remove(subField.name)}

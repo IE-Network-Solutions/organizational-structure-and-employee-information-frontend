@@ -45,6 +45,8 @@ export default function PlanCard({
       {plan.status?.label === 'Open' ? (
         <Menu.Item
           key="approve"
+          id={`plan-card-approve-menu-item-${plan.id}`}
+          data-cy={`plan-card-approve-menu-item-${plan.id}`}
           icon={<IoCheckmarkSharp />}
           onClick={onApprove}
           className="text-green-500"
@@ -56,6 +58,8 @@ export default function PlanCard({
       ) : (
         <Menu.Item
           key="open"
+          id={`plan-card-open-menu-item-${plan.id}`}
+          data-cy={`plan-card-open-menu-item-${plan.id}`}
           icon={<IoOpen size={16} />}
           onClick={onOpen}
           className="text-red-400"
@@ -69,7 +73,13 @@ export default function PlanCard({
   // Edit menu (for plan owner)
   const editMenu = (
     <Menu>
-      <Menu.Item key="edit" icon={<AiOutlineEdit size={16} />} onClick={onEdit}>
+      <Menu.Item 
+        key="edit" 
+        id={`plan-card-edit-menu-item-${plan.id}`}
+        data-cy={`plan-card-edit-menu-item-${plan.id}`}
+        icon={<AiOutlineEdit size={16} />} 
+        onClick={onEdit}
+      >
         <Tooltip title="Edit Plan">
           <span>Edit</span>
         </Tooltip>
@@ -164,6 +174,8 @@ export default function PlanCard({
           {canApprove && (
             <Dropdown overlay={approvalMenu} trigger={['click']}>
               <Button
+                id={`plan-card-approve-dropdown-button-${plan.id}`}
+                data-cy={`plan-card-approve-dropdown-button-${plan.id}`}
                 loading={isApprovalLoading}
                 type="text"
                 icon={<MoreOutlined />}
@@ -175,6 +187,8 @@ export default function PlanCard({
           {canEdit && plan.status?.label === 'Open' && (
             <Dropdown overlay={editMenu} trigger={['click']}>
               <Button
+                id={`plan-card-edit-dropdown-button-${plan.id}`}
+                data-cy={`plan-card-edit-dropdown-button-${plan.id}`}
                 type="text"
                 icon={<MoreOutlined />}
                 className="text-[#8F94A3] hover:bg-transparent !p-0 !h-auto !w-auto text-base md:text-xl"

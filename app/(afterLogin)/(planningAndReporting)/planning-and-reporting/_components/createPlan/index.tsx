@@ -493,6 +493,7 @@ function CreatePlan() {
         >
           <Button
             id="submit-plan-button-for-planning-and-reporting"
+            data-cy="submit-plan-button-for-planning-and-reporting"
             className="py-3 px-6 sm:py-6 sm:px-10"
             type="primary"
             onClick={() => form.submit()}
@@ -506,6 +507,7 @@ function CreatePlan() {
 
         <Button
           id="cancel-plan-button-for-planning-and-reporting"
+          data-cy="cancel-plan-button-for-planning-and-reporting"
           className="py-3 px-6 sm:py-6 sm:px-10"
           onClick={onClose}
           disabled={isLoading}
