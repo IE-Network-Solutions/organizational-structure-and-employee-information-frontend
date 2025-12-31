@@ -16,10 +16,6 @@ import {
   OKRProps,
 } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import {
-  useDeleteKeyResult,
-  useDeleteMilestone,
-} from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 
@@ -39,6 +35,8 @@ const MilestoneView: React.FC<OKRProps> = ({
     handleSingleKeyResultChange,
     handleMilestoneSingleChange,
     removeKeyResultValue,
+    deletedMilestoneIds,
+    setDeletedMilestoneIds,
   } = useOKRStore();
 
   const { data: metrics } = useGetMetrics();
@@ -162,6 +160,22 @@ const MilestoneView: React.FC<OKRProps> = ({
     const newKeyResult = [...objectiveValue?.keyResults];
     const currentMilestones = newKeyResult[index]?.milestones || [];
 
+    // Find the milestone being removed to track its ID
+    const milestoneToRemove = currentMilestones.find(
+      (m: any, idx: number) =>
+        typeof mId === 'string'
+          ? String(m?.id) === String(mId)
+          : idx === Number(mId),
+    );
+
+    // Track deleted milestone ID if it exists in database
+    if (milestoneToRemove?.id) {
+      const currentDeletedIds = deletedMilestoneIds || [];
+      if (!currentDeletedIds.includes(milestoneToRemove.id)) {
+        setDeletedMilestoneIds([...currentDeletedIds, milestoneToRemove.id]);
+      }
+    }
+
     // Keep original index to correctly remove based on overall index
     const completedMilestonesWithIdx = currentMilestones
       .map((milestone: any, idx: number) => ({ milestone, idx }))
@@ -217,6 +231,22 @@ const MilestoneView: React.FC<OKRProps> = ({
   };
 
   const handleRemoveSingleMilestone = (mId: any) => {
+    // Find the milestone being removed to track its ID
+    const milestoneToRemove = keyResultValue.milestones.find(
+      (milestone: any, mi: any) =>
+        typeof mId === 'string'
+          ? String(milestone?.id) === String(mId)
+          : mi === Number(mId),
+    );
+
+    // Track deleted milestone ID if it exists in database
+    if (milestoneToRemove?.id) {
+      const currentDeletedIds = deletedMilestoneIds || [];
+      if (!currentDeletedIds.includes(milestoneToRemove.id)) {
+        setDeletedMilestoneIds([...currentDeletedIds, milestoneToRemove.id]);
+      }
+    }
+
     const updatedMilestones = keyResultValue.milestones.filter(
       (milestone: any, mi: any) =>
         typeof mId === 'string'
@@ -277,21 +307,14 @@ const MilestoneView: React.FC<OKRProps> = ({
     }
   };
 
-  const { mutate: deleteKeyResult } = useDeleteKeyResult();
-  const { mutate: deleteMilestone } = useDeleteMilestone();
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
   function handleKeyResultDelete(id: string) {
-    deleteKeyResult(id, {
-      onSuccess: () => {
-        removeKeyResultValue(index);
-      },
-    });
+    // Remove from local state only - deletion will happen on Save
+    removeKeyResultValue(index);
   }
   function handleMilestoneDelete(id: string) {
-    deleteMilestone(id, {
-      onSuccess: () => {
-        milestoneRemove(index, id);
-      },
-    });
+    // Remove from local state only - deletion will happen on Save
+    milestoneRemove(index, id);
   }
 
   // const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
