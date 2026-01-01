@@ -2,7 +2,11 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
-import { AppstoreOutlined, MenuOutlined, FileTextOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  MenuOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
@@ -645,9 +649,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <FileTextOutlined
             style={{ fontSize: 18 }}
-            className={
-              expandedKeys.includes('/audit-log') ? 'text-blue' : ''
-            }
+            className={expandedKeys.includes('/audit-log') ? 'text-blue' : ''}
           />
           <span>Audit Log</span>
         </span>
@@ -917,8 +919,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     if (!selectedKey) return;
 
     // Check if node has children - handle both undefined and empty arrays
-    const hasChildren = info.node.children && Array.isArray(info.node.children) && info.node.children.length > 0;
-    
+    const hasChildren =
+      info.node.children &&
+      Array.isArray(info.node.children) &&
+      info.node.children.length > 0;
+
     if (hasChildren) {
       setExpandedKeys((prev) =>
         prev.includes(selectedKey) ? [] : [selectedKey],

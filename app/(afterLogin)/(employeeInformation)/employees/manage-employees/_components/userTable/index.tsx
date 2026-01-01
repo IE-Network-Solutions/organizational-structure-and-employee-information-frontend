@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  Table,
-  TableColumnsType,
-  Tooltip,
-} from 'antd';
+import { Table, TableColumnsType, Tooltip } from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
@@ -65,12 +61,8 @@ const columns: TableColumnsType<EmployeeData> = [
 ];
 
 const UserTable = () => {
-  const {
-    userCurrentPage,
-    pageSize,
-    setUserCurrentPage,
-    setPageSize,
-  } = useEmployeeManagementStore();
+  const { userCurrentPage, pageSize, setUserCurrentPage, setPageSize } =
+    useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { data: allFilterData } = useEmployeeAllFilter(
     pageSize,

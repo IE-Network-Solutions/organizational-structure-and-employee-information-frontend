@@ -56,6 +56,6 @@ export const useCustomConfirmPopoverStore = create<CustomConfirmPopoverState>()(
         });
       },
     }),
-    { name: 'CustomConfirmPopoverStore' }
-  )
+    { name: 'CustomConfirmPopoverStore' },
+  ),
 );
