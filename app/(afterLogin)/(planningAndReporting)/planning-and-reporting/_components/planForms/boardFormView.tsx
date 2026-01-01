@@ -28,7 +28,6 @@ interface BoardCardInterface {
 }
 
 function BoardCardForm({
-  form,
   handleAddName,
   handleRemoveBoard,
   hideTargetValue,
