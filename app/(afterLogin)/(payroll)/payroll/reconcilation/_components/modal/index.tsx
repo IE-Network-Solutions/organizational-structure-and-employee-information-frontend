@@ -1,161 +1,148 @@
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { Button, Input, Modal, Table } from 'antd';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { useGetReconciliationDetails } from '@/store/server/features/payroll/reconcilation/queries';
+import { useReconciliationState } from '@/store/uistate/features/payroll/reconcilation';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { Button, Modal, Select, Table } from 'antd';
 import { FaEye } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 
 interface PayrollReconcilationModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
+  previousPayPeriodId: string;
+  currentPayPeriodId: string;
+  componentType: string;
 }
 
 const PayrollReconcilationModal = ({
   isModalOpen,
   setIsModalOpen,
+  previousPayPeriodId,
+  currentPayPeriodId,
+  componentType,
 }: PayrollReconcilationModalProps) => {
   const { isMobile, isTablet } = useIsMobile();
+  const {
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    search,
+    setSearch,
+  } = useReconciliationState();
+  const { data: employeeData } = useGetAllUsers();
 
+  const {
+    data: reconcilationDetails,
+    isLoading: isLoadingReconciliationDetails,
+  } = useGetReconciliationDetails({
+    previousPayPeriodId,
+    currentPayPeriodId,
+    componentType,
+    pageSize,
+    currentPage,
+    search,
+  });
+
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
+  const onPageSizeChange = (current: number, size: number) => {
+    setCurrentPage(current);
+    setPageSize(size);
+  };
+
+  const handleEmployeeSelect = (value: string) => {
+    setSearch(value || '');
+    setCurrentPage(1);
+  };
+
+  const options =
+    employeeData?.items?.map((emp: any) => ({
+      value: emp.id,
+      label:
+        `${emp?.firstName || ''} ${emp?.middleName || ''} ${emp?.lastName || ''}`.trim(),
+      employeeData: emp,
+    })) || [];
   const columns = [
     {
-      title: 'Types',
-      dataIndex: 'types',
-      key: 'types',
+      title: 'Employee ',
+      dataIndex: 'employeeName',
+      key: 'employeeName',
       minWidth: 200,
-      render: (notused: any, record: any) => (
-        <div className="flex items-center gap-2">
-          <span>{record.types}</span>
-        </div>
-      ),
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      minWidth: 150,
     },
     {
       title: 'Previous',
       dataIndex: 'previous',
       key: 'previous',
       minWidth: 150,
-      render: (notused: any, record: any) => {
-        const previous = record.previous || '--';
-        return <span>{previous}</span>;
-      },
     },
     {
       title: 'Current',
       dataIndex: 'current',
       key: 'current',
       minWidth: 150,
-      render: (nonused: any, record: any) => {
-        const current = record.current || '--';
-        return <span>{current}</span>;
-      },
     },
 
     {
-      title: 'Variance(AMT)',
-      dataIndex: 'variance',
-      key: 'variance',
+      title: 'Difference',
+      dataIndex: 'difference',
+      key: 'difference',
       minWidth: 150,
-      render: (key: string) => Number(key)?.toLocaleString(),
+      render: (key: string) => {
+        if (key == null || key === '' || key === 'NaN' || key === '--') {
+          return '--';
+        }
+        const differenceValue = Number(key);
+        if (isNaN(differenceValue)) {
+          return '--';
+        }
+        const className =
+          differenceValue < 0
+            ? 'text-green-500'
+            : differenceValue === 0
+              ? 'text-gray-500'
+              : 'text-red-500';
+        return <span className={className}>{key}</span>;
+      },
     },
-    {
-      title: 'Variance(%)',
-      dataIndex: 'variancePercentage',
-      key: 'variancePercentage',
-      minWidth: 150,
-      render: (key: string) => Number(key)?.toLocaleString(),
-    },
-    {
-      title: 'Impact',
-      dataIndex: 'impact',
-      key: 'impact',
-      minWidth: 150,
-      render: (notused: any, record: any) => record.impact || '--',
-    },
+
     {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
       minWidth: 150,
-      render: (notused: any, record: any) => (
-        <div className="flex items-center gap-2">
-          <span>{record.action}</span>
-        </div>
-      ),
     },
   ];
 
-  const payrollVarianceData = [
-    {
-      key: '1',
-      types: 'Basic Salary',
-      previous: '6,900,000',
-      current: '8,900,000',
-      variance: 2000000,
-      variancePercentage: 12.7,
-      impact: 'Increase due to new hires',
+  const payrollVarianceData =
+    reconcilationDetails?.employeeVariances?.items?.map((item: any) => ({
+      employeeName: item.employeeName,
+      description: item.description,
+      previous: Number(item.previous).toFixed(2),
+      current: Number(item.current).toFixed(2),
+      difference:
+        item.difference != null && !isNaN(Number(item.difference))
+          ? Number(item.difference).toFixed(2)
+          : '--',
       action: (
         <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
           <FaEye />
         </Button>
       ),
-    },
-    {
-      key: '2',
-      types: 'Overtime Payment',
-      previous: '450,000',
-      current: '520,000',
-      variance: 70000,
-      variancePercentage: 15.5,
-      impact: 'High OT hours',
-      action: (
-        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none">
-          <FaEye />
-        </Button>
-      ),
-    },
-    {
-      key: '3',
-      types: 'Allowances',
-      previous: '1,200,000',
-      current: '1,260,000',
-      variance: 60000,
-      variancePercentage: 5,
-      impact: 'Minor adjustment',
-      action: (
-        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
-          <FaEye />
-        </Button>
-      ),
-    },
-    {
-      key: '4',
-      types: 'Benefits',
-      previous: '800,000',
-      current: '820,000',
-      variance: 20000,
-      variancePercentage: 2.5,
-      impact: '--',
-      action: (
-        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
-          <FaEye />
-        </Button>
-      ),
-    },
-    {
-      key: '5',
-      types: 'Deductions',
-      previous: '300,000',
-      current: '280,000',
-      variance: -20000,
-      variancePercentage: -6.6,
-      impact: 'Reduction in penalties',
-      action: (
-        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
-          <FaEye />
-        </Button>
-      ),
-    },
-  ];
+    }));
 
   return (
     <Modal
@@ -178,15 +165,27 @@ const PayrollReconcilationModal = ({
         </div>
 
         <div className="mb-6">
-          <Input
+          <Select
+            showSearch
+            allowClear
+            className="h-12 w-full rounded-lg border-[#C4C7CF] bg-white text-[15px] hover:border-[#4353FF] focus:border-[#4353FF] focus:shadow-none"
             placeholder="Search Employee"
-            prefix={<Search className="w-4 h-4 text-[#74777F] mr-2" />}
-            className="h-12 rounded-lg border-[#C4C7CF] bg-white text-[15px] hover:border-[#4353FF] focus:border-[#4353FF] focus:shadow-none"
+            value={search || undefined}
+            onChange={(value) => handleEmployeeSelect(value)}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+            options={options}
           />
         </div>
 
         <div className="w-full overflow-x-auto">
           <Table
+            loading={isLoadingReconciliationDetails}
             dataSource={payrollVarianceData}
             columns={columns}
             pagination={false}
@@ -196,20 +195,25 @@ const PayrollReconcilationModal = ({
 
         {isMobile || isTablet ? (
           <CustomMobilePagination
-            data-cy="payroll-mobile-pagination-view-component"
-            totalResults={0}
-            pageSize={1}
-            onChange={() => {}}
-            onShowSizeChange={() => {}}
+            currentPage={currentPage}
+            totalResults={
+              reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
+            }
+            pageSize={pageSize}
+            onShowSizeChange={onPageSizeChange}
           />
         ) : (
           <CustomPagination
-            data-cy="payroll-desktop-pagination-view-component"
-            current={1}
-            total={0}
-            pageSize={1}
-            onChange={() => {}}
-            onShowSizeChange={() => {}}
+            current={currentPage}
+            total={
+              reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
+            }
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setCurrentPage(1);
+            }}
           />
         )}
       </div>

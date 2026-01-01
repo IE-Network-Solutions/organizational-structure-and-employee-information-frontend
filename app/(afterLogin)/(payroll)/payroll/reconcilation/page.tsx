@@ -2,15 +2,116 @@
 
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
-import { Button, Card, Col, Row, Select, Table } from 'antd';
+import { Button, Card, Col, Row, Select, Table, Tag } from 'antd';
 import { FaEye } from 'react-icons/fa';
 import { PiExportLight } from 'react-icons/pi';
 import PayrollReconcilationModal from './_components/modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+import {
+  useGetPayPeriod,
+  useGetActivePayroll,
+} from '@/store/server/features/payroll/payroll/queries';
+import dayjs from 'dayjs';
+import { useGetReconciliation } from '@/store/server/features/payroll/reconcilation/queries';
+import { useReconciliationState } from '@/store/uistate/features/payroll/reconcilation';
+import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+import { useRouter } from 'next/navigation';
+import { MdKeyboardArrowLeft } from 'react-icons/md';
+
+const { Option } = Select;
+const impactColors = {
+  High: 'red',
+  Medium: 'orange',
+  Low: 'green',
+};
 
 const PayrollReconcilation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+  const {
+    previousPayPeriodId,
+    currentPayPeriodId,
+    componentType,
+    setPreviousPayPeriodId,
+    setCurrentPayPeriodId,
+    setComponentType,
+  } = useReconciliationState();
+
+  const { data, isLoading } = useGetReconciliation({
+    previousPayPeriodId,
+    currentPayPeriodId,
+  });
+  const { data: payPeriodData } = useGetPayPeriod();
+  const { pageSize: employeePageSize, currentPage: employeeCurrentPage } =
+    useEmployeeStore();
+  const { data: payroll } = useGetActivePayroll(
+    '',
+    employeePageSize || 10,
+    employeeCurrentPage || 1,
+  );
+
+  useEffect(() => {
+    if (payroll?.items?.length > 0 && payPeriodData?.length > 0) {
+      // Set current pay period if not already set
+      if (!currentPayPeriodId) {
+        const defaultPayPeriodId = payroll.items[0]?.payPeriodId;
+        const defaultPayPeriod = payPeriodData?.find(
+          (period: any) => period.id === defaultPayPeriodId,
+        );
+
+        if (defaultPayPeriod) {
+          setCurrentPayPeriodId(defaultPayPeriodId);
+        }
+      }
+    }
+  }, [
+    payroll?.items,
+    payPeriodData,
+    currentPayPeriodId,
+    setCurrentPayPeriodId,
+  ]);
+
+  useEffect(() => {
+    // Set previous pay period based on current pay period
+    if (
+      payPeriodData?.length > 0 &&
+      currentPayPeriodId &&
+      !previousPayPeriodId
+    ) {
+      // Sort pay periods by start date to find the previous one
+      const sortedPayPeriods = [...payPeriodData].sort(
+        (a: any, b: any) =>
+          new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+      );
+
+      const currentIndex = sortedPayPeriods.findIndex(
+        (period: any) => period.id === currentPayPeriodId,
+      );
+
+      if (currentIndex > 0) {
+        const previousPayPeriod = sortedPayPeriods[currentIndex - 1];
+        setPreviousPayPeriodId(previousPayPeriod.id);
+      }
+    }
+  }, [
+    payPeriodData,
+    currentPayPeriodId,
+    previousPayPeriodId,
+    setPreviousPayPeriodId,
+  ]);
+
+  // Reset componentType when modal closes
+  useEffect(() => {
+    if (!isModalOpen && componentType) {
+      setComponentType('');
+    }
+  }, [isModalOpen, componentType, setComponentType]);
+
+  const handleGoBack = () => {
+    router.back();
+  };
+
   const columns = [
     {
       title: 'Types',
@@ -49,14 +150,46 @@ const PayrollReconcilation = () => {
       dataIndex: 'variance',
       key: 'variance',
       minWidth: 150,
-      render: (key: string) => Number(key)?.toLocaleString(),
+      render: (key: string) => {
+        if (key == null || key === '' || key === 'NaN' || key === '--') {
+          return '--';
+        }
+        const varianceValue = Number(key);
+        if (isNaN(varianceValue)) {
+          return '--';
+        }
+        const className =
+          varianceValue < 0
+            ? 'text-green-500'
+            : varianceValue === 0
+              ? 'text-gray-500'
+              : 'text-red-500';
+        return <span className={className}>{key}</span>;
+      },
     },
     {
       title: 'Variance(%)',
       dataIndex: 'variancePercentage',
       key: 'variancePercentage',
       minWidth: 150,
-      render: (key: string) => Number(key)?.toLocaleString(),
+      render: (key: string) => {
+        if (key == null || key === '' || key === 'NaN' || key === '--') {
+          return '--';
+        }
+        // Extract numeric value from string (handles percentage signs, etc.)
+        const numericString = String(key).replace(/[^\d.-]/g, '');
+        const varianceValue = Number(numericString);
+        if (isNaN(varianceValue)) {
+          return '--';
+        }
+        const className =
+          varianceValue < 0
+            ? 'text-green-500'
+            : varianceValue === 0
+              ? 'text-gray-500'
+              : 'text-red-500';
+        return <span className={className}>{key}</span>;
+      },
     },
     {
       title: 'Impact',
@@ -78,82 +211,43 @@ const PayrollReconcilation = () => {
     },
   ];
 
-  const payrollVarianceData = [
-    {
-      key: '1',
-      types: 'Basic Salary',
-      previous: '6,900,000',
-      current: '8,900,000',
-      variance: 2000000,
-      variancePercentage: 12.7,
-      impact: 'Increase due to new hires',
-      action: (
-        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
-          <FaEye />
-        </Button>
-      ),
-    },
-    {
-      key: '2',
-      types: 'Overtime Payment',
-      previous: '450,000',
-      current: '520,000',
-      variance: 70000,
-      variancePercentage: 15.5,
-      impact: 'High OT hours',
-      action: (
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none"
-        >
-          <FaEye />
-        </Button>
-      ),
-    },
-    {
-      key: '3',
-      types: 'Allowances',
-      previous: '1,200,000',
-      current: '1,260,000',
-      variance: 60000,
-      variancePercentage: 5,
-      impact: 'Minor adjustment',
-      action: (
-        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
-          <FaEye />
-        </Button>
-      ),
-    },
-    {
-      key: '4',
-      types: 'Benefits',
-      previous: '800,000',
-      current: '820,000',
-      variance: 20000,
-      variancePercentage: 2.5,
-      impact: '--',
-      action: (
-        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
-          <FaEye />
-        </Button>
-      ),
-    },
-    {
-      key: '5',
-      types: 'Deductions',
-      previous: '300,000',
-      current: '280,000',
-      variance: -20000,
-      variancePercentage: -6.6,
-      impact: 'Reduction in penalties',
-      action: (
-        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
-          <FaEye />
-        </Button>
-      ),
-    },
-  ];
-
+  const handleViewDetails = (type: string) => {
+    setComponentType(type);
+    setIsModalOpen(true);
+  };
+  const payrollVarianceData = data?.components?.map((item: any) => ({
+    types: item.label,
+    previous: Number(item.previous).toFixed(2),
+    current: Number(item.current).toFixed(2),
+    variance:
+      item.variance != null && !isNaN(Number(item.variance))
+        ? Number(item.variance).toFixed(2)
+        : '--',
+    variancePercentage:
+      item?.variancePercentage != null && item?.variancePercentage !== ''
+        ? item.variancePercentage
+        : '--',
+    impact: (
+      <Tag color={impactColors[item.impact as keyof typeof impactColors]}>
+        {item.impact}
+      </Tag>
+    ),
+    action: (
+      <Button
+        className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
+        onClick={() => handleViewDetails(item.type)}
+        disabled={
+          item.type === 'BASIC_SALARY' &&
+          (item.current == '0' ||
+            item.previous == '0' ||
+            Number(item.current) === 0 ||
+            Number(item.previous) === 0)
+        }
+      >
+        <FaEye />
+      </Button>
+    ),
+  }));
   return (
     <div
       className="min-h-screen w-full px-3 sm:px-6 "
@@ -166,6 +260,16 @@ const PayrollReconcilation = () => {
           id="manage-employees-header"
           data-cy="manage-employees-header"
         >
+          <Button
+            value={'back'}
+            name="back"
+            onClick={handleGoBack}
+            className="border-none bg-transparent p-0 mr-2"
+            id="payroll-reconciliation-back-btn"
+            data-cy="payroll-reconciliation-back-btn"
+          >
+            <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
+          </Button>
           <CustomBreadcrumb
             title="Payroll Reconciliation"
             subtitle="Employee Payroll Reconciliation"
@@ -184,57 +288,92 @@ const PayrollReconcilation = () => {
         </div>
         <Row gutter={[16, 16]} align="middle" className="mb-6">
           <Col xs={24} sm={24} md={4} lg={4} xl={4}>
-            <Select
-              allowClear
-              className="min-h-12 w-full"
-              placeholder="Current Pay Period"
-            />
-          </Col>
-          <Col xs={24} sm={24} md={4} lg={4} xl={4}>
             <div>
               <Select
                 placeholder="Previous Pay Period"
                 allowClear
                 style={{ width: '100%', height: '48px' }}
-              ></Select>
+                value={previousPayPeriodId}
+                onChange={(value) => setPreviousPayPeriodId(value)}
+              >
+                {payPeriodData?.map((period: any) => (
+                  <Option key={period.id} value={period.id}>
+                    {dayjs(period.startDate).format('MMM DD, YYYY')} --
+                    {dayjs(period.endDate).format('MMM DD, YYYY')}
+                  </Option>
+                ))}
+              </Select>
             </div>
+          </Col>
+          <Col xs={24} sm={24} md={4} lg={4} xl={4}>
+            <Select
+              allowClear
+              className="min-h-12 w-full"
+              placeholder="Current Pay Period"
+              value={currentPayPeriodId}
+              onChange={(value) => setCurrentPayPeriodId(value)}
+            >
+              {payPeriodData?.map((period: any) => (
+                <Option key={period.id} value={period.id}>
+                  {dayjs(period.startDate).format('MMM DD, YYYY')} --
+                  {dayjs(period.endDate).format('MMM DD, YYYY')}
+                </Option>
+              ))}
+            </Select>
           </Col>
         </Row>
 
         <div className="grid grid-cols-1 lg:grid lg:grid-cols-3 xl:grid-cols-3 md:grid-cols-1 gap-12">
           {/* Total Payroll Cost */}
-          <Card className="rounded-xl shadow-sm border">
+          <Card className="rounded-xl shadow-sm border" loading={isLoading}>
             <p className="text-black text-sm mb-2 font-semibold">
               Total Payroll Cost
             </p>
-            <p className="text-2xl font-bold text-black">ETB 8,900,000</p>
+            <p className="text-2xl font-bold text-black">
+              {Number(data?.summary?.totalPayrollCost).toFixed(2)}
+            </p>
 
             <p className="text-sm text-black mt-3 font-semibold">
-              Previous: <span className="font-semibold">6,900,000</span>
+              Previous:{' '}
+              <span className="font-semibold">
+                {Number(data?.summary?.previousPayrollCost).toFixed(2)}
+              </span>
             </p>
           </Card>
           {/* Net Variance */}
-          <Card className="rounded-xl shadow-sm border">
+          <Card className="rounded-xl shadow-sm border" loading={isLoading}>
             <p className="text-black text-sm mb-2 font-semibold">
               Net Variance
             </p>
-            <p className="text-2xl font-bold text-black">+ ETB 8,900,000</p>
+            <p className="text-2xl font-bold text-black">
+              {Number(data?.summary?.netVariance).toFixed(2)}
+            </p>
 
-            <p className="text-sm text-red-500 mt-3">12.7 ↑ Increase +3.03%</p>
+            <p className="text-sm text-red-500 mt-3">
+              {data?.summary?.netVariancePercentage} ↑
+            </p>
           </Card>
           {/* Headcount Impact */}
-          <Card className="rounded-xl shadow-sm border">
+          <Card className="rounded-xl shadow-sm border" loading={isLoading}>
             <p className="text-black text-sm mb-2 font-semibold">
               Headcount Impact
             </p>
-            <p className="text-2xl font-bold text-black">150 Employees</p>
+            <p className="text-2xl font-bold text-black">
+              {data?.summary?.headcount} Employees
+            </p>
 
             <div className="flex gap-4 text-sm mt-3 text-black">
               <p>
-                Previous: <span className="font-semibold">130</span>
+                Previous:{' '}
+                <span className="font-semibold">
+                  {data?.summary?.previousHeadcount}
+                </span>
               </p>
               <p>
-                Terminations: <span className="font-semibold">3</span>
+                Terminations:{' '}
+                <span className="font-semibold">
+                  {data?.summary?.terminations}
+                </span>
               </p>
             </div>
           </Card>
@@ -242,6 +381,7 @@ const PayrollReconcilation = () => {
 
         <div className="w-full mt-6 overflow-x-auto">
           <Table
+            loading={isLoading}
             dataSource={payrollVarianceData}
             columns={columns}
             pagination={false}
@@ -250,6 +390,9 @@ const PayrollReconcilation = () => {
         <PayrollReconcilationModal
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
+          previousPayPeriodId={previousPayPeriodId}
+          currentPayPeriodId={currentPayPeriodId}
+          componentType={componentType}
         />
       </BlockWrapper>
     </div>

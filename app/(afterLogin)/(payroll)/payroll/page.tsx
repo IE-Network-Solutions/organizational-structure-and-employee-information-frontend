@@ -1199,7 +1199,7 @@ const Payroll = () => {
           <Button
             id="payroll-reconcilation-click-button"
             data-cy="payroll-reconcilation-click-button"
-            className={`text-[#3636F0] bg-[#B2B2FF] border-none p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+            className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
             onClick={() => routerToReconcilation()}
           >
             {isMobile ? <PiExportLight size={24} /> : 'Reconcilation'}
