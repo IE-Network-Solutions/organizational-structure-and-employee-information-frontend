@@ -35,18 +35,23 @@ interface AISuggestionsModalProps {
   resolveListNameForKR?: (krId: string) => string; // returns form list name e.g., names-<id or composite>
   resolveBoardKeyForKR?: (krId: string) => string; // what to pass to handleAddBoard
   hasParentPlan?: boolean; // Explicitly indicates if this is a child plan (e.g., Daily under Weekly)
+  userId?: string;
+  planningPeriodId?: string;
+  planningUserId?: string;
 }
 
 const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   getKeyResults,
   getWeeklyPlanTasks,
   form,
-  handleAddBoard,
   handleAddName,
   planTypeName,
   resolveListNameForKR,
   resolveBoardKeyForKR,
   hasParentPlan,
+  userId,
+  planningPeriodId,
+  planningUserId,
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -237,11 +242,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     <Button
       type="primary"
       icon={isMobile ? <ReloadOutlined /> : undefined}
-      className={`font-semibold ${
-        isMobile
-          ? 'h-10 rounded-xl px-4 text-sm'
-          : 'min-w-[140px] rounded-xl px-6 text-base'
-      }`}
+      className={`font-semibold ${isMobile
+        ? 'h-10 rounded-xl px-4 text-sm'
+        : 'min-w-[140px] rounded-xl px-6 text-base'
+        }`}
       loading={loading}
       disabled={!canGenerate}
       onClick={handlePrimaryAction}
@@ -305,7 +309,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
               ? PlanningAndReportingStore.getState().selectedSessionIds
               : PlanningAndReportingStore.getState().allSessionsOfYear || [],
           });
-        } catch (_) {}
+        } catch (_) { }
         const allWeeklyReports = weeklyReportsResult?.items || [];
 
         // Fetch only the daily child period of the current weekly period
@@ -330,7 +334,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             });
             allDailyReports = dailyRes?.items || [];
           }
-        } catch (_) {}
+        } catch (_) { }
 
         // Now build krReport using allWeeklyReports
         const krReport = {
@@ -379,7 +383,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                   );
                   const parentTitle = normalizeText(
                     dailyTask.planTask?.parentTask?.task ||
-                      dailyTask?.parentTask?.task,
+                    dailyTask?.parentTask?.task,
                   );
 
                   const titlesMatch =
@@ -424,13 +428,13 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         const selectedMilestoneTitle =
           (selected?.metricType?.name === NAME.MILESTONE ||
             String(selected?.metricType?.name || '').toLowerCase() ===
-              String(NAME.MILESTONE).toLowerCase()) &&
-          milestoneId
+            String(NAME.MILESTONE).toLowerCase()) &&
+            milestoneId
             ? String(
-                (selected?.milestones || []).find(
-                  (m: any) => String(m?.id) === String(milestoneId),
-                )?.title || selected.title,
-              )
+              (selected?.milestones || []).find(
+                (m: any) => String(m?.id) === String(milestoneId),
+              )?.title || selected.title,
+            )
             : selected.title;
 
         const keyResultReportNestedWeekly = [
@@ -458,8 +462,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
               typeof rawTarget === 'number'
                 ? rawTarget
                 : typeof rawTarget === 'string' &&
-                    rawTarget.trim() !== '' &&
-                    !isNaN(Number(rawTarget))
+                  rawTarget.trim() !== '' &&
+                  !isNaN(Number(rawTarget))
                   ? Number(rawTarget)
                   : undefined;
             return {
@@ -559,8 +563,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     let boardKey, listName;
 
     if (isDaily && weeklyPlanTaskId) {
-      // Daily plan: use composite key with both keyResultId and parentTaskId
-      const compositeKey = `${targetKeyResultId}${weeklyPlanTaskId}`;
+      // Daily plan: use composite key with keyResultId, milestoneId, and parentTaskId
+      const selectedWeeklyTask = weeklyPlanTasks.find((t) => t.id === weeklyPlanTaskId);
+      const mId = (selectedWeeklyTask as any)?.milestoneId || '';
+      const compositeKey = `${targetKeyResultId}${mId}${weeklyPlanTaskId}`;
       boardKey = resolveBoardKeyForKR
         ? resolveBoardKeyForKR(compositeKey)
         : compositeKey;
@@ -589,18 +595,16 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       }
     }
 
-    // Create the board form if it doesn't exist
-    const currentList = form.getFieldValue(listName) || [];
-    if (currentList.length === 0) {
-      handleAddBoard(boardKey);
-    }
-
     // Prepare the task data with proper structure
     const taskData = {
       task: item.title,
       weight: item.weight,
       priority: (item.priority || 'medium').toLowerCase(),
       targetValue: typeof item.target === 'number' ? item.target : 0,
+      userId: userId,
+      planningPeriodId: planningPeriodId,
+      planningUserId: planningUserId,
+      keyResultId: targetKeyResultId,
       // Always false for generated tasks; only true when planning milestone itself elsewhere
       achieveMK: false,
       // If adding under a milestone, include milestoneId
@@ -625,38 +629,23 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       return;
     }
 
-    // Use the same logic for both weekly and daily plans
-    const boardFormKey = `board-${boardKey}`;
-    const boardFormValues = form.getFieldValue(boardFormKey) || [];
+    // Handle task addition and weight calculation
+    if (handleAddName) {
+      // Delegate to handleAddName if provided (standard approach in CreatePlan/EditPlan)
+      handleAddName(taskData, boardKey);
+    } else {
+      // Add directly and update weights manually if no handler provided (fallback)
+      const updatedList = [taskData, ...existingList];
+      form.setFieldsValue({ [listName]: updatedList });
 
-    // Add the task data to the first position (index 0) in the board form
-    boardFormValues[0] = taskData;
-    form.setFieldsValue({ [boardFormKey]: boardFormValues });
-
-    // Give the form a moment to update
-    setTimeout(async () => {
-      try {
-        // Validate the board form fields
-        await form.validateFields([
-          [boardFormKey, 0, 'task'],
-          [boardFormKey, 0, 'weight'],
-          [boardFormKey, 0, 'priority'],
-        ]);
-
-        // Call handleAddName to save the task (this handles the names list and weight calculation)
-        if (handleAddName) {
-          handleAddName(taskData, boardKey);
-        }
-
-        // Clear the board form after adding
-        form.setFieldsValue({ [boardFormKey]: [] });
-      } catch (error) {
-        // Validation failed - error is expected during form validation
-      }
-    }, 100);
+      const totalWeight = updatedList.reduce(
+        (sum: number, f: { weight?: number }) => sum + Number(f?.weight ?? 0),
+        0
+      );
+      PlanningAndReportingStore.getState().setWeight(listName, totalWeight);
+    }
 
     // Remove the suggestion from the list after successfully adding.
-    // If the list becomes empty, ask to switch to another key result (weekly only).
     if (items.length === 1) {
       askAnother();
     }
@@ -672,7 +661,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         data-cy="ai-suggestion-trigger-button"
         id="ai-suggestion-trigger-button"
       >
-        AI Suggestion
+        <span className="hidden sm:inline">AI Suggestion</span>
+        <span className="sm:hidden">AI</span>
       </Button>
       <Modal
         title={
@@ -709,9 +699,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         ) : (
           <div className="space-y-4 p-4 sm:p-6">
             <div
-              className={`rounded-3xl bg-white/80 shadow-sm ${
-                isMobile ? 'p-4' : 'p-6'
-              }`}
+              className={`rounded-3xl bg-white/80 shadow-sm ${isMobile ? 'p-4' : 'p-6'
+                }`}
             >
               {isWeekly && (
                 <>
@@ -933,9 +922,9 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                     : null,
                   s.priority
                     ? {
-                        label: 'Priority',
-                        value: s.priority.toString(),
-                      }
+                      label: 'Priority',
+                      value: s.priority.toString(),
+                    }
                     : null,
                   typeof s.target === 'number'
                     ? { label: 'Target', value: `${s.target}%` }
@@ -947,27 +936,25 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                 return (
                   <div
                     key={idx}
-                    className={`relative overflow-hidden rounded-[28px] border border-[#3636F0] bg-white shadow-sm transition-all ${
-                      isMobile ? 'p-4' : 'px-4 py-5'
-                    }`}
+                    className={`relative overflow-hidden rounded-[28px] border border-[#3636F0] bg-white shadow-sm transition-all ${isMobile ? 'p-4' : 'px-4 py-5'
+                      }`}
                   >
                     <div
-                      className={`flex ${
-                        isMobile
-                          ? 'flex-col gap-3'
-                          : 'flex-row items-start justify-between gap-4'
-                      }`}
+                      className={`flex ${isMobile
+                        ? 'flex-col gap-3'
+                        : 'flex-row items-start justify-between gap-4'
+                        }`}
                     >
                       <Typography.Text
                         className="flex-1 text-sm leading-6 text-[#1F1F33]"
                         style={
                           isMobile
                             ? {
-                                display: '-webkit-box',
-                                WebkitLineClamp: 3,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                              }
+                              display: '-webkit-box',
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }
                             : undefined
                         }
                         title={isMobile ? s.title : undefined}
@@ -977,23 +964,20 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       {!isMobile && renderActionButtons()}
                     </div>
                     <div
-                      className={`mt-4 flex flex-wrap items-center gap-2 ${
-                        isMobile ? 'justify-between' : ''
-                      }`}
+                      className={`mt-4 flex flex-wrap items-center gap-2 ${isMobile ? 'justify-between' : ''
+                        }`}
                     >
                       <div
-                        className={`flex flex-wrap gap-2 ${
-                          isMobile ? 'flex-1' : ''
-                        }`}
+                        className={`flex flex-wrap gap-2 ${isMobile ? 'flex-1' : ''
+                          }`}
                       >
                         {pillData.map((pill, pillIdx) => (
                           <span
                             key={`${pill.label}-${pillIdx}`}
-                            className={`inline-flex items-center rounded-full border border-[#3636F0] font-medium text-[#5D5FEF] ${
-                              isMobile
-                                ? 'px-3 py-1 text-xs'
-                                : 'px-4 py-1 text-[13px]'
-                            }`}
+                            className={`inline-flex items-center rounded-full border border-[#3636F0] font-medium text-[#5D5FEF] ${isMobile
+                              ? 'px-3 py-1 text-xs'
+                              : 'px-4 py-1 text-[13px]'
+                              }`}
                           >
                             {isMobile ? (
                               <span>{pill.value}</span>
