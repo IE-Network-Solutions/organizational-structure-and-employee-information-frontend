@@ -67,12 +67,12 @@ const Payroll = () => {
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-  
+
   const authStore = useAuthenticationStore.getState();
   const { userId } = useAuthenticationStore();
   const tenantId = authStore.tenantId;
   const userRollId = authStore.userData?.roleId;
-  
+
   const { mutate: approvePayroll, isLoading: isApproving } =
     useApprovePayrollApproval();
   const { mutate: lastApproving, isLoading: isLastApproving } =
@@ -103,21 +103,25 @@ const Payroll = () => {
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-  
+
   // Get payPeriodId from filters or from payroll data
   const currentPayPeriodId = payPeriodId || payroll?.items?.[0]?.payPeriodId;
-  
+
   // Fetch pending approvals with payPeriodId
   const { data: pendingApprovals, refetch: refetchPendingApprovals } =
     useGetPendingPayrollApprovals(currentPayPeriodId, 1, 10);
-  
+
   // Fetch payroll approval by payPeriodId
-  const { data: payrollApprovalByPayPeriod, refetch: refetchPayrollApprovalByPayPeriod } =
-    useGetPayrollApprovalByPayPeriodId(currentPayPeriodId);
-  
+  const {
+    data: payrollApprovalByPayPeriod,
+    refetch: refetchPayrollApprovalByPayPeriod,
+  } = useGetPayrollApprovalByPayPeriodId(currentPayPeriodId);
+
   const hasPendingApprovals = pendingApprovals?.items?.length > 0;
   const pendingApproval = pendingApprovals?.items?.[0] || null;
-  const canGenerateOrRegenerate = !payrollApprovalByPayPeriod || payrollApprovalByPayPeriod?.approved === false;
+  const canGenerateOrRegenerate =
+    !payrollApprovalByPayPeriod ||
+    payrollApprovalByPayPeriod?.approved === false;
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
@@ -1425,10 +1429,7 @@ const Payroll = () => {
               loading={isApproving || isLastApproving}
             >
               {isMobile ? (
-                <TbFileExport
-                  data-cy="payroll-approve-icon"
-                  size={24}
-                />
+                <TbFileExport data-cy="payroll-approve-icon" size={24} />
               ) : (
                 'Approve Payroll'
               )}
