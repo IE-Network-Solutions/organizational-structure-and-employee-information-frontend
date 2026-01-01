@@ -32,9 +32,15 @@ const AuditLogPage = () => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined);
-  const [selectedModule, setSelectedModule] = useState<string | undefined>(undefined);
-  const [selectedAction, setSelectedAction] = useState<string | undefined>(undefined);
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(
+    undefined,
+  );
+  const [selectedModule, setSelectedModule] = useState<string | undefined>(
+    undefined,
+  );
+  const [selectedAction, setSelectedAction] = useState<string | undefined>(
+    undefined,
+  );
   const [orderDirection, setOrderDirection] = useState<'ASC' | 'DESC'>('DESC');
   const { isMobile, isTablet } = useIsMobile();
   const { data: allUsers, isLoading: isLoadingUsers } = useGetAllUsers();
@@ -50,7 +56,14 @@ const AuditLogPage = () => {
       ...(selectedUserId && { performedBy: selectedUserId }),
     };
     return params as AggregateAuditLogParams;
-  }, [currentPage, pageSize, selectedAction, selectedModule, selectedUserId, orderDirection]);
+  }, [
+    currentPage,
+    pageSize,
+    selectedAction,
+    selectedModule,
+    selectedUserId,
+    orderDirection,
+  ]);
 
   // Fetch audit logs from API
   const { data: auditLogsResponse, isLoading } = useGetAggregateAuditLogs(
@@ -94,7 +107,7 @@ const AuditLogPage = () => {
   // Helper function to get module display name from module value
   const getModuleDisplayName = (moduleValue: string | undefined): string => {
     if (!moduleValue) return '--';
-    const moduleItem = AUDIT_LOG_MODULES.find(m => m.value === moduleValue);
+    const moduleItem = AUDIT_LOG_MODULES.find((m) => m.value === moduleValue);
     return moduleItem ? moduleItem.label : moduleValue;
   };
 
@@ -110,8 +123,8 @@ const AuditLogPage = () => {
       dataIndex: 'action',
       key: 'action',
       render: (action: string) => (
-        <Tag 
-          color={getActionColor(action)} 
+        <Tag
+          color={getActionColor(action)}
           className="capitalize"
           style={{ border: 'none' }}
           data-cy={`audit-log-action-tag-${action}`}
@@ -140,17 +153,31 @@ const AuditLogPage = () => {
       key: 'performedBy',
       render: (unusedValue: any, record: any) => {
         const user = record?.performedByUser;
-        const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : null;
+        const fullName = user
+          ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
+          : null;
         return (
-          <div className="flex items-center gap-2" data-cy={`audit-log-performed-by-${record?.id}`} id={`audit-log-performed-by-${record?.id}`}>
-            <div data-cy={`audit-log-user-avatar-${record?.id}`} id={`audit-log-user-avatar-${record?.id}`}>
+          <div
+            className="flex items-center gap-2"
+            data-cy={`audit-log-performed-by-${record?.id}`}
+            id={`audit-log-performed-by-${record?.id}`}
+          >
+            <div
+              data-cy={`audit-log-user-avatar-${record?.id}`}
+              id={`audit-log-user-avatar-${record?.id}`}
+            >
               <Avatar
                 size={32}
                 src={user?.profileImage}
                 icon={!user?.profileImage ? <UserOutlined /> : undefined}
               />
             </div>
-            <span data-cy={`audit-log-user-name-${record?.id}`} id={`audit-log-user-name-${record?.id}`}>{fullName || 'Unknown User'}</span>
+            <span
+              data-cy={`audit-log-user-name-${record?.id}`}
+              id={`audit-log-user-name-${record?.id}`}
+            >
+              {fullName || 'Unknown User'}
+            </span>
           </div>
         );
       },
@@ -203,14 +230,16 @@ const AuditLogPage = () => {
     setCurrentPage(1);
   }, [selectedModule, selectedAction, selectedUserId, orderDirection]);
 
-
   return (
     <div
       className="bg-white min-h-screen p-4 md:p-6"
       data-cy="audit-log-page-container"
       id="audit-log-page-container"
     >
-      <div data-cy="audit-log-breadcrumb-container" id="audit-log-breadcrumb-container">
+      <div
+        data-cy="audit-log-breadcrumb-container"
+        id="audit-log-breadcrumb-container"
+      >
         <CustomBreadcrumb
           title="Audit log"
           subtitle="Track all the events that have happened in the system"
@@ -222,8 +251,19 @@ const AuditLogPage = () => {
         data-cy="audit-log-filters-container"
         id="audit-log-filters-container"
       >
-        <Row gutter={[16, 16]} data-cy="audit-log-filters-row" id="audit-log-filters-row">
-          <Col xs={24} sm={16} md={14} lg={14} data-cy="audit-log-person-filter-col" id="audit-log-person-filter-col">
+        <Row
+          gutter={[16, 16]}
+          data-cy="audit-log-filters-row"
+          id="audit-log-filters-row"
+        >
+          <Col
+            xs={24}
+            sm={16}
+            md={14}
+            lg={14}
+            data-cy="audit-log-person-filter-col"
+            id="audit-log-person-filter-col"
+          >
             <Select
               placeholder="Search by person"
               value={selectedUserId}
@@ -242,23 +282,44 @@ const AuditLogPage = () => {
               data-cy="audit-log-search-person-select"
               id="audit-log-search-person-select"
             >
-              {allUsers?.items && Array.isArray(allUsers.items) && allUsers.items.length > 0
+              {allUsers?.items &&
+              Array.isArray(allUsers.items) &&
+              allUsers.items.length > 0
                 ? allUsers.items.map((user: any) => {
-                    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown User';
+                    const fullName =
+                      `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+                      'Unknown User';
                     return (
-                      <Option key={user.id} value={user.id} data-cy={`audit-log-user-option-${user.id}`} id={`audit-log-user-option-${user.id}`}>
+                      <Option
+                        key={user.id}
+                        value={user.id}
+                        data-cy={`audit-log-user-option-${user.id}`}
+                        id={`audit-log-user-option-${user.id}`}
+                      >
                         {fullName}
                       </Option>
                     );
                   })
                 : !isLoadingUsers && (
-                    <Option disabled value="" data-cy="audit-log-no-users-option" id="audit-log-no-users-option">
+                    <Option
+                      disabled
+                      value=""
+                      data-cy="audit-log-no-users-option"
+                      id="audit-log-no-users-option"
+                    >
                       No users found
                     </Option>
                   )}
             </Select>
           </Col>
-          <Col xs={24} sm={8} md={5} lg={5} data-cy="audit-log-module-filter-col" id="audit-log-module-filter-col">
+          <Col
+            xs={24}
+            sm={8}
+            md={5}
+            lg={5}
+            data-cy="audit-log-module-filter-col"
+            id="audit-log-module-filter-col"
+          >
             <Select
               placeholder="All Modules"
               value={selectedModule}
@@ -272,13 +333,25 @@ const AuditLogPage = () => {
               id="audit-log-module-select"
             >
               {AUDIT_LOG_MODULES.map((module) => (
-                <Option key={module.value} value={module.value} data-cy={`audit-log-module-option-${module.value}`} id={`audit-log-module-option-${module.value}`}>
+                <Option
+                  key={module.value}
+                  value={module.value}
+                  data-cy={`audit-log-module-option-${module.value}`}
+                  id={`audit-log-module-option-${module.value}`}
+                >
                   {module.label}
                 </Option>
               ))}
             </Select>
           </Col>
-          <Col xs={24} sm={8} md={5} lg={5} data-cy="audit-log-action-filter-col" id="audit-log-action-filter-col">
+          <Col
+            xs={24}
+            sm={8}
+            md={5}
+            lg={5}
+            data-cy="audit-log-action-filter-col"
+            id="audit-log-action-filter-col"
+          >
             <Select
               placeholder="All Actions"
               value={selectedAction}
@@ -292,7 +365,12 @@ const AuditLogPage = () => {
               id="audit-log-action-select"
             >
               {actions.map((action) => (
-                <Option key={action} value={action} data-cy={`audit-log-action-option-${action}`} id={`audit-log-action-option-${action}`}>
+                <Option
+                  key={action}
+                  value={action}
+                  data-cy={`audit-log-action-option-${action}`}
+                  id={`audit-log-action-option-${action}`}
+                >
                   {action}
                 </Option>
               ))}
@@ -319,7 +397,10 @@ const AuditLogPage = () => {
           onRow={(record) => ({
             onClick: () => {
               // Store the record data in sessionStorage for the detail page to use
-              sessionStorage.setItem(`audit-log-${record.id}`, JSON.stringify(record));
+              sessionStorage.setItem(
+                `audit-log-${record.id}`,
+                JSON.stringify(record),
+              );
               router.push(`/audit-log/${record.id}`);
             },
             'data-cy': `audit-log-table-row-${record.id}`,
@@ -354,4 +435,3 @@ const AuditLogPage = () => {
 };
 
 export default AuditLogPage;
-

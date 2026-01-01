@@ -2,7 +2,11 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
-import { AppstoreOutlined, MenuOutlined, FileTextOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  MenuOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
@@ -633,9 +637,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <FileTextOutlined
             style={{ fontSize: 18 }}
-            className={
-              expandedKeys.includes('/audit-log') ? 'text-blue' : ''
-            }
+            className={expandedKeys.includes('/audit-log') ? 'text-blue' : ''}
           />
           <span>Audit Log</span>
         </span>

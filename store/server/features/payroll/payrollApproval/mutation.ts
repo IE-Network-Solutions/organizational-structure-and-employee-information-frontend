@@ -34,7 +34,8 @@ export const useApprovePayrollApproval = () => {
     onError: (error: any) => {
       NotificationMessage.error({
         message: 'Approval Failed',
-        description: error?.response?.data?.message || 'Failed to approve payroll',
+        description:
+          error?.response?.data?.message || 'Failed to approve payroll',
       });
     },
   });
@@ -55,9 +56,9 @@ export const useLastApprovingPayroll = () => {
     onError: (error: any) => {
       NotificationMessage.error({
         message: 'Final Approval Failed',
-        description: error?.response?.data?.message || 'Failed to complete final approval',
+        description:
+          error?.response?.data?.message || 'Failed to complete final approval',
       });
     },
   });
 };
-
