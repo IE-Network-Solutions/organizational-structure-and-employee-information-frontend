@@ -104,9 +104,9 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
           },
           footer: {
             borderTop: 'none',
-            paddingBlock: isMobile ? 0 : 8,
-            paddingInline: isMobile ? 0 : 16,
-            boxShadow: isMobile ? '0px 10px 50px 0px #00000033' : 'none',
+            paddingBlock: isMobile ? 8 : 8,
+            paddingInline: isMobile ? 12 : 16,
+            boxShadow: 'none',
           },
           body: {
             padding: isMobile

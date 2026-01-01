@@ -89,7 +89,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
               Priority
             </Text>
             <Tag
-              className="font-bold border-none w-16 text-center capitalize text-[10px]"
+              className="font-bold border-none w-16 text-center capitalize text-[10px] rounded-[4px]"
               color={
                 task?.priority === 'high'
                   ? 'red'
@@ -147,7 +147,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
             <div className="flex justify-between w-60 py-1">
               <div>
                 <Tag
-                  className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                  className="font-bold border-none w-16 text-center capitalize text-[10px] rounded-[4px]"
                   color={
                     task?.priority === 'high'
                       ? 'red'
