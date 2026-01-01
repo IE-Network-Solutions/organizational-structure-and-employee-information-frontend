@@ -167,7 +167,10 @@ const BreakTypeSidebar = () => {
               id="time-attendance-settings-break-type-sidebar-time-row"
               data-cy="time-attendance-settings-break-type-sidebar-time-row"
             >
-              <Col data-cy="time-attendance-settings-break-type-sidebar-start-at-column" span={12}>
+              <Col
+                data-cy="time-attendance-settings-break-type-sidebar-start-at-column"
+                span={12}
+              >
                 <Form.Item
                   id="startAtFieldId"
                   data-cy="time-attendance-settings-break-type-sidebar-start-at-field-id"

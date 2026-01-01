@@ -17,6 +17,7 @@ import {
   Empty,
   Dropdown,
 } from 'antd';
+import Image from 'next/image';
 import {
   PlusOutlined,
   CheckOutlined,
@@ -75,7 +76,7 @@ const TaskItem: React.FC<{
   // Sync scoreInput with task.score when task changes
   React.useEffect(() => {
     setScoreInput(task.isCompleted ? task.evaluationScore.toString() : '');
-  }, [task.evaluationScore]);
+  }, [task.evaluationScore, task.isCompleted]);
 
   const handleCheckBox = () => {
     if (userId !== task.evaluator) return; // Prevent toggle if user is not approver
@@ -163,9 +164,11 @@ const TaskItem: React.FC<{
                 data-cy={`probation-task-avatar-${taskSlug}`}
               >
                 {task.evaluatorUser?.profileImage ? (
-                  <img
+                  <Image
                     src={task.evaluatorUser.profileImage}
                     alt="avatar"
+                    width={24}
+                    height={24}
                     className="w-6 h-6 rounded-full object-cover"
                     id={`probation-task-avatar-img-${taskSlug}`}
                     data-cy={`probation-task-avatar-img-${taskSlug}`}

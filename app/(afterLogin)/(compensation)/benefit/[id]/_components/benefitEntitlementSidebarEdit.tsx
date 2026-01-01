@@ -106,7 +106,14 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       userId: employeeEntitlementData?.employeeId,
     });
     setData(payments);
-  }, [employeeEntitlementData, form, isLoading]);
+  }, [
+    employeeEntitlementData,
+    form,
+    isLoading,
+    setData,
+    setSettlementPeriod,
+    setTotalAmount,
+  ]);
 
   const columns = [
     {
@@ -187,139 +194,144 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
 
   return (
     isBenefitEntitlementSidebarUpdateOpen && (
-        <CustomDrawerLayout
-          open={isBenefitEntitlementSidebarUpdateOpen}
-          onClose={onClose}
-          modalHeader={
-            <CustomDrawerHeader className="flex justify-center">
-              <span
-                id="compensation-benefit-sidebar-edit-title"
-                data-cy="compensation-benefit-sidebar-edit-title"
-              >
-                Update {title}
-              </span>
-            </CustomDrawerHeader>
-          }
-          footer={
-            <div
-              className="flex flex-row gap-4 justify-center py-3"
-              id="compensation-benefit-sidebar-edit-footer"
-              data-cy="compensation-benefit-sidebar-edit-footer"
+      <CustomDrawerLayout
+        open={isBenefitEntitlementSidebarUpdateOpen}
+        onClose={onClose}
+        modalHeader={
+          <CustomDrawerHeader className="flex justify-center">
+            <span
+              id="compensation-benefit-sidebar-edit-title"
+              data-cy="compensation-benefit-sidebar-edit-title"
             >
-              <Button
-                type="default"
-                className="h-10 px-3 w-40"
-                size="large"
-                loading={updateBenefitLoading}
-                onClick={() => onClose()}
-                id="compensation-benefit-sidebar-edit-cancel-button"
-                data-cy="compensation-benefit-sidebar-edit-cancel-button"
-              >
-                Cancel
-              </Button>
-
-              <Button
-                type="primary"
-                key="update"
-                className="h-10 px-3 w-40"
-                size="large"
-                loading={updateBenefitLoading}
-                onClick={() => form.submit()}
-                id="compensation-benefit-sidebar-edit-update-button"
-                data-cy="compensation-benefit-sidebar-edit-update-button"
-              >
-                Update
-              </Button>
-            </div>
-          }
-          width="40%"
-        >
-          <Spin
-            spinning={allUserLoading || payLoading || isLoading}
-           
-            data-cy="compensation-benefit-sidebar-edit-spin"
+              Update {title}
+            </span>
+          </CustomDrawerHeader>
+        }
+        footer={
+          <div
+            className="flex flex-row gap-4 justify-center py-3"
+            id="compensation-benefit-sidebar-edit-footer"
+            data-cy="compensation-benefit-sidebar-edit-footer"
           >
-            <Form
-              layout="vertical"
-              form={form}
-              onFinish={onFormSubmit}
-              requiredMark={CustomLabel}
-              id="compensation-benefit-sidebar-edit-form"
-              data-cy="compensation-benefit-sidebar-edit-form"
+            <Button
+              type="default"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={updateBenefitLoading}
+              onClick={() => onClose()}
+              id="compensation-benefit-sidebar-edit-cancel-button"
+              data-cy="compensation-benefit-sidebar-edit-cancel-button"
             >
-              <div
-                className="grid grid-cols-2 gap-4 mb-1"
-                id="compensation-benefit-sidebar-edit-grid"
-                data-cy="compensation-benefit-sidebar-edit-grid"
-              >
-                <Form.Item data-cy="compensation-benefit-sidebar-edit-total-amount-item" label="Total Amount">
-                  <InputNumber
-                    className="w-full h-10"
-                    value={totalAmount}
-                    onChange={(value) => setTotalAmount(value || 0)}
-                    disabled
-                    id="compensation-benefit-sidebar-edit-total-input"
-                    data-cy="compensation-benefit-sidebar-edit-total-input"
-                  />
-                </Form.Item>
-                <Form.Item data-cy="compensation-benefit-sidebar-edit-settlement-period-item" label="Settlement Period">
-                  <InputNumber
-                    disabled
-                    className="w-full h-10"
-                    value={settlementPeriod}
-                    onChange={(value) => setSettlementPeriod(value || 0)}
-                    id="compensation-benefit-sidebar-edit-settlement-input"
-                    data-cy="compensation-benefit-sidebar-edit-settlement-input"
-                  />
-                </Form.Item>
-              </div>
+              Cancel
+            </Button>
 
-              {data?.length > 0 && (
-                <div
-                  id="compensation-benefit-sidebar-edit-table-wrapper"
-                  data-cy="compensation-benefit-sidebar-edit-table-wrapper"
-                >
-                  <Table
-                    data-cy="compensation-benefit-sidebar-edit-payments-table"
-                    columns={columns}
-                    dataSource={data}
-                    bordered={false}
-                    className="mb-4"
-                    pagination={false}
-                  />
-                </div>
-              )}
+            <Button
+              type="primary"
+              key="update"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={updateBenefitLoading}
+              onClick={() => form.submit()}
+              id="compensation-benefit-sidebar-edit-update-button"
+              data-cy="compensation-benefit-sidebar-edit-update-button"
+            >
+              Update
+            </Button>
+          </div>
+        }
+        width="40%"
+      >
+        <Spin
+          spinning={allUserLoading || payLoading || isLoading}
+          data-cy="compensation-benefit-sidebar-edit-spin"
+        >
+          <Form
+            layout="vertical"
+            form={form}
+            onFinish={onFormSubmit}
+            requiredMark={CustomLabel}
+            id="compensation-benefit-sidebar-edit-form"
+            data-cy="compensation-benefit-sidebar-edit-form"
+          >
+            <div
+              className="grid grid-cols-2 gap-4 mb-1"
+              id="compensation-benefit-sidebar-edit-grid"
+              data-cy="compensation-benefit-sidebar-edit-grid"
+            >
               <Form.Item
-                name="userId"
-                label="Select Employees"
-                rules={[{ required: true, message: 'Please select employees' }]}
-                id="compensation-benefit-sidebar-edit-employee-item"
-                data-cy="compensation-benefit-sidebar-edit-employee-item"
+                data-cy="compensation-benefit-sidebar-edit-total-amount-item"
+                label="Total Amount"
               >
-                <Select
+                <InputNumber
+                  className="w-full h-10"
+                  value={totalAmount}
+                  onChange={(value) => setTotalAmount(value || 0)}
                   disabled
-                  showSearch
-                  placeholder="Select a person"
-                  className="w-full min-h-10"
-                  allowClear
-                  filterOption={(input: any, option: any) =>
-                    (option?.label ?? '')
-                      ?.toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={allUsers?.items?.map((item: any) => ({
-                    ...item,
-                    value: item?.id,
-                    label: item?.firstName + ' ' + item?.lastName,
-                  }))}
-                  loading={allUserLoading}
-                  id="compensation-benefit-sidebar-edit-employee-select"
-                  data-cy="compensation-benefit-sidebar-edit-employee-select"
+                  id="compensation-benefit-sidebar-edit-total-input"
+                  data-cy="compensation-benefit-sidebar-edit-total-input"
                 />
               </Form.Item>
-            </Form>
-          </Spin>
-        </CustomDrawerLayout>
+              <Form.Item
+                data-cy="compensation-benefit-sidebar-edit-settlement-period-item"
+                label="Settlement Period"
+              >
+                <InputNumber
+                  disabled
+                  className="w-full h-10"
+                  value={settlementPeriod}
+                  onChange={(value) => setSettlementPeriod(value || 0)}
+                  id="compensation-benefit-sidebar-edit-settlement-input"
+                  data-cy="compensation-benefit-sidebar-edit-settlement-input"
+                />
+              </Form.Item>
+            </div>
+
+            {data?.length > 0 && (
+              <div
+                id="compensation-benefit-sidebar-edit-table-wrapper"
+                data-cy="compensation-benefit-sidebar-edit-table-wrapper"
+              >
+                <Table
+                  data-cy="compensation-benefit-sidebar-edit-payments-table"
+                  columns={columns}
+                  dataSource={data}
+                  bordered={false}
+                  className="mb-4"
+                  pagination={false}
+                />
+              </div>
+            )}
+            <Form.Item
+              name="userId"
+              label="Select Employees"
+              rules={[{ required: true, message: 'Please select employees' }]}
+              id="compensation-benefit-sidebar-edit-employee-item"
+              data-cy="compensation-benefit-sidebar-edit-employee-item"
+            >
+              <Select
+                disabled
+                showSearch
+                placeholder="Select a person"
+                className="w-full min-h-10"
+                allowClear
+                filterOption={(input: any, option: any) =>
+                  (option?.label ?? '')
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={allUsers?.items?.map((item: any) => ({
+                  ...item,
+                  value: item?.id,
+                  label: item?.firstName + ' ' + item?.lastName,
+                }))}
+                loading={allUserLoading}
+                id="compensation-benefit-sidebar-edit-employee-select"
+                data-cy="compensation-benefit-sidebar-edit-employee-select"
+              />
+            </Form.Item>
+          </Form>
+        </Spin>
+      </CustomDrawerLayout>
     )
   );
 };

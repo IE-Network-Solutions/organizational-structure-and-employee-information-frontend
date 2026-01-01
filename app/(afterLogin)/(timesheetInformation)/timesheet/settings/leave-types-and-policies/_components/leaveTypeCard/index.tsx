@@ -85,8 +85,16 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
               <Switch
                 id={`${item.title}LeaveTypeCardSwitchButtonFieldId`}
                 data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-switch-button-id`}
-                checkedChildren={<CheckOutlined data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-switch-checked-icon`} />}
-                unCheckedChildren={<CloseOutlined data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-switch-unchecked-icon`} />}
+                checkedChildren={
+                  <CheckOutlined
+                    data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-switch-checked-icon`}
+                  />
+                }
+                unCheckedChildren={
+                  <CloseOutlined
+                    data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-switch-unchecked-icon`}
+                  />
+                }
                 value={item.isActive}
                 onChange={(isActive) => {
                   setActive({

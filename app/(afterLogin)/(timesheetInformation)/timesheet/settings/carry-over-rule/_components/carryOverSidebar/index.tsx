@@ -40,7 +40,8 @@ const CarryOverSidebar = () => {
       loading: isLoading,
       onClick: () => onClose(),
       id: 'time-attendance-settings-carry-over-rule-sidebar-cancel-button',
-      'data-cy': 'time-attendance-settings-carry-over-rule-sidebar-cancel-button',
+      'data-cy':
+        'time-attendance-settings-carry-over-rule-sidebar-cancel-button',
     },
     {
       label: 'Add',

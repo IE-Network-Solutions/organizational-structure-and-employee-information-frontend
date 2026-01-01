@@ -14,18 +14,27 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
   if (score >= 90)
     return (
-      <span className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold">
+      <span
+        className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold"
+        data-cy={`okr-employee-score-tag-green-${score}`}
+      >
         {score?.toLocaleString()}%
       </span>
     );
   if (score >= 75)
     return (
-      <span className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+      <span
+        className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold"
+        data-cy={`okr-employee-score-tag-yellow-${score}`}
+      >
         {score?.toLocaleString()}%
       </span>
     );
   return (
-    <span className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">
+    <span
+      className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold"
+      data-cy={`okr-employee-score-tag-red-${score}`}
+    >
       {score?.toLocaleString()}%
     </span>
   );

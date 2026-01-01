@@ -74,13 +74,16 @@ const TnaReviewPage = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
-    if (isError) return <>-</>;
+    if (isLoading) return <div data-cy="loading-indicator">...</div>;
+    if (isError) return <div data-cy="error-indicator">-</div>;
     const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="flex-1">
+      <div
+        className="flex items-center gap-1.5"
+        data-cy="employee-card-container"
+      >
+        <div className="flex-1" data-cy="employee-card-content">
           <UserCard
             data={employeeData}
             name={fullName}
@@ -309,11 +312,19 @@ const TnaReviewPage = () => {
     setPage(1);
   };
   return (
-    <div className="page-wrap bg-gray-100" id="tnaReviewPageId" data-cy="tna-review-page">
+    <div
+      className="page-wrap bg-gray-100"
+      id="tnaReviewPageId"
+      data-cy="tna-review-page"
+    >
       <TnaApprovalTable data-cy="tna-approval-table" />
       <BlockWrapper data-cy="tna-review-block-wrapper">
         <PageHeader title="TNA" data-cy="tna-review-page-header">
-          <Space size={16} id="tnaReviewPageHeaderActionsId" data-cy="tna-review-page-header-actions">
+          <Space
+            size={16}
+            id="tnaReviewPageHeaderActionsId"
+            data-cy="tna-review-page-header-actions"
+          >
             <DatePicker.RangePicker
               format={DATE_FORMAT}
               separator="-"
@@ -334,7 +345,11 @@ const TnaReviewPage = () => {
               }}
             />
             {isMobile && (
-              <div className="flex justify-between items-center gap-4" id="tnaReviewMobileFiltersId" data-cy="tna-review-mobile-filters">
+              <div
+                className="flex justify-between items-center gap-4"
+                id="tnaReviewMobileFiltersId"
+                data-cy="tna-review-mobile-filters"
+              >
                 <Button
                   className="p-6 mr-2 border border-gray-300"
                   onClick={() => setIsFilterModalOpen(true)}
@@ -344,7 +359,11 @@ const TnaReviewPage = () => {
                 />
               </div>
             )}
-            <AccessGuard permissions={[Permissions.CreateTna]} data-cy="tna-review-new-button-guard" id="tnaReviewNewButtonGuardId">
+            <AccessGuard
+              permissions={[Permissions.CreateTna]}
+              data-cy="tna-review-new-button-guard"
+              id="tnaReviewNewButtonGuardId"
+            >
               <Button
                 icon={<LuPlus size={20} />}
                 className="h-[50px] w-[50px] sm:w-full"
@@ -373,7 +392,11 @@ const TnaReviewPage = () => {
             onCancel={() => setIsFilterModalOpen(false)}
             data-cy="tna-review-filter-modal"
             footer={
-              <div className="flex justify-center gap-4" id="tnaReviewFilterModalFooterId" data-cy="tna-review-filter-modal-footer">
+              <div
+                className="flex justify-center gap-4"
+                id="tnaReviewFilterModalFooterId"
+                data-cy="tna-review-filter-modal-footer"
+              >
                 <Button
                   key="cancel"
                   onClick={() => {
@@ -408,7 +431,11 @@ const TnaReviewPage = () => {
             />
           </Modal>
         )}
-        <div className="flex  overflow-x-auto scrollbar-none  w-full " id="tnaReviewTableContainerId" data-cy="tna-review-table-container">
+        <div
+          className="flex  overflow-x-auto scrollbar-none  w-full "
+          id="tnaReviewTableContainerId"
+          data-cy="tna-review-table-container"
+        >
           <Table
             className="mt-6 w-full"
             rowClassName={() => 'h-[60px]'}

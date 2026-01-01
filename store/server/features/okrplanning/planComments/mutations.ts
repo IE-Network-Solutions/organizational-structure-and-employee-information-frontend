@@ -88,6 +88,7 @@ export const useAddPlanComment = () => {
   return useMutation(addComment, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('planComments');
       NotificationMessage.success({
         message: 'comment Successfully created ',
@@ -105,6 +106,7 @@ export const useUpdatePlanComment = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('okrPlans');
+        queryClient.invalidateQueries('okrUserPlans');
         queryClient.invalidateQueries('planComments');
 
         NotificationMessage.success({
@@ -129,6 +131,7 @@ export const useDeletePlanComment = () => {
   return useMutation(deleteComment, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('planComments');
       NotificationMessage.success({
         message: 'comment Successfully deleted ',

@@ -37,14 +37,23 @@ const Page = () => {
           data-cy="time-attendance-settings-allowed-areas-add-button-access-guard"
         >
           <Button
-            icon={<FaPlus data-cy="time-attendance-settings-allowed-areas-add-button-icon" />}
+            icon={
+              <FaPlus data-cy="time-attendance-settings-allowed-areas-add-button-icon" />
+            }
             className="h-10 w-10 sm:w-auto"
             type="primary"
             id="time-attendance-settings-allowed-areas-add-button"
             data-cy="time-attendance-settings-allowed-areas-add-button"
             onClick={() => setIsShowLocationSidebar(true)}
           >
-            <span id="time-attendance-settings-allowed-areas-add-button-label" data-cy="time-attendance-settings-allowed-areas-add-button-label" className="hidden md:inline"> New Location</span>
+            <span
+              id="time-attendance-settings-allowed-areas-add-button-label"
+              data-cy="time-attendance-settings-allowed-areas-add-button-label"
+              className="hidden md:inline"
+            >
+              {' '}
+              New Location
+            </span>
           </Button>
         </AccessGuard>
       </div>

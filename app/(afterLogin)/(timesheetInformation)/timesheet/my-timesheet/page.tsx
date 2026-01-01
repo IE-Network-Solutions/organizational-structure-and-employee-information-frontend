@@ -38,26 +38,50 @@ const MyTimesheet = () => {
 
   const { isMobile } = useIsMobile();
   return (
-    <div id="time-attendance-my-timesheet-page-container" data-cy="time-attendance-my-timesheet-page-container" className="bg-[#f5f5f5]">
-      <div id="time-attendance-my-timesheet-page-header-container" data-cy="time-attendance-my-timesheet-page-header-container"
-      // className={`${isMobile ? 'h-auto' : 'h-full w-auto pr-0 pb-6 pl-3'} `}
+    <div
+      id="time-attendance-my-timesheet-page-container"
+      data-cy="time-attendance-my-timesheet-page-container"
+      className="bg-[#f5f5f5]"
+    >
+      <div
+        id="time-attendance-my-timesheet-page-header-container"
+        data-cy="time-attendance-my-timesheet-page-header-container"
+        // className={`${isMobile ? 'h-auto' : 'h-full w-auto pr-0 pb-6 pl-3'} `}
       >
-        <PageHeader data-cy="time-attendance-my-timesheet-page-header-component" title="My Attendance" description="Manage your Attendance">
+        <PageHeader
+          data-cy="time-attendance-my-timesheet-page-header-component"
+          title="My Attendance"
+          description="Manage your Attendance"
+        >
           <CheckControl data-cy="time-attendance-my-timesheet-page-check-control-component" />
         </PageHeader>
-        <BlockWrapper data-cy="time-attendance-my-timesheet-page-approval-table-block-wrapper" className="mt-[20px]">
+        <BlockWrapper
+          data-cy="time-attendance-my-timesheet-page-approval-table-block-wrapper"
+          className="mt-[20px]"
+        >
           <ApprovalTable data-cy="time-attendance-my-timesheet-page-approval-table-component" />
         </BlockWrapper>
 
-        <div id="time-attendance-my-timesheet-page-leave-balance-container" data-cy="time-attendance-my-timesheet-page-leave-balance-container" className={`${isMobile ? 'mt-2' : 'mt-4'}`}>
+        <div
+          id="time-attendance-my-timesheet-page-leave-balance-container"
+          data-cy="time-attendance-my-timesheet-page-leave-balance-container"
+          className={`${isMobile ? 'mt-2' : 'mt-4'}`}
+        >
           <LeaveBalance data-cy="time-attendance-my-timesheet-page-leave-balance-component" />
         </div>
 
-        <BlockWrapper data-cy="time-attendance-my-timesheet-page-history-table-block-wrapper" padding="p-2" className="mt-[30px]">
+        <BlockWrapper
+          data-cy="time-attendance-my-timesheet-page-history-table-block-wrapper"
+          padding="p-2"
+          className="mt-[30px]"
+        >
           <HistoryTable data-cy="time-attendance-my-timesheet-page-history-table-component" />
         </BlockWrapper>
 
-        <BlockWrapper data-cy="time-attendance-my-timesheet-page-attendance-table-block-wrapper" className="mt-6">
+        <BlockWrapper
+          data-cy="time-attendance-my-timesheet-page-attendance-table-block-wrapper"
+          className="mt-6"
+        >
           <AttendanceTable data-cy="time-attendance-my-timesheet-page-attendance-table-component" />
         </BlockWrapper>
       </div>

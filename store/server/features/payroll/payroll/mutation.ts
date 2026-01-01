@@ -48,6 +48,30 @@ const sendingPayrollPaySlip = async ({ values }: { values: any }) => {
     throw error;
   }
 };
+const createPensionRule = async (values: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    await crudRequest({
+      url: `${PAYROLL_URL}/pension-rule`,
+      method: 'POST',
+      data: values,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+
+    NotificationMessage.success({
+      message: 'Successfully Created',
+      description: 'Pension Rule successfully Created.',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 const updatePensionRule = async (values: any) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -112,6 +136,23 @@ export const useSendingPayrollPayslip = () => {
     },
   );
 };
+export const useCreatePensionRule = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(createPensionRule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('pension-rule');
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message;
+      NotificationMessage.error({
+        message: 'Pension Rule Creation Failed',
+        description: errorMessage,
+      });
+    },
+  });
+};
+
 export const useUpdatePensionRule = () => {
   const queryClient = useQueryClient();
 

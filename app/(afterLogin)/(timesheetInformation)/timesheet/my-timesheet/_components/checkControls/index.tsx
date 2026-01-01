@@ -88,7 +88,12 @@ const CheckControl = () => {
       label: (
         <Button
           type="text"
-          icon={<GoClock data-cy="time-attendance-check-controls-mobile-break-check-out-button-icon" size={20} />}
+          icon={
+            <GoClock
+              data-cy="time-attendance-check-controls-mobile-break-check-out-button-icon"
+              size={20}
+            />
+          }
           loading={isLoading || isFetching}
           onClick={() => {
             getCoords(() => {
@@ -107,7 +112,12 @@ const CheckControl = () => {
       label: (
         <Button
           type="text"
-          icon={<GoClock data-cy="time-attendance-check-controls-mobile-check-out-button-icon" size={20} />}
+          icon={
+            <GoClock
+              data-cy="time-attendance-check-controls-mobile-check-out-button-icon"
+              size={20}
+            />
+          }
           loading={isLoading || isFetching}
           onClick={() => {
             setAttendance(false);
@@ -124,7 +134,10 @@ const CheckControl = () => {
   switch (checkStatus) {
     case CheckStatus.notStarted:
       return (
-        <AccessGuard data-cy="time-attendance-check-controls-check-in-button-access-guard" permissions={[Permissions.CheckInRemotely]}>
+        <AccessGuard
+          data-cy="time-attendance-check-controls-check-in-button-access-guard"
+          permissions={[Permissions.CheckInRemotely]}
+        >
           <Button
             className="h-10 sm:h-10 text-base"
             id="time-attendance-check-controls-check-in-button"
@@ -133,9 +146,15 @@ const CheckControl = () => {
             type="primary"
             icon={
               isMobile ? (
-                <IoLocationOutline data-cy="time-attendance-check-controls-check-in-button-icon" size={20} />
+                <IoLocationOutline
+                  data-cy="time-attendance-check-controls-check-in-button-icon"
+                  size={20}
+                />
               ) : (
-                <MdOutlineLocationOn data-cy="time-attendance-check-controls-check-in-button-icon" size={16} />
+                <MdOutlineLocationOn
+                  data-cy="time-attendance-check-controls-check-in-button-icon"
+                  size={16}
+                />
               )
             }
             loading={isLoading || isFetching}
@@ -154,8 +173,14 @@ const CheckControl = () => {
           data-cy="time-attendance-check-controls-started-container"
         >
           {!isMobile ? (
-            <Space data-cy="time-attendance-check-controls-started-buttons-space" className="hidden sm:block">
-              <AccessGuard data-cy="time-attendance-check-controls-break-check-out-button-access-guard" permissions={[Permissions.CheckOutRemotely]}>
+            <Space
+              data-cy="time-attendance-check-controls-started-buttons-space"
+              className="hidden sm:block"
+            >
+              <AccessGuard
+                data-cy="time-attendance-check-controls-break-check-out-button-access-guard"
+                permissions={[Permissions.CheckOutRemotely]}
+              >
                 <div
                   className="flex justify-between gap-2"
                   id="time-attendance-check-controls-started-buttons"
@@ -166,7 +191,12 @@ const CheckControl = () => {
                     size="large"
                     id="time-attendance-check-controls-break-check-out-button"
                     data-cy="time-attendance-check-controls-break-check-out-button"
-                    icon={<GoClock data-cy="time-attendance-check-controls-break-check-out-button-icon" size={20} />}
+                    icon={
+                      <GoClock
+                        data-cy="time-attendance-check-controls-break-check-out-button-icon"
+                        size={20}
+                      />
+                    }
                     loading={isLoading || isFetching}
                     onClick={() => {
                       getCoords(() => {
@@ -181,7 +211,12 @@ const CheckControl = () => {
                     size="large"
                     id="time-attendance-check-controls-check-out-button"
                     data-cy="time-attendance-check-controls-check-out-button"
-                    icon={<GoClock data-cy="time-attendance-check-controls-check-out-button-icon" size={20} />}
+                    icon={
+                      <GoClock
+                        data-cy="time-attendance-check-controls-check-out-button-icon"
+                        size={20}
+                      />
+                    }
                     loading={isLoading || isFetching}
                     onClick={() => {
                       setAttendance(false);
@@ -193,7 +228,10 @@ const CheckControl = () => {
               </AccessGuard>
             </Space>
           ) : (
-            <AccessGuard data-cy="time-attendance-check-controls-check-out-button-access-guard" permissions={[Permissions.CheckOutRemotely]}>
+            <AccessGuard
+              data-cy="time-attendance-check-controls-check-out-button-access-guard"
+              permissions={[Permissions.CheckOutRemotely]}
+            >
               <Dropdown
                 menu={{ items: mobileMenuItems }}
                 trigger={['click']}
@@ -205,7 +243,12 @@ const CheckControl = () => {
                   size="large"
                   id="time-attendance-check-controls-mobile-check-out-button"
                   data-cy="time-attendance-check-controls-mobile-check-out-button"
-                  icon={<IoLocationOutline data-cy="time-attendance-check-controls-mobile-check-out-button-icon" size={20} />}
+                  icon={
+                    <IoLocationOutline
+                      data-cy="time-attendance-check-controls-mobile-check-out-button-icon"
+                      size={20}
+                    />
+                  }
                   loading={isLoading || isFetching}
                 />
               </Dropdown>
@@ -229,7 +272,10 @@ const CheckControl = () => {
               {workTime} hrs
             </div>
           )}
-          <AccessGuard data-cy="time-attendance-check-controls-break-check-in-button-access-guard" permissions={[Permissions.CheckInRemotely]}>
+          <AccessGuard
+            data-cy="time-attendance-check-controls-break-check-in-button-access-guard"
+            permissions={[Permissions.CheckInRemotely]}
+          >
             <Button
               className="h-14 text-base"
               size="large"
@@ -237,9 +283,15 @@ const CheckControl = () => {
               data-cy="time-attendance-check-controls-break-check-in-button"
               icon={
                 isMobile ? (
-                  <IoLocationOutline data-cy="time-attendance-check-controls-break-check-in-button-icon" size={30} />
+                  <IoLocationOutline
+                    data-cy="time-attendance-check-controls-break-check-in-button-icon"
+                    size={30}
+                  />
                 ) : (
-                  <GoClock data-cy="time-attendance-check-controls-break-check-in-button-clock-icon" size={30} />
+                  <GoClock
+                    data-cy="time-attendance-check-controls-break-check-in-button-clock-icon"
+                    size={30}
+                  />
                 )
               }
               loading={isLoading || isFetching}

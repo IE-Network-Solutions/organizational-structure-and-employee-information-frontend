@@ -12,6 +12,7 @@ const HtmlStringDisplayer: React.FC<HtmlStringDisplayerProps> = ({
       style={{ padding: '1.5rem' }}
       className="list-disc pl-6 space-y-2"
       dangerouslySetInnerHTML={{ __html: htmlString }}
+      data-cy="html-string-displayer"
     />
   );
 };

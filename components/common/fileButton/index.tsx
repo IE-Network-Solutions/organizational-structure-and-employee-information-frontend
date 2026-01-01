@@ -28,6 +28,7 @@ const FileButton: FC<FileButtonProps> = ({
       onClick={(e) => {
         e.stopPropagation();
       }}
+      data-cy="file-button-preview"
     >
       <TbFileDownload size={16} />
       <span className="text-xs">{fileName}</span>

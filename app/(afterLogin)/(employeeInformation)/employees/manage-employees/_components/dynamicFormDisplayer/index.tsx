@@ -36,7 +36,9 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
 
     const commonProps = {
       className: 'font-semibold text-xs',
-      label: field.fieldName,
+      label: (
+        <span className="mb-1 font-semibold text-xs">{field.fieldName}</span>
+      ),
       name: [formTitle, field.fieldName],
       id: `${formTitle}${field.fieldName}`,
       rules: [
@@ -106,7 +108,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
           <Form.Item
             key={field.fieldName}
             {...commonProps}
-            className="w-full"
+            className="font-semibold text-xs"
             id={`${formTitle}-${field.fieldName}-datepicker-form-item`}
             data-cy={`${formTitle}-${field.fieldName}-datepicker-form-item`}
           >

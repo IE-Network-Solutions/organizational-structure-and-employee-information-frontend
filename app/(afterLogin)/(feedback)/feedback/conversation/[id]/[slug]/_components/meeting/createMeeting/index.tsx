@@ -135,8 +135,12 @@ const CreateMeeting = ({
              ? 'bg-indigo-700 text-white'
              : 'bg-white border-gray-300 text-gray-500'
          }`}
+      data-cy={`create-meeting-step-dot-${step}`}
     >
-      <div style={{ fontSize: '24px', lineHeight: '24px' }}>
+      <div
+        style={{ fontSize: '24px', lineHeight: '24px' }}
+        data-cy={`create-meeting-step-dot-content-${step}`}
+      >
         {current >= step ? (
           <IoCheckmarkSharp className="text-xs font-bold" />
         ) : (

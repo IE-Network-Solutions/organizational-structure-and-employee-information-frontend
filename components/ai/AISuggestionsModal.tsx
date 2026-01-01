@@ -220,7 +220,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   ]);
 
   const truncatedLabel = (text: string) => (
-    <div className="block max-w-full truncate" title={text}>
+    <div
+      className="block max-w-full truncate"
+      title={text}
+      data-cy="ai-suggestions-truncated-label"
+    >
       {text}
     </div>
   );

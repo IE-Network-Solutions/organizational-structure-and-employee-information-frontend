@@ -90,7 +90,11 @@ const Questions = ({ id }: Params) => {
     setSelectedFormId(formId);
   };
   return (
-    <div id="questions-container" data-cy="questions-container" className="bg-white h-auto w-full p-4">
+    <div
+      id="questions-container"
+      data-cy="questions-container"
+      className="bg-white h-auto w-full p-4"
+    >
       <Form
         id="questions-form"
         data-cy="questions-form"
@@ -104,7 +108,13 @@ const Questions = ({ id }: Params) => {
             title="Create New Question"
             id="createQuestionButton"
             data-cy="questions-create-button"
-            icon={<PlusOutlined id="questions-create-button-icon" data-cy="questions-create-button-icon" className="mr-2" />}
+            icon={
+              <PlusOutlined
+                id="questions-create-button-icon"
+                data-cy="questions-create-button-icon"
+                className="mr-2"
+              />
+            }
             onClick={() => {
               showQuestionDrawer(id);
             }}
@@ -112,12 +122,35 @@ const Questions = ({ id }: Params) => {
           />
           {questionsData && questionsData?.meta?.totalPages !== 0 ? (
             questionsData?.items?.map((q: QuestionsType) => (
-              <Row gutter={16} key={q.id} id={`question-row-${q.id}`} data-cy={`question-row-${q.id}`}>
+              <Row
+                gutter={16}
+                key={q.id}
+                id={`question-row-${q.id}`}
+                data-cy={`question-row-${q.id}`}
+              >
                 <Col xs={24} sm={24}>
-                  <div id={`question-block-${q.id}`} data-cy={`question-block-${q.id}`} className="question-block mb-8 p-6 rounded-lg shadow-sm bg-gray-50 w-full">
-                    <div id={`question-block-${q.id}-header`} data-cy={`question-block-${q.id}-header`} className="flex items-center justify-between mb-2 w-full">
-                      <div id={`question-block-${q.id}-title-container`} data-cy={`question-block-${q.id}-title-container`} className="flex items-center gap-2">
-                        <span id={`question-block-${q.id}-title`} data-cy={`question-block-${q.id}-title`} className="text-xl font-bold">{q.question}</span>
+                  <div
+                    id={`question-block-${q.id}`}
+                    data-cy={`question-block-${q.id}`}
+                    className="question-block mb-8 p-6 rounded-lg shadow-sm bg-gray-50 w-full"
+                  >
+                    <div
+                      id={`question-block-${q.id}-header`}
+                      data-cy={`question-block-${q.id}-header`}
+                      className="flex items-center justify-between mb-2 w-full"
+                    >
+                      <div
+                        id={`question-block-${q.id}-title-container`}
+                        data-cy={`question-block-${q.id}-title-container`}
+                        className="flex items-center gap-2"
+                      >
+                        <span
+                          id={`question-block-${q.id}-title`}
+                          data-cy={`question-block-${q.id}-title`}
+                          className="text-xl font-bold"
+                        >
+                          {q.question}
+                        </span>
                         <Tag
                           id={`question-block-${q.id}-tag`}
                           data-cy={`question-block-${q.id}-tag`}
@@ -127,8 +160,17 @@ const Questions = ({ id }: Params) => {
                           {FIELD_TYPE_LABELS[q.fieldType] || q.fieldType}
                         </Tag>
                       </div>
-                      <div id={`question-block-${q.id}-actions`} data-cy={`question-block-${q.id}-actions`} className="flex gap-2">
-                        <Tooltip id={`question-block-${q.id}-edit-tooltip`} data-cy={`question-block-${q.id}-edit-tooltip`} title="Edit" placement="top">
+                      <div
+                        id={`question-block-${q.id}-actions`}
+                        data-cy={`question-block-${q.id}-actions`}
+                        className="flex gap-2"
+                      >
+                        <Tooltip
+                          id={`question-block-${q.id}-edit-tooltip`}
+                          data-cy={`question-block-${q.id}-edit-tooltip`}
+                          title="Edit"
+                          placement="top"
+                        >
                           <div
                             id={`question-block-${q.id}-edit-button`}
                             data-cy={`question-block-${q.id}-edit-button`}
@@ -144,7 +186,12 @@ const Questions = ({ id }: Params) => {
                             />
                           </div>
                         </Tooltip>
-                        <Tooltip id={`question-block-${q.id}-delete-tooltip`} data-cy={`question-block-${q.id}-delete-tooltip`} title="Delete" placement="top">
+                        <Tooltip
+                          id={`question-block-${q.id}-delete-tooltip`}
+                          data-cy={`question-block-${q.id}-delete-tooltip`}
+                          title="Delete"
+                          placement="top"
+                        >
                           <div
                             id={`question-block-${q.id}-delete-button`}
                             data-cy={`question-block-${q.id}-delete-button`}
@@ -163,9 +210,18 @@ const Questions = ({ id }: Params) => {
                       </div>
                     </div>
                     <Divider data-cy={`question-block-${q.id}-divider`} />
-                    <div key={q.id} id={`question-block-${q.id}-content`} data-cy={`question-block-${q.id}-content`} className="">
+                    <div
+                      key={q.id}
+                      id={`question-block-${q.id}-content`}
+                      data-cy={`question-block-${q.id}-content`}
+                      className=""
+                    >
                       {q?.fieldType === FieldType.MULTIPLE_CHOICE && (
-                        <div id={`question-block-${q.id}-multiple-choice`} data-cy={`question-block-${q.id}-multiple-choice`} className="mt-2 flex flex-col gap-1 pl-4">
+                        <div
+                          id={`question-block-${q.id}-multiple-choice`}
+                          data-cy={`question-block-${q.id}-multiple-choice`}
+                          className="mt-2 flex flex-col gap-1 pl-4"
+                        >
                           {q?.field?.map((choice: any, index: number) => (
                             <span
                               key={choice.id || index}
@@ -182,26 +238,53 @@ const Questions = ({ id }: Params) => {
                        <></>
                       )} */}
                       {q?.fieldType === FieldType.CHECKBOX && (
-                        <div id={`question-block-${q.id}-checkbox`} data-cy={`question-block-${q.id}-checkbox`} className="w-full px-4 py-2 rounded-lg border bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-200 mb-2">
-                          <CheckboxField options={q?.field} data-cy={`question-block-${q.id}-checkbox-options`} />
+                        <div
+                          id={`question-block-${q.id}-checkbox`}
+                          data-cy={`question-block-${q.id}-checkbox`}
+                          className="w-full px-4 py-2 rounded-lg border bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-200 mb-2"
+                        >
+                          <CheckboxField
+                            options={q?.field}
+                            data-cy={`question-block-${q.id}-checkbox-options`}
+                          />
                         </div>
                       )}
                       {/* {q?.fieldType === FieldType.PARAGRAPH && (
                        <></>
                       )} */}
                       {q?.fieldType === FieldType.TIME && (
-                        <div id={`question-block-${q.id}-time`} data-cy={`question-block-${q.id}-time`} className="w-full px-4 py-2 rounded-lg border bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-200 mb-2">
-                          <TimeField data-cy={`question-block-${q.id}-time-field`} />
+                        <div
+                          id={`question-block-${q.id}-time`}
+                          data-cy={`question-block-${q.id}-time`}
+                          className="w-full px-4 py-2 rounded-lg border bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-200 mb-2"
+                        >
+                          <TimeField
+                            data-cy={`question-block-${q.id}-time-field`}
+                          />
                         </div>
                       )}
                       {q?.fieldType === FieldType.DROPDOWN && (
-                        <div id={`question-block-${q.id}-dropdown`} data-cy={`question-block-${q.id}-dropdown`} className="w-full px-4 py-2 rounded-lg border bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-200 mb-2">
-                          <DropdownField options={q?.field} data-cy={`question-block-${q.id}-dropdown-options`} />
+                        <div
+                          id={`question-block-${q.id}-dropdown`}
+                          data-cy={`question-block-${q.id}-dropdown`}
+                          className="w-full px-4 py-2 rounded-lg border bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-200 mb-2"
+                        >
+                          <DropdownField
+                            options={q?.field}
+                            data-cy={`question-block-${q.id}-dropdown-options`}
+                          />
                         </div>
                       )}
                       {q?.fieldType === FieldType.RADIO && (
-                        <div id={`question-block-${q.id}-radio`} data-cy={`question-block-${q.id}-radio`} className="w-full px-4 py-2 rounded-lg border bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-200 mb-2">
-                          <RadioField options={q?.field} data-cy={`question-block-${q.id}-radio-options`} />
+                        <div
+                          id={`question-block-${q.id}-radio`}
+                          data-cy={`question-block-${q.id}-radio`}
+                          className="w-full px-4 py-2 rounded-lg border bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-200 mb-2"
+                        >
+                          <RadioField
+                            options={q?.field}
+                            data-cy={`question-block-${q.id}-radio-options`}
+                          />
                         </div>
                       )}
                     </div>
@@ -210,16 +293,31 @@ const Questions = ({ id }: Params) => {
               </Row>
             ))
           ) : (
-            <div id="questions-empty" data-cy="questions-empty" className="flex flex-col items-center justify-center py-12">
+            <div
+              id="questions-empty"
+              data-cy="questions-empty"
+              className="flex flex-col items-center justify-center py-12"
+            >
               <EmptyImage data-cy="questions-empty-image" />
-              <div id="questions-empty-text" data-cy="questions-empty-text" className="mt-4 text-gray-500 text-lg">
+              <div
+                id="questions-empty-text"
+                data-cy="questions-empty-text"
+                className="mt-4 text-gray-500 text-lg"
+              >
                 No questions found. Please add a question to get started!
               </div>
             </div>
           )}
           {questionsData && questionsData?.meta.totalPages !== 0 && (
-            <Row justify="end" id="questions-pagination-row" data-cy="questions-pagination-row">
-              <Col data-cy="questions-pagination-col" id="questions-pagination-col">
+            <Row
+              justify="end"
+              id="questions-pagination-row"
+              data-cy="questions-pagination-row"
+            >
+              <Col
+                data-cy="questions-pagination-col"
+                id="questions-pagination-col"
+              >
                 <Pagination
                   data-cy="questions-pagination"
                   total={questionsData?.meta.totalPages}
@@ -242,7 +340,11 @@ const Questions = ({ id }: Params) => {
         onCancel={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
       />
-      <Question selectedFormId={id} onClose={() => setIsDrawerOpen(false)} data-cy="questions-drawer" />
+      <Question
+        selectedFormId={id}
+        onClose={() => setIsDrawerOpen(false)}
+        data-cy="questions-drawer"
+      />
     </div>
   );
 };

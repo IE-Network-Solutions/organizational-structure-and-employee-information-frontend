@@ -164,8 +164,12 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
               <Switch
                 id="switchButtonForTypeId"
                 data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-id"
-                checkedChildren={<CheckOutlined data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-checked-icon" />}
-                unCheckedChildren={<CloseOutlined data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-unchecked-icon" />}
+                checkedChildren={
+                  <CheckOutlined data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-checked-icon" />
+                }
+                unCheckedChildren={
+                  <CloseOutlined data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-unchecked-icon" />
+                }
                 value={type.isActive}
                 onChange={activeChange}
               />

@@ -93,7 +93,11 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
               className="w-full h-[40px]"
               allowClear={true}
               suffixIcon={
-                <MdKeyboardArrowDown data-cy="time-attendance-history-table-filter-type-select-icon" size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown
+                  data-cy="time-attendance-history-table-filter-type-select-icon"
+                  size={16}
+                  className="text-gray-900"
+                />
               }
               options={formatToOptions(leaveTypes ?? [], 'title', 'id')}
               id="time-attendance-history-table-filter-type-select"
@@ -113,7 +117,11 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
               className="w-full h-[40px]"
               allowClear={true}
               suffixIcon={
-                <MdKeyboardArrowDown data-cy="time-attendance-history-table-filter-status-select-icon" size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown
+                  data-cy="time-attendance-history-table-filter-status-select-icon"
+                  size={16}
+                  className="text-gray-900"
+                />
               }
               options={LeaveRequestStatusOption}
               id="time-attendance-history-table-filter-status-select"
@@ -128,7 +136,11 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
   return (
     <>
       {/* Desktop Filters */}
-      <div id="time-attendance-history-table-filter-desktop-container" data-cy="time-attendance-history-table-filter-desktop-container" className="hidden sm:block">
+      <div
+        id="time-attendance-history-table-filter-desktop-container"
+        data-cy="time-attendance-history-table-filter-desktop-container"
+        className="hidden sm:block"
+      >
         <FilterContent data-cy="time-attendance-history-table-filter-desktop-content" />
       </div>
 
@@ -140,7 +152,12 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
       >
         <Button
           type="default"
-          icon={<LuSettings2 data-cy="time-attendance-history-table-filter-mobile-button-icon" className="text-gray-600" />}
+          icon={
+            <LuSettings2
+              data-cy="time-attendance-history-table-filter-mobile-button-icon"
+              className="text-gray-600"
+            />
+          }
           onClick={() => {
             mobileForm.setFieldsValue(form.getFieldsValue());
             setIsFilterOpen(true);
@@ -282,7 +299,11 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
                 className="w-full h-[40px]"
                 allowClear={true}
                 suffixIcon={
-                  <MdKeyboardArrowDown data-cy="time-attendance-history-table-filter-mobile-status-select-icon" size={16} className="text-gray-900" />
+                  <MdKeyboardArrowDown
+                    data-cy="time-attendance-history-table-filter-mobile-status-select-icon"
+                    size={16}
+                    className="text-gray-900"
+                  />
                 }
                 options={LeaveRequestStatusOption}
                 id="time-attendance-history-table-filter-mobile-status-select"

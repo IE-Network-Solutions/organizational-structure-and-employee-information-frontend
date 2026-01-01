@@ -213,7 +213,10 @@ const TnaRequestSidebar = () => {
         onClose={() => onClose()}
         data-cy="tna-request-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start" data-cy="tna-request-sidebar-header">
+          <CustomDrawerHeader
+            className="flex justify-start"
+            data-cy="tna-request-sidebar-header"
+          >
             TNA Request
           </CustomDrawerHeader>
         }
@@ -244,7 +247,11 @@ const TnaRequestSidebar = () => {
             id="tnaRequestSidebarTitleItemId"
             data-cy="tna-request-sidebar-title-item"
           >
-            <Input id="tnaRequestTitleFieldId" data-cy="tna-request-title-field" className="control h-10" />
+            <Input
+              id="tnaRequestTitleFieldId"
+              data-cy="tna-request-title-field"
+              className="control h-10"
+            />
           </Form.Item>
 
           <Filters
@@ -277,15 +284,29 @@ const TnaRequestSidebar = () => {
               data-cy="tna-request-sidebar-department-select"
             >
               {departmentData?.map((department: any) => (
-                <Option key={department.id} value={department.id} data-cy={`tna-request-sidebar-department-option-${department.id}`}>
+                <Option
+                  key={department.id}
+                  value={department.id}
+                  data-cy={`tna-request-sidebar-department-option-${department.id}`}
+                >
                   {department?.name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
 
-          <Form.Item name="reason" label="Reason" className="form-item" id="tnaRequestSidebarReasonItemId" data-cy="tna-request-sidebar-reason-item">
-            <Input className="control" id="tnaRequestSidebarReasonInputId" data-cy="tna-request-sidebar-reason-input" />
+          <Form.Item
+            name="reason"
+            label="Reason"
+            className="form-item"
+            id="tnaRequestSidebarReasonItemId"
+            data-cy="tna-request-sidebar-reason-item"
+          >
+            <Input
+              className="control"
+              id="tnaRequestSidebarReasonInputId"
+              data-cy="tna-request-sidebar-reason-input"
+            />
           </Form.Item>
           <Form.Item
             name="trainingNeedCategoryId"
@@ -300,7 +321,12 @@ const TnaRequestSidebar = () => {
               data-cy="tna-category-option-field"
               className="control"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900 h-10" data-cy="tna-request-sidebar-category-suffix-icon" id="tnaRequestSidebarCategorySuffixIconId" />
+                <MdKeyboardArrowDown
+                  size={16}
+                  className="text-gray-900 h-10"
+                  data-cy="tna-request-sidebar-category-suffix-icon"
+                  id="tnaRequestSidebarCategorySuffixIconId"
+                />
               }
               placeholder="Select"
               options={formatToOptions(
@@ -324,7 +350,12 @@ const TnaRequestSidebar = () => {
               data-cy="tna-request-sidebar-currency-select"
               className="control"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900 h-10" data-cy="tna-request-sidebar-currency-suffix-icon" id="tnaRequestSidebarCurrencySuffixIconId" />
+                <MdKeyboardArrowDown
+                  size={16}
+                  className="text-gray-900 h-10"
+                  data-cy="tna-request-sidebar-currency-suffix-icon"
+                  id="tnaRequestSidebarCurrencySuffixIconId"
+                />
               }
               placeholder="Select"
               options={formatToOptions(tnaCurrency, 'code', 'id')}

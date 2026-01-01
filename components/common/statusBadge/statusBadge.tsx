@@ -39,7 +39,11 @@ const StatusBadge: FC<StatusBadgeProps> = ({
     [className],
   );
 
-  return <div className={badgeClass}>{children}</div>;
+  return (
+    <div className={badgeClass} data-cy="status-badge">
+      {children}
+    </div>
+  );
 };
 
 export default StatusBadge;

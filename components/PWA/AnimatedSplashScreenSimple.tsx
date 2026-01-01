@@ -55,8 +55,12 @@ export const AnimatedSplashScreenSimple: React.FC<
         flexDirection: 'column',
         animation: 'fadeIn 0.5s ease-out',
       }}
+      data-cy="animated-splash-screen-simple"
     >
-      <div style={{ marginBottom: '2rem' }}>
+      <div
+        style={{ marginBottom: '2rem' }}
+        data-cy="animated-splash-screen-simple-logo-container"
+      >
         <SimpleLogo />
       </div>
       <h1
@@ -65,6 +69,7 @@ export const AnimatedSplashScreenSimple: React.FC<
           margin: '0 0 0.5rem 0',
           textAlign: 'center',
         }}
+        data-cy="animated-splash-screen-simple-title"
       >
         Selamnew Workspace
       </h1>
@@ -75,6 +80,7 @@ export const AnimatedSplashScreenSimple: React.FC<
           opacity: 0.9,
           textAlign: 'center',
         }}
+        data-cy="animated-splash-screen-simple-subtitle"
       >
         Redefining Work Culture
       </p>

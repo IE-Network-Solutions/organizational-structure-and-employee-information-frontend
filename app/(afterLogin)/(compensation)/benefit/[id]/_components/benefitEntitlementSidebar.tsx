@@ -254,7 +254,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
     setData(newData);
     form.setFieldsValue({ payments: newData });
-  }, [totalAmount, settlementPeriod, payPeriods]);
+  }, [totalAmount, settlementPeriod, payPeriods, form]);
   const columns = [
     {
       dataIndex: 'amount',
@@ -264,8 +264,12 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           label={'Amount'}
           name={['payments', index, 'amount']}
           className="mb-0"
+          data-cy={`benefit-entitlement-sidebar-amount-item-${index}`}
         >
-          <InputNumber className="w-full" />
+          <InputNumber
+            className="w-full"
+            data-cy={`benefit-entitlement-sidebar-amount-input-${index}`}
+          />
         </Form.Item>
       ),
     },
@@ -279,8 +283,14 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           name={['payments', index, 'payPeriodId']}
           className="mb-0"
           rules={[{ required: true, message: 'Pay Period is required' }]}
+          data-cy={`benefit-entitlement-sidebar-pay-period-item-${index}`}
         >
-          <Select placeholder="Pay Period" allowClear className="w-full">
+          <Select
+            placeholder="Pay Period"
+            allowClear
+            className="w-full"
+            data-cy={`benefit-entitlement-sidebar-pay-period-select-${index}`}
+          >
             {payPeriods
               ?.filter((period: any) => {
                 const start = dayjs(period.startDate);
@@ -293,9 +303,17 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 );
               })
               .map((period: any) => (
-                <Option key={period.id} value={period.id}>
-                  {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
-                  {dayjs(period.endDate).format('MMM DD, YYYY')}
+                <Option
+                  key={period.id}
+                  value={period.id}
+                  data-cy={`benefit-entitlement-sidebar-pay-period-option-${period.id}-${index}`}
+                >
+                  <span
+                    data-cy={`benefit-entitlement-sidebar-pay-period-option-text-${period.id}-${index}`}
+                  >
+                    {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
+                    {dayjs(period.endDate).format('MMM DD, YYYY')}
+                  </span>
                 </Option>
               ))}
           </Select>
@@ -311,8 +329,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           required
           name={['payments', index, 'reason']}
           className="mb-0"
+          data-cy={`benefit-entitlement-sidebar-reason-item-${index}`}
         >
-          <TextArea placeholder="Reason" autoSize />
+          <TextArea
+            placeholder="Reason"
+            autoSize
+            data-cy={`benefit-entitlement-sidebar-reason-textarea-${index}`}
+          />
         </Form.Item>
       ),
     },
@@ -321,57 +344,63 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   return (
     <>
       {isBenefitEntitlementSidebarOpen && (
-          <CustomDrawerLayout
-            data-cy="compensation-benefit-sidebar-layout"
-            open={isBenefitEntitlementSidebarOpen}
-            onClose={onClose}
-            modalHeader={
-              <CustomDrawerHeader data-cy="compensation-benefit-sidebar-header" className="flex justify-center">
-                <span
-                  className="text-2xl"
-                  id="compensation-benefit-sidebar-title"
-                  data-cy="compensation-benefit-sidebar-title"
-                >
-                  {title}
-                </span>
-              </CustomDrawerHeader>
-            }
-            footer={
-              <div
-                className="flex flex-row gap-4 justify-center py-3"
-                id="compensation-benefit-sidebar-footer"
-                data-cy="compensation-benefit-sidebar-footer"
+        <CustomDrawerLayout
+          data-cy="compensation-benefit-sidebar-layout"
+          open={isBenefitEntitlementSidebarOpen}
+          onClose={onClose}
+          modalHeader={
+            <CustomDrawerHeader
+              data-cy="compensation-benefit-sidebar-header"
+              className="flex justify-center"
+            >
+              <span
+                className="text-2xl"
+                id="compensation-benefit-sidebar-title"
+                data-cy="compensation-benefit-sidebar-title"
               >
-                <Button
-                  type="default"
-                  className="h-10 px-3 w-40"
-                  size="large"
-                  loading={createBenefitLoading}
-                  onClick={() => onClose()}
-                  id="compensation-benefit-sidebar-cancel-button"
-                  data-cy="compensation-benefit-sidebar-cancel-button"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="primary"
-                  key="create"
-                  className="h-10 px-3 w-40"
-                  size="large"
-                  loading={createBenefitLoading}
-                  disabled={entitlementsLoading}
-                  onClick={() => form.submit()}
-                  id="compensation-benefit-sidebar-create-button"
-                  data-cy="compensation-benefit-sidebar-create-button"
-                >
-                  Create
-                </Button>
-              </div>
-            }
-            width="35%"
-            customPadding="16px"
+                {title}
+              </span>
+            </CustomDrawerHeader>
+          }
+          footer={
+            <div
+              className="flex flex-row gap-4 justify-center py-3"
+              id="compensation-benefit-sidebar-footer"
+              data-cy="compensation-benefit-sidebar-footer"
+            >
+              <Button
+                type="default"
+                className="h-10 px-3 w-40"
+                size="large"
+                loading={createBenefitLoading}
+                onClick={() => onClose()}
+                id="compensation-benefit-sidebar-cancel-button"
+                data-cy="compensation-benefit-sidebar-cancel-button"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                key="create"
+                className="h-10 px-3 w-40"
+                size="large"
+                loading={createBenefitLoading}
+                disabled={entitlementsLoading}
+                onClick={() => form.submit()}
+                id="compensation-benefit-sidebar-create-button"
+                data-cy="compensation-benefit-sidebar-create-button"
+              >
+                Create
+              </Button>
+            </div>
+          }
+          width="35%"
+          customPadding="16px"
+        >
+          <Spin
+            data-cy="compensation-benefit-sidebar-loading"
+            spinning={allUserLoading || payLoading}
           >
-          <Spin data-cy="compensation-benefit-sidebar-loading" spinning={allUserLoading || payLoading}>
             <Form
               layout="vertical"
               className="p-2"
@@ -386,7 +415,12 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 id="compensation-benefit-sidebar-amount-grid"
                 data-cy="compensation-benefit-sidebar-amount-grid"
               >
-                <Form.Item data-cy="compensation-benefit-sidebar-total-amount-item" required name="totalAmount" label="Total Amount">
+                <Form.Item
+                  data-cy="compensation-benefit-sidebar-total-amount-item"
+                  required
+                  name="totalAmount"
+                  label="Total Amount"
+                >
                   <InputNumber
                     className="w-full h-10 mt-1"
                     value={totalAmount}
@@ -398,7 +432,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 <Form.Item
                   required
                   name="settlementPeriod"
-                  label="Settlement Period"
+                  label={
+                    benefitDatas?.mode === 'CREDIT' ? (
+                      <span>Settlement Period </span>
+                    ) : (
+                      <span>Payout Period</span>
+                    )
+                  }
                   data-cy="compensation-benefit-sidebar-settlement-period-item"
                 >
                   <InputNumber
@@ -450,7 +490,11 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                   data-cy="compensation-benefit-sidebar-department-select"
                 >
                   {departments?.map((dept: any) => (
-                    <Option data-cy="compensation-benefit-sidebar-department-option" key={dept.id} value={dept.name}>
+                    <Option
+                      data-cy="compensation-benefit-sidebar-department-option"
+                      key={dept.id}
+                      value={dept.name}
+                    >
                       {dept.name}
                     </Option>
                   ))}
@@ -493,7 +537,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               </Form.Item>
             </Form>
           </Spin>
-          </CustomDrawerLayout>
+        </CustomDrawerLayout>
       )}
 
       {/* Duplicate Confirmation Modal */}

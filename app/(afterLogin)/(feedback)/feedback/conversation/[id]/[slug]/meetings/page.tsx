@@ -23,7 +23,10 @@ const Page = ({ params }: { params: Params }) => {
   const { data: conversationType } = useGetConversationById(id);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="meetings-page-modal-header"
+    >
       Add New {conversationType?.name} Meeting
     </div>
   );
