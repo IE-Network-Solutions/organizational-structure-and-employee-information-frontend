@@ -261,13 +261,16 @@ const columns: ColumnsType<any> = [
 export default function ActionPlansPage() {
   const [form] = Form.useForm();
   const { data: allUsers } = useGetAllUsers();
-  const { userData } = useAuthenticationStore();
+  const { userData, userId } = useAuthenticationStore();
   const isOwner = userData?.role?.slug === 'owner';
+  const isUserRole = userData?.role?.slug?.toLowerCase() === 'user';
   const peopleOptions = allUsers?.items?.map((i: any) => ({
     value: i.id,
     label: `${i?.firstName} ${i?.middleName} ${i?.lastName}`,
   }));
-  const empId = Form.useWatch('empId', form) || null;
+  const formEmpId = Form.useWatch('empId', form) || null;
+  // If user role, automatically filter by their own userId, otherwise use form value
+  const empId = isUserRole ? userId : formEmpId;
   const sourceType = Form.useWatch('sourceType', form) || null;
   const priority = Form.useWatch('priority', form) || null;
   const status = Form.useWatch('status', form) || null;
@@ -400,7 +403,7 @@ export default function ActionPlansPage() {
               className="h-12"
               data-cy="feedback-action-plan-page-select-employee"
               id="feedback-action-plan-page-select-employee"
-              disabled={!isOwner}
+              disabled={!isOwner || isUserRole}
             />
           </Form.Item>
 
@@ -627,7 +630,7 @@ export default function ActionPlansPage() {
                 className="h-12"
                 data-cy="feedback-action-plan-page-modal-select-employee"
                 id="feedback-action-plan-page-modal-select-employee"
-                disabled={!isOwner}
+                disabled={!isOwner || isUserRole}
               />
             </Form.Item>
 
