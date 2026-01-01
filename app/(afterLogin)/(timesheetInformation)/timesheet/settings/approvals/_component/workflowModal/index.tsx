@@ -1,4 +1,7 @@
-import { useCreateApproverMutation } from '@/store/server/features/approver/mutation';
+import {
+  useCreateApproverMutation,
+  useDeleteApprovalWorkFLow,
+} from '@/store/server/features/approver/mutation';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { Button, Form, Input, Modal, Radio, Row, Select } from 'antd';
 import { FaRegCircle } from 'react-icons/fa';
@@ -7,6 +10,8 @@ import { RadioChangeEvent } from 'antd/lib';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { HierarchyList } from '@/store/server/features/approver/interface';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useEffect } from 'react';
+import { useGetAllApprovalWorkflow } from '@/store/server/features/approver/queries';
 
 interface Department {
   id: string;
@@ -24,10 +29,12 @@ const WorkflowModal = ({
   open,
   onCancel,
   onChange,
+  currentWorkFlow,
 }: {
   open: boolean;
   onCancel: () => void;
   onChange: (a: string) => void;
+  currentWorkFlow: string;
 }) => {
   const HierarchyList: HierarchyList[] = [
     {
@@ -71,12 +78,57 @@ const WorkflowModal = ({
     setWorkflowUserId,
     setDepartmentApproval,
     setAddDepartmentApproval,
+    setIsCreated,
   } = useApprovalStore();
+
+  const isSequentialSelected = approverType === 'Sequential';
+  const isParallelSelected = approverType === 'Parallel';
+  const isConditionalSelected = approverType === 'Conditional';
   const { mutate: CreateApprover } = useCreateApproverMutation();
   const { data: department } = useGetDepartments();
   const { data: users } = useGetAllUsers();
+  const { data: approvalWorkflowData } = useGetAllApprovalWorkflow();
+  const { mutate: deleteWorkflow, isLoading: deleteLoading } =
+    useDeleteApprovalWorkFLow();
 
   const [form] = Form.useForm();
+
+  // Populate form when modal opens with current workflow data
+  useEffect(() => {
+    if (open && currentWorkFlow && workflowApplies) {
+      // Find the current workflow to get entityId
+      const currentWorkflow = approvalWorkflowData?.items?.find(
+        (item: any) => item.id === currentWorkFlow,
+      );
+
+      if (currentWorkflow) {
+        // Set the form fields
+        const formValues: any = {
+          workflowAppliesType: workflowApplies,
+        };
+
+        // Set the workflowAppliesId field if entityId exists
+        if (currentWorkflow.entityId) {
+          formValues.workflowAppliesId = currentWorkflow.entityId;
+          setWorkflowUserId(currentWorkflow.entityId);
+        }
+
+        form.setFieldsValue(formValues);
+      }
+    }
+  }, [
+    open,
+    currentWorkFlow,
+    workflowApplies,
+    approvalWorkflowData,
+    form,
+    setWorkflowUserId,
+  ]);
+
+  const createFlag = () => {
+    setIsCreated(true);
+  };
+
   const handleSubmit = () => {
     const name = form.getFieldValue('workFlownName');
     const description = form.getFieldValue('description');
@@ -109,16 +161,21 @@ const WorkflowModal = ({
 
     setAddDepartmentApproval(false);
     setDepartmentApproval(false);
-    CreateApprover(
-      { values: jsonPayload },
-      {
-        onSuccess: () => {
-          setAddDepartmentApproval(false);
-          setDepartmentApproval(false);
-          onCancel();
-        },
+
+    deleteWorkflow(currentWorkFlow, {
+      onSuccess: () => {
+        CreateApprover(
+          { values: jsonPayload },
+          {
+            onSuccess: () => {
+              setAddDepartmentApproval(false);
+              setDepartmentApproval(false);
+              onCancel();
+            },
+          },
+        );
       },
-    );
+    });
   };
 
   const onRadioChange = (e: RadioChangeEvent) => {
@@ -151,10 +208,16 @@ const WorkflowModal = ({
     setSelections({ SectionItemType: updatedSelections });
   };
 
+  const handleWorkflowModalCancel = () => {
+    onCancel();
+    form.resetFields();
+    setDepartmentApproval(false);
+  };
+
   return (
     <Modal
       open={open}
-      onCancel={onCancel}
+      onCancel={handleWorkflowModalCancel}
       title={
         <p className="text-xl font-semibold">
           In order to remove this workflow you have to transfer this workflow to
@@ -188,11 +251,26 @@ const WorkflowModal = ({
               <Button
                 data-cy="approval-workflow-type-sequential-button"
                 id="approval-workflow-type-sequential-button"
-                className="py-5 text-lg gap-1 w-full flex justify-between px-5 rounded-lg"
+                className={`py-5 text-lg gap-1 w-full flex justify-between px-5 rounded-lg ${
+                  isSequentialSelected
+                    ? 'border-2 border-green-500 bg-white'
+                    : 'border border-gray-200 bg-white'
+                }`}
                 onClick={() => onChange('Sequential')}
               >
                 Sequential Approval
-                <FaRegCircle />
+                {isSequentialSelected ? (
+                  <FaRegCircle
+                    className="w-5 h-5 text-blue-600"
+                    style={{
+                      fill: 'white',
+                      stroke: 'currentColor',
+                      strokeWidth: '2',
+                    }}
+                  />
+                ) : (
+                  <FaRegCircle className="w-5 h-5 text-gray-400" />
+                )}
               </Button>
             </div>
             <div
@@ -203,10 +281,26 @@ const WorkflowModal = ({
               <Button
                 data-cy="approval-workflow-type-parallel-button"
                 id="approval-workflow-type-parallel-button"
-                className="py-5 text-lg gap-1 w-full flex justify-between px-5 rounded-lg"
+                className={`py-5 text-lg gap-1 w-full flex justify-between px-5 rounded-lg ${
+                  isParallelSelected
+                    ? 'border-2 border-green-500 bg-white'
+                    : 'border border-gray-200 bg-white'
+                }`}
                 onClick={() => onChange('Parallel')}
               >
-                Parallel Approval <FaRegCircle />
+                Parallel Approval
+                {isParallelSelected ? (
+                  <FaRegCircle
+                    className="w-5 h-5 text-blue-600"
+                    style={{
+                      fill: 'white',
+                      stroke: 'currentColor',
+                      strokeWidth: '2',
+                    }}
+                  />
+                ) : (
+                  <FaRegCircle className="w-5 h-5 text-gray-400" />
+                )}
               </Button>
             </div>
             <div
@@ -218,10 +312,26 @@ const WorkflowModal = ({
                 data-cy="approval-workflow-conditional-button"
                 id="approval-workflow-conditional-button"
                 disabled
-                className="py-5 text-lg gap-1 w-full flex justify-between px-5 rounded-lg"
+                className={`py-5 text-lg gap-1 w-full flex justify-between px-5 rounded-lg ${
+                  isConditionalSelected
+                    ? 'border-2 border-green-500 bg-white'
+                    : 'border border-gray-200 bg-white'
+                }`}
                 onClick={() => onChange('Conditional')}
               >
-                Conditional Approval <FaRegCircle />
+                Conditional Approval
+                {isConditionalSelected ? (
+                  <FaRegCircle
+                    className="w-5 h-5 text-blue-600"
+                    style={{
+                      fill: 'white',
+                      stroke: 'currentColor',
+                      strokeWidth: '2',
+                    }}
+                  />
+                ) : (
+                  <FaRegCircle className="w-5 h-5 text-gray-400" />
+                )}
               </Button>
             </div>
           </div>
@@ -274,7 +384,7 @@ const WorkflowModal = ({
           data-cy="approval-workflow-applies-type"
           id="approval-workflow-applies-type"
         >
-          <Radio.Group onChange={onRadioChange}>
+          <Radio.Group onChange={onRadioChange} value={workflowApplies}>
             <Radio
               data-cy="approval-workflow-applies-type-department"
               id="approval-workflow-applies-type-department"
@@ -481,6 +591,7 @@ const WorkflowModal = ({
               id="approval-workflow-submit-button"
               type="primary"
               htmlType="submit"
+              onClick={createFlag}
             >
               Submit
             </Button>

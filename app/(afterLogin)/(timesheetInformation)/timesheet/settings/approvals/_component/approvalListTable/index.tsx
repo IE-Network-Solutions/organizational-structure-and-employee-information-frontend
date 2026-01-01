@@ -55,6 +55,7 @@ const ApprovalListTable = () => {
     selectedItem,
     setDepartmentApproval,
     approverType,
+    isCreated,
   } = useApprovalStore();
   const [workflowModal, setWorkflowModal] = useState(false);
   const { searchParams } = useApprovalStore();
@@ -94,22 +95,36 @@ const ApprovalListTable = () => {
 
   const [form] = Form.useForm(); // Form instance
   const onFinish = (values: any) => {
-    deleteWorkflow(values.currentWorkFlow, {
-      onSuccess: () => {
-        // Fix: Pass the correct structure for updateWorkflow
-        updateWorkflow(
-          {
-            currentapprovalWorkflowId: values.currentWorkFlow,
-            approvalWorkflowId: values.workflow,
+    if (isCreated) {
+      updateWorkflow(
+        {
+          currentapprovalWorkflowId: values.currentWorkFlow,
+          approvalWorkflowId: values.workflow,
+        },
+        {
+          onSuccess: () => {
+            setTransferModal(false);
           },
-          {
-            onSuccess: () => {
-              setTransferModal(false);
+        },
+      );
+    } else {
+      deleteWorkflow(values.currentWorkFlow, {
+        onSuccess: () => {
+          // Fix: Pass the correct structure for updateWorkflow
+          updateWorkflow(
+            {
+              currentapprovalWorkflowId: values.currentWorkFlow,
+              approvalWorkflowId: values.workflow,
             },
-          },
-        );
-      },
-    });
+            {
+              onSuccess: () => {
+                setTransferModal(false);
+              },
+            },
+          );
+        },
+      });
+    }
   };
 
   const MAX_NAME_LENGTH = 10;
@@ -405,6 +420,32 @@ const ApprovalListTable = () => {
       setDepartmentApproval(true);
     }
   };
+
+  const handleCreateNewWorkflow = () => {
+    // Find the current workflow from allFilterData
+    const currentWorkflow = allFilterData?.items?.find(
+      (item: any) => item.id === deletedItem,
+    );
+
+    // Set the workflowApplies type from the current workflow
+    if (currentWorkflow?.entityType) {
+      setWorkflowApplies(currentWorkflow.entityType);
+    }
+
+    setWorkflowModal(true);
+  };
+
+  const handleWorkflowModalCancel = () => {
+    setWorkflowModal(false);
+    setApproverType(null);
+    setDepartmentApproval(false);
+  };
+
+  const handleTransferModalCancel = () => {
+    setTransferModal(false);
+    form.resetFields();
+  };
+
   return (
     <div
       className="mt-2"
@@ -445,7 +486,7 @@ const ApprovalListTable = () => {
           </p>
         }
         open={transferModal}
-        onCancel={() => setTransferModal(false)}
+        onCancel={handleTransferModalCancel}
         footer={null}
         data-cy="time-attendance-settings-approvals-table-transfer-modal"
         centered
@@ -547,7 +588,7 @@ const ApprovalListTable = () => {
                   id="time-attendance-settings-approvals-table-transfer-modal-create-button"
                   className="text-sm px-10 h-10"
                   type="primary"
-                  onClick={() => setWorkflowModal(true)}
+                  onClick={handleCreateNewWorkflow}
                 >
                   Create New
                 </Button>
@@ -579,8 +620,9 @@ const ApprovalListTable = () => {
       </Modal>
       <WorkflowModal
         open={workflowModal}
-        onCancel={() => setWorkflowModal(false)}
+        onCancel={handleWorkflowModalCancel}
         onChange={onChange}
+        currentWorkFlow={deletedItem}
       />
     </div>
   );
