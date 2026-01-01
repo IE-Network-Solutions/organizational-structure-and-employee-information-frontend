@@ -28,6 +28,7 @@ interface BoardCardInterface {
 }
 
 function BoardCardForm({
+  form,
   handleAddName,
   handleRemoveBoard,
   hideTargetValue,
@@ -35,7 +36,6 @@ function BoardCardForm({
   isMKAsTask = false,
   keyResult,
   targetValue,
-  parentPlanId,
   milestoneId,
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
