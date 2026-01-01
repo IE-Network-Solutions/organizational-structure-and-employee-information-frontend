@@ -2,7 +2,7 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
-import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, MenuOutlined, FileTextOutlined } from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
@@ -631,6 +631,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
+          <FileTextOutlined
+            style={{ fontSize: 18 }}
+            className={
+              expandedKeys.includes('/audit-log') ? 'text-blue' : ''
+            }
+          />
+          <span>Audit Log</span>
+        </span>
+      ),
+      key: '/audit-log',
+      className: 'font-bold',
+      permissions: ['view_audit_log'],
+      disabled: hasEndedFiscalYear,
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12">
           <CiSettings
             size={18}
             className={expandedKeys.includes('admin-menu') ? 'text-blue' : ''}
@@ -887,7 +904,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     const selectedKey = info?.node?.key;
     if (!selectedKey) return;
 
-    if (info.node.children) {
+    // Check if node has children - handle both undefined and empty arrays
+    const hasChildren = info.node.children && Array.isArray(info.node.children) && info.node.children.length > 0;
+    
+    if (hasChildren) {
       setExpandedKeys((prev) =>
         prev.includes(selectedKey) ? [] : [selectedKey],
       );
@@ -1033,7 +1053,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return {
         ...item,
         title: collapsed ? (
-          item.children ? (
+          item.children && item.children.length > 0 ? (
             <Dropdown
               overlay={renderSubMenu(item.children)}
               trigger={['click']}
@@ -1052,7 +1072,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               </div>
             </Dropdown>
           ) : (
-            renderTitle()
+            <div
+              className="flex items-center justify-center w-full cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                const path = String(item.key);
+                if (pathname !== path) {
+                  triggerRouteLoaderStart();
+                  router.push(path);
+                }
+                setSelectedKeys([item.key]);
+              }}
+            >
+              {renderTitle()}
+            </div>
           )
         ) : (
           item.title
