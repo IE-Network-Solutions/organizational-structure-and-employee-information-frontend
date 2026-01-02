@@ -160,6 +160,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employee-information/[id]',
       permissions: [], // Allow all users to access employee information
     },
+    {
+      key: '/feedback/action-plan',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
+    {
+      key: '/feedback/meeting',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
+    {
+      key: '/feedback/categories',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
   ];
 
   const getRoutesAndPermissions = (
@@ -487,7 +499,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: <span>Payroll</span>,
           key: '/payroll',
           className: 'font-bold',
-          permissions: ['view_payroll_overview'],
+          permissions: ['view_payroll_overview_page'],
         },
         {
           title: <span>My Payroll</span>,
@@ -1264,7 +1276,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className="overflow-y-hidden min-h-screen"
           style={{
             paddingInline: isMobile ? 8 : 24,
-            paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+            paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             transition: 'padding-left 0.3s ease',
           }}
         >

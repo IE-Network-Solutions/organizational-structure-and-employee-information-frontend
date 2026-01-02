@@ -161,10 +161,11 @@ const MilestoneView: React.FC<OKRProps> = ({
     const currentMilestones = newKeyResult[index]?.milestones || [];
 
     // Find the milestone being removed to track its ID
-    const milestoneToRemove = currentMilestones.find((m: any, idx: number) =>
-      typeof mId === 'string'
-        ? String(m?.id) === String(mId)
-        : idx === Number(mId),
+    const milestoneToRemove = currentMilestones.find(
+      (m: any, idx: number) =>
+        typeof mId === 'string'
+          ? String(m?.id) === String(mId)
+          : idx === Number(mId),
     );
 
     // Track deleted milestone ID if it exists in database

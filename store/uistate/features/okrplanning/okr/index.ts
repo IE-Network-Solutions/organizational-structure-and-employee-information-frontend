@@ -433,10 +433,8 @@ export const useOKRStore = create<OKRState>()(
     sessionIds: [],
     setSessionIds: (sessionIds: string[]) => set({ sessionIds }),
     deletedKeyResultIds: [],
-    setDeletedKeyResultIds: (ids: string[]) =>
-      set({ deletedKeyResultIds: ids }),
+    setDeletedKeyResultIds: (ids: string[]) => set({ deletedKeyResultIds: ids }),
     deletedMilestoneIds: [],
-    setDeletedMilestoneIds: (ids: string[]) =>
-      set({ deletedMilestoneIds: ids }),
+    setDeletedMilestoneIds: (ids: string[]) => set({ deletedMilestoneIds: ids }),
   })),
 );
