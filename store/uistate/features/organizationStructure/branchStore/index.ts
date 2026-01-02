@@ -12,6 +12,8 @@ interface BranchStore {
   setSelectedBranch: (branch: Branch | null) => void;
   setDeleteModalVisible: (visible: boolean) => void;
   setBranchToDelete: (branch: Branch | null) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 export const useBranchStore = create<BranchStore>((set) => ({
@@ -25,4 +27,6 @@ export const useBranchStore = create<BranchStore>((set) => ({
   setSelectedBranch: (branch) => set({ selectedBranch: branch }),
   setDeleteModalVisible: (visible) => set({ deleteModalVisible: visible }),
   setBranchToDelete: (branch) => set({ branchToDelete: branch }),
+  searchQuery: '',
+  setSearchQuery: (query) => set({ searchQuery: query }),
 }));

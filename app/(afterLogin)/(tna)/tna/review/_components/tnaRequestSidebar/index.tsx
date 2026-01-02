@@ -211,8 +211,12 @@ const TnaRequestSidebar = () => {
       <CustomDrawerLayout
         open={isShowTnaReviewSidebar}
         onClose={() => onClose()}
+        data-cy="tna-request-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start">
+          <CustomDrawerHeader
+            className="flex justify-start"
+            data-cy="tna-request-sidebar-header"
+          >
             TNA Request
           </CustomDrawerHeader>
         }
@@ -220,6 +224,7 @@ const TnaRequestSidebar = () => {
           <CustomDrawerFooterButton
             className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
+            data-cy="tna-request-sidebar-footer"
           />
         }
         width="40%"
@@ -231,14 +236,22 @@ const TnaRequestSidebar = () => {
           disabled={isLoading || isTnaFetching}
           onFinish={onFinish}
           requiredMark={CustomLabel}
+          id="tnaRequestSidebarFormId"
+          data-cy="tna-request-sidebar-form"
         >
           <Form.Item
             name="title"
             label="TNA Request Title"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaRequestSidebarTitleItemId"
+            data-cy="tna-request-sidebar-title-item"
           >
-            <Input id="tnaRequestTitleFieldId" className="control h-10" />
+            <Input
+              id="tnaRequestTitleFieldId"
+              data-cy="tna-request-title-field"
+              className="control h-10"
+            />
           </Form.Item>
 
           <Filters
@@ -254,39 +267,66 @@ const TnaRequestSidebar = () => {
                   }
                 : undefined
             }
+            data-cy="tna-request-sidebar-filters"
           />
           <Form.Item
             name="departmentId"
             label="Department"
             className="form-item"
+            id="tnaRequestSidebarDepartmentItemId"
+            data-cy="tna-request-sidebar-department-item"
           >
             <Select
               placeholder="department data"
               allowClear
               style={{ width: '100%', height: '40px' }}
+              id="tnaRequestSidebarDepartmentSelectId"
+              data-cy="tna-request-sidebar-department-select"
             >
               {departmentData?.map((department: any) => (
-                <Option key={department.id} value={department.id}>
+                <Option
+                  key={department.id}
+                  value={department.id}
+                  data-cy={`tna-request-sidebar-department-option-${department.id}`}
+                >
                   {department?.name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
 
-          <Form.Item name="reason" label="Reason" className="form-item">
-            <Input className="control" />
+          <Form.Item
+            name="reason"
+            label="Reason"
+            className="form-item"
+            id="tnaRequestSidebarReasonItemId"
+            data-cy="tna-request-sidebar-reason-item"
+          >
+            <Input
+              className="control"
+              id="tnaRequestSidebarReasonInputId"
+              data-cy="tna-request-sidebar-reason-input"
+            />
           </Form.Item>
           <Form.Item
             name="trainingNeedCategoryId"
             label="Training Category"
             className="form-item"
             rules={[{ required: true, message: 'Required' }]}
+            id="tnaRequestSidebarCategoryItemId"
+            data-cy="tna-request-sidebar-category-item"
           >
             <Select
               id="tnaCategoryOptionFieldId"
+              data-cy="tna-category-option-field"
               className="control"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900 h-10" />
+                <MdKeyboardArrowDown
+                  size={16}
+                  className="text-gray-900 h-10"
+                  data-cy="tna-request-sidebar-category-suffix-icon"
+                  id="tnaRequestSidebarCategorySuffixIconId"
+                />
               }
               placeholder="Select"
               options={formatToOptions(
@@ -302,12 +342,20 @@ const TnaRequestSidebar = () => {
             label="Currency"
             className="form-item"
             rules={[{ required: true, message: 'Required' }]}
+            id="tnaRequestSidebarCurrencyItemId"
+            data-cy="tna-request-sidebar-currency-item"
           >
             <Select
               id="currencyId"
+              data-cy="tna-request-sidebar-currency-select"
               className="control"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900 h-10" />
+                <MdKeyboardArrowDown
+                  size={16}
+                  className="text-gray-900 h-10"
+                  data-cy="tna-request-sidebar-currency-suffix-icon"
+                  id="tnaRequestSidebarCurrencySuffixIconId"
+                />
               }
               placeholder="Select"
               options={formatToOptions(tnaCurrency, 'code', 'id')}
@@ -318,9 +366,12 @@ const TnaRequestSidebar = () => {
             label="Training Price"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaRequestSidebarPriceItemId"
+            data-cy="tna-request-sidebar-price-item"
           >
             <InputNumber
               id="tnaTraniningPriceFieldId"
+              data-cy="tna-training-price-field"
               min={0}
               suffix={<AiOutlineDollarCircle />}
               className="control-number h-10"
@@ -330,9 +381,12 @@ const TnaRequestSidebar = () => {
             name="detail"
             label="Detail Information"
             className="form-item"
+            id="tnaRequestSidebarDetailItemId"
+            data-cy="tna-request-sidebar-detail-item"
           >
             <Input.TextArea
               id="tnaDetailInformationFieldId"
+              data-cy="tna-detail-information-field"
               className="control-tarea h-24"
               rows={6}
               placeholder="Enter brief reason for your training of choice"

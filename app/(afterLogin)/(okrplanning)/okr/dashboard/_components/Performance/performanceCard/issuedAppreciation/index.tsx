@@ -6,12 +6,21 @@ const IssuedAppreciation: React.FC<{ kpi: number; engagement: number }> = ({
   engagement,
 }) => {
   return (
-    <div>
+    <div
+      id="okr-issued-appreciation-wrapper-display-div"
+      data-cy="okr-issued-appreciation-wrapper-display-div"
+    >
       <Card
         className="text-md gap-2 flex flex-col  p-4 shadow-lg"
         bodyStyle={{ padding: '0px', margin: '0px' }}
+        id="okr-issued-appreciation-card-display-card"
+        data-cy="okr-issued-appreciation-card-display-card"
       >
-        <div className="flex items-center gap-5 justify-start">
+        <div
+          className="flex items-center gap-5 justify-start"
+          id="okr-issued-appreciation-header-display-div"
+          data-cy="okr-issued-appreciation-header-display-div"
+        >
           {' '}
           <svg
             width="40"
@@ -19,6 +28,8 @@ const IssuedAppreciation: React.FC<{ kpi: number; engagement: number }> = ({
             viewBox="0 0 40 41"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            id="okr-issued-appreciation-icon-display-svg"
+            data-cy="okr-issued-appreciation-icon-display-svg"
           >
             <rect
               y="0.730957"
@@ -47,18 +58,58 @@ const IssuedAppreciation: React.FC<{ kpi: number; engagement: number }> = ({
               mask="url(#path-2-inside-1_7606_452769)"
             />
           </svg>
-          <div className="flex items-center justify-start text-sm font-medium  text-gray-600">
+          <div
+            className="flex items-center justify-start text-sm font-medium  text-gray-600"
+            id="okr-issued-appreciation-title-display-div"
+            data-cy="okr-issued-appreciation-title-display-div"
+          >
             Issued Appreciation
           </div>
         </div>
-        <div className="flex  items-center justify-center gap-6 text-primary pl-10 lg:pl-0 ">
-          <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg">
-            <div className="text-2xl font-extrabold">{kpi}</div>
-            <div className="text-sm  font-bold">KPI</div>
+        <div
+          className="flex  items-center justify-center gap-6 text-primary pl-10 lg:pl-0 "
+          id="okr-issued-appreciation-metrics-display-div"
+          data-cy="okr-issued-appreciation-metrics-display-div"
+        >
+          <div
+            className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg"
+            id="okr-issued-appreciation-kpi-display-div"
+            data-cy="okr-issued-appreciation-kpi-display-div"
+          >
+            <div
+              className="text-2xl font-extrabold"
+              id="okr-issued-appreciation-kpi-value-display-div"
+              data-cy="okr-issued-appreciation-kpi-value-display-div"
+            >
+              {kpi}
+            </div>
+            <div
+              className="text-sm  font-bold"
+              id="okr-issued-appreciation-kpi-label-display-div"
+              data-cy="okr-issued-appreciation-kpi-label-display-div"
+            >
+              KPI
+            </div>
           </div>
-          <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg">
-            <div className="text-2xl font-extrabold">{engagement}</div>
-            <div className="text-sm  font-bold">Engagement</div>
+          <div
+            className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg"
+            id="okr-issued-appreciation-engagement-display-div"
+            data-cy="okr-issued-appreciation-engagement-display-div"
+          >
+            <div
+              className="text-2xl font-extrabold"
+              id="okr-issued-appreciation-engagement-value-display-div"
+              data-cy="okr-issued-appreciation-engagement-value-display-div"
+            >
+              {engagement}
+            </div>
+            <div
+              className="text-sm  font-bold"
+              id="okr-issued-appreciation-engagement-label-display-div"
+              data-cy="okr-issued-appreciation-engagement-label-display-div"
+            >
+              Engagement
+            </div>
           </div>
         </div>
       </Card>

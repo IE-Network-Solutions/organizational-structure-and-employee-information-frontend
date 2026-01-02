@@ -89,21 +89,53 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
+    if (isLoading)
+      return (
+        <div
+          id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-loading-div`}
+          data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-loading-div`}
+        >
+          ...
+        </div>
+      );
     if (isError) return <>-</>;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="mx-1 text-sm">
+      <div
+        id={`time-attendance-employee-attendance-row-employee-name-div-${userId}`}
+        data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}`}
+        className="flex items-center gap-1.5"
+      >
+        <div
+          id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-employee-attendance-id-div`}
+          data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-employee-attendance-id-div`}
+          className="mx-1 text-sm"
+        >
           {employeeData?.employeeInformation?.employeeAttendanceId}
         </div>
-        <Avatar size={24} icon={<UserOutlined />} />
-        <div className="flex-1">
-          <div className="text-xs text-gray-900 flex gap-2">
+        <Avatar
+          data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-avatar`}
+          size={24}
+          icon={<UserOutlined />}
+        />
+        <div
+          id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-div`}
+          data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-div`}
+          className="flex-1"
+        >
+          <div
+            id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-text-div`}
+            data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-text-div`}
+            className="text-xs text-gray-900 flex gap-2"
+          >
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
-          <div className="text-[10px] leading-4 text-gray-600">
+          <div
+            id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-email-div`}
+            data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-email-div`}
+            className="text-[10px] leading-4 text-gray-600"
+          >
             {employeeData?.email}
           </div>
         </div>
@@ -136,25 +168,42 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         const attendanceBreak = record.attendanceBreaks?.[0];
         const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
         return (
-          <div>
+          <div
+            id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}`}
+            data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}`}
+          >
             {hasBreakTypeFilter &&
             attendanceBreak &&
             attendanceBreak?.breakType ? (
-              <div className="text-xs text-gray-600 mt-1">
-                <div>
+              <div
+                id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div`}
+                data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div`}
+                className="text-xs text-gray-600 mt-1"
+              >
+                <div
+                  id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner`}
+                  data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner`}
+                >
                   {attendanceBreak?.endAt ? (
                     dayjs(attendanceBreak?.endAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
-                    <div className="min-h-6 py-1 px-4 flex items-center justify-center rounded-lg font-bold text-[10px] w-max bg-red-100 text-red-600">
+                    <div
+                      id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner-missed-break-clock-in-div`}
+                      data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner-missed-break-clock-in-div`}
+                      className="min-h-6 py-1 px-4 flex items-center justify-center rounded-lg font-bold text-[10px] w-max bg-red-100 text-red-600"
+                    >
                       Missed Break Clock In
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div>
+              <div
+                id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-date-div`}
+                data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-date-div`}
+              >
                 {date
                   ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
                   : '-'}
@@ -172,25 +221,42 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         const attendanceBreak = record.attendanceBreaks?.[0];
         const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
         return (
-          <div>
+          <div
+            id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}`}
+            data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}`}
+          >
             {hasBreakTypeFilter &&
             attendanceBreak &&
             attendanceBreak?.breakType ? (
-              <div className="text-xs text-gray-600 mt-1">
-                <div>
+              <div
+                id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div`}
+                data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div`}
+                className="text-xs text-gray-600 mt-1"
+              >
+                <div
+                  id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner`}
+                  data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner`}
+                >
                   {attendanceBreak?.startAt ? (
                     dayjs(attendanceBreak?.startAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
-                    <div className="min-h-6 py-1 px-4 flex items-center justify-center rounded-lg font-bold text-[10px] w-max bg-red-100 text-red-600">
+                    <div
+                      id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner-missed-break-clock-out-div`}
+                      data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner-missed-break-clock-out-div`}
+                      className="min-h-6 py-1 px-4 flex items-center justify-center rounded-lg font-bold text-[10px] w-max bg-red-100 text-red-600"
+                    >
                       Missed Break Clock Out
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div>
+              <div
+                id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-date-div`}
+                data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-date-div`}
+              >
                 {date
                   ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
                   : '-'}
@@ -214,13 +280,23 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             record,
           );
           return (
-            <Space>
+            <Space data-cy="time-attendance-employee-attendance-row-status-badge-space">
               <StatusBadge
+                data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}`}
                 theme={breakStatus.status.theme}
                 key={breakStatus.status.text}
               >
-                <div className="text-center">
-                  <div>{breakStatus.status.text}</div>
+                <div
+                  id={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-div`}
+                  data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-div`}
+                  className="text-center"
+                >
+                  <div
+                    id={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-text-div`}
+                    data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-text-div`}
+                  >
+                    {breakStatus.status.text}
+                  </div>
                 </div>
               </StatusBadge>
             </Space>
@@ -228,16 +304,32 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         } else {
           const statuses = formatToAttendanceStatuses(record);
           return (
-            <Space>
+            <Space data-cy="time-attendance-employee-attendance-row-status-badge-space">
               {statuses.map((status) => (
                 <StatusBadge
+                  data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}`}
                   theme={AttendanceRecordTypeBadgeTheme[status.status]}
                   key={status.status}
                 >
-                  <div className="text-center">
-                    <div>{status.status}</div>
+                  <div
+                    id={`time-attendance-employee-attendance-row-status-badge-${status.status}-div`}
+                    data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}-div`}
+                    className="text-center"
+                  >
+                    <div
+                      id={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
+                      data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
+                    >
+                      {status.status}
+                    </div>
                     {status.text && (
-                      <div className="font-normal">{status.text}</div>
+                      <div
+                        id={`time-attendance-employee-attendance-row-status-badge-${status.status}-text-div`}
+                        data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}-text-div`}
+                        className="font-normal"
+                      >
+                        {status.text}
+                      </div>
                     )}
                   </div>
                 </StatusBadge>
@@ -252,13 +344,27 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       title: 'Over-time',
       dataIndex: 'overTime',
       key: 'overTime',
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div
+          id={`time-attendance-employee-attendance-row-over-time-div-${text}`}
+          data-cy={`time-attendance-employee-attendance-row-over-time-div-${text}`}
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: 'Total time',
       dataIndex: 'totalTime',
       key: 'totalTime',
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div
+          id={`time-attendance-employee-attendance-row-total-time-div-${text}`}
+          data-cy={`time-attendance-employee-attendance-row-total-time-div-${text}`}
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: 'Action',
@@ -268,13 +374,19 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         return (
           <Button
             className="w-[30px] h-[30px]"
-            icon={<FiEdit2 size={16} />}
+            icon={
+              <FiEdit2
+                data-cy="time-attendance-employee-attendance-row-edit-button-icon"
+                size={16}
+              />
+            }
             id={`${item?.id}buttonPopOverActionForOnEditActionId`}
             type="primary"
             onClick={() => {
               (setEmployeeId(item?.userId), setEmployeeAttendanceId(item?.id));
               setIsShowEmployeeAttendanceSidebar(true);
             }}
+            data-cy={`time-attendance-employee-attendance-row-${item?.id}-edit-button`}
           />
         );
       },
@@ -377,11 +489,25 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
   return (
     <>
-      <div className="mb-6">
-        <TableFilter onChange={onFilterChange} />
+      <div
+        id="time-attendance-employee-attendance-table-filter-section"
+        data-cy="time-attendance-employee-attendance-table-filter-section"
+        className="mb-6"
+      >
+        <TableFilter
+          data-cy="time-attendance-employee-attendance-table-filter"
+          onChange={onFilterChange}
+        />
       </div>
-      <div>
-        <div className="flex  overflow-x-auto scrollbar-none  w-full">
+      <div
+        id="time-attendance-employee-attendance-table-container"
+        data-cy="time-attendance-employee-attendance-table-container"
+      >
+        <div
+          className="flex  overflow-x-auto scrollbar-none  w-full"
+          id="time-attendance-employee-attendance-table-scroll-wrapper"
+          data-cy="time-attendance-employee-attendance-table-scroll-wrapper"
+        >
           <Table
             loading={isFetching}
             columns={columns}
@@ -396,10 +522,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             scroll={{ x: 'max-content' }}
             className="w-full"
             onChange={handleTableChange}
+            id="time-attendance-employee-attendance-table"
+            data-cy="time-attendance-employee-attendance-table"
           />
         </div>
         {isMobile || isTablet ? (
           <CustomMobilePagination
+            data-cy="time-attendance-employee-attendance-mobile-pagination"
             totalResults={data?.meta?.totalItems ?? 0}
             pageSize={pageSize}
             onChange={onPageChange}
@@ -407,6 +536,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           />
         ) : (
           <CustomPagination
+            data-cy="time-attendance-employee-attendance-desktop-pagination"
             current={currentPage}
             total={data?.meta?.totalItems ?? 0}
             pageSize={pageSize}

@@ -42,13 +42,16 @@ const TnaReviewPage = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
-    if (isError) return <>-</>;
+    if (isLoading) return <div data-cy="loading-indicator">...</div>;
+    if (isError) return <div data-cy="error-indicator">-</div>;
     const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="flex-1">
+      <div
+        className="flex items-center gap-1.5"
+        data-cy="employee-card-container"
+      >
+        <div className="flex-1" data-cy="employee-card-content">
           <UserCard
             data={employeeData}
             name={fullName}
@@ -236,15 +239,28 @@ const TnaReviewPage = () => {
   };
 
   return (
-    <div className="page-wrap">
-      <TnaApprovalTable />
-      <BlockWrapper withBackground={false}>
-        <PageHeader title="MY TNA">
-          <Space size={20}>
+    <div
+      className="page-wrap"
+      id="tnaMyTrainingPageId"
+      data-cy="tna-my-training-page"
+    >
+      <TnaApprovalTable data-cy="tna-approval-table" />
+      <BlockWrapper
+        withBackground={false}
+        data-cy="tna-my-training-block-wrapper"
+      >
+        <PageHeader title="MY TNA" data-cy="tna-my-training-page-header">
+          <Space
+            size={20}
+            id="tnaMyTrainingPageHeaderActionsId"
+            data-cy="tna-my-training-page-header-actions"
+          >
             <DatePicker.RangePicker
               format={DATE_FORMAT}
               separator="-"
               className="h-[54px]"
+              id="tnaMyTrainingDateRangePickerId"
+              data-cy="tna-my-training-date-range-picker"
               onChange={(val) => {
                 if (val && val.length >= 2) {
                   setFilter({
@@ -259,21 +275,33 @@ const TnaReviewPage = () => {
               }}
             />
             {isMobile || isTablet ? (
-              <AccessGuard permissions={[Permissions.CreateTna]}>
+              <AccessGuard
+                permissions={[Permissions.CreateTna]}
+                data-cy="tna-my-training-new-button-mobile-guard"
+                id="tnaMyTrainingNewButtonMobileGuardId"
+              >
                 <Button
                   className="p-6 mr-2 border border-gray-300"
                   type="primary"
+                  id="tnaMyTrainingNewButtonMobileId"
+                  data-cy="tna-my-training-new-button-mobile"
                   onClick={() => setIsShowTnaReviewSidebar(true)}
                   icon={<LuPlus size={20} />}
                 />
               </AccessGuard>
             ) : (
-              <AccessGuard permissions={[Permissions.CreateTna]}>
+              <AccessGuard
+                permissions={[Permissions.CreateTna]}
+                data-cy="tna-my-training-new-button-guard"
+                id="tnaMyTrainingNewButtonGuardId"
+              >
                 <Button
                   icon={<LuPlus size={16} />}
                   className="h-[54px]"
                   type="primary"
                   size="large"
+                  id="tnaMyTrainingNewButtonId"
+                  data-cy="tna-my-training-new-button"
                   onClick={() => setIsShowTnaReviewSidebar(true)}
                 >
                   New TNA
@@ -287,6 +315,8 @@ const TnaReviewPage = () => {
           columns={tableColumns}
           dataSource={tableData}
           loading={isLoading || isLoadingDelete}
+          id="tnaMyTrainingTableId"
+          data-cy="tna-my-training-table"
           onChange={(sorter: any) => {
             setOrderDirection(sorter['order']);
             setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
@@ -300,6 +330,7 @@ const TnaReviewPage = () => {
             pageSize={limit}
             onChange={onPageChange}
             onShowSizeChange={onPageChange}
+            data-cy="tna-my-training-mobile-pagination"
           />
         ) : (
           <CustomPagination
@@ -308,11 +339,12 @@ const TnaReviewPage = () => {
             pageSize={limit}
             onChange={onPageChange}
             onShowSizeChange={onPageSizeChange}
+            data-cy="tna-my-training-pagination"
           />
         )}
       </BlockWrapper>
 
-      <TnaRequestSidebar />
+      <TnaRequestSidebar data-cy="tna-request-sidebar" />
     </div>
   );
 };

@@ -20,6 +20,7 @@ const KeyResultView: React.FC<OKRProps> = ({
       case 'Milestone':
         return (
           <MilestoneView
+            data-cy={`okr-key-result-view-milestone-${index}`}
             objective={objective}
             key={index}
             keyValue={keyValue}
@@ -31,6 +32,7 @@ const KeyResultView: React.FC<OKRProps> = ({
       case 'Achieve':
         return (
           <AchieveOrNotView
+            data-cy={`okr-key-result-view-achieve-${index}`}
             objective={objective}
             key={index}
             keyValue={keyValue}
@@ -41,6 +43,7 @@ const KeyResultView: React.FC<OKRProps> = ({
       case 'Currency':
         return (
           <CurrencyView
+            data-cy={`okr-key-result-view-currency-${index}`}
             objective={objective}
             key={index}
             keyValue={keyValue}
@@ -51,6 +54,7 @@ const KeyResultView: React.FC<OKRProps> = ({
       case 'Percentage':
         return (
           <PercentageView
+            data-cy={`okr-key-result-view-percentage-${index}`}
             objective={objective}
             key={index}
             keyValue={keyValue}
@@ -61,6 +65,7 @@ const KeyResultView: React.FC<OKRProps> = ({
       case 'Numeric':
         return (
           <NumericView
+            data-cy={`okr-key-result-view-numeric-${index}`}
             objective={objective}
             key={index}
             keyValue={keyValue}
@@ -69,11 +74,23 @@ const KeyResultView: React.FC<OKRProps> = ({
           />
         );
       default:
-        return <div>{`Unknown key type: ${keyValue.key_type}`}</div>; // Fallback for unsupported key types
+        return (
+          <div
+            id={`okr-key-result-view-unknown-${index}`}
+            data-cy={`okr-key-result-view-unknown-${index}`}
+          >{`Unknown key type: ${keyValue.key_type}`}</div>
+        ); // Fallback for unsupported key types
     }
   };
 
-  return <div>{renderView()}</div>;
+  return (
+    <div
+      id={`okr-key-result-view-container-${index}`}
+      data-cy={`okr-key-result-view-container-${index}`}
+    >
+      {renderView()}
+    </div>
+  );
 };
 
 export default KeyResultView;

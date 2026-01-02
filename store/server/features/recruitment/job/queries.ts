@@ -2,7 +2,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_AND_EMP_URL, RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-import axios from 'axios';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getJobs = async (
@@ -115,14 +114,14 @@ const downloadJobCandidatesExcel = async (
   const queryString = queryParams.toString();
   const url = `${RECRUITMENT_URL}/job-candidate-information/job-information/${jobId}/export${queryString ? `?${queryString}` : ''}`;
 
-  const response = await axios({
+  const response = await crudRequest({
     url,
     method: 'GET',
     headers,
-    responseType: 'json', // Changed from 'blob' to 'json'
+    responseType: 'json', // Backend returns JSON with downloadUrl
   });
 
-  return response.data;
+  return response;
 };
 
 export const useGetJobs = (

@@ -7,7 +7,7 @@ import {
 } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/taxRules/taxRulesStore';
 
-<style jsx global>{`
+<style jsx global data-cy="payroll-tax-rule-drawer-style">{`
   @media (max-width: 767px) {
     .input-number-mobile .ant-input-number,
     .input-number-mobile .ant-input-number-input {
@@ -62,10 +62,10 @@ const Drawer: React.FC = () => {
   const onFinish = async (values: any) => {
     const taxRuleData = {
       name: values.name,
-      minIncome: values['minimum-income'],
-      maxIncome: values['maximum-income'],
-      rate: values.rate,
-      deduction: values.deduction,
+      minIncome: parseFloat(values['minimum-income']),
+      maxIncome: parseFloat(values['maximum-income']),
+      rate: parseFloat(values.rate),
+      deduction: parseFloat(values.deduction),
     };
 
     try {
@@ -79,18 +79,33 @@ const Drawer: React.FC = () => {
 
   return (
     <CustomDrawerLayout
+      data-cy="payroll-tax-rule-drawer-view-component"
       open={isDrawerVisible}
       onClose={closeDrawer}
       modalHeader={
-        <span className=" flex justify-center text-xl font-semibold">
+        <span
+          id="payroll-tax-rule-drawer-title-view-text"
+          data-cy="payroll-tax-rule-drawer-title-view-text"
+          className=" flex justify-center text-xl font-semibold"
+        >
           {currentTaxRule ? 'Edit Tax Rule' : 'Define New Tax Rule'}
         </span>
       }
       width="700px"
       footer={
-        <div className="flex justify-center items-center w-full h-full">
-          <div className="flex justify-between items-center gap-4 p-4">
+        <div
+          id="payroll-tax-rule-drawer-footer-view-container"
+          data-cy="payroll-tax-rule-drawer-footer-view-container"
+          className="flex justify-center items-center w-full h-full"
+        >
+          <div
+            id="payroll-tax-rule-drawer-footer-actions-view-container"
+            data-cy="payroll-tax-rule-drawer-footer-actions-view-container"
+            className="flex justify-between items-center gap-4 p-4"
+          >
             <Button
+              id="payroll-tax-rule-drawer-cancel-click-button"
+              data-cy="payroll-tax-rule-drawer-cancel-click-button"
               type="default"
               className="h-10 px-10"
               onClick={() => {
@@ -101,6 +116,8 @@ const Drawer: React.FC = () => {
             </Button>
 
             <Button
+              id="payroll-tax-rule-drawer-submit-click-button"
+              data-cy="payroll-tax-rule-drawer-submit-click-button"
               type="primary"
               className="h-10 px-10"
               onClick={() => form.submit()}
@@ -114,25 +131,34 @@ const Drawer: React.FC = () => {
     >
       <Form
         id="tax-rule-form"
+        data-cy="payroll-tax-rule-drawer-form-submit-form"
         layout="vertical"
         form={form}
         className="px-3"
         onFinish={onFinish}
       >
         <Form.Item
+          id="payroll-tax-rule-name-view-formitem"
+          data-cy="payroll-tax-rule-name-view-formitem"
           label="Name"
           name="name"
           rules={[{ required: true, message: 'Please input the name!' }]}
         >
-          <Input placeholder="Full Name" className="h-12 mt-2" />
+          <Input
+            id="payroll-tax-rule-name-view-input"
+            data-cy="payroll-tax-rule-name-view-input"
+            placeholder="Full Name"
+            className="h-12 mt-2"
+          />
         </Form.Item>
 
         <Form.Item
+          id="payroll-tax-rule-minimum-income-view-formitem"
+          data-cy="payroll-tax-rule-minimum-income-view-formitem"
           label="Minimum Income"
           name="minimum-income"
           rules={[
             {
-              type: 'number',
               required: true,
               message: 'Please input the minimum income!',
             },
@@ -158,6 +184,8 @@ const Drawer: React.FC = () => {
           }
         >
           <InputNumber
+            id="payroll-tax-rule-minimum-income-view-input"
+            data-cy="payroll-tax-rule-minimum-income-view-input"
             className="h-12 mt-2 w-full input-number-mobile"
             placeholder="Input Minimum Income"
             min={0}
@@ -168,11 +196,12 @@ const Drawer: React.FC = () => {
         </Form.Item>
 
         <Form.Item
+          id="payroll-tax-rule-maximum-income-view-formitem"
+          data-cy="payroll-tax-rule-maximum-income-view-formitem"
           label="Maximum Income"
           name="maximum-income"
           rules={[
             {
-              type: 'number',
               required: true,
               message: 'Please input the maximum income!',
             },
@@ -198,6 +227,8 @@ const Drawer: React.FC = () => {
           }
         >
           <InputNumber
+            id="payroll-tax-rule-maximum-income-view-input"
+            data-cy="payroll-tax-rule-maximum-income-view-input"
             className="h-12 mt-2 w-full input-number-mobile"
             placeholder="Input Maximum Income"
             min={0}
@@ -208,6 +239,8 @@ const Drawer: React.FC = () => {
         </Form.Item>
 
         <Form.Item
+          id="payroll-tax-rule-rate-view-formitem"
+          data-cy="payroll-tax-rule-rate-view-formitem"
           label="Rate in %"
           name="rate"
           rules={[
@@ -225,6 +258,8 @@ const Drawer: React.FC = () => {
           }
         >
           <InputNumber
+            id="payroll-tax-rule-rate-view-input"
+            data-cy="payroll-tax-rule-rate-view-input"
             className="w-full h-12 mt-2 input-number-mobile"
             min={0}
             max={100}
@@ -238,6 +273,8 @@ const Drawer: React.FC = () => {
         </Form.Item>
 
         <Form.Item
+          id="payroll-tax-rule-deduction-view-formitem"
+          data-cy="payroll-tax-rule-deduction-view-formitem"
           label="Deduction"
           name="deduction"
           rules={[
@@ -255,6 +292,8 @@ const Drawer: React.FC = () => {
           }
         >
           <InputNumber
+            id="payroll-tax-rule-deduction-view-input"
+            data-cy="payroll-tax-rule-deduction-view-input"
             className="w-full h-12 mt-2 input-number-mobile"
             min={0}
             step={1}

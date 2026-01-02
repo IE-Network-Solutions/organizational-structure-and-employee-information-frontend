@@ -39,6 +39,8 @@ const AddTypesSidebar = () => {
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
+      id: 'time-attendance-settings-accrual-rule-sidebar-cancel-button',
+      'data-cy': 'time-attendance-settings-accrual-rule-sidebar-cancel-button',
     },
     {
       label: 'Add',
@@ -48,6 +50,8 @@ const AddTypesSidebar = () => {
       type: 'primary',
       loading: isLoading,
       onClick: () => form.submit(),
+      id: 'time-attendance-settings-accrual-rule-sidebar-add-button',
+      'data-cy': 'time-attendance-settings-accrual-rule-sidebar-add-button',
     },
   ];
 
@@ -96,18 +100,35 @@ const AddTypesSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <div className="px-2">
-            <CustomDrawerHeader>Accrual Rule</CustomDrawerHeader>
+          <div
+            className="px-2"
+            id="time-attendance-settings-accrual-rule-sidebar-header-container"
+            data-cy="time-attendance-settings-accrual-rule-sidebar-header-container"
+          >
+            <CustomDrawerHeader data-cy="time-attendance-settings-accrual-rule-sidebar-header">
+              Accrual Rule
+            </CustomDrawerHeader>
           </div>
         }
         footer={
-          <div className="p-4">
-            <CustomDrawerFooterButton buttons={footerModalItems} />
+          <div
+            className="p-4"
+            id="time-attendance-settings-accrual-rule-sidebar-footer-container"
+            data-cy="time-attendance-settings-accrual-rule-sidebar-footer-container"
+          >
+            <CustomDrawerFooterButton
+              buttons={footerModalItems}
+              data-cy="time-attendance-settings-accrual-rule-sidebar-footer-button"
+            />
           </div>
         }
         width="400px"
+        data-cy="time-attendance-settings-accrual-rule-sidebar"
       >
-        <Spin spinning={isLoading}>
+        <Spin
+          spinning={isLoading}
+          data-cy="time-attendance-settings-accrual-rule-sidebar-spin"
+        >
           <Form
             layout="vertical"
             requiredMark={CustomLabel}
@@ -115,28 +136,47 @@ const AddTypesSidebar = () => {
             form={form}
             className={itemClass}
             onFinish={onFinish}
+            id="time-attendance-settings-accrual-rule-sidebar-form"
+            data-cy="time-attendance-settings-accrual-rule-sidebar-form"
           >
-            <Space.Compact direction="vertical" className="w-full  sm:px-0 ">
+            <Space.Compact
+              direction="vertical"
+              className="w-full  sm:px-0 "
+              id="time-attendance-settings-accrual-rule-sidebar-form-fields"
+              data-cy="time-attendance-settings-accrual-rule-sidebar-form-fields"
+            >
               <Form.Item
                 label="Accrual Name"
-                id="accrualNameId"
+                id="time-attendance-settings-accrual-rule-sidebar-title"
+                data-cy="time-attendance-settings-accrual-rule-sidebar-title"
                 rules={[{ required: true, message: 'Required' }]}
                 name="title"
               >
-                <Input className={controlClass} />
+                <Input
+                  className={controlClass}
+                  id="time-attendance-settings-accrual-rule-sidebar-title-input"
+                  data-cy="time-attendance-settings-accrual-rule-sidebar-title-input"
+                />
               </Form.Item>
               <Form.Item
                 label="Accrual Period"
-                id="accrualPeriodId"
+                id="time-attendance-settings-accrual-rule-sidebar-period"
+                data-cy="time-attendance-settings-accrual-rule-sidebar-period"
                 rules={[{ required: true, message: 'Required' }]}
                 name="period"
               >
                 <Select
                   className={controlClass}
                   suffixIcon={
-                    <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                    <MdKeyboardArrowDown
+                      size={16}
+                      className="text-gray-900"
+                      data-cy="time-attendance-settings-accrual-rule-sidebar-period-select-icon"
+                    />
                   }
                   options={periodOption}
+                  id="time-attendance-settings-accrual-rule-sidebar-period-select"
+                  data-cy="time-attendance-settings-accrual-rule-sidebar-period-select"
                 />
               </Form.Item>
             </Space.Compact>

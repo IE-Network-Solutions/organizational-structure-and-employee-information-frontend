@@ -21,14 +21,28 @@ const BreakTypeTable = () => {
       dataIndex: 'title',
       key: 'title',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-break-type-table-row-name"
+          data-cy="time-attendance-settings-break-type-table-row-name"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-break-type-table-row-name"
+          data-cy="time-attendance-settings-break-type-table-row-name"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Start Time',
@@ -36,7 +50,12 @@ const BreakTypeTable = () => {
       key: 'startAt',
       sorter: true,
       render: (text: string) => (
-        <div>{dayjs(text, 'HH:mm:ss').format('HH:mm') || '-'}</div>
+        <div
+          id="time-attendance-settings-break-type-table-row-start-time"
+          data-cy="time-attendance-settings-break-type-table-row-start-time"
+        >
+          {dayjs(text, 'HH:mm:ss').format('HH:mm') || '-'}
+        </div>
       ),
     },
     {
@@ -45,8 +64,16 @@ const BreakTypeTable = () => {
       key: 'endAt',
       sorter: true,
       render: (text: string) => (
-        <div>
-          <div>{dayjs(text, 'HH:mm:ss').format('HH:mm') || ''}</div>
+        <div
+          id="time-attendance-settings-break-type-table-row-end-time"
+          data-cy="time-attendance-settings-break-type-table-row-end-time"
+        >
+          <div
+            id="time-attendance-settings-break-type-table-row-end-time-div"
+            data-cy="time-attendance-settings-break-type-table-row-end-time-div"
+          >
+            {dayjs(text, 'HH:mm:ss').format('HH:mm') || ''}
+          </div>
         </div>
       ),
     },
@@ -55,17 +82,29 @@ const BreakTypeTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (rule: any, record: any) => (
-        <div className="flex items-center space-x-2">
-          <AccessGuard permissions={[Permissions.UpdateBreakType]}>
+        <div
+          className="flex items-center space-x-2"
+          id="time-attendance-settings-break-type-table-row-actions-container"
+          data-cy="time-attendance-settings-break-type-table-row-actions-container"
+        >
+          <AccessGuard
+            permissions={[Permissions.UpdateBreakType]}
+            data-cy="time-attendance-settings-break-type-table-row-edit-access-guard"
+          >
             <ActionButtons
               id={record?.id ?? null}
               onEdit={() => handleEdit(record)}
+              data-cy="time-attendance-settings-break-type-table-row-edit-buttons"
             />
           </AccessGuard>{' '}
-          <AccessGuard permissions={[Permissions.DeleteBreakType]}>
+          <AccessGuard
+            permissions={[Permissions.DeleteBreakType]}
+            data-cy="time-attendance-settings-break-type-table-row-delete-access-guard"
+          >
             <ActionButtons
               id={record?.id ?? null}
               onDelete={() => handleDelete(record)}
+              data-cy="time-attendance-settings-break-type-table-row-delete-buttons"
             />
           </AccessGuard>
         </div>
@@ -82,12 +121,17 @@ const BreakTypeTable = () => {
     });
   };
   return (
-    <Spin spinning={breakTypeIsLoading}>
+    <Spin
+      spinning={breakTypeIsLoading}
+      data-cy="time-attendance-settings-break-type-table-spin"
+    >
       <Table
         className="mt-6"
         columns={columns}
         dataSource={breakTypeData?.items || []}
         pagination={false}
+        id="time-attendance-settings-break-type-table"
+        data-cy="time-attendance-settings-break-type-table"
       />
     </Spin>
   );

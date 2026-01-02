@@ -21,6 +21,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/tna/settings/course-category') ? 'lg:ml-4' : ''}`}
+            data-cy="course-category-icon"
           >
             <CiCalendarDate
               className={`hidden lg:block ${pathname.includes('/tna/settings/course-category') ? 'text-[#1677FF]' : ''}`}
@@ -85,17 +86,36 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
     },
   ]);
   return (
-    <div className="min-h-screen bg-[#fafafa] p-3">
-      <div className="h-auto w-auto">
+    <div
+      className="min-h-screen bg-[#fafafa] p-3"
+      id="tnaSettingsLayoutId"
+      data-cy="tna-settings-layout"
+    >
+      <div
+        className="h-auto w-auto"
+        id="tnaSettingsLayoutContentId"
+        data-cy="tna-settings-layout-content"
+      >
         <PageHeader
           title="Settings"
           description="Training & Learning Settings"
+          data-cy="tna-settings-layout-page-header"
         ></PageHeader>
 
-        <div className="flex flex-col lg:flex-row gap-6 mt-3">
-          <SidebarMenu menuItems={menuItems} />
+        <div
+          className="flex flex-col lg:flex-row gap-6 mt-3"
+          id="tnaSettingsLayoutBodyId"
+          data-cy="tna-settings-layout-body"
+        >
+          <SidebarMenu
+            menuItems={menuItems}
+            data-cy="tna-settings-layout-sidebar"
+          />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto bg-[#fafafa] p-0">
+          <BlockWrapper
+            className="flex-1 h-max overflow-x-auto bg-[#fafafa] p-0"
+            data-cy="tna-settings-layout-block-wrapper"
+          >
             {children}
           </BlockWrapper>
         </div>

@@ -146,16 +146,20 @@ export default function OkrTab() {
   // Return null or loading state during SSR
   if (!isMounted) {
     return (
-      <div className="mt-6 flex justify-center items-center min-h-[200px]">
+      <div
+        className="mt-6 flex justify-center items-center min-h-[200px]"
+        data-cy="okr-tab-loading-container"
+      >
         <Spin size="large" />
       </div>
     );
   }
 
   return (
-    <div id="okr-tab-container" className="mt-6">
+    <div id="okr-tab-container" data-cy="okr-tab-container" className="mt-6">
       <DynamicTabs
         id="okr-tabs"
+        data-cy="okr-tabs"
         defaultActiveKey="1"
         onChange={(key) => setOkrTab(key)}
         items={[
@@ -163,19 +167,24 @@ export default function OkrTab() {
             key: '1',
             label: 'My OKR',
             children: (
-              <div id="my-okr-tab-content">
-                <OkrProgress />
+              <div id="my-okr-tab-content" data-cy="okr-my-okr-tab-content">
+                <OkrProgress data-cy="okr-my-okr-progress" />
                 {isUserLoading && (
                   <Spin
+                    data-cy="okr-my-okr-loading-spin"
                     size="large"
                     style={{ color: 'white' }}
                     className="text-white text-center flex w-full justify-center"
                   />
                 )}
                 {userObjectives?.items?.length !== 0 && (
-                  <div id="my-okr-objectives-list">
+                  <div
+                    id="my-okr-objectives-list"
+                    data-cy="okr-my-okr-objectives-list"
+                  >
                     {userObjectives?.items?.map((obj: any) => (
                       <ObjectiveCard
+                        data-cy={`okr-my-okr-objective-card-${obj?.id}`}
                         key={obj.id}
                         myOkr={true}
                         objective={obj}
@@ -183,6 +192,7 @@ export default function OkrTab() {
                     ))}
                     {isMobile || isTablet ? (
                       <CustomMobilePagination
+                        data-cy="okr-my-okr-mobile-pagination"
                         totalResults={userObjectives?.meta?.totalItems ?? 0}
                         pageSize={pageSize}
                         currentPage={currentPage}
@@ -212,7 +222,11 @@ export default function OkrTab() {
                   </div>
                 )}
                 {userObjectives?.items?.length === 0 && (
-                  <div id="my-okr-empty-state" className="flex justify-center">
+                  <div
+                    id="my-okr-empty-state"
+                    data-cy="okr-my-okr-empty-state"
+                    className="flex justify-center"
+                  >
                     <EmptyImage />
                   </div>
                 )}
@@ -225,17 +239,24 @@ export default function OkrTab() {
                   key: '2',
                   label: 'Team OKR',
                   children: (
-                    <div id="team-okr-tab-content">
+                    <div
+                      id="team-okr-tab-content"
+                      data-cy="okr-team-okr-tab-content"
+                    >
                       <OkrProgress />
                       {isTeamLoading && (
                         <Spin
+                          data-cy="okr-team-okr-loading-spin"
                           size="large"
                           style={{ color: 'white' }}
                           className="text-white text-center flex w-full justify-center"
                         />
                       )}
                       {teamObjective?.items?.length !== 0 && (
-                        <div id="team-okr-objectives-list">
+                        <div
+                          id="team-okr-objectives-list"
+                          data-cy="okr-team-okr-objectives-list"
+                        >
                           {teamObjective?.items?.map((obj: any) => (
                             <ObjectiveCard
                               key={obj.id}
@@ -245,6 +266,7 @@ export default function OkrTab() {
                           ))}
                           {isMobile || isTablet ? (
                             <CustomMobilePagination
+                              data-cy="okr-team-okr-mobile-pagination"
                               totalResults={
                                 teamObjective?.meta?.totalItems ?? 0
                               }
@@ -260,6 +282,7 @@ export default function OkrTab() {
                             />
                           ) : (
                             <CustomPagination
+                              data-cy="okr-team-okr-pagination"
                               current={teamObjective?.meta?.currentPage || 1}
                               total={teamObjective?.meta?.totalItems || 1}
                               pageSize={teamPageSize}
@@ -278,9 +301,10 @@ export default function OkrTab() {
                       {teamObjective?.items?.length === 0 && (
                         <div
                           id="team-okr-empty-state"
+                          data-cy="okr-team-okr-empty-state"
                           className="flex justify-center"
                         >
-                          <EmptyImage />
+                          <EmptyImage data-cy="okr-team-okr-empty-image" />
                         </div>
                       )}
                     </div>
@@ -294,19 +318,27 @@ export default function OkrTab() {
                   key: '3',
                   label: 'Company OKR',
                   children: (
-                    <div id="company-okr-tab-content">
+                    <div
+                      id="company-okr-tab-content"
+                      data-cy="okr-company-okr-tab-content"
+                    >
                       {isCompanyLoading && (
                         <Spin
+                          data-cy="okr-company-okr-loading-spin"
                           size="large"
                           style={{ color: 'white' }}
                           className="text-white text-center flex w-full justify-center"
                         />
                       )}
-                      <OkrProgress />
+                      <OkrProgress data-cy="okr-company-okr-progress" />
                       {companyObjective?.items?.length !== 0 && (
-                        <div id="company-okr-objectives-list">
+                        <div
+                          id="company-okr-objectives-list"
+                          data-cy="okr-company-okr-objectives-list"
+                        >
                           {companyObjective?.items?.map((obj: any) => (
                             <ObjectiveCard
+                              data-cy={`okr-company-okr-objective-card-${obj?.id}`}
                               key={obj.id}
                               myOkr={false}
                               objective={obj}
@@ -314,6 +346,7 @@ export default function OkrTab() {
                           ))}
                           {isMobile || isTablet ? (
                             <CustomMobilePagination
+                              data-cy="okr-company-okr-mobile-pagination"
                               totalResults={
                                 companyObjective?.meta?.totalItems ?? 0
                               }
@@ -329,6 +362,7 @@ export default function OkrTab() {
                             />
                           ) : (
                             <CustomPagination
+                              data-cy="okr-company-okr-pagination"
                               current={companyObjective?.meta?.currentPage || 1}
                               total={companyObjective?.meta?.totalItems || 1}
                               pageSize={companyPageSize}
@@ -347,9 +381,10 @@ export default function OkrTab() {
                       {companyObjective?.items?.length === 0 && (
                         <div
                           id="company-okr-empty-state"
+                          data-cy="okr-company-okr-empty-state"
                           className="flex justify-center"
                         >
-                          <EmptyImage />
+                          <EmptyImage data-cy="okr-company-okr-empty-image" />
                         </div>
                       )}
                     </div>
@@ -359,8 +394,11 @@ export default function OkrTab() {
                   key: '4',
                   label: 'All Employee OKR',
                   children: (
-                    <div id="all-employee-okr-tab-content">
-                      <EmployeeOKRTable />
+                    <div
+                      id="all-employee-okr-tab-content"
+                      data-cy="okr-all-employee-okr-tab-content"
+                    >
+                      <EmployeeOKRTable data-cy="okr-all-employee-okr-table" />
                     </div>
                   ),
                 },

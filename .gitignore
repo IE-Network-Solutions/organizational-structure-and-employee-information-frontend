@@ -5,6 +5,7 @@
 /.pnp
 .env
 .env.local
+docs/
 
  package-lock.json
 .pnp.js
@@ -47,3 +48,5 @@ yarn.lock
 
 Jenkinsfile
 .qodo
+
+/docs

@@ -66,6 +66,9 @@ const AddTypesSidebar = () => {
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
+      id: 'time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button',
+      'data-cy':
+        'time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button',
     },
     {
       label: attendanceTypeId ? 'Edit' : 'Add',
@@ -75,6 +78,9 @@ const AddTypesSidebar = () => {
       type: 'primary',
       loading: isLoading,
       onClick: () => form.submit(),
+      id: 'time-attendance-settings-attendance-rules-add-type-sidebar-submit-button',
+      'data-cy':
+        'time-attendance-settings-attendance-rules-add-type-sidebar-submit-button',
     },
   ];
 
@@ -133,20 +139,35 @@ const AddTypesSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <div className="px-2">
-            <CustomDrawerHeader>
+          <div
+            className="px-2"
+            id="time-attendance-settings-attendance-rules-add-type-sidebar-header-container"
+            data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-header-container"
+          >
+            <CustomDrawerHeader data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-header">
               {attendanceTypeId ? 'Edit' : 'Add'} Type
             </CustomDrawerHeader>
           </div>
         }
         footer={
-          <div className="p-4">
-            <CustomDrawerFooterButton buttons={footerModalItems} />
+          <div
+            className="p-4"
+            id="time-attendance-settings-attendance-rules-add-type-sidebar-footer-container"
+            data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-footer-container"
+          >
+            <CustomDrawerFooterButton
+              buttons={footerModalItems}
+              data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-footer-button"
+            />
           </div>
         }
         width="400px"
+        data-cy="time-attendance-settings-attendance-rules-add-type-sidebar"
       >
-        <Spin spinning={isFetching || isLoading}>
+        <Spin
+          spinning={isFetching || isLoading}
+          data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-spin"
+        >
           <Form
             layout="vertical"
             requiredMark={CustomLabel}
@@ -156,33 +177,54 @@ const AddTypesSidebar = () => {
             onFieldsChange={onFieldChange}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
+            id="time-attendance-settings-attendance-rules-add-type-sidebar-form"
+            data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-form"
           >
             <Space.Compact
               direction="vertical"
               className="w-full px-3 sm:px-0 "
+              id="time-attendance-settings-attendance-rules-add-type-sidebar-form-fields"
+              data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-form-fields"
             >
               <Form.Item
                 id="createAddTypeNameFieldId"
+                data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-title-field-id"
                 label="Type Name"
                 rules={[{ required: true, message: 'Required' }]}
                 name="title"
               >
-                <Input className={controlClass} />
+                <Input
+                  className={controlClass}
+                  id="time-attendance-settings-attendance-rules-add-type-sidebar-title-input"
+                  data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-title-input"
+                />
               </Form.Item>
               <Form.Item
                 label="Unit"
                 id="createAddTypeUnitFieldId"
+                data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-unit-field-id"
                 rules={[{ required: true, message: 'Required' }]}
                 name="unit"
               >
-                <Radio.Group className={controlClass}>
-                  <Space direction="vertical" size={12} className="w-full mb-4">
+                <Radio.Group
+                  className={controlClass}
+                  id="time-attendance-settings-attendance-rules-add-type-sidebar-unit-radio-group"
+                  data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-unit-radio-group"
+                >
+                  <Space
+                    direction="vertical"
+                    size={12}
+                    className="w-full mb-4"
+                    id="time-attendance-settings-attendance-rules-add-type-sidebar-unit-options"
+                    data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-unit-options"
+                  >
                     {unitOptions.map((option) => (
                       <CustomRadio
                         key={option.value}
                         label={option.label}
                         value={option.value}
                         isError={isErrorUnit}
+                        data-cy={`time-attendance-settings-attendance-rules-add-type-sidebar-unit-option-${option.value}`}
                       />
                     ))}
                   </Space>

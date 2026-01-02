@@ -88,29 +88,65 @@ const Daily = ({
     });
   };
   return (
-    <div className="h-[350px] overflow-y-auto scrollbar-track-primary scrollbar-none">
+    <div
+      className="h-[350px] overflow-y-auto scrollbar-track-primary scrollbar-none"
+      data-cy="dashboard-plan-daily-container"
+    >
       {planTaskArray?.length > 0 ? (
         planTaskArray?.map((keyResultGroup: any) => (
-          <div key={keyResultGroup?.keyResultId} className="flex flex-col pb-3">
+          <div
+            key={keyResultGroup?.keyResultId}
+            className="flex flex-col pb-3"
+            data-cy="dashboard-plan-daily-key-result-group"
+          >
             {/* Key Result Header */}
-            <div className="text-base font-bold flex gap-3 pb-3 items-center ">
-              <BsKey className="text-primary" />
-              {keyResultGroup?.keyResult?.title}
+            <div
+              className="text-base font-bold flex gap-3 pb-3 items-center "
+              data-cy="dashboard-plan-daily-key-result-header"
+            >
+              <BsKey
+                className="text-primary"
+                data-cy="dashboard-plan-daily-key-result-icon"
+              />
+              <span data-cy="dashboard-plan-daily-key-result-title">
+                {keyResultGroup?.keyResult?.title}
+              </span>
             </div>
 
             {/* Parent Tasks (Weekly Plan Tasks) */}
             {keyResultGroup?.parentTasks?.map((parentTaskGroup: any) => (
-              <div key={parentTaskGroup?.parentTaskId} className="ml-4 mb-3">
+              <div
+                key={parentTaskGroup?.parentTaskId}
+                className="ml-4 mb-3"
+                data-cy={`dashboard-plan-daily-parent-task-group-${parentTaskGroup?.parentTaskId}`}
+              >
                 {/* Weekly Plan Task Header */}
-                <div className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  {parentTaskGroup?.parentTask?.task}
+                <div
+                  className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2"
+                  data-cy={`dashboard-plan-daily-parent-task-header-${parentTaskGroup?.parentTaskId}`}
+                >
+                  <div
+                    className="w-2 h-2 bg-blue-500 rounded-full"
+                    data-cy={`dashboard-plan-daily-parent-task-bullet-${parentTaskGroup?.parentTaskId}`}
+                  ></div>
+                  <span
+                    data-cy={`dashboard-plan-daily-parent-task-title-${parentTaskGroup?.parentTaskId}`}
+                  >
+                    {parentTaskGroup?.parentTask?.task}
+                  </span>
                 </div>
 
                 {/* Daily Tasks under this Weekly Plan Task */}
-                <div className="ml-4">
+                <div
+                  className="ml-4"
+                  data-cy={`dashboard-plan-daily-tasks-container-${parentTaskGroup?.parentTaskId}`}
+                >
                   {parentTaskGroup?.dailyTasks?.map((dailyTask: any) => (
-                    <div className="pb-2" key={dailyTask?.id}>
+                    <div
+                      className="pb-2"
+                      key={dailyTask?.id}
+                      data-cy={`dashboard-plan-daily-task-item-${dailyTask?.id}`}
+                    >
                       <Checkbox
                         checked={dailyTask?.status == 'pre-achieved'}
                         onChange={() =>
@@ -121,6 +157,7 @@ const Daily = ({
                           )
                         }
                         disabled={dailyTask?.status == 'completed'}
+                        data-cy={`dashboard-plan-daily-task-checkbox-${dailyTask?.id}`}
                       >
                         <div
                           className={`text-sm font-medium text-slate-500 ${
@@ -128,8 +165,13 @@ const Daily = ({
                               ? 'line-through text-slate-400'
                               : ''
                           }`}
+                          data-cy={`dashboard-plan-daily-task-text-${dailyTask?.id}`}
                         >
-                          {dailyTask?.task}
+                          <span
+                            data-cy={`dashboard-plan-daily-task-text-content-${dailyTask?.id}`}
+                          >
+                            {dailyTask?.task}
+                          </span>
                         </div>
                       </Checkbox>
                     </div>
@@ -140,8 +182,13 @@ const Daily = ({
           </div>
         ))
       ) : (
-        <div className="text-lg font-light flex h-full justify-center items-center ">
-          Add your plans to view them here
+        <div
+          className="text-lg font-light flex h-full justify-center items-center "
+          data-cy="dashboard-plan-daily-empty"
+        >
+          <span data-cy="dashboard-plan-daily-empty-text">
+            Add your plans to view them here
+          </span>
         </div>
       )}
     </div>

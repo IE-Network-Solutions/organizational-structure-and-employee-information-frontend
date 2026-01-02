@@ -341,6 +341,11 @@ export const useOKRStore = create<OKRState>()(
           (form: any, i: number) => i !== index,
         );
 
+        // Track deleted ID if it exists in database (has id)
+        const deletedIds = removedKeyResult?.id
+          ? [...(state.deletedKeyResultIds || []), removedKeyResult.id]
+          : state.deletedKeyResultIds || [];
+
         let redistributedKeyResults = remainingKeyResults;
 
         // Redistribute the weight of the removed key result
@@ -388,6 +393,7 @@ export const useOKRStore = create<OKRState>()(
         return {
           keyResultValue: updatedKeyResultValue,
           objectiveValue: updatedObjectiveValue,
+          deletedKeyResultIds: deletedIds,
         };
       }),
     searchObjParams: {
@@ -426,5 +432,11 @@ export const useOKRStore = create<OKRState>()(
     setFiscalYearId: (fiscalYearId: string) => set({ fiscalYearId }),
     sessionIds: [],
     setSessionIds: (sessionIds: string[]) => set({ sessionIds }),
+    deletedKeyResultIds: [],
+    setDeletedKeyResultIds: (ids: string[]) =>
+      set({ deletedKeyResultIds: ids }),
+    deletedMilestoneIds: [],
+    setDeletedMilestoneIds: (ids: string[]) =>
+      set({ deletedMilestoneIds: ids }),
   })),
 );

@@ -27,6 +27,7 @@ const RichTextEditor = ({ onChange }: any) => {
         padding: '8px',
         minHeight: '150px', // Approximate height for a few rows
       }}
+      data-cy="rich-text-editor"
     >
       <ReactQuill
         value={value}

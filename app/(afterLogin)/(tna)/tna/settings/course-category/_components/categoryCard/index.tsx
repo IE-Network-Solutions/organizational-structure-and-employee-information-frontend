@@ -17,9 +17,20 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({ item }) => {
   const { mutate: deleteCategory, isLoading } = useDeleteCourseCategory();
 
   return (
-    <Spin spinning={isLoading}>
-      <div className="flex justify-between items-center p-6 rounded-2xl border border-gray-200 mt-6 gap-2.5">
-        <div className="text-lg font-semibold text-gray-900 flex-1">
+    <Spin
+      spinning={isLoading}
+      data-cy={`tna-course-category-card-spinner-${item.id}`}
+    >
+      <div
+        className="flex justify-between items-center p-6 rounded-2xl border border-gray-200 mt-6 gap-2.5"
+        id={`tnaCourseCategoryCard${item.id}Id`}
+        data-cy={`tna-course-category-card-${item.id}`}
+      >
+        <div
+          className="text-lg font-semibold text-gray-900 flex-1"
+          id={`tnaCourseCategoryCardTitle${item.id}Id`}
+          data-cy={`tna-course-category-card-title-${item.id}`}
+        >
           {item.title}
         </div>
         <AccessGuard
@@ -27,9 +38,12 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({ item }) => {
             Permissions.UpdateCourseCategory,
             Permissions.DeleteCourseCategory,
           ]}
+          data-cy={`tna-course-category-card-action-guard-${item.id}`}
+          id={`tnaCourseCategoryCardActionGuard${item.id}Id`}
         >
           <ActionButtons
             id={item?.id ?? null}
+            data-cy={`tna-course-category-card-actions-${item.id}`}
             onDelete={() => {
               deleteCategory([item.id]);
             }}

@@ -105,9 +105,24 @@ const DynamicIncentiveFilter: React.FC = () => {
 
   const Filters = (
     <>
-      <Row gutter={[16, 10]} justify="space-between">
-        <Col xs={24} sm={24} md={24} lg={10} xl={10}>
+      <Row
+        id="dynamic-incentive-filter-row"
+        data-cy="dynamic-incentive-filter-row"
+        gutter={[16, 10]}
+        justify="space-between"
+      >
+        <Col
+          id="dynamic-incentive-filter-employee-col"
+          data-cy="dynamic-incentive-filter-employee-col"
+          xs={24}
+          sm={24}
+          md={24}
+          lg={10}
+          xl={10}
+        >
           <Select
+            id="dynamic-incentive-filter-employee-select"
+            data-cy="dynamic-incentive-filter-employee-select"
             onChange={(value) => handleSearchInput(value, 'employee_name')}
             placeholder="Search Employee"
             allowClear
@@ -122,30 +137,72 @@ const DynamicIncentiveFilter: React.FC = () => {
             }
           >
             {employeeData?.items?.map((items: any) => (
-              <Select.Option key={items?.id} value={items?.id}>
+              <Select.Option
+                id={`dynamic-incentive-filter-employee-option-${items?.id}`}
+                data-cy={`dynamic-incentive-filter-employee-option-${items?.id}`}
+                key={items?.id}
+                value={items?.id}
+              >
                 {items?.firstName + ' ' + items?.middleName}
               </Select.Option>
             ))}
           </Select>
         </Col>
-        <Col xs={24} sm={24} md={24} lg={14} xl={14}>
-          <Row gutter={[8, 16]}>
-            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+        <Col
+          id="dynamic-incentive-filter-date-col"
+          data-cy="dynamic-incentive-filter-date-col"
+          xs={24}
+          sm={24}
+          md={24}
+          lg={14}
+          xl={14}
+        >
+          <Row
+            id="dynamic-incentive-filter-date-row"
+            data-cy="dynamic-incentive-filter-date-row"
+            gutter={[8, 16]}
+          >
+            <Col
+              id="dynamic-incentive-filter-year-col"
+              data-cy="dynamic-incentive-filter-year-col"
+              xs={24}
+              sm={24}
+              md={24}
+              lg={8}
+              xl={8}
+            >
               <Select
+                id="dynamic-incentive-filter-year-select"
+                data-cy="dynamic-incentive-filter-year-select"
                 allowClear
                 placeholder={activeFiscalYearName}
                 className="w-full h-14"
                 onChange={handleCreatedByYear}
               >
                 {fiscalYear?.items?.map((year: any) => (
-                  <Select.Option key={year.id} value={year.id}>
+                  <Select.Option
+                    id={`dynamic-incentive-filter-year-option-${year.id}`}
+                    data-cy={`dynamic-incentive-filter-year-option-${year.id}`}
+                    key={year.id}
+                    value={year.id}
+                  >
                     {year?.name}
                   </Select.Option>
                 ))}
               </Select>
             </Col>
-            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+            <Col
+              id="dynamic-incentive-filter-session-col"
+              data-cy="dynamic-incentive-filter-session-col"
+              xs={24}
+              sm={24}
+              md={24}
+              lg={8}
+              xl={8}
+            >
               <Select
+                id="dynamic-incentive-filter-session-select"
+                data-cy="dynamic-incentive-filter-session-select"
                 mode="multiple"
                 allowClear
                 placeholder="Select Session"
@@ -159,14 +216,29 @@ const DynamicIncentiveFilter: React.FC = () => {
                   fiscalYear?.items
                     ?.find((year: any) => year.id === selectedYear)
                     ?.sessions?.map((session: any) => (
-                      <Select.Option key={session.id} value={session.id}>
+                      <Select.Option
+                        id={`dynamic-incentive-filter-session-option-${session.id}`}
+                        data-cy={`dynamic-incentive-filter-session-option-${session.id}`}
+                        key={session.id}
+                        value={session.id}
+                      >
                         {session.name}
                       </Select.Option>
                     ))}
               </Select>
             </Col>
-            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+            <Col
+              id="dynamic-incentive-filter-month-col"
+              data-cy="dynamic-incentive-filter-month-col"
+              xs={24}
+              sm={24}
+              md={24}
+              lg={8}
+              xl={8}
+            >
               <Select
+                id="dynamic-incentive-filter-month-select"
+                data-cy="dynamic-incentive-filter-month-select"
                 allowClear
                 placeholder="Select Month "
                 className="w-full h-14"
@@ -174,7 +246,12 @@ const DynamicIncentiveFilter: React.FC = () => {
                 disabled={!selectedSessionMonths?.length}
               >
                 {selectedSessionMonths?.map((month: any) => (
-                  <Select.Option key={month?.id} value={month?.id}>
+                  <Select.Option
+                    id={`dynamic-incentive-filter-month-option-${month?.id}`}
+                    data-cy={`dynamic-incentive-filter-month-option-${month?.id}`}
+                    key={month?.id}
+                    value={month?.id}
+                  >
                     {month?.name}
                   </Select.Option>
                 ))}
@@ -187,10 +264,20 @@ const DynamicIncentiveFilter: React.FC = () => {
   );
 
   return (
-    <div className="my-7 mx-1">
+    <div
+      id="dynamic-incentive-filter-container"
+      data-cy="dynamic-incentive-filter-container"
+      className="my-7 mx-1"
+    >
       {isSmallScreen ? (
-        <div className="flex justify-end m-2 space-x-4">
+        <div
+          id="dynamic-incentive-filter-mobile-wrapper"
+          data-cy="dynamic-incentive-filter-mobile-wrapper"
+          className="flex justify-end m-2 space-x-4"
+        >
           <Select
+            id="dynamic-incentive-filter-mobile-employee-select"
+            data-cy="dynamic-incentive-filter-mobile-employee-select"
             onChange={(value) => handleSearchInput(value, 'employee_name')}
             placeholder="Search Employee"
             allowClear
@@ -205,24 +292,40 @@ const DynamicIncentiveFilter: React.FC = () => {
             }
           >
             {employeeData?.items?.map((items: any) => (
-              <Select.Option key={items?.id} value={items?.id}>
+              <Select.Option
+                id={`dynamic-incentive-filter-mobile-employee-option-${items?.id}`}
+                data-cy={`dynamic-incentive-filter-mobile-employee-option-${items?.id}`}
+                key={items?.id}
+                value={items?.id}
+              >
                 {items?.firstName + ' ' + items?.middleName}
               </Select.Option>
             ))}
           </Select>
-          <div className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
+          <div
+            id="dynamic-incentive-filter-mobile-switch-wrapper"
+            data-cy="dynamic-incentive-filter-mobile-switch-wrapper"
+            className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3"
+          >
             <IoMdSwitch
+              id="dynamic-incentive-filter-mobile-switch"
+              data-cy="dynamic-incentive-filter-mobile-switch"
               onClick={() => setShowMobileFilter(true)}
               className="text-xl cursor-pointer"
             />
           </div>
           <Modal
+            data-cy="dynamic-incentive-filter-mobile-modal"
             centered
             title="Filter"
             open={showMobileFilter}
             onCancel={() => setShowMobileFilter(false)}
             modalRender={(modal) => (
-              <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+              <div
+                id="dynamic-incentive-filter-mobile-modal-content"
+                data-cy="dynamic-incentive-filter-mobile-modal-content"
+                style={{ maxHeight: '70vh', overflowY: 'auto' }}
+              >
                 {modal}
               </div>
             )}

@@ -79,19 +79,40 @@ const DefineMeetingType = () => {
   return (
     <>
       {meetingTypeDetailData ? (
-        <MeetingTypeDetail />
+        <MeetingTypeDetail data-cy="settings-define-meeting-type-detail" />
       ) : (
-        <div className="p-4 rounded-2xl min-h-screen bg-white h-full ">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Meeting Types</h2>
+        <div
+          className="p-4 rounded-2xl min-h-screen bg-white h-full "
+          data-cy="settings-define-meeting-type-page"
+          id="settingsDefineMeetingTypePage"
+        >
+          <div
+            className="flex justify-between items-center mb-4"
+            data-cy="settings-define-meeting-type-header"
+            id="settingsDefineMeetingTypeHeader"
+          >
+            <h2
+              className="text-xl font-semibold"
+              data-cy="settings-define-meeting-type-title"
+              id="settingsDefineMeetingTypeTitle"
+            >
+              Meeting Types
+            </h2>
             {/* <AccessGuard permissions={[Permissions.CreateMeetingType]}> */}
             <Button
               type="primary"
               className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
               icon={<FaPlus className="text-xs" />}
               onClick={showDrawer}
+              data-cy="settings-define-meeting-type-add-button"
+              id="settingsDefineMeetingTypeAddButton"
             >
-              <span className="hidden md:block ">Add New</span>
+              <span
+                className="hidden md:block "
+                data-cy="settings-define-meeting-type-add-label"
+              >
+                Add New
+              </span>
             </Button>
             {/* </AccessGuard> */}
           </div>
@@ -103,19 +124,30 @@ const DefineMeetingType = () => {
             bordered={false}
             loading={isLoading}
             renderItem={(item) => (
-              <List.Item className="flex justify-between items-center py-4 px-4 rounded-xl my-3 border border-gray-300 ">
+              <List.Item
+                className="flex justify-between items-center py-4 px-4 rounded-xl my-3 border border-gray-300 "
+                data-cy={`settings-define-meeting-type-item-${item.id}`}
+                id={`settingsDefineMeetingTypeItem${item.id}`}
+              >
                 <span
                   onClick={() => handleDetail(item)}
                   className="cursor-pointer"
+                  data-cy={`settings-define-meeting-type-item-name-${item.id}`}
+                  id={`settingsDefineMeetingTypeItemName${item.id}`}
                 >
                   {item?.name || 'Unknown title'}
                 </span>
-                <div>
+                <div
+                  data-cy={`settings-define-meeting-type-item-actions-${item.id}`}
+                  id={`settingsDefineMeetingTypeItemActions${item.id}`}
+                >
                   {/* <AccessGuard permissions={[Permissions.UpdateMeetingType]}> */}
                   <Button
                     icon={<GoPencil />}
                     className="mr-2 bg-blue text-white border-none rounded-md h-8"
                     onClick={() => handleEditModal(item)}
+                    data-cy={`settings-define-meeting-type-item-edit-button-${item.id}`}
+                    id={`settingsDefineMeetingTypeItemEditButton${item.id}`}
                   />
                   {/* </AccessGuard> */}
                   {/* <AccessGuard permissions={[Permissions.DeleteMeetingType]}> */}
@@ -123,11 +155,15 @@ const DefineMeetingType = () => {
                     icon={<DeleteOutlined />}
                     className="mr-2 bg-red-500 text-white border-none rounded-md h-8"
                     onClick={() => showDeleteModal(item?.id as string)}
+                    data-cy={`settings-define-meeting-type-item-delete-button-${item.id}`}
+                    id={`settingsDefineMeetingTypeItemDeleteButton${item.id}`}
                   />
                   {/* </AccessGuard> */}
                 </div>
               </List.Item>
             )}
+            data-cy="settings-define-meeting-type-list"
+            id="settingsDefineMeetingTypeList"
           />
           {Array.isArray(meetingTypes)
             ? meetingTypes.length > 0
@@ -150,6 +186,7 @@ const DefineMeetingType = () => {
                     setPagesizeType(size);
                     setCurrentType(1);
                   }}
+                  data-cy="settings-define-meeting-type-pagination"
                 />
               )}
 
@@ -157,6 +194,7 @@ const DefineMeetingType = () => {
             meetType={meetingType}
             open={open}
             onClose={onClose}
+            data-cy="settings-define-meeting-type-drawer"
           />
           <DeleteModal
             open={openDeleteModal}
@@ -165,12 +203,14 @@ const DefineMeetingType = () => {
             }}
             onCancel={onCloseDeleteModal}
             loading={deleteLoading}
+            data-cy="settings-define-meeting-type-delete-modal"
           />
 
           <MeetingTypeDrawer
             meetType={meetingType}
             open={open}
             onClose={onClose}
+            data-cy="settings-define-meeting-type-drawer"
           />
           <DeleteModal
             open={openDeleteModal}
@@ -179,6 +219,7 @@ const DefineMeetingType = () => {
             }}
             onCancel={onCloseDeleteModal}
             loading={deleteLoading}
+            data-cy="settings-define-meeting-type-delete-modal"
           />
         </div>
       )}

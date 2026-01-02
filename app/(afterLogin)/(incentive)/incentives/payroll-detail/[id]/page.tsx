@@ -12,10 +12,17 @@ interface IncentiveTableDetailsProps {
 }
 function page({ params: { id } }: IncentiveTableDetailsProps) {
   return (
-    <div className="m-4">
-      <DetailPageTabs />
-      <DynamicIncentiveFilter />
-      <IncentiveTableAfterGenerate id={id} />
+    <div
+      id="incentive-payroll-detail-page-container"
+      data-cy="incentive-payroll-detail-page-container"
+      className="m-4"
+    >
+      <DetailPageTabs data-cy="incentive-payroll-detail-page-tabs" />
+      <DynamicIncentiveFilter data-cy="incentive-payroll-detail-page-filter" />
+      <IncentiveTableAfterGenerate
+        data-cy="incentive-payroll-detail-page-table"
+        id={id}
+      />
     </div>
   );
 }

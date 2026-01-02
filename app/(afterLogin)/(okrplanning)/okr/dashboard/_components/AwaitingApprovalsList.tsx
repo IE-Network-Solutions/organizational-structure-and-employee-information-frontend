@@ -192,17 +192,35 @@ const AwaitingApprovalsList: React.FC = () => {
   const reportCount = openReports.length;
 
   return (
-    <Card className="w-full bg-white rounded-xl shadow-md p-0 min-h-[320px] flex flex-col justify-between">
-      <div className="flex items-center justify-between pb-2">
-        <span className="font-bold text-lg text-gray-900">
+    <Card
+      className="w-full bg-white rounded-xl shadow-md p-0 min-h-[320px] flex flex-col justify-between"
+      id="okr-awaiting-card-container-display-card"
+      data-cy="okr-awaiting-card-container-display-card"
+    >
+      <div
+        className="flex items-center justify-between pb-2"
+        id="okr-awaiting-header-container-display-div"
+        data-cy="okr-awaiting-header-container-display-div"
+      >
+        <span
+          className="font-bold text-lg text-gray-900"
+          id="okr-awaiting-header-title-display-span"
+          data-cy="okr-awaiting-header-title-display-span"
+        >
           Awaiting Approvals
         </span>
-        <span className="text-sm font-medium flex gap-2">
+        <span
+          className="text-sm font-medium flex gap-2"
+          id="okr-awaiting-filter-toggle-display-span"
+          data-cy="okr-awaiting-filter-toggle-display-span"
+        >
           <span
             className={`cursor-pointer px-1 ${selectedFilter === 'plan' ? 'text-[#4F8CFF] font-bold' : 'text-gray-400'}`}
             onClick={() =>
               setSelectedFilter(selectedFilter === 'plan' ? 'all' : 'plan')
             }
+            id="okr-awaiting-plan-filter-toggle-action-span"
+            data-cy="okr-awaiting-plan-filter-toggle-action-span"
           >
             {planCount} Plans
           </span>
@@ -211,14 +229,28 @@ const AwaitingApprovalsList: React.FC = () => {
             onClick={() =>
               setSelectedFilter(selectedFilter === 'report' ? 'all' : 'report')
             }
+            id="okr-awaiting-report-filter-toggle-action-span"
+            data-cy="okr-awaiting-report-filter-toggle-action-span"
           >
             {reportCount} Reports
           </span>
         </span>
       </div>
-      <div className="flex-1">
-        <div className="bg-white border rounded-xl overflow-hidden h-full">
-          <div className="max-h-64 overflow-y-auto scrollbar-hide">
+      <div
+        className="flex-1"
+        id="okr-awaiting-body-wrapper-display-div"
+        data-cy="okr-awaiting-body-wrapper-display-div"
+      >
+        <div
+          className="bg-white border rounded-xl overflow-hidden h-full"
+          id="okr-awaiting-list-container-display-div"
+          data-cy="okr-awaiting-list-container-display-div"
+        >
+          <div
+            className="max-h-64 overflow-y-auto scrollbar-hide"
+            id="okr-awaiting-scroll-container-display-div"
+            data-cy="okr-awaiting-scroll-container-display-div"
+          >
             {['Daily', 'Weekly', 'Monthly'].map((label) => {
               // Filter items by selectedFilter
               const filtered =
@@ -231,28 +263,57 @@ const AwaitingApprovalsList: React.FC = () => {
                     );
               if (filtered.length > 0) {
                 return (
-                  <div key={label} className="bg-white border rounded-xl mb-4">
-                    <div className="bg-[#F5F5F5] rounded-t-xl px-4 py-2 text-lg font-semibold text-gray-900 border-b">
+                  <div
+                    key={label}
+                    className="bg-white border rounded-xl mb-4"
+                    id={`okr-awaiting-period-card-display-div-${label}`}
+                    data-cy={`okr-awaiting-period-card-display-div-${label}`}
+                  >
+                    <div
+                      className="bg-[#F5F5F5] rounded-t-xl px-4 py-2 text-lg font-semibold text-gray-900 border-b"
+                      id={`okr-awaiting-period-header-display-div-${label}`}
+                      data-cy={`okr-awaiting-period-header-display-div-${label}`}
+                    >
                       {label}
                     </div>
-                    <div className="flex flex-col gap-3 px-4 py-4 bg-white">
+                    <div
+                      className="flex flex-col gap-3 px-4 py-4 bg-white"
+                      id={`okr-awaiting-period-list-display-div-${label}`}
+                      data-cy={`okr-awaiting-period-list-display-div-${label}`}
+                    >
                       {filtered.map(({ type, item, employee }, idx) => (
                         <div
                           key={item.id || idx}
                           className="flex items-center justify-between bg-white rounded-xl border border-[#E5E7EB] px-4 py-3"
+                          id={`okr-awaiting-entry-container-display-div-${item.id || idx}`}
+                          data-cy={`okr-awaiting-entry-container-display-div-${item.id || idx}`}
                         >
-                          <div className="flex flex-col">
-                            <span className="text-gray-500 text-base font-normal">
+                          <div
+                            className="flex flex-col"
+                            id={`okr-awaiting-entry-details-display-div-${item.id || idx}`}
+                            data-cy={`okr-awaiting-entry-details-display-div-${item.id || idx}`}
+                          >
+                            <span
+                              className="text-gray-500 text-base font-normal"
+                              id={`okr-awaiting-entry-date-display-span-${item.id || idx}`}
+                              data-cy={`okr-awaiting-entry-date-display-span-${item.id || idx}`}
+                            >
                               {formatDate(item.createdAt)}
                             </span>
                             {subordinates.length > 0 && (
-                              <span className="text-xs text-gray-400 mt-1">
+                              <span
+                                className="text-xs text-gray-400 mt-1"
+                                id={`okr-awaiting-entry-employee-display-span-${item.id || idx}`}
+                                data-cy={`okr-awaiting-entry-employee-display-span-${item.id || idx}`}
+                              >
                                 {formatEmployeeName(employee)}
                               </span>
                             )}
                           </div>
                           <span
                             className={`px-4 py-1 rounded-full text-base font-semibold text-gray-900`}
+                            id={`okr-awaiting-entry-type-display-span-${item.id || idx}`}
+                            data-cy={`okr-awaiting-entry-type-display-span-${item.id || idx}`}
                           >
                             {type}
                           </span>

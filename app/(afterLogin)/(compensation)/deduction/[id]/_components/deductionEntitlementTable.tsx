@@ -34,7 +34,6 @@ const AllowanceEntitlementTable = () => {
       Amount: item.totalAmount,
       ApplicableTo: item.compensationItem.applicableTo,
     })) || [];
-
   const handleDelete = (id: string) => {
     deleteAllowanceEntitlement(id);
   };
@@ -45,21 +44,40 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
-      render: (userId: string) => <EmployeeDetails empId={userId} />,
+      render: (userId: string) => (
+        <EmployeeDetails
+          empId={userId}
+          data-cy={`compensation-deduction-entitlement-employee-details-${userId}`}
+        />
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'isRate',
       key: 'isRate',
       sorter: true,
-      render: (isRate: string) => <div>{isRate ? 'Rate' : 'Fixed'}</div>,
+      render: (isRate: string) => (
+        <div
+          id="compensation-deduction-entitlement-type-display"
+          data-cy="compensation-deduction-entitlement-type-display"
+        >
+          {isRate ? 'Rate' : 'Fixed'}
+        </div>
+      ),
     },
     {
       title: 'Amount',
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string) => <div>{text ? `${text}` : '-'}</div>,
+      render: (text: string) => (
+        <div
+          id="compensation-deduction-entitlement-amount-display"
+          data-cy="compensation-deduction-entitlement-amount-display"
+        >
+          {text ? `${text}` : '-'}
+        </div>
+      ),
     },
     {
       title: 'Action',
@@ -67,16 +85,19 @@ const AllowanceEntitlementTable = () => {
       key: 'action',
       render: (rule: any, record: any) => (
         <AccessGuard
+          data-cy="compensation-deduction-entitlement-actions-access-guard"
           permissions={[
             Permissions.UpdateAllowanceEntitlement,
             Permissions.DeleteAllowanceEntitlement,
           ]}
+          id="compensation-deduction-entitlement-actions-access-guard"
         >
           <ActionButtons
             id={record?.id ?? null}
             onEdit={() => {}}
             disableEdit
             onDelete={() => handleDelete(record.id)}
+            data-cy="compensation-deduction-entitlement-actions-button"
           />
         </AccessGuard>
       ),
@@ -84,17 +105,26 @@ const AllowanceEntitlementTable = () => {
   ];
 
   return (
-    <Spin spinning={fiscalActiveYearFetchLoading}>
-      <div className="overflow-x-auto scrollbar-hide">
+    <Spin
+      spinning={fiscalActiveYearFetchLoading}
+      data-cy="compensation-deduction-entitlement-table-loading"
+    >
+      <div
+        className="overflow-x-auto scrollbar-hide"
+        id="compensation-deduction-entitlement-table-scroll"
+        data-cy="compensation-deduction-entitlement-table-scroll"
+      >
         <Table
           className="mt-6"
           columns={columns}
           dataSource={transformedData}
           pagination={false}
+          data-cy="compensation-deduction-entitlement-table"
         />
       </div>
       {isMobile || isTablet ? (
         <CustomMobilePagination
+          data-cy="compensation-deduction-entitlement-mobile-pagination"
           totalResults={transformedData.length}
           pageSize={pageSize}
           onChange={(page, size) => {
@@ -108,6 +138,7 @@ const AllowanceEntitlementTable = () => {
         />
       ) : (
         <CustomPagination
+          data-cy="compensation-deduction-entitlement-pagination"
           current={currentPage}
           total={transformedData.length}
           pageSize={pageSize}
@@ -121,7 +152,7 @@ const AllowanceEntitlementTable = () => {
           }}
         />
       )}
-      <DeductionEntitlementSideBar />
+      <DeductionEntitlementSideBar data-cy="compensation-deduction-entitlement-sidebar" />
     </Spin>
   );
 };

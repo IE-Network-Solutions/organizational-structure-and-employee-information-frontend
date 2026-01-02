@@ -32,6 +32,7 @@ export const useCreatePlanTasks = () => {
   return useMutation(createPlanTasks, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('okrReports');
       queryClient.invalidateQueries('okrPlannedData');
       queryClient.invalidateQueries('planningPeriodsHierarchy');
@@ -66,6 +67,7 @@ export const useUpdatePlanTasks = () => {
   return useMutation(updatePlanTasks, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('okrPlannedData');
       queryClient.invalidateQueries('okrPlannedData');
       queryClient.invalidateQueries('planningPeriodsHierarchy');

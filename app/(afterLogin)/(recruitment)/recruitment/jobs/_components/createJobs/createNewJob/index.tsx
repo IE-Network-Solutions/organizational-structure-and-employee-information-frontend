@@ -51,11 +51,14 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
   };
 
   return (
-    <div className="p-2">
+    <div className="p-2" data-cy="talent-acquisition-create-job-form-container">
       <Form.Item
         name="jobTitle"
         label={
-          <span className="text-md my-2 font-semibold text-gray-700">
+          <span
+            className="text-md my-2 font-semibold text-gray-700"
+            data-cy="talent-acquisition-create-job-form-job-title-label"
+          >
             Job Name
           </span>
         }

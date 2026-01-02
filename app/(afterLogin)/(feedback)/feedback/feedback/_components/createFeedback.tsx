@@ -137,7 +137,11 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     )?.category ?? '';
 
   const modalHeader = (
-    <div className="flex justify-start text-xl font-extrabold text-gray-800 ">
+    <div
+      className="flex justify-start text-xl font-extrabold text-gray-800 "
+      data-cy="feedback-feedback-components-createfeedback-div-header"
+      id="feedback-feedback-components-createfeedback-div-header"
+    >
       {`${activeTabName} - ${variantType}`}
     </div>
   );
@@ -152,13 +156,23 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       }}
       modalHeader={modalHeader}
       width="40%"
+      data-cy="feedback-feedback-components-createfeedback-drawer"
       footer={
-        <Form.Item>
-          <div className=" w-full bg-[#fff] flex justify-between space-x-5 p-4">
+        <Form.Item
+          data-cy="feedback-feedback-components-createfeedback-form-item-footer"
+          id="feedback-feedback-components-createfeedback-form-item-footer"
+        >
+          <div
+            className=" w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            data-cy="feedback-feedback-components-createfeedback-div-footer"
+            id="feedback-feedback-components-createfeedback-div-footer"
+          >
             <Button
               className="h-12 p-5 px-12"
               onClick={() => setOpen(false)}
               type="default"
+              data-cy="feedback-feedback-components-createfeedback-button-cancel"
+              id="feedback-feedback-components-createfeedback-button-cancel"
             >
               Cancel
             </Button>
@@ -168,6 +182,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                 className="h-12 p-5 px-12"
                 type="primary"
                 onClick={() => form.submit()}
+                data-cy="feedback-feedback-components-createfeedback-button-update"
+                id="feedback-feedback-components-createfeedback-button-update"
               >
                 Update
               </Button>
@@ -179,6 +195,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                 type="primary"
                 className="h-12 p-5 px-12"
                 onClick={() => form.submit()}
+                data-cy="feedback-feedback-components-createfeedback-button-submit"
+                id="feedback-feedback-components-createfeedback-button-submit"
               >
                 Submit
               </Button>
@@ -198,8 +216,16 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           action: '',
           cc: [],
         }}
+        data-cy="feedback-feedback-components-createfeedback-form"
+        id="feedback-feedback-components-createfeedback-form"
       >
-        {selectedFeedbackRecord !== null && <Form.Item name="id"></Form.Item>}
+        {selectedFeedbackRecord !== null && (
+          <Form.Item
+            name="id"
+            data-cy="feedback-feedback-components-createfeedback-form-item-id"
+            id="feedback-feedback-components-createfeedback-form-item-id"
+          ></Form.Item>
+        )}
         {/* Select Employee ID */}
 
         <Form.Item
@@ -208,6 +234,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           rules={[
             { required: true, message: 'Please select at least one employee!' },
           ]}
+          data-cy="feedback-feedback-components-createfeedback-form-item-recipient"
+          id="feedback-feedback-components-createfeedback-form-item-recipient"
         >
           <Select
             showSearch
@@ -227,12 +255,16 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                 ?.toLowerCase()
                 .includes(input.toLowerCase())
             }
+            data-cy="feedback-feedback-components-createfeedback-select-employee"
+            id="feedback-feedback-components-createfeedback-select-employee"
           />
         </Form.Item>
         <Form.Item
           name="departmentId"
           label="Select Department"
           rules={[{ required: true, message: 'Please select a department' }]}
+          data-cy="feedback-feedback-components-createfeedback-form-item-department"
+          id="feedback-feedback-components-createfeedback-form-item-department"
         >
           <Select
             loading={isLoading}
@@ -241,9 +273,16 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
             onChange={(departmentId: string) =>
               setSelectedDepartmentId(departmentId)
             }
+            data-cy="feedback-feedback-components-createfeedback-select-department"
+            id="feedback-feedback-components-createfeedback-select-department"
           >
             {departments?.map((department: any) => (
-              <Select.Option key={department.id} value={department.id}>
+              <Select.Option
+                key={department.id}
+                value={department.id}
+                data-cy={`feedback-feedback-components-createfeedback-select-option-department-${department.id}`}
+                id={`feedback-feedback-components-createfeedback-select-option-department-${department.id}`}
+              >
                 {department.name}
               </Select.Option>
             ))}
@@ -256,6 +295,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           rules={[
             { required: true, message: 'Please select at least one type!' },
           ]}
+          data-cy="feedback-feedback-components-createfeedback-form-item-feedback"
+          id="feedback-feedback-components-createfeedback-form-item-feedback"
         >
           <Select
             showSearch
@@ -275,6 +316,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                 ?.toLowerCase()
                 .includes(input.toLowerCase())
             }
+            data-cy="feedback-feedback-components-createfeedback-select-feedback"
+            id="feedback-feedback-components-createfeedback-select-feedback"
           />
         </Form.Item>
 
@@ -283,8 +326,15 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           name="reason"
           label="Reason"
           rules={[{ required: true, message: 'Please provide a reason!' }]}
+          data-cy="feedback-feedback-components-createfeedback-form-item-reason"
+          id="feedback-feedback-components-createfeedback-form-item-reason"
         >
-          <TextArea rows={4} placeholder="Enter reason or description" />
+          <TextArea
+            rows={4}
+            placeholder="Enter reason or description"
+            data-cy="feedback-feedback-components-createfeedback-textarea-reason"
+            id="feedback-feedback-components-createfeedback-textarea-reason"
+          />
         </Form.Item>
 
         {/* Action to Be Taken */}
@@ -297,8 +347,15 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
               message: 'Please describe the action to be taken!',
             },
           ]}
+          data-cy="feedback-feedback-components-createfeedback-form-item-action"
+          id="feedback-feedback-components-createfeedback-form-item-action"
         >
-          <TextArea rows={4} placeholder="Describe the action to be taken" />
+          <TextArea
+            rows={4}
+            placeholder="Describe the action to be taken"
+            data-cy="feedback-feedback-components-createfeedback-textarea-action"
+            id="feedback-feedback-components-createfeedback-textarea-action"
+          />
         </Form.Item>
 
         {/* CC */}
@@ -310,6 +367,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
               { required: true, message: 'Please select at least one CC!' },
             ]}
             className="mb-8"
+            data-cy="feedback-feedback-components-createfeedback-form-item-cc"
+            id="feedback-feedback-components-createfeedback-form-item-cc"
           >
             <Select
               mode="multiple"
@@ -331,6 +390,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                     item?.lastName,
                 })) ?? []
               }
+              data-cy="feedback-feedback-components-createfeedback-select-cc"
+              id="feedback-feedback-components-createfeedback-select-cc"
             />
           </Form.Item>
         )}

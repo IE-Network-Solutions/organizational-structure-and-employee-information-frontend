@@ -110,19 +110,38 @@ const EditAccessTable: React.FC = () => {
       key: item?.id,
       name: item?.firstName,
       employee_name: (
-        <div className="flex items-center justify-start gap-2">
-          <div>
+        <div
+          className="flex items-center justify-start gap-2"
+          id={`okr-edit-access-table-employee-wrapper-${item?.id}`}
+          data-cy={`okr-edit-access-table-employee-wrapper-${item?.id}`}
+        >
+          <div
+            id={`okr-edit-access-table-employee-avatar-wrapper-${item?.id}`}
+            data-cy={`okr-edit-access-table-employee-avatar-wrapper-${item?.id}`}
+          >
             {item?.profileImage ? (
-              <Avatar size={20} src={item?.profileImage} />
+              <Avatar
+                size={20}
+                src={item?.profileImage}
+                data-cy={`okr-edit-access-table-employee-avatar-${item?.id}`}
+              />
             ) : (
-              <Avatar size={20}>
+              <Avatar
+                size={20}
+                data-cy={`okr-edit-access-table-employee-avatar-initials-${item?.id}`}
+              >
                 {item?.firstName ? item?.firstName[0]?.toUpperCase() : ''}
                 {item?.middleName ? item?.middleName[0]?.toUpperCase() : ''}
                 {item?.lastName ? item?.lastName[0]?.toUpperCase() : ''}
               </Avatar>
             )}
           </div>
-          <span> {item?.firstName + ' ' + item?.middleName || ''}</span>
+          <span
+            id={`okr-edit-access-table-employee-name-${item?.id}`}
+            data-cy={`okr-edit-access-table-employee-name-${item?.id}`}
+          >
+            {item?.firstName + ' ' + (item?.middleName || '')}
+          </span>
         </div>
       ),
       grant_access: (
@@ -131,6 +150,8 @@ const EditAccessTable: React.FC = () => {
           checked={switchStates[item?.id] ?? false}
           disabled={!hasUserObjectives(item?.id)}
           onChange={(isChecked) => handleToggleAccess(item?.id, isChecked)}
+          id={`okr-edit-access-table-access-switch-${item?.id}`}
+          data-cy={`okr-edit-access-table-access-switch-${item?.id}`}
         />
       ),
     };
@@ -150,13 +171,19 @@ const EditAccessTable: React.FC = () => {
   const paginatedData = filteredDataSource?.slice(startIndex, endIndex);
 
   return (
-    <div className="mt-5">
+    <div
+      className="mt-5"
+      id="okr-edit-access-table-container"
+      data-cy="okr-edit-access-table-container"
+    >
       <Table
         className="w-full cursor-pointer"
         columns={columns}
         dataSource={paginatedData}
         pagination={false}
         loading={responseLoading}
+        id="okr-edit-access-table"
+        data-cy="okr-edit-access-table"
       />
       {isMobile || isTablet ? (
         <CustomMobilePagination
@@ -164,6 +191,7 @@ const EditAccessTable: React.FC = () => {
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={onPageChange}
+          data-cy="okr-edit-access-mobile-pagination"
         />
       ) : (
         <CustomPagination
@@ -172,6 +200,7 @@ const EditAccessTable: React.FC = () => {
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={onPageChange}
+          data-cy="okr-edit-access-pagination"
         />
       )}
     </div>

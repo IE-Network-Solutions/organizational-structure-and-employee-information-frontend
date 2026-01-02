@@ -5,7 +5,8 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeOwner"
-        className="text-[#41a9f0] text-xs font-medium w-[90px] px-[30px] bg-[#add5f0]"
+        data-cy="roleTypeOwner"
+        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50"
       >
         ON BOARDING
       </Button>
@@ -14,7 +15,8 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeAdmin"
-        className="text-[#5555f4] text-xs font-medium w-[90px] px-[30px]  bg-[#b2b2ff]"
+        data-cy="roleTypeAdmin"
+        className="text-indigo-700 text-xs font-medium w-[90px] px-[30px] bg-white border border-indigo-700 hover:bg-indigo-50"
       >
         Permanent
       </Button>
@@ -23,7 +25,8 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeSuper"
-        className="text-[#9f7dff] text-xs font-medium w-[90px] px-[30px]  bg-[#f4f0ff]"
+        data-cy="roleTypeProbation"
+        className="text-violet-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-violet-600 hover:bg-violet-50"
       >
         PROBATION
       </Button>
@@ -31,8 +34,9 @@ const userTypeButton = (val: string) => {
   } else if (val === 'On Leave') {
     return (
       <Button
-        id="roleTypeSuper"
-        className="text-[#e86064] text-xs font-medium w-[90px] px-[30px] bg-[#ffedec]"
+        id="roleTypeOnLeave" // Note: I changed this id because it's same with the above Button
+        data-cy="roleTypeOnLeave"
+        className="text-red-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-red-600 hover:bg-red-50"
       >
         ON LEAVE
       </Button>
@@ -41,7 +45,8 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeNull"
-        className="text-white text-xs font-medium w-[90px] px-[30px] bg-sky-600"
+        data-cy="roleTypeNull"
+        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50"
       >
         Unknown
       </Button>
@@ -50,7 +55,8 @@ const userTypeButton = (val: string) => {
     return (
       <Button
         id="roleTypeOther"
-        className="bg-indigo-400 text-xs font-medium px-[30px]  text-white"
+        data-cy="roleTypeOther"
+        className="bg-white text-indigo-600 text-xs font-medium px-[30px] border border-indigo-600 hover:bg-indigo-50"
         title={val}
       >
         {val?.slice(0, 20)}

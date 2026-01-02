@@ -40,7 +40,7 @@ const updateComment = async (
   try {
     return crudRequest({
       url: `${OKR_URL}/plan-comments/${commentId}`,
-      method: 'patch',
+      method: 'PATCH',
       data: updatedComment,
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -63,7 +63,7 @@ const deleteComment = async (commentId: string) => {
   try {
     return crudRequest({
       url: `${OKR_URL}/plan-comments/${commentId}`,
-      method: 'delete',
+      method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
         tenantId: tenantId, // Pass tenantId in the headers
@@ -88,6 +88,7 @@ export const useAddPlanComment = () => {
   return useMutation(addComment, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('planComments');
       NotificationMessage.success({
         message: 'comment Successfully created ',
@@ -105,6 +106,7 @@ export const useUpdatePlanComment = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('okrPlans');
+        queryClient.invalidateQueries('okrUserPlans');
         queryClient.invalidateQueries('planComments');
 
         NotificationMessage.success({
@@ -129,6 +131,7 @@ export const useDeletePlanComment = () => {
   return useMutation(deleteComment, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('planComments');
       NotificationMessage.success({
         message: 'comment Successfully deleted ',

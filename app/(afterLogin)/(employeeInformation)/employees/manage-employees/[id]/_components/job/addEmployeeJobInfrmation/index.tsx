@@ -6,8 +6,9 @@ import WorkScheduleForm from '../../../../_components/allFormData/workScheduleFo
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useParams } from 'next/navigation';
-import { useEffect } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
+import { useEffect } from 'react';
 
 interface Ids {
   id?: string;
@@ -20,9 +21,11 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   id,
 }) => {
   const { userId: userId2 } = useAuthenticationStore();
+
   const [form] = Form.useForm();
   const params = useParams();
-  const userId = id ?? (params?.id as string) ?? userId2;
+  // Prioritize URL parameter over prop to ensure we use the employee ID from URL, not logged-in user's ID
+  const userId = (params?.id as string) ?? id ?? userId2;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
@@ -36,7 +39,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
       form.resetFields(); // Reset form values on modal open
       setTempAllowances([]); // Clear temp allowances when modal opens
     }
-  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances]);
+  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances, form]);
   const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
@@ -85,21 +88,42 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         onCancel={handleClose}
         footer={false}
         destroyOnClose
+        data-cy="job-add-job-info-modal"
       >
-        <Form form={form} onFinish={createTsks} layout="vertical">
-          <JobTimeLineForm employeeData={employeeData} form={form} />
+        <Form
+          form={form}
+          onFinish={createTsks}
+          layout="vertical"
+          id="job-add-job-info-form"
+          data-cy="job-add-job-info-form"
+        >
+          <JobTimeLineForm
+            employeeData={employeeData}
+            form={form}
+            data-cy="job-add-job-info-timeline"
+          />
           <WorkScheduleForm
             selectedWorkScheduleDetails={
               employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
             }
+            data-cy="job-add-job-info-schedule"
           />
-          <Form.Item>
-            <Row className="flex justify-end gap-3">
+          <Form.Item
+            id="job-add-job-info-submit-form-item"
+            data-cy="job-add-job-info-submit-form-item"
+          >
+            <Row
+              className="flex justify-end gap-3"
+              id="job-add-job-info-submit-row"
+              data-cy="job-add-job-info-submit-row"
+            >
               <Button
                 type="primary"
                 htmlType="submit"
                 name="submit"
                 loading={isLoading}
+                id="job-add-job-info-submit-btn"
+                data-cy="job-add-job-info-submit-btn"
               >
                 Submit
               </Button>
@@ -109,6 +133,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
                 value={'cancel'}
                 name="cancel"
                 onClick={handleClose}
+                id="job-add-job-info-cancel-btn"
+                data-cy="job-add-job-info-cancel-btn"
               >
                 Cancel
               </Button>

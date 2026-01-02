@@ -91,17 +91,38 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
+    if (isLoading)
+      return (
+        <div
+          id={`time-attendance-leave-management-row-employee-loading-${userId}`}
+          data-cy={`time-attendance-leave-management-row-employee-loading-${userId}`}
+        >
+          ...
+        </div>
+      );
     if (isError) return <>-</>;
     const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="mx-1 text-sm">
+      <div
+        className="flex items-center gap-1.5"
+        id={`time-attendance-leave-management-row-employee-${userId}`}
+        data-cy={`time-attendance-leave-management-row-employee-${userId}`}
+      >
+        <div
+          className="mx-1 text-sm"
+          id={`time-attendance-leave-management-row-employee-${userId}-id`}
+          data-cy={`time-attendance-leave-management-row-employee-${userId}-id`}
+        >
           {employeeData?.employeeInformation?.employeeAttendanceId}
         </div>{' '}
-        <div className="flex-1">
+        <div
+          className="flex-1"
+          id={`time-attendance-leave-management-row-employee-${userId}-card`}
+          data-cy={`time-attendance-leave-management-row-employee-${userId}-card`}
+        >
           <UserCard
+            data-cy="time-attendance-leave-management-row-employee-card"
             data={employeeData}
             name={fullName}
             email={employeeData?.email}
@@ -127,35 +148,70 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       dataIndex: 'startAt',
       key: 'startAt',
       sorter: true,
-      render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
+      render: (date: string) => (
+        <div
+          id={`time-attendance-leave-management-row-start-${date}`}
+          data-cy={`time-attendance-leave-management-row-start-${date}`}
+        >
+          {dayjs(date).format(DATE_FORMAT)}
+        </div>
+      ),
     },
     {
       title: 'to',
       dataIndex: 'endAt',
       key: 'endAt',
       sorter: true,
-      render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
+      render: (date: string) => (
+        <div
+          id={`time-attendance-leave-management-row-end-${date}`}
+          data-cy={`time-attendance-leave-management-row-end-${date}`}
+        >
+          {dayjs(date).format(DATE_FORMAT)}
+        </div>
+      ),
     },
     {
       title: 'total request',
       dataIndex: 'days',
       key: 'days',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div
+          id={`time-attendance-leave-management-row-days-${text}`}
+          data-cy={`time-attendance-leave-management-row-days-${text}`}
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: 'type',
       dataIndex: 'leaveType',
       key: 'leaveType',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div
+          id={`time-attendance-leave-management-row-type-${text || 'unknown'}`}
+          data-cy={`time-attendance-leave-management-row-type-${text || 'unknown'}`}
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: 'total available',
       dataIndex: 'totalAvailable',
       key: 'totalAvailable',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div
+          id={`time-attendance-leave-management-row-total-available-${text}`}
+          data-cy={`time-attendance-leave-management-row-total-available-${text}`}
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: 'Requested At',
@@ -171,9 +227,16 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
             href={link}
             target="_blank"
             className="flex justify-between align-middle text-gray-900"
+            id={`time-attendance-leave-management-row-attachment-link-${formatLinkToUploadFile(link).name}`}
+            data-cy={`time-attendance-leave-management-row-attachment-link-${formatLinkToUploadFile(link).name}`}
           >
-            <div>{formatLinkToUploadFile(link).name}</div>
-            <TbFileDownload size={14} />
+            <div data-cy="time-attendance-leave-management-row-attachment-link-name">
+              {formatLinkToUploadFile(link).name}
+            </div>
+            <TbFileDownload
+              data-cy="time-attendance-leave-management-row-attachment-link-icon"
+              size={14}
+            />
           </a>
         ) : (
           '-'
@@ -184,9 +247,17 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       dataIndex: 'status',
       key: 'status',
       render: (text: LeaveRequestStatus) => (
-        <StatusBadge theme={LeaveRequestStatusBadgeTheme[text]}>
-          {text}
-        </StatusBadge>
+        <div
+          id={`time-attendance-leave-management-row-status-${text}`}
+          data-cy={`time-attendance-leave-management-row-status-${text}`}
+        >
+          <StatusBadge
+            data-cy="time-attendance-leave-management-row-status-badge"
+            theme={LeaveRequestStatusBadgeTheme[text]}
+          >
+            {text}
+          </StatusBadge>
+        </div>
       ),
     },
     {
@@ -195,6 +266,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       key: 'action',
       render: (item: LeaveRequest) => (
         <ActionButtons
+          data-cy="time-attendance-leave-management-row-action-buttons"
           id={item?.id ?? null}
           onDetail={() => {
             setIsShowLeaveRequestManagementSidebar(true);
@@ -281,10 +353,24 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   };
 
   return (
-    <div className="mt-6">
-      <LeaveManagementTableFilter onChange={onFilterChange} />
-      <div>
-        <div className="flex  overflow-x-auto scrollbar-none  w-full bg-[#fafafa]">
+    <div
+      className="mt-6"
+      id="time-attendance-leave-management-table-wrapper"
+      data-cy="time-attendance-leave-management-table-wrapper"
+    >
+      <LeaveManagementTableFilter
+        data-cy="time-attendance-leave-management-table-filter"
+        onChange={onFilterChange}
+      />
+      <div
+        id="time-attendance-leave-management-table-container"
+        data-cy="time-attendance-leave-management-table-container"
+      >
+        <div
+          className="flex  overflow-x-auto scrollbar-none  w-full bg-[#fafafa]"
+          id="time-attendance-leave-management-table-scroll-wrapper"
+          data-cy="time-attendance-leave-management-table-scroll-wrapper"
+        >
           <Table
             className="mt-6 w-full"
             rowClassName={() => 'h-[60px]'}
@@ -299,10 +385,13 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
             }}
             pagination={false}
             onChange={handleTableChange}
+            id="time-attendance-leave-management-table"
+            data-cy="time-attendance-leave-management-table"
           />
         </div>
         {isMobile || isTablet ? (
           <CustomMobilePagination
+            data-cy="time-attendance-leave-management-table-mobile-pagination"
             totalResults={data?.meta?.totalItems ?? 0}
             pageSize={pageSize}
             onChange={onPageChange}
@@ -310,6 +399,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           />
         ) : (
           <CustomPagination
+            data-cy="time-attendance-leave-management-table-pagination"
             current={currentPage}
             total={data?.meta?.totalItems ?? 0}
             pageSize={pageSize}

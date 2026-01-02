@@ -51,9 +51,12 @@ const Department: React.FC = () => {
   }, [weeklyPriority, activeTab]);
 
   return (
-    <div style={{ padding: 20 }}>
-      <div className="flex justify-between mb-5">
-        <div className="flex gap-4">
+    <div style={{ padding: 20 }} data-cy="department-team-container">
+      <div
+        className="flex justify-between mb-5"
+        data-cy="department-team-header"
+      >
+        <div className="flex gap-4" data-cy="department-team-filters">
           <Select
             id={`selectDepartment`}
             placeholder={
