@@ -22,12 +22,15 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
 import { FaCheckSquare, FaRegSquare, FaWindowClose } from 'react-icons/fa';
+import { useQueryClient } from 'react-query';
 
 const { TextArea } = Input;
 
 function EditReport() {
+  const queryClient = useQueryClient();
   const {
     setOpenReportModal,
+
     activePlanPeriod,
     selectedReportId,
     setSelectedReportId,
@@ -73,6 +76,11 @@ function EditReport() {
         { values: values, selectedReportId },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries('okrReports');
+            queryClient.invalidateQueries('okrPlans');
+            queryClient.invalidateQueries('okrUserPlans');
+            queryClient.invalidateQueries('okrPlannedData');
+            queryClient.invalidateQueries('planningPeriodsHierarchy');
             onClose();
           },
         },
@@ -168,8 +176,8 @@ function EditReport() {
         </Button>
       </div>
 
-      <div className="flex-1 flex justify-end">
-        <div className="my-2 font-bold mx-6">
+      <div className="flex-1 flex justify-end pr-5">
+        <div className="my-2 font-bold">
           <span className="text-sm font-medium text-[#161A2C]">
             Total Point:{' '}
             <span
@@ -395,46 +403,46 @@ function EditReport() {
               className="px-2"
             >
               <div id="edit-report-collapse" data-cy="edit-report-collapse">
-              <Collapse
-                defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((nonused: any, i: number) => `kr-${obj.id || ''}-${i}`))}
-                expandIconPosition="end"
-                bordered={false}
-                className="bg-transparent [&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-xl [&_.ant-collapse-item]:!border-t [&_.ant-collapse-item]:!border-b [&_.ant-collapse-item]:!border-l [&_.ant-collapse-item]:!border-r [&_.ant-collapse-item]:!border-gray-200 [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
-              >
-                {formattedData?.map((objective: any) =>
-                  objective?.keyResults?.map((keyresult: any, index: number) => (
-                    <Collapse.Panel
-                      id={`edit-report-panel-${objective.id || ''}-${index}`}
-                      data-cy={`edit-report-panel-${objective.id || ''}-${index}`}
-                      header={
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-gray-900 whitespace-nowrap">
-                            {planningPeriodName}-task :
-                          </span>
-                          <span className="text-gray-700 font-normal">
-                            {keyresult?.title}
-                          </span>
-                        </div>
-                      }
-                      key={`kr-${objective.id || ''}-${index}`}
-                    >
-                      <div className="py-2">
-                        {/* Milestone Tasks */}
-                        {keyresult?.milestones?.map((milestone: any) =>
-                          milestone?.tasks?.map((task: any) =>
-                            renderTaskRow(task, keyresult),
-                          ),
-                        )}
+                <Collapse
+                  defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((nonused: any, i: number) => `kr-${obj.id || ''}-${i}`))}
+                  expandIconPosition="end"
+                  bordered={false}
+                  className="bg-transparent [&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-xl [&_.ant-collapse-item]:!border-t [&_.ant-collapse-item]:!border-b [&_.ant-collapse-item]:!border-l [&_.ant-collapse-item]:!border-r [&_.ant-collapse-item]:!border-gray-200 [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
+                >
+                  {formattedData?.map((objective: any) =>
+                    objective?.keyResults?.map((keyresult: any, index: number) => (
+                      <Collapse.Panel
+                        id={`edit-report-panel-${objective.id || ''}-${index}`}
+                        data-cy={`edit-report-panel-${objective.id || ''}-${index}`}
+                        header={
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900 whitespace-nowrap">
+                              {planningPeriodName}-task :
+                            </span>
+                            <span className="text-gray-700 font-normal">
+                              {keyresult?.title}
+                            </span>
+                          </div>
+                        }
+                        key={`kr-${objective.id || ''}-${index}`}
+                      >
+                        <div className="py-2">
+                          {/* Milestone Tasks */}
+                          {keyresult?.milestones?.map((milestone: any) =>
+                            milestone?.tasks?.map((task: any) =>
+                              renderTaskRow(task, keyresult),
+                            ),
+                          )}
 
-                        {/* Direct Tasks */}
-                        {keyresult?.tasks?.map((task: any) =>
-                          renderTaskRow(task, keyresult),
-                        )}
-                      </div>
-                    </Collapse.Panel>
-                  )),
-                )}
-              </Collapse>
+                          {/* Direct Tasks */}
+                          {keyresult?.tasks?.map((task: any) =>
+                            renderTaskRow(task, keyresult),
+                          )}
+                        </div>
+                      </Collapse.Panel>
+                    )),
+                  )}
+                </Collapse>
               </div>
             </Form>
           ) : (

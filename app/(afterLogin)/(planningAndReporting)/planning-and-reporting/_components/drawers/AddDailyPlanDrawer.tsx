@@ -348,11 +348,11 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                     const weeklyTask = group.tasks[0]; // The weekly task
 
                     return (
-                        <div key={group.id} className="rounded-2xl border border-[#F1F2F6] bg-white p-6 shadow-sm">
+                        <div key={group.id} className="rounded-2xl border border-[#F1F2F6] bg-white p-6">
                             <div
                                 id={`daily-plan-collapse-header-${group.id}`}
                                 data-cy={`daily-plan-collapse-header-${group.id}`}
-                                className="mb-4 flex items-center justify-between cursor-pointer"
+                                className={`${group.collapsed ? 'mb-0' : 'mb-4'} flex items-center justify-between cursor-pointer`}
                                 onClick={() => togglePlanningGroupCollapse(group.id)}
                             >
                                 <div>
@@ -550,11 +550,11 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
     const renderReportingContent = () => (
         <div className="flex flex-col gap-6 p-2">
             {reportingTasks.map((group) => (
-                <div key={group.id} className="rounded-2xl border border-[#F1F2F6] bg-white p-6 shadow-sm">
+                <div key={group.id} className="rounded-2xl border border-[#F1F2F6] bg-white p-6">
                     <div
                         id={`daily-report-collapse-header-${group.id}`}
                         data-cy={`daily-report-collapse-header-${group.id}`}
-                        className="mb-4 flex items-center justify-between cursor-pointer"
+                        className={`${group.collapsed ? 'mb-0' : 'mb-4'} flex items-center justify-between cursor-pointer`}
                         onClick={() => toggleReportingGroupCollapse(group.id)}
                     >
                         <div>
@@ -650,11 +650,11 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
             footer={
                 <div className="relative flex items-center justify-center px-4 my-3 sm:my-0 sm:py-2">
                     <div className="flex items-center gap-4">
-                        <Button 
+                        <Button
                             id="daily-plan-drawer-cancel-button"
                             data-cy="daily-plan-drawer-cancel-button"
-                            size="large" 
-                            className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] w-32 !py-2 sm:!py-6" 
+                            size="large"
+                            className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] w-32 !py-2 sm:!py-6"
                             onClick={onClose}
                         >
                             Cancel

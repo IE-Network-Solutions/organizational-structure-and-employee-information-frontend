@@ -40,7 +40,7 @@ interface CollapseComponentProps {
   planningUserId: string;
   mkAsATask: boolean | null;
   setMKAsATask: (value: any) => void;
-  handleAddBoard: (id: string) => void;
+  handleAddBoard: (id: string, metadata?: any) => void;
   handleAddName: (values: Record<string, any>, key: string) => void;
   weights: Record<string, number>;
   failedTasksByKeyResult?: Record<
@@ -137,36 +137,36 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                           kr?.metricType?.name === NAME.CURRENCY ||
                           kr?.metricType?.name === NAME.PERCENTAGE ||
                           kr?.metricType?.name === NAME.KPI) && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs flex items-center gap-1.5 text-gray-400">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
-                              Progress
-                            </span>
-                            <div className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs flex items-center justify-center min-w-[45px]">
-                              {kr?.metricType?.name === NAME.PERCENTAGE ? (
-                                <span className="text-[#574CFF] font-bold">
-                                  {kr?.progress}%
-                                </span>
-                              ) : (
-                                <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs flex items-center gap-1.5 text-gray-400">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                                Progress
+                              </span>
+                              <div className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs flex items-center justify-center min-w-[45px]">
+                                {kr?.metricType?.name === NAME.PERCENTAGE ? (
                                   <span className="text-[#574CFF] font-bold">
-                                    {kr?.metricType?.name === NAME.CURRENCY
-                                      ? '$'
-                                      : ''}
-                                    {(kr?.currentValue ?? 0).toLocaleString()}
+                                    {kr?.progress}%
                                   </span>
-                                  <span className="text-gray-500">from</span>
-                                  <span className="text-[#574CFF] font-bold">
-                                    {kr?.metricType?.name === NAME.CURRENCY
-                                      ? '$'
-                                      : ''}
-                                    {(kr?.targetValue ?? 0).toLocaleString()}
-                                  </span>
-                                </div>
-                              )}
+                                ) : (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[#574CFF] font-bold">
+                                      {kr?.metricType?.name === NAME.CURRENCY
+                                        ? '$'
+                                        : ''}
+                                      {(kr?.currentValue ?? 0).toLocaleString()}
+                                    </span>
+                                    <span className="text-gray-500">from</span>
+                                    <span className="text-[#574CFF] font-bold">
+                                      {kr?.metricType?.name === NAME.CURRENCY
+                                        ? '$'
+                                        : ''}
+                                      {(kr?.targetValue ?? 0).toLocaleString()}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </div>
 
                       <div className="flex items-center gap-6 mr-2">
@@ -209,14 +209,26 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                             title: kr?.title,
                                             mid: kr?.id,
                                           });
-                                          handleAddBoard(kr?.id);
+                                          handleAddBoard(kr?.id, {
+                                            keyResultId: kr.id,
+                                            milestoneId: null,
+                                            planningPeriodId,
+                                            planningUserId,
+                                            userId,
+                                          });
                                         },
                                       },
                                     ],
                                   }}
                                   onClick={() => {
                                     setMKAsATask(null);
-                                    handleAddBoard(kr?.id);
+                                    handleAddBoard(kr?.id, {
+                                      keyResultId: kr.id,
+                                      milestoneId: null,
+                                      planningPeriodId,
+                                      planningUserId,
+                                      userId,
+                                    });
                                   }}
                                 >
                                   <span className="sm:hidden">Add Task</span>
@@ -229,7 +241,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               <Button
                                 id={`plan-as-task_${kr?.id ?? ''}`}
                                 data-cy={`plan-as-task_${kr?.id ?? ''}`}
-                                onClick={() => handleAddBoard(kr?.id)}
+                                onClick={() => handleAddBoard(kr?.id, {
+                                  keyResultId: kr.id,
+                                  milestoneId: null,
+                                  planningPeriodId,
+                                  planningUserId,
+                                  userId,
+                                })}
                                 type="primary"
                                 disabled={Number(kr?.progress) == 100}
                               >
@@ -290,7 +308,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                                 title: ml?.title,
                                                 mid: ml?.id,
                                               });
-                                              handleAddBoard(kr?.id + ml?.id);
+                                              handleAddBoard(kr?.id + ml?.id, {
+                                                keyResultId: kr.id,
+                                                milestoneId: ml.id,
+                                                planningPeriodId,
+                                                planningUserId,
+                                                userId,
+                                              });
                                               setClickStatus(ml?.id + '', true); // Store click status in Zustand
                                             }
                                           },
@@ -299,7 +323,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                     }}
                                     onClick={() => {
                                       setMKAsATask(null);
-                                      handleAddBoard(kr?.id + ml?.id);
+                                      handleAddBoard(kr?.id + ml?.id, {
+                                        keyResultId: kr.id,
+                                        milestoneId: ml.id,
+                                        planningPeriodId,
+                                        planningUserId,
+                                        userId,
+                                      });
                                     }}
                                   >
                                     <span className="sm:hidden">Add Task</span>

@@ -20,7 +20,7 @@ export default function PriorityTag({ priority }: PriorityTagProps) {
 
   return (
     <Tag
-      className="rounded-[4px] border-none px-3 py-1 text-xs font-medium"
+      className="rounded-[4px] border-none px-3 py-1 text-xs font-bold"
       style={{
         backgroundColor: colors.bg,
         color: colors.text,

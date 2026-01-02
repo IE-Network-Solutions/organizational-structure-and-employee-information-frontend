@@ -48,7 +48,7 @@ interface CollapseComponentProps {
     planningUserId: string;
     mkAsATask?: boolean;
     setMKAsATask: (value: any) => void;
-    handleAddBoard: (id: string) => void;
+    handleAddBoard: (id: string, metadata?: any) => void;
     handleAddName: (values: Record<string, any>, key: string) => void;
     weights: Record<string, number>;
     failedTasksByKeyResult?: Record<
@@ -102,8 +102,8 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                             task.id,
                                         );
                                         return (
-                                            <div key={task.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                                                <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/20 gap-3">
+                                            <div key={task.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                                <div className="pt-5 px-4 pb-0 flex justify-between items-center gap-3">
                                                     <div className="text-sm flex items-center min-w-0 flex-1 pr-2">
                                                         <strong className="text-gray-950 flex-shrink-0 whitespace-nowrap">
                                                             {planningPeriodHierarchy?.parentPlan?.name || 'Parent'}-task :
@@ -115,7 +115,16 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                                         className="bg-[#3D41FF] hover:bg-[#3236e6] border-none rounded-md px-4 font-bold h-8 flex-shrink-0"
                                                         onClick={() => {
                                                             setMKAsATask(null);
-                                                            handleAddBoard(compositeKey);
+                                                            handleAddBoard(compositeKey, {
+                                                                keyResultId: keyResult.id,
+                                                                milestoneId: milestone.id,
+                                                                parentTaskId: task.id,
+                                                                planningPeriodId,
+                                                                planningUserId,
+                                                                userId,
+                                                                parentPlanId: parentParentId,
+                                                                targetValue: task.targetValue
+                                                            });
                                                         }}
                                                         disabled={
                                                             statuses[milestone.id] ||
@@ -128,7 +137,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                                     </Button>
                                                 </div>
 
-                                                <div className="px-4 py-2">
+                                                <div className="px-4 pb-5 pt-0">
                                                     <DefaultCardForm
                                                         kId={keyResult.id}
                                                         milestoneId={milestone.id}
@@ -154,8 +163,8 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                             {keyResult.tasks.map((task) => {
                                 const compositeKey = buildKey(keyResult.id, null, task.id);
                                 return (
-                                    <div key={task.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                                        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/20 gap-3">
+                                    <div key={task.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                        <div className="pt-5 px-4 pb-0 flex justify-between items-center gap-3">
                                             <div className="text-sm flex items-center min-w-0 flex-1 pr-2">
                                                 <strong className="text-gray-950 flex-shrink-0 whitespace-nowrap">
                                                     {planningPeriodHierarchy?.parentPlan?.name || 'Parent'}-task :
@@ -167,7 +176,16 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                                 className="bg-[#3D41FF] hover:bg-[#3236e6] border-none rounded-md px-4 font-bold h-8 flex-shrink-0"
                                                 onClick={() => {
                                                     setMKAsATask(null);
-                                                    handleAddBoard(compositeKey);
+                                                    handleAddBoard(compositeKey, {
+                                                        keyResultId: keyResult.id,
+                                                        milestoneId: null,
+                                                        parentTaskId: task.id,
+                                                        planningPeriodId,
+                                                        planningUserId,
+                                                        userId,
+                                                        parentPlanId: parentParentId,
+                                                        targetValue: task.targetValue
+                                                    });
                                                 }}
                                                 disabled={
                                                     statuses[keyResult.id] ||
@@ -179,7 +197,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                             </Button>
                                         </div>
 
-                                        <div className="px-4 py-2">
+                                        <div className="px-4 pb-5 pt-0">
                                             <DefaultCardForm
                                                 kId={keyResult.id}
                                                 milestoneId={null}
