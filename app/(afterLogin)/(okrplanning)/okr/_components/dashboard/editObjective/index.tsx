@@ -16,7 +16,11 @@ import dayjs from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
 import KeyResultView from '../../keyresultView';
 import KeyResultForm from '../../keyresultForm';
-import { useUpdateObjective } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import {
+  useUpdateObjective,
+  useDeleteKeyResult,
+  useDeleteMilestone,
+} from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
@@ -44,6 +48,10 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     removeKeyResult,
     addKeyResultValue,
     setAlignment,
+    deletedKeyResultIds,
+    setDeletedKeyResultIds,
+    deletedMilestoneIds,
+    setDeletedMilestoneIds,
   } = useOKRStore();
   const { userId } = useAuthenticationStore();
   const { data: userData } = useGetEmployee(userId);
@@ -51,6 +59,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const { data: keyResultByUser } = useGetUserKeyResult(reportsToId);
   const [form] = Form.useForm();
   const { mutate: updateObjective, isLoading } = useUpdateObjective();
+  const { mutate: deleteKeyResult } = useDeleteKeyResult();
+  const { mutate: deleteMilestone } = useDeleteMilestone();
   const { isMobile } = useIsMobile();
   const { data: metrics } = useGetMetrics();
   const [showAISuggestions, setShowAISuggestions] = React.useState(false);
@@ -120,84 +130,13 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const handleModalClose = () => {
-    // Use the validation function
-    if (!validateKeyResults()) {
-      // Show detailed validation errors
-      const existingKeyResults = objectiveValue?.keyResults || [];
-      const newKeyResults = objective?.keyResults || [];
-      const allKeyResults = [...existingKeyResults, ...newKeyResults];
-
-      if (allKeyResults && allKeyResults.length > 0) {
-        const keyResultSum = allKeyResults.reduce(
-          (sum: number, keyResult: Record<string, number>) =>
-            sum + Number(keyResult.weight || 0),
-          0,
-        );
-
-        if (keyResultSum !== 100) {
-          NotificationMessage.warning({
-            message: `The sum of key result should equal to 100. Current sum: ${keyResultSum}%`,
-          });
-          return;
-        }
-
-        for (const [index, keyResult] of allKeyResults.entries()) {
-          const keyType = keyResult?.metricType?.name || keyResult?.key_type;
-
-          if (keyType === 'Milestone') {
-            if (!keyResult.milestones || keyResult.milestones.length === 0) {
-              NotificationMessage.warning({
-                message:
-                  'Please add at least one milestone for each milestone key result.',
-              });
-              return;
-            }
-
-            for (const [mIndex, milestone] of keyResult.milestones.entries()) {
-              if (!milestone?.title || milestone.title.trim() === '') {
-                NotificationMessage.warning({
-                  message: `On Number: ${index + 1} Title:${keyResult.title} Milestone ${mIndex + 1} must have a name.`,
-                });
-                return;
-              }
-            }
-
-            const milestoneSum = keyResult.milestones.reduce(
-              (sum: number, milestone: Record<string, number>) =>
-                sum + Number(milestone.weight),
-              0,
-            );
-
-            if (milestoneSum !== 100) {
-              NotificationMessage.warning({
-                message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to 100.`,
-              });
-              return;
-            }
-          }
-
-          if (
-            keyType === 'Currency' ||
-            keyType === 'Numeric' ||
-            keyType === 'Percentage'
-          ) {
-            if (keyResult?.initialValue > keyResult?.targetValue) {
-              NotificationMessage.warning({
-                message: `On number:${index + 1} title:${keyResult.title} key result initialValue should be less than or equal to the target value.`,
-              });
-              return;
-            }
-          }
-        }
-      }
-      return;
-    }
-
-    // If validation passes, proceed with closing
+    // Close modal immediately without validation when Cancel is clicked
     setHasUnsavedChanges(false);
     form.resetFields(); // Reset all form fields
     setObjectiveValue(defaultObjective); // Reset the objectiveValue state
     setObjective(defaultObjective); // Reset the objective state (which contains keyResults)
+    setDeletedKeyResultIds([]); // Clear deleted key result IDs when canceling
+    setDeletedMilestoneIds([]); // Clear deleted milestone IDs when canceling
     props.onClose(); // Close the modal
   };
 
@@ -276,18 +215,80 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           }
 
           // If all checks pass, proceed with the objective creation
-          // Combine existing and new key results for submission
-          const submissionData = {
-            ...objectiveValueNew,
-            keyResults: allKeyResults,
-          };
+          // First, delete any milestones that were marked for deletion
+          // Then, delete any key results that were marked for deletion
+          // Finally, update the objective with remaining data
 
-          updateObjective(submissionData, {
-            onSuccess: () => {
-              setHasUnsavedChanges(false);
-              handleModalClose();
-            },
-          });
+          const deleteOperations: Promise<void>[] = [];
+
+          // Delete milestones first (if any)
+          if (deletedMilestoneIds && deletedMilestoneIds.length > 0) {
+            deletedMilestoneIds.forEach((id) => {
+              deleteOperations.push(
+                new Promise<void>((resolve, reject) => {
+                  deleteMilestone(id, {
+                    onSuccess: () => resolve(),
+                    onError: (error) => reject(error),
+                  });
+                }),
+              );
+            });
+          }
+
+          // Delete key results (if any)
+          if (deletedKeyResultIds && deletedKeyResultIds.length > 0) {
+            deletedKeyResultIds.forEach((id) => {
+              deleteOperations.push(
+                new Promise<void>((resolve, reject) => {
+                  deleteKeyResult(id, {
+                    onSuccess: () => resolve(),
+                    onError: (error) => reject(error),
+                  });
+                }),
+              );
+            });
+          }
+
+          // If there are any deletions, wait for them to complete
+          if (deleteOperations.length > 0) {
+            Promise.all(deleteOperations)
+              .then(() => {
+                // After all deletions complete, update objective with remaining key results
+                const submissionData = {
+                  ...objectiveValueNew,
+                  keyResults: allKeyResults,
+                };
+
+                updateObjective(submissionData, {
+                  onSuccess: () => {
+                    setDeletedKeyResultIds([]); // Clear deleted key result IDs
+                    setDeletedMilestoneIds([]); // Clear deleted milestone IDs
+                    setHasUnsavedChanges(false);
+                    handleModalClose();
+                  },
+                });
+              })
+              //eslint-disable-next-line @typescript-eslint/no-unused-vars
+              .catch((error) => {
+                NotificationMessage.error({
+                  message: 'Error',
+                  description: 'Failed to delete items. Please try again.',
+                });
+              });
+          } else {
+            // No deletions, just update normally
+            const submissionData = {
+              ...objectiveValueNew,
+              keyResults: allKeyResults,
+            };
+
+            updateObjective(submissionData, {
+              onSuccess: () => {
+                setHasUnsavedChanges(false);
+                handleModalClose();
+              },
+            });
+          }
         } else {
           // Show an error message if keyResults is empty
           NotificationMessage.warning({
