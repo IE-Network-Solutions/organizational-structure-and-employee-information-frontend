@@ -475,6 +475,7 @@ function Reporting() {
             setPageReporting(page);
             setPageSizeReporting(pageSize);
           }}
+          grayBackground={true}
         />
       )}
       {allReporting?.items?.length <= 0 && (

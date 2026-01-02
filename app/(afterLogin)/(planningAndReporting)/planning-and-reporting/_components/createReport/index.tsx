@@ -22,11 +22,14 @@ import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
+import { useQueryClient } from 'react-query';
 
 const { TextArea } = Input;
 function CreateReport() {
+    const queryClient = useQueryClient();
     const {
         openReportModal,
+
         setOpenReportModal,
         activePlanPeriod,
         isEditing,
@@ -89,6 +92,11 @@ function CreateReport() {
 
                 {
                     onSuccess: () => {
+                        queryClient.invalidateQueries('okrReports');
+                        queryClient.invalidateQueries('okrPlans');
+                        queryClient.invalidateQueries('okrUserPlans');
+                        queryClient.invalidateQueries('okrPlannedData');
+                        queryClient.invalidateQueries('planningPeriodsHierarchy');
                         onClose();
                     },
                 },
@@ -268,8 +276,8 @@ function CreateReport() {
                 </Button>
             </div>
 
-            <div className="flex-1 flex justify-end">
-                <div className="my-2 font-bold mx-6">
+            <div className="flex-1 flex justify-end pr-5">
+                <div className="my-2 font-bold">
                     <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
                         <span className="md:hidden">WP:</span> <span className="hidden md:inline">Weight Point:</span>{' '}
                         <span
@@ -452,50 +460,50 @@ function CreateReport() {
                             className="px-2"
                         >
                             <div id="create-report-collapse" data-cy="create-report-collapse">
-                            <Collapse
-                                defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((nonused: any, i: number) => `kr-${obj.id || ''}-${i}`))}
-                                expandIconPosition="end"
-                                bordered={false}
-                                className="bg-transparent"
-                            >
-                                {formattedData?.map((objective: any) =>
-                                    objective?.keyResults?.map((keyresult: any, index: number) => (
-                                        <Collapse.Panel
-                                            id={`create-report-panel-${objective.id || ''}-${index}`}
-                                            data-cy={`create-report-panel-${objective.id || ''}-${index}`}
-                                            header={
-                                                <div className="flex items-center gap-2 min-w-0 w-full">
-                                                    <span className="font-bold text-gray-900 whitespace-nowrap flex-shrink-0">
-                                                        {planningPeriodName}-task :
-                                                    </span>
-                                                    <span className="text-gray-700 font-normal truncate flex-1 min-w-0" title={keyresult?.title}>
-                                                        {keyresult?.title}
-                                                    </span>
-                                                </div>
-                                            }
-                                            key={`kr-${objective.id || ''}-${index}`}
-                                            className="mb-4 rounded-xl overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
-                                            style={{
-                                                border: '1px solid #e5e7eb',
-                                            }}
-                                        >
-                                            <div className="py-2">
-                                                {/* Milestone Tasks */}
-                                                {keyresult?.milestones?.map((milestone: any) =>
-                                                    milestone?.tasks?.map((task: any) =>
-                                                        renderTaskRow(task, keyresult)
-                                                    )
-                                                )}
+                                <Collapse
+                                    defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((nonused: any, i: number) => `kr-${obj.id || ''}-${i}`))}
+                                    expandIconPosition="end"
+                                    bordered={false}
+                                    className="bg-transparent"
+                                >
+                                    {formattedData?.map((objective: any) =>
+                                        objective?.keyResults?.map((keyresult: any, index: number) => (
+                                            <Collapse.Panel
+                                                id={`create-report-panel-${objective.id || ''}-${index}`}
+                                                data-cy={`create-report-panel-${objective.id || ''}-${index}`}
+                                                header={
+                                                    <div className="flex items-center gap-2 min-w-0 w-full">
+                                                        <span className="font-bold text-gray-900 whitespace-nowrap flex-shrink-0">
+                                                            {planningPeriodName}-task :
+                                                        </span>
+                                                        <span className="text-gray-700 font-normal truncate flex-1 min-w-0" title={keyresult?.title}>
+                                                            {keyresult?.title}
+                                                        </span>
+                                                    </div>
+                                                }
+                                                key={`kr-${objective.id || ''}-${index}`}
+                                                className="mb-4 rounded-xl overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
+                                                style={{
+                                                    border: '1px solid #e5e7eb',
+                                                }}
+                                            >
+                                                <div className="py-2">
+                                                    {/* Milestone Tasks */}
+                                                    {keyresult?.milestones?.map((milestone: any) =>
+                                                        milestone?.tasks?.map((task: any) =>
+                                                            renderTaskRow(task, keyresult)
+                                                        )
+                                                    )}
 
-                                                {/* Direct Tasks */}
-                                                {keyresult?.tasks?.map((task: any) =>
-                                                    renderTaskRow(task, keyresult)
-                                                )}
-                                            </div>
-                                        </Collapse.Panel>
-                                    ))
-                                )}
-                            </Collapse>
+                                                    {/* Direct Tasks */}
+                                                    {keyresult?.tasks?.map((task: any) =>
+                                                        renderTaskRow(task, keyresult)
+                                                    )}
+                                                </div>
+                                            </Collapse.Panel>
+                                        ))
+                                    )}
+                                </Collapse>
                             </div>
                         </Form>
                     </Spin>

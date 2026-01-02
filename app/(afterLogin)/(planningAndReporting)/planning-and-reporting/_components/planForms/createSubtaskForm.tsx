@@ -87,36 +87,12 @@ function SubTaskComponent({
                     label={<div className="text-xs">Task</div>}
                     className="mb-0"
                   >
-                    <Input 
+                    <Input
                       id={`subtask-task-input-${field.name}-${subField.name}`}
                       data-cy={`subtask-task-input-${field.name}-${subField.name}`}
-                      className="text-xs h-10" 
-                      placeholder="Task name" 
+                      className="text-xs h-10"
+                      placeholder="Task name"
                     />
-                  </Form.Item>
-                </Col>
-                <Col xs={12} sm={8} lg={5}>
-                  <Form.Item
-                    {...subField}
-                    name={[subField.name, 'targetValue']}
-                    key={`target-${subField.key}`}
-                    hidden={hasTargetValue}
-                    className="mb-0"
-                  >
-                    <Row align="middle" gutter={8} wrap={false}>
-                      <Col flex="none">
-                        <div className="text-xs whitespace-nowrap">Target</div>
-                      </Col>
-                      <Col flex="auto">
-                        <InputNumber
-                          id={`subtask-target-input-${field.name}-${subField.name}`}
-                          data-cy={`subtask-target-input-${field.name}-${subField.name}`}
-                          className="w-full text-xs h-10 [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:flex [&_.ant-input-number-input]:items-center"
-                          placeholder="20"
-                          min={0}
-                        />
-                      </Col>
-                    </Row>
                   </Form.Item>
                 </Col>
                 <Col xs={12} sm={8} lg={5}>
@@ -161,6 +137,30 @@ function SubTaskComponent({
                     </Row>
                   </Form.Item>
                 </Col>
+                <Col xs={12} sm={8} lg={5}>
+                  <Form.Item
+                    {...subField}
+                    name={[subField.name, 'targetValue']}
+                    key={`target-${subField.key}`}
+                    hidden={hasTargetValue}
+                    className="mb-0"
+                  >
+                    <Row align="middle" gutter={8} wrap={false}>
+                      <Col flex="none">
+                        <div className="text-xs whitespace-nowrap">Target</div>
+                      </Col>
+                      <Col flex="auto">
+                        <InputNumber
+                          id={`subtask-target-input-${field.name}-${subField.name}`}
+                          data-cy={`subtask-target-input-${field.name}-${subField.name}`}
+                          className="w-full text-xs h-10 [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:flex [&_.ant-input-number-input]:items-center"
+                          placeholder="20"
+                          min={0}
+                        />
+                      </Col>
+                    </Row>
+                  </Form.Item>
+                </Col>
                 <Col xs={24} sm={8} lg={2} className="flex items-center justify-end h-10">
                   <Form.Item
                     {...subField}
@@ -170,10 +170,10 @@ function SubTaskComponent({
                     key={`weight-${subField.key}`}
                     hidden
                   >
-                    <InputNumber 
+                    <InputNumber
                       id={`subtask-weight-input-${field.name}-${subField.name}`}
                       data-cy={`subtask-weight-input-${field.name}-${subField.name}`}
-                      defaultValue={0} 
+                      defaultValue={0}
                     />
                   </Form.Item>
                   <MdCancel

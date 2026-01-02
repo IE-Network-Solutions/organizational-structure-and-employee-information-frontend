@@ -53,19 +53,29 @@ function CreatePlan() {
   const {
     data: planningPeriodHierarchy,
     isLoading: loadingPlanningPeriodHierarchy,
+    refetch: refetchHierarchy,
   } = useGetPlanningPeriodsHierarchy(
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
 
   // Fetch the last report to get failed tasks
-  const { data: lastReportData } = useGetReporting({
+  const { data: lastReportData, refetch: refetchLastReport } = useGetReporting({
     userId: [userId],
     planPeriodId: planningPeriodId || '',
     pageReporting: 1,
     pageSizeReporting: 1, // Get only the first (most recent) report
     sessionId: [],
   });
+
+  // Refetch data when drawer opens to ensure we have the latest failed tasks
+  useEffect(() => {
+    if (open && planningPeriodId) {
+      refetchHierarchy();
+      refetchLastReport();
+    }
+  }, [open, planningPeriodId, refetchHierarchy, refetchLastReport]);
+
 
   // Extract and group failed tasks from the last report
   const failedTasksByKeyResult: FailedTasksByKeyResult = useMemo(() => {
@@ -361,7 +371,7 @@ function CreatePlan() {
     }, 0);
     setWeight(namesKey, totalWeight);
   };
-  const handleAddBoard = (kId: string) => {
+  const handleAddBoard = (kId: string, metadata?: any) => {
     const namesKey = `names-${kId}`;
     const currentBoard = form.getFieldValue(namesKey) || [];
 
@@ -378,13 +388,14 @@ function CreatePlan() {
     const taskTitle = shouldUseMkAsATask ? latestMkAsATask.title : '';
     const achieveMK = shouldUseMkAsATask;
 
-    // Create a task object - if mkAsATask exists and matches, use its title
+    // Create a task object - include metadata to avoid missing fields
     const newTask = {
       task: taskTitle,
       priority: undefined,
       weight: undefined,
-      targetValue: undefined,
+      targetValue: metadata?.targetValue ?? undefined,
       achieveMK: achieveMK,
+      ...metadata,
     };
 
     setTimeout(() => {
@@ -515,7 +526,7 @@ function CreatePlan() {
           Cancel
         </Button>
       </div>
-      <div className="flex-1 flex justify-end pr-4 sm:pr-0">
+      <div className="flex-1 flex justify-end pr-5">
         <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
           <span className="md:hidden">WP:</span>{' '}
           <span className="hidden md:inline">Weight Point:</span>{' '}
@@ -529,8 +540,28 @@ function CreatePlan() {
     const mergeValues = (obj: any) => {
       return Object.entries(obj)
         .filter(([key]) => key.startsWith('names-'))
-        .map(([, value]) => value)
-        .filter((value) => Array.isArray(value))
+        .map(([key, value]) => {
+          if (!Array.isArray(value)) return [];
+          const extractedKRId = key.replace('names-', '');
+
+          return value.map((task: any) => ({
+            ...task,
+            userId: String(task.userId || userId || ''),
+            planningPeriodId: String(
+              task.planningPeriodId || planningPeriodId || '',
+            ),
+            planningUserId: String(
+              task.planningUserId || planningUserId || '',
+            ),
+            keyResultId: String(
+              task.keyResultId ||
+              (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
+              '',
+            ),
+            milestoneId: task.milestoneId ? String(task.milestoneId) : null,
+            parentTaskId: task.parentTaskId ? String(task.parentTaskId) : null,
+          }));
+        })
         .flat();
     };
     const finalValues = mergeValues(values);

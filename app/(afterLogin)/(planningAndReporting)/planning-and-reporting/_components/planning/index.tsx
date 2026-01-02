@@ -504,6 +504,7 @@ function Planning() {
             setPageSize(size);
             setPage(1);
           }}
+          grayBackground={true}
         />
       )}
       {/* <Pagination
