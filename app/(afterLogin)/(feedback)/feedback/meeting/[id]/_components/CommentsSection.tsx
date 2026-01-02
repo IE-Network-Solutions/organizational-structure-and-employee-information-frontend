@@ -51,12 +51,21 @@ export default function CommentsSection({
     );
   };
   return (
-    <div className=" p-4 space-y-2">
-      <div className="flex items-center gap-2">
+    <div
+      className=" p-4 space-y-2"
+      data-cy="feedback-meeting-components-commentssection-div"
+      id="feedback-meeting-components-commentssection-div"
+    >
+      <div
+        className="flex items-center gap-2"
+        data-cy="feedback-meeting-components-commentssection-div-header"
+        id="feedback-meeting-components-commentssection-div-header"
+      >
         <Avatar.Group
           maxCount={5}
           maxStyle={{ color: '#f56a00', backgroundColor: '#fde3cf' }}
           className="mt-1"
+          data-cy="feedback-meeting-components-commentssection-avatar-group"
         >
           {comments
             ?.filter(
@@ -68,6 +77,7 @@ export default function CommentsSection({
                 key={res.userId}
                 type="avatar"
                 empId={res.userId}
+                data-cy={`feedback-meeting-components-commentssection-avatar-${res.userId}`}
               />
             ))}
         </Avatar.Group>
@@ -75,6 +85,8 @@ export default function CommentsSection({
         <span
           onClick={() => handleOpenCloseComment()}
           className="font-semibold text-gray-800 cursor-pointer"
+          data-cy="feedback-meeting-components-commentssection-span-toggle"
+          id="feedback-meeting-components-commentssection-span-toggle"
         >
           {comments?.length} Comments
         </span>
@@ -84,6 +96,7 @@ export default function CommentsSection({
           canEditComment={canEditComment}
           commentData={comments}
           meetingId={meetingId}
+          data-cy="feedback-meeting-components-commentssection-comment-component"
         />
       )}
       {/* <Input.TextArea rows={3} placeholder="[[Comment by the person]]" /> */}

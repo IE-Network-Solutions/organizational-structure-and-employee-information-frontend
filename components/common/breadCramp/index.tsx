@@ -17,11 +17,18 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
 }) => (
   <div
     className={`grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex py-4 ${isRecognition ? 'bg-white' : ''}`}
+    data-cy="custom-breadcrumb"
   >
-    <div className="self-stretch text-gray-900 text-2xl font-bold font-['Manrope'] leading-[31.20px]">
+    <div
+      className="self-stretch text-gray-900 text-2xl font-bold font-['Manrope'] leading-[31.20px]"
+      data-cy="breadcrumb-title"
+    >
       {title}
     </div>
-    <div className="self-stretch text-slate-500 text-sm font-medium font-['Manrope'] leading-snug">
+    <div
+      className="self-stretch text-slate-500 text-sm font-medium font-['Manrope'] leading-snug"
+      data-cy="breadcrumb-subtitle"
+    >
       {subtitle}
     </div>
     {/* <Breadcrumb className={`self-stretch ${className}`} {...rest} /> */}

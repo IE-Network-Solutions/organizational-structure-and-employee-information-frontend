@@ -76,30 +76,96 @@ const MetricsProgressOverview: React.FC = () => {
   }, [objectivesData]);
 
   return (
-    <div className="bg-white rounded-xl shadow-md px-6 py-4 w-full h-full flex flex-col pb-4">
-      <div className="font-bold text-lg text-gray-900 mb-4">
+    <div
+      className="bg-white rounded-xl shadow-md px-6 py-4 w-full h-full flex flex-col pb-4"
+      id="okr-metrics-overview-container-display-div"
+      data-cy="okr-metrics-overview-container-display-div"
+    >
+      <div
+        className="font-bold text-lg text-gray-900 mb-4"
+        id="okr-metrics-overview-header-display-div"
+        data-cy="okr-metrics-overview-header-display-div"
+      >
         Metrics Progress Overview
       </div>
       {isMetricsLoading ? (
-        <div className="flex justify-center items-center h-24">
-          <Spin />
+        <div
+          className="flex justify-center items-center h-24"
+          id="okr-metrics-overview-loading-container-display-div"
+          data-cy="okr-metrics-overview-loading-container-display-div"
+        >
+          <Spin data-cy="okr-metrics-overview-loading-spinner-display-spin" />
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-y-6 items-center">
+        <div
+          className="grid grid-cols-2 gap-y-6 items-center"
+          id="okr-metrics-overview-grid-display-div"
+          data-cy="okr-metrics-overview-grid-display-div"
+        >
           {metrics.map((item) => (
             <React.Fragment key={item.label}>
-              <div className="text-base text-gray-700 font-medium">
+              <div
+                className="text-base text-gray-700 font-medium"
+                id={`okr-metrics-overview-label-display-div-${item.label
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, '-')
+                  .replace(/^-+|-+$/g, '')}`}
+                data-cy={`okr-metrics-overview-label-display-div-${item.label
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, '-')
+                  .replace(/^-+|-+$/g, '')}`}
+              >
                 {item.label}
               </div>
-              <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1">
+              <div
+                className="flex flex-col items-end"
+                id={`okr-metrics-overview-stats-container-display-div-${item.label
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, '-')
+                  .replace(/^-+|-+$/g, '')}`}
+                data-cy={`okr-metrics-overview-stats-container-display-div-${item.label
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, '-')
+                  .replace(/^-+|-+$/g, '')}`}
+              >
+                <div
+                  className="flex items-center gap-1"
+                  id={`okr-metrics-overview-stat-row-display-div-${item.label
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '')}`}
+                  data-cy={`okr-metrics-overview-stat-row-display-div-${item.label
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '')}`}
+                >
                   <span
                     className="text-xs font-semibold"
                     style={{ color: item.color }}
+                    id={`okr-metrics-overview-percent-display-span-${item.label
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/^-+|-+$/g, '')}`}
+                    data-cy={`okr-metrics-overview-percent-display-span-${item.label
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/^-+|-+$/g, '')}`}
                   >
                     {item.percent}%
                   </span>
-                  <span className="text-xs text-gray-400">achieved</span>
+                  <span
+                    className="text-xs text-gray-400"
+                    id={`okr-metrics-overview-achieved-label-display-span-${item.label
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/^-+|-+$/g, '')}`}
+                    data-cy={`okr-metrics-overview-achieved-label-display-span-${item.label
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/^-+|-+$/g, '')}`}
+                  >
+                    achieved
+                  </span>
                 </div>
                 <Progress
                   percent={item.percent}
@@ -108,6 +174,10 @@ const MetricsProgressOverview: React.FC = () => {
                   strokeColor={item.color}
                   trailColor="#E5E7EB"
                   className="!h-1.5 !rounded-full w-48"
+                  data-cy={`okr-metrics-overview-progress-display-progress-${item.label
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '')}`}
                 />
               </div>
             </React.Fragment>

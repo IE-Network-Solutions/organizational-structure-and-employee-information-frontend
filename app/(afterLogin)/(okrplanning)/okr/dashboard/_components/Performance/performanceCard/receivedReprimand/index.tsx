@@ -9,15 +9,23 @@ const ReceivedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
     <Card
       className="text-md gap-2 flex flex-col  p-4 shadow-lg"
       bodyStyle={{ padding: '0px', margin: '0px' }}
+      id="okr-received-reprimand-card-display-card"
+      data-cy="okr-received-reprimand-card-display-card"
     >
       {' '}
-      <div className="flex items-center gap-5 justify-start">
+      <div
+        className="flex items-center gap-5 justify-start"
+        id="okr-received-reprimand-header-display-div"
+        data-cy="okr-received-reprimand-header-display-div"
+      >
         <svg
           width="40"
           height="41"
           viewBox="0 0 40 41"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          id="okr-received-reprimand-icon-display-svg"
+          data-cy="okr-received-reprimand-icon-display-svg"
         >
           <rect
             y="0.730957"
@@ -34,7 +42,10 @@ const ReceivedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
             />
           </g>
           <defs>
-            <clipPath id="clip0_7606_452751">
+            <clipPath
+              data-cy="okr-received-reprimand-clip-path"
+              id="clip0_7606_452751"
+            >
               <rect
                 width="20"
                 height="20"
@@ -44,18 +55,58 @@ const ReceivedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
             </clipPath>
           </defs>
         </svg>
-        <div className="flex items-center justify-start text-sm font-medium  text-gray-600">
+        <div
+          className="flex items-center justify-start text-sm font-medium  text-gray-600"
+          id="okr-received-reprimand-title-display-div"
+          data-cy="okr-received-reprimand-title-display-div"
+        >
           Received Reprimand
         </div>
       </div>
-      <div className="flex  items-center justify-center gap-6 text-primary pl-10 lg:pl-0 ">
-        <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg">
-          <div className="text-2xl font-extrabold">{kpi}</div>
-          <div className="text-sm  font-bold">KPI</div>
+      <div
+        className="flex  items-center justify-center gap-6 text-primary pl-10 lg:pl-0 "
+        id="okr-received-reprimand-metrics-display-div"
+        data-cy="okr-received-reprimand-metrics-display-div"
+      >
+        <div
+          className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg"
+          id="okr-received-reprimand-kpi-display-div"
+          data-cy="okr-received-reprimand-kpi-display-div"
+        >
+          <div
+            className="text-2xl font-extrabold"
+            id="okr-received-reprimand-kpi-value-display-div"
+            data-cy="okr-received-reprimand-kpi-value-display-div"
+          >
+            {kpi}
+          </div>
+          <div
+            className="text-sm  font-bold"
+            id="okr-received-reprimand-kpi-label-display-div"
+            data-cy="okr-received-reprimand-kpi-label-display-div"
+          >
+            KPI
+          </div>
         </div>
-        <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg">
-          <div className="text-2xl font-extrabold">{engagement}</div>
-          <div className="text-sm  font-bold">Engagement</div>
+        <div
+          className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg"
+          id="okr-received-reprimand-engagement-display-div"
+          data-cy="okr-received-reprimand-engagement-display-div"
+        >
+          <div
+            className="text-2xl font-extrabold"
+            id="okr-received-reprimand-engagement-value-display-div"
+            data-cy="okr-received-reprimand-engagement-value-display-div"
+          >
+            {engagement}
+          </div>
+          <div
+            className="text-sm  font-bold"
+            id="okr-received-reprimand-engagement-label-display-div"
+            data-cy="okr-received-reprimand-engagement-label-display-div"
+          >
+            Engagement
+          </div>
         </div>
       </div>
     </Card>

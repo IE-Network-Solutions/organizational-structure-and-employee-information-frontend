@@ -26,6 +26,7 @@ const TalentPoolTable: React.FC<any> = () => {
     searchParams?.talentPoolCategory ?? '',
     page,
     currentPage,
+    searchParams?.search ?? '',
   );
 
   const { mutate: moveTalentPoolMutation } = useMoveTalentPoolToCandidates();
@@ -58,11 +59,25 @@ const TalentPoolTable: React.FC<any> = () => {
           id="talent-acquisition-talent-pool-table-cell-name"
           data-cy={`talent-acquisition-talent-pool-table-cell-name-${record?.jobCandidateInformation?.id || record?.id}`}
         >
-          <p className="font-bold">
-            {record?.jobCandidateInformation?.fullName ?? '-'}
+          <p
+            className="font-bold"
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-${record?.jobCandidateInformation?.id || record?.id}`}
+          >
+            <span
+              data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-text-${record?.jobCandidateInformation?.id || record?.id}`}
+            >
+              {record?.jobCandidateInformation?.fullName ?? '-'}
+            </span>
           </p>
-          <p className="text-gray-500 text-sm">
-            {record?.jobCandidateInformation?.email ?? '-'}
+          <p
+            className="text-gray-500 text-sm"
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-email-${record?.jobCandidateInformation?.id || record?.id}`}
+          >
+            <span
+              data-cy={`talent-acquisition-talent-pool-table-cell-name-email-text-${record?.jobCandidateInformation?.id || record?.id}`}
+            >
+              {record?.jobCandidateInformation?.email ?? '-'}
+            </span>
           </p>
         </div>
       ),
@@ -142,28 +157,7 @@ const TalentPoolTable: React.FC<any> = () => {
     },
   ];
 
-  const searchTerm = (searchParams?.search || '')
-    .toString()
-    .trim()
-    .toLowerCase();
-  const filteredItems =
-    candidates?.items?.filter((item: any) => {
-      if (!searchTerm) return true;
-      const name = (item?.jobCandidateInformation?.fullName || '')
-        .toString()
-        .toLowerCase();
-      const email = (item?.jobCandidateInformation?.email || '')
-        .toString()
-        .toLowerCase();
-      const phone = (item?.jobCandidateInformation?.phone || '')
-        .toString()
-        .toLowerCase();
-      return (
-        name.includes(searchTerm) ||
-        email.includes(searchTerm) ||
-        phone.includes(searchTerm)
-      );
-    }) || [];
+  const filteredItems = candidates?.items || [];
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -199,6 +193,7 @@ const TalentPoolTable: React.FC<any> = () => {
           pagination={false}
           loading={responseLoading}
           scroll={{ x: 1000 }}
+          rowKey="id"
         />
       )}
 

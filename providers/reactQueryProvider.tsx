@@ -12,7 +12,10 @@ interface ReactQueryWrapperProps {
 }
 
 const FullPageSpinner = () => (
-  <div className="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50 flex justify-center items-center">
+  <div
+    className="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50 flex justify-center items-center"
+    data-cy="full-page-spinner"
+  >
     <Spin size="large" />
   </div>
 );

@@ -24,7 +24,10 @@ const AppreciationEditDrawer: React.FC<AppDrawerProps> = ({
   const { data: appTypes } = useGetAppreciationType();
 
   const renderEmployeeOption = (option: any) => (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div
+      style={{ display: 'flex', alignItems: 'center' }}
+      data-cy={`appreciation-edit-drawer-employee-option-${option.id}`}
+    >
       <Avatar size={20} icon={<UserOutlined />} />
       {option.firstName}
     </div>

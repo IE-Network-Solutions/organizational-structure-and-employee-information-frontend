@@ -75,13 +75,28 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
       onCancel={handleClose}
       footer={null}
       closeIcon={null}
+      data-cy="feedback-meeting-components-addagenda-modal"
     >
-      <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Form.List name="agendaItems">
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        data-cy="feedback-meeting-components-addagenda-form"
+        id="feedback-meeting-components-addagenda-form"
+      >
+        <Form.List
+          name="agendaItems"
+          data-cy="feedback-meeting-components-addagenda-list"
+        >
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, fieldKey, ...restField }) => (
-                <div key={key} className="flex items-center mb-2">
+                <div
+                  key={key}
+                  className="flex items-center mb-2"
+                  data-cy={`feedback-meeting-components-addagenda-item-${key}`}
+                  id={`feedback-meeting-components-addagenda-item-${key}`}
+                >
                   <Form.Item
                     {...restField}
                     name={[name, 'agenda']}
@@ -89,6 +104,8 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
                     rules={[{ required: true, message: 'Agenda is required' }]}
                     className="w-full"
                     label="Agenda"
+                    data-cy={`feedback-meeting-components-addagenda-form-item-${key}`}
+                    id={`feedback-meeting-components-addagenda-form-item-${key}`}
                   >
                     <Input
                       placeholder="Agenda"
@@ -101,13 +118,25 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
                           />
                         )
                       }
+                      data-cy={`feedback-meeting-components-addagenda-input-${key}`}
+                      id={`feedback-meeting-components-addagenda-input-${key}`}
                     />
                   </Form.Item>
                 </div>
               ))}
               {meetingAgenda == null && (
-                <div className="flex justify-end mb-2">
-                  <Button className="w-24" type="primary" onClick={() => add()}>
+                <div
+                  className="flex justify-end mb-2"
+                  data-cy="feedback-meeting-components-addagenda-div-add-button"
+                  id="feedback-meeting-components-addagenda-div-add-button"
+                >
+                  <Button
+                    className="w-24"
+                    type="primary"
+                    onClick={() => add()}
+                    data-cy="feedback-meeting-components-addagenda-button-add-entry"
+                    id="feedback-meeting-components-addagenda-button-add-entry"
+                  >
                     Add
                   </Button>
                 </div>
@@ -115,8 +144,18 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
             </>
           )}
         </Form.List>
-        <div className="flex justify-center gap-4 mt-4">
-          <Button loading={loading} className="w-48" onClick={handleClose}>
+        <div
+          className="flex justify-center gap-4 mt-4"
+          data-cy="feedback-meeting-components-addagenda-div-footer"
+          id="feedback-meeting-components-addagenda-div-footer"
+        >
+          <Button
+            loading={loading}
+            className="w-48"
+            onClick={handleClose}
+            data-cy="feedback-meeting-components-addagenda-button-cancel"
+            id="feedback-meeting-components-addagenda-button-cancel"
+          >
             Cancel
           </Button>
           <Button
@@ -124,6 +163,8 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
             className="w-48"
             type="primary"
             htmlType="submit"
+            data-cy="feedback-meeting-components-addagenda-button-submit"
+            id="feedback-meeting-components-addagenda-button-submit"
           >
             {meetingAgenda == null ? 'Create' : 'Update'}
           </Button>

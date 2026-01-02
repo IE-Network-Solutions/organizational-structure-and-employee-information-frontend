@@ -165,12 +165,28 @@ const HistoryTable = () => {
             href={link}
             target="_blank"
             className="flex justify-between items-center text-gray-900 py-4"
+            id="time-attendance-history-table-row-attachment-link"
+            data-cy={`time-attendance-history-table-row-${formatLinkToUploadFile(link).name}-attachment-link`}
           >
-            <div>{formatLinkToUploadFile(link).name}</div>
-            <TbFileDownload size={14} />
+            <div
+              id={`time-attendance-history-table-row-${formatLinkToUploadFile(link).name}-attachment-name`}
+              data-cy={`time-attendance-history-table-row-${formatLinkToUploadFile(link).name}-attachment-name`}
+            >
+              {formatLinkToUploadFile(link).name}
+            </div>
+            <TbFileDownload
+              size={14}
+              data-cy="time-attendance-history-table-row-attachment-download-icon"
+            />
           </a>
         ) : (
-          <div className="py-4">-</div>
+          <div
+            className="py-4"
+            id="time-attendance-history-table-row-attachment-empty"
+            data-cy="time-attendance-history-table-row-attachment-empty"
+          >
+            -
+          </div>
         ),
     },
     {
@@ -179,8 +195,15 @@ const HistoryTable = () => {
       key: 'status',
       responsive: ['sm'],
       render: (text: LeaveRequestStatus) => (
-        <div className="py-4">
-          <StatusBadge theme={LeaveRequestStatusBadgeTheme[text]}>
+        <div
+          className="py-4"
+          id="time-attendance-history-table-row-status-container"
+          data-cy="time-attendance-history-table-row-status-container"
+        >
+          <StatusBadge
+            theme={LeaveRequestStatusBadgeTheme[text]}
+            data-cy="time-attendance-history-table-row-status-badge"
+          >
             {text}
           </StatusBadge>
         </div>
@@ -192,7 +215,11 @@ const HistoryTable = () => {
       key: 'action',
       width: 80,
       render: (item: LeaveRequest) => (
-        <div className="py-4">
+        <div
+          className="py-4"
+          id="time-attendance-history-table-row-actions-container"
+          data-cy="time-attendance-history-table-row-actions-container"
+        >
           <ActionButtons
             id={item?.id ?? null}
             disableDelete={
@@ -215,6 +242,7 @@ const HistoryTable = () => {
               setLeaveRequestSidebarData(item.id);
               setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId);
             }}
+            data-cy="time-attendance-history-table-row-action-buttons"
           />
         </div>
       ),
@@ -242,31 +270,71 @@ const HistoryTable = () => {
   };
 
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-lg">
-      <div className="flex items-center justify-between mb-6">
-        <div className="text-sm sm:text-2xl font-bold text-gray-900">
+    <div
+      className="bg-white p-5 sm:p-6 rounded-lg"
+      id="time-attendance-history-table-container"
+      data-cy="time-attendance-history-table-container"
+    >
+      <div
+        className="flex items-center justify-between mb-6"
+        id="time-attendance-history-table-header-container"
+        data-cy="time-attendance-history-table-header-container"
+      >
+        <div
+          className="text-sm sm:text-2xl font-bold text-gray-900"
+          id="time-attendance-history-table-title"
+          data-cy="time-attendance-history-table-title"
+        >
           Leave History
           <Button
             type="text"
             size="small"
-            icon={<AiOutlineReload size={14} className="text-gray-600" />}
+            icon={
+              <AiOutlineReload
+                data-cy="time-attendance-history-table-refresh-button-icon"
+                size={14}
+                className="text-gray-600"
+              />
+            }
             onClick={() => refetch()}
+            id="time-attendance-history-table-refresh-button"
+            data-cy="time-attendance-history-table-refresh-button"
           />
         </div>
 
-        <div className="flex ">
+        <div
+          className="flex "
+          id="time-attendance-history-table-actions-container"
+          data-cy="time-attendance-history-table-actions-container"
+        >
           {/* Mobile View Icons */}
-          <div className="sm:hidden flex items-center">
-            <div className="h-10 flex ">
-              <HistoryTableFilter onChange={onFilterChange} />
+          <div
+            className="sm:hidden flex items-center"
+            id="time-attendance-history-table-mobile-actions"
+            data-cy="time-attendance-history-table-mobile-actions"
+          >
+            <div
+              id="time-attendance-history-table-mobile-filter-container"
+              data-cy="time-attendance-history-table-mobile-filter-container"
+              className="h-10 flex "
+            >
+              <HistoryTableFilter
+                onChange={onFilterChange}
+                data-cy="time-attendance-history-table-mobile-filter"
+              />
             </div>
             <div className="">
-              <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
+              <AccessGuard
+                data-cy="time-attendance-history-table-mobile-add-button-access-guard"
+                permissions={[Permissions.SubmitLeaveRequest]}
+              >
                 <Button
                   size="large"
                   type="primary"
                   className="h-10 w-10 flex items-center justify-center ml-3"
                   onClick={() => isShow(true)}
+                  id="time-attendance-history-table-mobile-add-button"
+                  data-cy="time-attendance-history-table-mobile-add-button"
                 >
                   <span className="text-xl font-medium text-white">+</span>
                 </Button>
@@ -275,14 +343,23 @@ const HistoryTable = () => {
           </div>
 
           {/* Desktop View */}
-          <div className="hidden sm:block">
-            <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
+          <div
+            className="hidden sm:block"
+            id="time-attendance-history-table-desktop-actions"
+            data-cy="time-attendance-history-table-desktop-actions"
+          >
+            <AccessGuard
+              data-cy="time-attendance-history-table-desktop-add-button-access-guard"
+              permissions={[Permissions.SubmitLeaveRequest]}
+            >
               <Button
                 size="large"
                 type="primary"
                 icon={<FaPlus />}
                 className="h-12 px-5 flex items-center justify-center"
                 onClick={() => isShow(true)}
+                id="time-attendance-history-table-desktop-add-button"
+                data-cy="time-attendance-history-table-desktop-add-button"
               >
                 <span className="hidden sm:inline">Add New Request</span>
               </Button>
@@ -290,8 +367,15 @@ const HistoryTable = () => {
           </div>
         </div>
       </div>
-      <div className="hidden sm:block">
-        <HistoryTableFilter onChange={onFilterChange} />
+      <div
+        className="hidden sm:block"
+        id="time-attendance-history-table-filter-container"
+        data-cy="time-attendance-history-table-filter-container"
+      >
+        <HistoryTableFilter
+          onChange={onFilterChange}
+          data-cy="time-attendance-history-table-desktop-filter"
+        />
       </div>
       <Table
         className="mt-6 leave-table"
@@ -306,6 +390,8 @@ const HistoryTable = () => {
           setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
         }}
         scroll={{ x: 'max-content' }}
+        id="time-attendance-history-table"
+        data-cy="time-attendance-history-table"
       />
     </div>
   );

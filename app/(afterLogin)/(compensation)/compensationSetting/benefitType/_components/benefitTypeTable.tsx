@@ -69,7 +69,12 @@ const BenefitTypeTable = () => {
       key: 'name',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="benefit-type-name" className="text-xs truncate">
+        <div
+          data-testid="benefit-type-name"
+          className="text-xs truncate"
+          id="compensation-settings-benefit-type-name"
+          data-cy="compensation-settings-benefit-type-name"
+        >
           {text || '-'}
         </div>
       ),
@@ -83,6 +88,8 @@ const BenefitTypeTable = () => {
         <div
           data-testid="benefit-type-description"
           className="text-xs truncate"
+          id="compensation-settings-benefit-type-description"
+          data-cy="compensation-settings-benefit-type-description"
         >
           {text || '-'}
         </div>
@@ -94,7 +101,13 @@ const BenefitTypeTable = () => {
       key: 'type',
       sorter: true,
       render: (isRate: boolean) => (
-        <div data-testid="benefit-type-type">{isRate ? 'Rate' : 'Fixed'}</div>
+        <div
+          data-testid="benefit-type-type"
+          id="compensation-settings-benefit-type-type"
+          data-cy="compensation-settings-benefit-type-type"
+        >
+          {isRate ? 'Rate' : 'Fixed'}
+        </div>
       ),
     },
     {
@@ -103,7 +116,11 @@ const BenefitTypeTable = () => {
       key: 'mode',
       sorter: true,
       render: (mode: string) => (
-        <div data-testid="benefit-type-mode">
+        <div
+          data-testid="benefit-type-mode"
+          id="compensation-settings-benefit-type-mode"
+          data-cy="compensation-settings-benefit-type-mode"
+        >
           {mode == 'CREDIT' ? 'Credit' : 'Debit'}
         </div>
       ),
@@ -114,7 +131,11 @@ const BenefitTypeTable = () => {
       key: 'defaultAmount',
       sorter: true,
       render: (amount: number, record: any) => (
-        <div data-testid={`benefit-type-amount-${record.id}`}>
+        <div
+          data-testid={`benefit-type-amount-${record.id}`}
+          id={`compensation-settings-benefit-type-amount-${record.id}`}
+          data-cy={`compensation-settings-benefit-type-amount-${record.id}`}
+        >
           {amount && amount != 0
             ? !record.isRate
               ? `${amount} ETB`
@@ -129,7 +150,12 @@ const BenefitTypeTable = () => {
       key: 'applicableTo',
       sorter: true,
       render: (applicableTo: string) => (
-        <div data-testid="benefit-type-applicable" className="text-xs truncate">
+        <div
+          data-testid="benefit-type-applicable"
+          className="text-xs truncate"
+          id="compensation-settings-benefit-type-applicable"
+          data-cy="compensation-settings-benefit-type-applicable"
+        >
           {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
         </div>
       ),
@@ -140,12 +166,16 @@ const BenefitTypeTable = () => {
       key: 'status',
       render: (rule: any, record: any) => (
         <AccessGuard
+          id={`compensation-settings-benefit-type-status-access-guard-${record.id}`}
+          data-cy={`compensation-settings-benefit-type-status-access-guard-${record.id}`}
           permissions={[
             Permissions.UpdateAllowanceType,
             Permissions.DeleteAllowanceType,
           ]}
         >
           <Switch
+            id={`compensation-settings-benefit-type-status-switch-${record.id}`}
+            data-cy={`compensation-settings-benefit-type-status-switch-${record.id}`}
             loading={loadingId === record.id}
             onClick={() => updateStatus(record.id)}
             checked={record.isActive}
@@ -160,16 +190,23 @@ const BenefitTypeTable = () => {
       key: 'action',
       render: (rule: any, record: any) => (
         <AccessGuard
+          id={`compensation-settings-benefit-type-actions-access-guard-${record.id}`}
+          data-cy={`compensation-settings-benefit-type-actions-access-guard-${record.id}`}
           permissions={[
             Permissions.UpdateBenefitType,
             Permissions.DeleteBenefitType,
           ]}
         >
-          <div data-testid={`benefit-type-actions-${record.id}`}>
+          <div
+            data-testid={`benefit-type-actions-${record.id}`}
+            id={`compensation-settings-benefit-type-actions-${record.id}`}
+            data-cy={`compensation-settings-benefit-type-actions-${record.id}`}
+          >
             <ActionButtons
               id={record?.id ?? null}
               onEdit={() => handleBenefitEdit(record)}
               onDelete={() => handleDelete(record.id)}
+              data-cy="compensation-settings-benefit-type-actions-buttons"
             />
           </div>
         </AccessGuard>
@@ -183,20 +220,35 @@ const BenefitTypeTable = () => {
   );
 
   return (
-    <div data-testid="benefit-type-table-container">
-      <Spin spinning={isLoading} data-testid="benefit-type-table-loading">
-        <div className="flex overflow-x-auto scrollbar-none w-full ">
+    <div
+      data-testid="benefit-type-table-container"
+      id="compensation-settings-benefit-type-table-container"
+      data-cy="compensation-settings-benefit-type-table-container"
+    >
+      <Spin
+        spinning={isLoading}
+        data-testid="benefit-type-table-loading"
+        data-cy="compensation-settings-benefit-type-table-loading"
+      >
+        <div
+          className="flex overflow-x-auto scrollbar-none w-full "
+          id="compensation-settings-benefit-type-table-scroll"
+          data-cy="compensation-settings-benefit-type-table-scroll"
+        >
           <Table
             className="mt-6"
             columns={columns}
             dataSource={paginatedData}
             pagination={false}
             data-testid="benefit-type-table"
+            id="compensation-settings-benefit-type-table"
+            data-cy="compensation-settings-benefit-type-table"
           />
         </div>
 
         {isMobile || isTablet ? (
           <CustomMobilePagination
+            data-cy="compensation-settings-benefit-type-mobile-pagination"
             totalResults={tableData.length}
             pageSize={benefitPageSize}
             onChange={(page, size) => {
@@ -210,6 +262,7 @@ const BenefitTypeTable = () => {
           />
         ) : (
           <CustomPagination
+            data-cy="compensation-settings-benefit-type-pagination"
             current={benefitCurrentPage}
             total={tableData.length}
             pageSize={benefitPageSize}

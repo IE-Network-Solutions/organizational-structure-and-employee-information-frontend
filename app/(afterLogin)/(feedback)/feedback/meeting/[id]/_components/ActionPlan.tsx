@@ -25,27 +25,55 @@ export default function ActionPlan({
       bodyStyle={{ padding: 0 }}
       loading={loading || isLoading}
       className="border-none p-4"
+      data-cy="feedback-meeting-components-actionplan-card"
+      id="feedback-meeting-components-actionplan-card"
     >
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Action Plan</h2>
+      <div
+        className="space-y-4"
+        data-cy="feedback-meeting-components-actionplan-div"
+        id="feedback-meeting-components-actionplan-div"
+      >
+        <div
+          className="flex justify-between items-center"
+          data-cy="feedback-meeting-components-actionplan-div-header"
+          id="feedback-meeting-components-actionplan-div-header"
+        >
+          <h2
+            className="text-lg font-semibold"
+            data-cy="feedback-meeting-components-actionplan-heading"
+            id="feedback-meeting-components-actionplan-heading"
+          >
+            Action Plan
+          </h2>
           {canEdit && (
             <Button
               onClick={() => setOpenAddActionPlan(true)}
               type="default"
               className="h-10"
+              data-cy="feedback-meeting-components-actionplan-button-add"
+              id="feedback-meeting-components-actionplan-button-add"
             >
               + Add New
             </Button>
           )}
         </div>
         {meetingActionPlan?.items?.length <= 0 ? (
-          <div className="text-center text-xl font-bold text-[#687588]">
+          <div
+            className="text-center text-xl font-bold text-[#687588]"
+            data-cy="feedback-meeting-components-actionplan-div-empty"
+            id="feedback-meeting-components-actionplan-div-empty"
+          >
             You have no action plans
           </div>
         ) : (
           meetingActionPlan?.items.map((item: any, index: number) => (
-            <ActionPlanCard canEdit={canEdit} key={index} {...item} />
+            <ActionPlanCard
+              canEdit={canEdit}
+              key={index}
+              {...item}
+              data-cy={`feedback-meeting-components-actionplan-item-${index}`}
+              id={`feedback-meeting-components-actionplan-item-${index}`}
+            />
           ))
         )}
 
@@ -53,6 +81,7 @@ export default function ActionPlan({
           meetingId={meetingId}
           visible={openAddActionPlan}
           onClose={() => setOpenAddActionPlan(false)}
+          data-cy="feedback-meeting-components-actionplan-drawer"
         />
       </div>
     </Card>

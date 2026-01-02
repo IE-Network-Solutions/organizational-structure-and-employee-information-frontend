@@ -1,7 +1,7 @@
-import { Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
-import { MdCancel } from 'react-icons/md';
+import { Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { NAME } from '@/types/enumTypes';
+import { CloseCircleFilled } from '@ant-design/icons';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface DefaultCardInterface {
@@ -49,86 +49,93 @@ function DefaultCardForm({
     return total;
   };
   return (
-    <Form.List name={name}>
-      {(fields, { remove }, { errors }) => (
-        <>
-          {fields.map((field) => (
-            <Form.Item required={false} key={field.key}>
+    <div
+      className="[&_.ant-form-list]:!mb-0 [&_.ant-form-list]:!pb-0 [&_.ant-form-item]:!mb-0"
+      style={{ marginBottom: '-32px', paddingBottom: 0, marginTop: 0, paddingTop: 0 }}
+    >
+      <Form.List name={name}>
+        {(fields, { remove }, { errors }) => (
+          <>
+            {fields.map((field) => (
               <Form.Item
-                {...field}
-                name={[field.name, 'milestoneId']}
-                initialValue={milestoneId || null}
-                noStyle
-                key={`${field.key}-milestoneId`} // Unique key for milestoneId
+                required={false}
+                className="py-2"
+                key={field.key}
+                style={{ marginBottom: 0 }}
               >
-                <Input type="hidden" />
-              </Form.Item>
-              <Form.Item
-                {...field}
-                name={[field.name, 'parentPlanId']}
-                initialValue={parentPlanId || null}
-                noStyle
-                key={`${field.key}-parentPlanId`} // Unique key for milestoneId
-              >
-                <Input type="hidden" />
-              </Form.Item>
-              <Form.Item
-                {...field}
-                name={[field.name, 'planId']}
-                initialValue={planId || null}
-                noStyle
-                key={`${field.key}-planId`} // Unique key for milestoneId
-              >
-                <Input type="hidden" />
-              </Form.Item>
-              <Form.Item
-                {...field}
-                name={[field.name, 'parentTaskId']}
-                initialValue={planTaskId || null}
-                noStyle
-                key={`${field.key}-parentTaskId`} // Unique key for milestoneId
-              >
-                <Input type="hidden" />
-              </Form.Item>
-              <Form.Item
-                {...field}
-                name={[field.name, 'keyResultId']}
-                initialValue={kId || null}
-                noStyle
-                key={`${field.key}-keyResultId`} // Unique key for keyResultId
-              >
-                <Input type="hidden" />
-              </Form.Item>
-              <Form.Item
-                {...field}
-                name={[field.name, 'planningPeriodId']}
-                initialValue={planningPeriodId}
-                noStyle
-                key={`${field.key}-planningPeriodId`} // Unique key for planningPeriodId
-              >
-                <Input type="hidden" value={planningPeriodId} />
-              </Form.Item>
-              <Form.Item
-                {...field}
-                name={[field.name, 'planningUserId']}
-                initialValue={planningUserId}
-                noStyle
-                key={`${field.key}-planningUserId`} // Unique key for planningUserId
-              >
-                <Input type="hidden" value={planningUserId} />
-              </Form.Item>
-              <Form.Item
-                {...field}
-                name={[field.name, 'userId']}
-                initialValue={userId}
-                noStyle
-                key={`${field.key}-userId`} // Unique key for userId
-              >
-                <Input type="hidden" value={userId} />
-              </Form.Item>
-
-              <Row gutter={8}>
-                <Col lg={12} sm={24}>
+                <Form.Item
+                  {...field}
+                  name={[field.name, 'milestoneId']}
+                  initialValue={milestoneId || null}
+                  noStyle
+                  key={`${field.key}-milestoneId`} // Unique key for milestoneId
+                >
+                  <Input type="hidden" />
+                </Form.Item>
+                <Form.Item
+                  {...field}
+                  name={[field.name, 'parentPlanId']}
+                  initialValue={parentPlanId || null}
+                  noStyle
+                  key={`${field.key}-parentPlanId`} // Unique key for milestoneId
+                >
+                  <Input type="hidden" />
+                </Form.Item>
+                <Form.Item
+                  {...field}
+                  name={[field.name, 'planId']}
+                  initialValue={planId || null}
+                  noStyle
+                  key={`${field.key}-planId`} // Unique key for milestoneId
+                >
+                  <Input type="hidden" />
+                </Form.Item>
+                <Form.Item
+                  {...field}
+                  name={[field.name, 'parentTaskId']}
+                  initialValue={planTaskId || null}
+                  noStyle
+                  key={`${field.key}-parentTaskId`} // Unique key for milestoneId
+                >
+                  <Input type="hidden" />
+                </Form.Item>
+                <Form.Item
+                  {...field}
+                  name={[field.name, 'keyResultId']}
+                  initialValue={kId || null}
+                  noStyle
+                  key={`${field.key}-keyResultId`} // Unique key for keyResultId
+                >
+                  <Input type="hidden" />
+                </Form.Item>
+                <Form.Item
+                  {...field}
+                  name={[field.name, 'planningPeriodId']}
+                  initialValue={planningPeriodId}
+                  noStyle
+                  key={`${field.key}-planningPeriodId`} // Unique key for planningPeriodId
+                >
+                  <Input type="hidden" value={planningPeriodId} />
+                </Form.Item>
+                <Form.Item
+                  {...field}
+                  name={[field.name, 'planningUserId']}
+                  initialValue={planningUserId}
+                  noStyle
+                  key={`${field.key}-planningUserId`} // Unique key for planningUserId
+                >
+                  <Input type="hidden" value={planningUserId} />
+                </Form.Item>
+                <Form.Item
+                  {...field}
+                  name={[field.name, 'userId']}
+                  initialValue={userId}
+                  noStyle
+                  key={`${field.key}-userId`} // Unique key for userId
+                >
+                  <Input type="hidden" value={userId} />
+                </Form.Item>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', marginBottom: '0' }}>
                   <Form.Item
                     {...field}
                     name={[field.name, 'task']}
@@ -141,175 +148,237 @@ function DefaultCardForm({
                           'Please input a task name or delete this field.',
                       },
                     ]}
-                    label={<div className="text-xs">Task</div>}
+                    noStyle
                     key={`${field.key}-task`} // Unique key for task
+                    style={{ flex: 1, marginBottom: 0 }}
                   >
                     <Input
-                      className={`text-xs ${form.getFieldValue(name)[field.name].achieveMK}`}
+                      id={`default-form-task-input-${name}-${field.name}`}
+                      data-cy={`default-form-task-input-${name}-${field.name}`}
+                      className={`text-[12px] h-10 ${form.getFieldValue(name)[field.name].achieveMK} border-gray-200 rounded-lg`}
                       disabled={form.getFieldValue(name)[field.name].achieveMK} // Disable if milestoneId exists
-                      placeholder="Task name"
+                      placeholder="Add your tasks here"
+                      style={{ width: '100%' }}
                     />
                   </Form.Item>
-                </Col>
-                <Col lg={12} sm={24}>
-                  <Space>
-                    <Form.Item
-                      {...field}
-                      name={[field.name, 'priority']}
-                      label={<div className="text-xs">Priority</div>}
-                      validateTrigger={['onChange', 'onBlur']}
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Please select a priority',
-                        },
-                      ]}
-                      key={`${field.key}-priority`} // Unique key for priority
-                    >
-                      <Select
-                        className="w-32 h-7 text-xs"
-                        options={[
-                          {
-                            label: 'High',
-                            value: 'high',
-                            className: 'text-error text-xs',
-                          },
-                          {
-                            label: 'Medium',
-                            value: 'medium',
-                            className: 'text-warning text-xs',
-                          },
-                          {
-                            label: 'Low',
-                            value: 'low',
-                            className: 'text-success text-xs',
-                          },
-                        ]}
-                      />
-                    </Form.Item>
+                  <CloseCircleFilled
+                    id={`default-form-remove-button-${name}-${field.name}`}
+                    data-cy={`default-form-remove-button-${name}-${field.name}`}
+                    className="text-[#3D41FF] cursor-pointer hover:text-[#3236e6] transition-colors"
+                    style={{ fontSize: '20px' }}
+                    onClick={() => {
+                      setClickStatus(milestoneId + '', false);
+                      remove(field.name);
+                      const fieldValue = form.getFieldValue(name) || [];
+                      const totalWeight = fieldValue.reduce(
+                        (sum: number, field: any) =>
+                          Number(sum) + Number(field?.weight || 0),
+                        0,
+                      );
+                      setWeight(name, totalWeight);
+                    }}
+                  />
+                </div>
+                <div className="mt-2" style={{ marginTop: '8px' }}>
+                  <Row gutter={[12, 12]} align="bottom">
+                    {keyResult?.metricType?.name !== NAME.ACHIEVE &&
+                      keyResult?.metricType?.name !== NAME.MILESTONE && (
+                        <Col flex="none">
+                          <Row align="middle" gutter={8} wrap={false}>
+                            <Col flex="none">
+                              <div className="text-xs flex items-center gap-1.5 text-gray-500">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                                Target
+                              </div>
+                            </Col>
+                            <Col flex="none" style={{ width: '80px' }}>
+                              <Form.Item
+                                hidden={hasTargetValue}
+                                {...field}
+                                name={[field.name, 'targetValue']}
+                                key={`${field.key}-targetValue`}
+                                noStyle
+                                rules={[
+                                  {
+                                    validator(nonused, value: any) {
+                                      // Allow empty/null values (optional field)
+                                      if (value === null || value === undefined || value === '') {
+                                        return Promise.resolve();
+                                      }
 
-                    <Form.Item
-                      {...field}
-                      label={<div className="text-xs">Weight</div>}
-                      name={[field.name, 'weight']}
-                      validateTrigger={['onChange', 'onBlur']}
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Please input a number',
-                        },
-                      ]}
-                      key={`${field.key}-weight`} // Unique key for weight
-                    >
-                      <InputNumber
-                        placeholder="0"
-                        className="w-32 text-xs"
-                        onChange={() => {
-                          const fieldValue = form.getFieldValue(name) || [];
-                          const totalWeight = fieldValue.reduce(
-                            (sum: number, field: any) =>
-                              sum + (field.weight || 0),
-                            0,
-                          );
-                          setWeight(name, totalWeight);
-                        }}
-                        min={0}
-                        max={100}
-                      />
-                    </Form.Item>
+                                      // Skip validation for Milestone and Achieve metric types
+                                      if (
+                                        keyResult?.metricType?.name === NAME.ACHIEVE ||
+                                        keyResult?.metricType?.name === NAME.MILESTONE
+                                      ) {
+                                        return Promise.resolve();
+                                      }
 
-                    <MdCancel
-                      className="text-primary cursor-pointer mt-2"
-                      size={20}
-                      onClick={() => {
-                        setClickStatus(milestoneId + '', false);
-                        remove(field.name);
-                        const fieldValue = form.getFieldValue(name) || [];
-                        const totalWeight = fieldValue.reduce(
-                          (sum: number, field: any) =>
-                            sum + (field.weight || 0),
-                          0,
-                        );
-                        setWeight(name, totalWeight);
-                      }}
-                    />
-                  </Space>
-                </Col>
-              </Row>
-              {keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                keyResult?.metricType?.name !== NAME.MILESTONE && (
-                  // !parentPlanId &&
-                  <Form.Item
-                    className="mb-4"
-                    label={<div className="text-xs">Target</div>}
-                    {...field}
-                    name={[field.name, 'targetValue']}
-                    hidden={hasTargetValue}
-                    key={`${field.key}-targetValue`} // Unique key for targetValue
-                    rules={[
-                      {
-                        /* eslint-disable @typescript-eslint/naming-convention */
-                        validator(_, value: any) {
-                          /* eslint-enable @typescript-eslint/naming-convention */
-                          if (
-                            keyResult?.metricType?.name === NAME.ACHIEVE ||
-                            keyResult?.metricType?.name === NAME.MILESTONE
-                          ) {
-                            return Promise.resolve(); // Skip validation
-                          }
-                          // Handle null or undefined value
-                          if (value === null || value === undefined) {
-                            return Promise.reject(
-                              new Error('Please enter a target value.'),
-                            );
-                          }
+                                      const numericValue = Number(value);
+                                      if (isNaN(numericValue)) {
+                                        return Promise.reject(new Error('Please enter a valid number.'));
+                                      }
 
-                          // Validate against the key result limits
-                          if (
-                            targetValue !== null &&
-                            targetValue !== undefined
-                          ) {
-                            // Check if numericValue is within the targetValue
-                            if (value <= targetValue) {
-                              return Promise.resolve(); // Validation passed
-                            }
-                          } else {
-                            // Fallback check if targetValue does not exist
-                            if (
-                              sumTargetValue(name) <=
-                              keyResult.targetValue - keyResult.currentValue
-                            ) {
-                              return Promise.resolve(); // Validation passed
-                            }
-                          }
+                                      // Check if total exceeds key result's available target
+                                      if (targetValue !== null && targetValue !== undefined) {
+                                        if (numericValue <= targetValue) return Promise.resolve();
+                                      } else {
+                                        if (sumTargetValue(name) <= keyResult.targetValue - keyResult.currentValue) {
+                                          return Promise.resolve();
+                                        }
+                                      }
+                                      return Promise.reject(
+                                        new Error(
+                                          'Target value exceeds limit',
+                                        ),
+                                      );
+                                    },
+                                  },
+                                ]}
+                              >
+                                <InputNumber
+                                  id={`default-form-target-input-${name}-${field.name}`}
+                                  data-cy={`default-form-target-input-${name}-${field.name}`}
+                                  min={0}
+                                  className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
+                                  defaultValue={0}
+                                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        </Col>
+                      )}
 
-                          // If neither condition is satisfied, reject the promise
-                          return Promise.reject(
-                            new Error(
-                              `Your target value shouldn't exceed the allowed limits. you have only ${Number(keyResult.targetValue - keyResult.currentValue).toLocaleString()}`,
-                            ),
-                          );
-                        },
-                      },
-                    ]}
-                  >
-                    <InputNumber
-                      className="w-32 text-xs"
-                      min={0} // Ensure the value can't go below 0
-                      formatter={(value) => {
-                        if (!value) return '';
-                        const parts = `${value}`.split('.');
-                        parts[0] = parts[0].replace(
-                          /\B(?=(\d{3})+(?!\d))/g,
-                          ',',
-                        );
-                        return parts.join('.');
-                      }}
-                    />
-                  </Form.Item>
-                )}
+                    <Col flex="none">
+                      <Row align="middle" gutter={8} wrap={false}>
+                        <Col flex="none">
+                          <div className="text-xs flex items-center gap-1.5 text-gray-500">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                            Priority
+                          </div>
+                        </Col>
+                        <Col flex="none" style={{ width: '100px' }}>
+                          <Form.Item
+                            noStyle
+                            shouldUpdate={(prevValues, currentValues) => {
+                              return (
+                                prevValues[name]?.[field.name]?.priority !==
+                                currentValues[name]?.[field.name]?.priority
+                              );
+                            }}
+                          >
+                            {({ getFieldValue }) => {
+                              const priorityVal = getFieldValue([name, field.name, 'priority']);
+                              const bgColors: Record<string, string> = {
+                                high: '#FFF1F0',
+                                medium: '#FFFBE6',
+                                low: '#F6FFED',
+                              };
 
-              {/* {planningPeriodId && planningUserId && (
+                              return (
+                                <Form.Item
+                                  {...field}
+                                  name={[field.name, 'priority']}
+                                  key={`${field.key}-priority`}
+                                  noStyle
+                                  rules={[{ required: true, message: 'Priority is required' }]}
+                                >
+                                  <Select
+                                    id={`default-form-priority-select-${name}-${field.name}`}
+                                    data-cy={`default-form-priority-select-${name}-${field.name}`}
+                                    placeholder={<div className="text-xs">Priority</div>}
+                                    className="w-full h-10 priority-select [&_.ant-select-selector]:!bg-transparent [&_.ant-select-selector]:!border-[#D9D9D9]"
+                                    dropdownStyle={{ borderRadius: '8px' }}
+                                    style={{
+                                      backgroundColor: bgColors[priorityVal] || 'transparent',
+                                      borderRadius: '8px',
+                                      transition: 'background-color 0.3s ease',
+                                    }}
+                                    options={[
+                                      {
+                                        label: (
+                                          <div className="text-error text-xs font-medium">High</div>
+                                        ),
+                                        value: 'high',
+                                      },
+                                      {
+                                        label: (
+                                          <div className="text-warning text-xs font-medium">
+                                            Medium
+                                          </div>
+                                        ),
+                                        value: 'medium',
+                                      },
+                                      {
+                                        label: (
+                                          <div className="text-success text-xs font-medium">
+                                            Low
+                                          </div>
+                                        ),
+                                        value: 'low',
+                                      },
+                                    ]}
+                                    dropdownMatchSelectWidth={false}
+                                  />
+                                </Form.Item>
+                              );
+                            }}
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </Col>
+
+                    <Col flex="none">
+                      <Row align="middle" gutter={8} wrap={false}>
+                        <Col flex="none">
+                          <div className="text-xs flex items-center gap-1.5 text-gray-500">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                            Weight
+                          </div>
+                        </Col>
+                        <Col flex="none" style={{ width: '80px' }}>
+                          <Form.Item
+                            {...field}
+                            name={[field.name, 'weight']}
+                            key={`${field.key}-weight`}
+                            noStyle
+                            rules={[
+                              { required: true, message: 'Weight is required' },
+                              {
+                                validator: (nonused, value) => {
+                                  if (value !== undefined && value !== null && value <= 0) {
+                                    return Promise.reject(new Error('Weight must be greater than 0'));
+                                  }
+                                  return Promise.resolve();
+                                },
+                              },
+                            ]}
+                          >
+                            <InputNumber
+                              id={`default-form-weight-input-${name}-${field.name}`}
+                              data-cy={`default-form-weight-input-${name}-${field.name}`}
+                              placeholder={'0'}
+                              className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
+                              min={1}
+                              max={100}
+                              onChange={() => {
+                                const fieldValue = form.getFieldValue(name) || [];
+                                const totalWeight = fieldValue.reduce(
+                                  (sum: number, f: any) => Number(sum) + Number(f?.weight || 0),
+                                  0,
+                                );
+                                setWeight(name, totalWeight);
+                              }}
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                </div>
+
+                {/* {planningPeriodId && planningUserId && (
                 <Form.Item
                   label={<div className="text-xs">Sub Tasks</div>}
                   className="border px-4 py-1 rounded-md"
@@ -325,16 +394,19 @@ function DefaultCardForm({
                   />
                 </Form.Item>
               )} */}
-            </Form.Item>
-          ))}
+              </Form.Item>
+            ))}
 
-          <Form.Item>
-            <Form.ErrorList errors={errors} />
-          </Form.Item>
-        </>
-      )}
-    </Form.List>
+            <Form.Item style={{ marginBottom: 0, marginTop: 0 }}>
+              <Form.ErrorList errors={errors} />
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
+    </div>
   );
 }
 
 export default DefaultCardForm;
+
+

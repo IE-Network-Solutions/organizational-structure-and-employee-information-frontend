@@ -3,16 +3,21 @@ import React from 'react';
 
 const BasicSalaryForm: React.FC = () => {
   return (
-    <div>
-      <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
+    <div id="basic-salary-form" data-cy="basic-salary-form">
+      <div
+        className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
+        id="basic-salary-title"
+        data-cy="basic-salary-title"
+      >
         Basic Salary
       </div>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
+      <Row gutter={16} id="basic-salary-row" data-cy="basic-salary-row">
+        <Col xs={24} sm={24} id="basic-salary-col" data-cy="basic-salary-col">
           <Form.Item
             className="font-semibold text-xs"
             name="basicSalary"
             id="basicSalary"
+            data-cy="basicSalary"
             label="Basic Salary"
             rules={[
               { required: true, message: 'Basic Salary is Required' },
@@ -59,6 +64,8 @@ const BasicSalaryForm: React.FC = () => {
                   e.preventDefault();
                 }
               }}
+              id="basic-salary-input"
+              data-cy="basic-salary-input"
             />
           </Form.Item>
         </Col>

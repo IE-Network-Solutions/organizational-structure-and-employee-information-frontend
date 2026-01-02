@@ -66,17 +66,24 @@ export const SessionFilter: React.FC = () => {
     setPageReporting(1);
   };
 
+  const selectClassName = "w-full min-w-[160px] flex-1 md:w-auto [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!py-1 [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selector]:!items-center [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&_.ant-select-selection-placeholder]:!leading-7 [&_.ant-select-selection-placeholder]:!pt-0 [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-item]:!leading-7 [&_.ant-select-selection-item]:!pt-0 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-overflow-item]:!flex [&_.ant-select-selection-overflow-item]:!items-center [&.ant-select]:!h-12 [&.ant-select-focused_.ant-select-selector]:!border-[#574CFF] [&.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(87,76,255,0.1)] [&.ant-select-focused_.ant-select-selector]:!bg-[#F5F5F7] [&.ant-select-open_.ant-select-selector]:!bg-[#F5F5F7]";
+
   return (
     <>
       {/* Fiscal Year Dropdown */}
       <Select
         placeholder="Fiscal year"
-        style={{ width: 200 }}
-        className="h-14"
+        className={selectClassName}
         allowClear
         value={selectedFiscalYearId}
         onChange={handleYearChange}
         loading={loadingYears}
+        size="large"
+        showSearch
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+          (option?.children?.toString().toLowerCase().includes(input.toLowerCase())) ?? false
+        }
       >
         {allFiscalYears?.items?.map((year) => (
           <Option key={year.id} value={year.id}>
@@ -89,14 +96,19 @@ export const SessionFilter: React.FC = () => {
       <Select
         mode="multiple"
         placeholder="Session"
-        style={{ width: 200 }}
-        className="h-14"
+        className={selectClassName}
         allowClear
         value={selectedSessionIds}
         onChange={handleSessionChange}
         disabled={!selectedFiscalYearId}
         loading={loadingSessions}
         maxTagCount={1}
+        size="large"
+        showSearch
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+          (option?.children?.toString().toLowerCase().includes(input.toLowerCase())) ?? false
+        }
       >
         {selectedFiscalYearData?.sessions?.map((session: Session) => (
           <Option key={session.id} value={session.id}>

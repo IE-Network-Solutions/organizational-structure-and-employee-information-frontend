@@ -74,13 +74,16 @@ const TnaReviewPage = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
-    if (isError) return <>-</>;
+    if (isLoading) return <div data-cy="loading-indicator">...</div>;
+    if (isError) return <div data-cy="error-indicator">-</div>;
     const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="flex-1">
+      <div
+        className="flex items-center gap-1.5"
+        data-cy="employee-card-container"
+      >
+        <div className="flex-1" data-cy="employee-card-content">
           <UserCard
             data={employeeData}
             name={fullName}
@@ -309,15 +312,25 @@ const TnaReviewPage = () => {
     setPage(1);
   };
   return (
-    <div className="page-wrap bg-gray-100">
-      <TnaApprovalTable />
-      <BlockWrapper>
-        <PageHeader title="TNA">
-          <Space size={16}>
+    <div
+      className="page-wrap bg-gray-100"
+      id="tnaReviewPageId"
+      data-cy="tna-review-page"
+    >
+      <TnaApprovalTable data-cy="tna-approval-table" />
+      <BlockWrapper data-cy="tna-review-block-wrapper">
+        <PageHeader title="TNA" data-cy="tna-review-page-header">
+          <Space
+            size={16}
+            id="tnaReviewPageHeaderActionsId"
+            data-cy="tna-review-page-header-actions"
+          >
             <DatePicker.RangePicker
               format={DATE_FORMAT}
               separator="-"
               className="h-[54px]"
+              id="tnaReviewDateRangePickerId"
+              data-cy="tna-review-date-range-picker"
               onChange={(val) => {
                 setFilter(
                   val && val.length >= 2
@@ -332,20 +345,32 @@ const TnaReviewPage = () => {
               }}
             />
             {isMobile && (
-              <div className="flex justify-between items-center gap-4">
+              <div
+                className="flex justify-between items-center gap-4"
+                id="tnaReviewMobileFiltersId"
+                data-cy="tna-review-mobile-filters"
+              >
                 <Button
                   className="p-6 mr-2 border border-gray-300"
                   onClick={() => setIsFilterModalOpen(true)}
                   icon={<LuSettings2 size={20} />}
+                  id="tnaReviewMobileFilterButtonId"
+                  data-cy="tna-review-mobile-filter-button"
                 />
               </div>
             )}
-            <AccessGuard permissions={[Permissions.CreateTna]}>
+            <AccessGuard
+              permissions={[Permissions.CreateTna]}
+              data-cy="tna-review-new-button-guard"
+              id="tnaReviewNewButtonGuardId"
+            >
               <Button
                 icon={<LuPlus size={20} />}
                 className="h-[50px] w-[50px] sm:w-full"
                 type="primary"
                 size="large"
+                id="tnaReviewNewButtonId"
+                data-cy="tna-review-new-button"
                 onClick={() => setIsShowTnaReviewSidebar(true)}
               >
                 {!isMobile && <span>New TNA</span>}
@@ -357,6 +382,7 @@ const TnaReviewPage = () => {
           <Filters
             onSearch={handleSearch}
             disable={['name', 'payPeriod', 'department']}
+            data-cy="tna-review-filters"
           />
         )}
         {isFilterModalOpen && (
@@ -364,14 +390,21 @@ const TnaReviewPage = () => {
             title="Filters"
             open={isFilterModalOpen}
             onCancel={() => setIsFilterModalOpen(false)}
+            data-cy="tna-review-filter-modal"
             footer={
-              <div className="flex justify-center gap-4">
+              <div
+                className="flex justify-center gap-4"
+                id="tnaReviewFilterModalFooterId"
+                data-cy="tna-review-filter-modal-footer"
+              >
                 <Button
                   key="cancel"
                   onClick={() => {
                     setSearchQuery('');
                     setIsFilterModalOpen(false);
                   }}
+                  id="tnaReviewFilterModalCancelButtonId"
+                  data-cy="tna-review-filter-modal-cancel-button"
                 >
                   Cancel
                 </Button>
@@ -381,6 +414,8 @@ const TnaReviewPage = () => {
                   onClick={() => setIsFilterModalOpen(false)}
                   className="text-white bg-blue border-none"
                   loading={loading}
+                  id="tnaReviewFilterModalFilterButtonId"
+                  data-cy="tna-review-filter-modal-filter-button"
                 >
                   Filter
                 </Button>
@@ -392,10 +427,15 @@ const TnaReviewPage = () => {
               onSearch={handleSearch}
               disable={['name', 'payPeriod', 'department']}
               oneRow={false}
+              data-cy="tna-review-filter-modal-filters"
             />
           </Modal>
         )}
-        <div className="flex  overflow-x-auto scrollbar-none  w-full ">
+        <div
+          className="flex  overflow-x-auto scrollbar-none  w-full "
+          id="tnaReviewTableContainerId"
+          data-cy="tna-review-table-container"
+        >
           <Table
             className="mt-6 w-full"
             rowClassName={() => 'h-[60px]'}
@@ -404,6 +444,8 @@ const TnaReviewPage = () => {
             dataSource={tableData}
             loading={isLoading || isLoadingDelete}
             pagination={false}
+            id="tnaReviewTableId"
+            data-cy="tna-review-table"
             onChange={(sorter: any) => {
               setOrderDirection(sorter['order']);
               setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
@@ -416,6 +458,7 @@ const TnaReviewPage = () => {
             pageSize={limit}
             onChange={onPageChange}
             onShowSizeChange={onPageChange}
+            data-cy="tna-review-mobile-pagination"
           />
         ) : (
           <CustomPagination
@@ -424,11 +467,12 @@ const TnaReviewPage = () => {
             pageSize={limit}
             onChange={onPageChange}
             onShowSizeChange={onPageSizeChange}
+            data-cy="tna-review-pagination"
           />
         )}
       </BlockWrapper>
 
-      <TnaRequestSidebar />
+      <TnaRequestSidebar data-cy="tna-request-sidebar" />
     </div>
   );
 };

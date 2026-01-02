@@ -77,27 +77,69 @@ const BenefitTracking = () => {
       bodyStyle={{ padding: 0, margin: 0 }}
       headStyle={{ padding: 0, margin: 0 }}
       title={
-        <div className="flex items-center gap-3 cursor-pointer">
-          <FiChevronLeft onClick={handleBackData} size={20} />
+        <div
+          className="flex items-center gap-3 cursor-pointer"
+          id="compensation-benefit-tracker-header"
+          data-cy="compensation-benefit-tracker-header"
+        >
+          <FiChevronLeft
+            onClick={handleBackData}
+            size={20}
+            data-cy="compensation-benefit-tracker-back-icon"
+          />
           {employeeEntitlementData?.compensationItem?.name}
         </div>
       }
       loading={isLoading}
       className="px-4 max-w-5xl mx-auto bg-white"
     >
-      <div className="grid gap-4 text-sm my-3">
+      <div
+        className="grid gap-4 text-sm my-3"
+        id="compensation-benefit-tracker-summary"
+        data-cy="compensation-benefit-tracker-summary"
+      >
         {/* Name */}
-        <div className="grid grid-cols-3 items-center space-x-7">
-          <span className="text-gray-500">Name</span>
-          <div className="col-span-2 font-medium flex items-start gap-2">
-            <EmployeeDetails empId={employeeEntitlementData?.employeeId} />
+        <div
+          className="grid grid-cols-3 items-center space-x-7"
+          id="compensation-benefit-tracker-name-row"
+          data-cy="compensation-benefit-tracker-name-row"
+        >
+          <span
+            id="compensation-benefit-tracker-name-label"
+            data-cy="compensation-benefit-tracker-name-label"
+            className="text-gray-500"
+          >
+            Name
+          </span>
+          <div
+            className="col-span-2 font-medium flex items-start gap-2"
+            id="compensation-benefit-tracker-name-value"
+            data-cy="compensation-benefit-tracker-name-value"
+          >
+            <EmployeeDetails
+              data-cy="compensation-benefit-tracker-name-employee-details"
+              empId={employeeEntitlementData?.employeeId}
+            />
           </div>
         </div>
 
-        {/* Total Amount Take */}
-        <div className="grid grid-cols-3 items-center space-x-7">
-          <span className="text-gray-500">Total Amount Take</span>
-          <div className="font-medium text-start text-nowrap px-1">
+        <div
+          className="grid grid-cols-3 items-center space-x-7"
+          id="compensation-benefit-tracker-total-row"
+          data-cy="compensation-benefit-tracker-total-row"
+        >
+          <span
+            id="compensation-benefit-tracker-total-amount-take-label"
+            data-cy="compensation-benefit-tracker-total-amount-take-label"
+            className="text-gray-500"
+          >
+            Total Amount Take
+          </span>
+          <div
+            className="font-medium text-start text-nowrap px-1"
+            id="compensation-benefit-tracker-total-value"
+            data-cy="compensation-benefit-tracker-total-value"
+          >
             {Number(
               settlementTracking.reduce(
                 (acc: any, item: any) => acc + (Number(item.amount) || 0),
@@ -108,9 +150,23 @@ const BenefitTracking = () => {
         </div>
 
         {/* Expected pay per period */}
-        <div className="grid grid-cols-3 items-center space-x-7">
-          <span className="text-gray-500">Expected pay per period</span>
-          <div className="font-medium text-start text-nowrap px-1">
+        <div
+          className="grid grid-cols-3 items-center space-x-7"
+          id="compensation-benefit-tracker-expected-row"
+          data-cy="compensation-benefit-tracker-expected-row"
+        >
+          <span
+            id="compensation-benefit-tracker-expected-label"
+            data-cy="compensation-benefit-tracker-expected-label"
+            className="text-gray-500"
+          >
+            Expected pay per period
+          </span>
+          <div
+            className="font-medium text-start text-nowrap px-1"
+            id="compensation-benefit-tracker-expected-value"
+            data-cy="compensation-benefit-tracker-expected-value"
+          >
             {Number(
               settlementTracking.find((item: any) => item.isPaid === false)
                 ?.amount || 0,
@@ -119,18 +175,46 @@ const BenefitTracking = () => {
         </div>
 
         {/* Period */}
-        <div className="grid grid-cols-3 items-center space-x-7">
-          <span className="text-gray-500">Period</span>
-          <div className="font-medium text-start text-nowrap px-1">
+        <div
+          className="grid grid-cols-3 items-center space-x-7"
+          id="compensation-benefit-tracker-period-row"
+          data-cy="compensation-benefit-tracker-period-row"
+        >
+          <span
+            id="compensation-benefit-tracker-period-label"
+            data-cy="compensation-benefit-tracker-period-label"
+            className="text-gray-500"
+          >
+            Period
+          </span>
+          <div
+            className="font-medium text-start text-nowrap px-1"
+            id="compensation-benefit-tracker-period-value"
+            data-cy="compensation-benefit-tracker-period-value"
+          >
             {dayjs(earliestStart).format('MMM DD, YYYY')} -{' '}
             {dayjs(latestEnd).format('MMM DD, YYYY')}
           </div>
         </div>
 
         {/* Total paid amount */}
-        <div className="grid grid-cols-3 items-center space-x-7">
-          <span className="text-gray-500">Total paid amount</span>
-          <div className="text-green-600 font-medium text-start col-span-1 px-1">
+        <div
+          className="grid grid-cols-3 items-center space-x-7"
+          id="compensation-benefit-tracker-paid-row"
+          data-cy="compensation-benefit-tracker-paid-row"
+        >
+          <span
+            id="compensation-benefit-tracker-total-paid-label"
+            data-cy="compensation-benefit-tracker-total-paid-label"
+            className="text-gray-500"
+          >
+            Total paid amount
+          </span>
+          <div
+            className="text-green-600 font-medium text-start col-span-1 px-1"
+            id="compensation-benefit-tracker-paid-value"
+            data-cy="compensation-benefit-tracker-paid-value"
+          >
             {Number(
               settlementTracking
                 .filter((item: any) => item.isPaid === true)
@@ -143,9 +227,23 @@ const BenefitTracking = () => {
         </div>
 
         {/* Remaining amount */}
-        <div className="grid grid-cols-3 items-center space-x-7">
-          <span className="text-gray-500">Remaining amount</span>
-          <div className="text-yellow-500 font-medium text-start col-span-1 px-1">
+        <div
+          className="grid grid-cols-3 items-center space-x-7"
+          id="compensation-benefit-tracker-remaining-row"
+          data-cy="compensation-benefit-tracker-remaining-row"
+        >
+          <span
+            id="compensation-benefit-tracker-remaining-label"
+            data-cy="compensation-benefit-tracker-remaining-label"
+            className="text-gray-500"
+          >
+            Remaining amount
+          </span>
+          <div
+            className="text-yellow-500 font-medium text-start col-span-1 px-1"
+            id="compensation-benefit-tracker-remaining-value"
+            data-cy="compensation-benefit-tracker-remaining-value"
+          >
             {Number(
               settlementTracking
                 .filter((item: any) => item.isPaid === false)
@@ -158,16 +256,42 @@ const BenefitTracking = () => {
         </div>
       </div>
 
-      <Divider className="my-4" />
-      <h3 className="text-sm font-light mb-2">Paid Back</h3>
+      <Divider
+        data-cy="compensation-benefit-tracker-divider"
+        className="my-4"
+      />
+      <h3
+        className="text-sm font-light mb-2"
+        id="compensation-benefit-tracker-paid-back-header"
+        data-cy="compensation-benefit-tracker-paid-back-header"
+      >
+        Paid Back
+      </h3>
 
-      <div className="overflow-x-auto scrollbar-hide">
-        <div className="min-w-[600px] sm:min-w-[700px] md:min-w-[800px]">
-          <Form form={form} layout="vertical">
-            <Form.List name="benefits">
+      <div
+        className="overflow-x-auto scrollbar-hide"
+        id="compensation-benefit-tracker-table-scroll"
+        data-cy="compensation-benefit-tracker-table-scroll"
+      >
+        <div
+          id="compensation-benefit-tracker-table-wrapper"
+          data-cy="compensation-benefit-tracker-table-wrapper"
+          className="min-w-[600px] sm:min-w-[700px] md:min-w-[800px]"
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            id="compensation-benefit-tracker-form"
+            data-cy="compensation-benefit-tracker-form"
+          >
+            <Form.List
+              data-cy="compensation-benefit-tracker-form-list"
+              name="benefits"
+            >
               {(fields) => (
                 <Table
                   dataSource={fields}
+                  data-cy="compensation-benefit-tracker-list-table"
                   columns={[
                     {
                       title: 'Date',
@@ -176,8 +300,16 @@ const BenefitTracking = () => {
                       width: 100,
                       fixed: 'left',
                       render: (notused, notuseds, index) => (
-                        <Form.Item name={[index, 'createdAt']} className="mb-0">
-                          <span className="text-xs sm:text-sm">
+                        <Form.Item
+                          name={[index, 'createdAt']}
+                          data-cy={`compensation-benefit-tracker-form-item-date-${index}`}
+                          className="mb-0"
+                        >
+                          <span
+                            id={`compensation-benefit-tracker-form-item-date-value-${index}`}
+                            data-cy={`compensation-benefit-tracker-form-item-date-value-${index}`}
+                            className="text-xs sm:text-sm"
+                          >
                             {dayjs(
                               paginatedTracking?.[index]?.createdAt,
                             ).format('MMM DD, YYYY')}
@@ -191,8 +323,16 @@ const BenefitTracking = () => {
                       key: 'amount',
                       width: 100,
                       render: (notused, notuseds, index) => (
-                        <Form.Item name={[index, 'amount']} className="mb-0">
-                          <span className="text-xs sm:text-sm">
+                        <Form.Item
+                          data-cy={`compensation-benefit-tracker-form-item-amount-${index}`}
+                          name={[index, 'amount']}
+                          className="mb-0"
+                        >
+                          <span
+                            id={`compensation-benefit-tracker-form-item-amount-value-${index}`}
+                            data-cy={`compensation-benefit-tracker-form-item-amount-value-${index}`}
+                            className="text-xs sm:text-sm"
+                          >
                             {Number(
                               paginatedTracking?.[index]?.amount,
                             )?.toLocaleString()}
@@ -207,10 +347,12 @@ const BenefitTracking = () => {
                       width: 180,
                       render: (notused, notuseds, index) => (
                         <Form.Item
+                          data-cy={`compensation-benefit-tracker-form-item-pay-period-${index}`}
                           name={[index, 'payPeriodId']}
                           className="mb-0"
                         >
                           <Select
+                            data-cy={`compensation-benefit-tracker-form-item-pay-period-select-${index}`}
                             placeholder="Select Period"
                             allowClear
                             className="w-full"
@@ -219,8 +361,16 @@ const BenefitTracking = () => {
                             size="small"
                           >
                             {payPeriods?.map((period: any) => (
-                              <Option key={period.id} value={period.id}>
-                                <span className="text-xs sm:text-sm">
+                              <Option
+                                data-cy={`compensation-benefit-tracker-form-item-pay-period-option-${index}-${period.id}`}
+                                key={period.id}
+                                value={period.id}
+                              >
+                                <span
+                                  id={`compensation-benefit-tracker-form-item-pay-period-option-value-${index}-${period.id}`}
+                                  data-cy={`compensation-benefit-tracker-form-item-pay-period-option-value-${index}-${period.id}`}
+                                  className="text-xs sm:text-sm"
+                                >
                                   {dayjs(period.startDate).format(
                                     'MMM DD, YYYY',
                                   )}{' '}
@@ -239,8 +389,16 @@ const BenefitTracking = () => {
                       key: 'reason',
                       width: 120,
                       render: (notused, notuseds, index) => (
-                        <Form.Item name={[index, 'reason']} className="mb-0">
-                          <span className="text-xs sm:text-sm">
+                        <Form.Item
+                          data-cy={`compensation-benefit-tracker-form-item-reason-${index}`}
+                          name={[index, 'reason']}
+                          className="mb-0"
+                        >
+                          <span
+                            id={`compensation-benefit-tracker-form-item-reason-value-${index}`}
+                            data-cy={`compensation-benefit-tracker-form-item-reason-value-${index}`}
+                            className="text-xs sm:text-sm"
+                          >
                             {paginatedTracking?.[index]?.reason || '-'}
                           </span>
                         </Form.Item>
@@ -252,6 +410,7 @@ const BenefitTracking = () => {
                   scroll={{ x: 'max-content' }}
                   size="small"
                   style={{ fontSize: '12px' }}
+                  id="compensation-benefit-tracker-list-table"
                 />
               )}
             </Form.List>
@@ -259,9 +418,14 @@ const BenefitTracking = () => {
         </div>
       </div>
 
-      <div className=" items-center my-6">
+      <div
+        className="items-center my-6"
+        id="compensation-benefit-tracker-pagination-wrapper"
+        data-cy="compensation-benefit-tracker-pagination-wrapper"
+      >
         {isMobile || isTablet ? (
           <CustomMobilePagination
+            data-cy="compensation-benefit-tracker-mobile-pagination"
             totalResults={settlementTracking.length}
             pageSize={detailPageSize}
             onChange={(page) => setDetailCurrentPage(page)}
@@ -269,6 +433,7 @@ const BenefitTracking = () => {
           />
         ) : (
           <CustomPagination
+            data-cy="compensation-benefit-tracker-pagination"
             current={detailCurrentPage}
             total={settlementTracking.length}
             pageSize={detailPageSize}

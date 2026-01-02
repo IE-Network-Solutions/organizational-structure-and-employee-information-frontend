@@ -57,13 +57,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   const isInternalApplicant = useAuthenticationStore.getState().userId;
   const { data: statusStage } = useGetStages();
 
-  // ==========> Initial Stage Id <=========
-  const titleToFind = 'Initial Stage';
-  const foundStage = statusStage?.items?.find(
-    (stage: any) => stage.title === titleToFind,
-  );
-
-  const stageId = foundStage ? foundStage.id : '';
   const { mutate: createCandidate, isLoading: isCreatingCandidate } =
     useCreateCandidate();
 
@@ -111,22 +104,23 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
     const formattedValues = {
       ...formValues,
-      // Map form field names to backend expected field names
-      emailAddress: formValues.email,
-      phoneNumber: formValues.phone,
-      // Remove the original field names to avoid confusion
-      email: undefined,
-      phone: undefined,
       isExternal: isInternalApplicant === ' ' ? true : false,
       createdBy: isInternalApplicant,
       jobInformationId: jobId && jobId ? jobId : formValues?.jobInformationId,
-      applicantStatusStageId: stageId,
+      applicantStatusStageId: formValues?.stageId,
     };
 
-    // Encrypt only the JSON data, not the entire FormData
-    const { encrypt } = await import('@/utils/crypto');
-    const encryptedData = await encrypt(JSON.stringify(formattedValues));
-    formData.append('data', encryptedData);
+    // Append each field individually instead of as JSON string
+    // This way backend can access body.email, body.phone, etc. directly
+    Object.keys(formattedValues).forEach((key) => {
+      const value = formattedValues[key];
+      if (value !== undefined && value !== null) {
+        formData.append(
+          key,
+          typeof value === 'object' ? JSON.stringify(value) : String(value),
+        );
+      }
+    });
 
     createCandidate(formData, {
       onSuccess: () => {
@@ -320,6 +314,32 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </div>
           </Col>
         </Row>
+        <Form.Item
+          id="stageId"
+          name="stageId"
+          label={
+            <span className="text-md font-semibold text-gray-700">Stage</span>
+          }
+        >
+          <Select
+            id="talent-acquisition-job-create-candidate-input-full-name"
+            data-cy="talent-acquisition-job-create-candidate-input-full-name"
+            placeholder="Select a stage"
+            className="w-full h-10 text-sm"
+          >
+            {statusStage &&
+              statusStage?.items?.map((stage: any) => (
+                <Option
+                  key={stage?.id}
+                  value={stage?.id}
+                  id={`talent-acquisition-job-create-candidate-option-stage-${stage?.id}`}
+                  data-cy={`talent-acquisition-job-create-candidate-option-stage-${stage?.id}`}
+                >
+                  {stage?.title}
+                </Option>
+              ))}
+          </Select>
+        </Form.Item>
 
         <Form.Item
           id="coverLetterId"

@@ -257,8 +257,13 @@ const PayPeriodSideBar = () => {
       onClick: () => onClose(),
     },
     {
-      label: <span>Create</span>,
+      label: (
+        <span data-cy="payroll-payperiod-sidebar-create-button-label">
+          Create
+        </span>
+      ),
       key: 'create',
+      'data-cy': 'payroll-payperiod-sidebar-create-button',
       className: 'h-12',
       type: 'primary',
       size: 'large',
@@ -285,15 +290,25 @@ const PayPeriodSideBar = () => {
   return (
     isPayPeriodSidebarVisible && (
       <CustomDrawerLayout
+        data-cy="payroll-payperiod-sidebar-drawer"
         open={isPayPeriodSidebarVisible}
         onClose={onClose}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
-            <span>Add Pay Periods</span>
+          <CustomDrawerHeader
+            data-cy="payroll-payperiod-sidebar-header"
+            className="flex justify-center"
+          >
+            <span
+              id="payroll-payperiod-sidebar-header-title"
+              data-cy="payroll-payperiod-sidebar-header-title"
+            >
+              Add Pay Periods
+            </span>
           </CustomDrawerHeader>
         }
         footer={
           <CustomDrawerFooterButton
+            data-cy="payroll-payperiod-sidebar-footer"
             className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
           />
@@ -301,8 +316,10 @@ const PayPeriodSideBar = () => {
         width="30%"
         customMobileHeight="50vh"
       >
-        <Spin spinning={false}>
+        <Spin data-cy="payroll-payperiod-sidebar-spinner" spinning={false}>
           <Form
+            id="payroll-payperiod-sidebar-form"
+            data-cy="payroll-payperiod-sidebar-form"
             layout="vertical"
             form={form}
             onFinish={() => onFormSubmit()}
@@ -310,6 +327,8 @@ const PayPeriodSideBar = () => {
             className="px-3"
           >
             <Form.Item
+              id="payroll-payperiod-sidebar-fiscalyear-formitem"
+              data-cy="payroll-payperiod-sidebar-fiscalyear-formitem"
               name="fiscalYear"
               label="Fiscal Year"
               rules={[
@@ -317,6 +336,8 @@ const PayPeriodSideBar = () => {
               ]}
             >
               <Select
+                id="payroll-payperiod-sidebar-fiscalyear-select"
+                data-cy="payroll-payperiod-sidebar-fiscalyear-select"
                 placeholder="Select fiscal year"
                 onChange={handleFiscalYearChange}
                 options={fiscalYearsData?.items.map((year) => ({
@@ -327,6 +348,8 @@ const PayPeriodSideBar = () => {
             </Form.Item>
 
             <Form.Item
+              id="payroll-payperiod-sidebar-mode-formitem"
+              data-cy="payroll-payperiod-sidebar-mode-formitem"
               name="payPeriodMode"
               label="Pay Period mode"
               rules={[
@@ -334,6 +357,8 @@ const PayPeriodSideBar = () => {
               ]}
             >
               <Select
+                id="payroll-payperiod-sidebar-mode-select"
+                data-cy="payroll-payperiod-sidebar-mode-select"
                 className="mt-2 h-10"
                 placeholder="Select pay period mode"
                 options={modeOptions}
@@ -342,15 +367,33 @@ const PayPeriodSideBar = () => {
               />
             </Form.Item>
             {payPeriodMode && (
-              <div className="text-center text-l">{`${payPeriodMode} pay periods`}</div>
+              <div
+                id="payroll-payperiod-sidebar-mode-label"
+                data-cy="payroll-payperiod-sidebar-mode-label"
+                className="text-center text-l"
+              >{`${payPeriodMode} pay periods`}</div>
             )}
             {formattedDivisions.length > 0 && (
-              <div className="mt-4">
+              <div
+                id="payroll-payperiod-sidebar-divisions-container"
+                data-cy="payroll-payperiod-sidebar-divisions-container"
+                className="mt-4"
+              >
                 {divisions.map((range, index) => (
-                  <div key={index} className="my-2">
-                    <div className="flex justify-between">
+                  <div
+                    id={`payroll-payperiod-sidebar-division-${index}`}
+                    data-cy={`payroll-payperiod-sidebar-division-${index}`}
+                    key={index}
+                    className="my-2"
+                  >
+                    <div
+                      id={`payroll-payperiod-sidebar-division-form-${index}`}
+                      data-cy={`payroll-payperiod-sidebar-division-form-${index}`}
+                      className="flex justify-between"
+                    >
                       <Form.Item
                         name={`range${index}`}
+                        data-cy={`payroll-payperiod-sidebar-division-formitem-${index}`}
                         validateTrigger={['onChange']}
                         rules={[
                           {
@@ -415,6 +458,7 @@ const PayPeriodSideBar = () => {
                         ]}
                       >
                         <RangePicker
+                          data-cy={`payroll-payperiod-sidebar-division-rangepicker-${index}`}
                           value={[dayjs(range[0]), dayjs(range[1])]}
                           onOpenChange={(open) => {
                             if (!open)
@@ -660,6 +704,7 @@ const PayPeriodSideBar = () => {
                       </Form.Item>
                       <Form.Item
                         name={`monthId${index}`}
+                        data-cy={`payroll-payperiod-sidebar-division-monthid-formitem-${index}`}
                         label="Pay Period month"
                         rules={[
                           {
@@ -669,6 +714,7 @@ const PayPeriodSideBar = () => {
                         ]}
                       >
                         <Select
+                          data-cy={`payroll-payperiod-sidebar-division-monthid-select-${index}`}
                           placeholder="Select a month"
                           style={{ width: 200 }}
                           onChange={(value) => handleMonthSelect(value, index)}
@@ -677,7 +723,11 @@ const PayPeriodSideBar = () => {
                             const suitableMonths =
                               monthsWithStartEndDates ?? [];
                             return suitableMonths.map((month) => (
-                              <Option key={month.id} value={month.id}>
+                              <Option
+                                data-cy={`payroll-payperiod-sidebar-division-monthid-option-${month.id}`}
+                                key={month.id}
+                                value={month.id}
+                              >
                                 {`${month?.monthName}`}
                               </Option>
                             ));
@@ -685,13 +735,22 @@ const PayPeriodSideBar = () => {
                         </Select>
                       </Form.Item>
                     </div>
-                    <div className="flex flex-row justify-between items-center mt-2">
-                      <p className="text-sm text-gray-500">
+                    <div
+                      id={`payroll-payperiod-sidebar-division-footer-${index}`}
+                      data-cy={`payroll-payperiod-sidebar-division-footer-${index}`}
+                      className="flex flex-row justify-between items-center mt-2"
+                    >
+                      <p
+                        id={`payroll-payperiod-sidebar-division-footer-text-${index}`}
+                        data-cy={`payroll-payperiod-sidebar-division-footer-text-${index}`}
+                        className="text-sm text-gray-500"
+                      >
                         {dayjs(range[0]).format('MMMM D, YYYY')} -{' '}
                         {dayjs(range[1]).format('MMMM D, YYYY')}
                       </p>
                       {index === divisions.length - 1 && (
                         <Popover
+                          data-cy={`payroll-payperiod-sidebar-division-footer-popover-${index}`}
                           content={
                             <span>{`${dayjs(range[0]).format('MMMM D, YYYY')} - ${dayjs(range[1]).format('MMMM D, YYYY')}`}</span>
                           }
@@ -700,9 +759,14 @@ const PayPeriodSideBar = () => {
                           placement="left"
                         >
                           <Button
+                            data-cy={`payroll-payperiod-sidebar-division-footer-button-${index}`}
                             type="primary"
                             size="small"
-                            icon={<DeleteOutlined />}
+                            icon={
+                              <DeleteOutlined
+                                data-cy={`payroll-payperiod-sidebar-division-footer-button-icon-${index}`}
+                              />
+                            }
                             onClick={() => handleDeleteDivision(index)}
                             danger
                           />

@@ -220,11 +220,17 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
       open={visible}
       onCancel={handleCancel}
       footer={
-        <Form.Item style={{ textAlign: 'center' }}>
+        <Form.Item
+          style={{ textAlign: 'center' }}
+          data-cy="employee-recognition-modal-footer"
+          id="employeeRecognitionModalFooter"
+        >
           <Button
             disabled={isLoading}
             onClick={handleCancel}
             style={{ marginRight: 8 }}
+            data-cy="employee-recognition-modal-cancel-button"
+            id="employeeRecognitionModalCancelButton"
           >
             Cancel
           </Button>
@@ -234,6 +240,8 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
             type="primary"
             htmlType="submit"
             disabled={selectedEmployees.length === 0}
+            data-cy="employee-recognition-modal-create-button"
+            id="employeeRecognitionModalCreateButton"
           >
             Create
           </Button>
@@ -241,19 +249,30 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
       }
       centered
       width={800}
+      data-cy="employee-recognition-modal"
     >
       <CustomBreadcrumb
         title="List"
         subtitle="Employee's who fit the criteria"
+        data-cy="employee-recognition-modal-breadcrumb"
       />
-      <RecognitionTypeSelector createRecognition={createRecognition} />
+      <RecognitionTypeSelector
+        createRecognition={createRecognition}
+        data-cy="employee-recognition-modal-recognition-type-selector"
+      />
       <Form
         className="h-80 overflow-y-auto scrollbar-none"
         form={form}
         onFinish={handleFinish}
         layout="vertical"
+        data-cy="employee-recognition-modal-form"
+        id="employeeRecognitionModalForm"
       >
-        <div className="grid grid-cols-12 gap-4 my-3">
+        <div
+          className="grid grid-cols-12 gap-4 my-3"
+          data-cy="employee-recognition-modal-filters"
+          id="employeeRecognitionModalFilters"
+        >
           <Select
             id="selectEmployee"
             placeholder="Search Employee"
@@ -267,9 +286,15 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
             }
             className="w-full h-10 col-span-8"
             onChange={(value) => setSelectedEmployeeId(value)}
+            data-cy="employee-recognition-modal-employee-select"
           >
             {employeeData?.items?.map((item: any) => (
-              <Option key={item.id} value={item.id}>
+              <Option
+                key={item.id}
+                value={item.id}
+                data-cy={`employee-recognition-modal-employee-option-${item.id}`}
+                id={`employeeRecognitionModalEmployeeOption${item.id}`}
+              >
                 {`${item?.firstName} ${item?.middleName} ${item?.lastName} ` ||
                   '-'}
               </Option>
@@ -280,13 +305,37 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
             onChange={(value) => setFilterOption(value)}
             className="col-span-4 h-10"
             placeholder="Filter  By Selection"
+            data-cy="employee-recognition-modal-filter-select"
+            id="employeeRecognitionModalFilterSelect"
           >
-            <Option value="all">All</Option>
-            <Option value="selected">Selected</Option>
-            <Option value="notSelected">Not Selected</Option>
+            <Option
+              value="all"
+              data-cy="employee-recognition-modal-all"
+              id="employee-recognition-modal-all"
+            >
+              All
+            </Option>
+            <Option
+              value="selected"
+              data-cy="employee-recognition-modal-selected"
+              id="employee-recognition-modal-selected"
+            >
+              Selected
+            </Option>
+            <Option
+              value="notSelected"
+              data-cy="employee-recognition-modal-not-selected"
+              id="employee-recognition-modal-not-selected"
+            >
+              Not Selected
+            </Option>
           </Select>
         </div>
-        <p className="text-sm text-gray-500 mt-2">
+        <p
+          className="text-sm text-gray-500 mt-2"
+          data-cy="employee-recognition-modal-selected-count"
+          id="employeeRecognitionModalSelectedCount"
+        >
           {selectedEmployees.length} employee(s) selected across filters.
         </p>
         <Table
@@ -296,6 +345,8 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
           dataSource={filteredEmployees}
           rowKey="recipientId"
           loading={createRecognitionLoading}
+          data-cy="employee-recognition-modal-table"
+          id="employeeRecognitionModalTable"
         />
       </Form>
     </Modal>

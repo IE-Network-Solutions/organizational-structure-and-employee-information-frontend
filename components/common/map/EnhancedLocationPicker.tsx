@@ -9,8 +9,14 @@ const LocationPicker = dynamic(() => import('./LocationPicker'), {
     <div
       className="bg-gray-100 rounded-lg flex items-center justify-center"
       style={{ height: '400px' }}
+      data-cy="enhanced-location-picker-loading"
     >
-      <div className="text-gray-500">Loading map...</div>
+      <div
+        className="text-gray-500"
+        data-cy="enhanced-location-picker-loading-text"
+      >
+        Loading map...
+      </div>
     </div>
   ),
 });
@@ -122,12 +128,21 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full" data-cy="enhanced-location-picker">
       {/* Map with integrated search */}
-      <div className="relative">
+      <div
+        className="relative"
+        data-cy="enhanced-location-picker-map-container"
+      >
         {/* Search bar positioned at top center of map */}
-        <div className="absolute top-4 left-4 right-4 z-10">
-          <div className="relative">
+        <div
+          className="absolute top-4 left-4 right-4 z-10"
+          data-cy="enhanced-location-picker-search-container"
+        >
+          <div
+            className="relative"
+            data-cy="enhanced-location-picker-search-wrapper"
+          >
             <LocationSearch
               onLocationSelect={handleSearchSelect}
               autoSearch={autoSearch}
@@ -163,20 +178,23 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
       <div className="mt-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-900">Radius</span>
-          <InputNumber
-            value={currentRadius}
-            onChange={(value) => {
-              if (value !== null) {
-                handleRadiusChange(value);
-              }
-            }}
-            min={0.01}
-            step={0.001}
-            precision={3}
-            style={{ width: 120 }}
-            className="text-sm border border-gray-300 rounded-lg"
-            placeholder="Radius"
-          />
+          <div className="flex items-center gap-2">
+            <InputNumber
+              value={currentRadius}
+              onChange={(value) => {
+                if (value !== null) {
+                  handleRadiusChange(value);
+                }
+              }}
+              min={0.01}
+              step={0.001}
+              precision={3}
+              style={{ width: 120 }}
+              className="text-sm border border-gray-300 rounded-lg"
+              placeholder="Radius"
+            />
+            <span className="text-xs text-gray-900">km</span>
+          </div>
         </div>
         <Slider
           min={0.01}

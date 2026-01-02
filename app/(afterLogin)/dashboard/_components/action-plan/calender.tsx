@@ -64,7 +64,10 @@ const Calender = () => {
   const dateCellRender = (value: Dayjs) => {
     const listData = getListData(value);
     return (
-      <div className="flex gap-1 justify-center min-h-[18px]">
+      <div
+        className="flex gap-1 justify-center min-h-[18px]"
+        data-cy="calendar-cell"
+      >
         {listData.length > 0 ? (
           listData.map((item, index) => (
             <Badge key={index} status={item.type} />

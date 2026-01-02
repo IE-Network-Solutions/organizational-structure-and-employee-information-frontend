@@ -55,10 +55,21 @@ function TalentPoolCategoryTab() {
     setCurrentPage(1);
   };
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      data-cy="talent-acquisition-talent-pool-category-page-container"
+    >
       {/* Header section */}
-      <div className="flex justify-between items-center mb-4">
-        <Title level={5}>Talent Pool Category</Title>
+      <div
+        className="flex justify-between items-center mb-4"
+        data-cy="talent-acquisition-talent-pool-category-page-header"
+      >
+        <Title
+          level={5}
+          data-cy="talent-acquisition-talent-pool-category-page-title"
+        >
+          Talent Pool Category
+        </Title>
         <AccessGuard permissions={[Permissions.CreateTalentPool]}>
           <Button
             type="primary"
@@ -66,9 +77,17 @@ function TalentPoolCategoryTab() {
             data-cy="talent-acquisition-talent-pool-category-button-new"
             onClick={openDrawer}
             className="h-10 w-10 sm:w-auto"
-            icon={<FaPlus />}
+            icon={
+              <FaPlus data-cy="talent-acquisition-talent-pool-category-button-new-icon" />
+            }
           >
-            <span className="hidden lg:inline"> Talent Pool Category</span>
+            <span
+              className="hidden lg:inline"
+              data-cy="talent-acquisition-talent-pool-category-button-new-text"
+            >
+              {' '}
+              Talent Pool Category
+            </span>
           </Button>
         </AccessGuard>
       </div>

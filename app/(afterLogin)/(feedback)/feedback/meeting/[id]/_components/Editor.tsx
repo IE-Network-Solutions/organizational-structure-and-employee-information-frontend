@@ -123,17 +123,29 @@ export default function Editor({
     !editor ||
     meetingDiscussionLoading
   )
-    return <EditorSkeleton />;
+    return (
+      <EditorSkeleton data-cy="feedback-meeting-components-editor-skeleton" />
+    );
   return (
-    <div className=" border rounded ">
+    <div
+      className=" border rounded "
+      data-cy="feedback-meeting-components-editor-container"
+      id="feedback-meeting-components-editor-container"
+    >
       {canEdit && (
-        <div className="px-4 flex gap-6 flex-wrap border-b border-b-gray-300 py-2">
+        <div
+          className="px-4 flex gap-6 flex-wrap border-b border-b-gray-300 py-2"
+          data-cy="feedback-meeting-components-editor-toolbar"
+          id="feedback-meeting-components-editor-toolbar"
+        >
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
             disabled={!editor.can().chain().focus().toggleBold().run()}
             style={{ fontWeight: editor.isActive('bold') ? 'bold' : 'normal' }}
             aria-label="Bold"
             className={getBtnClass(editor.isActive('bold'))}
+            data-cy="feedback-meeting-components-editor-btn-bold"
+            id="feedback-meeting-components-editor-btn-bold"
           >
             B
           </button>
@@ -145,6 +157,8 @@ export default function Editor({
             }}
             aria-label="Italic"
             className={getBtnClass(editor.isActive('italic'))}
+            id="feedback-meeting-components-editor-btn-italic"
+            data-cy="feedback-meeting-components-editor-btn-italic"
           >
             I
           </button>
@@ -158,6 +172,8 @@ export default function Editor({
             }}
             aria-label="Strikethrough"
             className={getBtnClass(editor.isActive('strike'))}
+            id="feedback-meeting-components-editor-btn-strike"
+            data-cy="feedback-meeting-components-editor-btn-strike"
           >
             S
           </button>
@@ -170,6 +186,8 @@ export default function Editor({
             className={getBtnClass(
               editor.can().chain().focus().unsetAllMarks().clearNodes().run(),
             )}
+            id="feedback-meeting-components-editor-btn-clear"
+            data-cy="feedback-meeting-components-editor-btn-clear"
           >
             ✖
           </button>
@@ -182,6 +200,8 @@ export default function Editor({
             }}
             aria-label="Align Left"
             className={getBtnClass(editor.isActive({ textAlign: 'left' }))}
+            id="feedback-meeting-components-editor-btn-align-left"
+            data-cy="feedback-meeting-components-editor-btn-align-left"
           >
             L
           </button>
@@ -192,6 +212,8 @@ export default function Editor({
             }}
             aria-label="Blockquote"
             className={getBtnClass(editor.isActive('blockquote'))}
+            id="feedback-meeting-components-editor-btn-blockquote"
+            data-cy="feedback-meeting-components-editor-btn-blockquote"
           >
             `&quot;`
           </button>
@@ -203,6 +225,8 @@ export default function Editor({
             }}
             aria-label="Bullet List"
             className={getBtnClass(editor.isActive('bulletList'))}
+            id="feedback-meeting-components-editor-btn-bullet-list"
+            data-cy="feedback-meeting-components-editor-btn-bullet-list"
           >
             • List
           </button>
@@ -213,13 +237,21 @@ export default function Editor({
             }}
             aria-label="Ordered List"
             className={getBtnClass(editor.isActive('orderedList'))}
+            id="feedback-meeting-components-editor-btn-ordered-list"
+            data-cy="feedback-meeting-components-editor-btn-ordered-list"
           >
             1. List
           </button>
         </div>
       )}
 
-      <EditorContent className="px-5 py-2" disabled={canEdit} editor={editor} />
+      <EditorContent
+        className="px-5 py-2"
+        disabled={canEdit}
+        editor={editor}
+        data-cy="feedback-meeting-components-editor-content"
+        id="feedback-meeting-components-editor-content"
+      />
     </div>
   );
 }

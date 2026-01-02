@@ -23,11 +23,18 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/feedback/settings/define-feedback') ? 'lg:ml-4' : ''}`}
+            data-cy="feedback-settings-menu-define-feedback"
           >
             <RiFeedbackLine
               className={`hidden lg:block ${pathname.includes('/feedback/settings/define-feedback') ? 'text-[#1677FF]' : ''}`}
+              data-cy="feedback-settings-menu-define-feedback-icon"
             />
-            <p className="menu-item-label">Define Feedback</p>
+            <p
+              className="menu-item-label"
+              data-cy="feedback-settings-menu-define-feedback-text"
+            >
+              Define Feedback
+            </p>
           </div>
         ),
         className: 'px-1',
@@ -67,11 +74,18 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/feedback/settings/recognition') ? 'lg:ml-4' : ''}`}
+            data-cy="feedback-settings-menu-recognition"
           >
             <CiCalendarDate
               className={`hidden lg:block ${pathname.includes('/feedback/settings/recognition') ? 'text-[#1677FF]' : ''}`}
+              data-cy="feedback-settings-menu-recognition-icon"
             />
-            <p className="menu-item-label">Recognition</p>
+            <p
+              className="menu-item-label"
+              data-cy="feedback-settings-menu-recognition-text"
+            >
+              Recognition
+            </p>
           </div>
         ),
         className: 'px-1',
@@ -84,11 +98,18 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/feedback/settings/target-achievement') ? 'lg:ml-4' : ''}`}
+            data-cy="feedback-settings-menu-target-achievement"
           >
             <CiCalendarDate
               className={`hidden lg:block ${pathname.includes('/feedback/settings/target-achievement') ? 'text-[#1677FF]' : ''}`}
+              data-cy="feedback-settings-menu-target-achievement-icon"
             />
-            <p className="menu-item-label">Target Achievement</p>
+            <p
+              className="menu-item-label"
+              data-cy="feedback-settings-menu-target-achievement-text"
+            >
+              Target Achievement
+            </p>
           </div>
         ),
         className: 'px-1',
@@ -106,11 +127,18 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                 ? 'lg:ml-4'
                 : ''
             }`}
+            data-cy="feedback-settings-menu-meeting-type"
           >
             <IoListSharp
               className={`hidden lg:block ${pathname.includes('/feedback/settings/define-meeting-type') ? 'text-[#1677FF]' : ''}`}
+              data-cy="feedback-settings-menu-meeting-type-icon"
             />
-            <p className="menu-item-label">Meeting Type</p>
+            <p
+              className="menu-item-label"
+              data-cy="feedback-settings-menu-meeting-type-text"
+            >
+              Meeting Type
+            </p>
           </div>
         ),
 
@@ -121,17 +149,36 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] p-3">
-      <div className="h-auto w-auto">
+    <div
+      className="min-h-screen bg-[#fafafa] p-3"
+      data-cy="settings-layout"
+      id="settingsLayout"
+    >
+      <div
+        className="h-auto w-auto"
+        data-cy="settings-layout-container"
+        id="settingsLayoutContainer"
+      >
         <PageHeader
           title="Settings"
           description="Organizational development settings"
+          data-cy="settings-layout-header"
         ></PageHeader>
 
-        <div className=" flex flex-col lg:flex-row gap-6 mt-3">
-          <SidebarMenu menuItems={menuItems} />
+        <div
+          className=" flex flex-col lg:flex-row gap-6 mt-3"
+          data-cy="settings-layout-content"
+          id="settingsLayoutContent"
+        >
+          <SidebarMenu
+            menuItems={menuItems}
+            data-cy="settings-layout-sidebar"
+          />
 
-          <BlockWrapper className="flex-1 h-max bg-[#fafafa] p-0">
+          <BlockWrapper
+            className="flex-1 h-max bg-[#fafafa] p-0"
+            data-cy="settings-layout-main-content"
+          >
             {children}
           </BlockWrapper>
         </div>

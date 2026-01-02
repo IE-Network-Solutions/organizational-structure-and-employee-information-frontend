@@ -10,18 +10,30 @@ const DefaultIncentiveSettingCard: React.FC = () => {
     useAllChildrenRecognition();
 
   return (
-    <div>
-      <div className="mb-4 m-2">
+    <div
+      id="default-incentive-card-container"
+      data-cy="default-incentive-card-container"
+    >
+      <div
+        id="default-incentive-card-header-wrapper"
+        data-cy="default-incentive-card-header-wrapper"
+        className="mb-4 m-2"
+      >
         <PageHeader
+          data-cy="default-incentive-card-header"
           title={recognitionData?.[0]?.name ? recognitionData?.[0]?.name : '-'}
           size="small"
         ></PageHeader>
       </div>
       <DefaultIncentiveSettingsTable
+        data-cy="default-incentive-card-table"
         recognitionData={recognitionData}
         responseLoading={responseLoading}
       />
-      <IncentiveSettingsDrawer recognitionData={recognitionData?.[0]} />
+      <IncentiveSettingsDrawer
+        data-cy="default-incentive-card-drawer"
+        recognitionData={recognitionData?.[0]}
+      />
     </div>
   );
 };

@@ -141,14 +141,36 @@ const PlanAssignment: React.FC = () => {
       return {
         id: index + 1,
         name: (
-          <Tooltip title={getEmployeeData(item?.userId)}>
-            <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2">
-              <div className="flex items-center justify-start gap-2">
-                <div>
+          <Tooltip
+            title={getEmployeeData(item?.userId)}
+            id={`okr-planning-assignation-table-employee-tooltip-${item?.userId}`}
+            data-cy={`okr-planning-assignation-table-employee-tooltip-${item?.userId}`}
+          >
+            <div
+              className="flex items-center flex-wrap sm:flex-row justify-start gap-2"
+              id={`okr-planning-assignation-table-employee-wrapper-${item?.userId}`}
+              data-cy={`okr-planning-assignation-table-employee-wrapper-${item?.userId}`}
+            >
+              <div
+                className="flex items-center justify-start gap-2"
+                id={`okr-planning-assignation-table-employee-info-${item?.userId}`}
+                data-cy={`okr-planning-assignation-table-employee-info-${item?.userId}`}
+              >
+                <div
+                  id={`okr-planning-assignation-table-employee-avatar-wrapper-${item?.userId}`}
+                  data-cy={`okr-planning-assignation-table-employee-avatar-wrapper-${item?.userId}`}
+                >
                   {item?.profileImage ? (
-                    <Avatar size={20} src={item?.profileImage} />
+                    <Avatar
+                      size={20}
+                      src={item?.profileImage}
+                      data-cy={`okr-planning-assignation-table-employee-avatar-${item?.userId}`}
+                    />
                   ) : (
-                    <Avatar size={20}>
+                    <Avatar
+                      size={20}
+                      data-cy={`okr-planning-assignation-table-employee-avatar-initials-${item?.userId}`}
+                    >
                       {getEmployeeData(item?.userId)
                         .split(' ')
                         .map((name: string) => name[0]?.toUpperCase())
@@ -157,7 +179,12 @@ const PlanAssignment: React.FC = () => {
                     </Avatar>
                   )}
                 </div>
-                <span>{getEmployeeData(item?.userId)}</span>
+                <span
+                  id={`okr-planning-assignation-table-employee-name-text-${item?.userId}`}
+                  data-cy={`okr-planning-assignation-table-employee-name-text-${item?.userId}`}
+                >
+                  {getEmployeeData(item?.userId)}
+                </span>
               </div>
             </div>
           </Tooltip>
@@ -187,8 +214,18 @@ const PlanAssignment: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       render: (notused, record) => (
-        <span>
-          {employeeDataLoading ? <Spin size="small" /> : record?.name}
+        <span
+          id={`okr-planning-assignation-table-employee-name-${record?.key}`}
+          data-cy={`okr-planning-assignation-table-employee-name-${record?.key}`}
+        >
+          {employeeDataLoading ? (
+            <Spin
+              size="small"
+              data-cy={`okr-planning-assignation-table-employee-name-loading-${record?.key}`}
+            />
+          ) : (
+            record?.name
+          )}
         </span>
       ),
       sorter: (a, b) => (a.nameString || '').localeCompare(b.nameString || ''),
@@ -210,25 +247,49 @@ const PlanAssignment: React.FC = () => {
       key: 'actions',
       // eslint-disable-next-line
       render: (_: any, record: any) => (
-        <div className="flex items-center space-x-1">
-          <AccessGuard permissions={[Permissions.UpdateAssignedPlanningPeriod]}>
+        <div
+          className="flex items-center space-x-1"
+          id={`okr-planning-assignation-table-actions-${record?.key}`}
+          data-cy={`okr-planning-assignation-table-actions-${record?.key}`}
+        >
+          <AccessGuard
+            data-cy="okr-planning-assignation-table-edit-button-access-guard-display-guard"
+            permissions={[Permissions.UpdateAssignedPlanningPeriod]}
+          >
             <button
               className="bg-[#2F78EE] font-bold text-white rounded px-2 py-1 text-xs"
               onClick={() => record.actions.edit()}
               style={{ marginRight: 8 }}
+              id={`okr-planning-assignation-table-edit-button-${record?.key}`}
+              data-cy={`okr-planning-assignation-table-edit-button-${record?.key}`}
             >
-              <MdModeEditOutline />
+              <MdModeEditOutline
+                id={`okr-planning-assignation-table-edit-icon-${record?.key}`}
+                data-cy={`okr-planning-assignation-table-edit-icon-${record?.key}`}
+              />
             </button>
           </AccessGuard>
-          <AccessGuard permissions={[Permissions.DeleteAssignedPlanningPeriod]}>
+          <AccessGuard
+            data-cy="okr-planning-assignation-table-delete-button-access-guard-display-guard"
+            permissions={[Permissions.DeleteAssignedPlanningPeriod]}
+          >
             <Popconfirm
               title="Are you sure you want to delete this item?"
               onConfirm={() => record.actions.delete()}
               okText="Yes"
               cancelText="No"
+              id={`okr-planning-assignation-table-delete-popconfirm-${record?.key}`}
+              data-cy={`okr-planning-assignation-table-delete-popconfirm-${record?.key}`}
             >
-              <button className="bg-red-600 font-bold text-white rounded px-2 py-1 text-xs">
-                <MdDeleteForever />
+              <button
+                className="bg-red-600 font-bold text-white rounded px-2 py-1 text-xs"
+                id={`okr-planning-assignation-table-delete-button-${record?.key}`}
+                data-cy={`okr-planning-assignation-table-delete-button-${record?.key}`}
+              >
+                <MdDeleteForever
+                  id={`okr-planning-assignation-table-delete-icon-${record?.key}`}
+                  data-cy={`okr-planning-assignation-table-delete-icon-${record?.key}`}
+                />
               </button>
             </Popconfirm>
           </AccessGuard>
@@ -237,12 +298,34 @@ const PlanAssignment: React.FC = () => {
     },
   ];
   return (
-    <div className="p-5 rounded-2xl shadow-md bg-white h-full">
-      <div className="flex justify-between mb-4">
-        <h2 className="text-lg font-semibold">Plan Assignation</h2>
+    <div
+      className="p-5 rounded-2xl shadow-md bg-white h-full"
+      id="okr-planning-assignation-container-display-div"
+      data-cy="okr-planning-assignation-container-display-div"
+    >
+      <div
+        className="flex justify-between mb-4"
+        id="okr-planning-assignation-header-display-div"
+        data-cy="okr-planning-assignation-header-display-div"
+      >
+        <h2
+          className="text-lg font-semibold"
+          id="okr-planning-assignation-title-display-h2"
+          data-cy="okr-planning-assignation-title-display-h2"
+        >
+          Plan Assignation
+        </h2>
       </div>
-      <div className="flex justify-between">
-        <Form.Item id="filterByLeaveRequestUserIds" name="userIds">
+      <div
+        className="flex justify-between"
+        id="okr-planning-assignation-filters-display-div"
+        data-cy="okr-planning-assignation-filters-display-div"
+      >
+        <Form.Item
+          id="filterByLeaveRequestUserIds"
+          data-cy="filterByLeaveRequestUserIds"
+          name="userIds"
+        >
           <Select
             placeholder="Select a person"
             showSearch
@@ -255,26 +338,47 @@ const PlanAssignment: React.FC = () => {
               label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
             }))}
             loading={employeeDataLoading}
+            id="okr-planning-assignation-user-select-display-select"
+            data-cy="okr-planning-assignation-user-select-display-select"
           />
         </Form.Item>
-        <AccessGuard permissions={[Permissions.AssignPlanningPeriod]}>
+        <AccessGuard
+          data-cy="okr-planning-assignation-assign-button-access-guard-display-guard"
+          permissions={[Permissions.AssignPlanningPeriod]}
+        >
           <Button
-            icon={<FaPlus />}
+            icon={
+              <FaPlus data-cy="okr-planning-assignation-assign-button-icon-display-button" />
+            }
             onClick={showDrawer}
             className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
             type="primary"
+            id="okr-planning-assignation-assign-button-display-button"
+            data-cy="okr-planning-assignation-assign-button-display-button"
           >
-            <span className="hidden lg:block">Assign</span>
+            <span
+              className="hidden lg:block"
+              id="okr-planning-assignation-assign-button-text-display-span"
+              data-cy="okr-planning-assignation-assign-button-text-display-span"
+            >
+              Assign
+            </span>
           </Button>
         </AccessGuard>
       </div>
 
-      <div className="overflow-x-auto scrollbar-none w-full">
+      <div
+        className="overflow-x-auto scrollbar-none w-full"
+        id="okr-planning-assignation-table-wrapper-display-div"
+        data-cy="okr-planning-assignation-table-wrapper-display-div"
+      >
         <Table
           loading={allUserPlanningPeriodGroupedByUserLoading}
           dataSource={dataSources}
           columns={columns}
           pagination={false}
+          id="okr-planning-assignation-table-display-table"
+          data-cy="okr-planning-assignation-table-display-table"
         />
 
         {isMobile || isTablet ? (
@@ -285,6 +389,7 @@ const PlanAssignment: React.FC = () => {
             pageSize={pageSize}
             onChange={onPageChange}
             onShowSizeChange={onPageChange}
+            data-cy="okr-planning-assignation-mobile-pagination-display-pagination"
           />
         ) : (
           <CustomPagination
@@ -298,15 +403,21 @@ const PlanAssignment: React.FC = () => {
               setPageSize(pageSize);
               setPage(1);
             }}
+            data-cy="okr-planning-assignation-pagination-display-pagination"
           />
         )}
       </div>
 
-      <PlanningAssignationDrawer open={open} onClose={onClose} />
+      <PlanningAssignationDrawer
+        open={open}
+        onClose={onClose}
+        data-cy="okr-planning-assignation-drawer-display-drawer"
+      />
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleDeletePlanningAssignation(deletedId)}
         onCancel={onCloseDeleteModal}
+        data-cy="okr-planning-assignation-delete-modal-display-modal"
       />
     </div>
   );

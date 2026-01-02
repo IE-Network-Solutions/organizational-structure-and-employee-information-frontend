@@ -5,7 +5,11 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
-const getPositions = async (currentPage: number, pageSize: number) => {
+const getPositions = async (
+  currentPage: number,
+  pageSize: number,
+  searchTerm?: string,
+) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -14,8 +18,14 @@ const getPositions = async (currentPage: number, pageSize: number) => {
     tenantId: tenantId,
   };
 
+  const searchParam =
+    searchTerm && searchTerm.trim() !== ''
+      ? `&columnName=name&query=${encodeURIComponent(searchTerm.trim())}`
+      : '';
+  const url = `${ORG_AND_EMP_URL}/positions?limit=${pageSize}&page=${currentPage}${searchParam}`;
+
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/positions?limit=${pageSize}&page=${currentPage}`,
+    url,
     method: 'GET',
     headers,
   });
@@ -52,8 +62,22 @@ const getPositionsByID = async (id: string) => {
   });
 };
 
-export const useGetPositions = (currentPage: number, pageSize: number) => {
-  return useQuery('positions', () => getPositions(currentPage, pageSize));
+export const useGetPositions = (
+  currentPage: number,
+  pageSize: number,
+  searchTerm?: string,
+) => {
+  // Normalize empty string to undefined for consistent query keys
+  const normalizedSearchTerm =
+    searchTerm && searchTerm.trim() !== '' ? searchTerm.trim() : undefined;
+
+  return useQuery(
+    ['positions', currentPage, pageSize, normalizedSearchTerm],
+    () => getPositions(currentPage, pageSize, normalizedSearchTerm),
+    {
+      keepPreviousData: true,
+    },
+  );
 };
 export const useGetAllPositions = () => {
   return useQuery('allPositions', getAllPositions);

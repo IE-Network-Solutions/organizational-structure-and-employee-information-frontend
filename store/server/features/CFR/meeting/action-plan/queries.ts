@@ -3,6 +3,7 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { ActionPlanSourceType } from '@/types/enumTypes';
 const getMeetingActionPlan = async (id: string | null) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -37,12 +38,27 @@ const getAllActionPlan = async (
   status: string | null,
   startAt: string | null,
   endAt: string | null,
+  sourceType?: ActionPlanSourceType | string | null,
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
+  // Build query parameters
+  const params = new URLSearchParams({
+    limit: pageSizeAction.toString(),
+    page: currentAction.toString(),
+  });
+
+  // Add optional parameters only if they have values
+  if (empId) params.append('userId', empId);
+  if (priority) params.append('priority', priority);
+  if (status) params.append('status', status);
+  if (startAt) params.append('completionStartDate', startAt);
+  if (endAt) params.append('completionEndDate', endAt);
+  if (sourceType) params.append('sourceType', sourceType);
+
   return crudRequest({
-    url: `${ORG_DEV_URL}/meeting-action-plans?limit=${pageSizeAction}&page=${currentAction}&userId=${empId}&priority=${priority}&status=${status}&completionStartDate=${startAt}&completionEndDate=${endAt}`,
+    url: `${ORG_DEV_URL}/action-plans?${params.toString()}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -68,10 +84,11 @@ export const useGetAllActionPlan = (
   status: string | null,
   startAt: string | null,
   endAt: string | null,
+  sourceType?: ActionPlanSourceType | string | null,
 ) => {
   return useQuery<any>(
     [
-      'meeting-action-plans',
+      'action-plans', // Updated query key to reflect unified endpoint
       pageSizeAction,
       currentAction,
       empId,
@@ -79,6 +96,7 @@ export const useGetAllActionPlan = (
       status,
       startAt,
       endAt,
+      sourceType, // Added to query key for proper cache invalidation
     ], // Unique query key based on params
     () =>
       getAllActionPlan(
@@ -89,6 +107,7 @@ export const useGetAllActionPlan = (
         status,
         startAt,
         endAt,
+        sourceType, // Pass sourceType to API function
       ),
     // {
     //   enabled: !!id, // Ensures id is truthy and not null or empty

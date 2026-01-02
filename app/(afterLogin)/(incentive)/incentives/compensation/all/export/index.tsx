@@ -63,12 +63,15 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
   return (
     <Modal
       title="Export Incentive Data"
+      data-cy="export-modal"
       open={isOpen}
       onCancel={handleModalClose}
       footer={null}
       centered
     >
       <Form
+        id="export-modal-form"
+        data-cy="export-modal-form"
         form={form}
         layout="vertical"
         initialValues={{
@@ -80,23 +83,47 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
         }}
       >
         {/* Generate All (Boolean) */}
-        <Form.Item name="generateAll" valuePropName="checked">
-          <Checkbox>Generate All</Checkbox>
+        <Form.Item
+          id="export-modal-form-generate-all"
+          data-cy="export-modal-form-generate-all"
+          name="generateAll"
+          valuePropName="checked"
+        >
+          <Checkbox
+            id="export-modal-form-generate-all-checkbox"
+            data-cy="export-modal-form-generate-all-checkbox"
+          >
+            <span
+              id="export-modal-form-generate-all-text"
+              data-cy="export-modal-form-generate-all-text"
+            >
+              Generate All
+            </span>
+          </Checkbox>
         </Form.Item>
 
         <Form.Item
+          id="export-modal-form-fiscal-year"
+          data-cy="export-modal-form-fiscal-year"
           label="Select Fiscal Year"
           name="fiscalYear"
           rules={[{ required: true, message: 'Please select a fiscal year' }]}
         >
           <Select
+            id="export-modal-form-fiscal-year-select"
+            data-cy="export-modal-form-fiscal-year-select"
             allowClear
             placeholder="Select Fiscal Year"
             className="w-full h-12"
             onChange={handleFiscalYearChange}
           >
             {fiscalYear?.items?.map((year: any) => (
-              <Select.Option key={year.id} value={year.id}>
+              <Select.Option
+                id={`export-modal-form-fiscal-year-option-${year.id}`}
+                data-cy={`export-modal-form-fiscal-year-option-${year.id}`}
+                key={year.id}
+                value={year.id}
+              >
                 {year?.name}
               </Select.Option>
             ))}
@@ -105,6 +132,8 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
 
         {/* Session IDs (comma-separated input) */}
         <Form.Item
+          id="export-modal-form-sessions"
+          data-cy="export-modal-form-sessions"
           label="Select Sessions"
           name="sessionId"
           rules={[
@@ -112,13 +141,20 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
           ]}
         >
           <Select
+            id="export-modal-form-sessions-select"
+            data-cy="export-modal-form-sessions-select"
             mode="multiple"
             placeholder="Select session(s)"
             className="w-full h-12"
             disabled={!selectedFiscalYear || filteredSessions?.length === 0}
           >
             {filteredSessions.map((session: any) => (
-              <Select.Option key={session?.id} value={session?.id}>
+              <Select.Option
+                id={`export-modal-form-sessions-option-${session?.id}`}
+                data-cy={`export-modal-form-sessions-option-${session?.id}`}
+                key={session?.id}
+                value={session?.id}
+              >
                 {session?.name}
               </Select.Option>
             ))}
@@ -126,12 +162,30 @@ const ExportModal: React.FC<ExportModalProps> = ({ selectedRecognition }) => {
         </Form.Item>
 
         {/* Submit Button */}
-        <Form.Item>
-          <div className="flex justify-end mt-6">
-            <Button onClick={handleModalClose} className="mr-2">
+        <Form.Item
+          id="export-modal-form-actions"
+          data-cy="export-modal-form-actions"
+        >
+          <div
+            id="export-modal-form-actions-wrapper"
+            data-cy="export-modal-form-actions-wrapper"
+            className="flex justify-end mt-6"
+          >
+            <Button
+              id="export-modal-cancel-button"
+              data-cy="export-modal-cancel-button"
+              onClick={handleModalClose}
+              className="mr-2"
+            >
               Cancel
             </Button>
-            <Button type="primary" htmlType="submit" loading={submitPending}>
+            <Button
+              id="export-modal-submit-button"
+              data-cy="export-modal-submit-button"
+              type="primary"
+              htmlType="submit"
+              loading={submitPending}
+            >
               Export
             </Button>
           </div>

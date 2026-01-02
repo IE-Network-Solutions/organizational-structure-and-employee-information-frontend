@@ -107,9 +107,12 @@ const ApprovalWorkFlowSettingComponent = ({
     setSelections({ SectionItemType: updatedSelections });
   };
   return (
-    <div>
-      <div className="mb-10">
-        <div className="text-2xl font-bold ">
+    <div data-cy="approval-workflow-setting-container">
+      <div className="mb-10" data-cy="approval-workflow-setting-header">
+        <div
+          className="text-2xl font-bold "
+          data-cy="approval-workflow-setting-title"
+        >
           {title
             ? title
             : approverType === 'Sequential'
@@ -294,7 +297,7 @@ const ApprovalWorkFlowSettingComponent = ({
         )}
 
         <Form.Item>
-          <Row className="flex justify-end gap-3">
+          <Row className="flex justify-center gap-3">
             <Button type="primary" htmlType="submit">
               Submit
             </Button>
