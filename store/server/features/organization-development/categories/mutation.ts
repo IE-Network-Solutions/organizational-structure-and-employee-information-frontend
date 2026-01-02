@@ -102,16 +102,17 @@ export const useUpdateActionPlan = () => {
 
   return useMutation(updateActionPlan, {
     onSuccess: () => {
-      queryClient.invalidateQueries('actionPlans');
+      // Invalidate all action-plans queries (with hyphen to match query key)
+      queryClient.invalidateQueries('action-plans');
       NotificationMessage.success({
         message: 'Successfully updated',
-        description: 'Action plan updated successfully created',
+        description: 'Action plan updated successfully',
       });
     },
     onError: () => {
       NotificationMessage.error({
-        message: 'Creation Failed',
-        description: 'Action plan creation failed',
+        message: 'Update Failed',
+        description: 'Action plan update failed',
       });
     },
   });

@@ -25,6 +25,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useState } from 'react';
 import { VscSettings } from 'react-icons/vsc';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import StatusDropdown from '@/components/action-plan/StatusDropdown';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -230,18 +231,12 @@ const columns: ColumnsType<any> = [
     title: 'Status',
     dataIndex: 'status',
     render: (status: keyof typeof statusColors, record) => (
-      <Tag
-        className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
-        color={
-          statusColors[
-            capitalizeFirstLetter(status) as keyof typeof statusColors
-          ]
-        }
-        data-cy={`feedback-action-plan-table-cell-status-${record.key}`}
-        id={`feedback-action-plan-table-cell-status-${record.key}`}
-      >
-        {capitalizeFirstLetter(status)}
-      </Tag>
+      <StatusDropdown
+        actionPlanId={record.key}
+        currentStatus={status}
+        responsiblePerson={record.responsible || []}
+        recordKey={record.key}
+      />
     ),
   },
   {
