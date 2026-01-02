@@ -263,7 +263,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                     </div>
                   </div>
 
-                  <Divider className="my-2 h-px" />
+
 
                   {hasMilestone && (
                     <>
