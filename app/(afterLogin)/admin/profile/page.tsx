@@ -426,7 +426,7 @@ const AdminProfile = () => {
         >
           <div className="flex flex-col items-center justify-center gap-2">
             {logoPreview ? (
-              <Image
+              <img
                 src={logoPreview}
                 alt="Company Logo"
                 width={100}
@@ -434,7 +434,7 @@ const AdminProfile = () => {
                 className="mb-4 rounded-full object-cover"
               />
             ) : storeClientData?.logo && logoExists ? (
-              <Image
+              <img
                 src={`${storeClientData.logo}?v=${dataVersion}`}
                 alt="Company Logo"
                 width={100}
@@ -442,7 +442,7 @@ const AdminProfile = () => {
                 className="mb-4 rounded-full object-cover"
               />
             ) : (
-              <Image
+              <img
                 src="/icons/gallery-add.svg"
                 alt="Upload"
                 width={40}
@@ -556,7 +556,7 @@ const AdminProfile = () => {
         >
           <div className="flex flex-col items-center justify-center gap-2">
             {stampPreview ? (
-              <Image
+              <img
                 src={stampPreview}
                 alt="Company Stamp"
                 width={100}
@@ -564,7 +564,7 @@ const AdminProfile = () => {
                 className="mb-4 rounded-full object-cover"
               />
             ) : storeClientData?.stamp && stampExists ? (
-              <Image
+              <img
                 src={`${storeClientData.stamp}?v=${dataVersion}`}
                 alt="Company Stamp"
                 width={100}
@@ -572,7 +572,7 @@ const AdminProfile = () => {
                 className="mb-4 rounded-full object-cover"
               />
             ) : (
-              <Image
+              <img
                 src="/icons/gallery-add.svg"
                 alt="Upload"
                 width={40}
