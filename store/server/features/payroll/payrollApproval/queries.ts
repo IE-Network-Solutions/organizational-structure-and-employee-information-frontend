@@ -14,21 +14,21 @@ const getPendingPayrollApprovals = async (
   const requestHeaders = await requestHeader();
   const authStore = useAuthenticationStore.getState();
   const userRollId = authStore.userData?.roleId;
-  
+
   const queryParams = new URLSearchParams();
-  
+
   if (page) queryParams.append('page', page.toString());
   if (limit) queryParams.append('limit', limit.toString());
   if (orderBy) queryParams.append('orderBy', orderBy);
   if (orderDirection) queryParams.append('orderDirection', orderDirection);
 
   const url = `${PAYROLL_URL}/payroll-approval/pending${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-  
+
   const headers: Record<string, string> = {
     ...requestHeaders,
     ...(userRollId && { approverUserRoleId: userRollId }),
   };
-  
+
   return crudRequest({
     url,
     method: 'GET',
@@ -45,8 +45,22 @@ export const useGetPendingPayrollApprovals = (
 ) => {
   const token = useAuthenticationStore.getState().token;
   return useQuery(
-    ['pendingPayrollApprovals', payPeriodId, page, limit, orderBy, orderDirection],
-    () => getPendingPayrollApprovals(payPeriodId, page, limit, orderBy, orderDirection),
+    [
+      'pendingPayrollApprovals',
+      payPeriodId,
+      page,
+      limit,
+      orderBy,
+      orderDirection,
+    ],
+    () =>
+      getPendingPayrollApprovals(
+        payPeriodId,
+        page,
+        limit,
+        orderBy,
+        orderDirection,
+      ),
     {
       keepPreviousData: true,
       enabled: !!token,
@@ -74,4 +88,3 @@ export const useGetPayrollApprovalByPayPeriodId = (payPeriodId?: string) => {
     },
   );
 };
-

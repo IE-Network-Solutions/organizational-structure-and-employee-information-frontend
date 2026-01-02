@@ -56,13 +56,12 @@ export const useGetAuditLogDetail = (
 
 // New aggregate audit log query
 
-
 const getAggregateAuditLogs = async (
   params: AggregateAuditLogParams,
 ): Promise<ApiResponse<AuditLog>> => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
-  
+
   // Build query parameters
   const queryParams: Record<string, any> = {
     module: params.module ?? 'all',
@@ -99,8 +98,9 @@ export const useGetAggregateAuditLogs = (
   isEnabled: boolean = true,
 ) => {
   // Keep previous data when module is defined (including 'all')
-  const shouldKeepPreviousData = params.module !== null && params.module !== undefined;
-  
+  const shouldKeepPreviousData =
+    params.module !== null && params.module !== undefined;
+
   return useQuery<ApiResponse<AuditLog>>(
     ['aggregate-audit-logs', params],
     () => getAggregateAuditLogs(params),

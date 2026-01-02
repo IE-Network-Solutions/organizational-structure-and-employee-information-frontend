@@ -31,7 +31,6 @@ const statusHighlightColors: Record<string, string> = {
 
 // Status border colors
 
-
 const capitalizeFirstLetter = (value: string) => {
   if (!value) return value;
   const str = String(value).trim();
@@ -42,7 +41,11 @@ const capitalizeFirstLetter = (value: string) => {
 
 const normalizeStatus = (status: string): 'pending' | 'solved' => {
   const normalized = status.toLowerCase().trim();
-  if (normalized === 'solved' || normalized === 'resolved' || normalized === 'completed') {
+  if (
+    normalized === 'solved' ||
+    normalized === 'resolved' ||
+    normalized === 'completed'
+  ) {
     return 'solved';
   }
   return 'pending';
@@ -56,13 +59,21 @@ export default function StatusDropdown({
 }: StatusDropdownProps) {
   const { mutate: updateActionPlan } = useUpdateActionPlan();
   const { userId, userData } = useAuthenticationStore();
-  
+
   // Use selectors to get state and actions
-  const loading = useActionPlanStatusStore((state) => state.getLoading(actionPlanId));
-  const optimisticStatus = useActionPlanStatusStore((state) => state.getOptimisticStatus(actionPlanId));
+  const loading = useActionPlanStatusStore((state) =>
+    state.getLoading(actionPlanId),
+  );
+  const optimisticStatus = useActionPlanStatusStore((state) =>
+    state.getOptimisticStatus(actionPlanId),
+  );
   const setLoading = useActionPlanStatusStore((state) => state.setLoading);
-  const setOptimisticStatus = useActionPlanStatusStore((state) => state.setOptimisticStatus);
-  const clearOptimisticStatus = useActionPlanStatusStore((state) => state.clearOptimisticStatus);
+  const setOptimisticStatus = useActionPlanStatusStore(
+    (state) => state.setOptimisticStatus,
+  );
+  const clearOptimisticStatus = useActionPlanStatusStore(
+    (state) => state.clearOptimisticStatus,
+  );
 
   // Use optimistic status if available, otherwise use current status
   const statusToDisplay = optimisticStatus || currentStatus;
@@ -104,10 +115,11 @@ export default function StatusDropdown({
           setLoading(actionPlanId, false);
           // Revert optimistic update on error
           clearOptimisticStatus(actionPlanId);
-          
+
           // Handle specific error cases
           const status = error?.response?.status;
-          const errorMessage = error?.response?.data?.message || 'An error occurred';
+          const errorMessage =
+            error?.response?.data?.message || 'An error occurred';
 
           if (status === 403) {
             NotificationMessage.error({
@@ -128,12 +140,14 @@ export default function StatusDropdown({
           } else if (status === 400) {
             NotificationMessage.error({
               message: 'Invalid Request',
-              description: errorMessage || 'Invalid status value. Please try again.',
+              description:
+                errorMessage || 'Invalid status value. Please try again.',
             });
           } else {
             NotificationMessage.error({
               message: 'Update Failed',
-              description: errorMessage || 'Failed to update status. Please try again.',
+              description:
+                errorMessage || 'Failed to update status. Please try again.',
             });
           }
         },
@@ -172,7 +186,6 @@ export default function StatusDropdown({
     statusHighlightColors[normalizedStatus] ||
     statusHighlightColors[currentStatus] ||
     '#f0f0f0';
- 
 
   return (
     <Dropdown
@@ -183,7 +196,9 @@ export default function StatusDropdown({
     >
       <div
         className={`inline-flex items-center gap-1.5 ${
-          canUpdate && !loading ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
+          canUpdate && !loading
+            ? 'cursor-pointer'
+            : 'cursor-not-allowed opacity-60'
         } ${loading ? 'opacity-50' : ''}`}
         data-cy={`feedback-action-plan-table-cell-status-${recordKey}`}
         id={`feedback-action-plan-table-cell-status-${recordKey}`}
@@ -196,7 +211,11 @@ export default function StatusDropdown({
         >
           <Tag
             className="font-bold border-none min-w-16 text-center capitalize text-[10px] m-0"
-            color={statusColors[normalizedStatus] || statusColors[currentStatus] || 'default'}
+            color={
+              statusColors[normalizedStatus] ||
+              statusColors[currentStatus] ||
+              'default'
+            }
           >
             {loading ? 'Updating...' : displayStatus}
           </Tag>
@@ -214,4 +233,3 @@ export default function StatusDropdown({
     </Dropdown>
   );
 }
-
