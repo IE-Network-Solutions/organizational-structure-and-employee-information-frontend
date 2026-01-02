@@ -217,11 +217,11 @@ const PayrollReconcilation = () => {
   };
   const payrollVarianceData = data?.components?.map((item: any) => ({
     types: item.label,
-    previous: Number(item.previous).toFixed(2),
-    current: Number(item.current).toFixed(2),
+    previous: Number(item.previous).toLocaleString(),
+    current: Number(item.current).toLocaleString(),
     variance:
       item.variance != null && !isNaN(Number(item.variance))
-        ? Number(item.variance).toFixed(2)
+        ? Number(item.variance).toLocaleString()
         : '--',
     variancePercentage:
       item?.variancePercentage != null && item?.variancePercentage !== ''
@@ -330,13 +330,17 @@ const PayrollReconcilation = () => {
               Total Payroll Cost
             </p>
             <p className="text-2xl font-bold text-black">
-              {Number(data?.summary?.totalPayrollCost).toFixed(2)}
+              {data?.summary?.totalPayrollCost
+                ? Number(data?.summary?.totalPayrollCost).toLocaleString()
+                : 0}
             </p>
 
             <p className="text-sm text-black mt-3 font-semibold">
               Previous:{' '}
               <span className="font-semibold">
-                {Number(data?.summary?.previousPayrollCost).toFixed(2)}
+                {data?.summary?.previousPayrollCost
+                  ? Number(data?.summary?.previousPayrollCost).toLocaleString()
+                  : 0}
               </span>
             </p>
           </Card>
@@ -346,11 +350,30 @@ const PayrollReconcilation = () => {
               Net Variance
             </p>
             <p className="text-2xl font-bold text-black">
-              {Number(data?.summary?.netVariance).toFixed(2)}
+              {data?.summary?.netVariance
+                ? Number(data?.summary?.netVariance).toLocaleString()
+                : 0}
             </p>
 
-            <p className="text-sm text-red-500 mt-3">
-              {data?.summary?.netVariancePercentage} ↑
+            <p
+              className={`text-sm mt-3 font-semibold ${(() => {
+                const varianceValue = Number(
+                  data?.summary?.netVariancePercentage || 0,
+                );
+                if (varianceValue > 0) return 'text-red-500';
+                if (varianceValue < 0) return 'text-green-500';
+                return '';
+              })()}`}
+            >
+              {(() => {
+                const varianceValue = Number(
+                  data?.summary?.netVariancePercentage || 0,
+                );
+                if (isNaN(varianceValue)) {
+                  return '--';
+                }
+                return varianceValue;
+              })()}
             </p>
           </Card>
           {/* Headcount Impact */}

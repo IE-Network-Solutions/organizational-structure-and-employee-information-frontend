@@ -7,6 +7,8 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { Button, Modal, Select, Table } from 'antd';
 import { FaEye } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
+import { useQueryClient } from 'react-query';
+import { useRouter } from 'next/navigation';
 
 interface PayrollReconcilationModalProps {
   isModalOpen: boolean;
@@ -24,6 +26,8 @@ const PayrollReconcilationModal = ({
   componentType,
 }: PayrollReconcilationModalProps) => {
   const { isMobile, isTablet } = useIsMobile();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const {
     currentPage,
     pageSize,
@@ -61,6 +65,14 @@ const PayrollReconcilationModal = ({
   const handleEmployeeSelect = (value: string) => {
     setSearch(value || '');
     setCurrentPage(1);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSearch('');
+    setCurrentPage(1);
+    // Reset the query cache for reconciliation details
+    queryClient.invalidateQueries('reconciliation-details');
   };
 
   const options =
@@ -124,6 +136,18 @@ const PayrollReconcilationModal = ({
       dataIndex: 'action',
       key: 'action',
       minWidth: 150,
+      render: (_: any, record: any) => (
+        <Button
+          className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
+          onClick={() => {
+            if (record.userId) {
+              router.push(`/employee-information/${record.userId}`);
+            }
+          }}
+        >
+          <FaEye />
+        </Button>
+      ),
     },
   ];
 
@@ -137,25 +161,20 @@ const PayrollReconcilationModal = ({
         item.difference != null && !isNaN(Number(item.difference))
           ? Number(item.difference).toFixed(2)
           : '--',
-      action: (
-        <Button className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none ">
-          <FaEye />
-        </Button>
-      ),
+      userId: item.userId || item.employeeId || item.id,
     }));
 
   return (
     <Modal
       open={isModalOpen}
-      onCancel={() => setIsModalOpen(false)}
+      onCancel={handleModalClose}
       footer={null}
       closeIcon={<IoCloseOutline className="text-2xl text-[#1A1C1E]" />}
       width={1130}
       centered
-      className="overflow-y-auto"
     >
-      <div className="pt-2 px-1">
-        <div className="mb-6">
+      <div className="pt-2 px-1 flex flex-col h-full max-h-[80vh]">
+        <div className="mb-6 flex-shrink-0">
           <h2 className="text-[28px] font-semibold text-[#1A1C1E] leading-none mb-2">
             Salary
           </h2>
@@ -164,7 +183,7 @@ const PayrollReconcilationModal = ({
           </p>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 flex-shrink-0">
           <Select
             showSearch
             allowClear
@@ -183,7 +202,7 @@ const PayrollReconcilationModal = ({
           />
         </div>
 
-        <div className="w-full overflow-x-auto">
+        <div className="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0 max-h-full">
           <Table
             loading={isLoadingReconciliationDetails}
             dataSource={payrollVarianceData}
