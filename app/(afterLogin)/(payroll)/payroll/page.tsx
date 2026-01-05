@@ -212,8 +212,9 @@ const Payroll = () => {
 
     if (bankLetter) {
       // Calculate total net pay for selected items
+      // Use parseFloat to ensure numeric addition (netPay might be string)
       const totalNetPay = selectedData.reduce(
-        (sum: number, item: any) => sum + (item.netPay || 0),
+        (sum: number, item: any) => sum + (parseFloat(item.netPay) || 0),
         0,
       );
       exportTasks.push(Promise.resolve(handleBankLetter(totalNetPay)));
