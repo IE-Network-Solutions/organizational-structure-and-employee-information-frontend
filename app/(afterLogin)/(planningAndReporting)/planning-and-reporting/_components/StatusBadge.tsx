@@ -33,7 +33,11 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
         className="flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded-full text-white flex-shrink-0"
         style={{ backgroundColor: getBackgroundColor() }}
       >
-        {isClosed ? <CheckOutlined className="text-sm md:text-lg" /> : <PiDotsThreeCircle className="text-base md:text-2xl" />}
+        {isClosed ? (
+          <CheckOutlined className="text-sm md:text-lg" />
+        ) : (
+          <PiDotsThreeCircle className="text-base md:text-2xl" />
+        )}
       </div>
       <div className="flex flex-col min-w-0">
         <p className="text-xs md:text-sm font-bold leading-tight text-[#161A2C] line-clamp-1">

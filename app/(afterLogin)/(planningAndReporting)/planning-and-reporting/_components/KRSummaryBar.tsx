@@ -8,7 +8,11 @@ interface KRSummaryBarProps {
   keyResult?: KeyResult;
 }
 
-export default function KRSummaryBar({ plan, viewMode, keyResult }: KRSummaryBarProps) {
+export default function KRSummaryBar({
+  plan,
+  viewMode,
+  keyResult,
+}: KRSummaryBarProps) {
   // Collect all tasks from this specific keyResult
   const getAllKeyResultTasks = (kr: typeof keyResult): any[] => {
     if (!kr) return [];
@@ -59,43 +63,50 @@ export default function KRSummaryBar({ plan, viewMode, keyResult }: KRSummaryBar
 
     // Calculate target from all tasks in this keyResult
     const target = allKRTasks.reduce((sum: number, task: any) => {
-      const taskTarget = viewMode === 'planning'
-        ? (task.target ?? 0)
-        : (task.target ?? task.planTask?.targetValue ?? 0);
+      const taskTarget =
+        viewMode === 'planning'
+          ? (task.target ?? 0)
+          : (task.target ?? task.planTask?.targetValue ?? 0);
       return sum + taskTarget;
     }, 0);
 
     // Calculate achieved from all tasks in this keyResult (for reporting mode)
     // Achieved is the sum of weights of tasks that are completed/achieved (passed)
     // IMPORTANT: We ALWAYS recalculate from task weights, never use keyResult.currentValue
-    const achieved = viewMode === 'reporting'
-      ? (() => {
-        // Filter to only completed/achieved tasks
-        const completedTasks = allKRTasks.filter((task: any) => {
-          // Check if task is completed/achieved/passed
-          const taskStatus = task.status;
-          const isAchieved = task.isAchieved === true;
-          const isCompleted = taskStatus === 'completed' || taskStatus === 'Done';
-          // Only count tasks that are explicitly marked as achieved/completed
-          return isAchieved || isCompleted;
-        });
+    const achieved =
+      viewMode === 'reporting'
+        ? (() => {
+            // Filter to only completed/achieved tasks
+            const completedTasks = allKRTasks.filter((task: any) => {
+              // Check if task is completed/achieved/passed
+              const taskStatus = task.status;
+              const isAchieved = task.isAchieved === true;
+              const isCompleted =
+                taskStatus === 'completed' || taskStatus === 'Done';
+              // Only count tasks that are explicitly marked as achieved/completed
+              return isAchieved || isCompleted;
+            });
 
-        // Sum the WEIGHTS of completed tasks (not their achieved values)
-        const sumOfWeights = completedTasks.reduce((sum: number, task: any) => {
-          const taskWeight = Number(task.weight) || 0;
-          return sum + taskWeight;
-        }, 0);
+            // Sum the WEIGHTS of completed tasks (not their achieved values)
+            const sumOfWeights = completedTasks.reduce(
+              (sum: number, task: any) => {
+                const taskWeight = Number(task.weight) || 0;
+                return sum + taskWeight;
+              },
+              0,
+            );
 
-        return sumOfWeights;
-      })()
-      : 0;
+            return sumOfWeights;
+          })()
+        : 0;
 
     // Calculate progress based on achieved vs target
     // Use keyResult's targetValue if available, otherwise use calculated target
     const finalTarget = keyResult.targetValue ?? target;
-    const progress = finalTarget > 0 && viewMode === 'reporting'
-      ? Math.round((achieved / finalTarget) * 100)
-      : (keyResult.progress ?? plan.progress ?? 0);
+    const progress =
+      finalTarget > 0 && viewMode === 'reporting'
+        ? Math.round((achieved / finalTarget) * 100)
+        : (keyResult.progress ?? plan.progress ?? 0);
 
     return {
       target: finalTarget,
@@ -129,12 +140,28 @@ export default function KRSummaryBar({ plan, viewMode, keyResult }: KRSummaryBar
 
   return (
     <div className="flex flex-wrap items-center gap-8">
-      <StatPill label="metric" value={toSentenceCase(metricType)} variant="milestone" />
+      <StatPill
+        label="metric"
+        value={toSentenceCase(metricType)}
+        variant="milestone"
+      />
       {!isMilestone && (
-        <StatPill label="target" value={formatNumber(values.target)} variant="target" />
+        <StatPill
+          label="target"
+          value={formatNumber(values.target)}
+          variant="target"
+        />
       )}
-      <StatPill label="achieved" value={formatNumber(values.achieved)} variant="achieved" />
-      <StatPill label="krProgress" value={`${values.progress}%`} variant="progress" />
+      <StatPill
+        label="achieved"
+        value={formatNumber(values.achieved)}
+        variant="achieved"
+      />
+      <StatPill
+        label="krProgress"
+        value={`${values.progress}%`}
+        variant="progress"
+      />
     </div>
   );
 }

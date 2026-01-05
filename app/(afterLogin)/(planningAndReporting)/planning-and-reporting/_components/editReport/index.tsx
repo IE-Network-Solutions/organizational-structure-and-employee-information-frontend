@@ -215,7 +215,10 @@ function EditReport() {
             sm={showActualValue ? 8 : 14}
             md={showActualValue ? 10 : 16}
           >
-            <p className="text-gray-800 text-sm font-medium leading-relaxed m-0 truncate" title={task.taskName}>
+            <p
+              className="text-gray-800 text-sm font-medium leading-relaxed m-0 truncate"
+              title={task.taskName}
+            >
               {task.taskName}
             </p>
           </Col>
@@ -231,9 +234,7 @@ function EditReport() {
                 <Form.Item
                   name={[task.taskId, 'actualValue']}
                   className="mb-0"
-                  initialValue={
-                    Number(task?.actualValue) || 0
-                  }
+                  initialValue={Number(task?.actualValue) || 0}
                   rules={[
                     {
                       validator(nonused, value) {
@@ -362,9 +363,7 @@ function EditReport() {
             <Form.Item
               name={[task.taskId, 'customReason']}
               className="mb-0"
-              rules={[
-                { required: true, message: 'Please provide a reason!' },
-              ]}
+              rules={[{ required: true, message: 'Please provide a reason!' }]}
             >
               <TextArea
                 id={`edit-report-comment-textarea-${task.taskId}`}
@@ -404,43 +403,49 @@ function EditReport() {
             >
               <div id="edit-report-collapse" data-cy="edit-report-collapse">
                 <Collapse
-                  defaultActiveKey={formattedData?.flatMap((obj: any) => obj.keyResults?.map((nonused: any, i: number) => `kr-${obj.id || ''}-${i}`))}
+                  defaultActiveKey={formattedData?.flatMap((obj: any) =>
+                    obj.keyResults?.map(
+                      (nonused: any, i: number) => `kr-${obj.id || ''}-${i}`,
+                    ),
+                  )}
                   expandIconPosition="end"
                   bordered={false}
                   className="bg-transparent [&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-xl [&_.ant-collapse-item]:!border-t [&_.ant-collapse-item]:!border-b [&_.ant-collapse-item]:!border-l [&_.ant-collapse-item]:!border-r [&_.ant-collapse-item]:!border-gray-200 [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
                 >
                   {formattedData?.map((objective: any) =>
-                    objective?.keyResults?.map((keyresult: any, index: number) => (
-                      <Collapse.Panel
-                        id={`edit-report-panel-${objective.id || ''}-${index}`}
-                        data-cy={`edit-report-panel-${objective.id || ''}-${index}`}
-                        header={
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-gray-900 whitespace-nowrap">
-                              {planningPeriodName}-task :
-                            </span>
-                            <span className="text-gray-700 font-normal">
-                              {keyresult?.title}
-                            </span>
-                          </div>
-                        }
-                        key={`kr-${objective.id || ''}-${index}`}
-                      >
-                        <div className="py-2">
-                          {/* Milestone Tasks */}
-                          {keyresult?.milestones?.map((milestone: any) =>
-                            milestone?.tasks?.map((task: any) =>
-                              renderTaskRow(task, keyresult),
-                            ),
-                          )}
+                    objective?.keyResults?.map(
+                      (keyresult: any, index: number) => (
+                        <Collapse.Panel
+                          id={`edit-report-panel-${objective.id || ''}-${index}`}
+                          data-cy={`edit-report-panel-${objective.id || ''}-${index}`}
+                          header={
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-gray-900 whitespace-nowrap">
+                                {planningPeriodName}-task :
+                              </span>
+                              <span className="text-gray-700 font-normal">
+                                {keyresult?.title}
+                              </span>
+                            </div>
+                          }
+                          key={`kr-${objective.id || ''}-${index}`}
+                        >
+                          <div className="py-2">
+                            {/* Milestone Tasks */}
+                            {keyresult?.milestones?.map((milestone: any) =>
+                              milestone?.tasks?.map((task: any) =>
+                                renderTaskRow(task, keyresult),
+                              ),
+                            )}
 
-                          {/* Direct Tasks */}
-                          {keyresult?.tasks?.map((task: any) =>
-                            renderTaskRow(task, keyresult),
-                          )}
-                        </div>
-                      </Collapse.Panel>
-                    )),
+                            {/* Direct Tasks */}
+                            {keyresult?.tasks?.map((task: any) =>
+                              renderTaskRow(task, keyresult),
+                            )}
+                          </div>
+                        </Collapse.Panel>
+                      ),
+                    ),
                   )}
                 </Collapse>
               </div>

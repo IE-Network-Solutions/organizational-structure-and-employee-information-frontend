@@ -34,7 +34,7 @@ export default function CommentsSection({
     // Get unique users who commented
     const unique = comments.filter(
       (comment, index, self) =>
-        index === self.findIndex((c) => c.commentedBy === comment.commentedBy)
+        index === self.findIndex((c) => c.commentedBy === comment.commentedBy),
     );
 
     // Limit to 5
@@ -57,7 +57,8 @@ export default function CommentsSection({
     const firstName = user.firstName || '';
     const middleName = user.middleName || '';
     const lastName = user.lastName || '';
-    const initials = `${firstName.charAt(0)}${middleName.charAt(0)}`.toUpperCase() || 'UU';
+    const initials =
+      `${firstName.charAt(0)}${middleName.charAt(0)}`.toUpperCase() || 'UU';
 
     return {
       profileImage: user.profileImage,
@@ -105,7 +106,9 @@ export default function CommentsSection({
                     src={userDetail.profileImage || undefined}
                     size={48}
                     style={{
-                      backgroundColor: userDetail.profileImage ? undefined : '#E0E7FF',
+                      backgroundColor: userDetail.profileImage
+                        ? undefined
+                        : '#E0E7FF',
                       color: userDetail.profileImage ? undefined : '#4C1D95',
                       fontSize: '16px',
                       fontWeight: 600,
@@ -127,12 +130,13 @@ export default function CommentsSection({
             <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
               total point:{' '}
               <span
-                className={`font-medium ${formattedAchieved > 84
+                className={`font-medium ${
+                  formattedAchieved > 84
                     ? 'text-[#52C41A]'
                     : formattedAchieved >= 64
                       ? 'text-orange-500'
                       : 'text-red-500'
-                  }`}
+                }`}
               >
                 {formattedAchieved}%
               </span>
@@ -142,8 +146,12 @@ export default function CommentsSection({
             onClick={handleAddCommentClick}
             className="cursor-pointer text-xs md:text-sm font-bold transition-colors"
             style={{ color: '#2563EB' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#1D4ED8'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#2563EB'; }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#1D4ED8';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#2563EB';
+            }}
           >
             Add Comment
           </span>
@@ -175,4 +183,3 @@ export default function CommentsSection({
     </div>
   );
 }
-

@@ -68,7 +68,6 @@ function EditPlan() {
     planningPeriodId || '', // Provide a default string value if undefined
   );
 
-
   const handleAddName = (
     currentBoardValues: Record<string, string | number>,
     kId: string,
@@ -212,14 +211,12 @@ function EditPlan() {
             planningPeriodId: String(
               task.planningPeriodId || planningPeriodId || '',
             ),
-            planningUserId: String(
-              task.planningUserId || planningUserId || '',
-            ),
+            planningUserId: String(task.planningUserId || planningUserId || ''),
             // keyResultId is required.
             keyResultId: String(
               task.keyResultId ||
-              (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
-              '',
+                (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
+                '',
             ),
             // milestoneId and parentTaskId can be null but should be strings if they exist
             milestoneId: task.milestoneId ? String(task.milestoneId) : null,
