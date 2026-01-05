@@ -392,8 +392,16 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                     bodyStyle={{ padding: 0 }}
                     onClick={() => handleOpenDetails(candidate)}
                   >
-                    <div className="rounded-2xl bg-white p-5 transition-colors group-hover:bg-gray-50">
-                      <div className="flex items-start gap-4">
+                    <div
+                      id={`ai-candidate-card-${candidate.candidateId}-body`}
+                      data-cy={`ai-candidate-card-${candidate.candidateId}-body`}
+                      className="rounded-2xl bg-white p-5 transition-colors group-hover:bg-gray-50"
+                    >
+                      <div
+                        id={`ai-candidate-card-${candidate.candidateId}-inner`}
+                        data-cy={`ai-candidate-card-${candidate.candidateId}-inner`}
+                        className="flex items-start gap-4"
+                      >
                         {/* Avatar with initials */}
                         <div
                           id={`ai-candidate-avatar-${candidate.candidateId}`}
@@ -751,7 +759,10 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               data-cy="ai-candidate-detail-overall-match"
                               className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 mt-1"
                             >
-                              <span>
+                              <span
+                                id="ai-candidate-detail-overall-match-text"
+                                data-cy="ai-candidate-detail-overall-match-text"
+                              >
                                 {selectedCandidate.matchScore}% Overall Match
                               </span>
                             </div>
@@ -771,7 +782,12 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               : undefined
                           }
                           data-cy="ai-candidate-resume-button"
-                          icon={<DownloadOutlined />}
+                          icon={
+                            <DownloadOutlined
+                              id="ai-candidate-resume-button-icon"
+                              data-cy="ai-candidate-resume-button-icon"
+                            />
+                          }
                         >
                           Resume
                         </Button>
@@ -788,8 +804,18 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           data-cy="ai-candidate-detail-email"
                           className="flex items-center gap-2"
                         >
-                          <span className="text-gray-400">@</span>
-                          <span className="truncate">
+                          <span
+                            id="ai-candidate-detail-email-icon"
+                            data-cy="ai-candidate-detail-email-icon"
+                            className="text-gray-400"
+                          >
+                            @
+                          </span>
+                          <span
+                            id="ai-candidate-detail-email-value"
+                            data-cy="ai-candidate-detail-email-value"
+                            className="truncate"
+                          >
                             {selectedCandidate.candidate.email ||
                               'Email not provided'}
                           </span>
@@ -799,8 +825,17 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           data-cy="ai-candidate-detail-phone"
                           className="flex items-center gap-2"
                         >
-                          <span className="text-gray-400">📞</span>
-                          <span>
+                          <span
+                            id="ai-candidate-detail-phone-icon"
+                            data-cy="ai-candidate-detail-phone-icon"
+                            className="text-gray-400"
+                          >
+                            📞
+                          </span>
+                          <span
+                            id="ai-candidate-detail-phone-value"
+                            data-cy="ai-candidate-detail-phone-value"
+                          >
                             {selectedCandidate.candidate.phone ||
                               'Phone number not provided'}
                           </span>
@@ -921,8 +956,16 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                         id="ai-candidate-detail-experience"
                         data-cy="ai-candidate-detail-experience"
                       >
-                        <div className="border-t border-gray-200" />
-                        <div className="pt-4">
+                        <div
+                          id="ai-candidate-detail-experience-divider"
+                          data-cy="ai-candidate-detail-experience-divider"
+                          className="border-t border-gray-200"
+                        />
+                        <div
+                          id="ai-candidate-detail-experience-content-wrapper"
+                          data-cy="ai-candidate-detail-experience-content-wrapper"
+                          className="pt-4"
+                        >
                           <div
                             id="ai-candidate-detail-experience-header"
                             data-cy="ai-candidate-detail-experience-header"
@@ -964,6 +1007,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               0) === 0 && (
                               <p
                                 id="ai-candidate-detail-experience-empty"
+                                data-cy="ai-candidate-detail-experience-empty"
                                 className="text-xs text-gray-500"
                               >
                                 No experience information provided.
@@ -1006,15 +1050,21 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     data-cy={`ai-candidate-experience-item-${idx}`}
                                     className="flex items-start justify-between gap-2"
                                   >
-                                    <div className="flex-1">
+                                    <div
+                                      id={`ai-candidate-experience-content-${idx}`}
+                                      data-cy={`ai-candidate-experience-content-${idx}`}
+                                      className="flex-1"
+                                    >
                                       <p
                                         id={`ai-candidate-experience-role-${idx}`}
+                                        data-cy={`ai-candidate-experience-role-${idx}`}
                                         className="font-medium text-gray-900"
                                       >
                                         {exp.role || 'Role not specified'}
                                       </p>
                                       <p
                                         id={`ai-candidate-experience-company-${idx}`}
+                                        data-cy={`ai-candidate-experience-company-${idx}`}
                                         className="text-gray-600"
                                       >
                                         {exp.company || 'Company not specified'}
@@ -1022,6 +1072,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     </div>
                                     <span
                                       id={`ai-candidate-experience-dates-${idx}`}
+                                      data-cy={`ai-candidate-experience-dates-${idx}`}
                                       className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0"
                                     >
                                       {dateRange}
@@ -1039,8 +1090,16 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                         id="ai-candidate-detail-education"
                         data-cy="ai-candidate-detail-education"
                       >
-                        <div className="border-t border-gray-200" />
-                        <div className="pt-4">
+                        <div
+                          id="ai-candidate-detail-education-divider"
+                          data-cy="ai-candidate-detail-education-divider"
+                          className="border-t border-gray-200"
+                        />
+                        <div
+                          id="ai-candidate-detail-education-content-wrapper"
+                          data-cy="ai-candidate-detail-education-content-wrapper"
+                          className="pt-4"
+                        >
                           <div
                             id="ai-candidate-detail-education-header"
                             data-cy="ai-candidate-detail-education-header"
@@ -1082,6 +1141,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               0) === 0 && (
                               <p
                                 id="ai-candidate-detail-education-empty"
+                                data-cy="ai-candidate-detail-education-empty"
                                 className="text-xs text-gray-500"
                               >
                                 No education information provided.
@@ -1112,15 +1172,21 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     data-cy={`ai-candidate-education-item-${idx}`}
                                     className="flex items-start justify-between gap-2"
                                   >
-                                    <div className="flex-1">
+                                    <div
+                                      id={`ai-candidate-education-content-${idx}`}
+                                      data-cy={`ai-candidate-education-content-${idx}`}
+                                      className="flex-1"
+                                    >
                                       <p
                                         id={`ai-candidate-education-degree-${idx}`}
+                                        data-cy={`ai-candidate-education-degree-${idx}`}
                                         className="font-medium text-gray-900"
                                       >
                                         {edu.degree || 'Education'}
                                       </p>
                                       <p
                                         id={`ai-candidate-education-institution-${idx}`}
+                                        data-cy={`ai-candidate-education-institution-${idx}`}
                                         className="text-gray-600"
                                       >
                                         {edu.institution ||
@@ -1129,6 +1195,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                       {edu.cgpa && (
                                         <p
                                           id={`ai-candidate-education-cgpa-${idx}`}
+                                          data-cy={`ai-candidate-education-cgpa-${idx}`}
                                           className="text-xs text-gray-500 mt-1"
                                         >
                                           CGPA: {edu.cgpa}
@@ -1137,6 +1204,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     </div>
                                     <span
                                       id={`ai-candidate-education-years-${idx}`}
+                                      data-cy={`ai-candidate-education-years-${idx}`}
                                       className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0"
                                     >
                                       {yearRange}
@@ -1149,7 +1217,11 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="border-t border-gray-200" />
+                      <div
+                        id="ai-candidate-detail-skill-analysis-divider"
+                        data-cy="ai-candidate-detail-skill-analysis-divider"
+                        className="border-t border-gray-200"
+                      />
 
                       {/* Skill Analysis Section */}
                       <div
@@ -1197,12 +1269,20 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     key={`matched-skill-${idx}`}
                                     id={`ai-skill-matched-${idx}`}
                                     className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1"
-                                    data-cy="ai-skill-matched"
+                                    data-cy={`ai-skill-matched-${idx}`}
                                   >
-                                    <span className="text-green-600 text-xs">
+                                    <span
+                                      id={`ai-skill-matched-${idx}-icon`}
+                                      data-cy={`ai-skill-matched-${idx}-icon`}
+                                      className="text-green-600 text-xs"
+                                    >
                                       ✓
                                     </span>
-                                    <span className="text-gray-800 text-xs">
+                                    <span
+                                      id={`ai-skill-matched-${idx}-text`}
+                                      data-cy={`ai-skill-matched-${idx}-text`}
+                                      className="text-gray-800 text-xs"
+                                    >
                                       {skill}
                                     </span>
                                   </div>
@@ -1262,12 +1342,20 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     key={`missing-skill-${idx}`}
                                     id={`ai-skill-missing-${idx}`}
                                     className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1"
-                                    data-cy="ai-skill-missing"
+                                    data-cy={`ai-skill-missing-${idx}`}
                                   >
-                                    <span className="text-red-600 text-xs">
+                                    <span
+                                      id={`ai-skill-missing-${idx}-icon`}
+                                      data-cy={`ai-skill-missing-${idx}-icon`}
+                                      className="text-red-600 text-xs"
+                                    >
                                       !
                                     </span>
-                                    <span className="text-gray-800 text-xs">
+                                    <span
+                                      id={`ai-skill-missing-${idx}-text`}
+                                      data-cy={`ai-skill-missing-${idx}-text`}
+                                      className="text-gray-800 text-xs"
+                                    >
                                       {skill}
                                     </span>
                                   </div>
@@ -1328,10 +1416,18 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     key={`strength-${idx}`}
                                     id={`ai-strength-${idx}`}
                                     className="flex items-start gap-2"
-                                    data-cy="ai-strength"
+                                    data-cy={`ai-strength-${idx}`}
                                   >
-                                    <div className="mt-1 h-1.5 w-1.5 rounded-full bg-green-500" />
-                                    <p className="text-xs text-gray-800">
+                                    <div
+                                      id={`ai-strength-${idx}-dot`}
+                                      data-cy={`ai-strength-${idx}-dot`}
+                                      className="mt-1 h-1.5 w-1.5 rounded-full bg-green-500"
+                                    />
+                                    <p
+                                      id={`ai-strength-${idx}-text`}
+                                      data-cy={`ai-strength-${idx}-text`}
+                                      className="text-xs text-gray-800"
+                                    >
                                       {item}
                                     </p>
                                   </div>
@@ -1387,10 +1483,18 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     key={`concern-${idx}`}
                                     id={`ai-concern-${idx}`}
                                     className="flex items-start gap-2"
-                                    data-cy="ai-concern"
+                                    data-cy={`ai-concern-${idx}`}
                                   >
-                                    <div className="mt-1 h-1.5 w-1.5 rounded-full bg-red-500" />
-                                    <p className="text-xs text-gray-800">
+                                    <div
+                                      id={`ai-concern-${idx}-dot`}
+                                      data-cy={`ai-concern-${idx}-dot`}
+                                      className="mt-1 h-1.5 w-1.5 rounded-full bg-red-500"
+                                    />
+                                    <p
+                                      id={`ai-concern-${idx}-text`}
+                                      data-cy={`ai-concern-${idx}-text`}
+                                      className="text-xs text-gray-800"
+                                    >
                                       {item}
                                     </p>
                                   </div>
