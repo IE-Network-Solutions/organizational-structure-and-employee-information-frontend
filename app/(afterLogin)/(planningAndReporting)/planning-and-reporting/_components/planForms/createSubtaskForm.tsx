@@ -80,7 +80,8 @@ function SubTaskComponent({
                       {
                         required: true,
                         whitespace: true,
-                        message: 'Please input a task name or delete this field.',
+                        message:
+                          'Please input a task name or delete this field.',
                       },
                     ]}
                     key={`task-${subField.key}`}
@@ -111,7 +112,9 @@ function SubTaskComponent({
                   >
                     <Row align="middle" gutter={8} wrap={false}>
                       <Col flex="none">
-                        <div className="text-xs whitespace-nowrap">Priority</div>
+                        <div className="text-xs whitespace-nowrap">
+                          Priority
+                        </div>
                       </Col>
                       <Col flex="auto">
                         <Select
@@ -120,15 +123,25 @@ function SubTaskComponent({
                           className="w-full h-10 text-xs"
                           options={[
                             {
-                              label: <span className="text-error text-xs">High</span>,
+                              label: (
+                                <span className="text-error text-xs">High</span>
+                              ),
                               value: 'high',
                             },
                             {
-                              label: <span className="text-warning text-xs">Medium</span>,
+                              label: (
+                                <span className="text-warning text-xs">
+                                  Medium
+                                </span>
+                              ),
                               value: 'medium',
                             },
                             {
-                              label: <span className="text-success text-xs">Low</span>,
+                              label: (
+                                <span className="text-success text-xs">
+                                  Low
+                                </span>
+                              ),
                               value: 'low',
                             },
                           ]}
@@ -161,7 +174,12 @@ function SubTaskComponent({
                     </Row>
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={8} lg={2} className="flex items-center justify-end h-10">
+                <Col
+                  xs={24}
+                  sm={8}
+                  lg={2}
+                  className="flex items-center justify-end h-10"
+                >
                   <Form.Item
                     {...subField}
                     name={[subField.name, 'weight']}

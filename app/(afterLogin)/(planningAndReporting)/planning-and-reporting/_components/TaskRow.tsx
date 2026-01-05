@@ -10,7 +10,12 @@ interface TaskRowProps {
   metricType?: string;
 }
 
-export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowProps & { isLast?: boolean }) {
+export default function TaskRow({
+  task,
+  viewMode,
+  isLast,
+  metricType,
+}: TaskRowProps & { isLast?: boolean }) {
   // Format number to remove trailing zeros (e.g., 100.000 -> 100)
   const formatNumber = (value: number | string | undefined | null): string => {
     if (value === undefined || value === null) return '0';
@@ -43,7 +48,7 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
       if (task.status === 'completed' || (task as any).isAchieved) {
         return <CheckCircleOutlined className="text-[#0F9D58] text-base" />;
       }
-      if (task.status === 'failed' || ((task as any).isAchieved === false)) {
+      if (task.status === 'failed' || (task as any).isAchieved === false) {
         return <CloseCircleOutlined className="text-[#E11D48] text-base" />;
       }
       // Default or pending state for reporting?
@@ -63,12 +68,13 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
         <div className="absolute left-[7px] top-[1.1rem] bottom-0 w-[1px] bg-white z-20" />
       )}
 
-      <div className="mt-0.5 flex-shrink-0">
-        {getStatusIcon()}
-      </div>
+      <div className="mt-0.5 flex-shrink-0">{getStatusIcon()}</div>
 
       <div className="flex flex-1 flex-col md:flex-row items-start md:justify-between gap-x-4 gap-y-1 min-w-0">
-        <p className="text-[10px] md:text-sm font-medium leading-relaxed text-[#5A5C80] w-full md:max-w-[60%] truncate" title={getTaskName()}>
+        <p
+          className="text-[10px] md:text-sm font-medium leading-relaxed text-[#5A5C80] w-full md:max-w-[60%] truncate"
+          title={getTaskName()}
+        >
           {getTaskName()}
         </p>
 
@@ -79,33 +85,59 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
 
           <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
             <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
-              <span className="hidden md:inline" style={{ color: '#574CFF' }}>• </span>weight
+              <span className="hidden md:inline" style={{ color: '#574CFF' }}>
+                •{' '}
+              </span>
+              weight
             </span>
-            <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-bold" style={{ color: '#574CFF' }}>
+            <Tag
+              className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-bold"
+              style={{ color: '#574CFF' }}
+            >
               {formatNumber(task.weight)}
             </Tag>
           </div>
 
-          {viewMode === 'planning' && task.target !== undefined && task.target !== 0 && metricType !== 'Milestone' && (
-            <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-              <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
-                <span className="hidden md:inline" style={{ color: '#574CFF' }}>• </span>target
-              </span>
-              <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-bold" style={{ color: '#574CFF' }}>
-                {formatNumber(task.target)}
-              </Tag>
-            </div>
-          )}
+          {viewMode === 'planning' &&
+            task.target !== undefined &&
+            task.target !== 0 &&
+            metricType !== 'Milestone' && (
+              <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
+                <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
+                  <span
+                    className="hidden md:inline"
+                    style={{ color: '#574CFF' }}
+                  >
+                    •{' '}
+                  </span>
+                  target
+                </span>
+                <Tag
+                  className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-bold"
+                  style={{ color: '#574CFF' }}
+                >
+                  {formatNumber(task.target)}
+                </Tag>
+              </div>
+            )}
 
           {viewMode === 'reporting' && task.achieved !== undefined && (
             <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
               <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
-                <span className="hidden md:inline" style={{ color: '#574CFF' }}>• </span>achieved
+                <span className="hidden md:inline" style={{ color: '#574CFF' }}>
+                  •{' '}
+                </span>
+                achieved
               </span>
-              <Tag className={`m-0 rounded border-none px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-bold ${task.status === 'completed' ? 'bg-[#DCFCE7] text-[#166534]' :
-                task.status === 'failed' ? 'bg-[#FEE2E2] text-[#991B1B]' :
-                  'bg-[#FFEDD5] text-[#9A3412]'
-                }`}>
+              <Tag
+                className={`m-0 rounded border-none px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-bold ${
+                  task.status === 'completed'
+                    ? 'bg-[#DCFCE7] text-[#166534]'
+                    : task.status === 'failed'
+                      ? 'bg-[#FEE2E2] text-[#991B1B]'
+                      : 'bg-[#FFEDD5] text-[#9A3412]'
+                }`}
+              >
                 {formatNumber(task.achieved)}
               </Tag>
             </div>
@@ -115,4 +147,3 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
     </div>
   );
 }
-
