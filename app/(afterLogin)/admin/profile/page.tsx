@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import {
   Upload,
   Form,
@@ -454,9 +453,10 @@ const AdminProfile = () => {
             className="flex flex-col items-center justify-center gap-2"
           >
             {logoPreview ? (
-              <Image
+              <img
                 id="logo-preview"
                 data-cy="logo-preview"
+
                 src={logoPreview}
                 alt="Company Logo"
                 width={100}
@@ -464,7 +464,7 @@ const AdminProfile = () => {
                 className="mb-4 rounded-full object-cover"
               />
             ) : storeClientData?.logo && logoExists ? (
-              <Image
+              <img
                 src={`${storeClientData.logo}?v=${dataVersion}`}
                 alt="Company Logo"
                 width={100}
@@ -472,9 +472,10 @@ const AdminProfile = () => {
                 className="mb-4 rounded-full object-cover"
               />
             ) : (
-              <Image
+              <img
                 id="logo-placeholder"
                 data-cy="logo-placeholder"
+
                 src="/icons/gallery-add.svg"
                 alt="Upload"
                 width={40}
@@ -669,9 +670,10 @@ const AdminProfile = () => {
             className="flex flex-col items-center justify-center gap-2"
           >
             {stampPreview ? (
-              <Image
+              <img
                 id="stamp-preview"
                 data-cy="stamp-preview"
+
                 src={stampPreview}
                 alt="Company Stamp"
                 width={100}
@@ -679,7 +681,7 @@ const AdminProfile = () => {
                 className="mb-4 rounded-full object-cover"
               />
             ) : storeClientData?.stamp && stampExists ? (
-              <Image
+              <img
                 src={`${storeClientData.stamp}?v=${dataVersion}`}
                 alt="Company Stamp"
                 width={100}
@@ -687,9 +689,10 @@ const AdminProfile = () => {
                 className="mb-4 rounded-full object-cover"
               />
             ) : (
-              <Image
+              <img
                 id="stamp-placeholder"
                 data-cy="stamp-placeholder"
+
                 src="/icons/gallery-add.svg"
                 alt="Upload"
                 width={40}

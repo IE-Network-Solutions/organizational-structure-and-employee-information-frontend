@@ -22,11 +22,14 @@ import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
+import { useQueryClient } from 'react-query';
 
 const { TextArea } = Input;
 function CreateReport() {
+  const queryClient = useQueryClient();
   const {
     openReportModal,
+
     setOpenReportModal,
     activePlanPeriod,
     isEditing,
@@ -89,6 +92,11 @@ function CreateReport() {
 
         {
           onSuccess: () => {
+            queryClient.invalidateQueries('okrReports');
+            queryClient.invalidateQueries('okrPlans');
+            queryClient.invalidateQueries('okrUserPlans');
+            queryClient.invalidateQueries('okrPlannedData');
+            queryClient.invalidateQueries('planningPeriodsHierarchy');
             onClose();
           },
         },
@@ -268,8 +276,8 @@ function CreateReport() {
         </Button>
       </div>
 
-      <div className="flex-1 flex justify-end">
-        <div className="my-2 font-bold mx-6">
+      <div className="flex-1 flex justify-end pr-5">
+        <div className="my-2 font-bold">
           <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
             <span className="md:hidden">WP:</span>{' '}
             <span className="hidden md:inline">Weight Point:</span>{' '}

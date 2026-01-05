@@ -194,96 +194,6 @@ function DefaultCardForm({
                 </div>
                 <div className="mt-2" style={{ marginTop: '8px' }}>
                   <Row gutter={[12, 12]} align="bottom">
-                    {keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                      keyResult?.metricType?.name !== NAME.MILESTONE && (
-                        <Col flex="none">
-                          <Row align="middle" gutter={8} wrap={false}>
-                            <Col flex="none">
-                              <div className="text-xs flex items-center gap-1.5 text-gray-500">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
-                                Target
-                              </div>
-                            </Col>
-                            <Col flex="none" style={{ width: '80px' }}>
-                              <Form.Item
-                                hidden={hasTargetValue}
-                                {...field}
-                                name={[field.name, 'targetValue']}
-                                key={`${field.key}-targetValue`}
-                                noStyle
-                                rules={[
-                                  {
-                                    validator(nonused, value: any) {
-                                      // Allow empty/null values (optional field)
-                                      if (
-                                        value === null ||
-                                        value === undefined ||
-                                        value === ''
-                                      ) {
-                                        return Promise.resolve();
-                                      }
-
-                                      // Skip validation for Milestone and Achieve metric types
-                                      if (
-                                        keyResult?.metricType?.name ===
-                                          NAME.ACHIEVE ||
-                                        keyResult?.metricType?.name ===
-                                          NAME.MILESTONE
-                                      ) {
-                                        return Promise.resolve();
-                                      }
-
-                                      const numericValue = Number(value);
-                                      if (isNaN(numericValue)) {
-                                        return Promise.reject(
-                                          new Error(
-                                            'Please enter a valid number.',
-                                          ),
-                                        );
-                                      }
-
-                                      // Check if total exceeds key result's available target
-                                      if (
-                                        targetValue !== null &&
-                                        targetValue !== undefined
-                                      ) {
-                                        if (numericValue <= targetValue)
-                                          return Promise.resolve();
-                                      } else {
-                                        if (
-                                          sumTargetValue(name) <=
-                                          keyResult.targetValue -
-                                            keyResult.currentValue
-                                        ) {
-                                          return Promise.resolve();
-                                        }
-                                      }
-                                      return Promise.reject(
-                                        new Error('Target value exceeds limit'),
-                                      );
-                                    },
-                                  },
-                                ]}
-                              >
-                                <InputNumber
-                                  id={`default-form-target-input-${name}-${field.name}`}
-                                  data-cy={`default-form-target-input-${name}-${field.name}`}
-                                  min={0}
-                                  className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
-                                  defaultValue={0}
-                                  formatter={(value) =>
-                                    `${value}`.replace(
-                                      /\B(?=(\d{3})+(?!\d))/g,
-                                      ',',
-                                    )
-                                  }
-                                />
-                              </Form.Item>
-                            </Col>
-                          </Row>
-                        </Col>
-                      )}
-
                     <Col flex="none">
                       <Row align="middle" gutter={8} wrap={false}>
                         <Col flex="none">
@@ -433,6 +343,96 @@ function DefaultCardForm({
                         </Col>
                       </Row>
                     </Col>
+
+                    {keyResult?.metricType?.name !== NAME.ACHIEVE &&
+                      keyResult?.metricType?.name !== NAME.MILESTONE && (
+                        <Col flex="none">
+                          <Row align="middle" gutter={8} wrap={false}>
+                            <Col flex="none">
+                              <div className="text-xs flex items-center gap-1.5 text-gray-500">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                                Target
+                              </div>
+                            </Col>
+                            <Col flex="none" style={{ width: '130px' }}>
+                              <Form.Item
+                                hidden={hasTargetValue}
+                                {...field}
+                                name={[field.name, 'targetValue']}
+                                key={`${field.key}-targetValue`}
+                                noStyle
+                                rules={[
+                                  {
+                                    validator(nonused, value: any) {
+                                      // Allow empty/null values (optional field)
+                                      if (
+                                        value === null ||
+                                        value === undefined ||
+                                        value === ''
+                                      ) {
+                                        return Promise.resolve();
+                                      }
+
+                                      // Skip validation for Milestone and Achieve metric types
+                                      if (
+                                        keyResult?.metricType?.name ===
+                                          NAME.ACHIEVE ||
+                                        keyResult?.metricType?.name ===
+                                          NAME.MILESTONE
+                                      ) {
+                                        return Promise.resolve();
+                                      }
+
+                                      const numericValue = Number(value);
+                                      if (isNaN(numericValue)) {
+                                        return Promise.reject(
+                                          new Error(
+                                            'Please enter a valid number.',
+                                          ),
+                                        );
+                                      }
+
+                                      // Check if total exceeds key result's available target
+                                      if (
+                                        targetValue !== null &&
+                                        targetValue !== undefined
+                                      ) {
+                                        if (numericValue <= targetValue)
+                                          return Promise.resolve();
+                                      } else {
+                                        if (
+                                          sumTargetValue(name) <=
+                                          keyResult.targetValue -
+                                            keyResult.currentValue
+                                        ) {
+                                          return Promise.resolve();
+                                        }
+                                      }
+                                      return Promise.reject(
+                                        new Error('Target value exceeds limit'),
+                                      );
+                                    },
+                                  },
+                                ]}
+                              >
+                                <InputNumber
+                                  id={`default-form-target-input-${name}-${field.name}`}
+                                  data-cy={`default-form-target-input-${name}-${field.name}`}
+                                  min={0}
+                                  className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
+                                  defaultValue={0}
+                                  formatter={(value) =>
+                                    `${value}`.replace(
+                                      /\B(?=(\d{3})+(?!\d))/g,
+                                      ',',
+                                    )
+                                  }
+                                />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        </Col>
+                      )}
                   </Row>
                 </div>
 

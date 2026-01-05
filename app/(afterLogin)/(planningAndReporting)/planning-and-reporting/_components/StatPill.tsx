@@ -43,7 +43,7 @@ export default function StatPill({
         </span>
       )}
       <span
-        className="inline-flex items-center rounded-[6px] px-3 py-1 text-xs font-normal"
+        className="inline-flex items-center rounded-[6px] px-3 py-1 text-xs font-bold"
         style={{
           backgroundColor: styles.bg,
           color: styles.text,

@@ -110,6 +110,106 @@ function BoardCardForm({
               {/* <Divider className="mt-2 mb-2" /> */}
               <div className="mt-2 [&_.ant-form-item-explain-error]:text-[11px]">
                 <Row gutter={[12, 12]} align="top">
+                  <Col flex="none">
+                    <Row align="middle" gutter={8} wrap={false}>
+                      <Col flex="none">
+                        <div className="text-xs flex items-center gap-1">
+                          <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                          Priority
+                        </div>
+                      </Col>
+                      <Col flex="none" style={{ width: '120px' }}>
+                        <Form.Item
+                          {...restSubField}
+                          name={[subName, 'priority']}
+                          key={`${subName}-priority`}
+                          style={{ marginBottom: 0 }}
+                          rules={[
+                            { required: true, message: 'Priority is required' },
+                          ]}
+                        >
+                          <Select
+                            id={`board-form-priority-select-${name}-${subName}`}
+                            data-cy={`board-form-priority-select-${name}-${subName}`}
+                            placeholder={
+                              <div className="text-xs">Priority</div>
+                            }
+                            className="w-full h-10"
+                            options={[
+                              {
+                                label: (
+                                  <div className="text-error text-xs">High</div>
+                                ),
+                                value: 'high',
+                              },
+                              {
+                                label: (
+                                  <div className="text-warning text-xs">
+                                    Medium
+                                  </div>
+                                ),
+                                value: 'medium',
+                              },
+                              {
+                                label: (
+                                  <div className="text-success text-xs">
+                                    Low
+                                  </div>
+                                ),
+                                value: 'low',
+                              },
+                            ]}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </Col>
+
+                  <Col flex="none">
+                    <Row align="middle" gutter={8} wrap={false}>
+                      <Col flex="none">
+                        <div className="text-xs flex items-center gap-1">
+                          <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                          Weight
+                        </div>
+                      </Col>
+                      <Col flex="none" style={{ width: '80px' }}>
+                        <Form.Item
+                          {...restSubField}
+                          name={[subName, 'weight']}
+                          key={`${subName}-weight`}
+                          style={{ marginBottom: 0 }}
+                          rules={[
+                            { required: true, message: 'Weight is required' },
+                            {
+                              validator: (nonused, value) => {
+                                if (
+                                  value !== undefined &&
+                                  value !== null &&
+                                  value <= 0
+                                ) {
+                                  return Promise.reject(
+                                    new Error('Weight must be greater than 0'),
+                                  );
+                                }
+                                return Promise.resolve();
+                              },
+                            },
+                          ]}
+                        >
+                          <InputNumber
+                            id={`board-form-weight-input-${name}-${subName}`}
+                            data-cy={`board-form-weight-input-${name}-${subName}`}
+                            placeholder={'0'}
+                            className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
+                            min={1}
+                            max={100}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </Col>
+
                   {showTarget && (
                     <Col flex="none">
                       <Row align="middle" gutter={8} wrap={false}>
@@ -119,7 +219,7 @@ function BoardCardForm({
                             Target
                           </div>
                         </Col>
-                        <Col flex="none" style={{ width: '80px' }}>
+                        <Col flex="none" style={{ width: '130px' }}>
                           <Form.Item
                             hidden={hideTargetValue}
                             {...restSubField}
@@ -201,106 +301,6 @@ function BoardCardForm({
                       </Row>
                     </Col>
                   )}
-
-                  <Col flex="none">
-                    <Row align="middle" gutter={8} wrap={false}>
-                      <Col flex="none">
-                        <div className="text-xs flex items-center gap-1">
-                          <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
-                          Weight
-                        </div>
-                      </Col>
-                      <Col flex="none" style={{ width: '80px' }}>
-                        <Form.Item
-                          {...restSubField}
-                          name={[subName, 'weight']}
-                          key={`${subName}-weight`}
-                          style={{ marginBottom: 0 }}
-                          rules={[
-                            { required: true, message: 'Weight is required' },
-                            {
-                              validator: (nonused, value) => {
-                                if (
-                                  value !== undefined &&
-                                  value !== null &&
-                                  value <= 0
-                                ) {
-                                  return Promise.reject(
-                                    new Error('Weight must be greater than 0'),
-                                  );
-                                }
-                                return Promise.resolve();
-                              },
-                            },
-                          ]}
-                        >
-                          <InputNumber
-                            id={`board-form-weight-input-${name}-${subName}`}
-                            data-cy={`board-form-weight-input-${name}-${subName}`}
-                            placeholder={'0'}
-                            className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
-                            min={1}
-                            max={100}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Col>
-
-                  <Col flex="none">
-                    <Row align="middle" gutter={8} wrap={false}>
-                      <Col flex="none">
-                        <div className="text-xs flex items-center gap-1">
-                          <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
-                          Priority
-                        </div>
-                      </Col>
-                      <Col flex="none" style={{ width: '120px' }}>
-                        <Form.Item
-                          {...restSubField}
-                          name={[subName, 'priority']}
-                          key={`${subName}-priority`}
-                          style={{ marginBottom: 0 }}
-                          rules={[
-                            { required: true, message: 'Priority is required' },
-                          ]}
-                        >
-                          <Select
-                            id={`board-form-priority-select-${name}-${subName}`}
-                            data-cy={`board-form-priority-select-${name}-${subName}`}
-                            placeholder={
-                              <div className="text-xs">Priority</div>
-                            }
-                            className="w-full h-10"
-                            options={[
-                              {
-                                label: (
-                                  <div className="text-error text-xs">High</div>
-                                ),
-                                value: 'high',
-                              },
-                              {
-                                label: (
-                                  <div className="text-warning text-xs">
-                                    Medium
-                                  </div>
-                                ),
-                                value: 'medium',
-                              },
-                              {
-                                label: (
-                                  <div className="text-success text-xs">
-                                    Low
-                                  </div>
-                                ),
-                                value: 'low',
-                              },
-                            ]}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Col>
 
                   <Col flex="auto" className="text-right">
                     <Button

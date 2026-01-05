@@ -22,12 +22,15 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
 import { FaCheckSquare, FaRegSquare, FaWindowClose } from 'react-icons/fa';
+import { useQueryClient } from 'react-query';
 
 const { TextArea } = Input;
 
 function EditReport() {
+  const queryClient = useQueryClient();
   const {
     setOpenReportModal,
+
     activePlanPeriod,
     selectedReportId,
     setSelectedReportId,
@@ -73,6 +76,11 @@ function EditReport() {
         { values: values, selectedReportId },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries('okrReports');
+            queryClient.invalidateQueries('okrPlans');
+            queryClient.invalidateQueries('okrUserPlans');
+            queryClient.invalidateQueries('okrPlannedData');
+            queryClient.invalidateQueries('planningPeriodsHierarchy');
             onClose();
           },
         },
@@ -168,8 +176,8 @@ function EditReport() {
         </Button>
       </div>
 
-      <div className="flex-1 flex justify-end">
-        <div className="my-2 font-bold mx-6">
+      <div className="flex-1 flex justify-end pr-5">
+        <div className="my-2 font-bold">
           <span className="text-sm font-medium text-[#161A2C]">
             Total Point:{' '}
             <span

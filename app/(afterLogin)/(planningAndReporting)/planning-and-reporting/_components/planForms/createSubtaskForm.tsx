@@ -99,30 +99,6 @@ function SubTaskComponent({
                 <Col xs={12} sm={8} lg={5}>
                   <Form.Item
                     {...subField}
-                    name={[subField.name, 'targetValue']}
-                    key={`target-${subField.key}`}
-                    hidden={hasTargetValue}
-                    className="mb-0"
-                  >
-                    <Row align="middle" gutter={8} wrap={false}>
-                      <Col flex="none">
-                        <div className="text-xs whitespace-nowrap">Target</div>
-                      </Col>
-                      <Col flex="auto">
-                        <InputNumber
-                          id={`subtask-target-input-${field.name}-${subField.name}`}
-                          data-cy={`subtask-target-input-${field.name}-${subField.name}`}
-                          className="w-full text-xs h-10 [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:flex [&_.ant-input-number-input]:items-center"
-                          placeholder="20"
-                          min={0}
-                        />
-                      </Col>
-                    </Row>
-                  </Form.Item>
-                </Col>
-                <Col xs={12} sm={8} lg={5}>
-                  <Form.Item
-                    {...subField}
                     name={[subField.name, 'priority']}
                     validateTrigger={['onChange', 'onBlur']}
                     rules={[
@@ -169,6 +145,30 @@ function SubTaskComponent({
                               value: 'low',
                             },
                           ]}
+                        />
+                      </Col>
+                    </Row>
+                  </Form.Item>
+                </Col>
+                <Col xs={12} sm={8} lg={5}>
+                  <Form.Item
+                    {...subField}
+                    name={[subField.name, 'targetValue']}
+                    key={`target-${subField.key}`}
+                    hidden={hasTargetValue}
+                    className="mb-0"
+                  >
+                    <Row align="middle" gutter={8} wrap={false}>
+                      <Col flex="none">
+                        <div className="text-xs whitespace-nowrap">Target</div>
+                      </Col>
+                      <Col flex="auto">
+                        <InputNumber
+                          id={`subtask-target-input-${field.name}-${subField.name}`}
+                          data-cy={`subtask-target-input-${field.name}-${subField.name}`}
+                          className="w-full text-xs h-10 [&_.ant-input-number-input]:h-full [&_.ant-input-number-input]:flex [&_.ant-input-number-input]:items-center"
+                          placeholder="20"
+                          min={0}
                         />
                       </Col>
                     </Row>

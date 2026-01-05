@@ -402,12 +402,12 @@ export default function AddDailyPlanDrawer({
           return (
             <div
               key={group.id}
-              className="rounded-2xl border border-[#F1F2F6] bg-white p-6 shadow-sm"
+              className="rounded-2xl border border-[#F1F2F6] bg-white p-6"
             >
               <div
                 id={`daily-plan-collapse-header-${group.id}`}
                 data-cy={`daily-plan-collapse-header-${group.id}`}
-                className="mb-4 flex items-center justify-between cursor-pointer"
+                className={`${group.collapsed ? 'mb-0' : 'mb-4'} flex items-center justify-between cursor-pointer`}
                 onClick={() => togglePlanningGroupCollapse(group.id)}
               >
                 <div>
@@ -672,12 +672,12 @@ export default function AddDailyPlanDrawer({
       {reportingTasks.map((group) => (
         <div
           key={group.id}
-          className="rounded-2xl border border-[#F1F2F6] bg-white p-6 shadow-sm"
+          className="rounded-2xl border border-[#F1F2F6] bg-white p-6"
         >
           <div
             id={`daily-report-collapse-header-${group.id}`}
             data-cy={`daily-report-collapse-header-${group.id}`}
-            className="mb-4 flex items-center justify-between cursor-pointer"
+            className={`${group.collapsed ? 'mb-0' : 'mb-4'} flex items-center justify-between cursor-pointer`}
             onClick={() => toggleReportingGroupCollapse(group.id)}
           >
             <div>

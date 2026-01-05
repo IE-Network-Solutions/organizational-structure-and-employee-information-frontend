@@ -297,7 +297,7 @@ const ApprovalWorkFlowSettingComponent = ({
         )}
 
         <Form.Item>
-          <Row className="flex justify-end gap-3">
+          <Row className="flex justify-center gap-3">
             <Button type="primary" htmlType="submit">
               Submit
             </Button>

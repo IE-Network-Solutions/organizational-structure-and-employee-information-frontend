@@ -13,6 +13,7 @@ interface CustomPaginationProps {
   onShowSizeChange: (size: number) => void;
   id?: string;
   'data-cy'?: string;
+  grayBackground?: boolean; // Only for planning and reporting page
 }
 
 const CustomPagination: React.FC<CustomPaginationProps> = ({
@@ -23,6 +24,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   onShowSizeChange,
   id,
   'data-cy': dataCy,
+  grayBackground = false,
 }) => {
   const handlePageChange = (page: number) => {
     onChange(page, pageSize);
@@ -164,7 +166,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className="flex justify-between items-center py-6 bg-gray-100"
+      className={`flex justify-between items-center py-6 ${grayBackground ? 'bg-gray-100' : ''}`}
     >
       <div className="flex items-center space-x-2">
         <button
