@@ -463,6 +463,10 @@ const Payroll = () => {
               a.type?.toLowerCase().includes('position'),
           )?.amount || 0;
 
+        // Calculate taxable income: subtract 600 only if Transport Allowance >= 600
+        const taxableIncomeDeduction = transportAllowance >= 600 ? 600 : 0;
+        const taxableIncome = item.grossSalary - taxableIncomeDeduction;
+
         const payrollRowData: any = {
           fullName,
           tinNumber,
@@ -484,7 +488,7 @@ const Payroll = () => {
           ),
           totalDeduction: formatAmount(item.totalDeductions || 0),
           totalIncentive: formatAmount(totalIncentive || 0),
-          taxableIncome: formatAmount(item.grossSalary - 600 || 0),
+          taxableIncome: formatAmount(taxableIncome || 0),
           netIncome: formatAmount(item.netPay || 0),
           positionAllowance: formatAmount(positionAllowance || 0),
         };
@@ -1015,8 +1019,18 @@ const Payroll = () => {
       dataIndex: 'taxableIncome',
       key: 'taxableIncome',
       minWidth: 150,
-      render: (notused: any, record: any) =>
-        Number(record.grossSalary - 600)?.toLocaleString(),
+      render: (notused: any, record: any) => {
+        const allowances = record.breakdown?.allowances || [];
+        const transportAllowance = allowances
+          ?.filter((item: any) => item.type === 'Transport Allowance')
+          ?.reduce((acc: any, item: any) => {
+            return acc + Number(item.amount);
+          }, 0);
+        // Subtract 600 only if Transport Allowance >= 600
+        const taxableIncomeDeduction = transportAllowance >= 600 ? 600 : 0;
+        const taxableIncome = record.grossSalary - taxableIncomeDeduction;
+        return Number(taxableIncome)?.toLocaleString();
+      },
     },
     {
       title: 'Net Income',
