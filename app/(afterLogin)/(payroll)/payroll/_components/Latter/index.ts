@@ -53,7 +53,11 @@ export const useGenerateBankLetter = () => {
   const { data: tenant } = useGetTenant();
   const { data: activeMonth } = useGetActiveMonth();
 
-  const generateBankLetter = async (amount: number) => {
+  const generateBankLetter = async (amount: number | string) => {
+    // Ensure amount is a valid number
+    const numericAmount =
+      typeof amount === 'number' ? amount : parseFloat(String(amount)) || 0;
+
     try {
       if (!tenant) {
         throw new Error(
@@ -82,7 +86,7 @@ export const useGenerateBankLetter = () => {
       // Create PDF document
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.width;
-      let y = 15; // Moved up from 20
+      let y = 15;
 
       // Get the logo data
       const logoUrl = tenant.logo || '';
@@ -98,7 +102,7 @@ export const useGenerateBankLetter = () => {
           await new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
               reject(new Error('Image loading timeout'));
-            }, 10000); // 10 second timeout
+            }, 10000);
 
             img.onload = () => {
               clearTimeout(timeout);
@@ -111,13 +115,11 @@ export const useGenerateBankLetter = () => {
             img.src = imageResult.data;
           });
 
-          // Calculate dimensions (max width similar to downloadJobInformation)
-          const maxWidth = 15; // Smaller logo for bank letter
+          const maxWidth = 15;
           const aspectRatio = img.width / img.height;
           const logoWidth = maxWidth;
           logoHeight = logoWidth / aspectRatio;
 
-          // Add logo to PDF (moved up)
           doc.addImage(
             imageResult.data,
             imageResult.format,
@@ -145,7 +147,7 @@ export const useGenerateBankLetter = () => {
 
       // Adjust Y position for "To:" section
       if (logoLoaded) {
-        y = Math.max(y + logoHeight + 8, 30); // Reduced spacing
+        y = Math.max(y + logoHeight + 8, 30);
       } else {
         y = 30;
       }
@@ -157,29 +159,29 @@ export const useGenerateBankLetter = () => {
       doc.text('To: Enat Bank', 15, y);
       y += 6;
 
-      // Branch address (removed region/country line)
+      // Branch address
       doc.text(`Mexico Derartu Tulu branch`, 15, y);
-      y += 10; // Increased spacing after branch name
+      y += 10;
 
       // Subject line (centered, blue)
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(54, 54, 240); // Blue color #3636F0
+      doc.setTextColor(54, 54, 240);
       const subjectText = `Subject: ${currentMonth} Salary Transfer Request`;
       const subjectWidth = doc.getTextWidth(subjectText);
-      const subjectX = (pageWidth - subjectWidth) / 2; // Centered
+      const subjectX = (pageWidth - subjectWidth) / 2;
       doc.text(subjectText, subjectX, y);
       y += 10;
 
       // Body paragraphs
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(68, 68, 68); // Grey color like downloadJobInformation
+      doc.setTextColor(68, 68, 68);
 
       // First paragraph
-      const paragraph1 = `We hereby authorize your branch to transfer ETB ${amount.toFixed(2)} for the month of ${currentMonth} for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch of Enat Bank.`;
+      const paragraph1 = `We hereby authorize your branch to transfer ETB ${numericAmount.toFixed(2)} for the month of ${currentMonth} for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch of Enat Bank.`;
 
-      const textWidth = 180; // Same as downloadJobInformation
+      const textWidth = 180;
       const lines1 = doc.splitTextToSize(paragraph1, textWidth);
       doc.text(lines1, 15, y);
       y += lines1.length * 6;
@@ -198,53 +200,50 @@ export const useGenerateBankLetter = () => {
       y += 10;
 
       // Signature line
-      doc.setDrawColor(203, 213, 224); // #CBD5E0
-      doc.setLineWidth(0.5); // Same as downloadJobInformation
+      doc.setDrawColor(203, 213, 224);
+      doc.setLineWidth(0.5);
       doc.line(15, y, pageWidth - 15, y);
       y += 10;
 
-      // Name field - text floats on top of line
+      // Name field
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(0, 0, 0); // Black color - same as "Sincerely"
-      const nameLabel = 'Name'; // Removed colon
-      const nameTextY = y - 2; // Text positioned 2mm above the line (small gap)
+      doc.setTextColor(0, 0, 0);
+      const nameLabel = 'Name';
+      const nameTextY = y - 2;
       doc.text(nameLabel, 15, nameTextY);
 
-      // Draw line for name (starts at same position as text, 100mm long)
-      const nameLineStartX = 15; // Same as text start position
-      const nameLineEndX = nameLineStartX + 100; // 100mm line length
-      const nameLineY = y; // Line at current y position
+      const nameLineStartX = 15;
+      const nameLineEndX = nameLineStartX + 100;
+      const nameLineY = y;
 
-      doc.setDrawColor(203, 213, 224); // #CBD5E0 - same as signature line
-      doc.setLineWidth(0.5); // Same as signature line
+      doc.setDrawColor(203, 213, 224);
+      doc.setLineWidth(0.5);
       doc.line(nameLineStartX, nameLineY, nameLineEndX, nameLineY);
       y += 8;
 
-      // Email field - text floats on top of line
+      // Email field
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(0, 0, 0); // Black color - same as "Sincerely"
-      const emailLabel = 'Email'; // Removed colon
-      const emailTextY = y - 2; // Text positioned 2mm above the line (small gap)
+      doc.setTextColor(0, 0, 0);
+      const emailLabel = 'Email';
+      const emailTextY = y - 2;
       doc.text(emailLabel, 15, emailTextY);
 
-      // Draw line for email (starts at same position as text, 100mm long)
-      const emailLineStartX = 15; // Same as text start position
-      const emailLineEndX = emailLineStartX + 100; // 100mm line length
-      const emailLineY = y; // Line at current y position
+      const emailLineStartX = 15;
+      const emailLineEndX = emailLineStartX + 100;
+      const emailLineY = y;
 
-      doc.setDrawColor(203, 213, 224); // #CBD5E0 - same as signature line
-      doc.setLineWidth(0.5); // Same as signature line
+      doc.setDrawColor(203, 213, 224);
+      doc.setLineWidth(0.5);
       doc.line(emailLineStartX, emailLineY, emailLineEndX, emailLineY);
 
-      // Save the PDF (sanitize filename)
+      // Save the PDF
       const sanitizedCompanyName = tenant.companyName
         .replace(/[^a-z0-9]/gi, '_')
         .toLowerCase();
       doc.save(`${sanitizedCompanyName}_bank_letter.pdf`);
     } catch (error) {
-      // Re-throw with more context
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error occurred';
       throw new Error(`Failed to generate bank letter: ${errorMessage}`);
