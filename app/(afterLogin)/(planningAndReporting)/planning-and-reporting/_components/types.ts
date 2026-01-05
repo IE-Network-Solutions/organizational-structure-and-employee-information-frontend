@@ -74,5 +74,3 @@ export interface PlanSummary {
   reprimandCount?: number;
   appreciationCount?: number;
 }
-
-

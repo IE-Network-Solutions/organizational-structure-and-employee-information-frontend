@@ -907,8 +907,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     if (!selectedKey) return;
 
     // Check if node has children - handle both undefined and empty arrays
-    const hasChildren = info.node.children && Array.isArray(info.node.children) && info.node.children.length > 0;
-    
+    const hasChildren =
+      info.node.children &&
+      Array.isArray(info.node.children) &&
+      info.node.children.length > 0;
+
     if (hasChildren) {
       setExpandedKeys((prev) =>
         prev.includes(selectedKey) ? [] : [selectedKey],

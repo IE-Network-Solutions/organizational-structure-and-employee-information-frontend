@@ -392,7 +392,6 @@ function CreatePlan() {
     }, 0);
   };
 
-
   const modalHeader = (
     <div
       className="flex items-center justify-center text-2xl font-bold text-[#161A2C] p-4 relative"

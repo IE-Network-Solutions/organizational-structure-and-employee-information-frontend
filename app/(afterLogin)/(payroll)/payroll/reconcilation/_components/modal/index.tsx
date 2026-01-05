@@ -136,7 +136,7 @@ const PayrollReconcilationModal = ({
       dataIndex: 'action',
       key: 'action',
       minWidth: 150,
-      render: (_: any, record: any) => (
+      render: (notused: any, record: any) => (
         <Button
           className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
           onClick={() => {

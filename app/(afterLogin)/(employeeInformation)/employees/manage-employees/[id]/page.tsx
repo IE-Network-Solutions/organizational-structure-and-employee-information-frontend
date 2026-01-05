@@ -40,7 +40,11 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
 
   const { setIsEmploymentFormVisible } = useOffboardingStore();
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
-  const { data: employeeData, refetch: refetchEmployee, isLoading } = useGetEmployee(id);
+  const {
+    data: employeeData,
+    refetch: refetchEmployee,
+    isLoading,
+  } = useGetEmployee(id);
 
   const { mutate: sendResignationID } = useResignedEmployee();
 
@@ -204,151 +208,164 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
               id="employee-detail-actions-card"
               data-cy="employee-detail-actions-card"
             >
-            <Tooltip
-              title={
-                <div className="text-sm text-black">
-                  <div className="space-y-1">
-                    {employeeData?.deletedAt === null && (
-                      resignationSubmittedDate === null ? (
-                        <div>• <strong>Initiate Resignation:</strong> starts removing the employee</div>
-                      ) : (
-                        <div>• <strong>End Employment:</strong> completes the employment termination after resignation</div>
-                      )
-                    )}
-                    {resignationSubmittedDate === null && (
-                      employeeData?.deletedAt === null ? (
-                        <div>• <strong>Deactivate Employee:</strong> revokes the employees access</div>
-                      ) : (
-                        <div>• <strong>ReActivate Employee:</strong> reactivates a previously deactivated employee account</div>
-                      )
-                    )}
+              <Tooltip
+                title={
+                  <div className="text-sm text-black">
+                    <div className="space-y-1">
+                      {employeeData?.deletedAt === null &&
+                        (resignationSubmittedDate === null ? (
+                          <div>
+                            • <strong>Initiate Resignation:</strong> starts
+                            removing the employee
+                          </div>
+                        ) : (
+                          <div>
+                            • <strong>End Employment:</strong> completes the
+                            employment termination after resignation
+                          </div>
+                        ))}
+                      {resignationSubmittedDate === null &&
+                        (employeeData?.deletedAt === null ? (
+                          <div>
+                            • <strong>Deactivate Employee:</strong> revokes the
+                            employees access
+                          </div>
+                        ) : (
+                          <div>
+                            • <strong>ReActivate Employee:</strong> reactivates
+                            a previously deactivated employee account
+                          </div>
+                        ))}
+                    </div>
                   </div>
-                </div>
-              }
-              placement="topRight"
-              trigger="hover"
-              overlayInnerStyle={{
-                backgroundColor: 'white',
-                color: 'black',
-                borderRadius: '8px',
-                padding: '12px',
-              }}
-              overlayStyle={{
-                borderRadius: '8px',
-              }}
-              arrow={false}
-              id="employee-detail-actions-info-tooltip"
-              data-cy="employee-detail-actions-info-tooltip"
-            >
-              <IoInformationCircleOutline
-                className="absolute top-1 right-6 cursor-pointer text-gray-500 hover:text-blue-500 transition-colors z-10"
-                size={18}
-                id="employee-detail-actions-info-icon"
-                data-cy="employee-detail-actions-info-icon"
-              />
-            </Tooltip>
-            <AccessGuard
-              permissions={[Permissions.EndEmployment]}
-              id="employee-detail-employment-actions-guard"
-              data-cy="employee-detail-employment-actions-guard"
-            >
-              <div
-                className="flex flex-col gap-3 w-full mb-3"
-                id="employee-detail-employment-actions"
-                data-cy="employee-detail-employment-actions"
+                }
+                placement="topRight"
+                trigger="hover"
+                overlayInnerStyle={{
+                  backgroundColor: 'white',
+                  color: 'black',
+                  borderRadius: '8px',
+                  padding: '12px',
+                }}
+                overlayStyle={{
+                  borderRadius: '8px',
+                }}
+                arrow={false}
+                id="employee-detail-actions-info-tooltip"
+                data-cy="employee-detail-actions-info-tooltip"
               >
-                {resignationSubmittedDate === null ? (
-                  (() => {
-                    const activeJob = employeeData?.employeeJobInformation?.find(
-                      (item: any) => item.isPositionActive,
-                    );
-                    return activeJob ? (
-                      <CustomConfirmPopover
-                        key={activeJob?.id}
-                        title="Are you sure you want to Initiate the resignation process?"
-                        onConfirm={() => handleConfirmResignation(activeJob?.id)}
-                        okText="Confirm"
-                        cancelText="Cancel"
-                        placement="top"
-                        id={`employee-detail-initiate-resignation-popconfirm-${activeJob?.id}`}
-                        data-cy={`employee-detail-initiate-resignation-popconfirm-${activeJob?.id}`}
-                      >
-                        <Button
-                          type="primary"
-                          danger
-                          className="bg-red-500 hover:bg-red-600 text-white w-full rounded-lg border-none h-9 font-semibold"
-                          htmlType="submit"
-                          value={'submit'}
-                          name="submit"
-                          disabled={offboardingTermination?.isActive}
-                          id={`employee-detail-initiate-resignation-btn-${activeJob?.id}`}
-                          data-cy={`employee-detail-initiate-resignation-btn-${activeJob?.id}`}
-                        >
-                          Initiate Resignation
-                        </Button>
-                      </CustomConfirmPopover>
-                    ) : null;
-                  })()
-                ) : (
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    className="bg-red-500 hover:bg-red-600 text-white w-full rounded-lg border-none h-9 font-semibold"
-                    onClick={handleEndEmploymentClick}
-                    value={'submit'}
-                    name="submit"
-                    disabled={offboardingTermination?.isActive}
-                    id="employee-detail-end-employment-btn"
-                    data-cy="employee-detail-end-employment-btn"
-                  >
-                    End Employment
-                  </Button>
-                )}
-              </div>
-            </AccessGuard>
-            {resignationSubmittedDate === null && (
+                <IoInformationCircleOutline
+                  className="absolute top-1 right-6 cursor-pointer text-gray-500 hover:text-blue-500 transition-colors z-10"
+                  size={18}
+                  id="employee-detail-actions-info-icon"
+                  data-cy="employee-detail-actions-info-icon"
+                />
+              </Tooltip>
               <AccessGuard
-                permissions={[Permissions.DeleteEmployee]}
-                id="employee-detail-activate-deactivate-guard"
-                data-cy="employee-detail-activate-deactivate-guard"
+                permissions={[Permissions.EndEmployment]}
+                id="employee-detail-employment-actions-guard"
+                data-cy="employee-detail-employment-actions-guard"
               >
                 <div
-                  className="flex flex-col gap-3 w-full"
-                  id="employee-detail-activate-deactivate-actions"
-                  data-cy="employee-detail-activate-deactivate-actions"
+                  className="flex flex-col gap-3 w-full mb-3"
+                  id="employee-detail-employment-actions"
+                  data-cy="employee-detail-employment-actions"
                 >
-                  {employeeData?.deletedAt === null ? (
-                    <CustomConfirmPopover
-                      title="Are you sure you want to Deactivate Employee ?"
-                      onConfirm={handleDeleteConfirm}
-                      okText="Confirm"
-                      cancelText="Cancel"
-                      placement="top"
-                      id="employee-detail-deactivate-popconfirm"
-                      data-cy="employee-detail-deactivate-popconfirm"
-                    >
-                      <Button
-                        id="employee-detail-deactivate-btn"
-                        data-cy="employee-detail-deactivate-btn"
-                        className="bg-white text-red-600 border border-red-600 hover:bg-white hover:text-red-600 hover:border-red-600 w-full rounded-lg h-9 font-semibold"
-                      >
-                        Deactivate Employee
-                      </Button>
-                    </CustomConfirmPopover>
+                  {resignationSubmittedDate === null ? (
+                    (() => {
+                      const activeJob =
+                        employeeData?.employeeJobInformation?.find(
+                          (item: any) => item.isPositionActive,
+                        );
+                      return activeJob ? (
+                        <CustomConfirmPopover
+                          key={activeJob?.id}
+                          title="Are you sure you want to Initiate the resignation process?"
+                          onConfirm={() =>
+                            handleConfirmResignation(activeJob?.id)
+                          }
+                          okText="Confirm"
+                          cancelText="Cancel"
+                          placement="top"
+                          id={`employee-detail-initiate-resignation-popconfirm-${activeJob?.id}`}
+                          data-cy={`employee-detail-initiate-resignation-popconfirm-${activeJob?.id}`}
+                        >
+                          <Button
+                            type="primary"
+                            danger
+                            className="bg-red-500 hover:bg-red-600 text-white w-full rounded-lg border-none h-9 font-semibold"
+                            htmlType="submit"
+                            value={'submit'}
+                            name="submit"
+                            disabled={offboardingTermination?.isActive}
+                            id={`employee-detail-initiate-resignation-btn-${activeJob?.id}`}
+                            data-cy={`employee-detail-initiate-resignation-btn-${activeJob?.id}`}
+                          >
+                            Initiate Resignation
+                          </Button>
+                        </CustomConfirmPopover>
+                      ) : null;
+                    })()
                   ) : (
                     <Button
-                      id="employee-detail-activate-btn"
-                      data-cy="employee-detail-activate-btn"
-                      className="bg-white text-black border border-black hover:bg-white hover:text-black hover:border-black w-full rounded-lg h-9 font-semibold"
-                      onClick={handleRehireClick}
+                      type="primary"
+                      htmlType="submit"
+                      className="bg-red-500 hover:bg-red-600 text-white w-full rounded-lg border-none h-9 font-semibold"
+                      onClick={handleEndEmploymentClick}
+                      value={'submit'}
+                      name="submit"
+                      disabled={offboardingTermination?.isActive}
+                      id="employee-detail-end-employment-btn"
+                      data-cy="employee-detail-end-employment-btn"
                     >
-                      ReActivate Employee
+                      End Employment
                     </Button>
                   )}
                 </div>
               </AccessGuard>
-            )}
-          </Card>
+              {resignationSubmittedDate === null && (
+                <AccessGuard
+                  permissions={[Permissions.DeleteEmployee]}
+                  id="employee-detail-activate-deactivate-guard"
+                  data-cy="employee-detail-activate-deactivate-guard"
+                >
+                  <div
+                    className="flex flex-col gap-3 w-full"
+                    id="employee-detail-activate-deactivate-actions"
+                    data-cy="employee-detail-activate-deactivate-actions"
+                  >
+                    {employeeData?.deletedAt === null ? (
+                      <CustomConfirmPopover
+                        title="Are you sure you want to Deactivate Employee ?"
+                        onConfirm={handleDeleteConfirm}
+                        okText="Confirm"
+                        cancelText="Cancel"
+                        placement="top"
+                        id="employee-detail-deactivate-popconfirm"
+                        data-cy="employee-detail-deactivate-popconfirm"
+                      >
+                        <Button
+                          id="employee-detail-deactivate-btn"
+                          data-cy="employee-detail-deactivate-btn"
+                          className="bg-white text-red-600 border border-red-600 hover:bg-white hover:text-red-600 hover:border-red-600 w-full rounded-lg h-9 font-semibold"
+                        >
+                          Deactivate Employee
+                        </Button>
+                      </CustomConfirmPopover>
+                    ) : (
+                      <Button
+                        id="employee-detail-activate-btn"
+                        data-cy="employee-detail-activate-btn"
+                        className="bg-white text-black border border-black hover:bg-white hover:text-black hover:border-black w-full rounded-lg h-9 font-semibold"
+                        onClick={handleRehireClick}
+                      >
+                        ReActivate Employee
+                      </Button>
+                    )}
+                  </div>
+                </AccessGuard>
+              )}
+            </Card>
           )}
         </Col>
         <Col

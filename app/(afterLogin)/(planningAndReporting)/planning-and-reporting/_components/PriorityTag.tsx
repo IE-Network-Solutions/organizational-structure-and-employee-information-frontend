@@ -15,7 +15,7 @@ const priorityPalette: Record<Priority, { bg: string; text: string }> = {
 
 export default function PriorityTag({ priority }: PriorityTagProps) {
   // Fallback to 'Low' if priority is undefined or not in the palette
-  const safePriority = (priority && priorityPalette[priority]) ? priority : 'Low';
+  const safePriority = priority && priorityPalette[priority] ? priority : 'Low';
   const colors = priorityPalette[safePriority];
 
   return (
@@ -30,5 +30,3 @@ export default function PriorityTag({ priority }: PriorityTagProps) {
     </Tag>
   );
 }
-
-

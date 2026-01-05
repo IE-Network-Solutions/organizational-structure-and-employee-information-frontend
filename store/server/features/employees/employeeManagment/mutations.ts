@@ -80,7 +80,8 @@ const updateEmployee = async (values: any) => {
 const deleteEmployee = async (employeeId?: string) => {
   const token = await getCurrentToken();
   // Support both new parameter-based approach and legacy store-based approach
-  const deletedItem = employeeId || useEmployeeManagementStore.getState().deletedItem;
+  const deletedItem =
+    employeeId || useEmployeeManagementStore.getState().deletedItem;
   const setDeleteModal = useEmployeeManagementStore.getState().setDeleteModal;
   const setDeletedItem = useEmployeeManagementStore.getState().setDeletedItem;
   const pageSize = useEmployeeManagementStore.getState().pageSize;
@@ -152,7 +153,7 @@ export const useDeleteEmployee = () => {
   const queryClient = useQueryClient();
   const setDeleteModal = useEmployeeManagementStore.getState().setDeleteModal;
   const setDeletedItem = useEmployeeManagementStore.getState().setDeletedItem;
-  
+
   return useMutation(deleteEmployee, {
     onSuccess: () => {
       queryClient.invalidateQueries('employees');

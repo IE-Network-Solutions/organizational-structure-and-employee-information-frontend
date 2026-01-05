@@ -51,7 +51,13 @@ export default function PlanCard({
           onClick={onApprove}
           className="text-green-500"
         >
-          <Tooltip title={isApprovalLoading ? 'Processing approval...' : "Approve Plan! Once you approve, you can't edit"}>
+          <Tooltip
+            title={
+              isApprovalLoading
+                ? 'Processing approval...'
+                : "Approve Plan! Once you approve, you can't edit"
+            }
+          >
             Approve
           </Tooltip>
         </Menu.Item>
@@ -73,11 +79,11 @@ export default function PlanCard({
   // Edit menu (for plan owner)
   const editMenu = (
     <Menu>
-      <Menu.Item 
-        key="edit" 
+      <Menu.Item
+        key="edit"
         id={`plan-card-edit-menu-item-${plan.id}`}
         data-cy={`plan-card-edit-menu-item-${plan.id}`}
-        icon={<AiOutlineEdit size={16} />} 
+        icon={<AiOutlineEdit size={16} />}
         onClick={onEdit}
       >
         <Tooltip title="Edit Plan">
@@ -93,7 +99,8 @@ export default function PlanCard({
     const planDate = dayjs(plan.createdAt);
     const today = dayjs();
     const yesterday = dayjs().subtract(1, 'day');
-    const cadenceType = activeCadence.charAt(0).toUpperCase() + activeCadence.slice(1);
+    const cadenceType =
+      activeCadence.charAt(0).toUpperCase() + activeCadence.slice(1);
     const type = viewMode === 'planning' ? 'Plan' : 'Report';
 
     if (planDate.isSame(today, 'day')) {
@@ -113,8 +120,11 @@ export default function PlanCard({
 
     // Helper to sum task weights
     const sumTasks = (tasks: any[]) => {
-      tasks.forEach(task => {
-        const isCompleted = task.status === 'completed' || task.status === 'Done' || task.isAchieved === true;
+      tasks.forEach((task) => {
+        const isCompleted =
+          task.status === 'completed' ||
+          task.status === 'Done' ||
+          task.isAchieved === true;
         if (isCompleted) {
           total += Number(task.weight) || 0;
         }
@@ -122,7 +132,7 @@ export default function PlanCard({
     };
 
     if (plan.keyResults && plan.keyResults.length > 0) {
-      plan.keyResults.forEach(kr => {
+      plan.keyResults.forEach((kr) => {
         // Collect all tasks for this KR
         const tasks: any[] = [];
         if (kr.tasks) tasks.push(...kr.tasks);
@@ -150,7 +160,9 @@ export default function PlanCard({
     <article className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4">
       {/* Header with Title and Reprimand/Appreciation Badges */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xs md:text-base font-bold text-[#8F94A3]">{getDateLabel()}</h3>
+        <h3 className="text-xs md:text-base font-bold text-[#8F94A3]">
+          {getDateLabel()}
+        </h3>
         <div className="flex items-center gap-2">
           {plan.reprimandCount && plan.reprimandCount > 0 ? (
             <div className="flex items-center gap-1.5 rounded-lg bg-[#EF4444] px-3 py-1 text-white shadow-sm">
@@ -160,7 +172,9 @@ export default function PlanCard({
           ) : null}
           {plan.appreciationCount && plan.appreciationCount > 0 ? (
             <div className="flex items-center gap-1.5 rounded-lg bg-[#10B981] px-3 py-1 text-white shadow-sm">
-              <span className="font-bold text-sm">{plan.appreciationCount}</span>
+              <span className="font-bold text-sm">
+                {plan.appreciationCount}
+              </span>
               <FaRegThumbsUp className="text-sm" />
             </div>
           ) : null}
@@ -168,7 +182,10 @@ export default function PlanCard({
       </div>
 
       <div className="flex flex-nowrap items-center justify-between gap-2 md:gap-4 mb-4 px-1 min-w-0">
-        <UserInfo owner={plan.owner} notificationCount={plan.notificationCount} />
+        <UserInfo
+          owner={plan.owner}
+          notificationCount={plan.notificationCount}
+        />
         <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
           {plan.status && <StatusBadge status={plan.status} />}
           {canApprove && (
@@ -202,17 +219,24 @@ export default function PlanCard({
       {/* Display Key Results - each in its own separate container */}
       {plan.keyResults && plan.keyResults.length > 0 ? (
         plan.keyResults.map((keyResult, krIndex) => (
-          <div key={keyResult.id} className={krIndex > 0 ? "mt-4" : ""}>
+          <div key={keyResult.id} className={krIndex > 0 ? 'mt-4' : ''}>
             <div className="rounded-xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-6">
               <div className="pl-0 md:pl-2">
                 {/* Key Result Summary Bar */}
                 <div className="mb-4 hidden md:block">
-                  <KRSummaryBar plan={plan} viewMode={viewMode} keyResult={keyResult} />
+                  <KRSummaryBar
+                    plan={plan}
+                    viewMode={viewMode}
+                    keyResult={keyResult}
+                  />
                 </div>
 
                 {/* Key Result Header */}
                 <div className="flex items-start gap-3 mb-4 ">
-                  <BsKey size={24} className="text-[#574CFF] flex-shrink-0 mt-0.5" />
+                  <BsKey
+                    size={24}
+                    className="text-[#574CFF] flex-shrink-0 mt-0.5"
+                  />
                   <p className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2">
                     {keyResult.title || keyResult.name || plan.summary}
                   </p>
@@ -222,22 +246,25 @@ export default function PlanCard({
                 {keyResult.tasks && keyResult.tasks.length > 0 && (
                   <div className="relative mb-4">
                     {/* Show grouping header for non-milestone metrics */}
-                    {keyResult.metricType?.name && keyResult.metricType.name !== 'Milestone' && (
-                      <>
-                        <div className="flex items-center gap-3 mb-1 relative z-10">
-                          <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                    {keyResult.metricType?.name &&
+                      keyResult.metricType.name !== 'Milestone' && (
+                        <>
+                          <div className="flex items-center gap-3 mb-1 relative z-10">
+                            <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                            </div>
+                            <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                              {keyResult.title || keyResult.name}
+                            </p>
                           </div>
-                          <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
-                            {keyResult.title || keyResult.name}
-                          </p>
-                        </div>
-                        {/* Vertical line */}
-                        <div className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]" />
-                      </>
-                    )}
+                          {/* Vertical line */}
+                          <div className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]" />
+                        </>
+                      )}
 
-                    <div className={`flex flex-col gap-0 ${keyResult.metricType?.name && keyResult.metricType.name !== 'Milestone' ? 'pt-1' : ''}`}>
+                    <div
+                      className={`flex flex-col gap-0 ${keyResult.metricType?.name && keyResult.metricType.name !== 'Milestone' ? 'pt-1' : ''}`}
+                    >
                       {keyResult.tasks.map((task, index) => (
                         <TaskRow
                           key={task.id}
@@ -252,105 +279,40 @@ export default function PlanCard({
                 )}
 
                 {/* Parent Tasks (grouped tasks under key result) */}
-                {keyResult.parentTask && keyResult.parentTask.map((parentTask: any) => {
-                  const parentTaskName = parentTask.task || parentTask.title || parentTask.name;
-                  const krTitle = keyResult.title || keyResult.name;
-                  const isRedundant = parentTaskName === krTitle;
+                {keyResult.parentTask &&
+                  keyResult.parentTask.map((parentTask: any) => {
+                    const parentTaskName =
+                      parentTask.task || parentTask.title || parentTask.name;
+                    const krTitle = keyResult.title || keyResult.name;
+                    const isRedundant = parentTaskName === krTitle;
 
-                  return (
-                    <div key={parentTask.id} className="relative mb-4">
-                      {/* Parent Task Header - skip if same as KR title */}
-                      {!isRedundant && (
-                        <div className="flex items-center gap-3 mb-1 relative z-10">
-                          <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
-                          </div>
-                          <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
-                            {parentTaskName}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Vertical line connecting Parent Task to Sub-tasks */}
-                      {parentTask.tasks && parentTask.tasks.length > 0 && (
-                        <div className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`} />
-                      )}
-
-                      {/* Sub-tasks under Parent Task */}
-                      <div className={`flex flex-col gap-0 ${isRedundant ? 'pt-0' : 'pt-1'}`}>
-                        {parentTask.tasks && parentTask.tasks.map((task: any, index: number) => (
-                          <TaskRow
-                            key={task.id}
-                            task={task}
-                            viewMode={viewMode}
-                            isLast={index === parentTask.tasks.length - 1}
-                            metricType={keyResult.metricType?.name}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Milestones */}
-                {keyResult.milestones && keyResult.milestones.map((milestone) => (
-                  <div key={milestone.id} className="relative mb-4">
-                    {/* Milestone Header */}
-                    <div className="flex items-center gap-3 mb-1 relative z-10">
-                      <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
-                      </div>
-                      <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
-                        {milestone.title || milestone.name}
-                      </p>
-                    </div>
-
-                    {/* Vertical line connecting Milestone to Tasks/ParentTasks */}
-                    {((milestone.tasks && milestone.tasks.length > 0) || (milestone.parentTask && milestone.parentTask.length > 0)) && (
-                      <div className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]" />
-                    )}
-
-                    {/* Milestone Tasks */}
-                    <div className="flex flex-col gap-0 pt-1">
-                      {milestone.tasks && milestone.tasks.map((task: any, index: number) => (
-                        <TaskRow
-                          key={task.id}
-                          task={task}
-                          viewMode={viewMode}
-                          isLast={index === milestone.tasks.length - 1}
-                          metricType={keyResult.metricType?.name}
-                        />
-                      ))}
-                    </div>
-
-                    {/* Parent Tasks within Milestone */}
-                    {milestone.parentTask && milestone.parentTask.map((parentTask: any) => {
-                      const parentTaskName = parentTask.task || parentTask.title || parentTask.name;
-                      const milestoneName = milestone.title || milestone.name;
-                      const isRedundant = parentTaskName === milestoneName;
-
-                      return (
-                        <div key={parentTask.id} className={`relative ${isRedundant ? 'mt-0' : 'mt-4'}`}>
-                          {/* Parent Task Header - skip if name matches milestone title */}
-                          {!isRedundant && (
-                            <div className="flex items-center gap-3 mb-1 relative z-10">
-                              <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
-                              </div>
-                              <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
-                                {parentTaskName}
-                              </p>
+                    return (
+                      <div key={parentTask.id} className="relative mb-4">
+                        {/* Parent Task Header - skip if same as KR title */}
+                        {!isRedundant && (
+                          <div className="flex items-center gap-3 mb-1 relative z-10">
+                            <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
                             </div>
-                          )}
+                            <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                              {parentTaskName}
+                            </p>
+                          </div>
+                        )}
 
-                          {/* Vertical line connecting Parent Task to Sub-tasks */}
-                          {parentTask.tasks && parentTask.tasks.length > 0 && (
-                            <div className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`} />
-                          )}
+                        {/* Vertical line connecting Parent Task to Sub-tasks */}
+                        {parentTask.tasks && parentTask.tasks.length > 0 && (
+                          <div
+                            className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`}
+                          />
+                        )}
 
-                          {/* Sub-tasks under Parent Task */}
-                          <div className={`flex flex-col gap-0 ${isRedundant ? 'pt-0' : 'pt-1'}`}>
-                            {parentTask.tasks && parentTask.tasks.map((task: any, index: number) => (
+                        {/* Sub-tasks under Parent Task */}
+                        <div
+                          className={`flex flex-col gap-0 ${isRedundant ? 'pt-0' : 'pt-1'}`}
+                        >
+                          {parentTask.tasks &&
+                            parentTask.tasks.map((task: any, index: number) => (
                               <TaskRow
                                 key={task.id}
                                 task={task}
@@ -359,12 +321,106 @@ export default function PlanCard({
                                 metricType={keyResult.metricType?.name}
                               />
                             ))}
-                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                ))}
+                      </div>
+                    );
+                  })}
+
+                {/* Milestones */}
+                {keyResult.milestones &&
+                  keyResult.milestones.map((milestone) => (
+                    <div key={milestone.id} className="relative mb-4">
+                      {/* Milestone Header */}
+                      <div className="flex items-center gap-3 mb-1 relative z-10">
+                        <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                        </div>
+                        <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                          {milestone.title || milestone.name}
+                        </p>
+                      </div>
+
+                      {/* Vertical line connecting Milestone to Tasks/ParentTasks */}
+                      {((milestone.tasks && milestone.tasks.length > 0) ||
+                        (milestone.parentTask &&
+                          milestone.parentTask.length > 0)) && (
+                        <div className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]" />
+                      )}
+
+                      {/* Milestone Tasks */}
+                      <div className="flex flex-col gap-0 pt-1">
+                        {milestone.tasks &&
+                          milestone.tasks.map((task: any, index: number) => (
+                            <TaskRow
+                              key={task.id}
+                              task={task}
+                              viewMode={viewMode}
+                              isLast={index === milestone.tasks.length - 1}
+                              metricType={keyResult.metricType?.name}
+                            />
+                          ))}
+                      </div>
+
+                      {/* Parent Tasks within Milestone */}
+                      {milestone.parentTask &&
+                        milestone.parentTask.map((parentTask: any) => {
+                          const parentTaskName =
+                            parentTask.task ||
+                            parentTask.title ||
+                            parentTask.name;
+                          const milestoneName =
+                            milestone.title || milestone.name;
+                          const isRedundant = parentTaskName === milestoneName;
+
+                          return (
+                            <div
+                              key={parentTask.id}
+                              className={`relative ${isRedundant ? 'mt-0' : 'mt-4'}`}
+                            >
+                              {/* Parent Task Header - skip if name matches milestone title */}
+                              {!isRedundant && (
+                                <div className="flex items-center gap-3 mb-1 relative z-10">
+                                  <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                                  </div>
+                                  <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                                    {parentTaskName}
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Vertical line connecting Parent Task to Sub-tasks */}
+                              {parentTask.tasks &&
+                                parentTask.tasks.length > 0 && (
+                                  <div
+                                    className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`}
+                                  />
+                                )}
+
+                              {/* Sub-tasks under Parent Task */}
+                              <div
+                                className={`flex flex-col gap-0 ${isRedundant ? 'pt-0' : 'pt-1'}`}
+                              >
+                                {parentTask.tasks &&
+                                  parentTask.tasks.map(
+                                    (task: any, index: number) => (
+                                      <TaskRow
+                                        key={task.id}
+                                        task={task}
+                                        viewMode={viewMode}
+                                        isLast={
+                                          index === parentTask.tasks.length - 1
+                                        }
+                                        metricType={keyResult.metricType?.name}
+                                      />
+                                    ),
+                                  )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
@@ -379,7 +435,10 @@ export default function PlanCard({
 
             <div className="relative">
               <div className="flex items-start gap-3 mb-6">
-                <BsKey size={24} className="text-[#574CFF] flex-shrink-0 mt-0.5" />
+                <BsKey
+                  size={24}
+                  className="text-[#574CFF] flex-shrink-0 mt-0.5"
+                />
                 <p className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2">
                   {plan.summary}
                 </p>
