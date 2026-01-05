@@ -31,21 +31,37 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
     );
   };
 
+  // Filter custom fields for additionalInformation section
+  const additionalInformationFields =
+    mergedFields?.filter(
+      (field: any) => field?.formTitle === 'additionalInformation',
+    ) || [];
+
+  // Merge existing employee data with custom fields
+  const existingData =
+    employeeData?.employeeInformation?.additionalInformation || {};
+  const allFields = { ...existingData };
+
+  // Add custom fields to allFields if they don't exist
+  additionalInformationFields.forEach((field: any) => {
+    if (!(field.fieldName in allFields)) {
+      allFields[field.fieldName] = '';
+    }
+  });
+
   const AdditionalInformationForm = () => {
     return (
       <Form
         form={form}
         layout="vertical"
-        initialValues={
-          employeeData?.employeeInformation?.additionalInformation || {}
-        }
+        initialValues={allFields}
         onFinish={(values) =>
           handleSaveChanges('additionalInformation', values)
         }
+        id="additional-information-form"
+        data-cy="additional-information-form"
       >
-        {Object.entries(
-          employeeData?.employeeInformation?.additionalInformation || {},
-        ).map(([key, val]) => (
+        {Object.entries(allFields).map(([key, val]) => (
           <Form.Item
             key={key}
             name={key}
@@ -53,6 +69,8 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
               .split('_')
               .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
               .join(' ')}
+            id={`additional-information-${key}-form-item`}
+            data-cy={`additional-information-${key}-form-item`}
             rules={[
               {
                 /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -74,7 +92,7 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                         fieldValidation = 'any'; // You can change to 'text' if stricter validation is needed
                         break;
                       default:
-                        fieldValidation = 'any'; // fallback function
+                        fieldValidation = getFieldValidation(key) || 'any'; // fallback function
                     }
                   }
 
@@ -99,9 +117,23 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                       placeholder={`Select ${key}`}
                       allowClear
                       defaultValue={val}
+                      id={`additional-information-${key}-select`}
+                      data-cy={`additional-information-${key}-select`}
                     >
-                      <Option value="male">Male</Option>
-                      <Option value="female">Female</Option>
+                      <Option
+                        value="male"
+                        id={`additional-information-${key}-option-male`}
+                        data-cy={`additional-information-${key}-option-male`}
+                      >
+                        Male
+                      </Option>
+                      <Option
+                        value="female"
+                        id={`additional-information-${key}-option-female`}
+                        data-cy={`additional-information-${key}-option-female`}
+                      >
+                        Female
+                      </Option>
                     </Select>
                   );
 
@@ -111,10 +143,24 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                       placeholder={`Select ${key}`}
                       allowClear
                       defaultValue={val}
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        String(option?.children || '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      id={`additional-information-${key}-select`}
+                      data-cy={`additional-information-${key}-select`}
                     >
                       {nationalities?.items?.map(
                         (nationality: any, index: number) => (
-                          <Option key={index} value={nationality?.id}>
+                          <Option
+                            key={index}
+                            value={nationality?.id}
+                            id={`additional-information-${key}-option-${nationality?.id}`}
+                            data-cy={`additional-information-${key}-option-${nationality?.id}`}
+                          >
                             {nationality?.name}
                           </Option>
                         ),
@@ -127,6 +173,8 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                     <Input
                       placeholder={`Enter ${key.replace(/_/g, ' ')}`}
                       defaultValue={val?.toString()}
+                      id={`additional-information-${key}-input`}
+                      data-cy={`additional-information-${key}-input`}
                     />
                   );
               }
@@ -134,8 +182,19 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
           </Form.Item>
         ))}
 
-        <Form.Item className="mt-6">
-          <Button type="primary" htmlType="submit" loading={isLoading} block>
+        <Form.Item
+          className="mt-6"
+          id="additional-information-submit-form-item"
+          data-cy="additional-information-submit-form-item"
+        >
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={isLoading}
+            block
+            id="additional-information-submit-btn"
+            data-cy="additional-information-submit-btn"
+          >
             Save Changes
           </Button>
         </Form.Item>
@@ -159,30 +218,53 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
           permissions={[Permissions.UpdateEmployeeDetails]}
           selfShouldAccess
           id={id}
+          data-cy="additional-information-edit-guard"
         >
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('additionalInformation')}
+            id="additional-information-edit-icon"
+            data-cy="additional-information-edit-icon"
           />
         </AccessGuard>
       }
       className="my-6"
+      id="additional-information-card"
+      data-cy="additional-information-card"
     >
       {edit.additionalInformation ? (
-        <AdditionalInformationForm />
+        <AdditionalInformationForm data-cy="additional-information-form" />
       ) : (
-        <Row gutter={[16, 24]}>
-          <Col lg={16}>
-            {Object.entries(
-              employeeData?.employeeInformation?.additionalInformation || {},
-            ).map(([key, val]) => {
+        <Row
+          gutter={[16, 24]}
+          id="additional-information-display-row"
+          data-cy="additional-information-display-row"
+        >
+          <Col
+            lg={16}
+            id="additional-information-display-col"
+            data-cy="additional-information-display-col"
+          >
+            {Object.entries(allFields).map(([key, val]) => {
               const displayValue =
                 key === 'nationality'
                   ? nationalities?.items?.find((item) => item.id === val)
                       ?.name || '-'
                   : val?.toString() || '-';
-              const title = titleMap[key] || key;
-              return <InfoLine key={key} title={title} value={displayValue} />;
+              const title =
+                titleMap[key] ||
+                key
+                  .split('_')
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
+              return (
+                <InfoLine
+                  key={key}
+                  title={title}
+                  value={displayValue}
+                  data-cy={`additional-information-display-${key}`}
+                />
+              );
             })}
           </Col>
         </Row>

@@ -7,11 +7,14 @@ import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBa
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 
 type NewUserData = {
+  key: number;
   leaveType: string;
-  accrued: number | null;
-  balance: number | null;
-  carriedOver: number | null;
-  totalBalance: number | null;
+  accrued: number;
+  balance: number;
+  carriedOver: number;
+  totalBalance: number;
+  utilizedLeave: number;
+  cashValue: number;
 };
 
 const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
@@ -21,18 +24,46 @@ const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
     isError,
   } = useGetSimpleEmployee(userId);
 
-  if (isLoading) return <div>...</div>;
+  if (isLoading)
+    return (
+      <div
+        id={`time-attendance-leave-balance-employee-loading-${userId}`}
+        data-cy={`time-attendance-leave-balance-employee-loading-${userId}`}
+      >
+        ...
+      </div>
+    );
   if (isError || !employeeData) return <>-</>;
 
   return (
-    <div className="flex items-center gap-1.5">
-      <Avatar size={24} icon={<UserOutlined />} />
-      <div className="flex-1">
-        <div className="text-xs text-gray-900 flex gap-2">
+    <div
+      className="flex items-center gap-1.5"
+      id={`time-attendance-leave-balance-employee-${userId}`}
+      data-cy={`time-attendance-leave-balance-employee-${userId}`}
+    >
+      <Avatar
+        size={24}
+        icon={
+          <UserOutlined data-cy="time-attendance-leave-balance-employee-avatar-icon" />
+        }
+        data-cy="time-attendance-leave-balance-employee-avatar"
+      />
+      <div
+        className="flex-1"
+        id={`time-attendance-leave-balance-employee-${userId}-info`}
+        data-cy={`time-attendance-leave-balance-employee-${userId}-info`}
+      >
+        <div
+          className="text-xs text-gray-900 flex gap-2"
+          data-cy="time-attendance-leave-balance-employee-name"
+        >
           {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
           {employeeData?.lastName || '-'}
         </div>
-        <div className="text-[10px] leading-4 text-gray-600">
+        <div
+          className="text-[10px] leading-4 text-gray-600"
+          data-cy="time-attendance-leave-balance-employee-email"
+        >
           {employeeData?.email || '-'}
         </div>
       </div>
@@ -41,9 +72,9 @@ const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
 };
 
 const LeaveBalanceTable: React.FC = () => {
-  const { userId, leaveTypeId } = useLeaveBalanceStore();
+  const { selectedUserId, leaveTypeId } = useLeaveBalanceStore();
   const { data: leaveBalanceData, isLoading: leaveBalanceIsLoading } =
-    useGetLeaveBalance(userId, leaveTypeId);
+    useGetLeaveBalance(selectedUserId, leaveTypeId);
   const columns: TableColumnsType<NewUserData> = [
     {
       title: 'Leave Name',
@@ -70,32 +101,70 @@ const LeaveBalanceTable: React.FC = () => {
       dataIndex: 'totalBalance',
       key: 'totalBalance',
     },
+    {
+      title: 'Utilized Leave',
+      dataIndex: 'utilizedLeave',
+      key: 'utilizedLeave',
+    },
+    {
+      title: 'Cash Value',
+      dataIndex: 'cashValue',
+      key: 'cashValue',
+    },
   ];
 
-  const dataSource =
-    leaveBalanceData?.items?.map((item, index) => ({
+  let itemsArray: any[] = [];
+  if (Array.isArray(leaveBalanceData?.items)) {
+    itemsArray = leaveBalanceData.items;
+  } else if (
+    leaveBalanceData?.items &&
+    typeof leaveBalanceData.items === 'object' &&
+    Array.isArray((leaveBalanceData.items as any)?.items)
+  ) {
+    itemsArray = (leaveBalanceData.items as any).items;
+  }
+  const dataSource = itemsArray.map((item, index) => {
+    // Get cash value directly from the item
+    const cashValue = item?.cashValue || 0;
+    return {
       key: index,
       leaveType: item?.leaveType?.title || '-',
-      accrued: item?.accrued || 0,
-      balance: item?.balance || 0,
-      carriedOver: item?.carriedOver || 0,
-      totalBalance: item?.totalBalance || 0,
-    })) || [];
+      accrued: parseFloat(item?.accrued.toFixed(1)) || 0,
+      balance: parseFloat(item?.balance.toFixed(1)) || 0,
+      carriedOver: parseFloat(item?.carriedOver.toFixed(1)) || 0,
+      totalBalance: parseFloat(item?.totalBalance.toFixed(1)) || 0,
+      utilizedLeave: parseFloat(item?.utilizedLeave.toFixed(1)) || 0,
+      cashValue: parseFloat(cashValue.toFixed(2)),
+    };
+  });
 
   return (
     <>
       {leaveBalanceData && (
-        <EmpRender userId={leaveBalanceData?.items?.[0]?.userId} />
+        <div
+          id="time-attendance-leave-balance-employee-summary"
+          data-cy="time-attendance-leave-balance-employee-summary"
+        >
+          <EmpRender userId={leaveBalanceData?.items?.items?.[0]?.userId} />
+        </div>
       )}
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={dataSource}
-        loading={leaveBalanceIsLoading}
-        locale={{
-          emptyText: userId ? undefined : <h3>Please Select User</h3>,
-        }}
-      />
+      <div
+        className="flex overflow-x-auto scrollbar-none w-full bg-[#fafafa]"
+        id="time-attendance-leave-balance-table-scroll-wrapper"
+        data-cy="time-attendance-leave-balance-table-scroll-wrapper"
+      >
+        <Table
+          className="mt-2"
+          id="time-attendance-leave-balance-table"
+          data-cy="time-attendance-leave-balance-table"
+          columns={columns}
+          dataSource={dataSource}
+          loading={leaveBalanceIsLoading}
+          locale={{
+            emptyText: selectedUserId ? undefined : <h3>Please Select User</h3>,
+          }}
+        />
+      </div>
     </>
   );
 };

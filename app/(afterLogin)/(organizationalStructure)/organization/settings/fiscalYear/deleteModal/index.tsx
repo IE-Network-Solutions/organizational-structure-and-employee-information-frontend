@@ -16,6 +16,7 @@ function CustomDeleteFiscalYears() {
     deleteFiscalYear(id);
     setDeleteMode(false);
   };
+
   return (
     <DeleteModal
       open={isDeleteMode}
@@ -24,6 +25,7 @@ function CustomDeleteFiscalYears() {
         setDeleteMode(false);
       }}
       onConfirm={() => handleDeleteScheudle(selectedFiscalYear?.id ?? '')}
+      data-cy="org-settings-fiscal-year-delete-modal"
     />
   );
 }

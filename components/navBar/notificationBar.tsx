@@ -21,9 +21,13 @@ function NotificationBar() {
 
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
   const { data, isLoading } = useGetNotifications(userId);
-  const unReadNotification = data?.filter(
-    (item: NotificationType) => item.status == 'ACTIVE',
-  );
+
+  // const unReadNotification = data?.filter(
+  //   (item: NotificationType) => item.status == 'ACTIVE',
+  // );
+  const unReadNotification = Array.isArray(data)
+    ? data.filter((item: NotificationType) => item.status === 'ACTIVE')
+    : [];
 
   const updateNotification = (id: string) => {
     updateNotificationStatus(id);

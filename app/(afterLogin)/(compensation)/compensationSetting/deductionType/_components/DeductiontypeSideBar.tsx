@@ -57,8 +57,11 @@ const DeductiontypeSideBar = () => {
           selectedDeductionRecord.applicableTo == 'GLOBAL' ? true : false,
         mode: selectedDeductionRecord.mode,
       });
+    } else {
+      // Clear form when switching back to Add mode
+      form.resetFields();
     }
-  }, [selectedDeductionRecord, form]);
+  }, [selectedDeductionRecord, form, setIsAllEmployee]);
 
   useEffect(() => {
     if (departmentUsers.length === 0) {
@@ -74,9 +77,9 @@ const DeductiontypeSideBar = () => {
   }, [departmentUsers, form]);
 
   const onClose = () => {
-    setIsDeductionOpen(false);
-    form.resetFields();
     resetStore();
+    form.resetFields();
+    setIsDeductionOpen(false);
   };
 
   // const onRateToggle = (checked: any) => {
@@ -141,7 +144,7 @@ const DeductiontypeSideBar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: false,
       onClick: () => onClose(),
@@ -149,12 +152,12 @@ const DeductiontypeSideBar = () => {
     },
     {
       label: selectedDeductionRecord?.id ? (
-        <span>Update</span>
+        <span data-cy="deduction-sidebar-update-button-label">Update</span>
       ) : (
-        <span>Create</span>
+        <span data-cy="deduction-sidebar-create-button-label">Create</span>
       ),
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: selectedDeductionRecord?.id ? updateIsLOading : isLoading,
@@ -166,37 +169,67 @@ const DeductiontypeSideBar = () => {
   return (
     isDeductionOpen && (
       <CustomDrawerLayout
+        data-cy="compensation-settings-deduction-sidebar-drawer"
         open={isDeductionOpen}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader
+            className="flex justify-center"
+            data-cy="compensation-settings-deduction-sidebar-header"
+          >
             {selectedDeductionRecord?.id ? (
-              <span>Edit Deduction Type</span>
+              <span
+                id="compensation-settings-deduction-sidebar-header-title"
+                data-cy="compensation-settings-deduction-sidebar-header-title"
+              >
+                Edit Deduction Type
+              </span>
             ) : (
-              <span>Add Deduction Type</span>
+              <span
+                id="compensation-settings-deduction-sidebar-header-title"
+                data-cy="compensation-settings-deduction-sidebar-header-title"
+              >
+                Add Deduction Type
+              </span>
             )}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+            data-cy="compensation-settings-deduction-sidebar-footer"
+          />
+        }
         width="600px"
+        customMobileHeight="55vh"
       >
-        <Spin spinning={isLoading}>
+        <Spin
+          spinning={isLoading}
+          data-cy="compensation-settings-deduction-sidebar-loading"
+        >
           <Form
             layout="vertical"
             form={form}
             onFinish={onFormSubmit}
             requiredMark={CustomLabel}
+            id="compensation-settings-deduction-sidebar-form"
+            data-cy="compensation-settings-deduction-sidebar-form"
           >
             <Form.Item
               name="name"
               label="Name"
               rules={[{ required: true, message: 'Name is Required!' }]}
               className="form-item"
+              id="compensation-settings-deduction-sidebar-name-item"
+              data-cy="compensation-settings-deduction-sidebar-name-item"
             >
               <Input
                 className="control"
                 placeholder="Deduction Name"
-                style={{ height: '32px', padding: '4px 8px' }}
+                style={{ height: '40px', padding: '4px 8px' }}
+                id="compensation-settings-deduction-sidebar-name-input"
+                data-cy="compensation-settings-deduction-sidebar-name-input"
               />
             </Form.Item>
             <Form.Item
@@ -204,17 +237,24 @@ const DeductiontypeSideBar = () => {
               label="Description"
               rules={[{ required: true, message: 'Description is Required!' }]}
               className="form-item"
+              id="compensation-settings-deduction-sidebar-description-item"
+              data-cy="compensation-settings-deduction-sidebar-description-item"
             >
               <TextArea
                 className="control"
                 autoSize={{ minRows: 3, maxRows: 5 }}
                 placeholder="Description"
                 style={{ height: '32px', padding: '4px 8px' }}
+                id="compensation-settings-deduction-sidebar-description-input"
+                data-cy="compensation-settings-deduction-sidebar-description-input"
               />
             </Form.Item>
 
             <>
-              <div style={{ display: 'flex', gap: '20px' }}>
+              <div
+                style={{ display: 'flex', gap: '20px' }}
+                data-cy="compensation-settings-deduction-sidebar-empty-container"
+              >
                 {/* <Form.Item
                     name="isRate"
                     label={'Is Rate'}

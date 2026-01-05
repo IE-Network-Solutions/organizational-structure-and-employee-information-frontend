@@ -7,9 +7,18 @@ interface KPIMetricsProps {
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   return (
-    <div className="py-3 px-2 sm:px-4 bg-white shadow-sm rounded-lg border">
-      <div className="grid grid-cols-12 sm:justify-between mb-2 items-start">
-        <div className="flex items-start gap-4 col-span-12 sm:col-span-8">
+    <div
+      className="py-3 px-2 sm:px-4 bg-white rounded-lg border"
+      data-cy="planning-key-result-metrics-container"
+    >
+      <div
+        className="grid grid-cols-12 sm:justify-between mb-2 items-start"
+        data-cy="planning-key-result-metrics-header"
+      >
+        <div
+          className="flex items-start gap-4 col-span-12 sm:col-span-8"
+          data-cy="planning-key-result-metrics-title-section"
+        >
           <MdKey size={14} className="text-blue text-xs w-10" />
           <h2 className="text-xs font-semibold">{keyResult?.title}</h2>
         </div>
@@ -62,11 +71,14 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
               <div className="bg-light_purple text-blue font-semibold text-[10px] p-1 w-16 sm:w-20 text-center rounded-lg">
                 {keyResult?.metricType?.name === 'Milestone'
                   ? keyResult?.milestones?.filter(
-                      (e: any) => e.status === 'Completed',
-                    )?.length || 0
+                    (e: any) => e.status === 'Completed',
+                  )?.length || 0
                   : keyResult?.metricType?.name === 'Achieve'
                     ? keyResult?.progress
-                    : Number(keyResult?.currentValue)?.toLocaleString() || 0}
+                    : (
+                      Number(keyResult?.currentValue) +
+                      Number(keyResult?.initialValue)
+                    )?.toLocaleString() || 0}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-blue text-xl">&#x2022;</div>

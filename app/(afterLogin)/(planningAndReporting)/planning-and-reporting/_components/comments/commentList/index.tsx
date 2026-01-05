@@ -11,7 +11,7 @@ import {
 } from '@/store/server/features/okrplanning/reportComments/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { CommentsData } from '@/types/okr';
-import { Button, Col, Input, Form, Row, Avatar } from 'antd';
+import { Button, Input, Form, Avatar } from 'antd';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs from 'dayjs';
 import CommentActionMenu from '../commentActionMenu';
@@ -25,10 +25,18 @@ const CommentList = ({
   data,
   planId,
   isPlanCard,
+  showAddForm = true,
+  resetToggle = 0,
+  onEdit,
+  onFormSubmit,
 }: {
   data: CommentsData[];
   planId: string;
   isPlanCard: boolean;
+  showAddForm?: boolean;
+  resetToggle?: number;
+  onEdit?: () => void;
+  onFormSubmit?: () => void;
 }) => {
   const { data: allUsers } = useGetAllUsers();
   const { mutate: onAddPlanComment, isLoading: addPlanLoading } =
@@ -44,9 +52,11 @@ const CommentList = ({
   const { mutate: onUpdateReportComment, isLoading: editReportLoading } =
     useUpdateReportComment();
 
-  const [editingCommentId, setEditingCommentId] = useState<string>('');
-  const { userId } = useAuthenticationStore();
   const [form] = Form.useForm();
+  const [editingCommentId, setEditingCommentId] = useState<string>('');
+  const [commentValue, setCommentValue] = useState<string>('');
+  const { userId } = useAuthenticationStore();
+  const lastResetToggle = useRef(resetToggle);
 
   // Memoize the user details for performance
   const getUserDetail = useMemo(
@@ -72,13 +82,16 @@ const CommentList = ({
       .validateFields()
       .then((values) => {
         if (editingCommentId !== '') {
-          // Update existing comment
+          // Update existing comment - send only the comment field
           const updateMutation = isPlanCard
             ? onUpdatePlanComment
             : onUpdateReportComment;
 
           updateMutation(
-            { id: editingCommentId, updatedComment: values },
+            {
+              id: editingCommentId,
+              updatedComment: { comment: values.comment } as any,
+            },
             {
               onSuccess: () => {
                 form.resetFields(); // Reset the form after submission
@@ -87,7 +100,7 @@ const CommentList = ({
             },
           );
         } else {
-          // Add new comment logic (similar to previous response)
+          // Add new comment
           const addMutation = isPlanCard
             ? onAddPlanComment
             : onAddReportComment;
@@ -99,14 +112,49 @@ const CommentList = ({
           });
         }
       })
-      .catch(() => {
-        // Handle validation error if needed
+      .finally(() => {
+        onFormSubmit?.(); // Always notify parent after attempt
       });
   };
+
+  // Reset edit state when showAddForm changes or resetToggle is triggered
+  useEffect(() => {
+    const isResetTriggered = resetToggle !== lastResetToggle.current;
+
+    if (isResetTriggered || !showAddForm) {
+      setEditingCommentId('');
+      setCommentValue('');
+      form.resetFields();
+    }
+
+    lastResetToggle.current = resetToggle;
+  }, [resetToggle, showAddForm, form]);
+
+  // Get the comment being edited
+  const commentBeingEdited = useMemo(() => {
+    if (!editingCommentId) return null;
+    return data.find((c) => c.id === editingCommentId);
+  }, [editingCommentId, data]);
+
   const handleEdit = (commentData: CommentsData) => {
-    form.setFieldsValue({ comment: commentData.comment });
+    // Set the comment text state - this will be used as the input value
+    setCommentValue(commentData.comment);
+    // Then set the editing ID
     setEditingCommentId(commentData.id);
+    onEdit?.(); // Tell parent to show form
+    // Also set form value for submission
+    form.setFieldsValue({ comment: commentData.comment });
   };
+
+  // Populate form when editing a comment
+  useEffect(() => {
+    if (editingCommentId && showAddForm && commentBeingEdited) {
+      // Update the comment value state
+      setCommentValue(commentBeingEdited.comment);
+      // Also set form value for submission
+      form.setFieldsValue({ comment: commentBeingEdited.comment });
+    }
+  }, [editingCommentId, showAddForm, commentBeingEdited, form]);
 
   const handleDelete = (id: string) => {
     const mutation = isPlanCard ? deletePlanComment : deleteReportComment;
@@ -121,57 +169,67 @@ const CommentList = ({
     editPlanLoading ||
     editReportLoading;
 
+  const sortedComments = useMemo(() => {
+    return [...data].sort(
+      (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+    );
+  }, [data]);
+
   return (
     <div className="w-full">
       {data?.map((commentData) => {
         const { fullName, profileImage } = getUserDetail(
           commentData.commentedBy,
         );
+        const isOwnComment = commentData.commentedBy === userId;
 
         return (
-          <Row
+          <div
             key={commentData.id}
-            justify="space-between"
-            align="middle"
-            className="w-full"
+            className={`w-full mb-3 flex items-start gap-2 ${isOwnComment ? 'justify-end' : 'justify-start'}`}
           >
-            <Col>
-              <div className="text-xs font-semibold flex items-center">
+            <div
+              className={`inline-block rounded-2xl px-4 py-3 shadow-sm ${
+                isOwnComment
+                  ? 'border border-[#574CFF] bg-white'
+                  : 'bg-[#F5F5F7] border border-[#E5E7EB]'
+              }`}
+              style={{ maxWidth: '70%' }}
+            >
+              {/* Avatar and Name on top - Avatar first (left), then name - all inside bubble */}
+              <div className="flex items-center gap-2 mb-2">
                 <Avatar
                   src={profileImage || undefined}
                   icon={!profileImage ? <FaUser /> : undefined}
                   alt={fullName}
-                  className="mr-1"
+                  size="small"
+                  className="flex-shrink-0"
                 />
-                <span className="font-normal"> {fullName}</span>
-                <div className="text-gray-400 text-xs ml-2">
-                  {dayjs(commentData.createdAt).fromNow()}
-                </div>
+                <span className="text-sm font-semibold text-[#161A2C]">
+                  {fullName}
+                </span>
               </div>
-              <div className="text-gray-700  ml-9 font-semibold">
+              {/* Comment text below - aligned left - inside bubble */}
+              <div className="text-sm text-[#4B5563] break-words">
                 {commentData.comment}
               </div>
-            </Col>
-            <Col hidden={commentData?.commentedBy !== userId}>
+            </div>
+            {isOwnComment && (
               <CommentActionMenu
                 onEdit={() => handleEdit(commentData)}
                 onDelete={() => handleDelete(commentData.id)}
               />
-            </Col>
-          </Row>
+            )}
+          </div>
         );
       })}
 
-      <Form
-        form={form}
-        layout="inline"
-        className="w-full mt-4"
-        onFinish={handleSubmit}
-      >
-        <Form.Item
-          name={isPlanCard ? 'planId' : 'reportId'}
-          initialValue={planId}
-          hidden
+      {showAddForm && (
+        <Form
+          form={form}
+          layout="inline"
+          className="w-full mt-4"
+          onFinish={handleSubmit}
         >
           <Input type="hidden" />
         </Form.Item>

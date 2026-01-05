@@ -8,19 +8,21 @@ import { AttendanceNotificationRule } from '@/types/timesheet/attendance';
 const setAttendanceNotificationRule = async (
   item: Partial<AttendanceNotificationRule>,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-rule`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { item },
   });
 };
 
 const deleteAttendanceNotificationRule = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-rule`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };

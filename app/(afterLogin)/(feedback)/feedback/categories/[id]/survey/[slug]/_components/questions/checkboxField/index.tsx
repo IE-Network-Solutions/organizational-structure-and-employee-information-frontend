@@ -14,6 +14,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({
   onChange,
 }) => (
   <Checkbox.Group
+    data-cy="checkbox-field-group"
     className="font-normal"
     options={options.map((item) => ({ label: item.value, value: item.id }))}
     value={selectedOptions?.map((item) => item.id)}

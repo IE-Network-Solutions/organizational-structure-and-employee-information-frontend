@@ -43,6 +43,7 @@ interface SearchParams {
   job: string;
   stages: string | null;
   talentPoolCategory: string;
+  search: string;
 }
 
 export interface TalentPoolState {
@@ -64,6 +65,8 @@ export interface TalentPoolState {
   setAddCandidate: (value: AddCandidateValue) => void;
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
+  showMobileFilter: boolean;
+  setShowMobileFilter: (value: boolean) => void;
 }
 
 export interface TalentPoolCategory {

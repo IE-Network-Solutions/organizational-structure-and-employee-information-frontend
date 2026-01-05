@@ -2,11 +2,12 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useQuery } from 'react-query';
 import { OKR_URL } from '@/utils/constants';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const fetchObjectives = async (id: string) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/objective/${id}`,
     method: 'GET',

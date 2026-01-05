@@ -6,10 +6,11 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 const fetchFeedbackRecordById = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -38,7 +39,7 @@ const fetchAllFeedbackRecord = async ({
   page?: number;
   givenDate?: string[];
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -56,6 +57,51 @@ const fetchAllFeedbackRecord = async ({
   if (empId && empId !== '') urlParams.push(`empId=${empId}`);
   if (pageSize) urlParams.push(`limit=${pageSize}`);
   if (page) urlParams.push(`page=${page}`);
+  if (variantType) urlParams.push(`variantType=${variantType}`);
+  if (activeTab) urlParams.push(`feedbackTypeId=${activeTab}`);
+
+  const url = `${ORG_DEV_URL}/feedback-record?${urlParams.join('&')}`;
+
+  try {
+    return await crudRequest({
+      url: url,
+      method: 'GET',
+      headers,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const fetchAllFeedbackRecordForExport = async ({
+  variantType,
+  activeTab,
+  userId,
+  empId,
+  givenDate,
+}: {
+  variantType: 'appreciation' | 'reprimand';
+  activeTab: string;
+  userId: string;
+  empId: string;
+  givenDate?: string[];
+}) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  // Constructing the query URL dynamically (without pagination)
+  const urlParams: string[] = [];
+
+  if (givenDate?.length) {
+    urlParams.push(`startDate=${givenDate[0]}`);
+    urlParams.push(`endDate=${givenDate[1]}`);
+  }
+  if (userId && userId !== 'all') urlParams.push(`userId=${userId}`);
+  if (empId && empId !== '') urlParams.push(`empId=${empId}`);
   if (variantType) urlParams.push(`variantType=${variantType}`);
   if (activeTab) urlParams.push(`feedbackTypeId=${activeTab}`);
 
@@ -113,5 +159,37 @@ export const useFetchAllFeedbackRecord = ({
         page,
         givenDate,
       }),
+  );
+};
+
+export const useFetchAllFeedbackRecordForExport = ({
+  variantType,
+  activeTab,
+  userId,
+  empId,
+  givenDate,
+}: {
+  variantType: 'appreciation' | 'reprimand';
+  activeTab: string;
+  userId: string;
+  empId: string;
+  givenDate?: string[];
+}) => {
+  return useQuery(
+    [
+      'feedbackRecordForExport',
+      { variantType, activeTab, userId, empId, givenDate },
+    ],
+    () =>
+      fetchAllFeedbackRecordForExport({
+        variantType,
+        activeTab,
+        userId,
+        empId,
+        givenDate,
+      }),
+    {
+      enabled: false, // Only fetch when explicitly called
+    },
   );
 };

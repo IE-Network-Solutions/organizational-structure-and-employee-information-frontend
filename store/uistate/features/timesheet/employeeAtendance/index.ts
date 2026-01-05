@@ -1,3 +1,4 @@
+import { Key } from 'react';
 import { create, StateCreator } from 'zustand';
 
 type EmployeeAttendanceState = {
@@ -6,6 +7,7 @@ type EmployeeAttendanceState = {
   employeeAttendanceId: string | '';
   employeeId: string;
   isShowBreakAttendanceImportSidebar: boolean;
+  isShowMobileFilters: boolean;
 };
 
 type EmployeeAttendanceStateAction = {
@@ -18,11 +20,18 @@ type EmployeeAttendanceStateAction = {
   setIsShowBreakAttendanceImportSidebar: (
     isShowBreakAttendanceImportSidebar: boolean,
   ) => void;
+  filter: any;
+  setFilter: (filter: any) => void;
+  setIsShowMobileFilters: (isShowMobileFilters: boolean) => void;
+  selectedRowKeys: Key[];
+  setSelectedRowKeys: (selectedRowKeys: Key[]) => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
   EmployeeAttendanceState & EmployeeAttendanceStateAction
 > = (set) => ({
+  filter: null,
+  setFilter: (filter: any) => set({ filter }),
   isShowEmployeeAttendanceSidebar: false,
   setIsShowEmployeeAttendanceSidebar: (
     isShowEmployeeAttendanceSidebar: boolean,
@@ -47,6 +56,14 @@ const employeeAttendanceSlice: StateCreator<
     isShowBreakAttendanceImportSidebar: boolean,
   ) => {
     set({ isShowBreakAttendanceImportSidebar });
+  },
+  isShowMobileFilters: false,
+  setIsShowMobileFilters: (isShowMobileFilters: boolean) => {
+    set({ isShowMobileFilters });
+  },
+  selectedRowKeys: [],
+  setSelectedRowKeys: (selectedRowKeys: Key[]) => {
+    set({ selectedRowKeys });
   },
 });
 

@@ -8,19 +8,21 @@ import { CourseLessonMaterial } from '@/types/tna/course';
 const setCourseLessonMaterial = async (
   items: Partial<CourseLessonMaterial>[],
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/learning/course/lesson/material`,
     method: 'PUT',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { items },
   });
 };
 
 const deleteCourseLessonMaterial = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/learning/course/lesson/material`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { id },
   });
 };

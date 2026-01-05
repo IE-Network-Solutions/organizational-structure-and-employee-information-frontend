@@ -14,17 +14,30 @@ const staticField = [
 interface ApplicationFormProps {
   stepChange: (value: number) => void;
   form: FormInstance;
+  isLoading?: boolean;
 }
 const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
   stepChange,
   form,
+  isLoading = false,
 }) => {
   return (
-    <div>
+    <div
+      className="p-2"
+      data-cy="talent-acquisition-create-application-form-container"
+    >
       <CustomFieldsSelector />
-      <div className="my-4">
-        <div className="text-md font-semibold">Existing Fields</div>
-        <div className="flex items-center justify-start text-[10px] text-gray-400 font-normal gap-1 my-1">
+      <div
+        className="my-4"
+        data-cy="talent-acquisition-create-application-form-existing-fields-container"
+      >
+        <div
+          className="text-md font-semibold"
+          data-cy="talent-acquisition-create-application-form-existing-fields-title"
+        >
+          Existing Fields
+        </div>
+        <div className="flex items-center justify-start text-[10px] text-gray-400 font-normal gap-1 my-1 h-10">
           <CiCircleInfo />
           These fields are automatically created for you-no need to set them up
           again. Effortlessly integrated and ready to use!
@@ -33,7 +46,7 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
           <Row gutter={16}>
             {staticField?.map((item: any) => (
               <Col key={item?.key} xs={24} sm={24} lg={12} md={12} xl={12}>
-                <div className="w-full rounded-md border-gray-200 border p-4 bg-gray-100 my-2 text-sm font-normal">
+                <div className="w-full rounded-md border-gray-200 border p-3 bg-gray-100 my-1 text-sm font-normal">
                   {item?.name}
                 </div>
               </Col>
@@ -43,16 +56,23 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
         <DynamicJobForm form={form} />
       </div>
       <Form.Item>
-        <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
+        <div className="flex justify-center w-full  bg-[#fff] px-6 py-6 gap-6">
           <Button
+            id="talent-acquisition-create-application-form-button-back"
+            data-cy="talent-acquisition-create-application-form-button-back"
             onClick={() => stepChange(0)}
-            className="flex justify-center text-sm font-medium text-[#A0AEC0] bg-[#F1F2F4] p-4 px-10 h-12 hover:border-gray-500 border-none"
+            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+            disabled={isLoading}
           >
             Back
           </Button>
           <Button
+            id="talent-acquisition-create-application-form-button-publish"
+            data-cy="talent-acquisition-create-application-form-button-publish"
             htmlType="submit"
-            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+            loading={isLoading}
+            disabled={isLoading}
           >
             Publish
           </Button>

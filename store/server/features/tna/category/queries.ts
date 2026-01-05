@@ -7,10 +7,11 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 import { TrainingNeedCategory } from '@/types/tna/tna';
 
 const getTnaCategory = async (data: Partial<TnaCategoryRequestBody>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna/category`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

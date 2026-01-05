@@ -2,12 +2,13 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+
 import { useMutation, useQueryClient } from 'react-query';
 
 // Mutation function for updating profile image
 const updateProfileImageMutation = async (formData: FormData) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -19,6 +20,22 @@ const updateProfileImageMutation = async (formData: FormData) => {
       tenantId: tenantId,
       'Content-Type': 'multipart/form-data', // Required for file uploads
     },
+    skipEncryption: true,
+  });
+};
+
+const deleteProfileImageMutation = async (id: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/${id}/profile-image`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    skipEncryption: true,
   });
 };
 
@@ -51,9 +68,46 @@ export const useUpdateProfileImage = () => {
   );
 };
 
+export const useDeleteProfileImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ id }: { id: string }) => deleteProfileImageMutation(id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee'); // Invalidate queries related to employee data
+        NotificationMessage.success({
+          message: 'Successfully Deleted',
+          description: 'Profile image successfully removed.',
+        });
+      },
+      onError: () => {
+        NotificationMessage.error({
+          message: 'Delete Failed',
+          description: 'Failed to delete profile image. Please try again.',
+        });
+      },
+    },
+  );
+};
+
 // Mutation function
+const createEmployeeMutation = async (values: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-information`,
+    method: 'post',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: values,
+  });
+};
 const updateEmployeeMutation = async (id: string, values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -67,7 +121,7 @@ const updateEmployeeMutation = async (id: string, values: any) => {
   });
 };
 const updateEmployeeInformation = async (id: string, values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -85,7 +139,7 @@ const updateEmployeeRolePermissionMutation = async (
   id: string,
   values: any,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -101,11 +155,21 @@ const updateEmployeeRolePermissionMutation = async (
 const updateEmployeeJobInformationMutation = async (
   id: string,
   values: any,
+  changeMakerUserId?: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+
+  // Build query parameters
+  const queryParams = new URLSearchParams();
+  if (changeMakerUserId) {
+    queryParams.append('changeMakerUserId', changeMakerUserId);
+  }
+
+  const url = `${ORG_AND_EMP_URL}/EmployeeJobInformation/${id}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/EmployeeJobInformation/${id}`,
+    url,
     method: 'patch',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -116,17 +180,18 @@ const updateEmployeeJobInformationMutation = async (
 };
 
 const deleteEmployeeDocument = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/employee-document/${id}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/employee-document/${id}`,
+      method: 'DELETE',
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -134,7 +199,7 @@ const deleteEmployeeDocument = async (id: string) => {
 };
 
 const createEmployeeDocument = async (formData: FormData) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-document`,
@@ -144,6 +209,7 @@ const createEmployeeDocument = async (formData: FormData) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     },
+    skipEncryption: true,
   });
 };
 
@@ -164,8 +230,15 @@ export const useUpdateEmployeeJobInformation = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id, values }: { id: string; values: any }) =>
-      updateEmployeeJobInformationMutation(id, values),
+    ({
+      id,
+      values,
+      changeMakerUserId,
+    }: {
+      id: string;
+      values: any;
+      changeMakerUserId?: string;
+    }) => updateEmployeeJobInformationMutation(id, values, changeMakerUserId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('employee');
@@ -184,6 +257,22 @@ export const useUpdateEmployee = () => {
   return useMutation(
     ({ id, values }: { id: string; values: any }) =>
       updateEmployeeMutation(id, values),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee');
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'Employee successfully updated',
+        });
+      },
+    },
+  );
+};
+export const useCreateEmployee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ values }: { values: any }) => createEmployeeMutation(values),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('employee');

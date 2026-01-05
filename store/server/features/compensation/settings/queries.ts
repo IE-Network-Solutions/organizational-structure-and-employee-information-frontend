@@ -7,7 +7,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-
+import { getCurrentToken } from '@/utils/getCurrentToken';
 /**
  * @constant {string} token - The authentication token retrieved from the authentication store.
  */
@@ -30,7 +30,7 @@ import { useQuery } from 'react-query';
  * @returns {Promise<any>} The response from the API.
  */
 const fetchAllowanceTypes = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -51,4 +51,29 @@ const fetchAllowanceTypes = async () => {
  */
 export const useFetchAllowanceTypes = () => {
   return useQuery(['allowanceType'], () => fetchAllowanceTypes());
+};
+
+const fetchAllowanceTypesByCompType = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-items/by-compensation-type?type=ALLOWANCE`,
+    method: 'GET',
+    headers,
+  });
+};
+
+/**
+ * Custom hook to fetch allowance types by compensation type using React Query's useQuery hook.
+ *
+ * @returns {QueryObject} The query object for fetching allowance types filtered by type.
+ */
+export const useFetchAllowanceTypesByTypeAllowance = () => {
+  return useQuery(['allowanceTypeByCompType'], () =>
+    fetchAllowanceTypesByCompType(),
+  );
 };

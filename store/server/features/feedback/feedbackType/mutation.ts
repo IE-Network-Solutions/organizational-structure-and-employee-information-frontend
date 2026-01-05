@@ -7,6 +7,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedback/settings';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -19,7 +20,7 @@ import { useMutation, useQueryClient } from 'react-query';
  * @returns {Promise<any>} The response from the API.
  */
 const createQuestionTemplate = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -44,7 +45,7 @@ const createQuestionTemplate = async (data: any) => {
  * @returns {Promise<any>} The response from the API.
  */
 const updateQuestionTemplate = async (data: any, id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -68,7 +69,7 @@ const updateQuestionTemplate = async (data: any, id: string) => {
  * @returns {Promise<any>} The response from the API.
  */
 const deleteQuestionTemplate = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,

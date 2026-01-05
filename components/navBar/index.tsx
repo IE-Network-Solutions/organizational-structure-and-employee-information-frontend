@@ -1,14 +1,18 @@
 'use client';
-import React, { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
-import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  MenuOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons';
 import {
   MdOutlineKeyboardDoubleArrowLeft,
   MdOutlineKeyboardDoubleArrowRight,
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
-import { Layout, Button, theme, Tree, Skeleton, Dropdown } from 'antd';
+import { Layout, Button, theme, Tree, Skeleton, Dropdown, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
@@ -18,13 +22,22 @@ import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
+import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+import dayjs from 'dayjs';
+import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 
 interface CustomMenuItem {
   key: string;
@@ -33,6 +46,7 @@ interface CustomMenuItem {
   className?: string;
   permissions?: string[];
   children?: CustomMenuItem[];
+  disabled?: boolean;
 }
 
 interface MyComponentProps {
@@ -50,21 +64,158 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
-  const { setLocalId, setTenantId, setToken, setUserId, setError } =
-    useAuthenticationStore();
+  const { userData } = useAuthenticationStore();
+  const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
+  const {
+    setLocalId,
+    setTenantId,
+    setToken,
+    setUserId,
+    setError,
+    setActiveCalendar,
+    setLoggedUserRole,
+    setUserData,
+    setIs2FA,
+    setTwoFactorAuthEmail,
+    setUser2FA,
+    isCheckingPermissions,
+    setIsCheckingPermissions,
+  } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const pathName = usePathname();
+
+  const triggerRouteLoaderStart = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('__route_loader_start'));
+    }
+  };
+
+  const loadExpandedKeysFromStorage = (): (string | number | bigint)[] => {
+    if (typeof window === 'undefined') return [];
+
+    try {
+      const saved = localStorage.getItem('navBar-expandedKeys');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.slice(0, 1);
+        }
+      }
+    } catch (error: any) {
+      message.error('Error loading expandedKeys from localStorage:', error);
+    }
+    return [];
+  };
+
+  const saveExpandedKeysToStorage = (keys: (string | number | bigint)[]) => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      localStorage.setItem('navBar-expandedKeys', JSON.stringify(keys));
+    } catch (error: any) {
+      message.error('Error saving expandedKeys to localStorage:', error);
+    }
+  };
 
   const [expandedKeys, setExpandedKeys] = useState<
     (string | number | bigint)[]
-  >([]);
+  >(loadExpandedKeysFromStorage);
   const [selectedKeys, setSelectedKeys] = useState<
     (string | number | bigint)[]
   >([pathname]);
+  const hasInitialized = useRef(false);
+
+  // ===========> Fiscal Year Ended Section <=================
+
+  const { token } = useAuthenticationStore();
+  const { data: activeFiscalYear, refetch } = useGetActiveFiscalYearsData();
+
+  useEffect(() => {
+    refetch();
+  }, [token]);
+
+  const hasEndedFiscalYear =
+    !!activeFiscalYear?.isActive &&
+    !!activeFiscalYear?.endDate &&
+    new Date(activeFiscalYear?.endDate) <= new Date();
+
+  // ===========> Fiscal Year Ended Section <=================
+
+  // Separate array for routes that should be accessible but not shown in navigation
+  const hiddenRoutes: { key: string; permissions: string[] }[] = [
+    {
+      key: '/dashboard',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/employees/manage-employees/[id]',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/employee-information/[id]',
+      permissions: [], // Allow all users to access employee information
+    },
+    {
+      key: '/feedback/action-plan',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
+    {
+      key: '/feedback/meeting',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
+    {
+      key: '/feedback/categories',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
+  ];
+
+  const getRoutesAndPermissions = (
+    menuItems: CustomMenuItem[],
+  ): { route: string; permissions: string[] }[] => {
+    const routes: { route: string; permissions: string[] }[] = [];
+
+    const traverse = (items: CustomMenuItem[]) => {
+      items.forEach((item) => {
+        if (item.key && item.permissions) {
+          routes.push({
+            route: item.key,
+            permissions: item.permissions,
+          });
+        }
+
+        if (item.children) {
+          traverse(item.children);
+        }
+      });
+    };
+
+    // First add hidden routes
+    hiddenRoutes.forEach((route) => {
+      if (route.key && route.permissions) {
+        routes.push({
+          route: route.key,
+          permissions: route.permissions,
+        });
+      }
+    });
+
+    // Then add visible menu routes
+    traverse(menuItems);
+    return routes;
+  };
 
   const treeData: CustomMenuItem[] = [
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          className="flex items-center gap-2 h-12"
+          data-cy="nav-item-settings"
+        >
           <CiSettings
             size={18}
             className={
@@ -77,12 +228,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/organization',
       className: 'font-bold',
       permissions: ['view_organization'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Org Structure</span>,
           key: '/organization/chart',
           className: 'font-bold',
           permissions: ['view_organization_chart'],
+          disabled: hasEndedFiscalYear,
         },
         {
           title: <span>Settings</span>,
@@ -95,7 +248,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <LuUsers2
+          <LuUsers
             size={18}
             className={expandedKeys.includes('/employees') ? 'text-blue' : ''}
           />
@@ -105,6 +258,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employees',
       className: 'font-bold',
       permissions: ['view_employees'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Manage Employees</span>,
@@ -139,12 +293,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/recruitment',
       className: 'font-bold',
       permissions: ['view_recruitment'],
+      disabled: hasEndedFiscalYear,
       children: [
+        {
+          title: <span>Dashboard</span>,
+          key: '/recruitment/dashboard',
+          className: 'font-bold',
+          permissions: ['view_recruitment_dashboard'],
+        },
         {
           title: <span>Jobs</span>,
           key: '/recruitment/jobs',
           className: 'font-bold',
           permissions: ['manage_recruitment_jobs'],
+        },
+        {
+          title: <span>AI Job Matching</span>,
+          key: '/recruitment/ai-job-matching',
+          className: 'font-bold',
+          permissions: ['manage_recruitment_jobs'],
+          disabled: hasEndedFiscalYear,
+          //  || isSubscriptionExpired,
         },
         {
           title: <span>Candidates</span>,
@@ -153,13 +322,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['manage_recruitment_candidates'],
         },
         {
-          title: <span>Talent Pool</span>,
-          key: '/recruitment/talent-pool',
+          title: <span>Talent Resource</span>,
+          key: '/recruitment/talent-resource',
           className: 'font-bold',
           permissions: ['manage_recruitment_talent_pool'],
         },
         {
-          title: <span>Settings</span>,
+          title: <span className="font-bold">Settings</span>,
           key: '/recruitment/settings',
           className: 'font-bold',
           permissions: ['manage_recruitment_settings'],
@@ -171,14 +340,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiStar
             size={18}
-            className={expandedKeys.includes('okr-menu') ? 'text-blue' : ''}
+            className={expandedKeys.includes('/okr-menu') ? 'text-blue' : ''}
           />
           <span>OKR</span>
         </span>
       ),
-      key: 'okr-menu',
+      key: '/okr-menu',
       className: 'font-bold',
       permissions: ['view_okr'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Dashboard</span>,
@@ -227,6 +397,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'feedback-menu',
       className: 'font-bold',
       permissions: ['view_feedback'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Conversation</span>,
@@ -247,7 +418,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['view_feedback_recognition'],
         },
         {
-          title: <span>Settings</span>,
+          title: 'Settings',
           key: '/feedback/settings',
           className: 'font-bold',
           permissions: ['manage_feedback_settings'],
@@ -267,25 +438,32 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'tna-menu',
       className: 'font-bold',
       permissions: ['view_learning_growth'],
+      disabled: hasEndedFiscalYear,
       children: [
-        {
-          title: <span>My-TNA</span>,
-          key: '/tna/my-training',
-          className: 'font-bold',
-          permissions: ['view_my_training'],
-        },
+        // {
+        //   title: <span>My-TNA</span>,
+        //   key: '/tna/my-training',
+        //   className: 'font-bold',
+        //   permissions: ['view_my_training'],
+
+        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
+
+        // },
         {
           title: <span>Training Management</span>,
           key: '/tna/management',
           className: 'font-bold',
           permissions: ['manage_training'],
         },
-        {
-          title: <span>TNA</span>,
-          key: '/tna/review',
-          className: 'font-bold',
-          permissions: ['view_tna_review'],
-        },
+        // {
+        //   title: <span>TNA</span>,
+        //   key: '/tna/review',
+        //   className: 'font-bold',
+        //   permissions: ['view_tna_review'],
+
+        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
+
+        // },
         {
           title: <span>Settings</span>,
           key: '/tna/settings/course-category',
@@ -299,13 +477,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <AiOutlineDollarCircle
             size={18}
-            className={expandedKeys.includes('payroll-menu') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('/payroll-menu') ? 'text-blue' : ''
+            }
           />
           <span>Payroll</span>
         </span>
       ),
-      key: 'payroll-menu',
+      key: '/payroll-menu',
       className: 'font-bold',
+      permissions: ['view_payroll_menu'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Employee Information</span>,
@@ -317,7 +499,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: <span>Payroll</span>,
           key: '/payroll',
           className: 'font-bold',
-          permissions: ['view_payroll_overview'],
+          permissions: ['view_payroll_overview_page'],
         },
         {
           title: <span>My Payroll</span>,
@@ -348,7 +530,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'timesheet-menu',
       className: 'font-bold',
       permissions: ['view_timesheet'],
+      disabled: hasEndedFiscalYear,
       children: [
+        {
+          title: <span>Dashboard</span>,
+          key: '/timesheet/dashboard',
+          className: 'font-bold',
+          permissions: ['view_timesheet_dashboard'],
+        },
         {
           title: <span>My Timesheet</span>,
           key: '/timesheet/my-timesheet',
@@ -390,6 +579,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'compensation-menu',
       className: 'font-bold',
       permissions: ['view_compensation'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Allowance</span>,
@@ -432,6 +622,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'incentive-menu',
       className: 'font-bold',
       permissions: ['view_incentive'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Incentive</span>,
@@ -456,13 +647,32 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <CiSettings size={18} />
+          <FileTextOutlined
+            style={{ fontSize: 18 }}
+            className={expandedKeys.includes('/audit-log') ? 'text-blue' : ''}
+          />
+          <span>Audit Log</span>
+        </span>
+      ),
+      key: '/audit-log',
+      className: 'font-bold',
+      permissions: ['view_audit_log'],
+      disabled: hasEndedFiscalYear,
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12">
+          <CiSettings
+            size={18}
+            className={expandedKeys.includes('admin-menu') ? 'text-blue' : ''}
+          />
           <span>Admin</span>
         </span>
       ),
       key: 'admin-menu',
       className: 'font-bold',
       permissions: ['view_admin_configuration'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Dashboard</span>,
@@ -486,29 +696,261 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
+  // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
+  const isRouteMatch = (routePattern: string, pathname: string) => {
+    // Match [id] to UUIDs (or any non-slash segment)
+    if (routePattern.includes('[id]')) {
+      // UUID regex: [0-9a-fA-F-]{36} (simple version)
+      const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
+      const regex = new RegExp('^' + regexPattern + '$');
+      return regex.test(pathname);
+    }
+    // Generic dynamic segment: [something] => [^/]+
+    if (routePattern.match(/\[.*?\]/g)) {
+      const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
+      const regex = new RegExp('^' + regexPattern + '$');
+      return regex.test(pathname);
+    }
+    return routePattern === pathname;
+  };
+
+  const checkPathnamePermissions = (pathname: string): boolean => {
+    // Get all routes and their permissions
+    const routesWithPermissions = getRoutesAndPermissions(treeData);
+
+    // Check if user is owner - owners have access to all routes
+    const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
+    if (isOwner) {
+      return true;
+    }
+
+    // First check if the pathname matches any defined route (supporting dynamic segments)
+    const matchingRoute = routesWithPermissions.find((route) => {
+      if (isRouteMatch(route.route, pathname)) {
+        return true;
+      }
+      // Check for parent-child relationship - allow any level of nesting
+      if (pathname.startsWith(route.route + '/')) {
+        return true;
+      }
+      return false;
+    });
+
+    // If no matching route found, check if it's a deeply nested route
+    if (!matchingRoute) {
+      // For deeply nested routes without explicit permissions,
+      // check if any parent route exists and has permissions
+      const pathParts = pathname.split('/').filter(Boolean);
+
+      // Try to find a parent route that has permissions
+      for (let i = pathParts.length - 1; i > 0; i--) {
+        const parentPath = '/' + pathParts.slice(0, i).join('/');
+        const parentRoute = routesWithPermissions.find((route) =>
+          isRouteMatch(route.route, parentPath),
+        );
+
+        if (parentRoute) {
+          // Check if user has permissions for parent route
+          const userPermissions = userData?.userPermissions || [];
+          const hasParentPermissions = parentRoute.permissions.every(
+            (requiredPermission: any) => {
+              const found = userPermissions?.find(
+                (permission: any) =>
+                  permission.permission.slug === requiredPermission,
+              );
+              return found;
+            },
+          );
+
+          if (hasParentPermissions) {
+            return true;
+          }
+        }
+      }
+
+      // If no parent route found or no permissions, deny access
+      return false;
+    }
+
+    // If route exists but has no permissions, allow access
+    if (!matchingRoute.permissions || matchingRoute.permissions.length === 0) {
+      return true;
+    }
+
+    // Get user's permissions from the authentication store
+
+    const userPermissions = userData?.userPermissions || [];
+
+    // Check if user has ALL required permissions for this route
+
+    const hasAllPermissions = matchingRoute.permissions.every(
+      (requiredPermission: any) => {
+        const found = userPermissions?.find(
+          (permission: any) =>
+            permission.permission.slug === requiredPermission,
+        );
+        return found;
+      },
+    );
+    return hasAllPermissions;
+  };
+  const { data: departments, isLoading: departmentsLoading } =
+    useGetDepartments();
+  const { data: employeeData, isLoading: employeeDataLoading } =
+    useGetEmployee(userId);
+  const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
+
+  const isLoadingData =
+    departmentsLoading || employeeDataLoading || !departments || !employeeData;
+
+  useEffect(() => {
+    if (isLoadingData) return;
+
+    if (departments.length === 0 && !isLoadingData) {
+      router.push('/onboarding');
+    } else if (
+      employeeData?.employeeJobInformation?.length === 0 &&
+      pathName !== `/employees/manage-employees/${userId}`
+    ) {
+      setIsModalOpen(true);
+    } else if (
+      employeeData?.employeeJobInformation?.length === 0 &&
+      pathName === `/employees/manage-employees/${userId}`
+    ) {
+      setIsAddEmployeeJobInfoModalVisible(true);
+    }
+  }, [departments, employeeData, router, isLoadingData, pathName, userId]);
+
+  const handleOk = () => {
+    router.push(`/employees/manage-employees/${userId}`);
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  // ✅ Check permission on pathname change
+  useEffect(() => {
+    const checkPermissions = async () => {
+      setIsCheckingPermissions(true);
+
+      if (pathname === '/') {
+        router.push('/dashboard');
+      } else if (!checkPathnamePermissions(pathname)) {
+        router.push('/unauthorized');
+      }
+
+      setIsCheckingPermissions(false);
+    };
+
+    checkPermissions();
+  }, [pathname, router]);
+
+  const findParentMenuKey = (
+    pathname: string,
+    menuItems: CustomMenuItem[],
+  ): string | null => {
+    for (const item of menuItems) {
+      if (item.children) {
+        const matchesChild = item.children.some((child) => {
+          const childKey = String(child.key);
+          return (
+            pathname === childKey ||
+            pathname.startsWith(childKey + '/') ||
+            (childKey.includes('[id]') &&
+              pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
+          );
+        });
+
+        if (matchesChild) {
+          return String(item.key);
+        }
+
+        const nestedParent = findParentMenuKey(pathname, item.children);
+        if (nestedParent) {
+          return String(item.key);
+        }
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    saveExpandedKeysToStorage(expandedKeys);
+  }, [expandedKeys]);
+
+  useEffect(() => {
+    if (pathname === '/dashboard' || pathname === '/') {
+      setExpandedKeys([]);
+      return;
+    }
+    const parentKey = findParentMenuKey(pathname, treeData);
+    if (parentKey) {
+      setExpandedKeys((prev) => {
+        if (prev.length !== 1 || prev[0] !== parentKey) {
+          return [parentKey];
+        }
+        return prev;
+      });
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    const savedKeys = loadExpandedKeysFromStorage();
+    if (savedKeys.length > 0) {
+      if (expandedKeys.length === 0) {
+        setExpandedKeys(savedKeys);
+      }
+      return;
+    }
+
+    const parentKey = findParentMenuKey(pathname, treeData);
+    if (parentKey && expandedKeys.length === 0) {
+      setExpandedKeys([parentKey]);
+    }
+  }, []);
+
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;
     if (!selectedKey) return;
 
-    if (info.node.children) {
+    // Check if node has children - handle both undefined and empty arrays
+    const hasChildren =
+      info.node.children &&
+      Array.isArray(info.node.children) &&
+      info.node.children.length > 0;
+
+    if (hasChildren) {
       setExpandedKeys((prev) =>
-        prev.includes(selectedKey)
-          ? prev.filter((key) => key !== selectedKey)
-          : [...prev, selectedKey],
+        prev.includes(selectedKey) ? [] : [selectedKey],
       );
       return;
     }
 
     const path = String(selectedKey);
     if (pathname !== path) {
+      triggerRouteLoaderStart();
       router.push(path);
       setSelectedKeys([selectedKey]);
+    }
+  };
+
+  const handleExpand = (expandedKeys: (string | number | bigint)[]) => {
+    if (expandedKeys.length > 0) {
+      setExpandedKeys([expandedKeys[expandedKeys.length - 1]]);
+    } else {
+      setExpandedKeys([]);
     }
   };
 
   const handleDoubleClick = (event: React.MouseEvent, node: any) => {
     const key = node?.key;
     if (!node.children && key) {
+      triggerRouteLoaderStart();
       router.push(String(key));
     }
   };
@@ -531,17 +973,33 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setMobileCollapsed(!mobileCollapsed);
   };
 
-  const handleLogout = () => {
-    setToken('');
-    setTenantId('');
-    setLocalId('');
-    removeCookie('token');
-    router.push(`/authentication/login`);
-    setUserId('');
-    setLocalId('');
-    setError('');
-    removeCookie('tenantId');
-    window.location.reload();
+  const handleLogout = async () => {
+    try {
+      setUserData({});
+      setLoggedUserRole('');
+      setActiveCalendar('');
+      setUserId('');
+      setError('');
+      setIs2FA(false);
+      setTwoFactorAuthEmail('');
+      setLocalId('');
+      setTenantId('');
+      setToken('');
+      setUser2FA({ email: '', pass: '' });
+
+      // Then remove cookies
+      removeCookie('token');
+      removeCookie('tenantId');
+      removeCookie('activeCalendar');
+      removeCookie('loggedUserRole');
+
+      // Finally clear the remaining state
+      setToken('');
+      setTenantId('');
+      setLocalId('');
+
+      router.push('/authentication/login');
+    } catch (error) {}
   };
 
   const filteredMenuItems = treeData
@@ -583,6 +1041,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   e.stopPropagation();
                   const path = String(child.key);
                   if (pathname !== path) {
+                    triggerRouteLoaderStart();
                     router.push(path);
                   }
                   setSelectedKeys([child.key]);
@@ -611,7 +1070,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return {
         ...item,
         title: collapsed ? (
-          item.children ? (
+          item.children && item.children.length > 0 ? (
             <Dropdown
               overlay={renderSubMenu(item.children)}
               trigger={['click']}
@@ -622,9 +1081,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   setExpandedKeys((prev) =>
-                    prev.includes(item.key)
-                      ? prev.filter((key) => key !== item.key)
-                      : [...prev, item.key],
+                    prev.includes(item.key) ? [] : [item.key],
                   );
                 }}
               >
@@ -632,7 +1089,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               </div>
             </Dropdown>
           ) : (
-            renderTitle()
+            <div
+              className="flex items-center justify-center w-full cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                const path = String(item.key);
+                if (pathname !== path) {
+                  triggerRouteLoaderStart();
+                  router.push(path);
+                }
+                setSelectedKeys([item.key]);
+              }}
+            >
+              {renderTitle()}
+            </div>
           )
         ) : (
           item.title
@@ -642,6 +1112,38 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       };
     });
   };
+  const { mutate: employeeInfo } = useCreateEmployee();
+  const handleUserInfoUpdate = () => {
+    const fullName = employeeData?.firstName?.split(' ') || [];
+    const payloadUser = {
+      firstName: fullName[0] || '-',
+      middleName: fullName[1] || '-',
+      lastName: fullName[2] || '-',
+    };
+    const payloadEmp = {
+      joinedDate: employeeData?.createdAt
+        ? new Date(employeeData?.createdAt).toISOString()
+        : new Date().toISOString(),
+      dateOfBirth: dayjs().subtract(30, 'year'),
+      employeeAttendanceId: 1,
+      gender: 'male',
+      maritalStatus: 'SINGLE',
+      addresses: {},
+      additionalInformation: {},
+      bankInformation: {},
+      userId: userId,
+    };
+
+    updateEmployeeInformation({
+      id: userId,
+      values: payloadUser,
+    });
+    employeeInfo({
+      values: payloadEmp,
+    });
+  };
+
+  // Render the component with the layout and navigation on the left
 
   return (
     <Layout>
@@ -700,7 +1202,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         )}
 
         <div className="relative">
-          <div className="absolute left-2 top-0 w-[10px] h-full bg-white z-10"></div>
+          <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
           {isLoading ? (
             <div className="px-5 w-full h-full flex justify-center items-center my-5">
               <Skeleton active />{' '}
@@ -713,8 +1215,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               expandedKeys={expandedKeys}
               selectedKeys={selectedKeys}
               onSelect={handleSelect}
+              onExpand={handleExpand}
               onDoubleClick={handleDoubleClick}
-              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]:!shadow-lg [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
+              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
               switcherIcon={null}
             />
           )}
@@ -722,7 +1225,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       </Sider>
       <Layout
         style={{
-          marginLeft: isMobile ? 10 : collapsed ? 10 : 20,
+          marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
           transition: 'margin-left 0.3s ease',
         }}
       >
@@ -772,21 +1275,38 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <Content
           className="overflow-y-hidden min-h-screen"
           style={{
-            paddingTop: isMobile ? 4 : 24,
-            paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+            paddingInline: isMobile ? 8 : 24,
+            paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             transition: 'padding-left 0.3s ease',
           }}
         >
-          <div
-            className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-            style={{
-              borderRadius: borderRadiusLG,
-              marginTop: '3rem',
-              marginRight: `${isMobile ? 0 : !isAdminPage ? '1.3rem' : ''}`,
+          {isCheckingPermissions ? (
+            <div className="flex justify-center items-center h-screen">
+              <Skeleton active />
+            </div>
+          ) : (
+            <div
+              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+              style={{
+                borderRadius: borderRadiusLG,
+                marginTop: `${isMobile ? '85px' : '94px'}`,
+                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+              }}
+            >
+              {children}
+            </div>
+          )}
+          <CreateEmployeeJobInformation
+            onInfoSubmition={() => {
+              handleUserInfoUpdate();
             }}
-          >
-            {children}
-          </div>
+            id={userId}
+          />
+          <JobInfoAccessModal
+            open={isModalOpen}
+            onClose={handleCancel}
+            onConfirm={handleOk}
+          />
         </Content>
       </Layout>
     </Layout>

@@ -6,6 +6,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 /**
@@ -32,7 +33,7 @@ import { useQuery } from 'react-query';
  * @returns {Promise<any>} The response from the API.
  */
 const fetchQuestionTemplate = async (pageSize: number, current: number) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
   const headers = {

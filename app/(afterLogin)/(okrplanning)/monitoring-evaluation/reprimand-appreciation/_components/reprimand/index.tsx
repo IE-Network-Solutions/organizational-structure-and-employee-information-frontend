@@ -64,11 +64,22 @@ const Reprimand = () => {
   const { data: repLogs, isLoading } = useGetReprimandLog(userId, typeId);
 
   return (
-    <div className="p-4 md:p-0">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6">
-        <div className="mb-4 md:mb-0">
-          <h1 className="text-lg md:text-xl font-bold mb-1">Reprimand</h1>
-          <span className="text-xs md:text-sm text-gray-600">
+    <div className="p-4 md:p-0" data-cy="reprimand-container">
+      <div
+        className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6"
+        data-cy="reprimand-header"
+      >
+        <div className="mb-4 md:mb-0" data-cy="reprimand-title-container">
+          <h1
+            className="text-lg md:text-xl font-bold mb-1"
+            data-cy="reprimand-title"
+          >
+            Reprimand
+          </h1>
+          <span
+            className="text-xs md:text-sm text-gray-600"
+            data-cy="reprimand-subtitle"
+          >
             Given Upon Reprimand
           </span>
         </div>

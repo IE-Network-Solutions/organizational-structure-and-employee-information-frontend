@@ -1,10 +1,10 @@
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
 import { Objective } from '@/store/uistate/features/okrplanning/okr/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import { crudRequest } from '@/utils/crudRequest';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 type ResponseData = {
@@ -18,52 +18,73 @@ type ResponseData = {
   };
 };
 
-/**
- * Function to fetch posts by sending a GET request to the API
- * @returns The response data from the API
- */
 const getObjectiveByUser = async (
   id: number | string,
   pageSize: number,
   currentPage: number,
   metricTypeId: string,
+  fiscalYearId?: string,
+  sessions?: string[],
 ) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/objective/${id}?page=${currentPage}&limit=${pageSize}&metricTypeId=${metricTypeId}`,
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    } as const;
 
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const params = new URLSearchParams();
+    params.set('page', String(currentPage));
+    params.set('limit', String(pageSize));
+    if (metricTypeId) params.set('metricTypeId', metricTypeId);
+    if (fiscalYearId) params.set('fiscalYearId', fiscalYearId);
+    if (sessions && sessions.length > 0) params.set('sessionId', sessions[0]);
+
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/${id}?${params.toString()}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
 };
+
 const getObjectiveByTeam = async (
   pageSize: number,
   currentPage: number,
-  users: number[],
+  users: (string | number)[],
   userId: string,
   metricTypeId: string,
+  fiscalYearId?: string,
+  sessions?: string[],
 ) => {
+  const token = await getCurrentToken();
   try {
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/objective/team?page=${currentPage}&limit=${pageSize}`,
-      { users: users, userId: userId, metricTypeId: metricTypeId }, // This is the request body
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-          tenantId: tenantId, // Pass tenantId in the headers
-        },
+    const urlParams = new URLSearchParams();
+    urlParams.set('page', String(currentPage));
+    urlParams.set('limit', String(pageSize));
+    if (fiscalYearId) urlParams.set('fiscalYearId', fiscalYearId);
+    if (sessions && sessions.length > 0)
+      urlParams.set('sessionId', sessions[0]);
+
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/team?${urlParams.toString()}`,
+      method: 'POST',
+      data: {
+        users,
+        metricTypeId,
+        fiscalYearId,
+        sessionId: sessions && sessions.length > 0 ? sessions[0] : undefined,
       },
-    );
-    return response.data;
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+        userId: userId,
+      },
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -76,23 +97,32 @@ const getObjectiveByCompany = async (
   users: number[],
   userId: string,
   metricTypeId: string,
+  fiscalYearId?: string,
+  sessions?: string[],
 ) => {
+  const token = await getCurrentToken();
   try {
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/objective/company/okr/${id}?page=${currentPage}&limit=${pageSize}`,
-      { users: users, userId: userId, metricTypeId: metricTypeId }, // This is the request body
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-          tenantId: tenantId, // Pass tenantId in the headers
-        },
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/company/okr/${id}?page=${currentPage}&limit=${pageSize}`,
+      method: 'POST',
+      data: {
+        users,
+        userId,
+        metricTypeId,
+        fiscalYearId,
+        sessionId: sessions && sessions.length > 0 ? sessions[0] : undefined,
       },
-    );
-    return response.data;
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+    return response;
   } catch (error) {
     throw error;
   }
 };
+
 const getEmployeeOkr = async (
   sessions: string[],
   searchObjParams: {
@@ -103,74 +133,68 @@ const getEmployeeOkr = async (
   page: number,
   currentPage: number,
 ) => {
+  const token = await getCurrentToken();
   try {
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/objective/get-okr-progress/all-employees?page=${currentPage}&limit=${page}`,
-      {
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/get-okr-progress/all-employees?page=${currentPage}&limit=${page}`,
+      method: 'POST',
+      data: {
         sessions,
         userId: searchObjParams?.userId,
         departmentId: searchObjParams?.departmentId,
         metricTypeId: searchObjParams?.metricTypeId,
-      }, // merged into one object
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          tenantId: tenantId,
-        },
       },
-    );
-    return response.data;
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+    return response;
   } catch (error) {
     throw error;
   }
 };
 
-/**
- * Function to fetch a single post by sending a GET request to the API
- * @param id The ID of the post to fetch
- * @returns The response data from the API
- */
-
-/**
- * Custom hook to fetch a list of posts using useQuery from react-query.
- *
- * @returns The query object for fetching posts.
- *
- * @description
- * This hook uses `useQuery` to fetch a list of posts from the API. It returns
- * the query object containing the posts data and any loading or error states.
- */
-
-/**
- * Custom hook to fetch a single post by ID using useQuery from react-query.
- *
- * @param postId The ID of the post to fetch
- * @returns The query object for fetching the post.
- *
- * @description
- * This hook uses `useQuery` to fetch a single post by its ID. It returns the
- * query object containing the post data, and it keeps the previous data
- * while the new data is being fetched.
- */
 export const useGetUserObjective = (
   postId: number | string,
   pageSize: number,
   currentPage: number,
   metricTypeId: string,
+  fiscalYearId?: string,
+  sessions?: string[],
 ) =>
   useQuery<ResponseData>(
-    ['ObjectiveInformation', postId, pageSize, currentPage, metricTypeId],
-    () => getObjectiveByUser(postId, pageSize, currentPage, metricTypeId),
+    [
+      'ObjectiveInformation',
+      postId,
+      pageSize,
+      currentPage,
+      metricTypeId,
+      fiscalYearId,
+      sessions,
+    ],
+    () =>
+      getObjectiveByUser(
+        postId,
+        pageSize,
+        currentPage,
+        metricTypeId,
+        fiscalYearId,
+        sessions,
+      ),
     {
       keepPreviousData: true,
     },
   );
+
 export const useGetTeamObjective = (
   pageSize: number,
   currentPage: number,
-  users: number[],
+  users: (string | number)[],
   userId: string,
   metricTypeId: string,
+  fiscalYearId?: string,
+  sessions?: string[],
 ) =>
   useQuery<ResponseData>(
     [
@@ -180,13 +204,25 @@ export const useGetTeamObjective = (
       currentPage,
       userId,
       metricTypeId,
+      fiscalYearId,
+      sessions,
     ],
     () =>
-      getObjectiveByTeam(pageSize, currentPage, users, userId, metricTypeId),
+      getObjectiveByTeam(
+        pageSize,
+        currentPage,
+        users,
+        userId,
+        metricTypeId,
+        fiscalYearId,
+        sessions,
+      ),
     {
       keepPreviousData: true,
+      enabled: users.length > 0 && !!userId,
     },
   );
+
 export const useGetCompanyObjective = (
   postId: number | string,
   pageSize: number,
@@ -194,6 +230,8 @@ export const useGetCompanyObjective = (
   users: number[],
   userId: string,
   metricTypeId: string,
+  fiscalYearId?: string,
+  sessions?: string[],
 ) =>
   useQuery<ResponseData>(
     [
@@ -204,6 +242,8 @@ export const useGetCompanyObjective = (
       currentPage,
       userId,
       metricTypeId,
+      fiscalYearId,
+      sessions,
     ],
     () =>
       getObjectiveByCompany(
@@ -213,11 +253,14 @@ export const useGetCompanyObjective = (
         users,
         userId,
         metricTypeId,
+        fiscalYearId,
+        sessions,
       ),
     {
       keepPreviousData: true,
     },
   );
+
 export const useGetEmployeeOkr = (
   sessions: string[],
   searchObjParams: {

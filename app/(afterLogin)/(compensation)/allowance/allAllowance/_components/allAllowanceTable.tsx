@@ -4,12 +4,67 @@ import { TableColumnsType } from '@/types/table/table';
 import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+
+// Component to handle allowance amount calculation
+const AllowanceAmount = ({
+  employeeId,
+  allowance,
+  allowanceType,
+}: {
+  employeeId: string;
+  allowance: any;
+  allowanceType: any;
+}) => {
+  const { data: basicSalaryData, error } = useGetBasicSalaryById(employeeId);
+
+  if (error || !basicSalaryData) {
+    return (
+      <span
+        id={`compensation-allowance-amount-error-${employeeId}`}
+        data-cy={`compensation-allowance-amount-error-${employeeId}`}
+      >
+        -
+      </span>
+    );
+  }
+
+  const employeeBasicSalary =
+    Number(basicSalaryData.find((item: any) => item.status)?.basicSalary) || 0;
+
+  // If it's a rate-based allowance, calculate the amount
+  if (allowanceType.isRate && allowanceType.defaultAmount) {
+    const calculatedAmount =
+      (employeeBasicSalary * Number(allowanceType.defaultAmount)) / 100;
+    return (
+      <span
+        id={`compensation-allowance-amount-rate-${employeeId}`}
+        data-cy={`compensation-allowance-amount-rate-${employeeId}`}
+      >
+        {calculatedAmount ? calculatedAmount : '-'}
+      </span>
+    );
+  }
+
+  // For fixed amounts, use the totalAmount
+  return (
+    <span
+      id={`compensation-allowance-amount-fixed-${employeeId}`}
+      data-cy={`compensation-allowance-amount-fixed-${employeeId}`}
+    >
+      {allowance.totalAmount ? allowance.totalAmount : '-'}
+    </span>
+  );
+};
 
 const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useAllAllowanceStore();
-
+  const { isMobile, isTablet } = useIsMobile();
   const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
     ? allCompensationsData.filter(
         (allowanceEntitlement: any) =>
@@ -20,7 +75,7 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   const allEntitlementData = Array.isArray(allAllowanceEntitlementData)
     ? allAllowanceEntitlementData.reduce(
         (acc: any, benefit: any) =>
-          acc.concat(benefit.compensationItmeEntitlement),
+          acc.concat(benefit.compensationItmeEntitlement || []),
         [],
       )
     : [];
@@ -44,7 +99,18 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       employeeId: employee.employeeId,
     };
     employee.allowance.forEach((allowance: any) => {
-      dataRow[allowance.compensationItemId] = allowance.totalAmount;
+      // Find the corresponding allowance type to get the correct ID for the column
+      const allowanceType = allAllowanceEntitlementData.find(
+        (type: any) => type.id === allowance.compensationItemId,
+      );
+      if (allowanceType) {
+        // Store both allowance and allowanceType for proper calculation
+        dataRow[allowanceType.id] = {
+          allowance,
+          allowanceType,
+          employeeId: employee.employeeId,
+        };
+      }
     });
     return dataRow;
   });
@@ -55,11 +121,6 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       )
     : dataSource;
 
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
-
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -67,34 +128,126 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       key: 'dateNaming',
       sorter: true,
       render: (notused: any, record: any) => (
-        <EmployeeDetails empId={record?.employeeId} />
+        <div
+          data-testid={`allowance-employee-${record?.employeeId}`}
+          id={`compensation-allowance-all-employee-${record?.employeeId}`}
+          data-cy={`compensation-allowance-all-employee-${record?.employeeId}`}
+        >
+          <EmployeeDetails empId={record?.employeeId} />
+        </div>
       ),
     },
     ...(Array.isArray(allAllowanceEntitlementData)
       ? allAllowanceEntitlementData.map((item: any) => ({
-          title: item?.name,
+          title: (
+            <span
+              className="text-xs truncate"
+              id={`compensation-allowance-column-title-${item?.id}`}
+              data-cy={`compensation-allowance-column-title-${item?.id}`}
+            >
+              {item?.name}
+            </span>
+          ),
           dataIndex: item?.id,
           key: item?.id,
-          render: (text: string) => <div>{text || '-'}</div>,
+          render: (text: string, record: any) => {
+            const allowanceData = record[item?.id];
+
+            if (!allowanceData) {
+              return (
+                <div
+                  data-testid={`allowance-amount-${item?.id}`}
+                  id={`compensation-allowance-amount-empty-${item?.id}`}
+                  data-cy={`compensation-allowance-amount-empty-${item?.id}`}
+                >
+                  -
+                </div>
+              );
+            }
+
+            return (
+              <div
+                data-testid={`allowance-amount-${item?.id}`}
+                id={`compensation-allowance-amount-value-${item?.id}`}
+                data-cy={`compensation-allowance-amount-value-${item?.id}`}
+              >
+                <AllowanceAmount
+                  data-cy="compensation-allowance-amount"
+                  employeeId={allowanceData.employeeId}
+                  allowance={allowanceData.allowance}
+                  allowanceType={allowanceData.allowanceType}
+                />
+              </div>
+            );
+          },
         }))
       : []),
   ];
 
+  const paginatedData = filteredDataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={filteredDataSource}
-        pagination={{
-          current: currentPage,
-          pageSize,
-          total: dataSource.length,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
-    </Spin>
+    <div
+      data-testid="all-allowance-table-container"
+      id="compensation-allowance-all-table-container"
+      data-cy="compensation-allowance-all-table-container"
+    >
+      <Spin
+        data-cy="compensation-allowance-all-table-loading"
+        spinning={isLoading}
+        data-testid="allowance-table-loading"
+      >
+        <div
+          className="overflow-x-auto"
+          id="compensation-allowance-all-table-scroll"
+          data-cy="compensation-allowance-all-table-scroll"
+        >
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="allowance-table"
+            id="compensation-allowance-all-table-display"
+            data-cy="compensation-allowance-all-table-display"
+          />
+        </div>
+
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            data-cy="compensation-allowance-all-table-mobile-pagination"
+            totalResults={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            data-cy="compensation-allowance-all-table-pagination"
+            current={currentPage}
+            total={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+        )}
+      </Spin>
+    </div>
   );
 };
 

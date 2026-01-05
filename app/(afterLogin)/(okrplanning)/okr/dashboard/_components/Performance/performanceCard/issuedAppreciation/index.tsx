@@ -1,18 +1,35 @@
 import { Card } from 'antd';
 import React from 'react';
-import { FaArrowUp } from 'react-icons/fa';
 
-const IssuedAppreciation: React.FC = () => {
+const IssuedAppreciation: React.FC<{ kpi: number; engagement: number }> = ({
+  kpi,
+  engagement,
+}) => {
   return (
-    <div>
-      <Card>
-        <div className="text-md gap-4 flex justify-start mb-2">
+    <div
+      id="okr-issued-appreciation-wrapper-display-div"
+      data-cy="okr-issued-appreciation-wrapper-display-div"
+    >
+      <Card
+        className="text-md gap-2 flex flex-col  p-4 shadow-lg"
+        bodyStyle={{ padding: '0px', margin: '0px' }}
+        id="okr-issued-appreciation-card-display-card"
+        data-cy="okr-issued-appreciation-card-display-card"
+      >
+        <div
+          className="flex items-center gap-5 justify-start"
+          id="okr-issued-appreciation-header-display-div"
+          data-cy="okr-issued-appreciation-header-display-div"
+        >
+          {' '}
           <svg
             width="40"
             height="41"
             viewBox="0 0 40 41"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            id="okr-issued-appreciation-icon-display-svg"
+            data-cy="okr-issued-appreciation-icon-display-svg"
           >
             <rect
               y="0.730957"
@@ -20,12 +37,12 @@ const IssuedAppreciation: React.FC = () => {
               height="40"
               rx="20"
               fill="#7152F3"
-              fill-opacity="0.05"
+              fillOpacity="0.05"
             />
             <mask id="path-2-inside-1_7606_452769" fill="white">
               <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+                fillRule="evenodd"
+                clipRule="evenodd"
                 d="M19.9996 13.231C17.0079 13.231 14.5829 15.656 14.5829 18.6476C14.5829 20.8993 15.9571 22.8306 17.9125 23.6476H17.9167V23.6493C18.5769 23.9238 19.285 24.0648 20 24.0643C20.7151 24.0647 21.4231 23.9235 22.0833 23.6489V23.6476H22.0867C24.0421 22.8306 25.4163 20.8993 25.4163 18.6476C25.4163 15.656 22.9913 13.231 19.9996 13.231ZM22.9167 24.1768C24.8987 23.1281 26.25 21.0456 26.25 18.6476C26.25 15.196 23.4517 12.3976 20 12.3976C16.5483 12.3976 13.75 15.196 13.75 18.6476C13.75 21.046 15.1012 23.1293 17.0837 24.1768V28.6476C17.0837 28.7231 17.1042 28.7971 17.143 28.8618C17.1817 28.9265 17.2373 28.9795 17.3038 29.0151C17.3704 29.0507 17.4453 29.0675 17.5206 29.0639C17.596 29.0602 17.6689 29.0362 17.7317 28.9943L20 27.4818L22.2687 28.9943C22.3315 29.0362 22.4044 29.0602 22.4798 29.0639C22.5551 29.0675 22.6301 29.0507 22.6966 29.0151C22.7631 28.9795 22.8187 28.9265 22.8574 28.8618C22.8962 28.7971 22.9167 28.7231 22.9167 28.6476V24.1768ZM22.0833 24.5418C21.4141 24.7778 20.7096 24.8982 20 24.8976C19.2696 24.8976 18.5687 24.7726 17.9171 24.5422V27.8693L19.7692 26.6343C19.8376 26.5886 19.9181 26.5642 20.0004 26.5642C20.0827 26.5642 20.1632 26.5886 20.2317 26.6343L22.0833 27.8693V24.5418ZM20 15.731C19.617 15.731 19.2377 15.8064 18.8838 15.953C18.53 16.0996 18.2084 16.3144 17.9376 16.5852C17.6668 16.8561 17.4519 17.1776 17.3054 17.5315C17.1588 17.8854 17.0833 18.2646 17.0833 18.6476C17.0833 19.0307 17.1588 19.4099 17.3054 19.7638C17.4519 20.1177 17.6668 20.4392 17.9376 20.71C18.2084 20.9809 18.53 21.1957 18.8838 21.3423C19.2377 21.4889 19.617 21.5643 20 21.5643C20.7735 21.5643 21.5154 21.257 22.0624 20.71C22.6094 20.1631 22.9167 19.4212 22.9167 18.6476C22.9167 17.8741 22.6094 17.1322 22.0624 16.5852C21.5154 16.0383 20.7735 15.731 20 15.731ZM16.25 18.6476C16.25 17.6531 16.6451 16.6993 17.3483 15.996C18.0516 15.2927 19.0054 14.8976 20 14.8976C20.9946 14.8976 21.9484 15.2927 22.6516 15.996C23.3549 16.6993 23.75 17.6531 23.75 18.6476C23.75 19.6422 23.3549 20.596 22.6516 21.2993C21.9484 22.0026 20.9946 22.3976 20 22.3976C19.0054 22.3976 18.0516 22.0026 17.3483 21.2993C16.6451 20.596 16.25 19.6422 16.25 18.6476Z"
               />
             </mask>
@@ -41,23 +58,58 @@ const IssuedAppreciation: React.FC = () => {
               mask="url(#path-2-inside-1_7606_452769)"
             />
           </svg>
-          <div className="flex flex-col items-start justify-start">
-            <div className="flex items-center justify-start">
-              Issued Appreciation
+          <div
+            className="flex items-center justify-start text-sm font-medium  text-gray-600"
+            id="okr-issued-appreciation-title-display-div"
+            data-cy="okr-issued-appreciation-title-display-div"
+          >
+            Issued Appreciation
+          </div>
+        </div>
+        <div
+          className="flex  items-center justify-center gap-6 text-primary pl-10 lg:pl-0 "
+          id="okr-issued-appreciation-metrics-display-div"
+          data-cy="okr-issued-appreciation-metrics-display-div"
+        >
+          <div
+            className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg"
+            id="okr-issued-appreciation-kpi-display-div"
+            data-cy="okr-issued-appreciation-kpi-display-div"
+          >
+            <div
+              className="text-2xl font-extrabold"
+              id="okr-issued-appreciation-kpi-value-display-div"
+              data-cy="okr-issued-appreciation-kpi-value-display-div"
+            >
+              {kpi}
             </div>
-            <div className="flex gap-1 items-center justify-end">
-              <h3>56.02</h3>
-              <h5>%</h5>
+            <div
+              className="text-sm  font-bold"
+              id="okr-issued-appreciation-kpi-label-display-div"
+              data-cy="okr-issued-appreciation-kpi-label-display-div"
+            >
+              KPI
             </div>
           </div>
-          <div className="flex flex-col justify-between ">
-            <div className="flex items-center justify-end gap-[2px]">
-              <span className="text-green-500 font-light">12.7</span>
-              <FaArrowUp className="text-green-500 font-light" />
+          <div
+            className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg"
+            id="okr-issued-appreciation-engagement-display-div"
+            data-cy="okr-issued-appreciation-engagement-display-div"
+          >
+            <div
+              className="text-2xl font-extrabold"
+              id="okr-issued-appreciation-engagement-value-display-div"
+              data-cy="okr-issued-appreciation-engagement-value-display-div"
+            >
+              {engagement}
             </div>
-            <span className="text-xs font-normal">
-              Updated: {new Date().toLocaleDateString()}
-            </span>
+            <div
+              className="text-sm  font-bold"
+              id="okr-issued-appreciation-engagement-label-display-div"
+              data-cy="okr-issued-appreciation-engagement-label-display-div"
+            >
+              Engagement
+            </div>
           </div>
         </div>
       </Card>

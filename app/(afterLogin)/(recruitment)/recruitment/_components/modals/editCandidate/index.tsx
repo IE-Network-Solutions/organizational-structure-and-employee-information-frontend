@@ -34,6 +34,7 @@ const EditCandidate: React.FC = () => {
     removeDocument,
     documentFileList,
     setEditCandidateModal,
+    setSelectedCandidate,
     currentPage,
     pageSize,
   } = useCandidateState();
@@ -79,15 +80,42 @@ const EditCandidate: React.FC = () => {
 
     const formattedValues = {
       ...formValues,
-      jobCandidate: editCandidate?.jobCandidate?.map((item: any) => item?.id),
+      jobCandidateId: editCandidate?.jobCandidate?.[0]?.id,
+      jobInformationId: editCandidate?.jobCandidate?.[0]?.jobInformationId,
       updatedBy: updatedBy,
     };
     formData.append('newFormData', JSON.stringify(formattedValues));
-    updateCandidate({ data: formData, id: selectedCandidateId });
-    setEditCandidateModal(false);
+    updateCandidate(
+      { data: formData, id: selectedCandidateId },
+      {
+        onSuccess: () => {
+          // Update the selected candidate with the new data
+          const updatedCandidate = {
+            ...editCandidate,
+            fullName: formValues.fullName,
+            email: formValues.email,
+            phoneNumber: formValues.phoneNumber,
+            jobCandidate: [
+              {
+                ...editCandidate?.jobCandidate?.[0],
+                coverLetter: formValues.coverLetter,
+              },
+            ],
+          };
+          setSelectedCandidate(updatedCandidate);
+          setEditCandidateModal(false);
+        },
+      },
+    );
   };
   const editCandidateHeader = (
-    <div className="flex flex-col items-center py-4">Edit Candidate</div>
+    <div
+      id="talent-acquisition-edit-candidate-div-header"
+      data-cy="talent-acquisition-edit-candidate-div-header"
+      className="flex flex-col items-center py-4"
+    >
+      Edit Candidate
+    </div>
   );
 
   useEffect(() => {
@@ -95,13 +123,12 @@ const EditCandidate: React.FC = () => {
       form.setFieldsValue({
         fullName: editCandidate?.fullName,
         email: editCandidate?.email,
-        phoneNumber: editCandidate?.phoneNumber,
+        phone: editCandidate?.phone || editCandidate?.phoneNumber,
         jobInformationId: editCandidate?.jobCandidate?.map(
           (item: any) => item?.jobInformation?.jobTitle,
         ),
-        coverLetter: editCandidate?.jobCandidate?.map(
-          (item: any) => item?.coverLetter,
-        ),
+        CGPA: editCandidate?.CGPA,
+        coverLetter: editCandidate?.jobCandidate?.[0]?.coverLetter || '',
         resumeUrl: editCandidate?.resumeUrl
           ? {
               uid: editCandidate?.resumeUrl,
@@ -117,6 +144,7 @@ const EditCandidate: React.FC = () => {
   return (
     editCandidateModal && (
       <CustomDrawerLayout
+        data-cy="talent-acquisition-edit-candidate-modal"
         open={editCandidateModal}
         onClose={() => setEditCandidateModal(false)}
         modalHeader={editCandidateHeader}
@@ -124,6 +152,8 @@ const EditCandidate: React.FC = () => {
         footer={null}
       >
         <Form
+          id="talent-acquisition-edit-candidate-form"
+          data-cy="talent-acquisition-edit-candidate-form"
           form={form}
           layout="vertical"
           initialValues={editCandidate}
@@ -133,6 +163,7 @@ const EditCandidate: React.FC = () => {
         >
           <Form.Item
             id="fullNameId"
+            data-cy="talent-acquisition-edit-candidate-form-item-full-name"
             name="fullName"
             label={
               <span className="text-md font-semibold text-gray-700">
@@ -141,12 +172,18 @@ const EditCandidate: React.FC = () => {
             }
             rules={[{ required: true, message: 'Please input full name!' }]}
           >
-            <Input placeholder="Full Name" className="w-full h-10 text-sm" />
+            <Input
+              id="talent-acquisition-edit-candidate-input-full-name"
+              data-cy="talent-acquisition-edit-candidate-input-full-name"
+              placeholder="Full Name"
+              className="w-full h-10 text-sm"
+            />
           </Form.Item>
           <Row gutter={16}>
             <Col xs={24} sm={24} md={12} lg={12} xl={12}>
               <Form.Item
                 id="emailAddressId"
+                data-cy="talent-acquisition-edit-candidate-form-item-email"
                 name="email"
                 label={
                   <span className="text-md font-semibold text-gray-700">
@@ -165,6 +202,8 @@ const EditCandidate: React.FC = () => {
                 ]}
               >
                 <Input
+                  id="talent-acquisition-edit-candidate-input-email"
+                  data-cy="talent-acquisition-edit-candidate-input-email"
                   type="email"
                   className="text-sm w-full h-10"
                   placeholder="Email address"
@@ -174,6 +213,7 @@ const EditCandidate: React.FC = () => {
             <Col xs={24} sm={24} lg={12} md={12} xl={12}>
               <Form.Item
                 id="phoneNumberId"
+                data-cy="talent-acquisition-edit-candidate-form-item-phone"
                 name="phone"
                 label={
                   <span className="text-md font-semibold text-gray-700">
@@ -183,12 +223,14 @@ const EditCandidate: React.FC = () => {
                 rules={[
                   { required: true, message: 'Please input the phone number!' },
                   {
-                    pattern: /^\+?[1-9]\d{1,14}$/,
+                    pattern: /^\+?[0-9]\d{1,14}$/,
                     message: 'Please enter a valid phone number!',
                   },
                 ]}
               >
                 <Input
+                  id="talent-acquisition-edit-candidate-input-phone"
+                  data-cy="talent-acquisition-edit-candidate-input-phone"
                   type="tel"
                   className="text-sm w-full h-10"
                   placeholder="Phone number"
@@ -210,12 +252,19 @@ const EditCandidate: React.FC = () => {
                 rules={[{ required: true, message: 'Please select a job' }]}
               >
                 <Select
+                  id="talent-acquisition-edit-candidate-select-job"
+                  data-cy="talent-acquisition-edit-candidate-select-job"
                   className="text-sm w-full h-10"
                   placeholder="Select a job type"
                 >
                   {jobList &&
                     jobList?.items?.map((job: any) => (
-                      <Option key={job?.id} value={job?.id}>
+                      <Option
+                        key={job?.id}
+                        value={job?.id}
+                        id={`talent-acquisition-edit-candidate-option-job-${job?.id}`}
+                        data-cy={`talent-acquisition-edit-candidate-option-job-${job?.id}`}
+                      >
                         {job?.jobTitle}
                       </Option>
                     ))}
@@ -234,6 +283,8 @@ const EditCandidate: React.FC = () => {
                 rules={[{ required: true, message: 'Please input CGPA' }]}
               >
                 <InputNumber
+                  id="talent-acquisition-edit-candidate-input-cgpa"
+                  data-cy="talent-acquisition-edit-candidate-input-cgpa"
                   min={0}
                   max={4}
                   step={0.01}
@@ -241,9 +292,19 @@ const EditCandidate: React.FC = () => {
                   placeholder="CGPA"
                 />
               </Form.Item>
-              <div className="flex items-center justify-start gap-1 ml-1">
+              <div
+                id="talent-acquisition-edit-candidate-div-cgpa-info-wrapper"
+                data-cy="talent-acquisition-edit-candidate-div-cgpa-info-wrapper"
+                className="flex items-center justify-start gap-1 ml-1"
+              >
                 <FaInfoCircle />
-                <div className="text-xs font-md">Put your point 4.0 scale</div>
+                <div
+                  id="talent-acquisition-edit-candidate-div-cgpa-info"
+                  data-cy="talent-acquisition-edit-candidate-div-cgpa-info"
+                  className="text-xs font-md"
+                >
+                  Put your point 4.0 scale
+                </div>
               </div>
             </Col>
           </Row>
@@ -259,6 +320,8 @@ const EditCandidate: React.FC = () => {
             rules={[{ required: true, message: 'Please input cover letter' }]}
           >
             <TextArea
+              id="talent-acquisition-edit-candidate-textarea-cover-letter"
+              data-cy="talent-acquisition-edit-candidate-textarea-cover-letter"
               rows={4}
               className="text-sm w-full"
               placeholder="Please enter your cover letter here"
@@ -266,6 +329,7 @@ const EditCandidate: React.FC = () => {
           </Form.Item>
           <Form.Item
             id="documentNameId"
+            data-cy="talent-acquisition-edit-candidate-form-item-upload-cv"
             name="resumeUrl"
             label={
               <span className="text-md font-semibold text-gray-700">
@@ -277,6 +341,8 @@ const EditCandidate: React.FC = () => {
             ]}
           >
             <Dragger
+              id="talent-acquisition-edit-candidate-upload-cv"
+              data-cy="talent-acquisition-edit-candidate-upload-cv"
               name="documentName"
               fileList={documentFileList}
               onChange={handleDocumentChange}
@@ -293,7 +359,11 @@ const EditCandidate: React.FC = () => {
                   height={30}
                 />
               </p>
-              <div className="flex flex-col justify-center items-center text-md font-semibold text-gray-950">
+              <div
+                id="talent-acquisition-edit-candidate-div-upload-cv-info"
+                data-cy="talent-acquisition-edit-candidate-div-upload-cv-info"
+                className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
+              >
                 <p>Upload your CV</p>
                 <p className="text-gray-400 text-sm font-normal">
                   or drag and drop it here
@@ -301,7 +371,11 @@ const EditCandidate: React.FC = () => {
               </div>
             </Dragger>
           </Form.Item>
-          <div className="text-sm font-md mb-5 ">
+          <div
+            id="talent-acquisition-edit-candidate-div-file-info"
+            data-cy="talent-acquisition-edit-candidate-div-file-info"
+            className="text-sm font-md mb-5 "
+          >
             Max file size : 5MB. File format : .pdf
           </div>
           <Form.Item
@@ -315,6 +389,8 @@ const EditCandidate: React.FC = () => {
           >
             {editCandidate?.resumeUrl ? (
               <a
+                id="talent-acquisition-edit-candidate-link-download-resume"
+                data-cy="talent-acquisition-edit-candidate-link-download-resume"
                 href={editCandidate.resumeUrl.replace(
                   'open?id=',
                   'uc?export=download&id=',
@@ -331,16 +407,24 @@ const EditCandidate: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+            <div
+              id="talent-acquisition-edit-candidate-div-buttons"
+              data-cy="talent-acquisition-edit-candidate-div-buttons"
+              className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+            >
               <Button
+                id="talent-acquisition-edit-candidate-button-cancel"
+                data-cy="talent-acquisition-edit-candidate-button-cancel"
                 onClick={() => setEditCandidateModal(false)}
-                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
               >
                 Cancel
               </Button>
               <Button
+                id="talent-acquisition-edit-candidate-button-save"
+                data-cy="talent-acquisition-edit-candidate-button-save"
                 htmlType="submit"
-                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
               >
                 Save Changes
               </Button>

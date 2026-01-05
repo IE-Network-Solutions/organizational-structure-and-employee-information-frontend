@@ -13,7 +13,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
-
+import { getCurrentToken } from '@/utils/getCurrentToken';
 /**
  * Sends a request to add a new category to the system.
  *
@@ -23,7 +23,7 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const addQuestionSetOnConversationType = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const createdBy = useAuthenticationStore.getState().userId;
   const headers = {
@@ -50,7 +50,7 @@ const addQuestionSetOnConversationType = async (data: any) => {
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const updateQuestionSetWithQuestionsOnConversationType = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -74,7 +74,7 @@ const updateQuestionSetWithQuestionsOnConversationType = async (data: any) => {
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const updateConversationQuestionSet = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -96,7 +96,7 @@ const updateConversationQuestionSet = async (data: any) => {
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const deleteConversationQuestionSet = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

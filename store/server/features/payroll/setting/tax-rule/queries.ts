@@ -2,9 +2,10 @@ import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
 import { PAYROLL_URL } from '@/utils/constants';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getTaxRule = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${PAYROLL_URL}/tax-rules`,
@@ -27,7 +28,7 @@ const getTaxRule = async () => {
 const fetchActiveFiscalYearPayPeriods = async (
   activeFiscalYearId: string | undefined,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -43,7 +44,7 @@ const fetchActiveFiscalYearPayPeriods = async (
 export const useGetTaxRule = () => useQuery('taxRules', getTaxRule);
 
 const getTaxRuleById = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${PAYROLL_URL}/tax-rules/${id}`,

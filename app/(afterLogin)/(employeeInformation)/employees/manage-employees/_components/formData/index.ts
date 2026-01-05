@@ -1,8 +1,14 @@
+import dayjs from 'dayjs';
+
 export const transformData = (data: any) => {
   const formatDate = (date: any) => {
-    if (date && date.$d) {
-      return new Date(date.$d).toISOString().split('T')[0];
+    if (!date) return date;
+    // Handle AntD Dayjs object or native Date without converting to UTC
+    if (date?.$d || date instanceof Date) {
+      const d = date?.$d ? dayjs(date.$d) : dayjs(date);
+      return d.format('YYYY-MM-DD');
     }
+    // If already a string (e.g., "2025-09-16"), return as-is
     return date;
   };
 
@@ -25,9 +31,9 @@ export const transformData = (data: any) => {
     },
     createEmployeeInformationDto: {
       gender: data.employeeGender,
-      martialStatus: data.martialStatus,
+      maritalStatus: data.maritalStatus,
       dateOfBirth: formatDate(data.dateOfBirth),
-      joinedDate: formatDate(data.joinedDate),
+      joinedDate: formatDate(data.effectiveStartDate),
       nationalityId: data.nationalityId,
       addresses: data?.address,
       emergencyContact: data?.emergencyContact,
@@ -40,20 +46,21 @@ export const transformData = (data: any) => {
       branchId: data.branchId,
       isPositionActive: true,
       jobAction: data?.jobAction,
-      effectiveStartDate: formatDate(data.joinedDate),
+      effectiveStartDate: formatDate(data.effectiveStartDate),
       effectiveEndDate: formatDate(data.effectiveEndDate),
       employementTypeId: data.employementTypeId,
       departmentId: data.departmentId,
-      departMentLeadOrNot: data.departmentLeadOrNot ?? true,
+      departmentLeadOrNot: data.departmentLeadOrNot ?? false,
       employmentContractType: data.employmentContractType,
       workScheduleId: data.workScheduleId,
+      basicSalary: Number(data.basicSalary),
+      allowances: data.allowances || [],
     },
     createEmployeeDocumentDto: {
       documentName: data?.documentName?.file?.originFileObj ?? '',
     },
   };
 
-  // Append the categorized JSON data to formData
   formData.append('createUserDto', JSON.stringify(result.createUserDto));
   formData.append(
     'createRolePermissionDto',
@@ -76,12 +83,12 @@ export const transformData = (data: any) => {
     JSON.stringify(result.createEmployeeDocumentDto),
   );
 
-  // Append files separately
   if (data.profileImage?.file?.originFileObj) {
     formData.append('profileImage', data.profileImage.file.originFileObj);
   }
   if (data.documentName?.file?.originFileObj) {
     formData.append('documentName', data.documentName.file.originFileObj);
   }
+
   return formData;
 };

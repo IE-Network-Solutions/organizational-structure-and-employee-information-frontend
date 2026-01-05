@@ -33,19 +33,23 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
     if (!value) {
       return Promise.reject(new Error('Please select a start date.'));
     }
-    if (
-      activeCalendar?.endDate &&
-      dayjs(value).isBefore(dayjs(activeCalendar?.endDate), 'day')
-    ) {
-      return Promise.reject(
-        new Error(
-          `Start date must be after or equal to ${dayjs(activeCalendar.endDate).format('YYYY-MM-DD')}.`,
-        ),
-      );
-    }
 
-    if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
-      return Promise.reject(new Error('Start date cannot be in the past.'));
+    // Skip active calendar validation in edit mode
+    if (!isEditMode) {
+      if (
+        activeCalendar?.endDate &&
+        dayjs(value).isBefore(dayjs(activeCalendar?.endDate), 'day')
+      ) {
+        return Promise.reject(
+          new Error(
+            `Start date must be after or equal to ${dayjs(activeCalendar.endDate).format('YYYY-MM-DD')}.`,
+          ),
+        );
+      }
+
+      if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
+        return Promise.reject(new Error('Start date cannot be in the past.'));
+      }
     }
 
     return Promise.resolve();
@@ -96,12 +100,14 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
     if (isEditMode && selectedFiscalYear) {
       const sessionCount = selectedFiscalYear?.sessions?.length;
       let calendarType = '';
-      if (sessionCount === 4) {
+      if (sessionCount >= 4) {
         calendarType = 'Quarter';
       } else if (sessionCount === 2) {
         calendarType = 'Semester';
       } else if (sessionCount === 1) {
         calendarType = 'Year';
+      } else {
+        calendarType = 'Quarter'; // Default to Quarter for any other case
       }
 
       setCalendarType(calendarType);
@@ -110,11 +116,11 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         fiscalYearName: selectedFiscalYear?.name,
         fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
         fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
-        fiscalYearCalenderId: `${calendarType}`,
-        fiscalYearDescription: dayjs(selectedFiscalYear?.description),
+        fiscalYearCalenderId: calendarType,
+        fiscalYearDescription: selectedFiscalYear?.description || '',
       });
     }
-  }, [selectedFiscalYear, isEditMode, form]);
+  }, [selectedFiscalYear, isEditMode, form, setCalendarType]);
 
   return (
     <Form form={form} layout="vertical">
@@ -132,7 +138,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         >
           <Input
             size="large"
-            className="h-12 mt-2 w-full font-normal text-sm"
+            className="h-10 mt-2 w-full font-normal text-sm"
             placeholder="Enter session name"
           />
         </Form.Item>
@@ -149,7 +155,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
             >
               <DatePicker
                 onChange={(value: any) => handleStartDateChange(value)}
-                className="h-12 w-full font-normal text-xl mt-2"
+                className="h-10 w-full font-normal text-xl mt-2"
               />
             </Form.Item>
             {!isEditMode ? (
@@ -174,7 +180,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
             >
               <DatePicker
                 onChange={(value: any) => handleEndDateChange(value)}
-                className="h-12 w-full font-normal text-xl mt-2"
+                className="h-10 w-full font-normal text-xl mt-2"
               />
             </Form.Item>
           </Col>
@@ -183,11 +189,33 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
           id="fiscalYearCalenderId"
           name="fiscalYearCalenderId"
           label={<span className="font-medium">Fiscal Year Calender</span>}
+          initialValue={
+            isEditMode
+              ? selectedFiscalYear?.sessions?.length >= 4
+                ? 'Quarter'
+                : selectedFiscalYear?.sessions?.length === 2
+                  ? 'Semester'
+                  : selectedFiscalYear?.sessions?.length === 1
+                    ? 'Year'
+                    : 'Quarter'
+              : undefined
+          }
         >
           <Select
             placeholder="Select Calendar"
-            className="h-12 w-full font-normal text-xl mt-2"
+            className="h-10 w-full font-normal text-xl mt-2"
             onChange={(value) => handleValuesChange(value)}
+            defaultValue={
+              isEditMode
+                ? selectedFiscalYear?.sessions?.length >= 4
+                  ? 'Quarter'
+                  : selectedFiscalYear?.sessions?.length === 2
+                    ? 'Semester'
+                    : selectedFiscalYear?.sessions?.length === 1
+                      ? 'Year'
+                      : 'Quarter'
+                : undefined
+            }
           >
             <Select.Option value="Quarter">Quarter</Select.Option>
             <Select.Option value="Semester">Semester</Select.Option>
@@ -214,18 +242,20 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         </Form.Item>
 
         <Form.Item className="">
-          <div className="flex justify-center  w-full px-6 py-6 gap-6 my-3">
+          <div className="flex justify-center w-full p-6 sm:p-0">
             {departments?.length > 0 ? (
               <Button
+                type="default"
                 onClick={handleClose}
-                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+                className="h-[40px] sm:h-[56px] text-base"
               >
                 Cancel
               </Button>
             ) : null}
             <Button
+              type="primary"
               onClick={handleNext}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12  border-none"
+              className="h-[40px] sm:h-[56px] text-base"
             >
               Next
             </Button>

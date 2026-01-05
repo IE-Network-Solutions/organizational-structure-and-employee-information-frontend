@@ -1,10 +1,10 @@
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
 import { OkrRule } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import { crudRequest } from '@/utils/crudRequest';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 type ResponseData = {
@@ -23,18 +23,18 @@ type ResponseData = {
  * @returns The response data from the API
  */
 const getOkrRule = async () => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/average-okr-rule`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/average-okr-rule`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }

@@ -3,19 +3,21 @@ import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { AllApprovalWorkFlow } from './interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 export const approvalFilter = async (
   pageSize: number,
   currentPage: number,
+  entityId: string,
   entityType: string,
   name: string,
   branch: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
-    url: `${APPROVER_URL}/approver/approvalworkflows?entityType=${entityType}&name=${name}&page=${currentPage}&limit=${pageSize}&approvalType=${branch}`,
+    url: `${APPROVER_URL}/approver/approvalworkflows?entityId=${entityId}&entityType=${entityType}&name=${name}&page=${currentPage}&limit=${pageSize}&approvalType=${branch}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -25,7 +27,7 @@ export const approvalFilter = async (
   return response;
 };
 export const getLeaveRequestByWorkFlowId = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
@@ -40,7 +42,7 @@ export const getLeaveRequestByWorkFlowId = async (id: string) => {
 };
 
 export const getAllWorkFlow = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const response = await crudRequest({
     url: `${APPROVER_URL}/approvalWorkflows/allWorkflow`,
@@ -54,7 +56,7 @@ export const getAllWorkFlow = async () => {
 };
 
 export const allApproval = async (entityId: string, branch: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
@@ -68,7 +70,7 @@ export const allApproval = async (entityId: string, branch: string) => {
   return response;
 };
 export const singleApproval = async (entityId: string, branch: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
@@ -85,7 +87,7 @@ export const currentApproval = async (
   approvalWorkflowId: string,
   requesterId: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
@@ -102,13 +104,15 @@ export const currentApproval = async (
 export const useApprovalFilter = (
   pageSize: number,
   currentPage: number,
-  name: string,
   entityType: string,
+  entityId: string,
+  name: string,
   branch: string,
 ) => {
   return useQuery<any>(
-    ['approvals', pageSize, currentPage, name, entityType],
-    () => approvalFilter(pageSize, currentPage, name, entityType, branch),
+    ['approvals', pageSize, currentPage, entityId, name],
+    () =>
+      approvalFilter(pageSize, currentPage, entityId, entityType, name, branch),
     {
       keepPreviousData: true,
     },

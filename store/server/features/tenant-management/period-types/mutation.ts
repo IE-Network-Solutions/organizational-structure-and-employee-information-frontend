@@ -6,19 +6,21 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { PeriodType } from '@/types/tenant-management';
 
 const setPeriodTypes = async (items: Partial<PeriodType>[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/period-types`,
     method: 'PUT',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { items },
   });
 };
 
 const deletePeriodTypes = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/period-types`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { id },
   });
 };

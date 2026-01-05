@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
+
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformationInterface } from './interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to add a new post by sending a POST request to the API
@@ -15,6 +15,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API
  */
 const createEmployee = async (values: any) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users`,
     method: 'POST',
@@ -23,10 +24,31 @@ const createEmployee = async (values: any) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
+    skipEncryption: true,
   });
 };
 
+const downloadEmployeeInfomation = async ({
+  downloadFormat,
+  searchParams,
+}: {
+  downloadFormat: string;
+  searchParams: Record<string, string>;
+}) => {
+  const paramsData = { ...searchParams, downloadFormat };
+  const token = await getCurrentToken();
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/export`,
+    method: 'POST',
+    data: paramsData, // paramsData should match ExportUserDto shape
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 const createJobInformation = async (values: any) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/EmployeeJobInformation`,
     method: 'POST',
@@ -35,9 +57,11 @@ const createJobInformation = async (values: any) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
+    skipEncryption: true,
   });
 };
 const updateEmployee = async (values: any) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/${values?.usersId}`,
     method: 'patch',
@@ -50,11 +74,14 @@ const updateEmployee = async (values: any) => {
 };
 /**
  * Function to delete a post by sending a DELETE request to the API
- * @param postId The ID of the post to delete
+ * @param employeeId The ID of the employee to delete
  * @returns The response data from the API
  */
-const deleteEmployee = async () => {
-  const deletedItem = useEmployeeManagementStore.getState().deletedItem;
+const deleteEmployee = async (employeeId?: string) => {
+  const token = await getCurrentToken();
+  // Support both new parameter-based approach and legacy store-based approach
+  const deletedItem =
+    employeeId || useEmployeeManagementStore.getState().deletedItem;
   const setDeleteModal = useEmployeeManagementStore.getState().setDeleteModal;
   const setDeletedItem = useEmployeeManagementStore.getState().setDeletedItem;
   const pageSize = useEmployeeManagementStore.getState().pageSize;
@@ -65,10 +92,11 @@ const deleteEmployee = async () => {
     tenantId: tenantId, // Pass tenantId in the headers
   };
   try {
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/users/${deletedItem}?limit=${pageSize}&&page=${userCurrentPage}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/${deletedItem}?limit=${pageSize}&&page=${userCurrentPage}`,
+      method: 'DELETE',
+      headers,
+    });
     setDeleteModal(false);
     setDeletedItem(null);
     NotificationMessage.success({
@@ -95,10 +123,7 @@ export const useAddEmployee = () => {
   return useMutation(createEmployee, {
     onSuccess: () => {
       queryClient.invalidateQueries('employees');
-      NotificationMessage.success({
-        message: 'Successfully Created',
-        description: 'Employee successfully Created',
-      });
+      // Success modal is handled in UserSidebar component
     },
   });
 };
@@ -126,9 +151,15 @@ export const useUpdateEmployee = () => {
  */
 export const useDeleteEmployee = () => {
   const queryClient = useQueryClient();
+  const setDeleteModal = useEmployeeManagementStore.getState().setDeleteModal;
+  const setDeletedItem = useEmployeeManagementStore.getState().setDeletedItem;
+
   return useMutation(deleteEmployee, {
     onSuccess: () => {
       queryClient.invalidateQueries('employees');
+      queryClient.invalidateQueries('employee');
+      setDeleteModal(false);
+      setDeletedItem(null);
     },
   });
 };
@@ -144,6 +175,24 @@ export const useCreateJobInformation = () => {
         message: 'Successfully Created',
         description: 'Employee successfully Created',
       });
+    },
+  });
+};
+
+export const useDownloadEmployeeDataByFilter = () => {
+  // const queryClient = useQueryClient();
+  return useMutation(downloadEmployeeInfomation, {
+    onSuccess: (data) => {
+      if (data?.fileUrl) {
+        const link = document.createElement('a');
+        link.href = data.fileUrl;
+        // Optionally, extract filename from URL
+        const filename = data.fileUrl.split('/').pop() || 'downloaded_file';
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     },
   });
 };

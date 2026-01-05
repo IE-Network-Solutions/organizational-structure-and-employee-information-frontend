@@ -16,8 +16,10 @@ function CustomDeleteFiscalYear() {
     deleteFiscalYear(id);
     setDeleteMode(false);
   };
+
   return (
     <DeleteModal
+      data-cy="org-settings-fiscal-year-delete-modal"
       open={isDeleteMode}
       onCancel={() => {
         setSelectedFiscalYear(null);

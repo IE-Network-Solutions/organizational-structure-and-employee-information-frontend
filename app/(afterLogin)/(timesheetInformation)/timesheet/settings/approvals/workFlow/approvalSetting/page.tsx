@@ -5,6 +5,7 @@ import { useApprovalStore } from '@/store/uistate/features/approval';
 import { APPROVALTYPES } from '@/types/enumTypes';
 import { Form } from 'antd';
 import { useRouter } from 'next/navigation';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const ApprovalSetting: React.FC<any> = () => {
   const { mutate: CreateApprover, isSuccess } = useCreateApproverMutation();
@@ -45,19 +46,34 @@ const ApprovalSetting: React.FC<any> = () => {
       { values: jsonPayload },
       {
         onSuccess: () => {
+          NotificationMessage.success({
+            message: 'Success',
+            description: 'Approver created successfully',
+          });
           router.push('/timesheet/settings/approvals');
+        },
+        onError: (error: any) => {
+          NotificationMessage.error({
+            message: 'Error',
+            description:
+              error?.response?.data?.message ?? 'Something went wrong',
+          });
         },
       },
     );
   };
 
   return (
-    <div>
+    <div
+      id="time-attendance-settings-approvals-workflow-setting-container"
+      data-cy="time-attendance-settings-approvals-workflow-setting-container"
+    >
       <ApprovalWorkFlowSettingComponent
         handleSubmit={handleSubmit}
         isSuccess={isSuccess}
         form={form}
         title={'Leave '}
+        data-cy="time-attendance-settings-approvals-workflow-setting-component"
       />
     </div>
   );

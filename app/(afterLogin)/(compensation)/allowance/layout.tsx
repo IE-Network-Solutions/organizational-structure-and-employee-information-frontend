@@ -24,13 +24,21 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: allowance.id,
             label: (
-              <p title={allowance.name} className="menu-item-label">
-                {allowance.name?.length > 15
-                  ? allowance.name?.slice(0, 15) + '...'
-                  : allowance.name || 'Unnamed Allowance'}
-              </p>
+              <div
+                title={allowance.name}
+                className=" font-bold"
+                data-cy={`allowance-menu-item-${allowance.id}`}
+              >
+                <span
+                  data-cy={`allowance-menu-item-label-${allowance.id}`}
+                  className="font-bold"
+                >
+                  {allowance.name?.length > 15
+                    ? allowance.name?.slice(0, 15) + '...'
+                    : allowance.name || 'Unnamed Allowance'}
+                </span>
+              </div>
             ),
-            className: 'px-1',
           },
           link: `/allowance/${allowance.id}`,
         })) || [];
@@ -38,8 +46,13 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'allAllowance',
-          label: <p className="menu-item-label">All Allowances</p>,
-          className: 'px-1',
+          label: (
+            <div className=" font-bold" data-cy="allowance-menu-item-all">
+              <span data-cy="allowance-menu-item-all-label">
+                All Allowances
+              </span>
+            </div>
+          ),
         },
         link: '/allowance/allAllowance',
       };
@@ -51,14 +64,38 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="h-auto w-auto">
-        <PageHeader title="Allowance" description="Allowance" />
+    <div
+      className="min-h-screen bg-[#f5f5f5]"
+      id="compensation-allowance-layout-container"
+      data-cy="compensation-allowance-layout-container"
+    >
+      <div
+        className="h-auto w-auto bg-[#f5f5f5]"
+        id="compensation-allowance-layout-body"
+        data-cy="compensation-allowance-layout-body"
+      >
+        <PageHeader
+          title="Allowance"
+          description="Allowance"
+          className="hidden sm:block"
+          horizontalPadding="0px"
+          data-cy="compensation-allowance-layout-page-header"
+        />
 
-        <div className="flex flex-col lg:flex-row gap-6 mt-8">
-          <SidebarMenu menuItems={sidebarMenuItems} />
+        <div
+          className="flex flex-col lg:flex-row gap-3 sm:gap-6"
+          id="compensation-allowance-layout-content"
+          data-cy="compensation-allowance-layout-content"
+        >
+          <SidebarMenu
+            data-cy="compensation-allowance-layout-sidebar-menu"
+            menuItems={sidebarMenuItems}
+          />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+          <BlockWrapper
+            className="flex-1 h-max overflow-x-auto"
+            data-cy="compensation-allowance-layout-block-wrapper"
+          >
             {children}
           </BlockWrapper>
         </div>

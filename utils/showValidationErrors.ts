@@ -16,7 +16,7 @@ export const getPriorityColor = (priority: string) => {
     case 'high':
       return 'red';
     case 'medium':
-      return 'orange';
+      return 'yellow';
     case 'low':
       return 'green';
     default:

@@ -1,11 +1,10 @@
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 import { GroupPermissionType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch Permission Groups by sending a GET request to the API
@@ -15,6 +14,7 @@ const getPermissionGroups = async (
   permissonGroupCurrentPage: number,
   pageSize: number,
 ) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group?page=${permissonGroupCurrentPage}&limit=${pageSize}`,
     method: 'GET',
@@ -26,6 +26,7 @@ const getPermissionGroups = async (
 };
 
 const getPermissionGroupswithOutPagination = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group`,
     method: 'GET',
@@ -41,17 +42,13 @@ const getPermissionGroupswithOutPagination = async () => {
  * @returns The response data from the API
  */
 
-const getPermissionGroup = async (id: string) => {
+const getGroupPermission = async (id: string) => {
   try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/permission-group/${id}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/permission-group/${id}`,
+      method: 'GET',
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -97,6 +94,6 @@ export const useGetPermissionGroupsWithOutPagination = () =>
  * while the new data is being fetched.
  */
 export const useGetPermissionGroup = (postId: string) =>
-  useQuery<any>(['groupPermission', postId], () => getPermissionGroup(postId), {
+  useQuery<any>(['groupPermission', postId], () => getGroupPermission(postId), {
     keepPreviousData: true,
   });

@@ -6,9 +6,9 @@ import { useDebounce } from '@/utils/useDebounce';
 import { Button, Col, DatePicker, Modal, Row, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
-import { IoMdSwitch } from 'react-icons/io';
-import { useMediaQuery } from 'react-responsive';
 import WhatYouNeed from '../whatYouNeed';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { LuSettings2 } from 'react-icons/lu';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -26,7 +26,8 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
     showMobileFilter,
     setShowMobileFilter,
   } = useCandidateState();
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: jobList } = useGetJobs(
@@ -75,6 +76,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
         <Col lg={8} sm={24} xs={24}>
           <RangePicker
             id={`inputDateRange${searchParams.dateRange}`}
+            data-cy="talent-acquisition-job-candidate-search-date-picker"
             onChange={(dates: any) => handleSearchByDateRange(dates)}
             className="w-full h-14"
             allowClear
@@ -88,6 +90,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
             <Col lg={8} sm={12} xs={24}>
               <Select
                 id={`selectJobs${searchParams.selectedJob}`}
+                data-cy="talent-acquisition-job-candidate-search-select-job"
                 placeholder="Select Job"
                 onChange={handleJobChange}
                 allowClear
@@ -95,7 +98,12 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
                 disabled={!!jobId}
               >
                 {jobList?.items?.map((job: any) => (
-                  <Option key={job?.id} value={job?.id}>
+                  <Option
+                    key={job?.id}
+                    value={job?.id}
+                    id={`talent-acquisition-job-candidate-search-option-job-${job?.id}`}
+                    data-cy={`talent-acquisition-job-candidate-search-option-job-${job?.id}`}
+                  >
                     {job?.jobTitle}
                   </Option>
                 ))}
@@ -104,13 +112,19 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
             <Col lg={8} sm={12} xs={24}>
               <Select
                 id={`selectDepartment${searchParams.selectedDepartment}`}
+                data-cy="talent-acquisition-job-candidate-search-select-department"
                 placeholder="Select Department"
                 onChange={handleDepartmentChange}
                 allowClear
                 className="w-full h-14"
               >
                 {EmployeeDepartment?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
+                  <Option
+                    key={item?.id}
+                    value={item?.id}
+                    id={`talent-acquisition-job-candidate-search-option-department-${item?.id}`}
+                    data-cy={`talent-acquisition-job-candidate-search-option-department-${item?.id}`}
+                  >
                     {item?.name}
                   </Option>
                 ))}
@@ -119,13 +133,19 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
             <Col lg={8} sm={12} xs={24}>
               <Select
                 id={`selectStage${searchParams.selectedStage}`}
+                data-cy="talent-acquisition-job-candidate-search-select-stage"
                 placeholder="Select Stage"
                 onChange={handleStageChange}
                 allowClear
                 className="w-full h-14"
               >
                 {stageList?.items?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
+                  <Option
+                    key={item?.id}
+                    value={item?.id}
+                    id={`talent-acquisition-job-candidate-search-option-stage-${item?.id}`}
+                    data-cy={`talent-acquisition-job-candidate-search-option-stage-${item?.id}`}
+                  >
                     {item?.title}
                   </Option>
                 ))}
@@ -137,13 +157,27 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
     </>
   );
   return (
-    <div className="my-3">
-      {isSmallScreen ? (
+    <div
+      id="talent-acquisition-candidate-search-options-div-container"
+      data-cy="talent-acquisition-candidate-search-options-div-container"
+      className="my-3"
+    >
+      {isMobile || isTablet ? (
         <>
-          <div className="flex justify-end m-2 space-x-4">
+          <div
+            id="talent-acquisition-candidate-search-options-div-mobile-header"
+            data-cy="talent-acquisition-candidate-search-options-div-mobile-header"
+            className="flex justify-end m-2 space-x-4"
+          >
             <WhatYouNeed />
-            <div className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
-              <IoMdSwitch
+            <div
+              id="talent-acquisition-candidate-search-options-div-filter-button"
+              data-cy="talent-acquisition-candidate-search-options-div-filter-button"
+              className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3"
+            >
+              <LuSettings2
+                id="talent-acquisition-job-candidate-search-button-mobile-filter"
+                data-cy="talent-acquisition-job-candidate-search-button-mobile-filter"
                 onClick={() => setShowMobileFilter(true)}
                 className="text-xl cursor-pointer"
               />
@@ -155,16 +189,28 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
             open={showMobileFilter}
             onCancel={() => setShowMobileFilter(false)}
             bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+            data-cy="talent-acquisition-job-candidate-search-modal-filter"
             footer={
-              <div className="flex justify-center items-center space-x-4">
+              <div
+                id="talent-acquisition-candidate-search-options-div-modal-footer"
+                data-cy="talent-acquisition-candidate-search-options-div-modal-footer"
+                className="flex justify-center items-center space-x-4"
+              >
                 <Button
                   type="default"
                   className="px-3"
                   onClick={() => setShowMobileFilter(false)}
+                  id="talent-acquisition-job-candidate-search-button-mobile-cancel"
+                  data-cy="talent-acquisition-job-candidate-search-button-mobile-cancel"
                 >
                   Cancel
                 </Button>
-                <Button type="primary" className="px-3">
+                <Button
+                  type="primary"
+                  className="px-3"
+                  id="talent-acquisition-job-candidate-search-button-mobile-apply"
+                  data-cy="talent-acquisition-job-candidate-search-button-mobile-apply"
+                >
                   Filter
                 </Button>
               </div>

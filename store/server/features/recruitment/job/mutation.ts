@@ -2,10 +2,11 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useMutation, useQueryClient } from 'react-query';
 
 const createJob = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -21,7 +22,7 @@ const createJob = async (data: any) => {
 };
 
 const updateJob = async (data: any, id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -36,7 +37,7 @@ const updateJob = async (data: any, id: string) => {
 };
 
 const updateJobStatus = async (data: any, id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -51,7 +52,7 @@ const updateJobStatus = async (data: any, id: string) => {
 };
 
 const deleteJob = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -112,7 +113,7 @@ export const useDeleteJobs = () => {
   const queryClient = useQueryClient();
   return useMutation((id: string) => deleteJob(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries('jobs');
+      queryClient.invalidateQueries({ queryKey: ['jobs'], exact: false });
       NotificationMessage.success({
         message: 'Job deleted successfully!',
         description: 'Job has been successfully deleted',

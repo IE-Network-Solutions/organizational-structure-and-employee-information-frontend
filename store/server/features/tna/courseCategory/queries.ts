@@ -7,10 +7,11 @@ import { CourseCategoryRequestBody } from '@/store/server/features/tna/courseCat
 import { CourseCategory } from '@/types/tna/course';
 
 const getCourseCategory = async (data: Partial<CourseCategoryRequestBody>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/learning/course/category`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

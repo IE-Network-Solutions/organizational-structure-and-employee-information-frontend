@@ -8,7 +8,6 @@ import React, { useEffect } from 'react';
 import SessionDrawer from '../../session/sessionDrawer';
 import MonthDrawer from '../../month/monthDrawer';
 import { FormInstance } from 'antd/lib';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Form } from 'antd';
 import {
   Month,
@@ -44,7 +43,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     openfiscalYearDrawer,
     setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
-  const { data: departments } = useGetDepartments();
 
   useEffect(() => {
     const formValues = form3?.getFieldsValue();
@@ -140,7 +138,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       monthFormValues,
       sessionFormValues,
     );
-
     const fiscalYearPayload = {
       name: fiscalYearFormValues?.fiscalYearName,
       startDate: fiscalYearFormValues?.fiscalYearStartDate,
@@ -161,10 +158,24 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     };
 
     if (isEditMode) {
-      updateFiscalYear({
-        id: selectedFiscalYear?.id,
-        fiscalYear: fiscalYearPayload,
-      });
+      updateFiscalYear(
+        {
+          id: selectedFiscalYear?.id,
+          fiscalYear: fiscalYearPayload,
+        },
+        {
+          onSuccess: () => {
+            form1.resetFields();
+            form2.resetFields();
+            form3.resetFields();
+            setMonthRangeFormValues(null);
+            setFiscalYearFormValues({});
+            setSessionFormValues({});
+            setCurrent(0);
+            setOpenFiscalYearDrawer(false);
+          },
+        },
+      );
     } else {
       createFiscalYear(fiscalYearPayload, {
         onSuccess: () => {
@@ -182,14 +193,22 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
   };
 
   const formContent = (
-    <Form layout="vertical" onFinish={handleSubmit}>
-      {current === 0 && <FiscalYearForm />}
+    <Form
+      layout="vertical"
+      onFinish={handleSubmit}
+      data-cy="org-components-fiscalyear-customdrawer-index-form-1"
+      id="org-components-fiscalyear-customdrawer-index-form-1"
+    >
+      {current === 0 && (
+        <FiscalYearForm data-cy="org-components-fiscalyear-customdrawer-index-fiscalyearform-1" />
+      )}
       {current === 1 && (
         <SessionDrawer
           form={form2}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
           isFiscalYear={true}
+          data-cy="org-components-fiscalyear-customdrawer-index-sessiondrawer-1"
         />
       )}
       {current === 2 && (
@@ -199,6 +218,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           isUpdateLoading={updateIsLoading}
           onNextStep={handleNextStep}
           isFiscalYear={true}
+          data-cy="org-components-fiscalyear-customdrawer-index-monthdrawer-1"
         />
       )}
     </Form>
@@ -206,22 +226,30 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
 
   return (
     <>
-      {(!departments?.length || openfiscalYearDrawer) && (
+      {/* !departments?.length || oenfiscalYearDrawer */}
+      {true && (
         <CustomDrawerLayout
+          data-cy="org-settings-fiscal-year-drawer"
           modalHeader={
-            <h1 className="flex justify-center text-xl font-extrabold text-gray-800 py-6 ">
-              {isEditMode ? 'Edit New Fiscal Year' : 'Add New Fiscal Year'}
+            <h1
+              className="flex justify-start text-base font-bold text-gray-800"
+              data-cy="org-settings-fiscal-year-drawer-header"
+              id="org-settings-fiscal-year-drawer-header"
+            >
+              {isEditMode ? 'Edit Fiscal Year' : 'Add New Fiscal Year'}
             </h1>
           }
           onClose={handleCancel}
           open={openfiscalYearDrawer}
           width="35%"
           footer={null}
+          customPadding="0px"
         >
           {formContent}
         </CustomDrawerLayout>
       )}
-      {!departments?.length && !openfiscalYearDrawer && formContent}
+      {/* {!departments?.length && !openfiscalYearDrawer && formContent} */}
+      {formContent}
     </>
   );
 };

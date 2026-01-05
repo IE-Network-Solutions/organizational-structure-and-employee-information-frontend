@@ -69,23 +69,36 @@ const RecruitmentStatusDrawer: React.FC = () => {
 
   return (
     <CustomDrawerLayout
+      data-cy="talent-acquisition-status-drawer"
       modalHeader={
-        <h1 className="text-2xl font-bold py-2">
+        <h1 className="text-lg font-bold py-2">
           {isEditMode ? 'Edit Status' : 'Define Status'}
         </h1>
       }
       onClose={handleCancel}
       open={isDrawerOPen}
-      width="30%"
+      width="40%"
       footer={
-        <div className="flex justify-center items-center w-full">
+        <div className="flex justify-center items-center w-full p-2">
           <div className="flex justify-between items-center gap-4">
             <CustomButton
+              id="talent-acquisition-status-button-cancel"
+              data-cy="talent-acquisition-status-button-cancel"
               title="Cancel "
               onClick={handleCancel}
               type="default"
             />
             <CustomButton
+              id={
+                isEditMode
+                  ? 'talent-acquisition-status-button-update'
+                  : 'talent-acquisition-status-button-create'
+              }
+              data-cy={
+                isEditMode
+                  ? 'talent-acquisition-status-button-update'
+                  : 'talent-acquisition-status-button-create'
+              }
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}
             />
@@ -93,13 +106,23 @@ const RecruitmentStatusDrawer: React.FC = () => {
         </div>
       }
     >
-      <Form form={form} layout="vertical">
+      <Form
+        id="talent-acquisition-status-form"
+        data-cy="talent-acquisition-status-form"
+        form={form}
+        layout="vertical"
+      >
         <Form.Item
           label="Name"
           name="title"
           rules={[{ required: true, message: 'Please enter a title' }]}
         >
-          <Input className="h-12" placeholder="Enter the status title" />
+          <Input
+            id="talent-acquisition-status-input-title"
+            data-cy="talent-acquisition-status-input-title"
+            className="h-10"
+            placeholder="Enter the status title"
+          />
         </Form.Item>
 
         <Form.Item
@@ -107,7 +130,12 @@ const RecruitmentStatusDrawer: React.FC = () => {
           name="description"
           rules={[{ required: false }]}
         >
-          <Input.TextArea rows={6} placeholder="Enter the status description" />
+          <Input.TextArea
+            id="talent-acquisition-status-textarea-description"
+            data-cy="talent-acquisition-status-textarea-description"
+            rows={6}
+            placeholder="Enter the status description"
+          />
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

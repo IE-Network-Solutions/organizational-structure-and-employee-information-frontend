@@ -1,70 +1,81 @@
-import React, { useState } from 'react';
-import { Table, TablePaginationConfig, Drawer } from 'antd';
-import { TableColumnsType } from '@/types/table/table';
-import AttendanceTableFilter from './tableFilter';
-import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
-import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
-import { AttendanceRecord } from '@/types/timesheet/attendance';
+import React, { useEffect } from 'react';
+import { Button, Space, Table } from 'antd';
+import { AiOutlineReload } from 'react-icons/ai';
+import { IoEyeOutline } from 'react-icons/io5';
+import { GoLocation } from 'react-icons/go';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
-import usePagination from '@/utils/usePagination';
-import { Button } from 'antd';
-import { IoMdSwitch } from 'react-icons/io';
-import { SorterResult, FilterValue } from 'antd/es/table/interface';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
-interface MyTimesheetStore {
-  setIsShowViewAttendanceSidebar: (show: boolean) => void;
-  setAttendanceData: (data: AttendanceRecord) => void;
-}
+// Types
+import { TableColumnsType } from '@/types/table/table';
+import { CommonObject } from '@/types/commons/commonObject';
+import { AttendanceRecord } from '@/types/timesheet/attendance';
+
+// Components
+import AttendanceTableFilter from './tableFilter/inedx';
+import StatusBadge from '@/components/common/statusBadge/statusBadge';
+
+// Store
+import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
+import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
+// Utils
+import { formatToAttendanceStatuses } from '@/helpers/formatTo';
+import { AttendanceRecordTypeBadgeTheme } from '@/types/timesheet/attendance';
+import {
+  calculateAttendanceRecordToTotalWorkTime,
+  timeToHour,
+  timeToLastMinute,
+} from '@/helpers/calculateHelper';
+import { usePathname } from 'next/navigation';
+import usePagination from '@/utils/usePagination';
 
 const AttendanceTable = () => {
+  // Store hooks
   const { userId } = useAuthenticationStore();
-  const store = useMyTimesheetStore() as unknown as MyTimesheetStore;
-  const { setIsShowViewAttendanceSidebar: isShow, setAttendanceData } = store;
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const [filter, setFilter] = useState<
-    Partial<AttendanceRequestBody['filter']>
-  >({
-    userIds: [userId ?? ''],
-  });
+  const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
+    usePagination(1, 10);
 
   const {
-    page,
-    limit,
-    orderBy,
-    orderDirection,
-    setPage,
-    setLimit,
-    setOrderBy,
-    setOrderDirection,
-  } = usePagination(1, 10);
+    setIsShowViewSidebarAttendance,
+    setViewAttendanceId,
+    filter,
+    setFilter,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    resetPagination,
+  } = useMyTimesheetStore();
 
-  const { data, isFetching } = useGetAttendances(
-    { page, limit, orderBy, orderDirection },
-    { filter },
-  );
+  const pathname = usePathname();
 
-  const onFilterChange = (val: [dayjs.Dayjs, dayjs.Dayjs] | null) => {
-    if (val) {
-      setFilter((prev) => ({
-        ...prev,
-        date: {
-          from: val[0].format(DATE_FORMAT),
-          to: val[1].format(DATE_FORMAT),
-        },
-      }));
-    } else {
-      setFilter((prev) => ({
-        ...prev,
-        date: undefined,
-      }));
-    }
+  useEffect(() => {
+    resetPagination();
+  }, [pathname]);
+
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
+  const userFilter: Partial<AttendanceRequestBody['filter']> = {
+    userIds: [userId ?? ''],
+  };
+
+  // API call
+  const { data, isFetching, refetch } = useGetAttendances(
+    { page: currentPage, limit: pageSize, orderBy, orderDirection },
+
+    { filter: { ...userFilter, ...filter } },
+  );
+  const { isMobile, isTablet } = useIsMobile();
+
+  // Table columns
   const columns: TableColumnsType<AttendanceRecord> = [
     {
       title: 'Date',
@@ -72,205 +83,329 @@ const AttendanceTable = () => {
       key: 'createdAt',
       sorter: true,
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4">
+        <div
+          id="time-attendance-attendance-table-row-date-div"
+          data-cy="time-attendance-attendance-table-row-date-div"
+          className="text-sm text-gray-900 py-4 whitespace-nowrap"
+        >
           {dayjs(date).format(DATE_FORMAT)}
         </div>
       ),
     },
     {
-      title: 'Check In',
+      title: 'Clock In',
       dataIndex: 'startAt',
       key: 'startAt',
-      sorter: true,
-      render: (date: string | null) => (
-        <div className="text-sm text-gray-900 py-4">
-          {date ? dayjs(date).format('HH:mm:ss') : '-'}
+      render: (date: string) => (
+        <div
+          id="time-attendance-attendance-table-row-clock-in-div"
+          data-cy="time-attendance-attendance-table-row-clock-in-div"
+          className="text-sm text-gray-900 py-4"
+        >
+          {date ? dayjs(date).format('HH:mm') : '-'}
         </div>
       ),
     },
     {
-      title: 'Check Out',
+      title: 'Location-in',
+      dataIndex: 'geolocations',
+      key: 'locationIn',
+      render: (geolocations: any[]) => (
+        <div
+          id="time-attendance-attendance-table-row-location-in-div"
+          data-cy="time-attendance-attendance-table-row-location-in-div"
+          className="text-sm text-gray-900 py-4 flex items-center justify-between"
+        >
+          {geolocations?.[0]?.allowedArea?.title ?? ''} <GoLocation />
+        </div>
+      ),
+    },
+    {
+      title: 'Clock Out',
       dataIndex: 'endAt',
       key: 'endAt',
-      sorter: true,
-      render: (date: string | null) => (
-        <div className="text-sm text-gray-900 py-4">
-          {date ? dayjs(date).format('HH:mm:ss') : '-'}
+      render: (date: string) => (
+        <div
+          id="time-attendance-attendance-table-row-clock-out-div"
+          data-cy="time-attendance-attendance-table-row-clock-out-div"
+          className="text-sm text-gray-900 py-4"
+        >
+          {date ? dayjs(date).format('HH:mm') : '-'}
         </div>
       ),
     },
     {
-      title: 'Action',
+      title: 'Location-Out',
+      dataIndex: 'geolocations',
+      key: 'locationOut',
+      render: (geolocations: any[]) => (
+        <div
+          id="time-attendance-attendance-table-row-location-out-div"
+          data-cy="time-attendance-attendance-table-row-location-out-div"
+          className="text-sm text-gray-900 py-4 flex items-center justify-between"
+        >
+          {geolocations?.[geolocations.length - 1]?.allowedArea?.title ?? ''}{' '}
+          <GoLocation data-cy="time-attendance-attendance-table-row-location-out-icon" />
+        </div>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (item: AttendanceRecord) => {
+        const statuses = formatToAttendanceStatuses(item);
+        return (
+          <div
+            id="time-attendance-attendance-table-row-status-container"
+            data-cy="time-attendance-attendance-table-row-status-container"
+            className="py-4"
+          >
+            <Space
+              id="time-attendance-attendance-table-row-status-space"
+              data-cy="time-attendance-attendance-table-row-status-space"
+            >
+              {statuses.map((status) => (
+                <StatusBadge
+                  theme={AttendanceRecordTypeBadgeTheme[status.status]}
+                  key={status.status}
+                  data-cy={`time-attendance-attendance-table-row-status-badge-${status.status}`}
+                >
+                  <div
+                    id={`time-attendance-attendance-table-row-status-badge-div-${status.status}`}
+                    data-cy={`time-attendance-attendance-table-row-status-badge-div-${status.status}`}
+                    className="text-center"
+                  >
+                    <div
+                      id={`time-attendance-attendance-table-row-status-badge-status-div-${status.status}`}
+                      data-cy={`time-attendance-attendance-table-row-status-badge-status-div-${status.status}`}
+                    >
+                      {status.status}
+                    </div>
+                    {status.text && (
+                      <div
+                        id={`time-attendance-attendance-table-row-status-badge-text-div-${status.status}`}
+                        data-cy={`time-attendance-attendance-table-row-status-badge-text-div-${status.status}`}
+                        className="font-normal"
+                      >
+                        {status.text}
+                      </div>
+                    )}
+                  </div>
+                </StatusBadge>
+              ))}
+            </Space>
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Total time',
+      dataIndex: 'totalTime',
+      key: 'totalTime',
+      render: (text, record) => {
+        const calcTotal = calculateAttendanceRecordToTotalWorkTime(record);
+        return (
+          <div
+            id="time-attendance-attendance-table-row-total-time-div"
+            data-cy="time-attendance-attendance-table-row-total-time-div"
+            className="text-sm text-gray-900 py-4"
+          >
+            {record.startAt && record.endAt
+              ? `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`
+              : '-'}
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Over-time',
+      dataIndex: 'overTimeMinutes',
+      key: 'overTime',
+      render: (minutes: number) => (
+        <div
+          id="time-attendance-attendance-table-row-over-time-div"
+          data-cy="time-attendance-attendance-table-row-over-time-div"
+          className="text-sm text-gray-900 py-4"
+        >
+          {minutes} min
+        </div>
+      ),
+    },
+    {
+      title: '',
       dataIndex: 'action',
       key: 'action',
-      width: 80,
-      render: (text: string, record: AttendanceRecord) => (
-        <div className="py-4">
+      render: (text, record) => (
+        <div
+          id="time-attendance-attendance-table-row-action-container"
+          data-cy="time-attendance-attendance-table-row-action-container"
+          className="py-4"
+        >
           <Button
-            type="link"
+            className="w-[30px] h-[30px]"
+            icon={
+              <IoEyeOutline
+                data-cy="time-attendance-attendance-table-row-action-button-icon"
+                size={16}
+              />
+            }
+            type="primary"
             onClick={() => {
-              setAttendanceData(record);
-              isShow(true);
+              setViewAttendanceId(record.id);
+              setIsShowViewSidebarAttendance(true);
             }}
-          >
-            View
-          </Button>
+            id={`time-attendance-attendance-table-row-view-button-${record.id}`}
+            data-cy={`time-attendance-attendance-table-row-action-button-${record.id}`}
+          />
         </div>
       ),
     },
   ];
 
-  const mobilePaginationItemRender = (
-    pageNumber: number,
-    type: string,
-    originalElement: React.ReactNode,
-  ) => {
-    if (type === 'prev') {
-      return (
-        <button className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 hover:bg-gray-50">
-          <span className="text-gray-600">&lt;</span>
-        </button>
-      );
+  const onFilterChange = (val: CommonObject) => {
+    const nFilter: Partial<AttendanceRequestBody['filter']> = { ...userFilter };
+
+    if (val.date) {
+      nFilter['date'] = {
+        from: val.date[0],
+        to: val.date[1],
+      };
     }
-    if (type === 'next') {
-      return (
-        <button className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 hover:bg-gray-50">
-          <span className="text-gray-600">&gt;</span>
-        </button>
-      );
+
+    if (val.location) {
+      nFilter['locations'] = [val.location];
     }
-    if (type === 'page') {
-      return (
-        <button className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100">
-          <span className="text-gray-900">{originalElement}</span>
-        </button>
-      );
+
+    if (val.type) {
+      nFilter['type'] = val.type;
     }
-    return originalElement;
+
+    setFilter(nFilter);
   };
 
-  const handleTableChange = (
-    pagination: TablePaginationConfig,
-    filters: Record<string, FilterValue | null>,
-    sorter: SorterResult<AttendanceRecord> | SorterResult<AttendanceRecord>[],
-  ) => {
-    const singleSorter = Array.isArray(sorter) ? sorter[0] : sorter;
-    setPage(pagination.current ?? 1);
-    setLimit(pagination.pageSize ?? 10);
-    setOrderDirection(singleSorter.order ?? undefined);
-    setOrderBy(singleSorter.order ? (singleSorter.field as string) : undefined);
-  };
-
-  const CustomPagination = ({
-    current,
-    total,
-  }: {
-    current: number;
-    total: number;
-  }) => {
-    const totalPages = Math.ceil(total / limit);
-    const isFirstPage = current <= 1;
-    const isLastPage = current >= totalPages;
-
-    const handlePrevPage = () => {
-      if (!isFirstPage) {
-        setPage(current - 1);
-      }
-    };
-
-    const handleNextPage = () => {
-      if (!isLastPage) {
-        setPage(current + 1);
-      }
-    };
-
-    return (
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <button
-            className={`w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 ${!isFirstPage ? 'hover:bg-gray-50' : 'opacity-50 cursor-not-allowed'}`}
-            onClick={handlePrevPage}
-            disabled={isFirstPage}
-          >
-            <span className="text-gray-600">&lt;</span>
-          </button>
-          <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100">
-            <span className="text-gray-900">{current}</span>
-          </div>
-          <button
-            className={`w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 ${!isLastPage ? 'hover:bg-gray-50' : 'opacity-50 cursor-not-allowed'}`}
-            onClick={handleNextPage}
-            disabled={isLastPage}
-          >
-            <span className="text-gray-600">&gt;</span>
-          </button>
-        </div>
-        <div className="text-sm text-gray-600">{total} Result</div>
-      </div>
-    );
+  const handleTableChange = (pagination: any, sorter: any) => {
+    setCurrentPage(pagination.current ?? 1);
+    setPageSize(pagination.pageSize ?? 10);
+    setOrderDirection(sorter['order']);
+    setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
   };
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-3 pr-2 bg-white rounded-lg p-2 mx-2">
-        <div className="text-lg font-semibold text-gray-900">Leave History</div>
-        <div className="flex items-center gap-2">
+    <div
+      className=" bg-white border border-gray-100 rounded p-5"
+      id="time-attendance-attendance-table-container"
+      data-cy="time-attendance-attendance-table-container"
+    >
+      <div
+        className="flex items-center justify-between mb-6"
+        id="time-attendance-attendance-table-header-container"
+        data-cy="time-attendance-attendance-table-header-container"
+      >
+        <div
+          className="flex items-center gap-0.5"
+          id="time-attendance-attendance-table-title-container"
+          data-cy="time-attendance-attendance-table-title-container"
+        >
+          <div
+            className="text-sm sm:text-2xl font-bold text-gray-900"
+            id="time-attendance-attendance-table-title"
+            data-cy="time-attendance-attendance-table-title"
+          >
+            Attendance
+          </div>
+
           <Button
-            type="default"
-            className="ant-btn css-dev-only-do-not-override-kwtqki ant-btn-default ant-btn-color-default ant-btn-variant-outlined ant-btn-icon-only flex items-center justify-center w-12 h-12 hover:bg-gray-50 border-gray-200 sm:hidden"
-            icon={<IoMdSwitch size={24} />}
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            type="text"
+            size="small"
+            icon={<AiOutlineReload size={14} className="text-gray-600" />}
+            onClick={() => refetch()}
+            id="time-attendance-attendance-table-refresh-button"
+            data-cy="time-attendance-attendance-table-refresh-button"
           />
-          <div className="hidden sm:block">
-            <AttendanceTableFilter onChange={onFilterChange} />
+        </div>
+        {/* Mobile Filter */}
+        <div
+          className="sm:hidden flex items-center"
+          id="time-attendance-attendance-table-mobile-filter-container"
+          data-cy="time-attendance-attendance-table-mobile-filter-container"
+        >
+          <div className="h-10 flex ">
+            <AttendanceTableFilter
+              onChange={onFilterChange}
+              data-cy="time-attendance-attendance-table-mobile-filter"
+            />
           </div>
         </div>
       </div>
-      <div className="bg-white rounded-lg p-2 mx-2">
-        <Table<AttendanceRecord>
-          className="mt-0"
-          columns={columns}
-          loading={isFetching}
-          dataSource={data?.items}
-          pagination={{
-            ...DefaultTablePagination(data?.meta?.totalItems),
-            className: 'hidden sm:flex items-center justify-start mt-3',
-            showSizeChanger: false,
-            itemRender: mobilePaginationItemRender,
-            simple: true,
-            size: 'small',
-            current: page,
-          }}
-          onChange={handleTableChange}
-          scroll={{ x: 'max-content' }}
-          size="small"
+
+      {/* Desktop Filter */}
+      <div
+        className="hidden sm:block"
+        id="time-attendance-attendance-table-desktop-filter-container"
+        data-cy="time-attendance-attendance-table-desktop-filter-container"
+      >
+        <AttendanceTableFilter
+          onChange={onFilterChange}
+          data-cy="time-attendance-attendance-table-desktop-filter"
         />
-        <div className="px-4 py-3 sm:hidden">
-          <CustomPagination
-            current={page}
-            total={data?.meta?.totalItems ?? 0}
-          />
-        </div>
       </div>
 
-      <Drawer
+      <div
+        id="time-attendance-attendance-table-content"
+        data-cy="time-attendance-attendance-table-content"
+      >
+        <Table<AttendanceRecord>
+          className="mt-6"
+          columns={columns}
+          dataSource={data?.items}
+          loading={isFetching}
+          pagination={false}
+          onChange={handleTableChange}
+          scroll={{ x: 'min-content' }}
+          id="time-attendance-attendance-table"
+          data-cy="time-attendance-attendance-table"
+        />
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+            data-cy="time-attendance-attendance-table-mobile-pagination"
+          />
+        ) : (
+          <CustomPagination
+            current={currentPage}
+            total={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setCurrentPage(1);
+            }}
+            data-cy="time-attendance-attendance-table-pagination"
+          />
+        )}
+      </div>
+
+      {/* View Attendance Sidebar */}
+
+      {/* <Drawer
         title="Filter"
         placement="bottom"
-        onClose={() => setIsFilterOpen(false)}
-        open={isFilterOpen}
+        onClose={() => setIsShowViewSidebar(false)}
+        open={isShowViewSidebar}
         height="auto"
         className="rounded-t-2xl"
         maskClosable={true}
         destroyOnClose={true}
       >
         <div className="p-4">
-          <AttendanceTableFilter
-            onChange={onFilterChange}
-            onClose={() => setIsFilterOpen(false)}
-          />
+          <AttendanceTableFilter onChange={onFilterChange} />
         </div>
-      </Drawer>
-    </>
+      </Drawer> */}
+    </div>
   );
 };
 

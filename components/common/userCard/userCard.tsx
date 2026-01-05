@@ -21,11 +21,11 @@ const UserCard: FC<UserCardProps> = ({
 }) => {
   // const sizeWH = size === 'medium' ? 40 : 24;
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3" data-cy="user-card">
       {data ? (
-        <Avatar size={40} src={data?.profileImage} />
+        <Avatar size={25} src={data?.profileImage} />
       ) : (
-        <Avatar size={40}>
+        <Avatar size={25}>
           {data?.firstName[0]?.toUpperCase()}
           {data?.middleName[0]?.toUpperCase()}
           {data?.lastName[0]?.toUpperCase()}

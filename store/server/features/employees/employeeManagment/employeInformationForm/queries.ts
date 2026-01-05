@@ -1,16 +1,19 @@
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
+
 import { useQuery } from 'react-query';
 import { EmployeeInformationForm } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-const token = useAuthenticationStore.getState().token;
+import { getCurrentToken } from '@/utils/getCurrentToken';
+
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
 const getEmpoyeInformationForms = async () => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'GET',
@@ -28,16 +31,19 @@ const getEmpoyeInformationForms = async () => {
  */
 
 const getEmpoyeInformationForm = async (id: string) => {
+  const token = await getCurrentToken();
+
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/employee-information-form/${id}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/employee-information-form/${id}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -49,6 +55,7 @@ const getEmpoyeInformationForm = async (id: string) => {
  */
 
 const getEmpoyeInformationFormForTenant = async () => {
+  const token = await getCurrentToken();
   try {
     // const tenantId = localStorage.getItem('tenantId');
     // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
@@ -65,14 +72,6 @@ const getEmpoyeInformationFormForTenant = async () => {
     throw error;
   }
 };
-
-// const response = await axios.get(`${ORG_AND_EMP_URL}/employee-information-form/tenant/${id}`);
-//   const response = await axios.get(`${ORG_AND_EMP_URL}/employee-information-form`);
-//   return response.data;
-// } catch (error) {
-//   throw error;
-// }
-// };
 
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.

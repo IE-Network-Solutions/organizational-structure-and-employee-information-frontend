@@ -1,7 +1,7 @@
-import { Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
-import { MdCancel } from 'react-icons/md';
+import { Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { NAME } from '@/types/enumTypes';
+import { CloseCircleFilled } from '@ant-design/icons';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 import CustomButton from '@/components/common/buttons/customButton';
 
@@ -56,11 +56,10 @@ function DefaultCardForm({
           {fields.map((field) => (
             <Form.Item required={false} key={field.key}>
               <Form.Item
-                {...field}
-                name={[field.name, 'milestoneId']}
-                initialValue={milestoneId || null}
-                noStyle
-                key={`${field.key}-milestoneId`} // Unique key for milestoneId
+                required={false}
+                className="py-2"
+                key={field.key}
+                style={{ marginBottom: 0 }}
               >
                 <Input type="hidden" />
               </Form.Item>
@@ -154,6 +153,7 @@ function DefaultCardForm({
                       },
                     ]}
                     key={`${field.key}-task`} // Unique key for task
+                    style={{ flex: 1, marginBottom: 0 }}
                   >
                     <Input
                       className={`text-xs mx-5 h-10 rounded-md  ${form.getFieldValue(name)[field.name].achieveMK}`}
@@ -286,46 +286,99 @@ function DefaultCardForm({
                             );
                           }
 
-                          // Validate against the key result limits
-                          if (
-                            targetValue !== null &&
-                            targetValue !== undefined
-                          ) {
-                            // Check if numericValue is within the targetValue
-                            if (value <= targetValue) {
-                              return Promise.resolve(); // Validation passed
-                            }
-                          } else {
-                            // Fallback check if targetValue does not exist
-                            if (
-                              sumTargetValue(name) <=
-                              keyResult.targetValue - keyResult.currentValue
-                            ) {
-                              return Promise.resolve(); // Validation passed
-                            }
-                          }
+                    {keyResult?.metricType?.name !== NAME.ACHIEVE &&
+                      keyResult?.metricType?.name !== NAME.MILESTONE && (
+                        <Col flex="none">
+                          <Row align="middle" gutter={8} wrap={false}>
+                            <Col flex="none">
+                              <div className="text-xs flex items-center gap-1.5 text-gray-500">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                                Target
+                              </div>
+                            </Col>
+                            <Col flex="none" style={{ width: '130px' }}>
+                              <Form.Item
+                                hidden={hasTargetValue}
+                                {...field}
+                                name={[field.name, 'targetValue']}
+                                key={`${field.key}-targetValue`}
+                                noStyle
+                                rules={[
+                                  {
+                                    validator(nonused, value: any) {
+                                      // Allow empty/null values (optional field)
+                                      if (
+                                        value === null ||
+                                        value === undefined ||
+                                        value === ''
+                                      ) {
+                                        return Promise.resolve();
+                                      }
 
-                          // If neither condition is satisfied, reject the promise
-                          return Promise.reject(
-                            new Error(
-                              `Your target value shouldn't exceed the allowed limits. you have only ${Number(keyResult.targetValue - keyResult.currentValue).toLocaleString()}`,
-                            ),
-                          );
-                        },
-                      },
-                    ]}
-                  >
-                    <InputNumber
-                      className="w-32 text-xs"
-                      min={0} // Ensure the value can't go below 0
-                      formatter={(value) =>
-                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                      }
-                    />
-                  </Form.Item>
-                )}
+                                      // Skip validation for Milestone and Achieve metric types
+                                      if (
+                                        keyResult?.metricType?.name ===
+                                          NAME.ACHIEVE ||
+                                        keyResult?.metricType?.name ===
+                                          NAME.MILESTONE
+                                      ) {
+                                        return Promise.resolve();
+                                      }
 
-              {/* {planningPeriodId && planningUserId && (
+                                      const numericValue = Number(value);
+                                      if (isNaN(numericValue)) {
+                                        return Promise.reject(
+                                          new Error(
+                                            'Please enter a valid number.',
+                                          ),
+                                        );
+                                      }
+
+                                      // Check if total exceeds key result's available target
+                                      if (
+                                        targetValue !== null &&
+                                        targetValue !== undefined
+                                      ) {
+                                        if (numericValue <= targetValue)
+                                          return Promise.resolve();
+                                      } else {
+                                        if (
+                                          sumTargetValue(name) <=
+                                          keyResult.targetValue -
+                                            keyResult.currentValue
+                                        ) {
+                                          return Promise.resolve();
+                                        }
+                                      }
+                                      return Promise.reject(
+                                        new Error('Target value exceeds limit'),
+                                      );
+                                    },
+                                  },
+                                ]}
+                              >
+                                <InputNumber
+                                  id={`default-form-target-input-${name}-${field.name}`}
+                                  data-cy={`default-form-target-input-${name}-${field.name}`}
+                                  min={0}
+                                  className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
+                                  defaultValue={0}
+                                  formatter={(value) =>
+                                    `${value}`.replace(
+                                      /\B(?=(\d{3})+(?!\d))/g,
+                                      ',',
+                                    )
+                                  }
+                                />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        </Col>
+                      )}
+                  </Row>
+                </div>
+
+                {/* {planningPeriodId && planningUserId && (
                 <Form.Item
                   label={<div className="text-xs">Sub Tasks</div>}
                   className="border px-4 py-1 rounded-md"
@@ -341,8 +394,8 @@ function DefaultCardForm({
                   />
                 </Form.Item>
               )} */}
-            </Form.Item>
-          ))}
+              </Form.Item>
+            ))}
 
           <Form.Item className="flex items-center justify-end space-x-2 mx-4">
             {/* <button

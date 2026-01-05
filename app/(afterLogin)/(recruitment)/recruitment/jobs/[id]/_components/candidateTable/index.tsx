@@ -6,20 +6,31 @@ import {
   CandidateData,
   useCandidateState,
 } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Dropdown, Select, Table, TableColumnsType } from 'antd';
+import {
+  Button,
+  Dropdown,
+  Select,
+  Table,
+  TableColumnsType,
+  Popover,
+  DatePicker,
+  Form,
+} from 'antd';
 import dayjs from 'dayjs';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaEye } from 'react-icons/fa';
 import CandidateDetail from '../candidateDetail/page';
 import { FaEllipsisVertical } from 'react-icons/fa6';
-import { IoIosArrowForward } from 'react-icons/io';
 import { FileDown } from 'lucide-react';
 import { useChangeCandidateStatus } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import DeleteCandidate from '../../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../../_components/modals/moveToTalentPool';
-import RecruitmentPagination from '../../../../_components';
+import { TableRowSelection } from 'antd/es/table/interface';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 interface TableProps {
   jobId: string;
@@ -28,6 +39,13 @@ interface TableProps {
 const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
+  const [hirePopoverVisible, setHirePopoverVisible] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [hiringCandidateId, setHiringCandidateId] = useState<string | null>(
+    null,
+  );
+  const [hireForm] = Form.useForm();
 
   const {
     currentPage,
@@ -43,6 +61,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     setDeleteCandidateId,
     setDeleteCandidateModal,
     setMoveToTalentPoolModal,
+    selectedRowKeys,
+    setSelectedRowKeys,
   } = useCandidateState();
 
   const handleCandidateDetail = (candidate: any) => {
@@ -50,6 +70,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     setSelectedCandidateID(candidate?.id);
     setCandidateDetailDrawer(true);
   };
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: candidateList, isLoading: isResponseLoading } =
     useGetCandidates(
@@ -59,6 +80,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       searchParams?.selectedJob || '',
       searchParams?.selectedStage || '',
       searchParams?.selectedDepartment || '',
+      pageSize,
+      currentPage,
     );
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -81,6 +104,53 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       });
     }
   };
+  const {
+    mutate: hireCandidate,
+    isLoading: isHireLoading,
+    isSuccess: isHireSuccess,
+    isError: isHireError,
+    reset: resetHireMutation,
+  } = useChangeCandidateStatus();
+  // Effect to handle hire success and error
+  useEffect(() => {
+    if (isHireSuccess && hiringCandidateId) {
+      setHirePopoverVisible((prev) => ({
+        ...prev,
+        [hiringCandidateId]: false,
+      }));
+      hireForm.resetFields();
+      setHiringCandidateId(null);
+      resetHireMutation();
+    }
+    if (isHireError && hiringCandidateId) {
+      setHiringCandidateId(null);
+      resetHireMutation();
+    }
+  }, [
+    isHireSuccess,
+    isHireError,
+    hiringCandidateId,
+    hireForm,
+    resetHireMutation,
+  ]);
+
+  const handleHireCandidate = async (candidate: any) => {
+    try {
+      const values = await hireForm.validateFields();
+      setHiringCandidateId(candidate?.id);
+      hireCandidate({
+        data: { hiredDate: values.hireDate, updatedBy: userId },
+        id: candidate?.jobCandidate[0]?.id,
+      });
+    } catch (error) {
+      setHiringCandidateId(null);
+    }
+  };
+
+  const handleCancelHire = (candidateId: string) => {
+    setHirePopoverVisible((prev) => ({ ...prev, [candidateId]: false }));
+    hireForm.resetFields();
+  };
 
   const columns: TableColumnsType<CandidateData> = [
     {
@@ -98,11 +168,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       dataIndex: 'cgpa',
       sorter: (a: any, b: any) => a.cgpa - b.cgpa,
     },
-    {
-      title: 'Internal/External',
-      dataIndex: 'internal_external',
-      sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
-    },
+    // {
+    //   title: 'Internal/External',
+    //   dataIndex: 'internal_external',
+    //   sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
+    // },
     {
       title: 'CV',
       dataIndex: 'cv',
@@ -125,6 +195,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   const handleMenuClick = (key: string, candidate: any) => {
     if (key === 'moveToTalentPool') {
       setMoveToTalentPoolModal(true);
+      setSelectedCandidate([candidate]); // Wrap candidate in an array
     } else if (key === 'edit') {
       setEditCandidate(candidate);
       setSelectedCandidateID(candidate?.id);
@@ -144,26 +215,98 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       link.click();
       document.body.removeChild(link);
     };
+
+    const hirePopoverContent = (
+      <div
+        id={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`}
+        data-cy={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`}
+        className="w-64"
+      >
+        <h3
+          className="text-lg font-semibold mb-4 text-center"
+          data-cy="talent-acquisition-job-candidate-table-hire-popover-title"
+        >
+          Date Hired
+        </h3>
+        <Form form={hireForm} layout="vertical">
+          <Form.Item
+            name="hireDate"
+            rules={[
+              {
+                required: true,
+                message: 'Please select a hire date',
+              },
+            ]}
+          >
+            <DatePicker
+              id={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
+              className="w-full"
+              placeholder="Select date"
+              format="DD MMM YYYY"
+            />
+          </Form.Item>
+          <div
+            id={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`}
+            data-cy={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`}
+            className="flex justify-center gap-2 mt-4"
+          >
+            <Button
+              id={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
+              type="primary"
+              size="small"
+              onClick={() => handleHireCandidate(item)}
+              className="bg-blue-600 hover:bg-blue-700 h-8"
+              loading={isHireLoading}
+            >
+              Hire Candidate
+            </Button>
+            <Button
+              id={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
+              size="small"
+              onClick={() => handleCancelHire(item?.id)}
+              className="h-8"
+            >
+              Cancel
+            </Button>
+          </div>
+        </Form>
+      </div>
+    );
+
     return {
       key: index,
+      id: item?.id,
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
-      internal_external:
-        item?.jobCandidate?.isExternalApplicant === false
-          ? 'External'
-          : 'Internal',
+      // internal_external:
+      //   item?.jobCandidate?.isExternalApplicant === false
+      //     ? 'External'
+      //     : 'Internal',
       cv: (
-        <div className="flex items-center justify-between ">
+        <div
+          id={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
+          data-cy={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
+          className="flex items-center justify-between "
+        >
           <span
             className="text-xs font-semibold cursor-pointer"
             title={item?.documentName ?? 'CV.pdf'}
+            data-cy={`talent-acquisition-job-candidate-table-cv-filename-${item?.id}`}
           >
             {item?.documentName?.length > 8
               ? `${item.documentName.slice(0, 8)}...`
               : (item?.documentName ?? 'CV.pdf')}{' '}
           </span>
-          <div className="cursor-pointer" onClick={handleDownload}>
+          <div
+            id={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
+            data-cy={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
+            className="cursor-pointer"
+            onClick={handleDownload}
+          >
             <FileDown size={20} strokeWidth={1.25} />
           </div>
         </div>
@@ -171,6 +314,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
       stages: (
         <Select
+          id={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
+          data-cy={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
           defaultValue={item?.jobCandidate?.map(
             (e: any) => e?.applicantStatusStage?.title ?? '--',
           )}
@@ -183,16 +328,26 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           }
         >
           {statusStage?.items?.map((stage: any) => (
-            <Select.Option key={stage.id} value={stage.id}>
+            <Select.Option
+              key={stage.id}
+              value={stage.id}
+              id={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
+            >
               {stage.title}
             </Select.Option>
           ))}
         </Select>
       ),
       action: (
-        <div className="flex items-center justify-between gap-4 text-white">
+        <div
+          id={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
+          data-cy={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
+          className="flex items-center justify-between gap-4 text-white"
+        >
           <Button
             id={`editUserButton${item?.id}`}
+            data-cy={`talent-acquisition-job-candidate-table-button-view-${item?.id}`}
             disabled={item?.deletedAt !== null}
             className="bg-primary px-[10px]  text-white disabled:bg-gray-400 "
             onClick={() => handleCandidateDetail(item)}
@@ -200,26 +355,66 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
             <FaEye />
           </Button>
           <Dropdown
+            data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
             menu={{
               items: [
                 {
-                  key: 'moveToTalentPool',
+                  key: 'hireCandidate',
                   label: (
-                    <div className="text-primary font-normal text-sm flex items-center justify-start gap-1">
-                      Move to Talent Pool
-                      <IoIosArrowForward size={12} />
-                    </div>
+                    <Popover
+                      id={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
+                      data-cy={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
+                      content={hirePopoverContent}
+                      trigger="click"
+                      open={hirePopoverVisible[item?.id]}
+                      onOpenChange={(visible) => {
+                        setHirePopoverVisible((prev) => ({
+                          ...prev,
+                          [item?.id]: visible,
+                        }));
+                        if (visible) {
+                          // Set the form value when popover opens
+                          hireForm?.setFieldsValue({
+                            hireDate: item?.jobCandidate[0]?.hiredDate
+                              ? dayjs(item?.jobCandidate[0]?.hiredDate)
+                              : null,
+                          });
+                        } else {
+                          // Reset form when popover closes
+                          hireForm?.resetFields();
+                        }
+                      }}
+                      placement="rightTop"
+                      overlayClassName="hire-candidate-popover"
+                    >
+                      <span
+                        data-cy={`talent-acquisition-job-candidate-table-popover-hire-text-${item?.id}`}
+                      >
+                        Hire Candidate
+                      </span>
+                    </Popover>
                   ),
-                  onClick: () => handleMenuClick('moveToTalentPool', item),
                 },
                 {
                   key: 'edit',
-                  label: 'Edit',
+                  label: (
+                    <span
+                      data-cy={`talent-acquisition-job-candidate-table-menu-item-edit-${item?.id}`}
+                    >
+                      Edit
+                    </span>
+                  ),
                   onClick: () => handleMenuClick('edit', item),
                 },
                 {
                   key: 'delete',
-                  label: 'Delete',
+                  label: (
+                    <span
+                      data-cy={`talent-acquisition-job-candidate-table-menu-item-delete-${item?.id}`}
+                    >
+                      Delete
+                    </span>
+                  ),
                   onClick: () => handleMenuClick('delete', item),
                 },
               ],
@@ -233,22 +428,53 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       ),
     };
   });
+
+  const rowSelection: TableRowSelection<CandidateData> = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+      setSelectedCandidate(
+        candidateList?.items?.filter((item: CandidateData) =>
+          selectedRows.some((row: CandidateData) => row.id === item.id),
+        ) || [],
+      );
+    },
+  };
+  const onSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
   return (
-    <div>
+    <div
+      id="talent-acquisition-job-candidate-table-div-container"
+      data-cy="talent-acquisition-job-candidate-table-div-container"
+    >
       <Table
         className="w-full"
         columns={columns}
         dataSource={data}
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
+        rowSelection={rowSelection}
+        pagination={false}
       />
-      <RecruitmentPagination
-        current={currentPage}
-        total={candidateList?.meta?.totalItems ?? 1}
-        pageSize={pageSize}
-        onChange={onPageChange}
-        onShowSizeChange={onPageChange}
-      />
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
       <DeleteCandidate />
       <EditCandidate />
       <MoveToTalentPool />

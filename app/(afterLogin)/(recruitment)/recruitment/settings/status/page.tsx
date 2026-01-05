@@ -11,6 +11,9 @@ import { useDeleteRecruitmentStatus } from '@/store/server/features/recruitment/
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { Pencil, Trash2 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 const { Title } = Typography;
 
@@ -22,10 +25,16 @@ const Status: React.FC = () => {
     setEditMode,
     setIsDeleteModalOpen,
     selectedStatus,
+    setCurrentPage,
+    setPage,
+    pageSize,
+    currentPage,
   } = useRecruitmentStatusStore();
 
+  const { isMobile, isTablet } = useIsMobile();
+
   const { data: recruitmentStatus, isLoading: fetchLoading } =
-    useGetRecruitmentStatuses();
+    useGetRecruitmentStatuses(pageSize, currentPage);
 
   const { mutate: deleteRecruitmentStatus } = useDeleteRecruitmentStatus();
   const handleEditStatus = (status: any) => {
@@ -50,26 +59,47 @@ const Status: React.FC = () => {
     setEditMode(false);
     setSelectedStatus(null);
   };
+
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPage(pageSize);
+    }
+  };
+  const onSizeChange = (size: number) => {
+    setPage(size);
+    setCurrentPage(1);
+  };
   return (
-    <div className="p-6">
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      data-cy="talent-acquisition-status-page-container"
+    >
       {/* Header section */}
-      <div className="flex justify-between items-center mb-4">
-        <Title level={5}>Define New Status</Title>
+      <div
+        className="flex justify-between items-center mb-4"
+        data-cy="talent-acquisition-status-page-header"
+      >
+        <Title level={5} data-cy="talent-acquisition-status-page-title">
+          Define New Status
+        </Title>
         <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
-          {/* <CustomButton
-            title="Define New Status"
-            id="createStatusButton"
-            icon={<FaPlus size={13} className="mr-2" />}
-            onClick={handleOpen}
-            className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-          /> */}
           <Button
             type="primary"
             id="createStatusButton"
+            data-cy="talent-acquisition-status-button-define-new"
             onClick={handleOpen}
-            icon={<FaPlus size={13} className="mr-2" />}
+            className="h-10 w-10 sm:w-auto"
+            icon={
+              <FaPlus data-cy="talent-acquisition-status-button-define-new-icon" />
+            }
           >
-            <span className="hidden lg:inline">Define New Status</span>
+            <span
+              className="hidden lg:inline"
+              data-cy="talent-acquisition-status-button-define-new-text"
+            >
+              Define New Status
+            </span>
           </Button>
         </AccessGuard>
       </div>
@@ -93,20 +123,52 @@ const Status: React.FC = () => {
               <div className="text-medium font-medium">{status?.title}</div>
               <div className="flex items-center justify-center gap-2">
                 <AccessGuard permissions={[Permissions.UpdateApplicationStage]}>
-                  <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+                  <div
+                    id={`talent-acquisition-status-button-edit-${status?.id}`}
+                    data-cy={`talent-acquisition-status-button-edit-${status?.id}`}
+                    className={`w-7 h-7 rounded-md flex items-center justify-center ${
+                      status?.isFixed === true
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-[#2f78ee] cursor-pointer'
+                    }`}
+                    onClick={
+                      status?.isFixed === true
+                        ? undefined
+                        : () => handleEditStatus(status)
+                    }
+                  >
                     <Pencil
                       size={15}
-                      className="text-white cursor-pointer"
-                      onClick={() => handleEditStatus(status)}
+                      className={`text-white ${
+                        status?.isFixed === true
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'cursor-pointer'
+                      }`}
                     />
                   </div>
                 </AccessGuard>
                 <AccessGuard permissions={[Permissions.DeleteApplicationStage]}>
-                  <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+                  <div
+                    id={`talent-acquisition-status-button-delete-${status?.id}`}
+                    data-cy={`talent-acquisition-status-button-delete-${status?.id}`}
+                    className={`w-7 h-7 rounded-md flex items-center justify-center ${
+                      status?.isFixed === true
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-[#e03137] cursor-pointer'
+                    }`}
+                    onClick={
+                      status?.isFixed === true
+                        ? undefined
+                        : () => handleDeleteStatus(status)
+                    }
+                  >
                     <Trash2
                       size={15}
-                      className="text-white cursor-pointer"
-                      onClick={() => handleDeleteStatus(status)}
+                      className={`text-white ${
+                        status?.isFixed === true
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'cursor-pointer'
+                      }`}
                     />
                   </div>
                 </AccessGuard>
@@ -123,6 +185,23 @@ const Status: React.FC = () => {
         }}
         onConfirm={handleDelete}
       />
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={recruitmentStatus?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={recruitmentStatus?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
     </div>
   );
 };

@@ -1,6 +1,4 @@
 'use client';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { LuPlus } from 'react-icons/lu';
 import React, { useEffect } from 'react';
 import TnaCategoryCard from './_components/categoryCard';
 import TnaCategorySidebar from './_components/categorySidebar';
@@ -9,6 +7,7 @@ import { useGetTnaCategory } from '@/store/server/features/tna/category/queries'
 import { Button, Spin } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const TnaCategoryPage = () => {
   const { isShowTnaCategorySidebar, setIsShowTnaCategorySidebar } =
@@ -22,35 +21,71 @@ const TnaCategoryPage = () => {
   }, [isShowTnaCategorySidebar]);
 
   return (
-    <>
-      <PageHeader title="TNA Category" size="small">
-        <AccessGuard permissions={[Permissions.CreateTnaCategory]}>
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id="tnaCategoryPageId"
+      data-cy="tna-category-page"
+    >
+      <div
+        className="flex justify-between mb-4"
+        id="tnaCategoryPageHeaderId"
+        data-cy="tna-category-page-header"
+      >
+        <h1
+          className="text-lg text-bold"
+          id="tnaCategoryPageTitleId"
+          data-cy="tna-category-page-title"
+        >
+          TNA Category
+        </h1>
+        <AccessGuard
+          permissions={[Permissions.CreateTnaCategory]}
+          data-cy="tna-category-page-create-guard"
+          id="tnaCategoryPageCreateGuardId"
+        >
           <Button
             id="tnaNewCategoryButtonId"
-            icon={<LuPlus size={18} />}
+            data-cy="tna-new-category-button"
+            icon={
+              <FaPlus data-cy="tna-new-category-icon" id="tnaNewCategoryIcon" />
+            }
             type="primary"
             size="large"
             onClick={() => {
               setIsShowTnaCategorySidebar(true);
             }}
           >
-            <span className="hidden lg:inline">New Category</span>
+            <span
+              className="hidden lg:inline"
+              data-cy="tna-category-page-new-button-text"
+              id="tnaCategoryPageNewButtonTextId"
+            >
+              New Category
+            </span>
           </Button>
         </AccessGuard>
-      </PageHeader>
+      </div>
 
-      <Spin spinning={isFetching}>
+      <Spin spinning={isFetching} data-cy="tna-category-page-spinner">
         {data?.items ? (
           data.items.map((item) => (
-            <TnaCategoryCard key={item.id} item={item} />
+            <TnaCategoryCard
+              key={item.id}
+              item={item}
+              data-cy={`tna-category-card-${item.id}`}
+            />
           ))
         ) : (
-          <div className="p-5"></div>
+          <div
+            className="p-5"
+            id="tnaCategoryPageEmptyId"
+            data-cy="tna-category-page-empty"
+          ></div>
         )}
       </Spin>
 
-      <TnaCategorySidebar />
-    </>
+      <TnaCategorySidebar data-cy="tna-category-sidebar" />
+    </div>
   );
 };
 

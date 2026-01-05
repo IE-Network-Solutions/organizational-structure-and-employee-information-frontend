@@ -2,12 +2,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { Button, Col, Dropdown, Menu, Popover, Row, Space } from 'antd';
+import { Button, Col, Dropdown, Menu, Popover, Row, message } from 'antd';
 import { TbFileDownload, TbFileUpload, TbLayoutList } from 'react-icons/tb';
 import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
-import { LuBookmark } from 'react-icons/lu';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
-import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
+import {
+  UseExportAttendanceData,
+  useGetAttendances,
+} from '@/store/server/features/timesheet/attendance/queries';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
@@ -20,6 +22,7 @@ import { HiOutlineTemplate } from 'react-icons/hi';
 import { useMediaQuery } from 'react-responsive';
 
 import AttendanceImportErrorModal from './_components/attendanceImportErrorModal';
+import { LuBookmark } from 'react-icons/lu';
 const EmployeeAttendance = () => {
   const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
 
@@ -27,14 +30,25 @@ const EmployeeAttendance = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isExportLoading, setIsExportLoading] = useState(false);
   const [exportType, setExportType] = useState<'EXCEL' | 'PDF' | null>(null);
+  const [isExportDisabled, setIsExportDisabled] = useState(false);
   const [file, setFile] = useState<any>();
   const [bodyRequest, setBodyRequest] = useState<AttendanceRequestBody>({
     filter: {}, // Initialize with empty filter
   });
-  const { data, isFetching } = useGetAttendances({}, bodyRequest, true, true);
-
+  const { data, isFetching, refetch } = useGetAttendances(
+    {},
+    bodyRequest,
+    true,
+    true,
+  );
+  const { mutate: exportAttendanceData, isLoading: isExportingData } =
+    UseExportAttendanceData();
   // Log the current state of data and request
-  useEffect(() => {}, [data, bodyRequest, isFetching]);
+  useEffect(() => {
+    if (bodyRequest.exportType) {
+      refetch();
+    }
+  }, [bodyRequest]);
 
   const {
     mutate: uploadImport,
@@ -42,97 +56,41 @@ const EmployeeAttendance = () => {
     isSuccess,
   } = useAttendanceImport();
 
-  const { setIsShowBreakAttendanceImportSidebar } =
-    useEmployeeAttendanceStore();
+  const {
+    setIsShowBreakAttendanceImportSidebar,
+    filter,
+    selectedRowKeys,
+    setSelectedRowKeys,
+  } = useEmployeeAttendanceStore();
 
-  useEffect(() => {
-    if (data && data.file) {
-      const url = new URL(TIME_AND_ATTENDANCE_URL!);
-      window.open(`${url.origin}/${data.file}`, '_blank');
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (file) {
-      setIsLoading(true);
-      fileUpload(file).then((res) => {
-        setFile(null);
-        setIsLoading(false);
-        uploadImport(res.data['viewImage']);
-      });
-    }
-  }, [file]);
+  const exportTimeoutRef = useRef<NodeJS.Timeout>();
 
   const onExport = async (type: 'PDF' | 'EXCEL') => {
+    setExportType(type);
     try {
-      setExportType(type);
-      setIsExportLoading(true);
-      if (!data?.items?.length) {
-        return;
-      }
-
-      // Create a new request object with export type and filter
-      const exportRequest: AttendanceRequestBody = {
-        exportType: type,
-        filter: {
-          attendanceRecordIds: data.items.map((item) => item.id),
-          userIds: data.items.map((item) => item.userId),
-          date: {
-            from: data.items[0].createdAt,
-            to: data.items[data.items.length - 1].createdAt,
+      exportAttendanceData(
+        {
+          exportType: type,
+          filter: {
+            ...filter,
+            attendanceRecordIds:
+              selectedRowKeys.length > 0
+                ? selectedRowKeys.map((key) => key.toString())
+                : filter?.attendanceRecordIds,
           },
-          type: data.items.some((item) => item.isAbsent)
-            ? 'absent'
-            : data.items.some((item) => item.lateByMinutes > 0)
-              ? 'late'
-              : data.items.some((item) => item.earlyByMinutes > 0)
-                ? 'early'
-                : 'present',
         },
-      };
-
-      // Set the request
-      setBodyRequest(exportRequest);
-
-      // Wait for the state to update and get the response
-      const response = await new Promise<{ file: string }>(
-        (resolve, reject) => {
-          let attempts = 0;
-          const maxAttempts = 10; // Maximum number of attempts
-          const checkData = () => {
-            if (data?.file) {
-              resolve({ file: data.file });
-            } else if (attempts >= maxAttempts) {
-              reject(new Error('Export timed out'));
-            } else {
-              attempts++;
-              setTimeout(checkData, 500); // Check every 500ms
-            }
-          };
-          checkData();
+        {
+          onSuccess: () => {
+            message.success('Download completed successfully!');
+            setIsExportDisabled(true);
+            setTimeout(() => {
+              setIsExportDisabled(false);
+            }, 2000);
+          },
         },
       );
-
-      if (response?.file) {
-        // Ensure the file path is properly formatted
-        const filePath = response.file.startsWith('/')
-          ? response.file
-          : `/${response.file}`;
-
-        const url = new URL(TIME_AND_ATTENDANCE_URL!);
-        const fileUrl = `${url.origin}${filePath}`;
-
-        // Create a temporary link to trigger the download
-        const link = document.createElement('a');
-        link.href = fileUrl;
-        link.download = `attendance_${type.toLowerCase()}_${new Date().toISOString().split('T')[0]}.${type.toLowerCase()}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
     } catch (error) {
-      // You might want to show an error message to the user here
-    } finally {
+      message.error('Failed to export. Please try again.');
       setIsExportLoading(false);
       setExportType(null);
       setBodyRequest((prev) => ({
@@ -142,17 +100,80 @@ const EmployeeAttendance = () => {
     }
   };
 
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Reset export state when data is received
+  useEffect(() => {
+    if (data && data.file) {
+      const filePath = data.file.startsWith('/') ? data.file : `/${data.file}`;
+      const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
+      const fileUrl = `${url}${filePath}`;
+
+      window.open(fileUrl, '_blank');
+
+      // Reset all export states
+      setIsExportLoading(false);
+      setExportType(null);
+      setBodyRequest((prev) => ({
+        ...prev,
+        exportType: undefined,
+      }));
+
+      // Clear the timeout
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
+    }
+  }, [data, isFetching]);
+
+  useEffect(() => {
+    if (file) {
+      setIsLoading(true);
+      fileUpload(file)
+        .then((res) => {
+          setFile(null);
+          setIsLoading(false);
+          uploadImport(res.viewImage);
+        })
+        .catch(() => {
+          setFile(null);
+          setIsLoading(false);
+          message.error('Failed to upload file. Please try again.');
+        })
+        .finally(() => {
+          // Clear the file input to allow re-importing the same file
+          if (importAttendance.current) {
+            importAttendance.current.value = '';
+          }
+        });
+    }
+  }, [file]);
+
   // Dropdown Menu for Import Buttons
   const importMenu = (
-    <Menu>
+    <Menu
+      id="time-attendance-employee-attendance-import-menu"
+      data-cy="time-attendance-employee-attendance-import-menu"
+    >
       <Menu.Item
         key="1"
-        icon={<TbFileUpload />}
+        icon={
+          <TbFileUpload data-cy="time-attendance-employee-attendance-import-menu-attendance-item-icon" />
+        }
         onClick={() => {
           if (importAttendance) {
             importAttendance.current?.click();
           }
         }}
+        id="time-attendance-employee-attendance-import-menu-attendance-item"
+        data-cy="time-attendance-employee-attendance-import-menu-attendance-item"
       >
         Import Attendance
       </Menu.Item>
@@ -160,11 +181,23 @@ const EmployeeAttendance = () => {
         key="2"
         icon={<TbFileUpload />}
         onClick={() => setIsShowBreakAttendanceImportSidebar(true)}
+        id="time-attendance-employee-attendance-import-menu-break-item"
+        data-cy="time-attendance-employee-attendance-import-menu-break-item"
       >
-        Import Break Attendance
+        Break Import
       </Menu.Item>
-      <Menu.Item key="3" icon={<HiOutlineTemplate />}>
-        <a href="/Attendance_Template.xlsx" download>
+      <Menu.Item
+        key="3"
+        icon={<HiOutlineTemplate />}
+        id="time-attendance-employee-attendance-import-menu-template-item"
+        data-cy="time-attendance-employee-attendance-import-menu-template-item"
+      >
+        <a
+          id="time-attendance-employee-attendance-import-menu-template-item-link"
+          data-cy="time-attendance-employee-attendance-import-menu-template-item-link"
+          href="/Attendance_Template.xlsx"
+          download
+        >
           Attendance Template
         </a>
       </Menu.Item>
@@ -173,174 +206,182 @@ const EmployeeAttendance = () => {
 
   return (
     <>
-      <div className="h-auto w-auto bg-gray-100 sm:bg-white pr-3 pb-6 pl-6 sm:pl-3">
-        <PageHeader
-          title="Employee Attendance"
-          description="Manage your Team Attendance"
+      <div
+        className="bg-[#fafafa] min-h-screen"
+        id="time-attendance-employee-attendance-page-container-view"
+        data-cy="time-attendance-employee-attendance-page-container-view"
+      >
+        {/* Header Section */}
+        <div
+          className="flex md:flex-row md:justify-between md:items-start gap-4 mb-6"
+          id="time-attendance-employee-attendance-header-section"
+          data-cy="time-attendance-employee-attendance-header-section"
         >
-          <Space
-            direction="vertical"
-            className="w-full md:flex-row flex flex-col justify-between items-start"
-          >
-            <Space className="w-full justify-between md:flex-row items-start">
-              {/* Import Dropdown for Small Screens */}
-              {isSmallScreen ? (
-                <PermissionWrapper
-                  permissions={[
-                    Permissions.ImportEmployeeAttendanceInformation,
-                  ]}
-                >
-                  <Dropdown overlay={importMenu} trigger={['click']}>
-                    <Button
-                      icon={<TbFileUpload size={18} />}
-                      size="large"
-                      loading={isLoading || isLoadingImport}
-                      className="w-full sm:w-auto mt-2 sm:mt-0 flex justify-between items-center"
-                    >
-                      {/* Display only icons in small screens */}
-                      <span className="sr-only">Import</span>
-                    </Button>
-                  </Dropdown>
-                </PermissionWrapper>
-              ) : (
-                // Regular import buttons for larger screens
-                <>
-                  <PermissionWrapper
-                    permissions={[
-                      Permissions.ImportEmployeeAttendanceInformation,
-                    ]}
-                  >
-                    <Button
-                      icon={<TbFileUpload size={18} />}
-                      size="large"
-                      loading={isLoading || isLoadingImport}
-                      onClick={() => {
-                        if (importAttendance) {
-                          importAttendance.current?.click();
-                        }
-                      }}
-                      className="w-full sm:w-auto mt-2 sm:mt-0"
-                    >
-                      Import Attendance
-                    </Button>
-                  </PermissionWrapper>
-
-                  <PermissionWrapper
-                    permissions={[
-                      Permissions.ImportEmployeeAttendanceInformation,
-                    ]}
-                  >
-                    <Button
-                      icon={<TbFileUpload size={18} />}
-                      size="large"
-                      loading={isLoading || isLoadingImport}
-                      onClick={() =>
-                        setIsShowBreakAttendanceImportSidebar(true)
-                      }
-                      className="w-full sm:w-auto mt-2 sm:mt-0"
-                    >
-                      Break Import
-                    </Button>
-                  </PermissionWrapper>
-
-                  <PermissionWrapper
-                    permissions={[
-                      Permissions.ImportEmployeeAttendanceInformation,
-                    ]}
-                  >
-                    <a href="/Attendance_Template.xlsx" download>
-                      <Button
-                        icon={<HiOutlineTemplate size={18} />}
-                        size="large"
-                        className="w-full sm:w-auto mt-2 sm:mt-0"
-                      >
-                        Attendance Template
-                      </Button>
-                    </a>
-                  </PermissionWrapper>
-                </>
-              )}
-
-              {/* Hidden File Input */}
-              <input
-                type="file"
-                ref={importAttendance}
-                accept=".xlsx, .xls"
-                onChange={(e) => {
-                  if (e.target.files?.length) {
-                    setFile(e.target.files[0]);
-                  }
-                }}
-                hidden
-              />
-
-              {/* Export Button with Popover */}
-              <PermissionWrapper
-                permissions={[Permissions.ExportEmployeeAttendanceInformation]}
-              >
-                <Popover
-                  trigger="click"
-                  placement="bottomRight"
-                  title={
-                    <div className="text-base text-gray-900 font-bold">
-                      What file you want to export?
-                    </div>
-                  }
-                  content={
-                    <div className="pt-4">
-                      <Row gutter={20}>
-                        <Col span={12}>
-                          <Button
-                            size="small"
-                            className="w-full"
-                            type="primary"
-                            icon={<TbLayoutList size={16} />}
-                            onClick={() => onExport('EXCEL')}
-                            loading={isExportLoading && exportType === 'EXCEL'}
-                          >
-                            Excel
-                          </Button>
-                        </Col>
-                        <Col span={12}>
-                          <Button
-                            size="small"
-                            className="w-full"
-                            type="primary"
-                            icon={<LuBookmark size={16} />}
-                            onClick={() => onExport('PDF')}
-                            loading={isExportLoading && exportType === 'PDF'}
-                          >
-                            PDF
-                          </Button>
-                        </Col>
-                      </Row>
-                    </div>
-                  }
-                >
-                  <Button
-                    icon={<TbFileDownload size={18} />}
-                    size="large"
-                    type="primary"
-                    loading={isExportLoading}
-                    className="w-full sm:w-auto mt-2 sm:mt-0 p-4"
-                  >
-                    {!isSmallScreen ? 'Export' : ''}
-                  </Button>
-                </Popover>
-              </PermissionWrapper>
-            </Space>
-          </Space>
-        </PageHeader>
-        <BlockWrapper className="mt-8">
-          <EmployeeAttendanceTable
-            setBodyRequest={setBodyRequest}
-            isImport={isSuccess}
+          <PageHeader
+            title="Employee Attendance"
+            description="Manage your Team Attendance"
+            data-cy="time-attendance-employee-attendance-header-title"
           />
-        </BlockWrapper>
+
+          {/* Action Buttons */}
+          <div
+            className="flex gap-2 md:min-w-fit"
+            id="time-attendance-employee-attendance-actions-row"
+            data-cy="time-attendance-employee-attendance-actions-row"
+          >
+            {/* Import Button */}
+            <PermissionWrapper
+              data-cy="time-attendance-employee-attendance-import-permission-wrapper"
+              permissions={[Permissions.ImportEmployeeAttendanceInformation]}
+            >
+              <Dropdown
+                overlay={importMenu}
+                trigger={['click']}
+                data-cy="time-attendance-employee-attendance-import-dropdown"
+              >
+                <Button
+                  icon={
+                    <TbFileUpload data-cy="time-attendance-employee-attendance-import-button-icon" />
+                  }
+                  size="large"
+                  loading={isLoading || isLoadingImport}
+                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : 'px-10 h-10'}`}
+                  id="time-attendance-employee-attendance-import-button"
+                  data-cy="time-attendance-employee-attendance-import-button"
+                >
+                  {!isSmallScreen && 'Import'}
+                </Button>
+              </Dropdown>
+            </PermissionWrapper>
+
+            {/* Export Button */}
+            <PermissionWrapper
+              permissions={[Permissions.ExportEmployeeAttendanceInformation]}
+              data-cy="time-attendance-employee-attendance-export-permission-wrapper"
+            >
+              <Popover
+                trigger="click"
+                placement={isSmallScreen ? 'bottomLeft' : 'bottomRight'}
+                title={
+                  <div
+                    id="time-attendance-employee-attendance-export-popover-title"
+                    data-cy="time-attendance-employee-attendance-export-popover-title"
+                    className="text-base text-gray-900 font-bold"
+                  >
+                    Export Format
+                  </div>
+                }
+                content={
+                  <div
+                    id="time-attendance-employee-attendance-export-popover-content"
+                    data-cy="time-attendance-employee-attendance-export-popover-content"
+                    className="pt-4"
+                  >
+                    <Row
+                      id="time-attendance-employee-attendance-export-popover-content-row"
+                      data-cy="time-attendance-employee-attendance-export-popover-content-row"
+                      gutter={[8, 8]}
+                    >
+                      <Col
+                        id="time-attendance-employee-attendance-export-popover-content-row-col-1"
+                        data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1"
+                        span={12}
+                      >
+                        <Button
+                          size="small"
+                          className="w-full flex items-center justify-center gap-1"
+                          type="primary"
+                          icon={
+                            <TbLayoutList
+                              data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1-icon"
+                              size={16}
+                            />
+                          }
+                          onClick={() => onExport('EXCEL')}
+                          loading={isExportingData && exportType === 'EXCEL'}
+                          disabled={isExportDisabled}
+                          id="time-attendance-employee-attendance-export-excel-button"
+                          data-cy="time-attendance-employee-attendance-export-excel-button"
+                        >
+                          Excel
+                        </Button>
+                      </Col>
+                      <Col span={12}>
+                        <Button
+                          size="small"
+                          className="w-full flex items-center justify-center gap-1"
+                          type="primary"
+                          icon={<LuBookmark size={16} />}
+                          onClick={() => onExport('PDF')}
+                          loading={isExportingData && exportType === 'PDF'}
+                          disabled={isExportDisabled}
+                          id="time-attendance-employee-attendance-export-pdf-button"
+                          data-cy="time-attendance-employee-attendance-export-pdf-button"
+                        >
+                          PDF
+                        </Button>
+                      </Col>
+                    </Row>
+                  </div>
+                }
+                id="time-attendance-employee-attendance-export-popover"
+                data-cy="time-attendance-employee-attendance-export-popover"
+              >
+                <Button
+                  icon={
+                    <TbFileDownload data-cy="time-attendance-employee-attendance-export-button-icon" />
+                  }
+                  size="large"
+                  type="primary"
+                  loading={isExportLoading}
+                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : 'px-10 h-10'}`}
+                  id="time-attendance-employee-attendance-export-button"
+                  data-cy="time-attendance-employee-attendance-export-button"
+                >
+                  {!isSmallScreen && 'Export'}
+                </Button>
+              </Popover>
+            </PermissionWrapper>
+          </div>
+        </div>
+
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          ref={importAttendance}
+          accept=".xlsx, .xls"
+          onChange={(e) => {
+            if (e.target.files?.length) {
+              setFile(e.target.files[0]);
+            }
+          }}
+          hidden
+          id="time-attendance-employee-attendance-import-file-input"
+          data-cy="time-attendance-employee-attendance-import-file-input"
+        />
+
+        {/* Table Section */}
+        <div
+          id="time-attendance-employee-attendance-table-section"
+          data-cy="time-attendance-employee-attendance-table-section"
+        >
+          <BlockWrapper
+            data-cy="time-attendance-employee-attendance-table-block-wrapper"
+            className="p-4 bg-white"
+          >
+            <EmployeeAttendanceTable
+              selectedRowKeys={selectedRowKeys}
+              setSelectedRowKeys={setSelectedRowKeys}
+              setBodyRequest={setBodyRequest}
+              isImport={isSuccess}
+              data-cy="time-attendance-employee-attendance-table"
+            />
+          </BlockWrapper>
+        </div>
       </div>
-      <EmployeeAttendanceSideBar />
-      <BreakImportSidebar />
-      <AttendanceImportErrorModal />
+      <EmployeeAttendanceSideBar data-cy="time-attendance-employee-attendance-side-bar" />
+      <BreakImportSidebar data-cy="time-attendance-employee-attendance-break-import-side-bar" />
+      <AttendanceImportErrorModal data-cy="time-attendance-employee-attendance-import-error-modal" />
     </>
   );
 };

@@ -5,20 +5,78 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
 const importData = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_DEV_URL}/imported-data`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
+    skipEncryption: true, // Skip encryption for file uploads to preserve FormData
   });
 };
+// const logUserId = useAuthenticationStore.getState().userId;
+
 const exportData = async (data: any) => {
+  const requestHeaders = await requestHeader();
+  try {
+    // const payload = {
+    //   ...data,
+    //   updatedBy: logUserId,
+    //   createdBy: logUserId,
+    // };
+    const response = await crudRequest({
+      url: `${INCENTIVE_URL}/incentives/export/incentive-data`,
+      method: 'POST',
+      data,
+      headers: requestHeaders,
+      skipEncryption: true, // Skip encryption for file downloads
+    });
+
+    // Note: crudRequest returns the data directly, so we need to handle blob differently
+    // This might need adjustment based on how the API returns file data
+    const blob = new Blob([response], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const fileName = 'Incentive Data Export.xlsx';
+
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const sendIncentiveToPayroll = async (data: string[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentives/export/incentive-data`,
     method: 'POST',
-    headers: requestHeader(),
-    data,
+    url: `${INCENTIVE_URL}/incentives/send-to-payroll/incentive/data`,
+    headers: requestHeaders,
+    data: { incentiveId: data },
   });
+};
+
+export const useSendIncentiveToPayroll = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ data }: { data: string[] }) => sendIncentiveToPayroll(data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('sendToPayroll');
+        NotificationMessage.success({
+          message: 'Incentive sent to payroll successfully!',
+          description: 'Incentive data has been successfully sent to payroll',
+        });
+      },
+    },
+  );
 };
 
 export const useExportIncentiveData = () => {

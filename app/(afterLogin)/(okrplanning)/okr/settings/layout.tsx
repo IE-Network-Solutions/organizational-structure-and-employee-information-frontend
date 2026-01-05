@@ -1,43 +1,21 @@
 'use client';
-import { FC, ReactNode, useEffect, useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
-import { HiOutlineBriefcase } from 'react-icons/hi2';
 import { usePathname } from 'next/navigation';
-import { RiAwardFill } from 'react-icons/ri';
-import { FaUserEdit } from 'react-icons/fa';
+import { BiCheckDouble } from 'react-icons/bi';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import SidebarMenu from '@/components/sidebarMenu';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import { useMediaQuery } from 'react-responsive';
+import { TbTarget, TbAward, TbShieldCheck, TbEdit } from 'react-icons/tb';
+import { HiOutlineBriefcase } from 'react-icons/hi';
 
 interface OkrSettingsLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-// type MenuItem = Required<MenuProps>['items'][number];
-
-// type MenuItemType = {
-//   item: MenuItem;
-//   link: string;
-// };
-
-// class NMenuItem {
-//   items: MenuItemType[];
-//   constructor(items: MenuItemType[]) {
-//     this.items = items;
-//   }
-
-//   get onlyItems(): MenuItem[] {
-//     return this.items.map((item) => item.item);
-//   }
-
-//   findItem(itemKey: string): MenuItemType {
-//     const iComponent = this.items.find((item) => item.item!.key === itemKey);
-//     return iComponent ? iComponent : this.items[0];
-//   }
-// }
-
-const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
+const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const [currentItem, setCurrentItem] = useState<string>('');
   const isMobile = useMediaQuery({ maxWidth: 1024 });
@@ -48,6 +26,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         key: 'planning-period',
         icon: !isMobile ? (
           <TbLayoutList
+            data-cy="okr-settings-layout-planning-period-icon-display-icon"
             className={
               currentItem === 'planning-period'
                 ? 'text-[#4DAEF0]'
@@ -56,7 +35,12 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900">Planning Period</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-planning-period-label-display-label"
+          >
+            Planning Period
+          </p>
         ),
         className: currentItem === 'planning-period' ? 'px-4' : 'px-1',
       },
@@ -67,6 +51,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         key: 'planning-assignation',
         icon: !isMobile ? (
           <TbLayoutList
+            data-cy="okr-settings-layout-planning-assignation-icon-display-icon"
             className={
               currentItem === 'planning-assignation'
                 ? 'text-[#4DAEF0]'
@@ -75,7 +60,10 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900">
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-planning-assignation-label-display-label"
+          >
             Planning Assignation
           </p>
         ),
@@ -88,6 +76,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         key: 'define-okr-rule',
         icon: !isMobile ? (
           <TbTargetArrow
+            data-cy="okr-settings-layout-define-okr-rule-icon-display-icon"
             className={
               currentItem === 'define-okr-rule'
                 ? 'text-[#4DAEF0]'
@@ -96,7 +85,12 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900">Define OKR Rule</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-define-okr-rule-label-display-label"
+          >
+            Define OKR Rule
+          </p>
         ),
         className: currentItem === 'define-okr-rule' ? 'px-4' : 'px-1',
       },
@@ -106,7 +100,8 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'criteria-management',
         icon: !isMobile ? (
-          <RiAwardFill
+          <TbTarget
+            data-cy="okr-settings-layout-criteria-management-icon-display-icon"
             className={
               currentItem === 'criteria-management'
                 ? 'text-[#4DAEF0]'
@@ -115,12 +110,18 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900">Criteria Management</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-criteria-management-label-display-label"
+          >
+            Criteria Management
+          </p>
         ),
         className: currentItem === 'criteria-management' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/criteria-management',
     },
+
     {
       item: {
         key: 'target-assignment',
@@ -142,59 +143,128 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
+        key: 'target-assignment',
+        icon: !isMobile ? (
+          <HiOutlineBriefcase
+            data-cy="okr-settings-layout-target-assignment-icon-display-icon"
+            className={
+              currentItem === 'target-assignment'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-target-assignment-label-display-label"
+          >
+            Target Assignment
+          </p>
+        ),
+        className: currentItem === 'target-assignment' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/target-assignment',
+    },
+    {
+      item: {
+        key: 'define-appreciation',
+        icon: !isMobile ? (
+          <TbAward
+            data-cy="okr-settings-layout-define-appreciation-icon-display-icon"
+            className={
+              currentItem === 'define-appreciation'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-define-appreciation-label-display-label"
+          >
+            Define Appreciation
+          </p>
+        ),
+        className: currentItem === 'define-appreciation' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/define-appreciation',
+    },
+    {
+      item: {
+        key: 'define-reprimand',
+        icon: !isMobile ? (
+          <TbShieldCheck
+            data-cy="okr-settings-layout-define-reprimand-icon-display-icon"
+            className={
+              currentItem === 'define-reprimand'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-define-reprimand-label-display-label"
+          >
+            Define Reprimand
+          </p>
+        ),
+        className: currentItem === 'define-reprimand' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/define-reprimand',
+    },
+    {
+      item: {
         key: 'edit-access',
         icon: !isMobile ? (
-          <FaUserEdit
+          <TbEdit
+            data-cy="okr-settings-layout-edit-access-icon-display-icon"
             className={
               currentItem === 'edit-access' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
         ) : null,
-        label: <p className="font-bold text-sm text-gray-900">Edit Access</p>,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-edit-access-label-display-label"
+          >
+            Edit Access
+          </p>
+        ),
         className: currentItem === 'edit-access' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/edit-access',
     },
+    {
+      item: {
+        key: 'check-in-rule',
+        icon: !isMobile ? (
+          <BiCheckDouble
+            data-cy="okr-settings-layout-check-in-rule-icon-display-icon"
+            className={
+              currentItem === 'check-in-rule'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-check-in-rule-label-display-label"
+          >
+            Check-in Rule
+          </p>
+        ),
+        className: currentItem === 'check-in-rule' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/check-in-rule',
+    },
   ]);
-
-  // {
-  //   item: {
-  //     key: 'define-appreciation',
-  //     icon: (
-  //       <RiAwardFill
-  //         className={
-  //           currentItem === 'define-appreciation'
-  //             ? 'text-[#4DAEF0]'
-  //             : 'text-gray-500'
-  //         }
-  //       />
-  //     ),
-  //     label: (
-  //       <p className="font-bold text-sm text-gray-900">Define Appreciation</p>
-  //     ),
-  //     className: currentItem === 'define-appreciation' ? 'px-4' : 'px-1',
-  //   },
-  //   link: '/okr/settings/define-appreciation',
-  // },
-  // {
-  //   item: {
-  //     key: 'define-reprimand',
-  //     icon: (
-  //       <FaBomb
-  //         className={
-  //           currentItem === 'define-reprimand'
-  //             ? 'text-[#4DAEF0]'
-  //             : 'text-gray-500'
-  //         }
-  //       />
-  //     ),
-  //     label: (
-  //       <p className="font-bold text-sm text-gray-900">Define Reprimand</p>
-  //     ),
-  //     className: currentItem === 'define-reprimand' ? 'px-4' : 'px-1',
-  //   },
-  //   link: '/okr/settings/define-reprimand',
-  // },
 
   useEffect(() => {
     const pathSegments = pathname.split('/').filter(Boolean);
@@ -203,40 +273,36 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     setCurrentItem(lastKey);
   }, [pathname]);
 
-  // const onMenuClick = (e: any) => {
-  //   const key = e['key'] as string;
-  //   router.push(menuItems.findItem(key).link);
-  // };
-
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className=" w-full h-auto">
-        <PageHeader title="Settings" description="OKR Settings"></PageHeader>
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
-          {/* <ConfigProvider
-            theme={{
-              components: {
-                Menu: {
-                  itemHeight: 56,
-                  itemPaddingInline: 0,
-                  itemMarginInline: 0,
-                  itemMarginBlock: 16,
-                  itemActiveBg: '#F8F8F8',
-                  itemHoverBg: 'rgba(248,248,248,0.92)',
-                },
-              },
-            }}
+    <div
+      className="min-h-screen bg-[#fafafa] p-3"
+      id="okr-settings-layout-container-display-div"
+      data-cy="okr-settings-layout-container-display-div"
+    >
+      <div
+        className=" w-full h-auto"
+        id="okr-settings-layout-wrapper-display-div"
+        data-cy="okr-settings-layout-wrapper-display-div"
+      >
+        <PageHeader
+          title="Settings"
+          description="OKR Settings"
+          data-cy="okr-settings-layout-header-display-header"
+        ></PageHeader>
+        <div
+          className="flex  flex-col lg:flex-row gap-6 mt-3"
+          id="okr-settings-layout-content-display-div"
+          data-cy="okr-settings-layout-content-display-div"
+        >
+          <SidebarMenu
+            menuItems={menuItems}
+            data-cy="okr-settings-layout-sidebar-display-menu"
+          />
+          <div
+            className="w-full  rounded-2xl overflow-x-auto bg-[#fafafa] p-0"
+            id="okr-settings-layout-children-wrapper-display-div"
+            data-cy="okr-settings-layout-children-wrapper-display-div"
           >
-            <Menu
-              className="w-full md:w-[250px] lg:w-[300px] rounded-2xl py-2 px-6 h-max border border-gray-300"
-              items={menuItems.onlyItems}
-              mode="inline"
-              selectedKeys={[currentItem]}
-              onClick={onMenuClick}
-            />
-          </ConfigProvider> */}
-          <SidebarMenu menuItems={menuItems} />
-          <div className="w-full border border-gray-300 rounded-2xl overflow-x-auto">
             {children}
           </div>
         </div>

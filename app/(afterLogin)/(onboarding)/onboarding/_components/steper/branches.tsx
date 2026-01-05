@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Button, List, Dropdown, Menu } from 'antd';
+import { Card, Button, List, Dropdown, Menu, Form } from 'antd';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import {
@@ -20,9 +20,8 @@ const Branches = () => {
   const { mutate: createBranch, isLoading: createLoading } = useCreateBranch();
   const { mutate: updateBranch, isLoading: updateLoading } = useUpdateBranch();
   const { mutate: deleteBranch, isLoading: deleteLoading } = useDeleteBranch();
-
+  const [form] = Form.useForm();
   const {
-    formOpen,
     editingBranch,
     deleteModalVisible,
     branchToDelete,
@@ -78,10 +77,22 @@ const Branches = () => {
     </Menu>
   );
   return (
-    <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
-      <div className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold">
+    <div
+      className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full"
+      data-cy="onboarding-branches-container"
+    >
+      <div
+        className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full"
+        data-cy="onboarding-branches-content"
+      >
+        <div
+          className="flex justify-between items-center mb-8"
+          data-cy="onboarding-branches-header"
+        >
+          <h2
+            className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold"
+            data-cy="onboarding-branches-title"
+          >
             Branches
           </h2>
           <AccessGuard permissions={[Permissions.CreateBranch]}>
@@ -140,10 +151,9 @@ const Branches = () => {
       <BranchForm
         loading={editingBranch ? updateLoading : createLoading}
         onClose={() => setFormOpen(false)}
-        open={formOpen}
         submitAction={handleFormSubmit}
-        branchData={editingBranch || undefined}
         title={editingBranch ? 'Edit Branch' : 'Create Branch'}
+        form={form}
       />
       <DeleteModal
         open={deleteModalVisible}

@@ -1,43 +1,62 @@
 'use client';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import { Button } from 'antd';
 import React from 'react';
-import { LuPlus } from 'react-icons/lu';
 import BreakTypeSidebar from './_component/brakTypeSidebar';
 import BreakTypeTable from './_component/breakTypeTable/inex';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const Page = () => {
   const { setIsShowBreakTypeSidebar } = useTimesheetSettingsStore();
 
   return (
-    <>
-      <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-1/2 mb-4 ">
-          <PageHeader title="Break Type" size="small">
-            <AccessGuard permissions={[Permissions.CreateBreakType]}>
-              <Button
-                size="large"
-                type="primary"
-                id="createNewClosedHolidayFieldId"
-                icon={<LuPlus size={18} />}
-                onClick={() => {
-                  setIsShowBreakTypeSidebar(true);
-                }}
-              >
-                <span className="hidden md:inline"> New Break Type</span>
-              </Button>
-            </AccessGuard>
-          </PageHeader>
-        </div>
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id="time-attendance-settings-break-type-container"
+      data-cy="time-attendance-settings-break-type-container"
+    >
+      <div
+        className="flex justify-between mb-4"
+        id="time-attendance-settings-break-type-header"
+        data-cy="time-attendance-settings-break-type-header"
+      >
+        <h1
+          className="text-lg text-bold"
+          id="time-attendance-settings-break-type-title"
+          data-cy="time-attendance-settings-break-type-title"
+        >
+          Break Type
+        </h1>
+
+        <AccessGuard
+          permissions={[Permissions.CreateBreakType]}
+          data-cy="time-attendance-settings-break-type-add-button-access-guard"
+        >
+          <Button
+            type="primary"
+            id="createNewClosedHolidayFieldId"
+            data-cy="time-attendance-settings-break-type-add-button-id"
+            icon={<FaPlus />}
+            className="h-10 w-10 sm:w-auto"
+            onClick={() => {
+              setIsShowBreakTypeSidebar(true);
+            }}
+          >
+            <span className="hidden md:inline"> New Break Type</span>
+          </Button>
+        </AccessGuard>
       </div>
-      <div className="w-full overflow-x-auto  p-2 mt-12">
-        <BreakTypeTable />
+      <div
+        className="w-full overflow-x-auto scrollbar-none"
+        id="time-attendance-settings-break-type-table-container"
+        data-cy="time-attendance-settings-break-type-table-container"
+      >
+        <BreakTypeTable data-cy="time-attendance-settings-break-type-table" />
       </div>
-      <BreakTypeSidebar />
-    </>
+      <BreakTypeSidebar data-cy="time-attendance-settings-break-type-sidebar" />
+    </div>
   );
 };
 

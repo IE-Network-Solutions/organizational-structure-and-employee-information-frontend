@@ -6,50 +6,84 @@ import {
   AttendanceImportLogsBody,
   AttendanceRequestBody,
 } from '@/store/server/features/timesheet/attendance/interface';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import {
   AttendanceImport,
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
+// const logUserId = useAuthenticationStore.getState().userId;
 
 const getAttendances = async (
   query: RequestCommonQueryData,
   data: Partial<AttendanceRequestBody>,
 ) => {
+  const requestHeaders = await requestHeader();
   const requestData = {
     ...data,
-    filter: {
-      ...data.filter,
-
-      date: {
-        from: data.filter?.date?.from,
-        to: data.filter?.date?.to,
-      },
-    },
   };
 
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: requestData,
     params: query,
   });
 };
+const exportAttendanceData = async (data: any) => {
+  const requestHeaders = await requestHeader();
+  try {
+    const response = await crudRequest({
+      url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
+      method: 'POST',
+      data,
+      headers: requestHeaders,
+      skipEncryption: true, // Skip encryption for file downloads
+      responseType: 'blob', // Tell axios to handle binary data
+    });
+
+    // Response is already a blob from the API
+    const blob =
+      response instanceof Blob
+        ? response
+        : new Blob([response], {
+            type:
+              data.exportType === 'PDF'
+                ? 'application/pdf'
+                : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
+
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getSingleAttendances = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getCurrentAttendance = async (userId: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift/user`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { userId: userId },
   });
 };
@@ -58,10 +92,11 @@ const getAttendanceImportLogs = async (
   query: RequestCommonQueryData,
   data: Partial<AttendanceImportLogsBody>,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/import-logs`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
     params: query,
   });
@@ -85,6 +120,15 @@ export const useGetAttendances = (
       },
     },
   );
+};
+
+export const UseExportAttendanceData = () => {
+  const queryClient = useQueryClient();
+  return useMutation(exportAttendanceData, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('exportData');
+    },
+  });
 };
 
 export const useGetSingleAttendances = (id: string) => {

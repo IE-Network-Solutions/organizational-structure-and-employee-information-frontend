@@ -4,6 +4,7 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { OKR_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -18,7 +19,7 @@ import { useMutation, useQueryClient } from 'react-query';
  * @returns {Promise<any>} The response from the API.
  */
 const createBenefitEntitlement = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -28,6 +29,36 @@ const createBenefitEntitlement = async (data: any) => {
   return await crudRequest({
     url: `${PAYROLL_URL}/compensation-item-entitlement`,
     method: 'POST',
+    data,
+    headers,
+  });
+};
+const createBenefitEntitlementSettlement = async (data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-item-entitlement/employee-settlement-tracking`,
+    method: 'POST',
+    data,
+    headers,
+  });
+};
+const updateBenefitEntitlementSettlement = async (data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-item-entitlement/employee-settlement-tracking/${data.id}`,
+    method: 'PATCH',
     data,
     headers,
   });
@@ -42,7 +73,7 @@ const createBenefitEntitlement = async (data: any) => {
  * @returns {Promise<any>} The response from the API.
  */
 const deleteBenefitEntitlement = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -89,9 +120,29 @@ export const useCreateBenefitEntitlement = () => {
     },
   });
 };
+export const useUpdatedBenefitEntitlementSettlement = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateBenefitEntitlementSettlement, {
+    onSuccess: (unused: any, variables: any) => {
+      queryClient.invalidateQueries('benefitEntitlement');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method, 'Benefit entitlement successfully updated.');
+    },
+  });
+};
+export const useCreateBenefitEntitlementSettlement = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createBenefitEntitlementSettlement, {
+    onSuccess: (unused: any, variables: any) => {
+      queryClient.invalidateQueries('benefitEntitlement');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method, 'Benefit entitlement successfully created.');
+    },
+  });
+};
 
 const filterVpScoreInstance = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,

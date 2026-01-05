@@ -6,6 +6,7 @@ import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { generateSessionData } from '../sessionIdentifier';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface SessionDrawerProps {
   form: FormInstance;
@@ -51,6 +52,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       getNumberOfSessionsCalenderType(),
     ),
   );
+  const { isMobile } = useIsMobile();
 
   const validateSessionDates = (rule: any, value: any, callback: any) => {
     const startDate = value;
@@ -120,7 +122,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       const sessions = selectedFiscalYear?.sessions || [];
 
       const inferredCalendarType =
-        sessions.length === 4
+        sessions.length >= 4
           ? 'Quarter'
           : sessions.length === 2
             ? 'Semester'
@@ -172,21 +174,44 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
 
   return (
     <div
-      className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full`}
+      className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-0  items-center w-full h-full`}
+      data-cy="org-settings-session-drawer-container"
+      id="org-settings-session-drawer-container"
     >
-      <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
+      <div
+        className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2"
+        data-cy="org-settings-session-drawer-title"
+        id="org-settings-session-drawer-title"
+      >
         Set up Session
       </div>
-      <Form form={form} layout="vertical">
+      <Form
+        form={form}
+        layout="vertical"
+        data-cy="org-settings-session-drawer-form"
+        id="org-settings-session-drawer-form"
+      >
         {sessionData?.map((item, index) => {
           return (
-            <div className="my-3" key={index}>
+            <div
+              className="px-3 sm:px-0"
+              key={index}
+              data-cy={`org-settings-session-drawer-form-item-${index}`}
+              id={`org-settings-session-drawer-form-item-${index}`}
+            >
               <Form.Item
+                data-cy={`org-settings-session-drawer-form-item-name-${index}`}
                 id={`sessionNameId_${index}`}
                 name={['sessionData', index, 'sessionName']}
                 initialValue={item.sessionName}
                 label={
-                  <span className="font-medium">Session {index + 1} Name</span>
+                  <span
+                    className="font-medium"
+                    data-cy={`org-settings-session-drawer-form-item-name-label-${index}`}
+                    id={`org-settings-session-drawer-form-item-name-label-${index}`}
+                  >
+                    Session {index + 1} Name
+                  </span>
                 }
                 rules={[
                   { required: true, message: 'Please input the session name!' },
@@ -199,14 +224,37 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                   onChange={(e) => {
                     handleSessionChange(index, 'sessionName', e.target.value);
                   }}
+                  data-cy={`org-settings-session-drawer-form-item-name-input-${index}`}
+                  id={`org-settings-session-drawer-form-item-name-input-${index}`}
                 />
               </Form.Item>
 
-              <Row gutter={[16, 6]} className="mb-4">
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+              <Row
+                gutter={[16, 6]}
+                className="mb-4"
+                data-cy={`org-settings-session-drawer-form-item-dates-${index}`}
+                id={`org-settings-session-drawer-form-item-dates-${index}`}
+              >
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                  data-cy="org-components-session-sessiondrawer-index-col-1"
+                  id="org-components-session-sessiondrawer-index-col-1"
+                >
                   <Form.Item
                     name={['sessionData', index, 'sessionStartDate']}
-                    label={`Session ${index + 1} Start Date`}
+                    label={
+                      <span
+                        className="font-medium"
+                        data-cy={`org-settings-session-drawer-form-item-dates-label-${index}`}
+                        id={`org-settings-session-drawer-form-item-dates-label-${index}`}
+                      >
+                        Session {index + 1} Start Date
+                      </span>
+                    }
                     rules={[
                       {
                         required: true,
@@ -214,6 +262,8 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                       },
                       { validator: validateSessionDates },
                     ]}
+                    data-cy={`org-settings-session-drawer-form-item-dates-start-${index}`}
+                    id={`org-settings-session-drawer-form-item-dates-start-${index}`}
                   >
                     <DatePicker
                       format="YYYY-MM-DD"
@@ -225,13 +275,31 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                           date.format('YYYY-MM-DD'),
                         );
                       }}
+                      data-cy={`org-settings-session-drawer-form-item-dates-start-input-${index}`}
+                      id={`org-settings-session-drawer-form-item-dates-start-input-${index}`}
                     />
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                  data-cy="org-components-session-sessiondrawer-index-col-2"
+                  id="org-components-session-sessiondrawer-index-col-2"
+                >
                   <Form.Item
                     name={['sessionData', index, 'sessionEndDate']}
-                    label={`Session ${index + 1} End Date`}
+                    label={
+                      <span
+                        className="font-medium"
+                        data-cy={`org-settings-session-drawer-form-item-dates-label-${index}`}
+                        id={`org-settings-session-drawer-form-item-dates-label-${index}`}
+                      >
+                        Session {index + 1} End Date
+                      </span>
+                    }
                     rules={[
                       {
                         required: true,
@@ -239,6 +307,8 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                       },
                       { validator: validateSessionDates },
                     ]}
+                    data-cy={`org-settings-session-drawer-form-item-dates-end-${index}`}
+                    id={`org-settings-session-drawer-form-item-dates-end-${index}`}
                   >
                     <DatePicker
                       format="YYYY-MM-DD"
@@ -251,15 +321,26 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                           date.format('YYYY-MM-DD'),
                         );
                       }}
+                      data-cy={`org-settings-session-drawer-form-item-dates-end-input-${index}`}
+                      id={`org-settings-session-drawer-form-item-dates-end-input-${index}`}
                     />
                   </Form.Item>
                 </Col>
               </Row>
 
               <Form.Item
+                data-cy={`org-settings-session-drawer-form-item-description-${index}`}
                 id={`sessionDescriptionId_${index}`}
                 name={['sessionData', index, 'sessionDescription']}
-                label={<span className="font-medium">Description</span>}
+                label={
+                  <span
+                    className="font-medium"
+                    data-cy="org-components-session-sessiondrawer-index-span-1"
+                    id="org-components-session-sessiondrawer-index-span-1"
+                  >
+                    Description
+                  </span>
+                }
                 initialValue={item.sessionDescription}
               >
                 <TextArea
@@ -274,30 +355,56 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                       e.target.value,
                     )
                   }
+                  data-cy={`org-settings-session-drawer-form-item-description-input-${index}`}
+                  id={`org-settings-session-drawer-form-item-description-input-${index}`}
                 />
               </Form.Item>
             </div>
           );
         })}
 
-        <Form.Item>
-          <div className="flex justify-center w-full px-6 py-6 gap-8">
+        <Form.Item
+          className="mb-0"
+          data-cy="org-settings-session-drawer-next-btn-form-item"
+          id="org-settings-session-drawer-next-btn-form-item"
+        >
+          <div
+            className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
+            data-cy="org-settings-session-drawer-form-item-next-btn-container"
+            id="org-settings-session-drawer-form-item-next-btn-container"
+          >
             <Button
+              type="default"
               onClick={() => setCurrent(0)}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              data-cy="org-settings-session-drawer-form-item-previous-btn"
+              id="org-settings-session-drawer-form-item-previous-btn"
             >
               Previous
             </Button>
             <Button
+              type="primary"
               onClick={handleNext}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              data-cy="org-settings-session-drawer-form-item-next-btn"
+              id="org-settings-session-drawer-form-item-next-btn"
             >
               {isCreateLoading || isUpdateLoading ? (
-                <Spin />
+                <Spin data-cy="org-settings-session-drawer-form-item-next-btn-spinner" />
               ) : sessionId ? (
-                <span>Edit</span>
+                <span
+                  data-cy="org-settings-session-drawer-form-item-next-btn-text"
+                  id="org-settings-session-drawer-form-item-next-btn-text"
+                >
+                  Edit
+                </span>
               ) : (
-                <span>Next</span>
+                <span
+                  data-cy="org-settings-session-drawer-form-item-next-btn-text"
+                  id="org-settings-session-drawer-form-item-next-btn-text"
+                >
+                  Next
+                </span>
               )}
             </Button>
           </div>

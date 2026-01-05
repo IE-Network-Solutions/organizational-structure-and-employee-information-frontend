@@ -7,14 +7,11 @@ import {
   TalentPool,
   TalentPoolResponse,
 } from '@/types/dashboard/recruitment/talentPool';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
+
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 /**
  * Fetch all talent pool data from the API.
@@ -28,15 +25,29 @@ const getAllTalentPool = async (
   talentPoolCategory: string,
   pageSize: number,
   currentPage: number,
+  fullName: string,
 ) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  const fullNameParam = fullName
+    ? `&fullName=${encodeURIComponent(fullName)}`
+    : '';
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/talent-pool?department=${department}&jobDeadline=${dateRange ?? null}&&talentPoolCategoryId=${talentPoolCategory}&&jobTitle=${job}&&status=${stages}&limit=${pageSize}&page=${currentPage}`,
+    url: `${RECRUITMENT_URL}/talent-pool?department=${department}&jobDeadline=${dateRange ?? null}&&talentPoolCategoryId=${talentPoolCategory}&&jobTitle=${job}&&status=${stages}${fullNameParam}&limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
     headers,
   });
 };
 
 const getAllCandidates = async () => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/job-candidate-information`,
     method: 'GET',
@@ -50,6 +61,11 @@ const getAllCandidates = async () => {
  * @returns Promise with the candidate's data.
  */
 const getTalentPoolCandidate = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/job/candidates/${id}`,
     method: 'GET',
@@ -58,6 +74,11 @@ const getTalentPoolCandidate = async (id: string) => {
 };
 
 const getApplicantStatusStages = async () => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/applicant-status-stages/`,
     method: 'GET',
@@ -78,6 +99,7 @@ export const useGetTalentPool = (
   talentPoolCategory: string,
   pageSize: number,
   currentPage: number,
+  fullName: string,
 ) =>
   useQuery<TalentPoolResponse>(
     [
@@ -87,6 +109,7 @@ export const useGetTalentPool = (
       job,
       stages,
       talentPoolCategory,
+      fullName,
       pageSize,
       currentPage,
     ],
@@ -99,6 +122,7 @@ export const useGetTalentPool = (
         talentPoolCategory,
         pageSize,
         currentPage,
+        fullName,
       ),
   );
 

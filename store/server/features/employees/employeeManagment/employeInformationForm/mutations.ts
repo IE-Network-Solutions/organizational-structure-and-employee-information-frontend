@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
+
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to add a new post by sending a POST request to the API
@@ -13,6 +13,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API
  */
 const createEmployeeInformationForm = async (values: any) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'POST',
@@ -34,16 +35,18 @@ const deleteEmployeeInformationForm = async ({
   setCurrentModal,
   setDeletedId,
 }: any) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
 
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,
+      method: 'DELETE',
+      headers,
+    });
     setCurrentModal(null);
     setDeletedId(null);
     NotificationMessage.success({
@@ -69,7 +72,7 @@ export const useAddEmployeeInformationForm = () => {
   const queryClient = useQueryClient();
   return useMutation(createEmployeeInformationForm, {
     onSuccess: () => {
-      queryClient.invalidateQueries('employeInformationForms');
+      queryClient.refetchQueries('employeInformationForms');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',

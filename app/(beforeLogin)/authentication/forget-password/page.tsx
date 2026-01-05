@@ -3,22 +3,37 @@ import { FC } from 'react';
 import Logo from '@/components/common/logo/index';
 import { Button, Form, Input } from 'antd';
 import { usePasswordReset } from '@/store/server/features/employees/authentication/queries';
+import { useTenantChecker } from '../login/_components/tenantChecker';
 
 const RequestVerification: FC = () => {
+  const { tenant } = useTenantChecker();
   const { mutate: resetPassword, isLoading } = usePasswordReset();
 
   const handleFinish = async (values: { email: string }) => {
-    resetPassword(values.email);
+    resetPassword({
+      email: values.email.toLowerCase(),
+      loginTenantId: tenant?.id,
+    });
   };
 
   return (
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
       style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      data-cy="forget-password-page-container"
     >
-      <div className="flex justify-center items-center w-[80%] md:w-[35%]">
-        <div className="flex flex-col items-center gap-8 w-[80%] ">
-          <div className="flex flex-row items-center gap-8">
+      <div
+        className="flex justify-center items-center w-[80%] md:w-[35%]"
+        data-cy="forget-password-content-wrapper"
+      >
+        <div
+          className="flex flex-col items-center gap-8 w-[80%] "
+          data-cy="forget-password-form-container"
+        >
+          <div
+            className="flex flex-row items-center gap-8"
+            data-cy="forget-password-logo-container"
+          >
             <Logo type="selamnew" />
           </div>
 

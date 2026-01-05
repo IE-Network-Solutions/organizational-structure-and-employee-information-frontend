@@ -60,24 +60,30 @@ const CreateRuleSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base px-10',
       size: 'large',
       loading: isFetching || isLoading,
       onClick: () => onClose(),
+      id: 'time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button',
+      'data-cy':
+        'time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button',
     },
     {
       label: 'Create',
       key: 'create',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base px-10',
       size: 'large',
       type: 'primary',
       loading: isFetching || isLoading,
       onClick: () => form.submit(),
+      id: 'time-attendance-settings-attendance-rules-create-rule-sidebar-create-button',
+      'data-cy':
+        'time-attendance-settings-attendance-rules-create-rule-sidebar-create-button',
     },
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
 
   const onFinish = () => {
     const value = form.getFieldsValue();
@@ -101,16 +107,37 @@ const CreateRuleSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Create Rule</CustomDrawerHeader>}
-        footer={
-          <CustomDrawerFooterButton
-            className="max-w-[320px] ml-auto"
-            buttons={footerModalItems}
-          />
+        modalHeader={
+          <div
+            className="px-2"
+            id="time-attendance-settings-attendance-rules-create-rule-sidebar-header-container"
+            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-header-container"
+          >
+            <CustomDrawerHeader data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-header">
+              Create Rule
+            </CustomDrawerHeader>
+          </div>
         }
-        width="50%"
+        footer={
+          <div
+            className="p-4"
+            id="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
+            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
+          >
+            <CustomDrawerFooterButton
+              className=""
+              buttons={footerModalItems}
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-button"
+            />
+          </div>
+        }
+        width="40%"
+        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar"
       >
-        <Spin spinning={isFetching || isLoading}>
+        <Spin
+          spinning={isFetching || isLoading}
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-spin"
+        >
           <Form
             layout="vertical"
             requiredMark={CustomLabel}
@@ -118,22 +145,40 @@ const CreateRuleSidebar = () => {
             form={form}
             className={itemClass}
             onFinish={onFinish}
+            id="time-attendance-settings-attendance-rules-create-rule-sidebar-form"
+            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-form"
           >
-            <Row gutter={[24, 24]}>
-              <Col span={12}>
+            <Row
+              gutter={[24, 24]}
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-form-row"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-form-row"
+            >
+              <Col
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-column"
+                span={12}
+              >
                 <Form.Item
                   label="Rule Name"
                   id="createRuleNameFieldId"
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-field-id"
                   rules={[{ required: true, message: 'Required' }]}
                   name="title"
                 >
-                  <Input className={controlClass} />
+                  <Input
+                    className={controlClass}
+                    id="time-attendance-settings-attendance-rules-create-rule-sidebar-title-input"
+                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-input"
+                  />
                 </Form.Item>
               </Col>
-              <Col span={12}>
+              <Col
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-column"
+                span={12}
+              >
                 <Form.Item
                   label="Type"
                   id="createRuleTypeFieldId"
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-field-id"
                   rules={[{ required: true, message: 'Required' }]}
                   name="type"
                 >
@@ -143,6 +188,7 @@ const CreateRuleSidebar = () => {
                       <MdKeyboardArrowDown
                         size={16}
                         className="text-gray-900"
+                        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-select-icon"
                       />
                     }
                     options={formatToOptions(
@@ -150,13 +196,19 @@ const CreateRuleSidebar = () => {
                       'title',
                       'id',
                     )}
+                    id="time-attendance-settings-attendance-rules-create-rule-sidebar-type-select"
+                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-select"
                   />
                 </Form.Item>
               </Col>
-              <Col span={24}>
+              <Col
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-column"
+                span={24}
+              >
                 <Form.Item
                   label="Days Set"
                   id="createRuleDaysSetFieldId"
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-field-id"
                   rules={[{ required: true, message: 'Required' }]}
                   name="count"
                 >
@@ -164,6 +216,8 @@ const CreateRuleSidebar = () => {
                     min={1}
                     className="w-full py-[11px] mt-2.5"
                     placeholder="Enter days"
+                    id="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-input"
+                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-input"
                   />
                 </Form.Item>
               </Col>
@@ -171,12 +225,15 @@ const CreateRuleSidebar = () => {
                 <Form.Item
                   label="Description"
                   id="createRuleDescriptionFieldId"
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-field-id"
                   rules={[{ required: true, message: 'Required' }]}
                   name="description"
                 >
                   <Input.TextArea
                     className="w-full py-4 px-5 mt-2.5"
                     rows={6}
+                    id="time-attendance-settings-attendance-rules-create-rule-sidebar-description-textarea"
+                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-textarea"
                   />
                 </Form.Item>
               </Col>

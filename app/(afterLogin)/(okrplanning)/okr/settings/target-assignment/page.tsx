@@ -80,21 +80,42 @@ function Page() {
       title: 'Action',
       key: 'action',
       render: (record: any) => (
-        <div className="flex space-x-2">
-          <AccessGuard permissions={[Permissions.UpdateVpTargetsAssignation]}>
+        <div
+          className="flex space-x-2"
+          id={`okr-target-assignment-table-actions-${record.key}`}
+          data-cy={`okr-target-assignment-table-actions-${record.key}`}
+        >
+          <AccessGuard
+            data-cy="okr-target-assignment-table-edit-button-access-guard-display-guard"
+            permissions={[Permissions.UpdateVpTargetsAssignation]}
+          >
             <Button
               type="default"
               className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
               icon={<GrEdit />}
               onClick={() => handleEditClick(record.key)}
+              id={`okr-target-assignment-table-edit-button-${record.key}`}
+              data-cy={`okr-target-assignment-table-edit-button-${record.key}`}
             />
           </AccessGuard>
-          <DeletePopover onDelete={() => handleDelete(record.key)}>
-            <AccessGuard permissions={[Permissions.DeleteVpTargetsAssignation]}>
+          <DeletePopover
+            onDelete={() => handleDelete(record.key)}
+            data-cy={`okr-target-assignment-table-delete-popover-${record.key}`}
+          >
+            <AccessGuard
+              data-cy="okr-target-assignment-table-delete-button-access-guard-display-guard"
+              permissions={[Permissions.DeleteVpTargetsAssignation]}
+            >
               <Button
                 type="default"
                 className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={<RiDeleteBin6Line />}
+                icon={
+                  <RiDeleteBin6Line
+                    data-cy={`okr-target-assignment-table-delete-button-icon-${record.key}`}
+                  />
+                }
+                id={`okr-target-assignment-table-delete-button-${record.key}`}
+                data-cy={`okr-target-assignment-table-delete-button-${record.key}`}
               />
             </AccessGuard>
           </DeletePopover>
@@ -112,36 +133,128 @@ function Page() {
   const handleTypeChange = (value: string) => setSelectedType(value);
 
   return (
-    <div className="p-10 rounded-2xl bg-white h-full">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold md:text-lg  ">Target Assignment</h1>
-        <AccessGuard permissions={[Permissions.AssignVpTargets]}>
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id="okr-target-assignment-container"
+      data-cy="okr-target-assignment-container"
+    >
+      {/* Desktop layout: visible from md and up */}
+
+      <div
+        className="hidden md:flex justify-between mb-6"
+        id="okr-target-assignment-desktop-header"
+        data-cy="okr-target-assignment-desktop-header"
+      >
+        <h1
+          className="text-2xl font-bold md:text-lg"
+          id="okr-target-assignment-desktop-title"
+          data-cy="okr-target-assignment-desktop-title"
+        >
+          Target Assignment
+        </h1>
+        <AccessGuard
+          data-cy="okr-target-assignment-desktop-assign-button-access-guard-display-guard"
+          permissions={[Permissions.AssignVpTargets]}
+        >
           <Button
             type="primary"
-            className=" "
-            icon={<FaPlus />}
+            className=""
+            icon={
+              <FaPlus data-cy="okr-target-assignment-desktop-assign-button-icon-display-button" />
+            }
             onClick={() => openDrawer()}
+            id="okr-target-assignment-desktop-assign-button"
+            data-cy="okr-target-assignment-desktop-assign-button"
           >
-            <span className="hidden lg:block"> Assign Target</span>
+            <span
+              className="hidden lg:block"
+              id="okr-target-assignment-desktop-assign-button-label"
+              data-cy="okr-target-assignment-desktop-assign-button-label"
+            >
+              Assign Target
+            </span>
           </Button>
         </AccessGuard>
       </div>
-
-      <TargetFilters
-        onSearchChange={setSearchText}
-        onTypeChange={handleTypeChange}
-        targetNames={['All Types', ...criteriaTypes]}
-      />
-      <div className="flex  overflow-x-auto scrollbar-none  w-full">
-        <Table
-          dataSource={dataSource}
-          columns={columns}
-          pagination={{ pageSize: 5 }}
-          loading={targetAssignmentLoading}
+      <div
+        className="hidden md:block w-full"
+        id="okr-target-assignment-desktop-filter-wrapper"
+        data-cy="okr-target-assignment-desktop-filter-wrapper"
+      >
+        <TargetFilters
+          onSearchChange={setSearchText}
+          onTypeChange={handleTypeChange}
+          targetNames={['All Types', ...criteriaTypes]}
+          data-cy="okr-target-assignment-desktop-filters"
         />
       </div>
+      {/* Mobile layout: visible on small screens */}
+      <div
+        className="md:hidden"
+        id="okr-target-assignment-mobile-section"
+        data-cy="okr-target-assignment-mobile-section"
+      >
+        <h1
+          className="text-2xl font-bold md:text-lg"
+          id="okr-target-assignment-mobile-title"
+          data-cy="okr-target-assignment-mobile-title"
+        >
+          Target Assignment
+        </h1>
+        <div
+          className="mt-4 flex justify-between gap-4"
+          id="okr-target-assignment-mobile-toolbar"
+          data-cy="okr-target-assignment-mobile-toolbar"
+        >
+          <TargetFilters
+            onSearchChange={setSearchText}
+            onTypeChange={handleTypeChange}
+            targetNames={['All Types', ...criteriaTypes]}
+            data-cy="okr-target-assignment-mobile-filters"
+          />
+          <AccessGuard permissions={[Permissions.AssignVpTargets]}>
+            <Button
+              type="primary"
+              className="h-10"
+              icon={<FaPlus />}
+              onClick={() => openDrawer()}
+              id="okr-target-assignment-mobile-assign-button"
+              data-cy="okr-target-assignment-mobile-assign-button"
+            >
+              <span
+                className="hidden lg:block"
+                id="okr-target-assignment-mobile-assign-button-label"
+                data-cy="okr-target-assignment-mobile-assign-button-label"
+              >
+                Assign Target
+              </span>
+            </Button>
+          </AccessGuard>
+        </div>
+      </div>
 
-      <AssignTargetDrawer />
+      <div
+        className="flex  overflow-x-auto scrollbar-none  w-full"
+        id="okr-target-assignment-table-wrapper"
+        data-cy="okr-target-assignment-table-wrapper"
+      >
+        <div
+          className="w-full"
+          id="okr-target-assignment-table-container"
+          data-cy="okr-target-assignment-table-container"
+        >
+          <Table
+            dataSource={dataSource}
+            columns={columns}
+            pagination={{ pageSize: 5 }}
+            loading={targetAssignmentLoading}
+            id="okr-target-assignment-table"
+            data-cy="okr-target-assignment-table"
+          />
+        </div>
+      </div>
+
+      <AssignTargetDrawer data-cy="okr-target-assignment-drawer" />
     </div>
   );
 }

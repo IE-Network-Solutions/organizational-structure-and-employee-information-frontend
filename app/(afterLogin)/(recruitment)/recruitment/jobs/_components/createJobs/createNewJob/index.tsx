@@ -24,16 +24,41 @@ interface CreateJobsProps {
   stepChange: (value: number) => void;
 }
 
-const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
+const CreateNewJob: React.FC<CreateJobsProps> = ({
+  close,
+  stepChange,
+  form,
+}) => {
   const { data: departments, isLoading: isDepartmentLoading } =
     useGetDepartments();
 
+  const handleNext = async () => {
+    try {
+      await form.validateFields([
+        'jobTitle',
+        'employmentType',
+        'department',
+        'jobLocation',
+        'yearOfExperience',
+        'jobStatus',
+        'compensation',
+        'quantity',
+        'jobDeadline',
+        'description',
+      ]);
+      stepChange(1);
+    } catch (e) {}
+  };
+
   return (
-    <>
+    <div className="p-2" data-cy="talent-acquisition-create-job-form-container">
       <Form.Item
         name="jobTitle"
         label={
-          <span className="text-md my-2 font-semibold text-gray-700">
+          <span
+            className="text-md my-2 font-semibold text-gray-700"
+            data-cy="talent-acquisition-create-job-form-job-title-label"
+          >
             Job Name
           </span>
         }
@@ -46,6 +71,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
       >
         <Input
           id="jobTitle"
+          data-cy="talent-acquisition-create-job-input-job-title"
           size="large"
           placeholder="Job title"
           className="text-sm w-full h-10"
@@ -70,12 +96,18 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           >
             <Select
               id="employmentType"
+              data-cy="talent-acquisition-create-job-select-employment-type"
               placeholder="Employment type"
               className="text-sm w-full h-10"
             >
               {EmploymentType &&
                 Object.values(EmploymentType).map((type) => (
-                  <Option key={type} value={type}>
+                  <Option
+                    key={type}
+                    value={type}
+                    id={`talent-acquisition-create-job-option-employment-type-${type}`}
+                    data-cy={`talent-acquisition-create-job-option-employment-type-${type}`}
+                  >
                     {type}
                   </Option>
                 ))}
@@ -99,6 +131,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           >
             <Select
               id="department"
+              data-cy="talent-acquisition-create-job-select-department"
               placeholder="Department"
               className="text-sm w-full h-10"
             >
@@ -109,7 +142,12 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
               )}
               {departments &&
                 departments.map((dep: any) => (
-                  <Option key={dep?.id} value={dep?.id}>
+                  <Option
+                    key={dep?.id}
+                    value={dep?.id}
+                    id={`talent-acquisition-create-job-option-department-${dep?.id}`}
+                    data-cy={`talent-acquisition-create-job-option-department-${dep?.id}`}
+                  >
                     {dep?.name}
                   </Option>
                 ))}
@@ -133,11 +171,17 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           >
             <Select
               id="jobLocation"
+              data-cy="talent-acquisition-create-job-select-location"
               placeholder="Location"
               className="text-sm w-full h-10"
             >
               {Object.values(LocationType).map((type) => (
-                <Option key={type} value={type}>
+                <Option
+                  key={type}
+                  value={type}
+                  id={`talent-acquisition-create-job-option-location-${type}`}
+                  data-cy={`talent-acquisition-create-job-option-location-${type}`}
+                >
                   {type}
                 </Option>
               ))}
@@ -163,6 +207,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
       >
         <InputNumber
           id="yearOfExperience"
+          data-cy="talent-acquisition-create-job-input-years-experience"
           size="large"
           placeholder="0"
           className="text-sm w-full h-10"
@@ -186,11 +231,24 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           >
             <Select
               id="jobStatus"
+              data-cy="talent-acquisition-create-job-select-job-status"
               placeholder="Job status"
               className="text-sm w-full h-10"
             >
-              <Option value="Open">Open</Option>
-              <Option value="Closed">Closed</Option>
+              <Option
+                value="Open"
+                id="talent-acquisition-create-job-option-status-open"
+                data-cy="talent-acquisition-create-job-option-status-open"
+              >
+                Open
+              </Option>
+              <Option
+                value="Closed"
+                id="talent-acquisition-create-job-option-status-closed"
+                data-cy="talent-acquisition-create-job-option-status-closed"
+              >
+                Closed
+              </Option>
             </Select>
           </Form.Item>
         </Col>
@@ -211,6 +269,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           >
             <Select
               id="compensation"
+              data-cy="talent-acquisition-create-job-select-compensation"
               placeholder="Compensation"
               className="text-sm w-full h-10"
             >
@@ -218,6 +277,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
                 Object.values(EmploymentType).map((type, index) => (
                   <Option
                     id={`compensationOption-${index}`}
+                    data-cy={`talent-acquisition-create-job-option-compensation-${type}`}
                     key={type}
                     value={type}
                   >
@@ -246,6 +306,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           >
             <InputNumber
               id="quantity"
+              data-cy="talent-acquisition-create-job-input-quantity"
               size="large"
               placeholder="0"
               className="text-sm w-full h-10"
@@ -279,7 +340,11 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
               },
             ]}
           >
-            <DatePicker id="jobDeadline" className="text-sm w-full h-10" />
+            <DatePicker
+              id="jobDeadline"
+              data-cy="talent-acquisition-create-job-date-picker-deadline"
+              className="text-sm w-full h-10"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -300,24 +365,26 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
         <TextEditor height={250} placeholder="Description" />
       </Form.Item>
       <Form.Item>
-        <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
+        <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
           <Button
             id="cancelButton"
+            data-cy="talent-acquisition-create-job-button-cancel"
             onClick={close}
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
           >
             Cancel
           </Button>
           <Button
             id="nextButton"
-            onClick={() => stepChange(1)}
-            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+            data-cy="talent-acquisition-create-job-button-next"
+            onClick={handleNext}
+            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
           >
             Next
           </Button>
         </div>
       </Form.Item>
-    </>
+    </div>
   );
 };
 

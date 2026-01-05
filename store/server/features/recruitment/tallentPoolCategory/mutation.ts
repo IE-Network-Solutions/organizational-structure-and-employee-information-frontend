@@ -5,16 +5,13 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { TalentPoolCategoryResponse } from '@/types/dashboard/recruitment/talentPool';
 import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment/settings/talentPoolCategory';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
+
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 /**
  * Create a new talent pool category.
@@ -22,6 +19,11 @@ const headers = {
  * @returns Promise with the created category data.
  */
 const createTalentPoolCategory = async (data: any) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool-category`,
     method: 'POST',
@@ -40,6 +42,11 @@ const updateTalentPoolCategory = async (
   id: string,
   data: TalentPoolCategoryResponse,
 ) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool-category/${id}`,
     method: 'PATCH',
@@ -54,6 +61,11 @@ const updateTalentPoolCategory = async (
  * @returns Promise confirming the deletion.
  */
 const deleteTalentPoolCategory = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool-category/${id}`,
     method: 'DELETE',

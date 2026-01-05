@@ -6,18 +6,20 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 import { AttendanceNotificationType } from '@/types/timesheet/attendance';
 
 const getAttendanceNotificationTypes = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type/type`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getAttendanceNotificationType = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };

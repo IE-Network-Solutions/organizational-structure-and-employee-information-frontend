@@ -3,6 +3,7 @@ import { devtools, persist } from 'zustand/middleware';
 interface SearchParams {
   name: string;
   entityType: string;
+  entityId: string;
 }
 interface SelectProps {
   SelectedItemType: Record<string, any> | null;
@@ -117,6 +118,7 @@ export const useApprovalBranchStore = create<UserState>()(
         searchParams: {
           name: '',
           entityType: '',
+          entityId: '',
         },
         setSearchParams: (key, value) =>
           set((state) => ({

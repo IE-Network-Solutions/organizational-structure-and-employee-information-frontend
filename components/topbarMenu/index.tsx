@@ -18,7 +18,7 @@ const TopbarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
     const lastKey = pathSegments[pathSegments.length - 1];
     menuItems.currentItemKey = lastKey;
     setCurrentItem(lastKey);
-  }, [pathname]);
+  }, [pathname, menuItems]);
   const onMenuClick = (e: any) => {
     const key = e['key'] as string;
 

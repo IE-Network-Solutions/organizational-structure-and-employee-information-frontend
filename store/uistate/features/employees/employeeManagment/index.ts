@@ -1,7 +1,7 @@
 // useStore.ts
 import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
 import { Dayjs } from 'dayjs';
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 export interface CustomFieldsProps {
   customFormData: FormData;
@@ -68,10 +68,20 @@ interface SearchParams {
   allOffices: string;
   allJobs: string;
   allStatus: string | null;
+  gender: string;
+  employmentType: string;
+  joinedDate: string;
+  joinedDateType: 'before' | 'after';
 }
 interface UserState {
   isBasicSalaryModalVisible: boolean;
   setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) => void;
+
+  selectedDepartmentId: string | null;
+  setSelectedDepartmentId: (selectedDepartmentId: string | null) => void;
+
+  switchValue: boolean;
+  setSwitchValue: (switchValue: boolean) => void;
 
   basicSalaryData: any | null;
   setBasicSalaryData: (basicSalaryData: any) => void;
@@ -167,6 +177,8 @@ interface UserState {
   searchValue: string | null;
   setSearchValue: (searchValue: string | null) => void;
 
+  isModalOpen: boolean;
+  setIsModalOpen: (isModalOpen: boolean) => void;
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
   reHireModal: boolean;
@@ -185,10 +197,17 @@ interface UserState {
 
   isMobileFilterVisible: boolean;
   setIsMobileFilterVisible: (isMobileFilterVisible: boolean) => void;
+
+  setJoinedDateType: (type: 'before' | 'after') => void;
+
+  tempAllowances: any[];
+  setTempAllowances: (tempAllowances: any[]) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
   devtools((set) => ({
+    isModalOpen: false,
+    setIsModalOpen: (isModalOpen: boolean) => set({ isModalOpen }),
     isAddEmployeeJobInfoModalVisible: false,
     setIsAddEmployeeJobInfoModalVisible: (
       isAddEmployeeJobInfoModalVisible: boolean,
@@ -203,6 +222,9 @@ export const useEmployeeManagementStore = create<UserState>()(
     searchValue: null,
     setSearchValue: (searchValue: string | null) => set({ searchValue }),
 
+    selectedDepartmentId: null,
+    setSelectedDepartmentId: (selectedDepartmentId: string | null) =>
+      set({ selectedDepartmentId }),
     open: false,
     deleteModal: false,
     current: 0,
@@ -234,6 +256,9 @@ export const useEmployeeManagementStore = create<UserState>()(
 
     workSchedule: null,
     setWorkSchedule: (workSchedule: string | null) => set({ workSchedule }),
+
+    switchValue: false,
+    setSwitchValue: (switchValue: boolean) => set({ switchValue }),
 
     prefix: '251',
     setPrefix: (prefix: string) => set({ prefix }),
@@ -335,6 +360,10 @@ export const useEmployeeManagementStore = create<UserState>()(
       allOffices: '',
       allJobs: '',
       allStatus: '',
+      gender: '',
+      employmentType: '',
+      joinedDate: '',
+      joinedDateType: 'after',
     },
     setSearchParams: (key, value) =>
       set((state) => ({
@@ -346,5 +375,11 @@ export const useEmployeeManagementStore = create<UserState>()(
     isMobileFilterVisible: false,
     setIsMobileFilterVisible: (isMobileFilterVisible: boolean) =>
       set({ isMobileFilterVisible }),
+    setJoinedDateType: (type: 'before' | 'after') =>
+      set((state) => ({
+        searchParams: { ...state.searchParams, joinedDateType: type },
+      })),
+    tempAllowances: [],
+    setTempAllowances: (tempAllowances: any[]) => set({ tempAllowances }),
   })),
 );

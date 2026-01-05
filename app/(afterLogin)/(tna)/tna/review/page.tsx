@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { Button, DatePicker, Space, Table } from 'antd';
+import { Button, DatePicker, Modal, Space, Table } from 'antd';
 import { DATE_FORMAT } from '@/utils/constants';
-import { LuPlus } from 'react-icons/lu';
+import { LuPlus, LuSettings2 } from 'react-icons/lu';
 import { TableColumnsType } from '@/types/table/table';
 import dayjs from 'dayjs';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
@@ -16,7 +16,6 @@ import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/t
 import { useRouter } from 'next/navigation';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
 import usePagination from '@/utils/usePagination';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { TnaRequestBody } from '@/store/server/features/tna/review/interface';
 import {
   TrainingNeedAssessment,
@@ -34,6 +33,10 @@ import UserCard from '@/components/common/userCard/userCard';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import TnaApprovalTable from './_components/approvalTabel';
 import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 const TnaReviewPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,13 +74,16 @@ const TnaReviewPage = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
-    if (isError) return <>-</>;
+    if (isLoading) return <div data-cy="loading-indicator">...</div>;
+    if (isError) return <div data-cy="error-indicator">-</div>;
     const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="flex-1">
+      <div
+        className="flex items-center gap-1.5"
+        data-cy="employee-card-container"
+      >
+        <div className="flex-1" data-cy="employee-card-content">
           <UserCard
             data={employeeData}
             name={fullName}
@@ -95,8 +101,13 @@ const TnaReviewPage = () => {
   };
   const router = useRouter();
   const [tableData, setTableData] = useState<any[]>([]);
-  const { isShowTnaReviewSidebar, setIsShowTnaReviewSidebar, setTnaId } =
-    useTnaReviewStore();
+  const {
+    isShowTnaReviewSidebar,
+    setIsShowTnaReviewSidebar,
+    setTnaId,
+    setData,
+    loading,
+  } = useTnaReviewStore();
   const {
     page,
     limit,
@@ -119,6 +130,8 @@ const TnaReviewPage = () => {
     isLoading: isLoadingDelete,
     isSuccess,
   } = useDeleteTna();
+  const { isFilterModalOpen, setIsFilterModalOpen } = useEmployeeStore();
+  const { isMobile, isTablet } = useIsMobile();
 
   useEffect(() => {
     if (isSuccess) {
@@ -150,6 +163,16 @@ const TnaReviewPage = () => {
     }
   }, [data]);
   <Filters onSearch={handleSearch} disable={['name', 'payPeriod']} />;
+  const onTnaEdit = (item: any) => {
+    setTnaId(item.id);
+    setData({
+      yearId: item.yearId,
+      sessionId: item.sessionId,
+      monthId: item.monthId,
+      departmentId: item.departmentId,
+    });
+    setIsShowTnaReviewSidebar(true);
+  };
 
   const tableColumns: TableColumnsType<any> = [
     {
@@ -252,8 +275,7 @@ const TnaReviewPage = () => {
                 item.certStatus === TrainingNeedAssessmentCertStatus.COMPLETED
               }
               onClick={() => {
-                setTnaId(item.id);
-                setIsShowTnaReviewSidebar(true);
+                onTnaEdit(item);
               }}
             />
           </AccessGuard>
@@ -279,16 +301,36 @@ const TnaReviewPage = () => {
     },
   ];
 
+  const onPageChange = (page: number, pageSize?: number) => {
+    setPage(page);
+    if (pageSize) {
+      setLimit(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setLimit(pageSize);
+    setPage(1);
+  };
   return (
-    <div className="page-wrap">
-      <TnaApprovalTable />
-      <BlockWrapper>
-        <PageHeader title="TNA">
-          <Space size={20}>
+    <div
+      className="page-wrap bg-gray-100"
+      id="tnaReviewPageId"
+      data-cy="tna-review-page"
+    >
+      <TnaApprovalTable data-cy="tna-approval-table" />
+      <BlockWrapper data-cy="tna-review-block-wrapper">
+        <PageHeader title="TNA" data-cy="tna-review-page-header">
+          <Space
+            size={16}
+            id="tnaReviewPageHeaderActionsId"
+            data-cy="tna-review-page-header-actions"
+          >
             <DatePicker.RangePicker
               format={DATE_FORMAT}
               separator="-"
               className="h-[54px]"
+              id="tnaReviewDateRangePickerId"
+              data-cy="tna-review-date-range-picker"
               onChange={(val) => {
                 setFilter(
                   val && val.length >= 2
@@ -302,40 +344,135 @@ const TnaReviewPage = () => {
                 );
               }}
             />
-            <AccessGuard permissions={[Permissions.CreateTna]}>
+            {isMobile && (
+              <div
+                className="flex justify-between items-center gap-4"
+                id="tnaReviewMobileFiltersId"
+                data-cy="tna-review-mobile-filters"
+              >
+                <Button
+                  className="p-6 mr-2 border border-gray-300"
+                  onClick={() => setIsFilterModalOpen(true)}
+                  icon={<LuSettings2 size={20} />}
+                  id="tnaReviewMobileFilterButtonId"
+                  data-cy="tna-review-mobile-filter-button"
+                />
+              </div>
+            )}
+            <AccessGuard
+              permissions={[Permissions.CreateTna]}
+              data-cy="tna-review-new-button-guard"
+              id="tnaReviewNewButtonGuardId"
+            >
               <Button
-                icon={<LuPlus size={16} />}
-                className="h-[54px]"
+                icon={<LuPlus size={20} />}
+                className="h-[50px] w-[50px] sm:w-full"
                 type="primary"
                 size="large"
+                id="tnaReviewNewButtonId"
+                data-cy="tna-review-new-button"
                 onClick={() => setIsShowTnaReviewSidebar(true)}
               >
-                New TNA
+                {!isMobile && <span>New TNA</span>}
               </Button>
             </AccessGuard>
           </Space>
         </PageHeader>
-        <Filters
-          onSearch={handleSearch}
-          disable={['name', 'payPeriod', 'department']}
-        />
-
-        <Table
-          className="mt-6"
-          columns={tableColumns}
-          dataSource={tableData}
-          loading={isLoading || isLoadingDelete}
-          pagination={DefaultTablePagination(data?.meta?.totalItems)}
-          onChange={(pagination, filters, sorter: any) => {
-            setPage(pagination.current ?? 1);
-            setLimit(pagination.pageSize ?? 10);
-            setOrderDirection(sorter['order']);
-            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-          }}
-        />
+        {!isMobile && (
+          <Filters
+            onSearch={handleSearch}
+            disable={['name', 'payPeriod', 'department']}
+            data-cy="tna-review-filters"
+          />
+        )}
+        {isFilterModalOpen && (
+          <Modal
+            title="Filters"
+            open={isFilterModalOpen}
+            onCancel={() => setIsFilterModalOpen(false)}
+            data-cy="tna-review-filter-modal"
+            footer={
+              <div
+                className="flex justify-center gap-4"
+                id="tnaReviewFilterModalFooterId"
+                data-cy="tna-review-filter-modal-footer"
+              >
+                <Button
+                  key="cancel"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setIsFilterModalOpen(false);
+                  }}
+                  id="tnaReviewFilterModalCancelButtonId"
+                  data-cy="tna-review-filter-modal-cancel-button"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  key="filter"
+                  type="primary"
+                  onClick={() => setIsFilterModalOpen(false)}
+                  className="text-white bg-blue border-none"
+                  loading={loading}
+                  id="tnaReviewFilterModalFilterButtonId"
+                  data-cy="tna-review-filter-modal-filter-button"
+                >
+                  Filter
+                </Button>
+              </div>
+            }
+            width={isMobile ? '90%' : '50%'}
+          >
+            <Filters
+              onSearch={handleSearch}
+              disable={['name', 'payPeriod', 'department']}
+              oneRow={false}
+              data-cy="tna-review-filter-modal-filters"
+            />
+          </Modal>
+        )}
+        <div
+          className="flex  overflow-x-auto scrollbar-none  w-full "
+          id="tnaReviewTableContainerId"
+          data-cy="tna-review-table-container"
+        >
+          <Table
+            className="mt-6 w-full"
+            rowClassName={() => 'h-[60px]'}
+            scroll={{ x: 'max-content' }}
+            columns={tableColumns}
+            dataSource={tableData}
+            loading={isLoading || isLoadingDelete}
+            pagination={false}
+            id="tnaReviewTableId"
+            data-cy="tna-review-table"
+            onChange={(sorter: any) => {
+              setOrderDirection(sorter['order']);
+              setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+            }}
+          />
+        </div>{' '}
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={data?.meta?.totalItems || 0}
+            pageSize={limit}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+            data-cy="tna-review-mobile-pagination"
+          />
+        ) : (
+          <CustomPagination
+            current={page}
+            total={data?.meta?.totalItems || 0}
+            pageSize={limit}
+            onChange={onPageChange}
+            onShowSizeChange={onPageSizeChange}
+            data-cy="tna-review-pagination"
+          />
+        )}
       </BlockWrapper>
 
-      <TnaRequestSidebar />
+      <TnaRequestSidebar data-cy="tna-request-sidebar" />
     </div>
   );
 };

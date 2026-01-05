@@ -38,6 +38,8 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
         pageNumbers.push(
           <button
             key={i}
+            id={`talent-acquisition-pagination-page-${i}`}
+            data-cy={`talent-acquisition-pagination-page-${i}`}
             onClick={() => handlePageChange(i)}
             className={`w-8 h-8 flex items-center justify-center rounded-lg ${
               current === i
@@ -57,6 +59,8 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
         pageNumbers.push(
           <button
             key={1}
+            id="talent-acquisition-pagination-page-first"
+            data-cy="talent-acquisition-pagination-page-first"
             onClick={() => handlePageChange(1)}
             className="w-8 h-8 flex items-center justify-center border rounded text-gray-600 border-gray-300 hover:bg-gray-100"
           >
@@ -74,6 +78,8 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
         pageNumbers.push(
           <button
             key={i}
+            id={`talent-acquisition-pagination-page-${i}`}
+            data-cy={`talent-acquisition-pagination-page-${i}`}
             onClick={() => handlePageChange(i)}
             className={`w-8 h-8 flex items-center justify-center border rounded ${
               current === i
@@ -95,6 +101,8 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
         pageNumbers.push(
           <button
             key={totalPages}
+            id={`talent-acquisition-pagination-page-${totalPages}`}
+            data-cy={`talent-acquisition-pagination-page-${totalPages}`}
             onClick={() => handlePageChange(totalPages)}
             className="w-8 h-8 flex items-center justify-center border rounded text-gray-600 border-gray-300 hover:bg-gray-100"
           >
@@ -108,9 +116,19 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
   };
 
   return (
-    <div className="flex justify-between items-center py-6">
-      <div className="flex items-center space-x-2">
+    <div
+      id="talent-acquisition-pagination-div-container"
+      data-cy="talent-acquisition-pagination-div-container"
+      className="flex justify-between items-center py-6"
+    >
+      <div
+        id="talent-acquisition-pagination-div-buttons"
+        data-cy="talent-acquisition-pagination-div-buttons"
+        className="flex items-center space-x-2"
+      >
         <button
+          id="talent-acquisition-pagination-button-previous"
+          data-cy="talent-acquisition-pagination-button-previous"
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
           className={`w-8 h-8 flex items-center justify-center border rounded ${
@@ -123,6 +141,8 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
         </button>
         {renderPageNumbers()}
         <button
+          id="talent-acquisition-pagination-button-next"
+          data-cy="talent-acquisition-pagination-button-next"
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
           className={`w-8 h-8 flex items-center justify-center border rounded ${
@@ -134,19 +154,47 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
           <RightOutlined />
         </button>
       </div>
-      <div className="flex items-center">
-        <span className="mr-2 text-sm text-gray-400">
+      <div
+        id="talent-acquisition-pagination-div-page-size"
+        data-cy="talent-acquisition-pagination-div-page-size"
+        className="flex items-center"
+      >
+        <span
+          id="talent-acquisition-pagination-span-page-size"
+          data-cy="talent-acquisition-pagination-span-page-size"
+          className="mr-2 text-sm text-gray-400"
+        >
           Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
           {Math.min(total, current * pageSize)} out of {total} entries
         </span>
         <Select
+          id="talent-acquisition-pagination-select-page-size"
+          data-cy="talent-acquisition-pagination-select-page-size"
           value={pageSize}
           className="w-24"
           onChange={(value) => handleSizeChange(value)}
         >
-          <Option value={4}>Show 4</Option>
-          <Option value={10}>Show 10</Option>
-          <Option value={25}>Show 25</Option>
+          <Option
+            value={4}
+            id="talent-acquisition-pagination-option-4"
+            data-cy="talent-acquisition-pagination-option-4"
+          >
+            Show 4
+          </Option>
+          <Option
+            value={10}
+            id="talent-acquisition-pagination-option-10"
+            data-cy="talent-acquisition-pagination-option-10"
+          >
+            Show 10
+          </Option>
+          <Option
+            value={25}
+            id="talent-acquisition-pagination-option-25"
+            data-cy="talent-acquisition-pagination-option-25"
+          >
+            Show 25
+          </Option>
         </Select>
       </div>
     </div>

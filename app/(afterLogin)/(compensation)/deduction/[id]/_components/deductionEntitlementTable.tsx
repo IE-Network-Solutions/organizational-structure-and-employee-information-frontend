@@ -10,10 +10,14 @@ import { useFetchAllowanceEntitlements } from '@/store/server/features/compensat
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AllowanceEntitlementTable = () => {
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useAllowanceEntitlementStore();
+  const { isMobile, isTablet } = useIsMobile();
   const { mutate: deleteAllowanceEntitlement } =
     useDeleteAllowanceEntitlement();
   const { id } = useParams();
@@ -30,12 +34,6 @@ const AllowanceEntitlementTable = () => {
       Amount: item.totalAmount,
       ApplicableTo: item.compensationItem.applicableTo,
     })) || [];
-
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
-
   const handleDelete = (id: string) => {
     deleteAllowanceEntitlement(id);
   };
@@ -46,21 +44,40 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
-      render: (userId: string) => <EmployeeDetails empId={userId} />,
+      render: (userId: string) => (
+        <EmployeeDetails
+          empId={userId}
+          data-cy={`compensation-deduction-entitlement-employee-details-${userId}`}
+        />
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'isRate',
       key: 'isRate',
       sorter: true,
-      render: (isRate: string) => <div>{isRate ? 'Rate' : 'Fixed'}</div>,
+      render: (isRate: string) => (
+        <div
+          id="compensation-deduction-entitlement-type-display"
+          data-cy="compensation-deduction-entitlement-type-display"
+        >
+          {isRate ? 'Rate' : 'Fixed'}
+        </div>
+      ),
     },
     {
       title: 'Amount',
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
-      render: (text: string) => <div>{text ? `${text}` : '-'}</div>,
+      render: (text: string) => (
+        <div
+          id="compensation-deduction-entitlement-amount-display"
+          data-cy="compensation-deduction-entitlement-amount-display"
+        >
+          {text ? `${text}` : '-'}
+        </div>
+      ),
     },
     {
       title: 'Action',
@@ -68,16 +85,19 @@ const AllowanceEntitlementTable = () => {
       key: 'action',
       render: (rule: any, record: any) => (
         <AccessGuard
+          data-cy="compensation-deduction-entitlement-actions-access-guard"
           permissions={[
             Permissions.UpdateAllowanceEntitlement,
             Permissions.DeleteAllowanceEntitlement,
           ]}
+          id="compensation-deduction-entitlement-actions-access-guard"
         >
           <ActionButtons
             id={record?.id ?? null}
             onEdit={() => {}}
             disableEdit
             onDelete={() => handleDelete(record.id)}
+            data-cy="compensation-deduction-entitlement-actions-button"
           />
         </AccessGuard>
       ),
@@ -85,41 +105,54 @@ const AllowanceEntitlementTable = () => {
   ];
 
   return (
-    <Spin spinning={fiscalActiveYearFetchLoading}>
-      {/* <Space
-        direction="horizontal"
-        size="large"
-        style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
+    <Spin
+      spinning={fiscalActiveYearFetchLoading}
+      data-cy="compensation-deduction-entitlement-table-loading"
+    >
+      <div
+        className="overflow-x-auto scrollbar-hide"
+        id="compensation-deduction-entitlement-table-scroll"
+        data-cy="compensation-deduction-entitlement-table-scroll"
       >
-        <Input addonBefore={<SearchOutlined />} placeholder="Search by name" />
-        <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
-          <Button
-            size="large"
-            type="primary"
-            id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
-            onClick={() => {
-              setIsAllowanceEntitlementSidebarOpen(true);
-            }}
-            disabled={isAllowanceGlobal}
-          >
-            Employees
-          </Button>
-        </AccessGuard>
-      </Space> */}
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={transformedData}
-        pagination={{
-          current: currentPage,
-          pageSize,
-          total: transformedData.length,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
-      <DeductionEntitlementSideBar />
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={transformedData}
+          pagination={false}
+          data-cy="compensation-deduction-entitlement-table"
+        />
+      </div>
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          data-cy="compensation-deduction-entitlement-mobile-pagination"
+          totalResults={transformedData.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+        />
+      ) : (
+        <CustomPagination
+          data-cy="compensation-deduction-entitlement-pagination"
+          current={currentPage}
+          total={transformedData.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      )}
+      <DeductionEntitlementSideBar data-cy="compensation-deduction-entitlement-sidebar" />
     </Spin>
   );
 };

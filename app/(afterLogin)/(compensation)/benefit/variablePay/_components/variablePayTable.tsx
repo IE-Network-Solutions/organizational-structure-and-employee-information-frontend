@@ -11,11 +11,14 @@ import {
 } from '@/store/server/features/payroll/payroll/queries';
 import VariablePayFilter from './variablePayFilter';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import CustomPagination from '@/components/customPagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
 const VariablePayTable = () => {
   const { currentPage, pageSize, searchParams, setCurrentPage, setPageSize } =
     useVariablePayStore();
-
+  const { isMobile, isTablet } = useIsMobile();
   const { data: activeMonth } = useGetActiveMonth();
 
   const selectedMonthIds =
@@ -41,18 +44,16 @@ const VariablePayTable = () => {
       VpScore: variablePay?.vpScore,
       Benefit: '',
       Action: (
-        <Link href={`okr/dashboard/${variablePay?.userId}`}>
-          <Button className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 border-none ">
+        <Link href={`/okr/dashboard/${variablePay?.userId}`}>
+          <Button
+            className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 border-none"
+            data-testid={`view-vp-button-${variablePay?.userId}`}
+          >
             <FaEye />
           </Button>
         </Link>
       ),
     })) || [];
-
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
 
   const columns: TableColumnsType<any> = [
     {
@@ -60,29 +61,65 @@ const VariablePayTable = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      render: (text: string) => <EmployeeDetails empId={text} />,
+      render: (text: string) => (
+        <div
+          data-testid={`variable-pay-employee-${text}`}
+          id={`compensation-benefit-variable-pay-employee-${text}`}
+          data-cy={`compensation-benefit-variable-pay-employee-${text}`}
+        >
+          <EmployeeDetails
+            data-cy={`compensation-benefit-variable-pay-employee-details-${text}`}
+            empId={text}
+          />
+        </div>
+      ),
     },
     {
-      title: 'VP in %',
+      title: <span className="truncate">VP in %</span>,
+      className: 'text-center',
       dataIndex: 'VpInPercentile',
       key: 'VpInPercentile',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          data-testid="variable-pay-percentage"
+          id="compensation-benefit-variable-pay-percentage"
+          data-cy="compensation-benefit-variable-pay-percentage"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
 
     {
-      title: 'VP Score',
+      title: <span className="truncate">VP Score</span>,
       dataIndex: 'VpScore',
       key: 'VpScore',
       sorter: (a, b) => (a.VpScore || 0) - (b.VpScore || 0),
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          data-testid="variable-pay-score"
+          id="compensation-benefit-variable-pay-score"
+          data-cy="compensation-benefit-variable-pay-score"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Benefit',
       dataIndex: 'Benefit',
       key: 'Benefit',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          data-testid="variable-pay-benefit"
+          id="compensation-benefit-variable-pay-benefit"
+          data-cy="compensation-benefit-variable-pay-benefit"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Action',
@@ -105,26 +142,84 @@ const VariablePayTable = () => {
     false,
   );
 
+  const paginatedData = filteredDataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
-    <>
-      <VariablePayFilter tableData={tableData} />
-      <div className="overflow-x-auto">
-        <Spin spinning={isLoading || isFetching || refreshLoading}>
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={filteredDataSource}
-            pagination={{
-              current: currentPage,
-              pageSize,
-              total: tableData.length,
-            }}
-            onChange={handleTableChange}
+    <div
+      className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4"
+      data-testid="variable-pay-table-container"
+      id="compensation-benefit-variable-pay-table-container"
+      data-cy="compensation-benefit-variable-pay-table-container"
+    >
+      <VariablePayFilter data-cy="compensation-benefit-variable-pay-filter" />
+      <div
+        id="compensation-benefit-variable-pay-table-wrapper"
+        data-cy="compensation-benefit-variable-pay-table-wrapper"
+        data-testid="variable-pay-table-wrapper"
+      >
+        <Spin
+          spinning={isLoading || isFetching || refreshLoading}
+          data-testid="variable-pay-table-loading"
+          data-cy="compensation-benefit-variable-pay-table-loading"
+        >
+          <div
+            className="overflow-x-auto"
+            id="compensation-benefit-variable-pay-scroll-container"
+            data-cy="compensation-benefit-variable-pay-scroll-container"
+          >
+            <Table
+              className="mt-6"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              data-testid="variable-pay-table"
+              id="compensation-benefit-variable-pay-table"
+              data-cy="compensation-benefit-variable-pay-table"
+            />
+          </div>
+
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              data-cy="compensation-benefit-variable-pay-mobile-pagination"
+              totalResults={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+            />
+          ) : (
+            <CustomPagination
+              data-cy="compensation-benefit-variable-pay-pagination"
+              current={currentPage}
+              total={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              data-testid="variable-pay-pagination"
+            />
+          )}
+
+          <VariablePayModal
+            data-cy="compensation-benefit-variable-pay-modal"
+            data={filteredDataSource}
           />
-          <VariablePayModal data={filteredDataSource} />
         </Spin>
       </div>
-    </>
+    </div>
   );
 };
 

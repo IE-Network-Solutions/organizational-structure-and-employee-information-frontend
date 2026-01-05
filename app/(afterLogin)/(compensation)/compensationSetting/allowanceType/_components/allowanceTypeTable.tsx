@@ -13,6 +13,9 @@ import {
   useCompensationSettingStore,
   useCompensationTypeTablesStore,
 } from '@/store/uistate/features/compensation/settings';
+import CustomPagination from '@/components/customPagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
 const AllowanceTypeTable = () => {
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -31,15 +34,17 @@ const AllowanceTypeTable = () => {
     tableData,
     setTableData,
   } = useCompensationSettingStore();
-
+  const { isMobile, isTablet } = useIsMobile();
   useEffect(() => {
     if (data) {
       const filteredData = data.filter(
         (item: any) => item.type === 'ALLOWANCE',
       );
       setTableData(filteredData);
+      // Reset pagination when data changes
+      setAllowanceCurrentPage(1);
     }
-  }, [data]);
+  }, [data, setTableData, setAllowanceCurrentPage]);
 
   const handleDelete = (id: string) => {
     deleteAllowanceType(id);
@@ -48,11 +53,6 @@ const AllowanceTypeTable = () => {
   const handleAllowanceEdit = (record: string) => {
     setSelectedAllowanceRecord(record);
     setIsAllowanceOpen(true);
-  };
-
-  const handleTableChange = (pagination: any) => {
-    setAllowanceCurrentPage(pagination.current);
-    setAllowancePageSize(pagination.pageSize);
   };
 
   const updateStatus = (id: string) => {
@@ -72,37 +72,111 @@ const AllowanceTypeTable = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          data-testid="allowance-type-name"
+          className="text-xs truncate"
+          id="compensation-settings-allowance-type-name"
+          data-cy="compensation-settings-allowance-type-name"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          data-testid="allowance-type-description"
+          className="text-xs truncate"
+          id="compensation-settings-allowance-type-description"
+          data-cy="compensation-settings-allowance-type-description"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'isRate',
       key: 'type',
       sorter: true,
-      render: (isRate: boolean) => <div>{isRate ? 'Rate' : 'Fixed'}</div>,
+      render: (isRate: boolean) => (
+        <div
+          data-testid="allowance-type-type"
+          className="text-xs truncate"
+          id="compensation-settings-allowance-type-type"
+          data-cy="compensation-settings-allowance-type-type"
+        >
+          {isRate ? 'Rate' : 'Fixed'}
+        </div>
+      ),
     },
     {
       title: 'Amount',
       dataIndex: 'defaultAmount',
       key: 'amount',
       sorter: true,
-      render: (amount: number, record: any) =>
-        !record.isRate ? `${amount} ETB` : `${amount}% of base salary`,
+      render: (amount: number, record: any) => (
+        <div
+          data-testid={`allowance-type-amount-${record.id}`}
+          id={`compensation-settings-allowance-type-amount-${record.id}`}
+          data-cy={`compensation-settings-allowance-type-amount-${record.id}`}
+        >
+          <div
+            id="compensation-settings-allowance-type-amount-display"
+            data-cy="compensation-settings-allowance-type-amount-display"
+            className="text-xs truncate"
+          >
+            {!record.isRate ? `${amount} ETB` : `${amount}% of base salary`}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Non-Taxable Amount',
+      dataIndex: 'notTaxableAmount',
+      key: 'notTaxableAmount',
+      sorter: true,
+      render: (notTaxableAmount: number, record: any) => (
+        <div
+          data-testid={`allowance-type-non-taxable-${record.id}`}
+          id={`compensation-settings-allowance-type-nontax-${record.id}`}
+          data-cy={`compensation-settings-allowance-type-nontax-${record.id}`}
+        >
+          <div
+            id="compensation-settings-allowance-type-non-taxable-display"
+            data-cy="compensation-settings-allowance-type-non-taxable-display"
+            className="text-xs truncate"
+          >
+            {notTaxableAmount ? `${notTaxableAmount} ETB` : '-'}
+          </div>
+        </div>
+      ),
     },
     {
       title: 'Applicable to',
       dataIndex: 'applicableTo',
       key: 'applicableTo',
       sorter: true,
-      render: (applicableTo: string) =>
-        applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees',
+      render: (applicableTo: string) => (
+        <div
+          data-testid="allowance-type-applicable"
+          id="compensation-settings-allowance-type-applicable"
+          data-cy="compensation-settings-allowance-type-applicable"
+        >
+          <div
+            id="compensation-settings-allowance-type-applicable-display"
+            data-cy="compensation-settings-allowance-type-applicable-display"
+            className="text-xs truncate"
+          >
+            {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
+          </div>
+        </div>
+      ),
     },
     {
       title: 'Status',
@@ -110,15 +184,20 @@ const AllowanceTypeTable = () => {
       key: 'status',
       render: (rule: any, record: any) => (
         <AccessGuard
+          id={`compensation-settings-allowance-type-status-${record.id}`}
+          data-cy={`compensation-settings-allowance-type-status-${record.id}`}
           permissions={[
             Permissions.UpdateAllowanceType,
             Permissions.DeleteAllowanceType,
           ]}
         >
           <Switch
+            id={`compensation-settings-allowance-type-status-switch-${record.id}`}
+            data-cy={`compensation-settings-allowance-type-status-switch-${record.id}`}
             loading={loadingId === record.id}
             onClick={() => updateStatus(record.id)}
             checked={record.isActive}
+            data-testid={`allowance-type-status-${record.id}`}
           />
         </AccessGuard>
       ),
@@ -129,36 +208,93 @@ const AllowanceTypeTable = () => {
       key: 'action',
       render: (rule: any, record: any) => (
         <AccessGuard
+          id={`compensation-settings-allowance-type-actions-access-guard-${record.id}`}
+          data-cy={`compensation-settings-allowance-type-actions-access-guard-${record.id}`}
           permissions={[
             Permissions.UpdateAllowanceType,
             Permissions.DeleteAllowanceType,
           ]}
         >
-          <ActionButtons
-            id={record?.id ?? null}
-            onEdit={() => handleAllowanceEdit(record)}
-            onDelete={() => handleDelete(record.id)}
-          />
+          <div
+            data-testid={`allowance-type-actions-${record.id}`}
+            id={`compensation-settings-allowance-type-actions-${record.id}`}
+            data-cy={`compensation-settings-allowance-type-actions-${record.id}`}
+          >
+            <ActionButtons
+              id={record?.id ?? null}
+              onEdit={() => handleAllowanceEdit(record)}
+              onDelete={() => handleDelete(record.id)}
+              data-cy="compensation-settings-allowance-type-actions-buttons"
+            />
+          </div>
         </AccessGuard>
       ),
     },
   ];
+  const paginatedData = tableData.slice(
+    (allowanceCurrentPage - 1) * allowancePageSize,
+    allowanceCurrentPage * allowancePageSize,
+  );
 
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={tableData}
-        pagination={{
-          current: allowanceCurrentPage,
-          pageSize: allowancePageSize,
-          total: tableData.length,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
-    </Spin>
+    <div
+      data-testid="allowance-type-table-container"
+      id="compensation-settings-allowance-type-table-container"
+      data-cy="compensation-settings-allowance-type-table-container"
+    >
+      <Spin
+        spinning={isLoading}
+        data-testid="allowance-type-table-loading"
+        data-cy="compensation-settings-allowance-type-table-loading"
+      >
+        <div
+          className="flex overflow-x-auto scrollbar-none w-full "
+          id="compensation-settings-allowance-type-table-scroll"
+          data-cy="compensation-settings-allowance-type-table-scroll"
+        >
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="allowance-type-table"
+            id="compensation-settings-allowance-type-table"
+            data-cy="compensation-settings-allowance-type-table"
+          />
+        </div>
+
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            data-cy="compensation-settings-allowance-type-mobile-pagination"
+            totalResults={tableData.length}
+            pageSize={allowancePageSize}
+            onChange={(page, size) => {
+              setAllowanceCurrentPage(page);
+              setAllowancePageSize(size);
+            }}
+            onShowSizeChange={(page, size) => {
+              setAllowanceCurrentPage(page);
+              setAllowancePageSize(size);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={allowanceCurrentPage}
+            total={tableData.length}
+            pageSize={allowancePageSize}
+            onChange={(page, size) => {
+              setAllowanceCurrentPage(page);
+              setAllowancePageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setAllowancePageSize(size);
+              setAllowanceCurrentPage(1);
+            }}
+            data-cy="compensation-settings-allowance-type-pagination"
+          />
+        )}
+      </Spin>
+    </div>
   );
 };
 

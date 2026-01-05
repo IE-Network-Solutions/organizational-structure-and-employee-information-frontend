@@ -1,6 +1,6 @@
 'use client';
-import { Table, Tag, Button, Space, Spin } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Space, Spin, Avatar } from 'antd';
+import { EditOutlined, UserOutlined } from '@ant-design/icons';
 import Filters from './_components/filters';
 import { useRouter } from 'next/navigation';
 import Drawer from './_components/drawer';
@@ -10,6 +10,10 @@ import { useGetAllowance } from '@/store/server/features/payroll/employeeInforma
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
+import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 
 interface Employee {
   id: string;
@@ -28,11 +32,13 @@ interface Employee {
       accountNumber?: string;
     };
   };
+  profileImage?: string;
 }
 
 interface DataSource {
   key: string;
   name: string;
+  profileImage?: string;
   job: string;
   salary: string;
   allowances: string[];
@@ -61,7 +67,8 @@ interface AllowanceMap {
 const EmployeeInformation = () => {
   const router = useRouter();
   const { searchValue } = useEmployeeManagementStore();
-
+  const { pageSize, currentPage, setCurrentPage, setPageSize } =
+    usePayrollStore();
   const {
     openDrawer,
     setSelectedPayrollData,
@@ -82,7 +89,6 @@ const EmployeeInformation = () => {
     openDrawer();
     setIsEditMode(true);
   };
-
   const employeeIds = EmployeeData?.map((item: Employee) => item.id) ?? [];
 
   const allowanceMap: AllowanceMap = (AllowanceData ?? [])
@@ -125,6 +131,7 @@ const EmployeeInformation = () => {
       return {
         key: employee.id,
         name: `${employee?.firstName} ${employee?.middleName || ''} ${employee?.lastName}`.trim(),
+        profileImage: employee.profileImage,
         job: `${position}`,
         salary: `${activeSalary} ETB`,
         allowances: allowanceMap?.[employee?.id] || ['Not Specified'],
@@ -142,6 +149,22 @@ const EmployeeInformation = () => {
       title: 'Employee',
       dataIndex: 'name',
       key: 'name',
+      render: (text: string, record: any) => (
+        <Space data-cy={`payroll-employee-card-view-space-${record.id}`}>
+          <Avatar
+            data-cy={`payroll-employee-avatar-view-component-${record.id}`}
+            size={32}
+            src={record.profileImage}
+            icon={<UserOutlined />}
+          />
+          <span
+            id={`payroll-employee-name-view-text-${record.id}`}
+            data-cy={`payroll-employee-name-view-text-${record.id}`}
+          >
+            {text}
+          </span>
+        </Space>
+      ),
     },
     {
       title: 'Job Information',
@@ -159,9 +182,14 @@ const EmployeeInformation = () => {
       key: 'allowances',
       render: (allowances: any) =>
         allowances.map((item: any) => {
-          const color = item === 'Not Entitled' ? 'red' : 'blue';
+          const color = item === 'Not Entitled' ? 'red' : 'gray-300';
           return (
-            <Tag color={color} key={item}>
+            <Tag
+              id={`payroll-allowance-${item?.id}-view-tag`}
+              data-cy={`payroll-allowance-${item?.id}-view-tag`}
+              className={`${color} text-sm text-black`}
+              key={item}
+            >
               {item.name}
             </Tag>
           );
@@ -172,7 +200,11 @@ const EmployeeInformation = () => {
       dataIndex: 'bank',
       key: 'bank',
       render: (text: any) => (
-        <span style={{ color: text === 'Not Available' ? 'red' : 'black' }}>
+        <span
+          id={`payroll-bank-name-view-text-${text}`}
+          data-cy={`payroll-bank-name-view-text-${text}`}
+          style={{ color: text === 'Not Available' ? 'red' : 'black' }}
+        >
           {text}
         </span>
       ),
@@ -182,7 +214,11 @@ const EmployeeInformation = () => {
       dataIndex: 'account',
       key: 'account',
       render: (text: any) => (
-        <span style={{ color: text === 'Not Available' ? 'red' : 'black' }}>
+        <span
+          id={`payroll-bank-account-view-text-${text}`}
+          data-cy={`payroll-bank-account-view-text-${text}`}
+          style={{ color: text === 'Not Available' ? 'red' : 'black' }}
+        >
           {text}
         </span>
       ),
@@ -191,12 +227,24 @@ const EmployeeInformation = () => {
       title: 'Action',
       key: 'action',
       render: (record: any) => (
-        <Space size="middle">
-          <AccessGuard permissions={[Permissions.UpdateAllowanceEntitlement]}>
+        <Space
+          id={`payroll-action-controls-view-space-${record.id}`}
+          data-cy={`payroll-action-controls-view-space-${record.id}`}
+          size="middle"
+        >
+          <AccessGuard
+            id={`payroll-edit-guard-view-component-${record.id}`}
+            data-cy={`payroll-edit-guard-view-component-${record.id}`}
+            permissions={[Permissions.UpdateAllowanceEntitlement]}
+          >
             <Button
               type="primary"
+              id={`payroll-edit-allowance-click-button-${record.id}`}
+              data-cy={`payroll-edit-allowance-click-button-${record.id}`}
               icon={
                 <EditOutlined
+                  id={`payroll-edit-allowance-click-icon-${record.id}`}
+                  data-cy={`payroll-edit-allowance-click-icon-${record.id}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleEdit(record);
@@ -223,28 +271,87 @@ const EmployeeInformation = () => {
     refetch();
   };
 
+  const { isMobile, isTablet } = useIsMobile();
+
+  const filteredData = dataSource.filter((item) =>
+    searchValue ? item.key === searchValue : true,
+  );
+
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
   return (
-    <div className="p-5">
-      <h2 className="py-4">Employees Payroll Information</h2>
-      <Filters onSearch={handleSearch} />
-      <Spin spinning={responseLoading || Loading}>
+    <div
+      className={isMobile ? 'p-1' : 'p-5'}
+      id="payroll-employee-information-view-container"
+      data-cy="payroll-employee-information-view-container"
+    >
+      <div
+        className="flex justify-start items-center bg-[#ffffff] -mx-1"
+        id="payroll-employee-information-header-view-container"
+        data-cy="payroll-employee-information-header-view-container"
+      >
+        <span
+          className="py-4 my-4 px-2 text-lg font-bold"
+          id="payroll-employee-information-title-view-text"
+          data-cy="payroll-employee-information-title-view-text"
+        >
+          Employees Payroll Information
+        </span>
+      </div>
+      <Filters
+        data-cy="payroll-employee-information-filter-interact-component"
+        onSearch={handleSearch}
+      />
+
+      <Spin
+        spinning={responseLoading || Loading}
+        data-cy="payroll-employee-information-loading-view-spin"
+      >
         <Table
-          dataSource={dataSource.filter((item) =>
-            searchValue ? item.key === searchValue : true,
-          )}
+          id="payroll-employee-information-view-table"
+          data-cy="payroll-employee-information-view-table"
+          dataSource={paginatedData}
           columns={columns}
           onRow={(record) => ({
             onClick: () => handleDetail(record),
             style: { cursor: 'pointer' },
           })}
-          pagination={{
-            pageSize: 5,
-            showSizeChanger: true,
-            showQuickJumper: true,
-          }}
+          pagination={false}
+          scroll={{ x: 'max-content' }}
         />
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            data-cy="payroll-employee-information-pagination-interact-mobile"
+            totalResults={filteredData?.length || 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            data-cy="payroll-employee-information-pagination-interact-desktop"
+            current={currentPage}
+            total={filteredData?.length || 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setCurrentPage(1);
+            }}
+          />
+        )}
       </Spin>
-      <Drawer />
+      <Drawer data-cy="payroll-employee-information-drawer-view-component" />
     </div>
   );
 };

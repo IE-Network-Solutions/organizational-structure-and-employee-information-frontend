@@ -51,9 +51,13 @@ export const useTalentPoolStore = create<TalentPoolState>((set) => ({
     job: '',
     stages: '',
     talentPoolCategory: '',
+    search: '',
   },
   setSearchParams: (key, value) =>
     set((state) => ({
       searchParams: { ...state.searchParams, [key]: value },
     })),
+
+  showMobileFilter: false,
+  setShowMobileFilter: (value) => set({ showMobileFilter: value }),
 }));

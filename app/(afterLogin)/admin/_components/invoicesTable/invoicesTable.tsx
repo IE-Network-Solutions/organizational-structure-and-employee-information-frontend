@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
-import { TENANT_BASE_URL } from '@/utils/constants';
 
 dayjs.extend(isBetween);
 
@@ -59,52 +58,25 @@ const InvoicesTable = ({
     'PDF',
   );
 
-  // Функция для скачивания файла
-  const downloadFile = (url: string, filename: string) => {
-    fetch(url)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      })
-      .catch((error) => {
-        notification.error({
-          message: 'Error downloading file',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-      })
-      .finally(() => {
-        setDownloadingInvoiceId(null);
-      });
-  };
-
   useEffect(() => {
     if (invoiceDetail && selectedInvoiceId) {
       const response = invoiceDetail as any;
 
-      const filePath =
-        response.path || response.data?.path || response.items?.[0]?.path;
+      const downloadUrl =
+        response.downloadUrl ||
+        response.data?.downloadUrl ||
+        response.items?.[0]?.downloadUrl;
 
-      if (filePath) {
-        const fullUrl = `${TENANT_BASE_URL}/${filePath}`;
-
-        const invoice = data.find((inv) => inv.id === selectedInvoiceId);
-        const fileName = invoice
-          ? `Invoice-${invoice.invoiceNumber}.pdf`
-          : `Invoice-${selectedInvoiceId}.pdf`;
-
-        downloadFile(fullUrl, fileName);
+      if (downloadUrl) {
+        window.open(downloadUrl, '_blank');
       } else {
-        setDownloadingInvoiceId(null);
+        notification.error({
+          message: 'PDF Not Available',
+          description: 'PDF document is not available for this invoice.',
+        });
       }
 
+      setDownloadingInvoiceId(null);
       setSelectedInvoiceId(null);
     }
   }, [invoiceDetail, selectedInvoiceId, data]);
@@ -189,7 +161,14 @@ const InvoicesTable = ({
       title: 'Invoice ID',
       dataIndex: 'invoiceNumber',
       sorter: (a, b) => a.invoiceNumber - b.invoiceNumber,
-      render: (invoiceNumber: string) => <span>#{invoiceNumber}</span>,
+      render: (invoiceNumber: string) => (
+        <span
+          id={`invoice-number-${invoiceNumber}`}
+          data-cy={`invoice-number-${invoiceNumber}`}
+        >
+          #{invoiceNumber}
+        </span>
+      ),
       defaultSortOrder: 'descend',
     },
     {
@@ -208,9 +187,22 @@ const InvoicesTable = ({
         return planNameA.localeCompare(planNameB);
       },
       render: (subscriptionId: string) => (
-        <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 w-fit whitespace-nowrap">
-          <span className="w-2 h-2 min-w-2 min-h-2 rounded-full bg-primary" />
-          <span>{getPlanName(subscriptionId)}</span>
+        <div
+          id={`invoice-plan-${subscriptionId}`}
+          data-cy={`invoice-plan-${subscriptionId}`}
+          className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 w-fit whitespace-nowrap"
+        >
+          <span
+            id={`invoice-plan-indicator-${subscriptionId}`}
+            data-cy={`invoice-plan-indicator-${subscriptionId}`}
+            className="w-2 h-2 min-w-2 min-h-2 rounded-full bg-primary"
+          />
+          <span
+            id={`invoice-plan-name-${subscriptionId}`}
+            data-cy={`invoice-plan-name-${subscriptionId}`}
+          >
+            {getPlanName(subscriptionId)}
+          </span>
         </div>
       ),
     },
@@ -219,7 +211,10 @@ const InvoicesTable = ({
       dataIndex: 'totalAmount',
       sorter: (a, b) => a.totalAmount - b.totalAmount,
       render: (total: number, record: Invoice) => (
-        <span>
+        <span
+          id={`invoice-amount-${record.id}`}
+          data-cy={`invoice-amount-${record.id}`}
+        >
           {getCurrencySymbol(record.currencyId)}
           {Number(total).toFixed(2)}
         </span>
@@ -231,15 +226,23 @@ const InvoicesTable = ({
       sorter: (a, b) => a.currencyId.localeCompare(b.currencyId),
       render: (currencyId: string) => {
         const currency = currencies?.find((c) => c.id === currencyId);
-        return <span>{currency?.symbol || currencyId}</span>;
+        return (
+          <span
+            id={`invoice-currency-${currencyId}`}
+            data-cy={`invoice-currency-${currencyId}`}
+          >
+            {currency?.symbol || currencyId}
+          </span>
+        );
       },
     },
     {
       title: 'Payment Date',
-      dataIndex: 'dueAt',
+      dataIndex: 'paymentAt',
       sorter: (a, b) =>
         new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime(),
-      render: (date: string) => dayjs(date).format('MMMM D, YYYY'),
+      render: (date: string) =>
+        date ? dayjs(date).format('MMMM D, YYYY') : '-',
     },
     {
       title: 'Status',
@@ -267,6 +270,8 @@ const InvoicesTable = ({
 
         return (
           <span
+            id={`invoice-status-${status}`}
+            data-cy={`invoice-status-${status}`}
             className={`rounded-lg px-2 py-2 text-sm font-medium ${className}`}
           >
             {status}
@@ -283,30 +288,48 @@ const InvoicesTable = ({
         const isDownloadingThis = downloadingInvoiceId === record.id;
 
         return (
-          <div className="flex items-center gap-4">
+          <div
+            id={`invoice-actions-${record.id}`}
+            data-cy={`invoice-actions-${record.id}`}
+            className="flex items-center gap-4"
+          >
             <button
+              id={`invoice-download-${record.id}`}
+              data-cy={`invoice-download-${record.id}`}
               onClick={(e) => handlePdfDownload(e, record.id)}
               className="hover:opacity-75 transition-opacity"
               disabled={isDownloadingThis}
             >
               {isDownloadingThis ? (
-                <LoadingOutlined className="w-5 h-5 text-primary" spin />
+                <LoadingOutlined
+                  id={`invoice-download-indicator-${record.id}`}
+                  data-cy={`invoice-download-indicator-${record.id}`}
+                  className="w-5 h-5 text-primary"
+                  spin
+                />
               ) : (
                 <img
                   src="/icons/file-download.svg"
                   alt="Download PDF"
+                  id={`invoice-download-icon-${record.id}`}
+                  data-cy={`invoice-download-icon-${record.id}`}
                   className="w-5 h-5 min-w-5 min-h-5"
                 />
               )}
             </button>
             <button
+              id={`invoice-view-${record.id}`}
+              data-cy={`invoice-view-${record.id}`}
               onClick={(e) => {
                 e.stopPropagation();
                 handleRowClick(record.id);
               }}
               className="text-gray-500 hover:text-primary transition-colors hover:translate-x-1 transition-transform duration-300"
             >
-              <RightOutlined />
+              <RightOutlined
+                id={`invoice-view-icon-${record.id}`}
+                data-cy={`invoice-view-icon-${record.id}`}
+              />
             </button>
           </div>
         );
@@ -315,9 +338,15 @@ const InvoicesTable = ({
   ];
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+    <div id="invoices-table-container" data-cy="invoices-table-container">
+      <div
+        id="invoices-table-filters"
+        data-cy="invoices-table-filters"
+        className="flex flex-col md:flex-row gap-4 mb-6"
+      >
         <Search
+          id="invoices-table-search"
+          data-cy="invoices-table-search"
           placeholder="Search by Invoice ID"
           allowClear
           value={searchText}
@@ -326,6 +355,8 @@ const InvoicesTable = ({
         />
 
         <Select
+          id="invoices-table-status-filter"
+          data-cy="invoices-table-status-filter"
           placeholder="Filter by Status"
           allowClear
           options={statusOptions}
@@ -335,6 +366,8 @@ const InvoicesTable = ({
         />
 
         <RangePicker
+          id="invoices-table-payment-date-range"
+          data-cy="invoices-table-payment-date-range"
           placeholder={['Start Payment Date', 'End Payment Date']}
           value={paymentDateRange}
           onChange={(dates) =>
@@ -344,6 +377,8 @@ const InvoicesTable = ({
         />
 
         <RangePicker
+          id="invoices-table-issue-date-range"
+          data-cy="invoices-table-issue-date-range"
           placeholder={['Start Issue Date', 'End Issue Date']}
           value={voiceDateRange}
           onChange={(dates) =>
@@ -354,6 +389,8 @@ const InvoicesTable = ({
       </div>
 
       <Table
+        id="invoices-table"
+        data-cy="invoices-table"
         columns={columns}
         dataSource={filteredData}
         rowKey="id"

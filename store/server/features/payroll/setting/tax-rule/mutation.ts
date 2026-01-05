@@ -2,11 +2,12 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
 const createTaxRule = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -46,7 +47,7 @@ export const useCreateTaxRule = () => {
 };
 
 const deleteTaxRule = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -76,7 +77,7 @@ const deleteTaxRule = async (id: string) => {
  * @returns {Promise<any>} The response from the API.
  */
 const createPayPeriods = async (data: any[]) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -98,7 +99,7 @@ const editPayPeriod = async ({
   data: any;
   payPeriodId: string;
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -138,7 +139,7 @@ export const useEditPayPeriod = () => {
  * @returns {Promise<any>} The response from the API.
  */
 const deletePayPeriod = async (payPeriodId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -193,7 +194,7 @@ export const useDeleteTaxRule = () => {
 };
 
 const updateTaxRule = async ({ id, values }: { id: string; values: any }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {

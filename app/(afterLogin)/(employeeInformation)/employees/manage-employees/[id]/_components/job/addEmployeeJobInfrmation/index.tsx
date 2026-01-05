@@ -5,27 +5,49 @@ import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
+import { useParams } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
+import { useEffect } from 'react';
 
 interface Ids {
-  id: string;
+  id?: string;
+  onInfoSubmition?: () => void;
+  isNavBarModal?: boolean;
+  onJobInfoUpdated?: () => void;
 }
-export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
+export const CreateEmployeeJobInformation: React.FC<Ids> = ({
+  onJobInfoUpdated: onJobInfoUpdated,
+  id,
+}) => {
+  const { userId: userId2 } = useAuthenticationStore();
+
   const [form] = Form.useForm();
+  const params = useParams();
+  // Prioritize URL parameter over prop to ensure we use the employee ID from URL, not logged-in user's ID
+  const userId = (params?.id as string) ?? id ?? userId2;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
     setEmployeeJobInfoModalWidth,
     employeeJobInfoModalWidth,
+    setTempAllowances,
   } = useEmployeeManagementStore();
 
-  const { data: employeeData } = useGetEmployee(id);
+  useEffect(() => {
+    if (isAddEmployeeJobInfoModalVisible) {
+      form.resetFields(); // Reset form values on modal open
+      setTempAllowances([]); // Clear temp allowances when modal opens
+    }
+  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances, form]);
+  const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
     setEmployeeJobInfoModalWidth(null);
+    setTempAllowances([]); // Clear temp allowances when modal closes
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
@@ -34,14 +56,25 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     values.departmentId = form.getFieldValue('departmentId') || '';
     values.branchId = form.getFieldValue('branchId') || '';
     values.workScheduleId = form.getFieldValue('workScheduleId') || '';
-    values.userId = id;
+    values.userId = userId;
     values.basicSalary = parseInt(values.basicSalary.toString(), 10);
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
+    // Include allowances from form state
+    values.allowances = form.getFieldValue('allowances') || [];
+
     createJobInformation(values, {
       onSuccess: () => {
+        setTempAllowances([]); // Clear temp allowances on successful submit
         handleClose();
+
+        // Call the callback to refresh job information data
+        if (onJobInfoUpdated) {
+          setTimeout(() => {
+            onJobInfoUpdated();
+          }, 500);
+        }
       },
     });
   };
@@ -55,22 +88,42 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
         onCancel={handleClose}
         footer={false}
         destroyOnClose
+        data-cy="job-add-job-info-modal"
       >
-        <Form form={form} onFinish={createTsks} layout="vertical">
-          <JobTimeLineForm />
-          <BasicSalaryForm />
+        <Form
+          form={form}
+          onFinish={createTsks}
+          layout="vertical"
+          id="job-add-job-info-form"
+          data-cy="job-add-job-info-form"
+        >
+          <JobTimeLineForm
+            employeeData={employeeData}
+            form={form}
+            data-cy="job-add-job-info-timeline"
+          />
           <WorkScheduleForm
             selectedWorkScheduleDetails={
               employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
             }
+            data-cy="job-add-job-info-schedule"
           />
-          <Form.Item>
-            <Row className="flex justify-end gap-3">
+          <Form.Item
+            id="job-add-job-info-submit-form-item"
+            data-cy="job-add-job-info-submit-form-item"
+          >
+            <Row
+              className="flex justify-end gap-3"
+              id="job-add-job-info-submit-row"
+              data-cy="job-add-job-info-submit-row"
+            >
               <Button
                 type="primary"
                 htmlType="submit"
                 name="submit"
                 loading={isLoading}
+                id="job-add-job-info-submit-btn"
+                data-cy="job-add-job-info-submit-btn"
               >
                 Submit
               </Button>
@@ -80,6 +133,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
                 value={'cancel'}
                 name="cancel"
                 onClick={handleClose}
+                id="job-add-job-info-cancel-btn"
+                data-cy="job-add-job-info-cancel-btn"
               >
                 Cancel
               </Button>

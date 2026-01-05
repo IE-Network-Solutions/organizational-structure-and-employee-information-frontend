@@ -2,11 +2,12 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+
 import { useMutation, useQueryClient } from 'react-query';
 
 const createApprover = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -21,17 +22,18 @@ const createApprover = async (values: any) => {
 };
 
 const deleteApprovalWorkFLow = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.delete(
-      `${APPROVER_URL}/approvalWorkflows/${id}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${APPROVER_URL}/approvalWorkflows/${id}`,
+      method: 'DELETE',
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -39,7 +41,7 @@ const deleteApprovalWorkFLow = async (id: string) => {
 };
 
 const updateApprovalAssignedUserMutation = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -54,7 +56,7 @@ const updateApprovalAssignedUserMutation = async (values: any) => {
 };
 
 const addApprovalUserMutation = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -69,14 +71,16 @@ const addApprovalUserMutation = async (values: any) => {
 };
 
 const deleteApprover = async (id: string, data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.delete(`${APPROVER_URL}/approver/${id}`, {
+    const response = await crudRequest({
+      url: `${APPROVER_URL}/approver/${id}`,
+      method: 'DELETE',
       headers,
       data,
     });
@@ -86,19 +90,18 @@ const deleteApprover = async (id: string, data: any) => {
   }
 };
 const deleteParallelApprover = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.delete(
-      `${APPROVER_URL}/approver/parallel/${id}`,
-      {
-        headers,
-      },
-    );
+    const response = await crudRequest({
+      url: `${APPROVER_URL}/approver/parallel/${id}`,
+      method: 'DELETE',
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -177,6 +180,14 @@ export const useUpdateAssignedUserMutation = () => {
           description: 'Approver updated successfully ',
         });
       },
+      onError: (error: any) => {
+        const errorMessage =
+          error?.response?.data?.message || 'Something went wrong';
+        NotificationMessage.error({
+          message: 'Error',
+          description: errorMessage,
+        });
+      },
     },
   );
 };
@@ -192,6 +203,14 @@ export const useAddApproverMutation = () => {
         NotificationMessage.success({
           message: 'Successfully Created',
           description: 'Approver created successfully',
+        });
+      },
+      onError: (error: any) => {
+        const errorMessage =
+          error?.response?.data?.message || 'Something went wrong';
+        NotificationMessage.error({
+          message: 'Error',
+          description: errorMessage,
         });
       },
     },

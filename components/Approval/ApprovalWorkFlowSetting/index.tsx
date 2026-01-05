@@ -7,6 +7,18 @@ import { Select, Button, Form, Row, Input, Radio } from 'antd';
 import { RadioChangeEvent } from 'antd/lib';
 import { HierarchyList } from '@/store/server/features/approver/interface';
 
+interface Department {
+  id: string;
+  name: string;
+}
+
+interface User {
+  id: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+}
+
 const ApprovalWorkFlowSettingComponent = ({
   handleSubmit,
   isSuccess,
@@ -62,11 +74,20 @@ const ApprovalWorkFlowSettingComponent = ({
     workflowApplies,
     selections,
     setSelections,
+    workflowUserId,
+    setWorkflowUserId,
   } = useApprovalStore();
+
   const onRadioChange = (e: RadioChangeEvent) => {
     setWorkflowApplies(e.target.value);
     form.setFieldsValue({ workflowAppliesId: null });
+    setWorkflowUserId(null);
   };
+
+  const handleWorkflowUserChange = (value: string) => {
+    setWorkflowUserId(value);
+  };
+
   const handleUserChange = (value: string, index: number) => {
     const updatedSelections = [...selections.SectionItemType];
     updatedSelections[index] = { ...updatedSelections[index], user: value };
@@ -86,9 +107,12 @@ const ApprovalWorkFlowSettingComponent = ({
     setSelections({ SectionItemType: updatedSelections });
   };
   return (
-    <div>
-      <div className="mb-10">
-        <div className="text-2xl font-bold ">
+    <div data-cy="approval-workflow-setting-container">
+      <div className="mb-10" data-cy="approval-workflow-setting-header">
+        <div
+          className="text-2xl font-bold "
+          data-cy="approval-workflow-setting-title"
+        >
           {title
             ? title
             : approverType === 'Sequential'
@@ -155,12 +179,13 @@ const ApprovalWorkFlowSettingComponent = ({
             optionFilterProp="label"
             style={{ width: 120 }}
             placeholder={`Select ${workflowApplies ? workflowApplies : ''} `}
+            onChange={handleWorkflowUserChange}
             options={(() => {
               if (workflowApplies === 'Department') {
                 return (
-                  department?.map((list: any) => ({
-                    value: list?.id,
-                    label: list?.name,
+                  department?.map((list: Department) => ({
+                    value: list.id,
+                    label: list.name,
                   })) || []
                 );
               } else if (workflowApplies === 'Hierarchy') {
@@ -172,9 +197,10 @@ const ApprovalWorkFlowSettingComponent = ({
                 );
               } else if (workflowApplies === 'User') {
                 return (
-                  users?.items?.map((list: any) => ({
-                    value: list?.id,
-                    label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+                  users?.items?.map((list: User) => ({
+                    value: list.id,
+                    label:
+                      `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
                   })) || []
                 );
               } else {
@@ -224,7 +250,25 @@ const ApprovalWorkFlowSettingComponent = ({
                 className="font-semibold text-xs"
                 name={`assignedUser_${index}`}
                 label={`Assign User `}
-                rules={[{ required: true, message: 'Please select a user!' }]}
+                rules={[
+                  { required: true, message: 'Please select a user!' },
+                  {
+                    /* eslint-disable-next-line @typescript-eslint/naming-convention */
+                    validator: (_, value) => {
+                      /* eslint-enable @typescript-eslint/naming-convention */
+
+                      if (
+                        workflowApplies === 'User' &&
+                        value === workflowUserId
+                      ) {
+                        return Promise.reject(
+                          'Cannot select the same user as both workflow target and approver',
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
                 <Select
                   className="w-full  my-3"
@@ -235,10 +279,17 @@ const ApprovalWorkFlowSettingComponent = ({
                   style={{ width: 120 }}
                   onChange={(value) => handleUserChange(value as string, index)}
                   placeholder="Select User"
-                  options={users?.items?.map((list: any) => ({
-                    value: list?.id,
-                    label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
-                  }))}
+                  options={users?.items
+                    ?.filter(
+                      (user: User) =>
+                        workflowApplies !== 'User' ||
+                        user.id !== workflowUserId,
+                    )
+                    ?.map((list: User) => ({
+                      value: list.id,
+                      label:
+                        `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
+                    }))}
                 />
               </Form.Item>
             </div>
@@ -246,7 +297,7 @@ const ApprovalWorkFlowSettingComponent = ({
         )}
 
         <Form.Item>
-          <Row className="flex justify-end gap-3">
+          <Row className="flex justify-center gap-3">
             <Button type="primary" htmlType="submit">
               Submit
             </Button>

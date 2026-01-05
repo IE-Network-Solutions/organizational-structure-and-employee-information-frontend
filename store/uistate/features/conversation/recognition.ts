@@ -43,6 +43,8 @@ export interface CategoriesUseState {
   open: boolean;
   current: number;
   pageSize: number;
+  setCurrent: (current: number) => void;
+  setPageSize: (current: number) => void;
   totalPages: number;
   dateRange: DateRange;
   setDateRange: (dateRange: DateRange) => void;
@@ -82,6 +84,8 @@ export interface CategoriesUseState {
   selectedRowKeys: React.Key[];
   setSelectedRowKeys: (keys: React.Key[]) => void;
   resetSelection: () => void;
+  showBulkDeleteModal: boolean;
+  setShowBulkDeleteModal: (show: boolean) => void;
 }
 
 const initialSearchField: SearchField[] = [
@@ -174,4 +178,6 @@ export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
   setSelectedRowKeys: (keys) => set({ selectedRowKeys: keys }),
 
   resetSelection: () => set({ selectedRowKeys: [], selectedEmployees: [] }),
+  showBulkDeleteModal: false,
+  setShowBulkDeleteModal: (show: boolean) => set({ showBulkDeleteModal: show }),
 }));

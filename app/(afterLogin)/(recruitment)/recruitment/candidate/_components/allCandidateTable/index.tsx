@@ -19,15 +19,19 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import RecruitmentPagination from '../../../_components';
-import { FaLinkedin } from 'react-icons/fa';
 import { SiGmail } from 'react-icons/si';
+import { TableRowSelection } from 'antd/es/table/interface';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
 
   const userId = useAuthenticationStore.getState().userId;
+
+  const { isMobile, isTablet } = useIsMobile();
 
   const handleStageChange = (value: string, id: any) => {
     const selectedStage = statusStage?.items?.find(
@@ -48,15 +52,6 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'candidateName',
       sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
     },
-    // {
-    //   title: 'AI score',
-    //   dataIndex: 'score',
-    //   render: () => (
-    //     <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
-    //       90%
-    //     </span>
-    //   ),
-    // },
     {
       title: 'Phone Number',
       dataIndex: 'phoneNumber',
@@ -67,11 +62,11 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'cgpa',
       sorter: (a: any, b: any) => a.cgpa - b.cgpa,
     },
-    {
-      title: 'Internal/ External',
-      dataIndex: 'internal_external',
-      sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
-    },
+    // {
+    //   title: 'Internal/ External',
+    //   dataIndex: 'internal_external',
+    //   sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
+    // },
     {
       title: 'CV',
       dataIndex: 'cv',
@@ -86,7 +81,7 @@ const AllCandidateTable: React.FC = () => {
     },
 
     {
-      title: 'Social profile',
+      title: 'Email',
       dataIndex: 'LinkedInURL',
     },
     {
@@ -111,6 +106,8 @@ const AllCandidateTable: React.FC = () => {
     setEditCandidate,
     setDeleteCandidateId,
     setDeleteCandidateModal,
+    selectedRowKeys,
+    setSelectedRowKeys,
   } = useCandidateState();
 
   const { data: candidateList, isLoading: isResponseLoading } =
@@ -120,6 +117,8 @@ const AllCandidateTable: React.FC = () => {
       searchParams?.selectedJob || '',
       searchParams?.selectedStage || '',
       searchParams?.selectedDepartment || '',
+      pageSize,
+      currentPage,
     );
 
   const onPageChange = (page: number, pageSize?: number) => {
@@ -173,13 +172,15 @@ const AllCandidateTable: React.FC = () => {
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
-      internal_external:
-        item?.jobCandidate?.isExternalApplicant === false
-          ? 'External'
-          : 'Internal',
+      // internal_external:
+      //   item?.jobCandidate?.isExternalApplicant === false
+      //     ? 'External'
+      //     : 'Internal',
 
       cv: (
         <a
+          id={`talent-acquisition-candidate-table-link-cv-${item?.id}`}
+          data-cy={`talent-acquisition-candidate-table-link-cv-${item?.id}`}
           href={item?.resumeUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -197,23 +198,30 @@ const AllCandidateTable: React.FC = () => {
         ? dayjs(item.graduateYear).format('DD MMMM YYYY')
         : '--',
       LinkedInURL: (
-        <div className="flex justify-around">
+        <div
+          id="talent-acquisition-candidate-table-div-email"
+          data-cy="talent-acquisition-candidate-table-div-email"
+          className="flex justify-center"
+        >
           <a
-            href={item?.LinkedInURL}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="LinkedIn"
+            id={`talent-acquisition-candidate-table-link-email-${item?.id}`}
+            data-cy={`talent-acquisition-candidate-table-link-email-${item?.id}`}
+            href={`mailto:${item?.email}`}
+            title="Send Email"
+            className="text-blue-600 hover:text-blue-800 transition-colors"
           >
-            <FaLinkedin size={20} />
-          </a>
-          <a href={item?.email} title="Email">
             <SiGmail size={20} />
           </a>
         </div>
       ),
       stages: (
-        <div>
+        <div
+          id="talent-acquisition-candidate-table-div-stages"
+          data-cy="talent-acquisition-candidate-table-div-stages"
+        >
           <Select
+            id={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
+            data-cy={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
             defaultValue={item?.jobCandidate?.map(
               (e: any) => e?.applicantStatusStage?.title ?? '--',
             )}
@@ -227,7 +235,12 @@ const AllCandidateTable: React.FC = () => {
             }
           >
             {statusStage?.items?.map((stage: any) => (
-              <Select.Option key={stage.id} value={stage.id}>
+              <Select.Option
+                key={stage.id}
+                value={stage.id}
+                id={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
+                data-cy={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
+              >
                 {stage.title}
               </Select.Option>
             ))}
@@ -235,9 +248,14 @@ const AllCandidateTable: React.FC = () => {
         </div>
       ),
       action: (
-        <div className="flex items-center justify-between gap-4 text-white">
+        <div
+          id="talent-acquisition-candidate-table-div-action"
+          data-cy="talent-acquisition-candidate-table-div-action"
+          className="flex items-center justify-between gap-4 text-white"
+        >
           <Button
             id={`editUserButton${item?.id}`}
+            data-cy={`talent-acquisition-candidate-table-button-view-${item?.id}`}
             disabled={item?.deletedAt !== null}
             className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
             onClick={() => handleCandidateDetail(item)}
@@ -245,6 +263,7 @@ const AllCandidateTable: React.FC = () => {
             <FaEye />
           </Button>
           <Dropdown
+            data-cy={`talent-acquisition-candidate-table-dropdown-${item?.id}`}
             menu={{
               items: filteredItems.map(({ label, key, onClick }) => ({
                 label,
@@ -262,26 +281,61 @@ const AllCandidateTable: React.FC = () => {
     };
   });
 
+  const rowSelection: TableRowSelection<CandidateData> = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+      setSelectedCandidate(
+        candidateList?.items?.filter((item: CandidateData) =>
+          selectedRows.some((row: CandidateData) => row.id === item.id),
+        ) || [],
+      );
+    },
+  };
+
+  const onSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
   return (
-    <div>
+    <div
+      id="talent-acquisition-candidate-table-div-container"
+      data-cy="talent-acquisition-candidate-table-div-container"
+    >
       <Table
+        id="talent-acquisition-candidate-table-table"
+        data-cy="talent-acquisition-candidate-table-table"
         className="w-full"
         columns={columns}
         dataSource={data}
         loading={isResponseLoading}
+        pagination={false}
         scroll={{ x: 1000 }}
+        rowSelection={rowSelection} // Enable selection
       />
-      <RecruitmentPagination
-        current={currentPage}
-        total={candidateList?.meta?.totalItems ?? 1}
-        pageSize={pageSize}
-        onChange={onPageChange}
-        onShowSizeChange={onPageChange}
-      />
-      <CandidateDetail />
-      <DeleteCandidate />
-      <EditCandidate />
-      <MoveToTalentPool />
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          data-cy="talent-acquisition-candidate-table-pagination-mobile"
+          totalResults={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          data-cy="talent-acquisition-candidate-table-pagination-desktop"
+          current={currentPage}
+          total={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
+      <CandidateDetail data-cy="talent-acquisition-candidate-table-candidate-detail" />
+      <DeleteCandidate data-cy="talent-acquisition-candidate-table-delete-candidate" />
+      <EditCandidate data-cy="talent-acquisition-candidate-table-edit-candidate" />
+      <MoveToTalentPool data-cy="talent-acquisition-candidate-table-move-to-talent-pool" />
     </div>
   );
 };

@@ -23,53 +23,81 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   drawerContent,
   footerButtonText,
   onSubmit,
-  width = '30%',
+  width = '40%',
   form,
 }) => {
   const renderDrawerContent = () => {
     switch (drawerContent) {
       case 'transfer':
-        return <TransferForm form={form} />;
+        return (
+          <TransferForm
+            form={form}
+            data-cy="org-org-structure-components-customdrawer-index-transferform-1"
+          />
+        );
       case 'merge':
-        return <MergeForm form={form} />;
+        return (
+          <MergeForm
+            form={form}
+            data-cy="org-org-structure-components-customdrawer-index-mergeform-1"
+          />
+        );
       case 'delete':
-        return <DeleteForm form={form} />;
+        return (
+          <DeleteForm
+            form={form}
+            data-cy="org-org-structure-components-customdrawer-index-deleteform-1"
+          />
+        );
       default:
         return null;
     }
   };
+  const drawerDataCy = `org-structure-${drawerContent}-drawer`;
+  const drawerId = `org-structure-${drawerContent}-drawer`;
+
   return (
     <CustomDrawerLayout
       open={visible}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4 ">
+        <div
+          className="flex justify-start text-xl font-extrabold text-gray-800 "
+          data-cy={`${drawerDataCy}-header`}
+          id={`${drawerId}-header`}
+        >
           {title}
         </div>
       }
       width={width}
       footer={
-        <div className="w-full absolute  flex justify-center space-x-5">
-          <Button type="default" onClick={onClose}>
+        <div
+          className="w-full flex justify-center space-x-5 p-4 "
+          data-cy={`${drawerDataCy}-footer`}
+          id={`${drawerId}-footer`}
+        >
+          <Button
+            className="h-[40px] text-base px-10"
+            type="default"
+            onClick={onClose}
+            data-cy={`${drawerDataCy}-cancel-btn`}
+            id={`${drawerId}-cancel-btn`}
+          >
             Cancel
           </Button>
-          <Button type="primary" onClick={onSubmit} loading={loading}>
-            {footerButtonText}
-          </Button>
-          {/* <CustomButton
-            type="default"
-            title="Cancel"
-            onClick={onClose}
-            style={{ marginRight: 8 }}
-          />
-          <CustomButton
-            title={footerButtonText}
+          <Button
+            className="h-[40px] text-base px-10"
             type="primary"
             onClick={onSubmit}
             loading={loading}
-          /> */}
+            data-cy={`${drawerDataCy}-submit-btn`}
+            id={`${drawerId}-submit-btn`}
+          >
+            {footerButtonText}
+          </Button>
         </div>
       }
+      data-cy="org-structure-custom-drawer-layout"
     >
       {renderDrawerContent()}
     </CustomDrawerLayout>

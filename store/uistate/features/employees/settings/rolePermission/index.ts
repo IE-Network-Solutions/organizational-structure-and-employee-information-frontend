@@ -4,7 +4,7 @@ import {
   GroupPermissionkey,
   ModalType,
 } from '@/types/dashboard/adminManagement';
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 interface StoreState {

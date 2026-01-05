@@ -37,6 +37,8 @@ const IncentivePagination: React.FC<IncentivePaginationProps> = ({
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(
           <button
+            id={`incentive-pagination-page-button-${i}`}
+            data-cy={`incentive-pagination-page-button-${i}`}
             key={i}
             onClick={() => handlePageChange(i)}
             className={`w-8 h-8 flex items-center justify-center rounded-lg ${
@@ -56,6 +58,8 @@ const IncentivePagination: React.FC<IncentivePaginationProps> = ({
       if (leftSide > 2) {
         pageNumbers.push(
           <button
+            id="incentive-pagination-page-button-first"
+            data-cy="incentive-pagination-page-button-first"
             key={1}
             onClick={() => handlePageChange(1)}
             className="w-8 h-8 flex items-center justify-center border rounded text-gray-600 border-gray-300 hover:bg-gray-100"
@@ -64,7 +68,12 @@ const IncentivePagination: React.FC<IncentivePaginationProps> = ({
           </button>,
         );
         pageNumbers.push(
-          <span key="leftEllipsis" className="px-2">
+          <span
+            id="incentive-pagination-ellipsis-left"
+            data-cy="incentive-pagination-ellipsis-left"
+            key="leftEllipsis"
+            className="px-2"
+          >
             ...
           </span>,
         );
@@ -73,6 +82,8 @@ const IncentivePagination: React.FC<IncentivePaginationProps> = ({
       for (let i = leftSide; i <= rightSide; i++) {
         pageNumbers.push(
           <button
+            id={`incentive-pagination-page-button-${i}`}
+            data-cy={`incentive-pagination-page-button-${i}`}
             key={i}
             onClick={() => handlePageChange(i)}
             className={`w-8 h-8 flex items-center justify-center border rounded ${
@@ -88,12 +99,19 @@ const IncentivePagination: React.FC<IncentivePaginationProps> = ({
 
       if (rightSide < totalPages - 1) {
         pageNumbers.push(
-          <span key="rightEllipsis" className="px-2">
+          <span
+            id="incentive-pagination-ellipsis-right"
+            data-cy="incentive-pagination-ellipsis-right"
+            key="rightEllipsis"
+            className="px-2"
+          >
             ...
           </span>,
         );
         pageNumbers.push(
           <button
+            id="incentive-pagination-page-button-last"
+            data-cy="incentive-pagination-page-button-last"
             key={totalPages}
             onClick={() => handlePageChange(totalPages)}
             className="w-8 h-8 flex items-center justify-center border rounded text-gray-600 border-gray-300 hover:bg-gray-100"
@@ -108,9 +126,19 @@ const IncentivePagination: React.FC<IncentivePaginationProps> = ({
   };
 
   return (
-    <div className="flex justify-between items-center py-6">
-      <div className="flex items-center space-x-2">
+    <div
+      id="incentive-pagination-container"
+      data-cy="incentive-pagination-container"
+      className="flex justify-between items-center py-6"
+    >
+      <div
+        id="incentive-pagination-controls"
+        data-cy="incentive-pagination-controls"
+        className="flex items-center space-x-2"
+      >
         <button
+          id="incentive-pagination-prev-button"
+          data-cy="incentive-pagination-prev-button"
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
           className={`w-8 h-8 flex items-center justify-center border rounded ${
@@ -119,10 +147,15 @@ const IncentivePagination: React.FC<IncentivePaginationProps> = ({
               : 'text-gray-600 border-gray-300 hover:bg-gray-100'
           }`}
         >
-          <LeftOutlined />
+          <LeftOutlined
+            id="incentive-pagination-prev-icon"
+            data-cy="incentive-pagination-prev-icon"
+          />
         </button>
         {renderPageNumbers()}
         <button
+          id="incentive-pagination-next-button"
+          data-cy="incentive-pagination-next-button"
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
           className={`w-8 h-8 flex items-center justify-center border rounded ${
@@ -131,22 +164,53 @@ const IncentivePagination: React.FC<IncentivePaginationProps> = ({
               : 'text-gray-600 border-gray-300 hover:bg-gray-100'
           }`}
         >
-          <RightOutlined />
+          <RightOutlined
+            id="incentive-pagination-next-icon"
+            data-cy="incentive-pagination-next-icon"
+          />
         </button>
       </div>
-      <div className="flex items-center">
-        <span className="mr-2 text-sm text-gray-400">
+      <div
+        id="incentive-pagination-info"
+        data-cy="incentive-pagination-info"
+        className="flex items-center"
+      >
+        <span
+          id="incentive-pagination-info-text"
+          data-cy="incentive-pagination-info-text"
+          className="mr-2 text-sm text-gray-400"
+        >
           Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
           {Math.min(total, current * pageSize)} out of {total} entries
         </span>
         <Select
+          id="incentive-pagination-size-select"
+          data-cy="incentive-pagination-size-select"
           value={pageSize}
           className="w-24"
           onChange={(value) => handleSizeChange(value)}
         >
-          <Option value={4}>Show 4</Option>
-          <Option value={10}>Show 10</Option>
-          <Option value={25}>Show 25</Option>
+          <Option
+            id="incentive-pagination-size-option-4"
+            data-cy="incentive-pagination-size-option-4"
+            value={4}
+          >
+            Show 4
+          </Option>
+          <Option
+            id="incentive-pagination-size-option-10"
+            data-cy="incentive-pagination-size-option-10"
+            value={10}
+          >
+            Show 10
+          </Option>
+          <Option
+            id="incentive-pagination-size-option-25"
+            data-cy="incentive-pagination-size-option-25"
+            value={25}
+          >
+            Show 25
+          </Option>
         </Select>
       </div>
     </div>

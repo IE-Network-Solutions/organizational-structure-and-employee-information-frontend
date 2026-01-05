@@ -1,11 +1,10 @@
 // components/CardList.tsx
 import { FC, useState } from 'react';
-import PersonCard from '../person-card';
-import { Button, Card, Empty } from 'antd';
-import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
+import { Avatar, Button } from 'antd';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { BirthDayData } from '@/store/server/features/dashboard/birthday/queries';
 import { WorkAnniversaryData } from '@/store/server/features/dashboard/work-anniversary/queries';
-import dayjs from 'dayjs';
+import { UserOutlined } from '@ant-design/icons';
 
 interface CardListProps {
   title: string;
@@ -13,71 +12,130 @@ interface CardListProps {
   loading: boolean;
   type: string;
 }
+const CardList: FC<CardListProps> = ({ title, people, type }) => {
+  const [currentPersonIndex, setCurrentPersonIndex] = useState(0);
+  const cardsPerPage = 3;
 
-const CardList: FC<CardListProps> = ({ title, people, loading, type }) => {
-  const [currentPersonIndex, setCurrentPersonIndex] = useState(0); // I used useState it because of i use same component for birthday and work anniversary
-
-  const handleNext = () => {
-    if (people && currentPersonIndex < people?.length - 1) {
-      setCurrentPersonIndex(currentPersonIndex + 1);
-    }
-  };
+  const totalCards = people?.length || 0;
+  const maxIndex = totalCards - cardsPerPage;
 
   const handlePrevious = () => {
-    if (currentPersonIndex > 0) {
-      setCurrentPersonIndex(currentPersonIndex - 1);
-    }
+    setCurrentPersonIndex((prev) => Math.max(prev - 1, 0));
   };
-  const workAnniversary = dayjs().diff(
-    dayjs(people[currentPersonIndex]?.joinedDate),
-    'year',
-  );
 
+  const handleNext = () => {
+    setCurrentPersonIndex((prev) => Math.min(prev + 1, maxIndex));
+  };
+
+  const visibleCards = people?.slice(
+    currentPersonIndex,
+    currentPersonIndex + cardsPerPage,
+  );
   return (
-    <Card
-      bodyStyle={{ padding: '6px' }}
-      loading={loading}
-      className="bg-white p-2 rounded-lg h-full  w-full md:max-h-48"
+    <div
+      className="bg-white rounded-lg p-1 h-[150px] shadow-lg"
+      data-cy="dashboard-card-list-container"
     >
-      <div className="flex items-center ">
-        <span className="mr-2 text-2xl">🎉</span>
-        <div className="flex justify-between items-center w-full">
-          <h4 className="text-sm font-semibold">{title}</h4>
-          {type === 'anniversary' && (
-            <div className="bg-light_purple py-1 px-2 text-purple rounded-lg text-xs font-semibold">{`${workAnniversary} ${workAnniversary == 1 ? 'Year' : 'Years'}`}</div>
-          )}
-        </div>
+      <div
+        className="text-lg font-bold gap-3 flex items-center px-3  "
+        data-cy="dashboard-card-list-title"
+      >
+        <span
+          className="mr-2 text-2xl"
+          data-cy="dashboard-card-list-title-emoji"
+        >
+          🎉{' '}
+        </span>
+        <span data-cy="dashboard-card-list-title-text">{title}</span>
       </div>
 
-      {people?.length ? (
-        <div className="">
-          <PersonCard
-            name={
-              `${people[currentPersonIndex]?.user?.firstName} ${people[currentPersonIndex]?.user?.middleName} ${people[currentPersonIndex]?.user?.lastName} ` ||
-              ''
-            }
-            imgSrc={people[currentPersonIndex]?.user?.profileImage || ''}
-          />
-          <div className="flex justify-center items-center gap-2 ">
-            <Button
-              onClick={handlePrevious}
-              disabled={currentPersonIndex === 0}
-              icon={<FaAngleLeft />}
-              className="bg-light_purple w-5 h-5 rounded-full flex items-center justify-center border-none"
-            />
-            <h2 className="text-xs font-semibold  ">{people?.length}</h2>
-            <Button
-              onClick={handleNext}
-              disabled={currentPersonIndex === people?.length - 1}
-              icon={<FaAngleRight />}
-              className="bg-light_purple w-5 h-5  rounded-full flex items-center justify-center border-none"
-            />
+      <div
+        className=" min-h-20 m-2 flex items-center justify-center"
+        data-cy="dashboard-card-list-content"
+      >
+        {visibleCards?.length > 0 ? (
+          <div
+            className="flex flex-row gap-1 2xl:gap-3 2xl:px-3 items-center "
+            data-cy="dashboard-card-list-cards"
+          >
+            {totalCards > cardsPerPage && currentPersonIndex > 0 ? (
+              <Button
+                onClick={handlePrevious}
+                icon={
+                  <FaArrowLeft data-cy="dashboard-card-list-previous-icon" />
+                }
+                className="bg-gray-100 w-5 h-5 rounded-full flex items-center justify-center border-none"
+                data-cy="dashboard-card-list-previous-button"
+              />
+            ) : (
+              <div
+                className="w-5"
+                data-cy="dashboard-card-list-previous-placeholder"
+              ></div>
+            )}
+
+            {visibleCards?.map((item: any, index: number) => (
+              <div
+                className="flex flex-col items-center 2xl:gap-1 2xl:min-w-24 "
+                key={index}
+                data-cy={`dashboard-card-list-card-${index}`}
+              >
+                {item?.user?.profileImage ? (
+                  <Avatar
+                    src={item?.user?.profileImage}
+                    alt={`${item?.user?.firstName || ''}`}
+                    className="w-10 2xl:w-16 h-10 2xl:h-16 rounded-full"
+                    data-cy={`dashboard-card-list-card-avatar-${index}`}
+                  />
+                ) : (
+                  <Avatar
+                    icon={
+                      <UserOutlined
+                        size={40}
+                        data-cy={`dashboard-card-list-card-avatar-icon-${index}`}
+                      />
+                    }
+                    className="w-10 2xl:w-16 h-10 2xl:h-16 rounded-full"
+                    data-cy={`dashboard-card-list-card-avatar-default-${index}`}
+                  />
+                )}
+                <p
+                  className="font-normal text-center text-[11px]"
+                  data-cy={`dashboard-card-list-card-name-${index}`}
+                >
+                  <span data-cy={`dashboard-card-list-card-name-text-${index}`}>
+                    {`${item?.user?.firstName || ''} ${item?.user?.middleName || ''}`}
+                  </span>
+                </p>
+              </div>
+            ))}
+
+            {totalCards > cardsPerPage && currentPersonIndex < maxIndex ? (
+              <Button
+                onClick={handleNext}
+                icon={<FaArrowRight data-cy="dashboard-card-list-next-icon" />}
+                className="bg-gray-100 w-5 h-5 rounded-full flex items-center justify-center border-none"
+                data-cy="dashboard-card-list-next-button"
+              />
+            ) : (
+              <div
+                className="w-5"
+                data-cy="dashboard-card-list-next-placeholder"
+              ></div>
+            )}
           </div>
-        </div>
-      ) : (
-        <Empty />
-      )}
-    </Card>
+        ) : (
+          <div
+            className="text-sm font-light flex min-h-20 justify-center items-center "
+            data-cy="dashboard-card-list-empty"
+          >
+            <span data-cy="dashboard-card-list-empty-text">
+              No {type} today
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

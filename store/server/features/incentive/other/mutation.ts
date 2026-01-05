@@ -5,36 +5,42 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
 const setIncentiveFormula = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 
 const updateIncentiveFormula = async (id: string, data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas/${id}`,
     method: 'PUT',
     data,
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const deleteIncentiveFormula = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas/${id}`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 export const useSetIncentiveFormula = () => {
   const queryClient = useQueryClient();
   return useMutation(setIncentiveFormula, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('incentiveFormula');
+    onSuccess: (nonused, variables) => {
+      queryClient.invalidateQueries([
+        'incentiveFormula',
+        variables.recognitionTypeId,
+      ]);
       NotificationMessage.success({
         message: 'Incentive formula created successfully!',
         description: 'Incentive formula has been successfully created',
@@ -49,8 +55,12 @@ export const useUpdateIncentiveFormula = () => {
     ({ id, data }: { id: string; data: any }) =>
       updateIncentiveFormula(id, data),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('incentiveFormula');
+      onSuccess: (nonused, variables) => {
+        // This is the correct key!
+        queryClient.invalidateQueries([
+          'incentiveFormula',
+          variables.data.recognitionTypeId,
+        ]);
         NotificationMessage.success({
           message: 'Incentive formula updated successfully!',
           description: 'Incentive formula has been successfully updated',
@@ -71,4 +81,65 @@ export const useDeleteIncentiveFormula = () => {
       });
     },
   });
+};
+
+const deleteIncentive = async (id: string) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${INCENTIVE_URL}/incentives/${id}`,
+    method: 'DELETE',
+    headers: requestHeaders,
+  });
+};
+
+const deleteBulkIncentives = async (ids: string[]) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${INCENTIVE_URL}/incentives/bulk-delete`,
+    method: 'DELETE',
+    headers: requestHeaders,
+    data: { ids },
+  });
+};
+
+export const useDeleteIncentive = () => {
+  const queryClient = useQueryClient();
+  return useMutation(({ id }: { id: string }) => deleteIncentive(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['getAllIncentiveData']);
+      NotificationMessage.success({
+        message: 'Incentive deleted successfully!',
+        description: 'Incentive record has been successfully deleted',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Delete failed',
+        description: 'Failed to delete incentive record. Please try again.',
+      });
+    },
+  });
+};
+
+export const useDeleteBulkIncentives = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ ids }: { ids: string[] }) => deleteBulkIncentives(ids),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['getAllIncentiveData']);
+        NotificationMessage.success({
+          message: 'Incentives deleted successfully!',
+          description:
+            'Selected incentive records have been successfully deleted',
+        });
+      },
+      onError: () => {
+        NotificationMessage.error({
+          message: 'Delete failed',
+          description: 'Failed to delete incentive records. Please try again.',
+        });
+      },
+    },
+  );
 };

@@ -21,7 +21,7 @@ const BreakTypeSidebar = () => {
   const [form] = Form.useForm();
   const { mutate: setBreakType } = useSetBreakType();
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
   React.useEffect(() => {
     if (selectedBreakType) {
       const formattedBreakType = {
@@ -36,20 +36,24 @@ const BreakTypeSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => {
-        setIsShow(false), form.resetFields();
+        (setIsShow(false), form.resetFields());
         setSelectedBreakType(null);
       },
+      id: 'time-attendance-settings-break-type-sidebar-cancel-button',
+      'data-cy': 'time-attendance-settings-break-type-sidebar-cancel-button',
     },
     {
       label: selectedBreakType ? 'Edit' : 'Add',
       key: 'add',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       onClick: () => form.submit(),
+      id: 'time-attendance-settings-break-type-sidebar-submit-button',
+      'data-cy': 'time-attendance-settings-break-type-sidebar-submit-button',
     },
   ];
 
@@ -65,14 +69,14 @@ const BreakTypeSidebar = () => {
     if (selectedBreakType) {
       setBreakType(formattedValues, {
         onSuccess: () => {
-          setIsShow(false), form.resetFields();
+          (setIsShow(false), form.resetFields());
           setSelectedBreakType(null);
         },
       });
     } else {
       setBreakType(formattedValues, {
         onSuccess: () => {
-          setIsShow(false), form.resetFields();
+          (setIsShow(false), form.resetFields());
           setSelectedBreakType(null);
         },
       });
@@ -84,9 +88,31 @@ const BreakTypeSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => setIsShow(false)}
-        modalHeader={<CustomDrawerHeader>Break Type</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        modalHeader={
+          <div
+            className="px-2"
+            id="time-attendance-settings-break-type-sidebar-header-container"
+            data-cy="time-attendance-settings-break-type-sidebar-header-container"
+          >
+            <CustomDrawerHeader data-cy="time-attendance-settings-break-type-sidebar-header">
+              Break Type
+            </CustomDrawerHeader>
+          </div>
+        }
+        footer={
+          <div
+            className="p-4"
+            id="time-attendance-settings-break-type-sidebar-footer-container"
+            data-cy="time-attendance-settings-break-type-sidebar-footer-container"
+          >
+            <CustomDrawerFooterButton
+              buttons={footerModalItems}
+              data-cy="time-attendance-settings-break-type-sidebar-footer-button"
+            />
+          </div>
+        }
         width="400px"
+        data-cy="time-attendance-settings-break-type-sidebar"
       >
         <Form
           layout="vertical"
@@ -95,10 +121,18 @@ const BreakTypeSidebar = () => {
           form={form}
           className={itemClass}
           onFinish={onFinish}
+          id="time-attendance-settings-break-type-sidebar-form"
+          data-cy="time-attendance-settings-break-type-sidebar-form"
         >
-          <Space direction="vertical" className="w-full" size={24}>
+          <Space.Compact
+            direction="vertical"
+            className="w-full px-3 sm:px-0 "
+            id="time-attendance-settings-break-type-sidebar-form-fields"
+            data-cy="time-attendance-settings-break-type-sidebar-form-fields"
+          >
             <Form.Item
               id="breakTypeNameFieldId"
+              data-cy="time-attendance-settings-break-type-sidebar-title-field-id"
               label="Break Type Name"
               name="title"
               rules={[
@@ -108,37 +142,56 @@ const BreakTypeSidebar = () => {
                 },
               ]}
             >
-              <Input className={controlClass} />
+              <Input
+                className={controlClass}
+                id="time-attendance-settings-break-type-sidebar-title-input"
+                data-cy="time-attendance-settings-break-type-sidebar-title-input"
+              />
             </Form.Item>
-
             <Form.Item
               id="BreakTypeDescriptionFieldId"
+              data-cy="time-attendance-settings-break-type-sidebar-description-field-id"
               label="Break Type Description"
               name="description"
             >
               <Input.TextArea
-                className="w-full py-4 px-5 mt-2.5"
+                className="w-full h-36 px-5 mt-2.5"
                 placeholder="Description"
                 rows={6}
+                id="time-attendance-settings-break-type-sidebar-description-textarea"
+                data-cy="time-attendance-settings-break-type-sidebar-description-textarea"
               />
             </Form.Item>
-
-            <Row gutter={16}>
-              <Col span={12}>
+            <Row
+              gutter={16}
+              id="time-attendance-settings-break-type-sidebar-time-row"
+              data-cy="time-attendance-settings-break-type-sidebar-time-row"
+            >
+              <Col
+                data-cy="time-attendance-settings-break-type-sidebar-start-at-column"
+                span={12}
+              >
                 <Form.Item
                   id="startAtFieldId"
+                  data-cy="time-attendance-settings-break-type-sidebar-start-at-field-id"
                   label="Start At"
                   name="startAt"
                   rules={[
                     { required: true, message: 'Please select the start time' },
                   ]}
                 >
-                  <TimePicker className={controlClass} format="HH:mm" />
+                  <TimePicker
+                    className={controlClass}
+                    format="HH:mm"
+                    id="time-attendance-settings-break-type-sidebar-start-at-picker"
+                    data-cy="time-attendance-settings-break-type-sidebar-start-at-picker"
+                  />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
                   id="endAtFieldId"
+                  data-cy="time-attendance-settings-break-type-sidebar-end-at-field-id"
                   label="End At"
                   name="endAt"
                   rules={[
@@ -158,11 +211,16 @@ const BreakTypeSidebar = () => {
                     }),
                   ]}
                 >
-                  <TimePicker className={controlClass} format="HH:mm" />
+                  <TimePicker
+                    className={controlClass}
+                    format="HH:mm"
+                    id="time-attendance-settings-break-type-sidebar-end-at-picker"
+                    data-cy="time-attendance-settings-break-type-sidebar-end-at-picker"
+                  />
                 </Form.Item>
               </Col>
             </Row>
-          </Space>
+          </Space.Compact>
         </Form>
       </CustomDrawerLayout>
     )

@@ -14,11 +14,11 @@ const initializeDetail = () =>
     'Saturday',
   ].map((day) => ({
     id: uuidv4(),
-    dayOfWeek: day,
+    day: day,
     startTime: '',
     endTime: '',
-    hours: 0,
-    status: false,
+    duration: 0,
+    workDay: false,
   }));
 
 const calculateHours = (startTime: any, endTime: any) =>
@@ -33,7 +33,13 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
   isDeleteMode: false,
   id: '',
   standardHours: 0,
+  validationError: '',
   detail: initializeDetail(),
+
+  currentPage: 1,
+  pageSize: 5,
+  setCurrentPage: (page) => set({ currentPage: page }),
+  setPageSize: (size) => set({ pageSize: size }),
 
   setStandardHours: (standardHours) => set({ standardHours }),
   setId: (id) => set({ id }),
@@ -43,11 +49,32 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
   setEditMode: (isEdit) => set({ isEditMode: isEdit }),
   setScheduleName: (scheduleName) => set({ scheduleName }),
   setDeleteMode: (isDelete) => set({ isDeleteMode: isDelete }),
+  setValidationError: (error: string) => set({ validationError: error }),
+  clearValidationError: () => set({ validationError: '' }),
 
-  setDetail: (dayOfWeek, data) =>
+  setDetail: (day, data) =>
     set((state) => ({
-      detail: state.detail.map((day) =>
-        day.dayOfWeek === dayOfWeek ? { ...day, ...data } : day,
+      detail: state.detail.map((dayItem) =>
+        dayItem.day === day
+          ? {
+              ...dayItem,
+              ...data,
+              // Update duration if startTime or endTime is being updated
+              duration:
+                data.startTime !== undefined || data.endTime !== undefined
+                  ? calculateHours(
+                      data.startTime !== undefined
+                        ? data.startTime
+                        : dayItem.startTime,
+                      data.endTime !== undefined
+                        ? data.endTime
+                        : dayItem.endTime,
+                    )
+                  : data.workDay !== undefined && !data.workDay
+                    ? 0 // Set duration to 0 when workDay is disabled
+                    : dayItem.duration,
+            }
+          : dayItem,
       ),
     })),
 
@@ -55,7 +82,7 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
     set((state) => ({
       detail: state.detail.map((day) => ({
         ...day,
-        hours: calculateHours(day.startTime, day.endTime),
+        duration: calculateHours(day.startTime, day.endTime),
       })),
     })),
 
@@ -67,11 +94,15 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
     };
   },
 
+  searchQuery: '',
+  setSearchQuery: (query: string) => set({ searchQuery: query }),
+
   clearState: () =>
     set(() => ({
       scheduleName: '',
       id: '',
       standardHours: 0,
+      validationError: '',
       detail: initializeDetail(),
     })),
 }));

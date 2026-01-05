@@ -10,7 +10,21 @@ export interface Task {
   month: string;
   createdAt?: string;
   createdBy?: string;
+  failureReason?: string;
 }
+export type CheckedItem = {
+  taskId: string;
+  title: string;
+  planId: string;
+  departmentId: string;
+  userId: string;
+  session: string;
+  month: string;
+  createdBy: string;
+  status: string;
+  failureReason: string;
+  id?: string;
+};
 
 export interface DataItem {
   weeklyPriorityWeekId?: string;
@@ -30,17 +44,43 @@ interface WeeklyPriorityState {
   setDepartmentId: (departmentId: string) => void;
   weekIds?: string[];
   setWeekIds: (weekIds: string[]) => void;
+  pageSize: number;
+  currentPage: number;
+  setPageSize: (pageSize: number) => void;
+  setCurrentPage: (currentPage: number) => void;
+  modalOpen: boolean;
+  setModalOpen: (modalOpen: boolean) => void;
+  checkedList: CheckedItem[];
+  setCheckedList: (checkedList: CheckedItem[]) => void;
+  failedReasonVisible: { [key: string]: boolean };
+  setFailedReasonVisible: (failedReasonVisible: {
+    [key: string]: boolean;
+  }) => void;
+  failedReasons: { [key: string]: string };
+  setFailedReasons: (failedReasons: { [key: string]: string }) => void;
 }
 
 export const useWeeklyPriorityStore = create<WeeklyPriorityState>((set) => ({
   activeTab: 1,
   setActiveTab: (tab) => set({ activeTab: tab }),
+  pageSize: 10,
+  setPageSize: (pageSize) => set({ pageSize: pageSize }),
+  currentPage: 1,
+  setCurrentPage: (currentPage) => set({ currentPage: currentPage }),
   departmentId: '',
   setDepartmentId: (id) => set({ departmentId: id }),
   weekIds: [],
   setWeekIds: (id) => set({ weekIds: id }),
   data: [],
   setData: (newData) => set({ data: newData }),
+  modalOpen: false,
+  setModalOpen: (modalOpen) => set({ modalOpen }),
+  checkedList: [],
+  setCheckedList: (checkedList) => set({ checkedList }),
+  failedReasonVisible: {},
+  setFailedReasonVisible: (failedReasonVisible) => set({ failedReasonVisible }),
+  failedReasons: {},
+  setFailedReasons: (failedReasons) => set({ failedReasons }),
   addNewCard: (userId, departmentId) =>
     set((state) => ({
       data: [

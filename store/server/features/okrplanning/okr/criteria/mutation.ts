@@ -2,10 +2,11 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useMutation, useQueryClient } from 'react-query';
 
 const createVpScoring = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -45,7 +46,7 @@ export const useCreateVpScoring = () => {
 };
 
 const deleteVpScoring = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -84,7 +85,7 @@ export const useDeleteVpScoring = () => {
 };
 
 const updateVpScoring = async ({ id, values }: { id: string; values: any }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {

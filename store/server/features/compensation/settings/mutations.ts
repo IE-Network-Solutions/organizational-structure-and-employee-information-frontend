@@ -6,6 +6,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -18,7 +19,7 @@ import { useMutation, useQueryClient } from 'react-query';
  * @returns {Promise<any>} The response from the API.
  */
 const createAllowanceType = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -34,6 +35,33 @@ const createAllowanceType = async (data: any) => {
 };
 
 /**
+ * Edits a compensation type (allowance type) by sending a PATCH request to the API.
+ *
+ * @async
+ * @function editAllowanceType
+ * @param {string} id - The ID of the compensation type to be edited.
+ * @param {string} id - The ID of the compensation type to be edited.
+ * @param {Object} data - The new data for the compensation type.
+ * @returns {Promise<any>} The response from the API.
+ */
+const editAllowanceType = async (id: string, data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-items/${id}`,
+    method: 'PATCH',
+    headers,
+    data,
+    skipEncryption: true,
+  });
+};
+
+/**
  * Deletes a compensation type (allowance type) by sending a DELETE request to the API.
  *
  * @async
@@ -42,7 +70,7 @@ const createAllowanceType = async (data: any) => {
  * @returns {Promise<any>} The response from the API.
  */
 const deleteAllowanceType = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -65,8 +93,11 @@ const deleteAllowanceType = async (id: string) => {
 export const useCreateAllowanceType = () => {
   const queryClient = useQueryClient();
   return useMutation(createAllowanceType, {
-    onSuccess: (unused: any, variables: any) => {
-      queryClient.invalidateQueries('allowanceType');
+    onSuccess: async (unused: any, variables: any) => {
+      await queryClient.invalidateQueries('allowanceType');
+      // Fetch the latest data after invalidation
+      await queryClient.refetchQueries(['allowanceType']);
+      // Update the store with the new data
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method, 'Compensation type successfully created.');
     },
@@ -84,8 +115,25 @@ export const useDeleteAllowanceType = () => {
   });
 };
 
+export const useEditAllowanceType = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    async ({ id, data }: { id: string; data: any }) => {
+      return await editAllowanceType(id, data);
+    },
+    {
+      onSuccess: async (unused: any, variables: any) => {
+        await queryClient.invalidateQueries('allowanceType');
+        await queryClient.refetchQueries(['allowanceType']);
+        const method = variables?.method?.toUpperCase?.();
+        handleSuccessMessage(method, 'Compensation type successfully updated.');
+      },
+    },
+  );
+};
+
 const updateCompensationStatus = async ({ id }: { id: string }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -104,7 +152,7 @@ const updateCompensation = async ({
   id: string;
   values: any;
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,

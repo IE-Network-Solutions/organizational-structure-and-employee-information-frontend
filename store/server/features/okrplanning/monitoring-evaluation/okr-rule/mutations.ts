@@ -2,12 +2,13 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
-import { useMutation, useQueryClient } from 'react-query';
 
-const token = useAuthenticationStore.getState().token;
+import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+
 const tenantId = useAuthenticationStore.getState().tenantId;
 const createOkrRule = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/average-okr-rule`,
@@ -30,6 +31,7 @@ const createOkrRule = async (values: any) => {
   }
 };
 export const UpdateOkrRule = async (values: Record<string, string>) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/average-okr-rule/${values?.id}`,
@@ -51,15 +53,17 @@ export const UpdateOkrRule = async (values: Record<string, string>) => {
 };
 
 const deleteOkrRule = async (deletedId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/average-okr-rule/${deletedId}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/average-okr-rule/${deletedId}`,
+      method: 'DELETE',
+      headers,
+    });
     NotificationMessage.success({
       message: 'Successfully Deleted',
       description: 'Okr Rule successfully deleted.',

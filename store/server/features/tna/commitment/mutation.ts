@@ -6,19 +6,21 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const setTnaCommitment = async (items: Partial<CommitmentRule>[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna/commitment`,
     method: 'PUT',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { items },
   });
 };
 
 const deleteTnaCommitment = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna/commitment`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { id },
   });
 };

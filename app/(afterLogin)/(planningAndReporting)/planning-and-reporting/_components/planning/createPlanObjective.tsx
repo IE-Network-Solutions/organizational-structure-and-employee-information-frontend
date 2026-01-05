@@ -1,7 +1,6 @@
 import React from 'react';
 import { Divider } from 'antd';
 import DefaultCardForm from '../planForms/defaultForm';
-import BoardCardForm from '../planForms/boardFormView';
 import { NAME } from '@/types/enumTypes';
 import { BsKey } from 'react-icons/bs';
 import { GoDotFill } from 'react-icons/go';
@@ -20,6 +19,8 @@ interface KeyResult {
     name: string;
   };
   progress?: string;
+  currentValue?: number;
+  targetValue?: number;
   milestones?: Milestone[];
   weight?: number;
 }
@@ -39,10 +40,13 @@ interface CollapseComponentProps {
   planningUserId: string;
   mkAsATask: boolean | null;
   setMKAsATask: (value: any) => void;
-  handleAddBoard: (id: string) => void;
-  handleAddName: (arg1: Record<string, string>, arg2: string) => void;
-  handleRemoveBoard: (arg1: number, arg2: string) => void;
+  handleAddBoard: (id: string, metadata?: any) => void;
+  handleAddName: (values: Record<string, any>, key: string) => void;
   weights: Record<string, number>;
+  failedTasksByKeyResult?: Record<
+    string,
+    Record<string | 'noMilestone', any[]>
+  >;
 }
 
 const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
@@ -153,14 +157,14 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                   className="text-[10px] text-primary"
                                   icon={<FaPlus />}
                                   onClick={() => {
-                                    if (!statuses[ml?.id]) {
-                                      setMKAsATask({
-                                        title: ml?.title,
-                                        mid: ml?.id,
-                                      });
-                                      handleAddBoard(kr?.id + ml?.id);
-                                      setClickStatus(ml?.id + '', true); // Store click status in Zustand
-                                    }
+                                    setMKAsATask(null);
+                                    handleAddBoard(kr?.id, {
+                                      keyResultId: kr.id,
+                                      milestoneId: null,
+                                      planningPeriodId,
+                                      planningUserId,
+                                      userId,
+                                    });
                                   }}
                                 />
                               </Tooltip>
@@ -173,22 +177,6 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
                         {/* <Divider className="my-2" /> */}
 
-                        {/* Forms for Key Result and Milestone */}
-                        {planningPeriodId && planningUserId && (
-                          <>
-                            <DefaultCardForm
-                              kId={kr?.id}
-                              hasTargetValue={hasTargetValue}
-                              hasMilestone={hasMilestone}
-                              milestoneId={ml?.id?.toString() || null}
-                              name={`names-${kr?.id + ml?.id}`}
-                              form={form}
-                              planningPeriodId={planningPeriodId}
-                              userId={userId}
-                              planningUserId={planningUserId}
-                              isMKAsTask={!!mkAsATask}
-                              keyResult={kr}
-                            />
 
                             <BoardCardForm
                               form={form}

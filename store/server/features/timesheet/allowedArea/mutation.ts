@@ -6,19 +6,21 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const setAllowedArea = async (item: Partial<AllowedArea>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/geofencing/allowed-area`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { item },
   });
 };
 
 const deleteAllowedArea = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/geofencing/allowed-area`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };
@@ -26,11 +28,43 @@ const deleteAllowedArea = async (id: string) => {
 export const useSetAllowedArea = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllowedArea, {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('allowed-areas');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+    onSuccess: async (response, variables: any) => {
+      // Optimistically update the cache for immediate UI feedback
+      const currentData = queryClient.getQueryData(['allowed-areas']);
+      if (
+        currentData &&
+        response?.item &&
+        typeof currentData === 'object' &&
+        'items' in currentData
+      ) {
+        const currentItems = Array.isArray(currentData.items)
+          ? currentData.items
+          : [];
+        // Check if the item exists (update) or is new (create)
+        const existsIndex = currentItems.findIndex(
+          (i: any) => i.id === response.item.id,
+        );
+        let updatedItems;
+        if (existsIndex !== -1) {
+          // Update existing item
+          updatedItems = [...currentItems];
+          updatedItems[existsIndex] = response.item;
+        } else {
+          // Add new item
+          updatedItems = [...currentItems, response.item];
+        }
+        queryClient.setQueryData(['allowed-areas'], {
+          ...currentData,
+          items: updatedItems,
+        });
+      }
+      // Invalidate to mark as stale, then force refetch
+      queryClient.invalidateQueries(['allowed-areas']);
+      await queryClient.refetchQueries(['allowed-areas'], {
+        active: true,
+        stale: true, // This bypasses staleTime check
+      });
+      handleSuccessMessage(variables?.method?.toUpperCase() || 'SAVE');
     },
   });
 };
@@ -39,10 +73,23 @@ export const useDeleteAllowedArea = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteAllowedArea, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('allowed-areas');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+    onSuccess: (_, id) => {
+      const currentData = queryClient.getQueryData(['allowed-areas']);
+      if (
+        currentData &&
+        typeof currentData === 'object' &&
+        'items' in currentData &&
+        Array.isArray(currentData.items)
+      ) {
+        const updatedItems = currentData.items.filter((item) => item.id !== id);
+        queryClient.setQueryData(['allowed-areas'], {
+          ...currentData,
+          items: updatedItems,
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['allowed-areas'] });
+      }
+      handleSuccessMessage('DELETE');
     },
   });
 };

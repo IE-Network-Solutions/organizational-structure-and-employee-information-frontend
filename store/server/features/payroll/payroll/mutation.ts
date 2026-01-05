@@ -5,9 +5,10 @@ import { EMAIL_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { PaySlipData } from './interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const createPayroll = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -18,6 +19,7 @@ const createPayroll = async (values: any) => {
       headers: {
         Authorization: `Bearer ${token}`,
         tenantId: tenantId,
+        withIncentives: values.includeIncentive,
       },
     });
 
@@ -30,7 +32,7 @@ const createPayroll = async (values: any) => {
   }
 };
 const sendingPayrollPaySlip = async ({ values }: { values: any }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     await crudRequest({
@@ -46,8 +48,32 @@ const sendingPayrollPaySlip = async ({ values }: { values: any }) => {
     throw error;
   }
 };
+const createPensionRule = async (values: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    await crudRequest({
+      url: `${PAYROLL_URL}/pension-rule`,
+      method: 'POST',
+      data: values,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+
+    NotificationMessage.success({
+      message: 'Successfully Created',
+      description: 'Pension Rule successfully Created.',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 const updatePensionRule = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -110,6 +136,23 @@ export const useSendingPayrollPayslip = () => {
     },
   );
 };
+export const useCreatePensionRule = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(createPensionRule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('pension-rule');
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message;
+      NotificationMessage.error({
+        message: 'Pension Rule Creation Failed',
+        description: errorMessage,
+      });
+    },
+  });
+};
+
 export const useUpdatePensionRule = () => {
   const queryClient = useQueryClient();
 
@@ -128,7 +171,7 @@ export const useUpdatePensionRule = () => {
 };
 
 const sendEmail = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -169,15 +212,16 @@ export const useSendEmail = () => {
 };
 
 const sendToPayroll = async (data: any) => {
+  const requestHeaders = await requestHeader();
   await crudRequest({
     url: `${PAYROLL_URL}/variable-pay`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 const createBasicSalary = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -199,13 +243,21 @@ const createBasicSalary = async (values: any) => {
     throw error;
   }
 };
-const updateBasicSalary = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+const updateBasicSalary = async (values: any, changeMakerUserId?: string) => {
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+
+  // Build query parameters
+  const queryParams = new URLSearchParams();
+  if (changeMakerUserId) {
+    queryParams.append('changeMakerUserId', changeMakerUserId);
+  }
+
+  const url = `${ORG_AND_EMP_URL}/basic-salary/${values?.id}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
 
   try {
     await crudRequest({
-      url: `${ORG_AND_EMP_URL}/basic-salary/${values?.id}`,
+      url,
       method: 'PATCH',
       data: values,
       headers: {
@@ -233,11 +285,20 @@ export const useCreateBasicSalary = () => {
 };
 export const useUpdateBasicSalary = () => {
   const queryClient = useQueryClient();
-  return useMutation(updateBasicSalary, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('basicSalary');
+  return useMutation(
+    ({
+      values,
+      changeMakerUserId,
+    }: {
+      values: any;
+      changeMakerUserId?: string;
+    }) => updateBasicSalary(values, changeMakerUserId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('basicSalary');
+      },
     },
-  });
+  );
 };
 export const useSendToPayroll = () => {
   const queryClient = useQueryClient();
@@ -253,7 +314,7 @@ export const useSendToPayroll = () => {
 };
 
 const deletePayroll = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {

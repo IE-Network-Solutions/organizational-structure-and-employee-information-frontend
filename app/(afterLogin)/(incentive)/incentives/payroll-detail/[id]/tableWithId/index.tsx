@@ -4,11 +4,18 @@ import {
   AllIncentiveData,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
-import { Avatar, Table, TableColumnsType, Tooltip } from 'antd';
+import { Avatar, Table, TableColumnsType, Tooltip, Space } from 'antd';
 import React from 'react';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useRouter } from 'next/navigation';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
+import { useDeleteIncentive } from '@/store/server/features/incentive/other/mutation';
 
 export type IncentiveTableDataParams = {
   recognition: string;
@@ -19,35 +26,6 @@ export type IncentiveTableDataParams = {
   id: string;
 };
 
-const columns: TableColumnsType<IncentiveTableDataParams> = [
-  {
-    title: 'Recognition',
-    dataIndex: 'recognition',
-    sorter: (a, b) => a.recognition.localeCompare(b.recognition),
-  },
-  {
-    title: 'Employees',
-    dataIndex: 'employee_name',
-    sorter: (a, b) =>
-      String(a.employee_name).localeCompare(String(b.employee_name)),
-  },
-  {
-    title: 'Criteria',
-    dataIndex: 'criteria',
-    sorter: (a, b) => String(a.criteria).localeCompare(String(b.criteria)),
-  },
-  {
-    title: 'Bonus',
-    dataIndex: 'bonus',
-    sorter: (a, b) => String(a.bonus).localeCompare(String(b.bonus)),
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    sorter: (a, b) => String(a.status).localeCompare(String(b.status)),
-  },
-];
-
 interface IncentiveTableDetailsProps {
   id: string;
 }
@@ -56,9 +34,110 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   id,
 }) => {
   const router = useRouter();
+  const { mutate: deleteIncentive, isLoading: isDeleting } =
+    useDeleteIncentive();
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState<
+    Record<string, boolean>
+  >({});
 
-  const { searchParams, currentPage, pageSize, setCurrentPage, setPageSize } =
-    useIncentiveStore();
+  const handleDeleteConfirm = (incentiveId: string) => {
+    deleteIncentive(
+      { id: incentiveId },
+      {
+        onSuccess: () => {
+          setDeleteModalOpen((prev) => ({ ...prev, [incentiveId]: false }));
+        },
+      },
+    );
+  };
+
+  const handleDeleteCancel = (incentiveId: string) => {
+    setDeleteModalOpen((prev) => ({ ...prev, [incentiveId]: false }));
+  };
+
+  const columns: TableColumnsType<IncentiveTableDataParams> = [
+    {
+      title: 'Recognition',
+      dataIndex: 'recognition',
+      sorter: (a, b) => a.recognition.localeCompare(b.recognition),
+    },
+    {
+      title: 'Employees',
+      dataIndex: 'employee_name',
+      sorter: (a, b) =>
+        String(a.employee_name).localeCompare(String(b.employee_name)),
+    },
+    {
+      title: 'Criteria',
+      dataIndex: 'criteria',
+      sorter: (a, b) => String(a.criteria).localeCompare(String(b.criteria)),
+    },
+    {
+      title: 'Bonus',
+      dataIndex: 'bonus',
+      sorter: (a, b) => String(a.bonus).localeCompare(String(b.bonus)),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      sorter: (a, b) => String(a.status).localeCompare(String(b.status)),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      fixed: 'right' as const,
+      width: 100,
+      render: (unused: any, record: any) => (
+        <Space
+          size="middle"
+          onClick={(e) => e.stopPropagation()}
+          id={`incentive-detail-table-actions-${record.id}`}
+          data-cy={`incentive-detail-table-actions-${record.id}`}
+        >
+          <AccessGuard
+            permissions={[Permissions.DeleteRecognition]}
+            id={`incentive-detail-table-delete-guard-${record.id}`}
+            data-cy={`incentive-detail-table-delete-guard-${record.id}`}
+          >
+            <DeleteConfirmationPopover
+              open={deleteModalOpen[record.id] || false}
+              onCancel={() => handleDeleteCancel(record.id)}
+              onConfirm={() => handleDeleteConfirm(record.id)}
+              message="Are you sure you want to permanently delete this record?"
+              loading={isDeleting}
+              id={`incentive-delete-modal-${record.id}`}
+              data-cy={`incentive-delete-modal-${record.id}`}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteModalOpen((prev) => ({
+                    ...prev,
+                    [record.id]: true,
+                  }));
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white rounded w-8 h-8 flex items-center justify-center"
+                id={`incentive-detail-table-delete-button-${record.id}`}
+                data-cy={`incentive-detail-table-delete-button-${record.id}`}
+              >
+                <DeleteOutlined className="text-white" />
+              </button>
+            </DeleteConfirmationPopover>
+          </AccessGuard>
+        </Space>
+      ),
+    },
+  ];
+
+  const {
+    searchParams,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    selectedRowKeys,
+    setSelectedRowKeys,
+  } = useIncentiveStore();
 
   const recognitionsTypeId = id;
 
@@ -86,6 +165,14 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;
   };
+  const { isMobile, isTablet } = useIsMobile();
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedRowKeys: any) => {
+      setSelectedRowKeys(selectedRowKeys);
+    },
+  };
 
   const IncentiveByRecognitionTypeTableData =
     responseLoading || dynamicRecognitionData?.items?.length < 0
@@ -96,10 +183,28 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
             userId: item?.userId,
             recognition: item?.recognitionType || '--',
             employee_name: (
-              <Tooltip>
-                <div className="flex flex-wrap items-center justify-start gap-3">
-                  <Avatar icon={<UserOutlined />} />
-                  <span>
+              <Tooltip
+                id={`incentive-table-employee-tooltip-${item?.id}`}
+                data-cy={`incentive-table-employee-tooltip-${item?.id}`}
+              >
+                <div
+                  id={`incentive-table-employee-wrapper-${item?.id}`}
+                  data-cy={`incentive-table-employee-wrapper-${item?.id}`}
+                  className="flex flex-wrap items-center justify-start gap-3"
+                >
+                  <Avatar
+                    data-cy={`incentive-table-employee-avatar-${item?.id}`}
+                    icon={
+                      <UserOutlined
+                        id={`incentive-table-employee-avatar-icon-${item?.id}`}
+                        data-cy={`incentive-table-employee-avatar-icon-${item?.id}`}
+                      />
+                    }
+                  />
+                  <span
+                    id={`incentive-table-employee-name-${item?.id}`}
+                    data-cy={`incentive-table-employee-name-${item?.id}`}
+                  >
                     {getEmployeeInformation(item?.userId)?.firstName +
                       '  ' +
                       getEmployeeInformation(item?.userId)?.middleName}
@@ -110,25 +215,62 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
             role: getEmployeeInformation(item?.userId)?.role?.name,
             criteria: item?.breakdown?.map((criterion, index) => (
               <div
+                id={`incentive-table-criterion-wrapper-${item?.id}-${index}`}
+                data-cy={`incentive-table-criterion-wrapper-${item?.id}-${index}`}
+                className=" flex-col flex-wrap inline-block space-x-1 space-y-2"
                 key={criterion?.criterionKey || index}
-                className="rounded-xl p-3 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block"
               >
-                {criterion?.criterionKey}
+                <span
+                  id={`incentive-table-criterion-${item?.id}-${index}`}
+                  data-cy={`incentive-table-criterion-${item?.id}-${index}`}
+                  className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
+                >
+                  {criterion?.criterionKey}
+                </span>
               </div>
             )),
             bonus: (
-              <div>
+              <div
+                id={`incentive-table-bonus-${item?.id}`}
+                data-cy={`incentive-table-bonus-${item?.id}`}
+              >
                 {item?.amount} {''}ETB
               </div>
             ),
             status: (
-              <div className="rounded-lg px-3 py-2 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block">
+              <div
+                id={`incentive-table-status-wrapper-${item?.id}`}
+                data-cy={`incentive-table-status-wrapper-${item?.id}`}
+                className="inline-block"
+              >
                 {item?.isPaid ? (
-                  <span className="font-semibold text-md">Paid</span>
+                  <div
+                    id={`incentive-table-status-paid-${item?.id}`}
+                    data-cy={`incentive-table-status-paid-${item?.id}`}
+                    className="rounded-lg bg-[#55C79033] py-1 px-6"
+                  >
+                    <span
+                      id={`incentive-table-status-paid-text-${item?.id}`}
+                      data-cy={`incentive-table-status-paid-text-${item?.id}`}
+                      className="text-[#0CAF60] font-semibold text-md"
+                    >
+                      Paid
+                    </span>
+                  </div>
                 ) : (
-                  <span className="text-[#E03137] font-semibold text-md">
-                    Not Paid
-                  </span>
+                  <div
+                    id={`incentive-table-status-not-paid-${item?.id}`}
+                    data-cy={`incentive-table-status-not-paid-${item?.id}`}
+                    className="rounded-lg bg-[#FFEDEC] py-1 px-4"
+                  >
+                    <span
+                      id={`incentive-table-status-not-paid-text-${item?.id}`}
+                      data-cy={`incentive-table-status-not-paid-text-${item?.id}`}
+                      className="text-[#E03137] font-semibold text-md"
+                    >
+                      Not Paid
+                    </span>
+                  </div>
                 )}
               </div>
             ),
@@ -136,27 +278,45 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
         });
 
   return (
-    <div>
+    <div
+      id="incentive-table-after-generate-container"
+      data-cy="incentive-table-after-generate-container"
+    >
       <Table
+        id="incentive-table-after-generate-table"
+        data-cy="incentive-table-after-generate-table"
+        rowSelection={{ type: 'checkbox', ...rowSelection }}
+        rowKey="id"
         className="w-full cursor-pointer"
         columns={columns}
         dataSource={IncentiveByRecognitionTypeTableData}
-        pagination={{
-          total: dynamicRecognitionData?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
+        pagination={false}
         loading={responseLoading}
-        scroll={{ x: 1000 }}
+        scroll={{ x: 1100 }}
         onRow={(record) => ({
           onClick: () => {
-            router.push(`/incentive/detail/${record?.id}`);
+            router.push(`/incentives/detail/${record?.id}`);
           },
         })}
       />
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          data-cy="incentive-table-after-generate-mobile-pagination"
+          totalResults={dynamicRecognitionData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          data-cy="incentive-table-after-generate-pagination"
+          current={currentPage}
+          total={dynamicRecognitionData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      )}
     </div>
   );
 };

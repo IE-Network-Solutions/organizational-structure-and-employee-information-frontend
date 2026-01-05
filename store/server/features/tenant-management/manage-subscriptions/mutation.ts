@@ -12,46 +12,51 @@ import {
 } from './interface';
 
 const createSubscription = async (data: Partial<Subscription>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/create`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 
 const upgradeSubscription = async (data: UpgradeSubscriptionRequest) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/upgrade`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 
 const buyAdditionalSlots = async (data: BuyAdditionalSlotsRequest) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/slots`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 
 const renewSubscription = async (data: RenewSubscriptionRequest) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/renew`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 
 const prepaySubscription = async (data: PrepaySubscriptionRequest) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/prepay`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -61,6 +66,7 @@ export const useCreateSubscription = () => {
   return useMutation(createSubscription, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });
@@ -71,6 +77,7 @@ export const useUpgradeSubscription = () => {
   return useMutation(upgradeSubscription, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });
@@ -81,6 +88,7 @@ export const useBuyAdditionalSlots = () => {
   return useMutation(buyAdditionalSlots, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });
@@ -91,6 +99,7 @@ export const useRenewSubscription = () => {
   return useMutation(renewSubscription, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });
@@ -101,6 +110,7 @@ export const usePrepaySubscription = () => {
   return useMutation(prepaySubscription, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });

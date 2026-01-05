@@ -1,62 +1,254 @@
 import { IE_LOGO_BASE64 } from '@/public/image/bankLetterImages';
+import { useGetTenant } from '@/store/server/features/employees/authentication/queries';
+import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
+import jsPDF from 'jspdf';
+
+// Get image as data URI for jsPDF (needs full data URI format)
+const getImageAsDataUri = async (
+  url: string,
+): Promise<{ data: string; format: string }> => {
+  try {
+    if (!url) {
+      return { data: IE_LOGO_BASE64, format: 'PNG' };
+    }
+
+    // If it's already base64 data URI, return it
+    if (url.startsWith('data:image/')) {
+      const format = url.includes('png')
+        ? 'PNG'
+        : url.includes('jpeg') || url.includes('jpg')
+          ? 'JPEG'
+          : 'PNG';
+      return { data: url, format };
+    }
+
+    // If it's a URL, fetch and convert to base64
+    const response = await fetch(url);
+    if (!response.ok) {
+      return { data: IE_LOGO_BASE64, format: 'PNG' };
+    }
+
+    const blob = await response.blob();
+    const format = blob.type.includes('png')
+      ? 'PNG'
+      : blob.type.includes('jpeg') || blob.type.includes('jpg')
+        ? 'JPEG'
+        : 'PNG';
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve({ data: reader.result as string, format });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    return { data: IE_LOGO_BASE64, format: 'PNG' };
+  }
+};
 
 export const useGenerateBankLetter = () => {
-  const generateBankLetter = (amount: number) => {
-    const currentDate = dayjs().format('MMMM DD, YYYY');
-    const currentMonth = dayjs().format('MMMM');
+  const { data: tenant } = useGetTenant();
+  const { data: activeMonth } = useGetActiveMonth();
 
-    const bankLetterContent = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-        <head><title>Bank Letter</title></head>
-        <body style="position: relative; padding-bottom: 200px;"> <!-- Add padding for bottom image -->
-          <!-- Header Section with Image and Text Side by Side -->
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <img src="${IE_LOGO_BASE64}" alt="IE Network Solutions Logo" style="width: 100px; height: 100px;" />
-            <div style="text-align: right;">
-              <p>P.O.Box 122321 Addis Ababa Ethiopia</p>
-              <p>info@ienetworksolutions.com</p>
-              <p>www.ienetworksolutions.com</p>
-            </div>
-          </div>
-          <br/>
-          <p>Date: ${currentDate}</p>
-          <p>Ref: IE/FIN/250116/001</p>
-          <br/>
-          <p>To: - Enat Bank </p>
-          <p>Mexico Derartu Tulu branch<br/>
-            Addis Ababa</p>
-          <br/>
-          <p><b>Subject:</b> ${currentMonth} Salary Transfer Request</p>
-          <br/>
-          <p>
-            We hereby authorize your branch to transfer ETB ${amount.toFixed(2)} for the month of ${currentMonth}  
-            for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch 
-            of Enat Bank.
-          </p>
-          <p>
-            Please deduct the transfer service charges from IE Network Solutions PLC account 0061101660052002 maintained at Mexico Derartu Tulu branch.
-          </p>
-          <br/>
-          <p>Sincerely</p>
-          <br/><br/><br/>
-          <p>IE Network Solutions PLC</p>
-          <p>
-            T: +251(0) 115 570544   |   M: +251(0) 911 511275 / +251(0) 911 210654 / +251(0) 930 105789   |   F: +251(0) 115 57 05 4
-          </p>
-          <br/>
-        </body>
-      </html>
-    `;
+  const generateBankLetter = async (amount: number) => {
+    try {
+      if (!tenant) {
+        throw new Error(
+          'Tenant data is not available. Please ensure you are logged in.',
+        );
+      }
 
-    const blob = new Blob([bankLetterContent], {
-      type: 'application/msword',
-    });
+      if (!activeMonth) {
+        throw new Error(
+          'Active month data is not available. Please select an active payroll period.',
+        );
+      }
 
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'Bank_Letter.doc';
-    link.click();
+      if (!activeMonth.startDate) {
+        throw new Error('Active month start date is missing.');
+      }
+
+      if (!tenant.companyName) {
+        throw new Error('Company name is missing from tenant data.');
+      }
+
+      const currentDate = dayjs().format('MMMM DD, YYYY');
+      const currentMonth = dayjs(activeMonth.startDate).format('MMMM');
+      const refNumber = `${tenant.companyName.toUpperCase().slice(0, 2)}/FIN/${dayjs().format('DDMMYY')}/001`;
+
+      // Create PDF document
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.width;
+      let y = 15; // Moved up from 20
+
+      // Get the logo data
+      const logoUrl = tenant.logo || '';
+
+      const imageResult = await getImageAsDataUri(logoUrl);
+
+      // Load image to get dimensions for aspect ratio
+      let logoLoaded = false;
+      let logoHeight = 0;
+      if (imageResult?.data) {
+        try {
+          const img = new Image();
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error('Image loading timeout'));
+            }, 10000); // 10 second timeout
+
+            img.onload = () => {
+              clearTimeout(timeout);
+              resolve(null);
+            };
+            img.onerror = (error) => {
+              clearTimeout(timeout);
+              reject(error);
+            };
+            img.src = imageResult.data;
+          });
+
+          // Calculate dimensions (max width similar to downloadJobInformation)
+          const maxWidth = 15; // Smaller logo for bank letter
+          const aspectRatio = img.width / img.height;
+          const logoWidth = maxWidth;
+          logoHeight = logoWidth / aspectRatio;
+
+          // Add logo to PDF (moved up)
+          doc.addImage(
+            imageResult.data,
+            imageResult.format,
+            15,
+            y,
+            logoWidth,
+            logoHeight,
+          );
+          logoLoaded = true;
+        } catch (error) {
+          logoLoaded = false;
+        }
+      }
+
+      // Date and Reference Number (top right)
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Date: ${currentDate}`, pageWidth - 15, y, {
+        align: 'right',
+      });
+      doc.text(`Ref: ${refNumber}`, pageWidth - 15, y + 6, {
+        align: 'right',
+      });
+
+      // Adjust Y position for "To:" section
+      if (logoLoaded) {
+        y = Math.max(y + logoHeight + 8, 30); // Reduced spacing
+      } else {
+        y = 30;
+      }
+
+      // "To:" section
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.text('To: Enat Bank', 15, y);
+      y += 6;
+
+      // Branch address (removed region/country line)
+      doc.text(`Mexico Derartu Tulu branch`, 15, y);
+      y += 10; // Increased spacing after branch name
+
+      // Subject line (centered, blue)
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(54, 54, 240); // Blue color #3636F0
+      const subjectText = `Subject: ${currentMonth} Salary Transfer Request`;
+      const subjectWidth = doc.getTextWidth(subjectText);
+      const subjectX = (pageWidth - subjectWidth) / 2; // Centered
+      doc.text(subjectText, subjectX, y);
+      y += 10;
+
+      // Body paragraphs
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(68, 68, 68); // Grey color like downloadJobInformation
+
+      // First paragraph
+      const paragraph1 = `We hereby authorize your branch to transfer ETB ${amount.toFixed(2)} for the month of ${currentMonth} for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch of Enat Bank.`;
+
+      const textWidth = 180; // Same as downloadJobInformation
+      const lines1 = doc.splitTextToSize(paragraph1, textWidth);
+      doc.text(lines1, 15, y);
+      y += lines1.length * 6;
+
+      // Second paragraph
+      const paragraph2 = `Please deduct the transfer service charges from ${tenant.companyName} account 0061101660052002 maintained at Mexico Derartu Tulu branch.`;
+      const lines2 = doc.splitTextToSize(paragraph2, textWidth);
+      doc.text(lines2, 15, y);
+      y += lines2.length * 6 + 8;
+
+      // Sincerely
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.text('Sincerely', 15, y);
+      y += 10;
+
+      // Signature line
+      doc.setDrawColor(203, 213, 224); // #CBD5E0
+      doc.setLineWidth(0.5); // Same as downloadJobInformation
+      doc.line(15, y, pageWidth - 15, y);
+      y += 10;
+
+      // Name field - text floats on top of line
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0); // Black color - same as "Sincerely"
+      const nameLabel = 'Name'; // Removed colon
+      const nameTextY = y - 2; // Text positioned 2mm above the line (small gap)
+      doc.text(nameLabel, 15, nameTextY);
+
+      // Draw line for name (starts at same position as text, 100mm long)
+      const nameLineStartX = 15; // Same as text start position
+      const nameLineEndX = nameLineStartX + 100; // 100mm line length
+      const nameLineY = y; // Line at current y position
+
+      doc.setDrawColor(203, 213, 224); // #CBD5E0 - same as signature line
+      doc.setLineWidth(0.5); // Same as signature line
+      doc.line(nameLineStartX, nameLineY, nameLineEndX, nameLineY);
+      y += 8;
+
+      // Email field - text floats on top of line
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0); // Black color - same as "Sincerely"
+      const emailLabel = 'Email'; // Removed colon
+      const emailTextY = y - 2; // Text positioned 2mm above the line (small gap)
+      doc.text(emailLabel, 15, emailTextY);
+
+      // Draw line for email (starts at same position as text, 100mm long)
+      const emailLineStartX = 15; // Same as text start position
+      const emailLineEndX = emailLineStartX + 100; // 100mm line length
+      const emailLineY = y; // Line at current y position
+
+      doc.setDrawColor(203, 213, 224); // #CBD5E0 - same as signature line
+      doc.setLineWidth(0.5); // Same as signature line
+      doc.line(emailLineStartX, emailLineY, emailLineEndX, emailLineY);
+
+      // Save the PDF (sanitize filename)
+      const sanitizedCompanyName = tenant.companyName
+        .replace(/[^a-z0-9]/gi, '_')
+        .toLowerCase();
+      doc.save(`${sanitizedCompanyName}_bank_letter.pdf`);
+    } catch (error) {
+      // Re-throw with more context
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new Error(`Failed to generate bank letter: ${errorMessage}`);
+    }
   };
 
   return { generateBankLetter };

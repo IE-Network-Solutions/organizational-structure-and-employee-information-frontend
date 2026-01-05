@@ -21,12 +21,13 @@ const AddFormFieldsButton: FC<AddFormFieldsButtonProps> = ({
         undefined,
         [className],
       )}
+      data-cy="add-form-fields-button"
     >
       <Button
         icon={<LuPlus size={18} />}
         type="primary"
         id="tnaAddFormFieldsButtonId"
-        className="w-[44px] h-[44px] rounded-full"
+        className="w-[44px] h-[44px] rounded-xl"
         htmlType="button"
         onClick={onClick}
       />

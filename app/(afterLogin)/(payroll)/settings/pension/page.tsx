@@ -1,11 +1,13 @@
 'use client';
-import { Table, Button, Typography, Input } from 'antd';
+import { Table, Button, Input } from 'antd';
 import { EditOutlined, SaveOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import { useGetAllPensionRule } from '@/store/server/features/payroll/payroll/queries';
 import { useUpdatePensionRule } from '@/store/server/features/payroll/payroll/mutation';
 import { FaPlus } from 'react-icons/fa';
-const { Title } = Typography;
+import Drawer from './_components/drawer';
+import useDrawerStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
+
 type PensionRule = {
   id: string;
   createdAt: string; // ISO date string
@@ -18,10 +20,19 @@ type PensionRule = {
   tenantId: string; // Tenant identifier
 };
 
+interface ColumnType {
+  title: string;
+  dataIndex: string;
+  key: string;
+  sorter?: (a: PensionRule, b: PensionRule) => number;
+  render?: (notused: any, record: PensionRule) => React.ReactNode;
+}
+
 const Pension = () => {
   const { data: pensionRule, isLoading } = useGetAllPensionRule();
   const { mutate: pensionRuleUpdate, isLoading: updatePensionRule } =
     useUpdatePensionRule();
+  const { openDrawer } = useDrawerStore();
 
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<Record<string, any>>({});
@@ -46,14 +57,22 @@ const Pension = () => {
   const handleInputChange = (field: string, value: any) => {
     setEditedData((prev) => ({ ...prev, [field]: value }));
   };
-  const columns = [
+
+  const handleAddRule = () => {
+    openDrawer();
+  };
+
+  const columns: ColumnType[] = [
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
+
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
+            data-cy={`payroll-pension-name-input-${record.id}`}
             value={editedData.name}
             onChange={(e) => handleInputChange('name', e.target.value)}
           />
@@ -66,9 +85,11 @@ const Pension = () => {
       title: 'Employee Contribution',
       dataIndex: 'employee',
       key: 'employee',
+      sorter: (a, b) => Number(a.employee) - Number(b.employee),
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
+            data-cy={`payroll-pension-employee-input-${record.id}`}
             type="number"
             max={100}
             min={0}
@@ -84,9 +105,12 @@ const Pension = () => {
       title: 'Employer Contribution',
       dataIndex: 'employer',
       key: 'employer',
+      sorter: (a, b) => Number(a.employer) - Number(b.employer),
+
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
+            data-cy={`payroll-pension-employer-input-${record.id}`}
             type="number"
             max={100}
             min={0}
@@ -106,17 +130,27 @@ const Pension = () => {
         const editable = isEditing(record);
         return editable ? (
           <Button
+            data-cy={`payroll-pension-save-click-button-${record.id}`}
             type="primary"
             loading={updatePensionRule}
-            icon={<SaveOutlined />}
+            icon={
+              <SaveOutlined
+                data-cy={`payroll-pension-save-click-button-${record.id}`}
+              />
+            }
             onClick={() => handleSave()}
           >
             Save
           </Button>
         ) : (
           <Button
+            data-cy={`payroll-pension-edit-click-button-${record.id}`}
             type="link"
-            icon={<EditOutlined />}
+            icon={
+              <EditOutlined
+                data-cy={`payroll-pension-edit-click-button-${record.id}`}
+              />
+            }
             onClick={() => handleEdit(record)}
           />
         );
@@ -125,25 +159,62 @@ const Pension = () => {
   ];
 
   return (
-    <div className="p-10 rounded-2xl bg-white">
-      <div className="flex justify-between items-center">
-        <Title level={3}>Pension</Title>
-        <Button
-          type="primary"
-          icon={<FaPlus />}
-          style={{ marginBottom: '20px' }}
+    <div
+      id="payroll-pension-page-view-container"
+      data-cy="payroll-pension-page-view-container"
+      className="p-5 rounded-2xl bg-white h-full"
+    >
+      <div
+        id="payroll-pension-header-view-container"
+        data-cy="payroll-pension-header-view-container"
+        className="flex justify-between items-center mb-4"
+      >
+        <h1
+          id="payroll-pension-title-view-text"
+          data-cy="payroll-pension-title-view-text"
+          className="text-lg text-bold"
         >
-          <span className="hidden lg:inline"> Pension Rule</span>
+          Pension
+        </h1>
+        <Button
+          id="payroll-pension-add-click-button"
+          data-cy="payroll-pension-add-click-button"
+          className="h-10 w-10 sm:w-auto"
+          type="primary"
+          onClick={handleAddRule}
+          disabled={pensionRule && pensionRule.length > 0}
+          icon={<FaPlus data-cy="payroll-pension-add-click-button-icon" />}
+        >
+          <span
+            id="payroll-pension-add-click-button-text"
+            data-cy="payroll-pension-add-click-button-text"
+            className="hidden lg:inline"
+          >
+            Pension Rule
+          </span>
         </Button>
       </div>
-      <div className="flex overflow-x-auto scrollbar-none w-full">
-        <Table
-          dataSource={pensionRule ?? []}
-          columns={columns}
-          pagination={false}
-          loading={isLoading}
-        />
+      <div
+        id="payroll-pension-table-view-container"
+        data-cy="payroll-pension-table-view-container"
+        className="flex overflow-x-auto scrollbar-none w-full"
+      >
+        <div
+          id="payroll-pension-table-view-table-container"
+          data-cy="payroll-pension-table-view-table-container"
+          className="w-full"
+        >
+          <Table
+            id="payroll-pension-table-view-table"
+            data-cy="payroll-pension-table-view-table"
+            dataSource={pensionRule ?? []}
+            columns={columns}
+            pagination={false}
+            loading={isLoading}
+          />
+        </div>
       </div>
+      <Drawer />
     </div>
   );
 };

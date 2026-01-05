@@ -1,15 +1,16 @@
 'use client';
 import React from 'react';
 import { classNames } from '@/utils/classNames';
-import { useMediaQuery } from 'react-responsive';
 import { Tooltip } from 'antd';
-
+import { useIsMobile } from '@/hooks/useIsMobile';
 interface PageHeaderProps {
   title: React.ReactNode;
   description?: string;
   children?: React.ReactNode;
   size?: 'small' | 'medium';
   toolTip?: string;
+  horizontalPadding?: string;
+  className?: string;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -18,19 +19,27 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   size = 'medium',
   children,
   toolTip,
+  horizontalPadding = 'px-2',
+  className,
 }) => {
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
-
+  const { isMobile } = useIsMobile();
   return (
-    <div className="flex justify-between flex-wrap items-center">
-      <div className="flex-1">
-        {isSmallScreen ? (
+    <div
+      className={`flex justify-between flex-wrap items-center ${horizontalPadding} ${className}`}
+      data-cy="page-header"
+    >
+      <div
+        className={`flex-1 ${horizontalPadding}`}
+        data-cy="page-header-content"
+      >
+        {isMobile ? (
           <Tooltip title={toolTip} placement="top">
             <h2
-              className={classNames('text-gray-900 m-1', {
+              className={classNames('text-gray-900 ', {
                 'text-xl': size === 'medium',
                 'text-lg': size === 'small',
               })}
+              data-cy="page-header-title"
             >
               {title}
             </h2>
@@ -42,6 +51,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 'text-2xl': size === 'medium',
                 'text-xl': size === 'small',
               })}
+              data-cy="page-header-title"
             >
               {title}
             </h2>
@@ -49,12 +59,17 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         )}
 
         {description && (
-          <div className="m-1 sm:mt-2 text-sm text-gray-600 font-medium">
+          <div
+            className="m-1 sm:mt-2 text-sm text-gray-600 font-medium"
+            data-cy="page-header-description"
+          >
             {description}
           </div>
         )}
       </div>
-      <div>{children}</div>
+      <div className="mt-5" data-cy="page-header-actions">
+        {children}
+      </div>
     </div>
   );
 };

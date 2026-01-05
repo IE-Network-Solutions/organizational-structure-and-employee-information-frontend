@@ -2,6 +2,7 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery, UseQueryOptions } from 'react-query';
 
 interface SettlementTrackingParams {
@@ -59,7 +60,7 @@ interface SettlementTrackingDetail
 const getAllSettlementTracking = async (
   searchParams: SettlementTrackingParams,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   /* eslint-disable */
@@ -95,28 +96,21 @@ export const useGetSettlementTrackingById = (
   id: string,
   options?: UseQueryOptions<SettlementTrackingDetail>,
 ) => {
-  const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery<SettlementTrackingDetail>(
     ['settlement-tracking', id],
     async () => {
-      const response = await fetch(`${PAYROLL_URL}/settlement-tracking/${id}`, {
+      const token = await getCurrentToken();
+      return await crudRequest({
+        url: `${PAYROLL_URL}/settlement-tracking/${id}`,
+        method: 'GET',
         headers: {
           ...requestHeader,
           Authorization: `Bearer ${token}`,
           tenantId: tenantId,
         },
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || 'Failed to fetch settlement tracking details',
-        );
-      }
-
-      return response.json();
     },
     {
       staleTime: 30000, // Consider data fresh for 30 seconds
@@ -130,31 +124,51 @@ export const useCheckSettlementTrackingExists = (
   employeeId: string,
   payPeriod: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery(
     ['settlement-tracking-exists', employeeId, payPeriod],
     async () => {
-      const response = await fetch(
-        `${PAYROLL_URL}/settlement-tracking/check-exists?employeeId=${employeeId}&payPeriod=${payPeriod}`,
-        {
-          headers: {
-            ...requestHeader,
-            Authorization: `Bearer ${token}`,
-            tenantId: tenantId,
-          },
+      const token = await getCurrentToken();
+      return await crudRequest({
+        url: `${PAYROLL_URL}/settlement-tracking/check-exists?employeeId=${employeeId}&payPeriod=${payPeriod}`,
+        method: 'GET',
+        headers: {
+          ...requestHeader,
+          Authorization: `Bearer ${token}`,
+          tenantId: tenantId,
         },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to check settlement tracking existence');
-      }
-
-      return response.json();
+      });
     },
     {
       enabled: !!employeeId && !!payPeriod, // Only run query if both params are provided
+      staleTime: 0, // Always fetch fresh data for this query
+    },
+  );
+};
+
+export const useEmployeeSettlementTracking = (
+  entitlementId: string,
+  employeeId: string,
+) => {
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return useQuery(
+    ['settlement-tracking-exists', employeeId, entitlementId],
+    async () => {
+      const token = await getCurrentToken();
+      return await crudRequest({
+        url: `${PAYROLL_URL}/compensation-item-entitlement/get-employee-settlement-tracking/entitlement/${entitlementId}/employee/${employeeId}`,
+        method: 'GET',
+        headers: {
+          ...requestHeader,
+          Authorization: `Bearer ${token}`,
+          tenantId: tenantId,
+        },
+      });
+    },
+    {
+      enabled: !!employeeId && !!entitlementId, // Only run query if both params are provided
       staleTime: 0, // Always fetch fresh data for this query
     },
   );

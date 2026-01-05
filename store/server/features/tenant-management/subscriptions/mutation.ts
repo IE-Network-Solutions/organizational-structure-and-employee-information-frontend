@@ -6,10 +6,11 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { Subscription } from '@/types/tenant-management';
 
 const setSubscriptions = async (items: Partial<Subscription>[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/subscriptions`,
     method: 'PUT',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { items },
   });
 };

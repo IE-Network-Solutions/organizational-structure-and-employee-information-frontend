@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
+
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /**
  * Function to create a new role by sending a POST request to the API.
@@ -13,7 +14,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
  */
 
 const createRole = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const updatedRole = { ...values, tenantId: tenantId };
 
@@ -38,7 +39,7 @@ const createRole = async (values: any) => {
  */
 
 const updateRole = async ({ values, roleId }: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const updatedRole = { ...values, tenantId: tenantId };
 
@@ -71,17 +72,18 @@ const deleteRole = async ({
   setCurrentModal,
   setDeletedId,
 }: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/roles/${deletedId?.id}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/roles/${deletedId?.id}`,
+      method: 'DELETE',
+      headers,
+    });
     setCurrentModal(null);
     setDeletedId(null);
     return response.data;

@@ -3,6 +3,7 @@ import { useQuery } from 'react-query';
 import { OrgChart } from './interface';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /**
  * Fetch all organization charts from the API.
@@ -10,7 +11,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
  */
 
 const getAllOrgCharts = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -29,7 +30,7 @@ const getAllOrgCharts = async () => {
  */
 
 const getAllOrgChartsPeople = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -48,7 +49,7 @@ const getAllOrgChartsPeople = async () => {
  * @returns Promise with the organization chart data.
  */
 const getOrgChart = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

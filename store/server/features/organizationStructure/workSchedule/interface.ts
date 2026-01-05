@@ -18,9 +18,11 @@ export interface Schedule {
 export interface DayOfWeekResponse {
   id: string;
   day: string;
+  dayOfWeek?: string;
   startTime?: string | null;
   endTime?: string | null;
   duration?: string;
+  hours?: string;
   workDay: boolean;
 }
 
@@ -33,4 +35,9 @@ export interface ResponseSchedule {
 export interface ScheduleResponse {
   items: ResponseSchedule[];
   meta: any;
+}
+
+export interface ScheduleUsageResponse {
+  count: number;
+  hasUsers: boolean;
 }

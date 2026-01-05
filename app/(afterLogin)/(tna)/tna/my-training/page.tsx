@@ -15,7 +15,6 @@ import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/t
 import { useRouter } from 'next/navigation';
 
 import usePagination from '@/utils/usePagination';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { TnaRequestBody } from '@/store/server/features/tna/review/interface';
 import {
   TrainingNeedAssessment,
@@ -31,6 +30,9 @@ import UserCard from '@/components/common/userCard/userCard';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import TnaApprovalTable from './_components/approvalTabel';
 import { useGetTnaByUser } from '@/store/server/features/tna/review/queries';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 const TnaReviewPage = () => {
   const EmpRender = ({ userId }: any) => {
@@ -40,13 +42,16 @@ const TnaReviewPage = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
-    if (isError) return <>-</>;
+    if (isLoading) return <div data-cy="loading-indicator">...</div>;
+    if (isError) return <div data-cy="error-indicator">-</div>;
     const fullName = `${employeeData?.firstName || '-'} ${employeeData?.middleName || '-'} ${employeeData?.lastName || '-'}`;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="flex-1">
+      <div
+        className="flex items-center gap-1.5"
+        data-cy="employee-card-container"
+      >
+        <div className="flex-1" data-cy="employee-card-content">
           <UserCard
             data={employeeData}
             name={fullName}
@@ -64,8 +69,12 @@ const TnaReviewPage = () => {
   };
   const router = useRouter();
   const [tableData, setTableData] = useState<any[]>([]);
-  const { isShowTnaReviewSidebar, setIsShowTnaReviewSidebar, setTnaId } =
-    useTnaReviewStore();
+  const {
+    isShowTnaReviewSidebar,
+    setIsShowTnaReviewSidebar,
+    setData,
+    setTnaId,
+  } = useTnaReviewStore();
   const {
     page,
     limit,
@@ -81,6 +90,8 @@ const TnaReviewPage = () => {
     { page, limit, orderBy, orderDirection },
     { filter },
   );
+  const { isMobile, isTablet } = useIsMobile();
+
   const {
     mutate: deleteTna,
     isLoading: isLoadingDelete,
@@ -116,7 +127,16 @@ const TnaReviewPage = () => {
       );
     }
   }, [data]);
-
+  const onTnaEdit = (item: any) => {
+    setTnaId(item.id);
+    setData({
+      yearId: item.yearId,
+      sessionId: item.sessionId,
+      monthId: item.monthId,
+      departmentId: item.departmentId,
+    });
+    setIsShowTnaReviewSidebar(true);
+  };
   const tableColumns: TableColumnsType<any> = [
     {
       title: 'TNA',
@@ -185,8 +205,7 @@ const TnaReviewPage = () => {
               item.certStatus === TrainingNeedAssessmentCertStatus.COMPLETED
             }
             onClick={() => {
-              setTnaId(item.id);
-              setIsShowTnaReviewSidebar(true);
+              onTnaEdit(item);
             }}
           />
 
@@ -208,16 +227,40 @@ const TnaReviewPage = () => {
     },
   ];
 
+  const onPageChange = (page: number, pageSize?: number) => {
+    setPage(page);
+    if (pageSize) {
+      setLimit(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setLimit(pageSize);
+    setPage(1);
+  };
+
   return (
-    <div className="page-wrap">
-      <TnaApprovalTable />
-      <BlockWrapper>
-        <PageHeader title="MY TNA">
-          <Space size={20}>
+    <div
+      className="page-wrap"
+      id="tnaMyTrainingPageId"
+      data-cy="tna-my-training-page"
+    >
+      <TnaApprovalTable data-cy="tna-approval-table" />
+      <BlockWrapper
+        withBackground={false}
+        data-cy="tna-my-training-block-wrapper"
+      >
+        <PageHeader title="MY TNA" data-cy="tna-my-training-page-header">
+          <Space
+            size={20}
+            id="tnaMyTrainingPageHeaderActionsId"
+            data-cy="tna-my-training-page-header-actions"
+          >
             <DatePicker.RangePicker
               format={DATE_FORMAT}
               separator="-"
               className="h-[54px]"
+              id="tnaMyTrainingDateRangePickerId"
+              data-cy="tna-my-training-date-range-picker"
               onChange={(val) => {
                 if (val && val.length >= 2) {
                   setFilter({
@@ -231,36 +274,77 @@ const TnaReviewPage = () => {
                 }
               }}
             />
-            <AccessGuard permissions={[Permissions.CreateTna]}>
-              <Button
-                icon={<LuPlus size={16} />}
-                className="h-[54px]"
-                type="primary"
-                size="large"
-                onClick={() => setIsShowTnaReviewSidebar(true)}
+            {isMobile || isTablet ? (
+              <AccessGuard
+                permissions={[Permissions.CreateTna]}
+                data-cy="tna-my-training-new-button-mobile-guard"
+                id="tnaMyTrainingNewButtonMobileGuardId"
               >
-                New TNA
-              </Button>
-            </AccessGuard>
+                <Button
+                  className="p-6 mr-2 border border-gray-300"
+                  type="primary"
+                  id="tnaMyTrainingNewButtonMobileId"
+                  data-cy="tna-my-training-new-button-mobile"
+                  onClick={() => setIsShowTnaReviewSidebar(true)}
+                  icon={<LuPlus size={20} />}
+                />
+              </AccessGuard>
+            ) : (
+              <AccessGuard
+                permissions={[Permissions.CreateTna]}
+                data-cy="tna-my-training-new-button-guard"
+                id="tnaMyTrainingNewButtonGuardId"
+              >
+                <Button
+                  icon={<LuPlus size={16} />}
+                  className="h-[54px]"
+                  type="primary"
+                  size="large"
+                  id="tnaMyTrainingNewButtonId"
+                  data-cy="tna-my-training-new-button"
+                  onClick={() => setIsShowTnaReviewSidebar(true)}
+                >
+                  New TNA
+                </Button>
+              </AccessGuard>
+            )}
           </Space>
         </PageHeader>
-
         <Table
           className="mt-6"
           columns={tableColumns}
           dataSource={tableData}
           loading={isLoading || isLoadingDelete}
-          pagination={DefaultTablePagination(data?.meta?.totalItems)}
-          onChange={(pagination, filters, sorter: any) => {
-            setPage(pagination.current ?? 1);
-            setLimit(pagination.pageSize ?? 10);
+          id="tnaMyTrainingTableId"
+          data-cy="tna-my-training-table"
+          onChange={(sorter: any) => {
             setOrderDirection(sorter['order']);
             setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
           }}
+          scroll={{ x: 'min-content' }}
+          pagination={false}
         />
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={data?.meta?.totalItems || 0}
+            pageSize={limit}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+            data-cy="tna-my-training-mobile-pagination"
+          />
+        ) : (
+          <CustomPagination
+            current={page}
+            total={data?.meta?.totalItems || 0}
+            pageSize={limit}
+            onChange={onPageChange}
+            onShowSizeChange={onPageSizeChange}
+            data-cy="tna-my-training-pagination"
+          />
+        )}
       </BlockWrapper>
 
-      <TnaRequestSidebar />
+      <TnaRequestSidebar data-cy="tna-request-sidebar" />
     </div>
   );
 };

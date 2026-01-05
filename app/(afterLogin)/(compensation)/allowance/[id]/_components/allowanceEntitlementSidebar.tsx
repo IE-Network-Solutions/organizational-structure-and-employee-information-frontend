@@ -1,15 +1,13 @@
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Select, Spin } from 'antd';
+import { Button, Form, Select, Spin, Checkbox } from 'antd';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 // import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
 
 const AllowanceEntitlementSideBar = () => {
   const {
@@ -26,26 +24,7 @@ const AllowanceEntitlementSideBar = () => {
   // const { data: departments, isLoading } = useGetDepartmentsWithUsers();
   const { id } = useParams();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
-
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-14',
-      size: 'large',
-      loading: allUserLoading,
-      onClick: () => onClose(),
-    },
-    {
-      label: <span>Create</span>,
-      key: 'create',
-      className: 'h-14',
-      type: 'primary',
-      size: 'large',
-      loading: allUserLoading,
-      onClick: () => form.submit(),
-    },
-  ];
+  const { data: allowanceData } = useFetchAllowance(id);
 
   const onClose = () => {
     form.resetFields();
@@ -57,9 +36,36 @@ const AllowanceEntitlementSideBar = () => {
     createAllowanceEntitlement({
       compensationItemId: id,
       employeeIds: formValues.employees,
+      totalAmount: Number(allowanceData?.defaultAmount || 0),
       active: true,
     });
     onClose();
+  };
+
+  // Filter users based on checkbox filters - this will be computed in the render
+  const getFilteredUsers = () => {
+    const showDepartmentLeadsOnly =
+      form.getFieldValue('showDepartmentLeadsOnly') || false;
+    const showNonLeadsOnly = form.getFieldValue('showNonLeadsOnly') || false;
+
+    return allUsers?.items?.filter((user: any) => {
+      if (!showDepartmentLeadsOnly && !showNonLeadsOnly) return true;
+
+      // Check if user is a department lead
+      const isDepartmentLead = user?.employeeJobInformation?.find(
+        (job: any) => job.isPositionActive,
+      )?.departmentLeadOrNot;
+
+      if (showDepartmentLeadsOnly) {
+        return isDepartmentLead === true;
+      }
+
+      if (showNonLeadsOnly) {
+        return isDepartmentLead === false || isDepartmentLead === null;
+      }
+
+      return true;
+    });
   };
 
   // const handleDepartmentChange = (value: string) => {
@@ -76,22 +82,72 @@ const AllowanceEntitlementSideBar = () => {
   return (
     isAllowanceEntitlementSidebarOpen && (
       <CustomDrawerLayout
+        data-cy="compensation-allowance-sidebar-layout"
         open={isAllowanceEntitlementSidebarOpen}
         onClose={onClose}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
-            <span>Add Allowance Entitlement</span>
+          <CustomDrawerHeader
+            className="flex justify-center"
+            data-testid="entitlement-sidebar-header"
+            data-cy="compensation-allowance-sidebar-header"
+          >
+            <span
+              id="compensation-allowance-sidebar-title-text"
+              data-cy="compensation-allowance-sidebar-title-text"
+            >
+              Add Allowance Entitlement
+            </span>
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
-        width="600px"
+        footer={
+          <div
+            className="flex flex-row gap-4 justify-center py-3"
+            id="compensation-allowance-sidebar-footer"
+            data-cy="compensation-allowance-sidebar-footer"
+          >
+            <Button
+              type="default"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={allUserLoading}
+              onClick={() => onClose()}
+              id="compensation-allowance-sidebar-cancel-button"
+              data-cy="compensation-allowance-sidebar-cancel-button"
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="primary"
+              key="create"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={allUserLoading}
+              onClick={() => form.submit()}
+              id="compensation-allowance-sidebar-create-button"
+              data-cy="compensation-allowance-sidebar-create-button"
+            >
+              Create
+            </Button>
+          </div>
+        }
+        width="30%"
+        customMobileHeight="37vh"
+        data-testid="allowance-entitlement-sidebar"
       >
-        <Spin spinning={allUserLoading}>
+        <Spin
+          spinning={allUserLoading}
+          data-testid="entitlement-sidebar-loading"
+          data-cy="compensation-allowance-sidebar-loading"
+        >
           <Form
             layout="vertical"
             form={form}
             onFinish={(values) => onFormSubmit(values)}
             requiredMark={CustomLabel}
+            data-testid="entitlement-form"
+            id="compensation-allowance-sidebar-form"
+            data-cy="compensation-allowance-sidebar-form"
           >
             {/* <Form.Item
               name="department"
@@ -112,30 +168,115 @@ const AllowanceEntitlementSideBar = () => {
               </Select>
             </Form.Item> */}
 
-            <Form.Item
-              className="form-item"
-              name="employees"
-              label="Select Employees"
-              rules={[{ required: true, message: 'Please select employees' }]}
+            <div
+              className="mb-4 space-y-2"
+              id="compensation-allowance-sidebar-filter-wrapper"
+              data-cy="compensation-allowance-sidebar-filter-wrapper"
             >
-              <Select
-                showSearch
-                placeholder="Select a person"
-                mode="multiple"
-                className="w-full h-14"
-                allowClear
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    ?.toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={allUsers?.items?.map((item: any) => ({
-                  ...item,
-                  value: item?.id,
-                  label: item?.firstName + ' ' + item?.lastName,
-                }))}
-                loading={allUserLoading}
-              />
+              <Form.Item
+                name="showDepartmentLeadsOnly"
+                valuePropName="checked"
+                noStyle
+                id="compensation-allowance-sidebar-leads-filter-item"
+                data-cy="compensation-allowance-sidebar-leads-filter-item"
+              >
+                <Checkbox
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      form.setFieldValue('showNonLeadsOnly', false);
+                    }
+                  }}
+                  data-testid="department-leads-filter"
+                  id="compensation-allowance-sidebar-leads-filter-checkbox"
+                  data-cy="compensation-allowance-sidebar-leads-filter-checkbox"
+                >
+                  <span
+                    id="compensation-allowance-sidebar-leads-filter-text"
+                    data-cy="compensation-allowance-sidebar-leads-filter-text"
+                  >
+                    Show Team Leads
+                  </span>
+                </Checkbox>
+              </Form.Item>
+
+              <Form.Item
+                name="showNonLeadsOnly"
+                valuePropName="checked"
+                noStyle
+                id="compensation-allowance-sidebar-nonleads-filter-item"
+                data-cy="compensation-allowance-sidebar-nonleads-filter-item"
+              >
+                <Checkbox
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      form.setFieldValue('showDepartmentLeadsOnly', false);
+                    }
+                  }}
+                  data-testid="non-leads-filter"
+                  id="compensation-allowance-sidebar-nonleads-filter-checkbox"
+                  data-cy="compensation-allowance-sidebar-nonleads-filter-checkbox"
+                >
+                  <span
+                    id="compensation-allowance-sidebar-nonleads-filter-text"
+                    data-cy="compensation-allowance-sidebar-nonleads-filter-text"
+                  >
+                    Show Subordinates
+                  </span>
+                </Checkbox>
+              </Form.Item>
+            </div>
+
+            <Form.Item
+              noStyle
+              shouldUpdate={(prevValues, currentValues) =>
+                prevValues.showDepartmentLeadsOnly !==
+                  currentValues.showDepartmentLeadsOnly ||
+                prevValues.showNonLeadsOnly !== currentValues.showNonLeadsOnly
+              }
+              id="compensation-allowance-sidebar-dynamic-wrapper"
+              data-cy="compensation-allowance-sidebar-dynamic-wrapper"
+            >
+              {() => (
+                <Form.Item
+                  className="form-item"
+                  name="employees"
+                  label="Select Employees"
+                  rules={[
+                    { required: true, message: 'Please select employees' },
+                  ]}
+                  data-testid="employees-form-item"
+                  id="compensation-allowance-sidebar-employees-form-item"
+                  data-cy="compensation-allowance-sidebar-employees-form-item"
+                >
+                  <Select
+                    showSearch
+                    placeholder="Select a person"
+                    mode="multiple"
+                    className="w-full h-10 mt-2"
+                    allowClear
+                    maxTagCount={1}
+                    filterOption={(input: any, option: any) =>
+                      (option?.label ?? '')
+                        ?.toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={getFilteredUsers()?.map((item: any) => ({
+                      ...item,
+                      value: item?.id,
+                      label:
+                        item?.firstName +
+                        ' ' +
+                        item?.middleName +
+                        ' ' +
+                        item?.lastName,
+                    }))}
+                    loading={allUserLoading}
+                    data-testid="employees-select"
+                    id="compensation-allowance-sidebar-employees-select"
+                    data-cy="compensation-allowance-sidebar-employees-select"
+                  />
+                </Form.Item>
+              )}
             </Form.Item>
             {/* <Form.Item
               name="employees"

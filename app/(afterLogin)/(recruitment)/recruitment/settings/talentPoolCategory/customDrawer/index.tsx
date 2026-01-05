@@ -31,7 +31,7 @@ const TalentPoolDrawer: React.FC = () => {
             id: selectedTalentPool?.id || '',
             category: {
               ...values,
-              name: values?.title,
+              updatedBy: userId,
             },
           },
           {
@@ -73,8 +73,13 @@ const TalentPoolDrawer: React.FC = () => {
 
   return (
     <CustomDrawerLayout
+      data-cy="talent-acquisition-talent-pool-category-drawer"
       modalHeader={
-        <h1 className=" flex justify-center text-xl font-extrabold text-gray-800 py-6">
+        <h1
+          id="talent-acquisition-talent-pool-category-editmode"
+          data-cy="talent-acquisition-talent-pool-category-editmode"
+          className=" flex justify-start text-xl font-extrabold text-gray-800 py-6"
+        >
           {isEditMode
             ? 'Edit Talent Pool Category'
             : 'New Talent Pool Category'}
@@ -82,16 +87,28 @@ const TalentPoolDrawer: React.FC = () => {
       }
       onClose={handleCancel}
       open={isOpen}
-      width="30%"
+      width="40%"
       footer={
-        <div className="flex justify-center items-center w-full absolute bottom-8 space-x-5">
+        <div className="flex justify-center items-center w-full space-x-5 p-4">
           <div className="flex justify-between items-center gap-4">
             <CustomButton
+              id="talent-acquisition-talent-pool-category-button-cancel"
+              data-cy="talent-acquisition-talent-pool-category-button-cancel"
               title="Cancel"
               onClick={handleCancel}
               type="default"
             />
             <CustomButton
+              id={
+                isEditMode
+                  ? 'talent-acquisition-talent-pool-category-button-update'
+                  : 'talent-acquisition-talent-pool-category-button-create'
+              }
+              data-cy={
+                isEditMode
+                  ? 'talent-acquisition-talent-pool-category-button-update'
+                  : 'talent-acquisition-talent-pool-category-button-create'
+              }
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}
             />
@@ -99,13 +116,23 @@ const TalentPoolDrawer: React.FC = () => {
         </div>
       }
     >
-      <Form form={form} layout="vertical">
+      <Form
+        id="talent-acquisition-talent-pool-category-form"
+        data-cy="talent-acquisition-talent-pool-category-form"
+        form={form}
+        layout="vertical"
+      >
         <Form.Item
           label="Name"
           name="title"
           rules={[{ required: true, message: 'Please enter a title' }]}
         >
-          <Input className="h-12" placeholder="Enter the category title" />
+          <Input
+            id="talent-acquisition-talent-pool-category-input-title"
+            data-cy="talent-acquisition-talent-pool-category-input-title"
+            className="h-12"
+            placeholder="Enter the category title"
+          />
         </Form.Item>
 
         <Form.Item
@@ -114,6 +141,8 @@ const TalentPoolDrawer: React.FC = () => {
           rules={[{ required: false }]}
         >
           <Input.TextArea
+            id="talent-acquisition-talent-pool-category-textarea-description"
+            data-cy="talent-acquisition-talent-pool-category-textarea-description"
             rows={6}
             placeholder="Enter the category description"
           />

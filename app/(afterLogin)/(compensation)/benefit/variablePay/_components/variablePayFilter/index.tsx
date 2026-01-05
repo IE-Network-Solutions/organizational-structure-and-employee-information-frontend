@@ -7,16 +7,13 @@ import { useDebounce } from '@/utils/useDebounce';
 import { Button, Col, Modal, Row, Select, Spin } from 'antd';
 import React from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
-import { IoMdSwitch } from 'react-icons/io';
+import { LuSettings2 } from 'react-icons/lu';
 import { MdOutlineUploadFile } from 'react-icons/md';
+import { useGetActiveEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 
 const { Option } = Select;
 
-interface VPFilterParams {
-  tableData: any;
-}
-
-const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
+const VariablePayFilter: React.FC = () => {
   const {
     searchParams,
     setSearchParams,
@@ -27,10 +24,12 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
 
   const { data: employeeData } = useGetAllUsers();
   const { data: activeCalender } = useGetActiveFiscalYears();
+  const { data: activeEmployee } = useGetActiveEmployee();
 
-  const allEmployeesIds: string[] = tableData.map(
-    (employee: any) => employee.name,
+  const allEmployeesIds: string[] = activeEmployee?.items?.map(
+    (employee: any) => employee.id,
   );
+
   const {
     refetch,
     isLoading: refreshLoading,
@@ -97,15 +96,31 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
     setOpenModal(true);
   };
   return (
-    <div>
-      <Row gutter={[10, 16]} className="mt-5">
+    <div
+      data-testid="variable-pay-filter-container"
+      id="compensation-benefit-variable-pay-filter-container"
+      data-cy="compensation-benefit-variable-pay-filter-container"
+    >
+      <Row
+        gutter={[10, 16]}
+        className="mt-5"
+        id="compensation-benefit-variable-pay-filter-row"
+        data-cy="compensation-benefit-variable-pay-filter-row"
+      >
         {/* Mobile layout: visible only on mobile */}
-        <Col xs={24} className="flex items-center gap-2 md:hidden">
+        <Col
+          xs={24}
+          className="flex items-center gap-2 md:hidden"
+          data-testid="mobile-filter-layout"
+          id="compensation-benefit-variable-pay-mobile-filter"
+          data-cy="compensation-benefit-variable-pay-mobile-filter"
+        >
           {/* Search Select */}
           <Select
+            data-cy="compensation-benefit-variable-pay-mobile-search-select"
             showSearch
             allowClear
-            className="flex-1 h-12"
+            className="flex-1 h-10"
             placeholder="Search by name"
             onChange={(value) => handleSearchInput(value, 'employeeName')}
             filterOption={(input, option) => {
@@ -116,12 +131,20 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               );
             }}
             options={options}
+            data-testid="mobile-employee-search"
           />
 
           {/* Toggle filter icon */}
-          <IoMdSwitch
-            className="cursor-pointer w-10 h-10 rounded-md border-gray-100 border-2"
+          <Button
+            type="default"
+            className="flex justify-center w-10 h-10 hover:bg-gray-100 border-gray-200"
+            icon={
+              <LuSettings2 data-cy="compensation-benefit-variable-pay-mobile-filter-toggle-icon" />
+            }
             onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
+            data-testid="mobile-filter-toggle"
+            id="compensation-benefit-variable-pay-mobile-filter-toggle"
+            data-cy="compensation-benefit-variable-pay-mobile-filter-toggle"
           />
 
           {/* Refresh icon button */}
@@ -130,9 +153,18 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
             type="text"
             size="small"
             className="w-10 h-10"
-            icon={<AiOutlineReload size={24} className="text-gray-600" />}
+            icon={
+              <AiOutlineReload
+                data-cy="compensation-benefit-variable-pay-mobile-refresh-icon"
+                size={24}
+                className="text-gray-600"
+              />
+            }
             onClick={() => refetch()}
             disabled={refreshLoading || isFetching}
+            data-testid="mobile-refresh-button"
+            id="compensation-benefit-variable-pay-mobile-refresh-button"
+            data-cy="compensation-benefit-variable-pay-mobile-refresh-button"
           />
 
           {/* Send to payroll icon button */}
@@ -141,19 +173,37 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
             type="text"
             size="small"
             className="w-10 h-10"
-            icon={<MdOutlineUploadFile size={24} />}
+            icon={
+              <MdOutlineUploadFile
+                data-cy="compensation-benefit-variable-pay-mobile-send-icon"
+                size={24}
+              />
+            }
             onClick={handleOpenModal}
+            data-testid="mobile-send-payroll-button"
+            id="compensation-benefit-variable-pay-mobile-send-button"
+            data-cy="compensation-benefit-variable-pay-mobile-send-button"
           />
         </Col>
 
         {/* Desktop layout: visible from md and up */}
-        <Col xs={24} className="hidden md:flex gap-4">
+        <Col
+          xs={24}
+          className="hidden md:flex gap-3"
+          data-testid="desktop-filter-layout"
+          id="compensation-benefit-variable-pay-desktop-filter"
+          data-cy="compensation-benefit-variable-pay-desktop-filter"
+        >
           {/* Search Select */}
-          <Col md={5}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-mobile-search-select"
+            md={5}
+          >
             <Select
+              data-cy="compensation-benefit-variable-pay-mobile-search-select"
               showSearch
               allowClear
-              className="w-full h-14"
+              className="w-full h-10"
               placeholder="Search by name"
               onChange={(value) => handleSearchInput(value, 'employeeName')}
               filterOption={(input, option) => {
@@ -164,19 +214,29 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
                 );
               }}
               options={options}
+              data-testid="desktop-employee-search"
             />
           </Col>
 
           {/* Session Select */}
-          <Col md={5}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-desktop-session-select"
+            md={5}
+          >
             <Select
+              data-cy="compensation-benefit-variable-pay-desktop-session-select"
               placeholder="Select Session"
               onChange={handleSessionChange}
               allowClear
-              className="w-full h-14"
+              className="w-full h-10"
+              data-testid="session-select"
             >
               {activeCalender?.sessions?.map((session) => (
-                <Option key={session?.id} value={session?.id}>
+                <Option
+                  data-cy="compensation-benefit-variable-pay-desktop-session-select-option"
+                  key={session?.id}
+                  value={session?.id}
+                >
                   {session?.name}
                 </Option>
               ))}
@@ -184,18 +244,27 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           </Col>
 
           {/* Month Select */}
-          <Col md={4}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-desktop-month-select"
+            md={4}
+          >
             <Select
+              data-cy="compensation-benefit-variable-pay-desktop-month-select"
               placeholder="Select Month"
               onChange={handleMonthChange}
               allowClear
-              className="w-full h-14"
+              className="w-full h-10"
               disabled={
                 !searchParams?.selectedSession || sessionMonths.length === 0
               }
+              data-testid="month-select"
             >
               {sessionMonths.map((month) => (
-                <Option key={month?.id} value={month?.id}>
+                <Option
+                  data-cy="compensation-benefit-variable-pay-desktop-month-select-option"
+                  key={month?.id}
+                  value={month?.id}
+                >
                   {month?.name}
                 </Option>
               ))}
@@ -203,46 +272,75 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           </Col>
 
           {/* Refresh Button */}
-          <Col md={4}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-desktop-refresh-button"
+            md={4}
+          >
             <Button
+              data-cy="compensation-benefit-variable-pay-desktop-refresh-button"
               title="Refresh VP"
-              className="w-full h-14"
+              className="w-full h-10"
               type="primary"
               onClick={() => refetch()}
               disabled={refreshLoading || isFetching}
+              data-testid="desktop-refresh-button"
             >
-              <span className="truncate">
+              <span
+                id="compensation-benefit-variable-pay-desktop-refresh-button-text"
+                data-cy="compensation-benefit-variable-pay-desktop-refresh-button-text"
+                className="truncate"
+              >
                 {refreshLoading || isFetching ? <Spin /> : 'Refresh VP'}
               </span>
             </Button>
           </Col>
 
           {/* Send to Payroll Button */}
-          <Col md={4}>
+          <Col
+            data-cy="compensation-benefit-variable-pay-desktop-send-button"
+            md={4}
+          >
             <Button
+              data-cy="compensation-benefit-variable-pay-desktop-send-button"
               title="Send to Payroll"
-              className="w-full h-14 flex items-center justify-center gap-2"
+              className="w-full h-10 flex items-center justify-center gap-2"
               type="primary"
               onClick={handleOpenModal}
+              data-testid="desktop-send-payroll-button"
             >
-              <span className="truncate">Send to Payroll</span>
+              <span
+                id="compensation-benefit-variable-pay-desktop-send-button-text"
+                data-cy="compensation-benefit-variable-pay-desktop-send-button-text"
+                className="truncate"
+              >
+                Send to Payroll
+              </span>
             </Button>
           </Col>
         </Col>
       </Row>
 
       <Modal
+        data-cy="compensation-benefit-variable-pay-mobile-filter-modal"
         centered
         title="Filter Employees"
         open={isMobileFilterVisible}
         onCancel={() => setIsMobileFilterVisible(false)}
         width="85%"
+        data-testid="mobile-filter-modal"
         footer={
-          <div className="flex justify-center items-center space-x-4">
+          <div
+            className="flex justify-center items-center space-x-4"
+            id="compensation-benefit-variable-pay-modal-footer"
+            data-cy="compensation-benefit-variable-pay-modal-footer"
+          >
             <Button
               type="default"
               className="px-3"
               onClick={() => setIsMobileFilterVisible(false)}
+              data-testid="mobile-filter-cancel"
+              id="compensation-benefit-variable-pay-modal-cancel"
+              data-cy="compensation-benefit-variable-pay-modal-cancel"
             >
               Cancel
             </Button>
@@ -250,6 +348,9 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               onClick={() => setIsMobileFilterVisible(false)}
               type="primary"
               className="px-3"
+              data-testid="mobile-filter-apply"
+              id="compensation-benefit-variable-pay-modal-apply"
+              data-cy="compensation-benefit-variable-pay-modal-apply"
             >
               Filter
             </Button>
@@ -258,19 +359,26 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
       >
         <Select
           id={`selectSession${searchParams?.selectedSession}`}
+          data-cy="compensation-benefit-variable-pay-mobile-filter-modal-session-select"
           placeholder="Select Session"
           onChange={handleSessionChange}
           allowClear
           className="w-full h-14 mb-2"
+          data-testid="mobile-session-select"
         >
           {activeCalender?.sessions?.map((session) => (
-            <Option key={session?.id} value={session?.id}>
+            <Option
+              data-cy="compensation-benefit-variable-pay-mobile-filter-modal-session-select-option"
+              key={session?.id}
+              value={session?.id}
+            >
               {session?.name}
             </Option>
           ))}
         </Select>
         <Select
           id={`selectMonth${searchParams?.selectedMonth}`}
+          data-cy="compensation-benefit-variable-pay-mobile-filter-modal-month-select"
           placeholder="Select Month"
           onChange={handleMonthChange}
           allowClear
@@ -278,9 +386,14 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           disabled={
             !searchParams?.selectedSession || sessionMonths.length === 0
           }
+          data-testid="mobile-month-select"
         >
           {sessionMonths.map((month) => (
-            <Option key={month?.id} value={month?.id}>
+            <Option
+              data-cy="compensation-benefit-variable-pay-mobile-filter-modal-month-select-option"
+              key={month?.id}
+              value={month?.id}
+            >
               {month?.name}
             </Option>
           ))}

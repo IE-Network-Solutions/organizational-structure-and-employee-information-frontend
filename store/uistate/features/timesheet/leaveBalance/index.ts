@@ -1,16 +1,21 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 interface UserState {
-  userId: string;
+  selectedUserId: string;
   leaveTypeId: string;
 
-  setUserId: (userId: string) => void;
-  setLeaveTypeId: (userId: string) => void;
+  setUserId: (selectedUserId: string) => void;
+  setLeaveTypeId: (selectedUserId: string) => void;
+
+  isDownloading: boolean;
+  setIsDownloading: (isDownloading: boolean) => void;
 }
 export const useLeaveBalanceStore = create<UserState>()(
   devtools((set) => ({
-    userId: '',
-    setUserId: (userId: string) => set({ userId }),
+    isDownloading: false,
+    setIsDownloading: (isDownloading: boolean) => set({ isDownloading }),
+    selectedUserId: '',
+    setUserId: (selectedUserId: string) => set({ selectedUserId }),
 
     leaveTypeId: '',
     setLeaveTypeId: (leaveTypeId: string) => set({ leaveTypeId }),

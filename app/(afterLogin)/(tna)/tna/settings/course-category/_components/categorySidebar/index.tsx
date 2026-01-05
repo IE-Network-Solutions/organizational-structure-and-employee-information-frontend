@@ -48,15 +48,19 @@ const CourseCategorySidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: isLoading || isFetching,
       onClick: () => onClose(),
     },
     {
-      label: courseCategoryId ? <span>Edit</span> : <span>Create</span>,
+      label: courseCategoryId ? (
+        <span data-cy="edit-label">Edit</span>
+      ) : (
+        <span data-cy="create-label">Create</span>
+      ),
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching,
@@ -87,43 +91,79 @@ const CourseCategorySidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
+        data-cy="tna-course-category-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader
+            className="flex justify-start font-extrabold text-xl"
+            data-cy="tna-course-category-sidebar-header"
+          >
             {courseCategoryId ? (
-              <span>Edit Course Category</span>
+              <span
+                data-cy="tna-course-category-sidebar-header-text"
+                id="tnaCourseCategorySidebarHeaderTextId"
+              >
+                Edit Course Category
+              </span>
             ) : (
-              <span>Add Course Category</span>
+              <span
+                data-cy="tna-course-category-sidebar-header-text"
+                id="tnaCourseCategorySidebarHeaderTextId"
+              >
+                Add Course Category
+              </span>
             )}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+            data-cy="tna-course-category-sidebar-footer"
+          />
+        }
         width="400px"
+        customMobileHeight="60vh"
       >
-        <Spin spinning={isLoading || isFetching}>
+        <Spin
+          spinning={isLoading || isFetching}
+          data-cy="tna-course-category-sidebar-spinner"
+        >
           <Form
             layout="vertical"
             form={form}
             onFinish={onFinish}
             requiredMark={CustomLabel}
+            id="tnaCourseCategorySidebarFormId"
+            data-cy="tna-course-category-sidebar-form"
           >
             <Form.Item
               name="title"
               label="Category Name"
               rules={[{ required: true, message: 'Required' }]}
               className="form-item"
+              id="tnaCourseCategorySidebarTitleItemId"
+              data-cy="tna-course-category-sidebar-title-item"
             >
-              <Input className="control" />
+              <Input
+                className="control h-10"
+                id="tnaCourseCategorySidebarTitleInputId"
+                data-cy="tna-course-category-sidebar-title-input"
+              />
             </Form.Item>
             <Form.Item
               name="description"
               label="Description"
               rules={[{ required: true, message: 'Required' }]}
               className="form-item"
+              id="tnaCourseCategorySidebarDescriptionItemId"
+              data-cy="tna-course-category-sidebar-description-item"
             >
               <Input.TextArea
-                className="control-tarea"
+                className="control-tarea h-28"
                 rows={6}
                 placeholder="Enter the Description"
+                id="tnaCourseCategorySidebarDescriptionTextAreaId"
+                data-cy="tna-course-category-sidebar-description-textarea"
               />
             </Form.Item>
           </Form>

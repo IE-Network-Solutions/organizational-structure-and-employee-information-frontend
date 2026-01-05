@@ -4,16 +4,12 @@ import { ORG_AND_EMP_URL, RECRUITMENT_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { Candidate } from '@/types/dashboard/recruitment/talentPool';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 /**
  * Create a new candidate in the talent pool.
@@ -21,6 +17,11 @@ const headers = {
  * @returns Promise with the created candidate data.
  */
 const createTalentPoolCandidate = async (data: any) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool`,
     method: 'POST',
@@ -35,6 +36,11 @@ const createTalentPoolCandidate = async (data: any) => {
  * @returns Promise with the updated candidate data.
  */
 const updateTalentPoolCandidate = async (id: string, data: Candidate) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/recruitment/candidates/${id}`,
     method: 'PATCH',
@@ -49,6 +55,11 @@ const updateTalentPoolCandidate = async (id: string, data: Candidate) => {
  * @returns Promise confirming the deletion.
  */
 const deleteTalentPoolCandidate = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/recruitment/candidates/${id}`,
     method: 'DELETE',
@@ -57,7 +68,7 @@ const deleteTalentPoolCandidate = async (id: string) => {
 };
 
 const moveTalentPoolToandidate = async ({ taletnPoolId, value }: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

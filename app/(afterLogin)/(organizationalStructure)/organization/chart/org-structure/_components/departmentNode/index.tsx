@@ -20,18 +20,35 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
   onDelete,
   isRoot = false,
 }) => {
+  const departmentId =
+    data.id || data.name?.replace(/\s+/g, '-').toLowerCase() || 'department';
   const menu = (
-    <Menu>
+    <Menu
+      data-cy={`org-structure-department-menu-${departmentId}`}
+      id={`org-structure-department-menu-${departmentId}`}
+    >
       <Menu.Item
         id={`${data.name}EditButton`}
-        icon={<EditOutlined />}
+        data-cy={`org-structure-department-edit-${departmentId}`}
+        icon={
+          <EditOutlined
+            data-cy="org-org-structure-components-departmentnode-index-editoutlined-1"
+            id="org-org-structure-components-departmentnode-index-editoutlined-1"
+          />
+        }
         onClick={onEdit}
       >
         Edit
       </Menu.Item>
       <Menu.Item
         id={`${data.name}DeleteButton`}
-        icon={<DeleteOutlined />}
+        data-cy={`org-structure-department-delete-${departmentId}`}
+        icon={
+          <DeleteOutlined
+            data-cy="org-org-structure-components-departmentnode-index-deleteoutlined-1"
+            id="org-org-structure-components-departmentnode-index-deleteoutlined-1"
+          />
+        }
         onClick={onDelete}
       >
         Delete
@@ -40,36 +57,74 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
   );
 
   return (
-    <Card className="p-1.5 rounded-3xl inline-block  border-[#CBD5E0] border-2 sm:w-auto">
+    <Card
+      bodyStyle={{ padding: 0, background: 'transparent' }}
+      className="inline-block px-6 py-4 rounded-2xl border-[#CBD5E0] border-1 h-[51px]"
+      data-cy={`org-structure-department-node-${departmentId}`}
+      id={`org-structure-department-node-${departmentId}`}
+    >
       {isRoot && (
-        <div className="flex justify-center items-center z-50">
-          <AccessGuard permissions={[Permissions.CreateDepartment]}>
+        <div
+          className="flex justify-center items-center z-50"
+          data-cy="org-org-structure-components-departmentnode-index-div-1"
+          id="org-org-structure-components-departmentnode-index-div-1"
+        >
+          <AccessGuard
+            permissions={[Permissions.CreateDepartment]}
+            data-cy="org-org-structure-components-departmentnode-index-accessguard-1"
+            id="org-org-structure-components-departmentnode-index-accessguard-1"
+          >
             <Button
+              style={{
+                minHeight: 'unset',
+                minWidth: 'unset',
+              }}
               id="ceoButton"
-              icon={<PlusOutlined />}
+              data-cy="org-structure-root-add-department-btn"
+              icon={
+                <PlusOutlined
+                  data-cy="org-org-structure-components-departmentnode-index-plusoutlined-1"
+                  id="org-org-structure-components-departmentnode-index-plusoutlined-1"
+                />
+              }
               size="small"
               type="primary"
-              className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
+              className="rounded-full absolute bottom-[-10px] hide-on-download z-50"
               onClick={onAdd}
             />
           </AccessGuard>
         </div>
       )}
+
       {!isRoot && (
         <AccessGuard
           permissions={[
             Permissions.UpdateDepartment,
             Permissions.DeleteDepartment,
           ]}
+          data-cy="org-org-structure-components-departmentnode-index-accessguard-2"
+          id="org-org-structure-components-departmentnode-index-accessguard-2"
         >
           <Dropdown
             overlay={menu}
             trigger={['click']}
-            className="absolute top-[1px]  hide-on-download "
+            className="absolute top-[1px] hide-on-download"
+            data-cy={`org-structure-department-dropdown-${departmentId}`}
           >
             <Button
-              icon={<Pencil size={8} />}
+              style={{
+                minHeight: 'unset',
+                minWidth: 'unset',
+              }}
+              icon={
+                <Pencil
+                  size={8}
+                  data-cy="org-org-structure-components-departmentnode-index-pencil-1"
+                  id="org-org-structure-components-departmentnode-index-pencil-1"
+                />
+              }
               id={`${data.name}ThreeDotButton`}
+              data-cy={`org-structure-department-actions-${departmentId}`}
               size="small"
               className="absolute bg-black text-white hover:bg-gray-800 border-none rounded-full top-[-3px] right-[-3px] w-[18px] h-[18px]"
             />
@@ -78,26 +133,58 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
       )}
 
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'start',
-        }}
+        className="flex justify-center items-start"
+        data-cy="org-org-structure-components-departmentnode-index-div-2"
+        id="org-org-structure-components-departmentnode-index-div-2"
       >
-        <Tooltip title={`${data.name}`} placement="top">
-          <span style={{ fontWeight: 'bold' }}>{data.name}</span>
+        <Tooltip
+          title={data.name}
+          placement="top"
+          data-cy="org-org-structure-components-departmentnode-index-tooltip-1"
+          id="org-org-structure-components-departmentnode-index-tooltip-1"
+        >
+          <span
+            style={{
+              fontWeight: 'bold',
+              fontSize: '12px',
+              whiteSpace: 'nowrap',
+            }}
+            data-cy={`org-structure-department-name-${departmentId}`}
+            id={`org-structure-department-name-${departmentId}`}
+          >
+            {data.name}
+          </span>
         </Tooltip>
       </div>
+
       {!isRoot && (
-        <div className="flex justify-center items-center z-50">
-          <AccessGuard permissions={[Permissions.CreateDepartment]}>
+        <div
+          className="flex justify-center items-center z-50"
+          data-cy="org-org-structure-components-departmentnode-index-div-3"
+          id="org-org-structure-components-departmentnode-index-div-3"
+        >
+          <AccessGuard
+            permissions={[Permissions.CreateDepartment]}
+            data-cy="org-org-structure-components-departmentnode-index-accessguard-3"
+            id="org-org-structure-components-departmentnode-index-accessguard-3"
+          >
             <Button
+              style={{
+                minHeight: 'unset',
+                minWidth: 'unset',
+                marginTop: '5px',
+              }}
               id={`${data.name}Button`}
-              icon={<PlusOutlined />}
+              data-cy={`org-structure-department-add-child-${departmentId}`}
+              icon={
+                <PlusOutlined
+                  data-cy="org-org-structure-components-departmentnode-index-plusoutlined-2"
+                  id="org-org-structure-components-departmentnode-index-plusoutlined-2"
+                />
+              }
               size="small"
               type="primary"
-              className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
-              style={{ marginTop: '5px' }}
+              className="rounded-full absolute bottom-[-10px] hide-on-download z-50"
               onClick={onAdd}
             />
           </AccessGuard>

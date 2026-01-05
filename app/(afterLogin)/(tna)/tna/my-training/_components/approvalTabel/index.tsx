@@ -28,13 +28,17 @@ import {
 } from '@/store/server/features/tna/review/mutation';
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const TnaApprovalTable = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalTNAStore();
-  const { pageSize, userCurrentPage, setUserCurrentPage } = useTnaReviewStore();
+  const { pageSize, userCurrentPage, setUserCurrentPage, setPageSize } =
+    useTnaReviewStore();
   const { data: currentApproverData, isFetching: currentApproverIsFetching } =
     useGetApprovalTNARequest(userId, userCurrentPage, pageSize);
   const { mutate: allApprover, isLoading: allApproveIsLoading } =
@@ -45,10 +49,9 @@ const TnaApprovalTable = () => {
   const { mutate: finalApprover } = useSetFinalApproveTnaRequest();
   const { mutate: finalAllApproval } = useSetAllFinalApproveTnaRequest();
   const { allPageSize, allUserCurrentPage } = useAllCurrentLeaveApprovedStore();
-  const onPageChange = (page: number) => {
-    setUserCurrentPage(page);
-  };
+
   const { data: allCurrencies } = useAllCurrencies(); // Fetch all currencies at once
+  const { isMobile, isTablet } = useIsMobile();
   const columns: TableColumnsType<any> = [
     {
       title: 'Title',
@@ -324,17 +327,44 @@ const TnaApprovalTable = () => {
     },
     {},
   );
+  const onPageChange = (page: number, pageSize?: number) => {
+    setUserCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    setUserCurrentPage(1);
+  };
+
   return (
     <>
       {currentApproverData?.items?.length > 0 ? (
         <>
-          <div className="flex items-center mb-6">
-            <div className="text-2xl font-bold text-gray-900">
+          <div
+            className="flex items-center mb-6"
+            id="tnaMyTrainingApprovalTableHeaderId"
+            data-cy="tna-my-training-approval-table-header"
+          >
+            <div
+              className="text-2xl font-bold text-gray-900"
+              id="tnaMyTrainingApprovalTableTitleId"
+              data-cy="tna-my-training-approval-table-title"
+            >
               Waiting for my approval
             </div>
           </div>
-          <div className="flex items-center justify-end mb-6">
-            <div className="flex flex-col p-2 bg-gray-100 rounded-lg mb-6 mx-3">
+          <div
+            className="flex items-center justify-end mb-6"
+            id="tnaMyTrainingApprovalTableActionsId"
+            data-cy="tna-my-training-approval-table-actions"
+          >
+            <div
+              className="flex flex-col p-2 bg-gray-100 rounded-lg mb-6 mx-3"
+              id="tnaMyTrainingApprovalTableTotalsId"
+              data-cy="tna-my-training-approval-table-totals"
+            >
               {Object.entries(currencyTotals).map(([currencyId, total]) => {
                 const currencyData = currencyMap[currencyId] || {
                   code: 'Unknown',
@@ -344,12 +374,22 @@ const TnaApprovalTable = () => {
                   <div
                     key={currencyId}
                     className="flex justify-between items-center mb-2"
+                    id={`tnaMyTrainingApprovalTableTotal${currencyId}Id`}
+                    data-cy={`tna-my-training-approval-table-total-${currencyId}`}
                   >
-                    <span className="text-xs font-normal text-gray-700">
+                    <span
+                      className="text-xs font-normal text-gray-700"
+                      data-cy="tna-my-training-approval-table-total-label"
+                      id="tnaMyTrainingApprovalTableTotalLabelId"
+                    >
                       Total TNA Price ({currencyData.code} {currencyData.symbol}
                       ):
                     </span>
-                    <span className="text-xs font-bold text-blue-600">
+                    <span
+                      className="text-xs font-bold text-blue-600"
+                      data-cy="tna-my-training-approval-table-total-value"
+                      id="tnaMyTrainingApprovalTableTotalValueId"
+                    >
                       {' ' + Number(total).toLocaleString()}
                     </span>
                   </div>
@@ -357,7 +397,11 @@ const TnaApprovalTable = () => {
               })}
             </div>
             ;
-            <div className="flex items-center space-x-2 mb-6">
+            <div
+              className="flex items-center space-x-2 mb-6"
+              id="tnaMyTrainingApprovalTableBulkActionsId"
+              data-cy="tna-my-training-approval-table-bulk-actions"
+            >
               <Popconfirm
                 title="All Approve Request"
                 description="Are you sure to approve all leave request?"
@@ -365,9 +409,19 @@ const TnaApprovalTable = () => {
                 onCancel={cancel}
                 okText="Approve All"
                 cancelText="Cancel"
+                id="tnaMyTrainingApprovalTableApproveAllPopconfirmId"
+                data-cy="tna-my-training-approval-table-approve-all-popconfirm"
               >
-                <Button disabled={allApproveIsLoading} type="primary">
-                  <Spin spinning={allApproveIsLoading} />
+                <Button
+                  disabled={allApproveIsLoading}
+                  type="primary"
+                  id="tnaMyTrainingApprovalTableApproveAllButtonId"
+                  data-cy="tna-my-training-approval-table-approve-all-button"
+                >
+                  <Spin
+                    spinning={allApproveIsLoading}
+                    data-cy="tna-my-training-approval-table-approve-all-spin"
+                  />
                   Approve All
                 </Button>
               </Popconfirm>
@@ -378,8 +432,15 @@ const TnaApprovalTable = () => {
                 onCancel={cancel}
                 okText="Reject All"
                 cancelText="Cancel"
+                id="tnaMyTrainingApprovalTableRejectAllPopconfirmId"
+                data-cy="tna-my-training-approval-table-reject-all-popconfirm"
               >
-                <Button disabled={allRejectIsLoading} danger>
+                <Button
+                  disabled={allRejectIsLoading}
+                  danger
+                  id="tnaMyTrainingApprovalTableRejectAllButtonId"
+                  data-cy="tna-my-training-approval-table-reject-all-button"
+                >
                   <Spin spinning={allRejectIsLoading} />
                   Reject All
                 </Button>
@@ -390,14 +451,29 @@ const TnaApprovalTable = () => {
             columns={columns}
             loading={currentApproverIsFetching}
             dataSource={allFilterData}
-            pagination={{
-              total: currentApproverData?.meta?.totalItems,
-              current: userCurrentPage,
-              pageSize: pageSize,
-              onChange: onPageChange,
-            }}
+            pagination={false}
             scroll={{ x: 'min-content' }}
+            id="tnaMyTrainingApprovalTableId"
+            data-cy="tna-my-training-approval-table"
           />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={currentApproverData?.meta?.totalItems || 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageChange}
+              data-cy="tna-my-training-approval-table-mobile-pagination"
+            />
+          ) : (
+            <CustomPagination
+              current={userCurrentPage}
+              total={currentApproverData?.meta?.totalItems || 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageSizeChange}
+              data-cy="tna-my-training-approval-table-pagination"
+            />
+          )}
         </>
       ) : (
         ''

@@ -3,6 +3,7 @@ import { devtools, persist } from 'zustand/middleware';
 interface SearchParams {
   name: string;
   entityType: string;
+  entityId: string;
 }
 interface SelectProps {
   SelectedItemType: Record<string, any> | null;
@@ -43,6 +44,9 @@ interface UserState {
   workflowApplies: string | null;
   setWorkflowApplies: (workflowApplies: string | null) => void;
 
+  workflowUserId: string | null;
+  setWorkflowUserId: (workflowUserId: string | null) => void;
+
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string) => void;
 
@@ -78,6 +82,9 @@ interface UserState {
 
   addDepartmentApproval: boolean;
   setAddDepartmentApproval: (addDepartmentApproval: boolean) => void;
+
+  selectedEntityType: string;
+  setSelectedEntityType: (selectedEntityType: string) => void;
 }
 
 export const useApprovalStore = create<UserState>()(
@@ -120,9 +127,14 @@ export const useApprovalStore = create<UserState>()(
         setWorkflowApplies: (workflowApplies: string | null) =>
           set({ workflowApplies }),
 
+        workflowUserId: null,
+        setWorkflowUserId: (workflowUserId: string | null) =>
+          set({ workflowUserId }),
+
         searchParams: {
           name: '',
           entityType: '',
+          entityId: '',
         },
         setSearchParams: (key, value) =>
           set((state) => ({
@@ -142,6 +154,10 @@ export const useApprovalStore = create<UserState>()(
 
         selections: { SectionItemType: Array(1).fill({ user: null }) },
         setSelections: (selections: SectionProps) => set({ selections }),
+
+        selectedEntityType: '',
+        setSelectedEntityType: (selectedEntityType: string) =>
+          set({ selectedEntityType }),
 
         rejectComment: '',
         setRejectComment: (value: string) => set({ rejectComment: value }),

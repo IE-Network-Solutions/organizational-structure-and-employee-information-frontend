@@ -15,19 +15,26 @@ const IncentiveSettings: React.FC = () => {
   const { data: recognitionData } = useRecognitionById(id);
 
   return (
-    <div>
-      <div className="mb-6">
+    <div
+      id="incentive-settings-page-container"
+      data-cy="incentive-settings-page-container"
+    >
+      <div
+        id="incentive-settings-page-header-wrapper"
+        data-cy="incentive-settings-page-header-wrapper"
+        className="mb-4 m-2"
+      >
         <PageHeader
-          title={
-            recognitionData?.recognitionType?.name
-              ? recognitionData?.recognitionType?.name
-              : ''
-          }
+          data-cy="incentive-settings-page-header"
+          title={recognitionData?.name ? recognitionData?.name : '-'}
           size="small"
         ></PageHeader>
       </div>
-      <IncentiveSettingsTable />
-      <IncentiveSettingsDrawer recognitionData={recognitionData} />
+      <IncentiveSettingsTable data-cy="incentive-settings-page-table" />
+      <IncentiveSettingsDrawer
+        data-cy="incentive-settings-page-drawer"
+        recognitionData={recognitionData}
+      />
     </div>
   );
 };

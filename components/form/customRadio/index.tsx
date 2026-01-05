@@ -36,7 +36,7 @@ const CustomRadio: FC<CustomRadioProps> = ({
       'font-semibold',
       'text-sm',
       'text-gray-900',
-      'h-[54px]',
+      'h-[40px]',
       'rounded-lg',
       'border',
       'items-center',

@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -11,29 +10,62 @@ import DeductiontypeSideBar from './_components/DeductiontypeSideBar';
 import { FaPlus } from 'react-icons/fa';
 
 const DeductionTypePage = () => {
-  const { setIsDeductionOpen } = useCompensationSettingStore();
+  const { setIsDeductionOpen, setSelectedDeductionRecord } =
+    useCompensationSettingStore();
 
   return (
-    <>
-      <PageHeader title="Deduction Types" size="small">
-        <AccessGuard permissions={[Permissions.CreateBenefitType]}>
+    <div
+      className="bg-white rounded-lg px-1 py-4 sm:px-6"
+      id="compensation-settings-deduction-type-wrapper"
+      data-cy="compensation-settings-deduction-type-wrapper"
+    >
+      <div
+        className="flex justify-between mb-3 items-center"
+        id="compensation-settings-deduction-type-header"
+        data-cy="compensation-settings-deduction-type-header"
+      >
+        <h1
+          className="text-lg font-bold"
+          id="compensation-settings-deduction-type-title"
+          data-cy="compensation-settings-deduction-type-title"
+        >
+          Deduction Types
+        </h1>
+        <AccessGuard
+          permissions={[Permissions.CreateBenefitType]}
+          data-cy="compensation-settings-deduction-type-create-access-guard"
+        >
           <Button
             type="primary"
             id="createNewClosedHolidayFieldId"
-            icon={<FaPlus />}
+            icon={
+              <FaPlus data-cy="compensation-settings-deduction-type-create-icon" />
+            }
+            className="h-10"
             onClick={() => {
+              setSelectedDeductionRecord(null);
               setIsDeductionOpen(true);
             }}
+            data-cy="compensation-settings-deduction-type-create-button"
           >
-            <span className="hidden lg:inline"> New Deduction Type</span>
+            <span
+              className="hidden lg:inline"
+              id="compensation-settings-deduction-type-create-button-text"
+              data-cy="compensation-settings-deduction-type-create-button-text"
+            >
+              Deduction
+            </span>
           </Button>
         </AccessGuard>
-      </PageHeader>
-      <div className="flex overflow-x-auto scrollbar-none w-full ">
+      </div>
+      <div
+        id="compensation-settings-deduction-type-table-wrapper"
+        data-cy="compensation-settings-deduction-type-table-wrapper"
+      >
         <DeductionTypeTable />
       </div>
-      <DeductiontypeSideBar />
-    </>
+      <DeductiontypeSideBar data-cy="compensation-settings-deduction-type-sidebar" />
+    </div>
   );
 };
 

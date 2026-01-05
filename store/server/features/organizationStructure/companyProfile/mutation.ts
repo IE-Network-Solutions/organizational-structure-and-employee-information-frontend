@@ -1,16 +1,10 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { TENANT_MGMT_URL } from '@/utils/constants';
+import { TENANT_BASE_URL, TENANT_MGMT_URL } from '@/utils/constants';
 import { CompanyProfileImage } from '@/store/uistate/features/organizationStructure/companyProfile/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 /* eslint-disable @typescript-eslint/naming-convention */
-
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId,
-  Authorization: `Bearer ${token}`,
-};
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /**
  * Fetch company profile by tenant ID.
@@ -18,8 +12,14 @@ const headers = {
  * @returns Promise with the company profile.
  */
 export const getCompanyProfileByTenantId = async (tenantId: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   return await crudRequest({
-    url: `${TENANT_MGMT_URL}/clients/${tenantId}`,
+    url: `${TENANT_BASE_URL}/api/v1/clients/${tenantId}`,
     method: 'GET',
     headers,
   });
@@ -31,12 +31,6 @@ export const getCompanyProfileByTenantId = async (tenantId: string) => {
  * @returns Promise with the updated company profile.
  */
 
-const multiPartFormDataheaders = {
-  tenantId: tenantId,
-  'Content-Type': 'multipart/form-data',
-  Authorization: `Bearer ${token}`,
-};
-
 const updateCompanyProfile = async ({
   id,
   companyProfileImage,
@@ -44,6 +38,13 @@ const updateCompanyProfile = async ({
   id: string;
   companyProfileImage: CompanyProfileImage;
 }) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const multiPartFormDataheaders = {
+    tenantId: tenantId,
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${id}`,
     method: 'PUT',
@@ -99,19 +100,23 @@ const updateCompanyProfileWithStamp = async ({
   companyProfileImage?: CompanyProfileImage;
   companyStamp?: CompanyProfileImage;
 }): Promise<any> => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
   const formData = new FormData();
-  // Append DTO as JSON string
-  if (updateClientDto) {
-    formData.append('updateClientDto', JSON.stringify({}));
-  }
 
-  // Append files if they exist
+  const cleanDto = updateClientDto || {};
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id: ignored, ...dtoWithoutId } = cleanDto;
+  formData.append('updateClientDto', JSON.stringify(dtoWithoutId));
+
   if (companyProfileImage?.originFileObj) {
-    formData.append('companyProfileImage', companyProfileImage.originFileObj);
+    const logoFile = companyProfileImage.originFileObj as File;
+    formData.append('companyProfileImage', logoFile);
   }
 
   if (companyStamp?.originFileObj) {
-    formData.append('companyStamp', companyStamp.originFileObj);
+    const stampFile = companyStamp.originFileObj as File;
+    formData.append('companyStamp', stampFile);
   }
 
   const headers = {
@@ -126,14 +131,17 @@ const updateCompanyProfileWithStamp = async ({
     method: 'PUT',
     headers: headers,
     data: formData,
+    skipEncryption: true,
   });
 };
 
 export const useUpdateCompanyProfileWithStamp = () => {
   const queryClient = useQueryClient();
   return useMutation(updateCompanyProfileWithStamp, {
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries('companyProfile');
+      queryClient.invalidateQueries(['client', variables.id]);
+      queryClient.invalidateQueries('clients');
       // const method = variables?.method?.toUpperCase();
       // handleSuccessMessage(method);
     },

@@ -7,7 +7,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-
+import { getCurrentToken } from '@/utils/getCurrentToken';
 /**
  * @constant {string} token - The authentication token retrieved from the authentication store.
  */
@@ -33,7 +33,7 @@ import { useQuery } from 'react-query';
  */
 
 const fetchAllowanceEntitlements = async (allowanceId: string | string[]) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -56,7 +56,7 @@ const fetchAllowanceEntitlements = async (allowanceId: string | string[]) => {
  * @returns {Promise<any>} The response from the API.
  */
 const fetchAllowances = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -79,7 +79,7 @@ const fetchAllowances = async () => {
  * @returns {Promise<any>} The response from the API.
  */
 const fetchAllowance = async (allowanceId: string | string[]) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,

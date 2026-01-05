@@ -7,19 +7,21 @@ import { AccrualRule } from '@/types/timesheet/settings';
 import { RequestCommonQueryData } from '@/types/commons/requesTypes';
 
 const getAccrualRules = async (params?: Partial<RequestCommonQueryData>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/accrual-rules`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
 
 const getAccrualRule = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/accrual-rules`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };

@@ -16,7 +16,7 @@ import {
 } from '@/types/tna/tna';
 import {
   useCurrency,
-  useGetTna,
+  useGetTnaById,
 } from '@/store/server/features/tna/review/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useAllApproval } from '@/store/server/features/approver/queries';
@@ -25,6 +25,9 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 const { Option } = Select;
 
 const TnaRequestSidebar = () => {
@@ -34,9 +37,10 @@ const TnaRequestSidebar = () => {
     monthId,
     sessionId,
     yearId,
-    searchQuery,
     setSearchQuery,
     tnaId,
+    tnaData,
+    setData,
     setTnaId,
   } = useTnaReviewStore();
   const { userId } = useAuthenticationStore();
@@ -46,7 +50,11 @@ const TnaRequestSidebar = () => {
 
   const { data: tnaCurrency } = useCurrency();
   const { data: tnaCategoryData } = useGetTnaCategory({});
-
+  const {
+    data: singleTnaData,
+    refetch: refetchSingleTna,
+    isFetching: isTnaFetching,
+  } = useGetTnaById(tnaId || '');
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
     useAllApproval(
       employeeData?.employeeJobInformation?.[0]?.departmentId || '',
@@ -57,6 +65,8 @@ const TnaRequestSidebar = () => {
     userId || '',
     APPROVALTYPES?.TNA,
   );
+  const { data: fiscalYearData } = useGetActiveFiscalYears();
+
   useEffect(() => {
     if (employeeData?.employeeJobInformation?.[0]?.departmentId)
       getDepartmentApproval();
@@ -66,57 +76,63 @@ const TnaRequestSidebar = () => {
   }, [userId]);
 
   const { mutate: setTna, isLoading } = useSetTna();
-  const { data, isFetching, refetch } = useGetTna(
-    {
-      page: 1,
-      limit: 1,
-    },
-    {
-      filter: {
-        id: tnaId ? [tnaId] : [],
-      },
-    },
-    searchQuery,
-    true,
-    true,
-  );
 
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (tnaId) {
-      refetch();
+      refetchSingleTna();
     }
   }, [tnaId]);
-
   useEffect(() => {
-    if (tnaId && data?.items?.length) {
-      form.setFieldsValue(data.items[0]);
+    if (singleTnaData && tnaId !== null) {
+      const formData = singleTnaData;
+
+      const formattedData = {
+        title: formData.title || '',
+        departmentId: formData.departmentId || undefined,
+        reason: formData.reason || '',
+        trainingNeedCategoryId: formData.trainingNeedCategoryId || undefined,
+        currencyId: formData.currencyId || undefined,
+        trainingPrice: formData.trainingPrice || undefined,
+        detail: formData.detail || '',
+        sessionId: formData.sessionId || undefined,
+        yearId: formData.yearId || undefined,
+        monthId: formData.monthId || undefined,
+      };
+      form.setFieldsValue(formattedData);
+    } else {
+      form.resetFields();
     }
-  }, [data]);
+  }, [singleTnaData, fiscalYearData, tnaId]);
+
+  const onSubmit = (): void => {
+    if (approvalUserData?.length < 1 && approvalDepartmentData?.length < 1) {
+      NotificationMessage.warning({
+        message: `You lack an assigned approver.`,
+      });
+      return;
+    }
+    form.submit();
+  };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
-      loading: isLoading || isFetching,
+      loading: isLoading || isTnaFetching,
       onClick: () => onClose(),
     },
     {
-      label:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
-          ? 'You lack an assigned approver.'
-          : 'Request',
+      label: 'Request',
       key: 'request',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
-      loading: isLoading || isFetching,
-      onClick: () => form.submit(),
-      disabled:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
+      loading: isLoading || isTnaFetching,
+      onClick: () => onSubmit(),
     },
   ];
 
@@ -127,7 +143,7 @@ const TnaRequestSidebar = () => {
     const finalValues = { ...value, monthId, yearId, sessionId };
 
     // Extract `trainingNeedCategory`, keep `otherData`
-    const { ...otherData } = data?.items?.[0] || {};
+    const { ...otherData } = singleTnaData || {};
 
     const dataValue: any = [
       {
@@ -135,27 +151,32 @@ const TnaRequestSidebar = () => {
         ...finalValues, // Include monthId, yearId, sessionId
         certStatus: TrainingNeedAssessmentCertStatus.IN_PROGRESS,
         status: TrainingNeedAssessmentStatus.PENDING,
+
         assignedUserId: userId,
-        approvalWorkflowId:
-          approvalUserData?.length > 0
+        approvalWorkflowId: otherData?.approvalWorkflowId
+          ? otherData?.approvalWorkflowId
+          : approvalUserData?.length > 0
             ? approvalUserData[0]?.id
             : approvalDepartmentData?.[0]?.id,
       },
     ];
 
     const filteredData = dataValue?.map((originalData: any) => ({
-      title: originalData.title,
-      trainingPrice: originalData?.trainingPrice, // Modify the training price as requested
-      assignedUserId: originalData.assignedUserId,
-      trainingNeedCategoryId: originalData.trainingNeedCategoryId,
       approvalWorkflowId: originalData.approvalWorkflowId,
-      currencyId: originalData.currencyId,
-      sessionId: originalData.sessionId,
-      yearId: originalData.yearId,
-      monthId: originalData.monthId,
-      departmentId: originalData?.departmentId, // Modified departmentId
-      status: originalData.status,
+      assignedUserId: originalData.assignedUserId,
       certStatus: originalData.certStatus,
+      currencyId: originalData.currencyId,
+      departmentId: originalData?.departmentId,
+      detail: originalData.detail,
+      id: tnaId ?? undefined,
+      monthId: originalData.monthId,
+      reason: originalData.reason,
+      sessionId: originalData.sessionId,
+      status: originalData.status,
+      title: originalData.title,
+      trainingNeedCategoryId: originalData.trainingNeedCategoryId,
+      trainingPrice: originalData?.trainingPrice,
+      yearId: originalData.yearId,
       trainingProofs: [],
     }));
 
@@ -164,6 +185,7 @@ const TnaRequestSidebar = () => {
 
   const onClose = () => {
     setTnaId(null);
+    setData(null);
     form.resetFields();
     setIsShowTnaReviewSidebar(false);
   };
@@ -181,7 +203,7 @@ const TnaRequestSidebar = () => {
       ? `?${queryParams.toString()}`
       : '';
     setSearchQuery(searchParams);
-    refetch();
+    refetchSingleTna();
   };
 
   return (
@@ -189,68 +211,122 @@ const TnaRequestSidebar = () => {
       <CustomDrawerLayout
         open={isShowTnaReviewSidebar}
         onClose={() => onClose()}
+        data-cy="tna-request-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader
+            className="flex justify-start"
+            data-cy="tna-request-sidebar-header"
+          >
             TNA Request
           </CustomDrawerHeader>
         }
         footer={
           <CustomDrawerFooterButton
-            className="w-1/2 mx-auto"
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
+            data-cy="tna-request-sidebar-footer"
           />
         }
-        width="30%"
+        width="40%"
       >
         <Form
           layout="vertical"
           form={form}
-          disabled={isLoading || isFetching}
+          className="p-2"
+          disabled={isLoading || isTnaFetching}
           onFinish={onFinish}
           requiredMark={CustomLabel}
+          id="tnaRequestSidebarFormId"
+          data-cy="tna-request-sidebar-form"
         >
           <Form.Item
             name="title"
             label="TNA Request Title"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaRequestSidebarTitleItemId"
+            data-cy="tna-request-sidebar-title-item"
           >
-            <Input id="tnaRequestTitleFieldId" className="control" />
+            <Input
+              id="tnaRequestTitleFieldId"
+              data-cy="tna-request-title-field"
+              className="control h-10"
+            />
           </Form.Item>
 
-          <Filters onSearch={handleSearch} disable={['name', 'payPeriod']} />
+          <Filters
+            onSearch={handleSearch}
+            disable={['name', 'payPeriod']}
+            defaultValues={
+              tnaData
+                ? {
+                    yearId: tnaData?.yearId,
+                    sessionId: tnaData.sessionId,
+                    monthId: tnaData.monthId,
+                    departmentId: tnaData.departmentId,
+                  }
+                : undefined
+            }
+            data-cy="tna-request-sidebar-filters"
+          />
           <Form.Item
             name="departmentId"
             label="Department"
             className="form-item"
+            id="tnaRequestSidebarDepartmentItemId"
+            data-cy="tna-request-sidebar-department-item"
           >
             <Select
               placeholder="department data"
               allowClear
-              style={{ width: '100%', height: '48px' }}
+              style={{ width: '100%', height: '40px' }}
+              id="tnaRequestSidebarDepartmentSelectId"
+              data-cy="tna-request-sidebar-department-select"
             >
               {departmentData?.map((department: any) => (
-                <Option key={department.id} value={department.id}>
+                <Option
+                  key={department.id}
+                  value={department.id}
+                  data-cy={`tna-request-sidebar-department-option-${department.id}`}
+                >
                   {department?.name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
 
-          <Form.Item name="reason" label="Reason" className="form-item">
-            <Input className="control" />
+          <Form.Item
+            name="reason"
+            label="Reason"
+            className="form-item"
+            id="tnaRequestSidebarReasonItemId"
+            data-cy="tna-request-sidebar-reason-item"
+          >
+            <Input
+              className="control"
+              id="tnaRequestSidebarReasonInputId"
+              data-cy="tna-request-sidebar-reason-input"
+            />
           </Form.Item>
           <Form.Item
             name="trainingNeedCategoryId"
             label="Training Category"
             className="form-item"
             rules={[{ required: true, message: 'Required' }]}
+            id="tnaRequestSidebarCategoryItemId"
+            data-cy="tna-request-sidebar-category-item"
           >
             <Select
               id="tnaCategoryOptionFieldId"
+              data-cy="tna-category-option-field"
               className="control"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown
+                  size={16}
+                  className="text-gray-900 h-10"
+                  data-cy="tna-request-sidebar-category-suffix-icon"
+                  id="tnaRequestSidebarCategorySuffixIconId"
+                />
               }
               placeholder="Select"
               options={formatToOptions(
@@ -266,12 +342,20 @@ const TnaRequestSidebar = () => {
             label="Currency"
             className="form-item"
             rules={[{ required: true, message: 'Required' }]}
+            id="tnaRequestSidebarCurrencyItemId"
+            data-cy="tna-request-sidebar-currency-item"
           >
             <Select
               id="currencyId"
+              data-cy="tna-request-sidebar-currency-select"
               className="control"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown
+                  size={16}
+                  className="text-gray-900 h-10"
+                  data-cy="tna-request-sidebar-currency-suffix-icon"
+                  id="tnaRequestSidebarCurrencySuffixIconId"
+                />
               }
               placeholder="Select"
               options={formatToOptions(tnaCurrency, 'code', 'id')}
@@ -282,22 +366,28 @@ const TnaRequestSidebar = () => {
             label="Training Price"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaRequestSidebarPriceItemId"
+            data-cy="tna-request-sidebar-price-item"
           >
             <InputNumber
               id="tnaTraniningPriceFieldId"
+              data-cy="tna-training-price-field"
               min={0}
-              suffix={'$'}
-              className="control-number"
+              suffix={<AiOutlineDollarCircle />}
+              className="control-number h-10"
             />
           </Form.Item>
           <Form.Item
             name="detail"
             label="Detail Information"
             className="form-item"
+            id="tnaRequestSidebarDetailItemId"
+            data-cy="tna-request-sidebar-detail-item"
           >
             <Input.TextArea
               id="tnaDetailInformationFieldId"
-              className="control-tarea"
+              data-cy="tna-detail-information-field"
+              className="control-tarea h-24"
               rows={6}
               placeholder="Enter brief reason for your training of choice"
             />

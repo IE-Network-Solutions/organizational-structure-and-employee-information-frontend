@@ -14,32 +14,24 @@ import {
 } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { MdOutlinePending } from 'react-icons/md';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
   useGetReporting,
   useGetUserPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { useGetFiscalYearById } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
-import { groupTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { ReportingType } from '@/types/enumTypes';
 import Image from 'next/image';
-import CommentCard from '../comments/planCommentCard';
-import { UserOutlined } from '@ant-design/icons';
-import { IoIosOpen, IoMdMore } from 'react-icons/io';
-import { IoCheckmarkSharp } from 'react-icons/io5';
-import { AiOutlineEdit } from 'react-icons/ai';
+import { IoMdSwitch } from 'react-icons/io';
 import {
   useApprovalReporting,
   // useDeleteReportById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
-import KeyResultTasks from '../planning/KeyResultTasks';
-import { FiCheckCircle } from 'react-icons/fi';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
@@ -47,6 +39,7 @@ function Reporting() {
   const {
     setOpenReportModal,
     selectedUser,
+    setSelectedUser,
     activePlanPeriod,
     setSelectedReportId,
     setSelectedPlanId,
@@ -56,13 +49,24 @@ function Reporting() {
     pageSizeReporting,
     activePlanPeriodId,
     setPageSizeReporting,
+    selectedSessionIds,
+    selectedFiscalYearId,
+    allSessionsOfYear,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
+  const [selectedDepartment, setSelectedDepartment] = useState<
+    string | undefined
+  >(undefined);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [selectedPlanType, setSelectedPlanType] = useState<string>('all');
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
-
+  const { isMobile, isTablet } = useIsMobile();
+  const { data: selectedFiscalYear } = useGetFiscalYearById(
+    selectedFiscalYearId || '',
+  );
   const hasPermission = AccessGuard.checkAccess({
     permissions: [
       Permissions.ViewDailyPlan,
@@ -89,12 +93,20 @@ function Reporting() {
   )?.planningPeriodId;
 
   const { data: allUserPlanning, isLoading: getUserPlanningLoading } =
-    useGetUserPlanning(planningPeriodId ?? '', activeTab.toString());
+    useGetUserPlanning(planningPeriodId ?? '', activePlanPeriod.toString());
   const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '',
     pageReporting,
     pageSizeReporting,
+    // If no sessions selected but year is selected, send all sessions
+    // If sessions are selected, send only those
+    sessionId:
+      selectedSessionIds.length > 0
+        ? selectedSessionIds
+        : allSessionsOfYear.length > 0
+          ? allSessionsOfYear
+          : [],
   });
   const getPlanningPeriodDetail = (id: string) => {
     const planningPeriodDetail = planningPeriods?.items?.find(
@@ -109,6 +121,176 @@ function Reporting() {
 
   // const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
   const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+
+  useEffect(() => {
+    setPageReporting(1);
+    setPageSizeReporting(10);
+  }, [activeTab, setPageReporting, setPageSizeReporting]);
+
+  // Helper function to get user IDs by department
+  const getUserIdsByDepartmentId = (departmentId: string) => {
+    const department = departmentData?.find(
+      (dep: any) => dep.id === departmentId,
+    );
+    if (department && department.users) {
+      return department.users.map((user: any) => user.id);
+    }
+    return [];
+  };
+
+  // Build employee options from real data - filter by selected department
+  const employeeOptions = useMemo(() => {
+    const options = [{ label: 'All employees', value: 'all' }];
+    if (employeeData?.items) {
+      let employeesToShow = employeeData.items;
+
+      // If a department is selected, filter employees by that department
+      if (selectedDepartment && selectedDepartment !== 'all') {
+        const departmentUserIds = getUserIdsByDepartmentId(selectedDepartment);
+        employeesToShow = employeeData.items.filter((emp: any) =>
+          departmentUserIds.includes(emp.id),
+        );
+      }
+
+      employeesToShow.forEach((emp: any) => {
+        const name =
+          `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim();
+        if (name) {
+          options.push({ label: name, value: emp.id });
+        }
+      });
+    }
+    return options;
+  }, [employeeData, selectedDepartment, departmentData]);
+
+  // Get the current selected employee value - only if it exists in options
+  const getSelectedEmployeeValue = () => {
+    const currentValue = selectedUser?.[0];
+    if (
+      !currentValue ||
+      currentValue === 'all' ||
+      currentValue === 'subordinate'
+    ) {
+      return 'all';
+    }
+    // Check if the value exists in employeeOptions
+    const optionExists = employeeOptions.some(
+      (opt) => opt.value === currentValue,
+    );
+    // Only return the value if the option exists, otherwise return undefined to show placeholder
+    return optionExists ? currentValue : undefined;
+  };
+
+  // Build department options from real data
+  const departmentOptions = useMemo(() => {
+    const options = [{ label: 'All Departments', value: 'all' }];
+    if (departmentData) {
+      departmentData.forEach((dept: any) => {
+        if (dept.name) {
+          options.push({ label: dept.name, value: dept.id });
+        }
+      });
+    }
+    return options;
+  }, [departmentData]);
+
+  // Plan type options
+  const planTypeOptions = [
+    { label: 'All Plans', value: 'all' },
+    { label: 'My Plans', value: 'myPlan' },
+    { label: 'Subordinate Plans', value: 'subordinatePlan' },
+  ];
+
+  // Handle employee filter change
+  const handleEmployeeChange = (value: string) => {
+    setSelectedDepartment(undefined);
+    setSelectedPlanType('all');
+    if (value === 'all') {
+      setSelectedUser(['all']);
+    } else {
+      setSelectedUser([value]);
+    }
+  };
+
+  // Handle plan type filter change
+  const handlePlanTypeChange = (value: string) => {
+    setSelectedDepartment(undefined);
+    setSelectedPlanType(value);
+
+    if (value === 'all') {
+      setSelectedUser(['all']);
+    } else if (value === 'myPlan') {
+      setSelectedUser([userId]);
+    } else if (value === 'subordinatePlan') {
+      const subordinates =
+        employeeData?.items
+          ?.filter(
+            (employee: any) =>
+              (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
+              userId,
+          )
+          .map((employee: any) => employee.id) || [];
+      setSelectedUser(
+        subordinates.length > 0
+          ? ['subordinate', ...subordinates]
+          : ['subordinate'],
+      );
+    }
+  };
+
+  // Handle department filter change
+  const handleDepartmentChange = (value: string) => {
+    setSelectedDepartment(value);
+
+    if (value === 'all') {
+      // If department is 'all', restore based on plan type
+      if (selectedPlanType === 'all') {
+        setSelectedUser(['all']);
+      } else if (selectedPlanType === 'myPlan') {
+        setSelectedUser([userId]);
+      } else if (selectedPlanType === 'subordinatePlan') {
+        const subordinates =
+          employeeData?.items
+            ?.filter(
+              (employee: any) =>
+                (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
+                userId,
+            )
+            .map((employee: any) => employee.id) || [];
+        setSelectedUser(
+          subordinates.length > 0
+            ? ['subordinate', ...subordinates]
+            : ['subordinate'],
+        );
+      }
+    } else {
+      // Apply department filter while preserving plan type
+      const departmentUserIds = getUserIdsByDepartmentId(value);
+
+      if (selectedPlanType === 'all') {
+        setSelectedUser(departmentUserIds.length > 0 ? departmentUserIds : []);
+      } else if (selectedPlanType === 'myPlan') {
+        // Only include current user if they're in the selected department
+        const userInDepartment = departmentUserIds.includes(userId);
+        setSelectedUser(userInDepartment ? [userId] : []);
+      } else if (selectedPlanType === 'subordinatePlan') {
+        // Filter subordinates within the selected department
+        const subordinates =
+          employeeData?.items
+            ?.filter(
+              (employee: any) =>
+                (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
+                  userId && departmentUserIds.includes(employee.id),
+            )
+            .map((employee: any) => employee.id) || [];
+        setSelectedUser(
+          subordinates.length > 0
+            ? ['subordinate', ...subordinates]
+            : ['subordinate'],
+        );
+      }
+    }
+  };
 
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
@@ -125,86 +307,56 @@ function Reporting() {
     ReportApproval(data);
   };
 
-  function getTotalWeightCalculation(reportData: any) {
-    return reportData
-      ?.filter((i: any) => i.isAchieved)
-      ?.reduce((acc: any, task: any) => {
-        return acc + Number(task?.planTask?.weight);
-      }, 0);
-  }
+  // Check if data belongs to an active session
+  const isDataFromActiveSession = (createdAt: string): boolean => {
+    // If no fiscal year is selected, allow all actions (default behavior)
+    if (!selectedFiscalYearId || !selectedFiscalYear?.sessions) {
+      return true;
+    }
 
-  const actionsMenu = (
-    dataItem: any,
-    handleApproveHandler: any,
-    isApprovalLoading: any,
-  ) => (
-    <Menu>
-      {!dataItem?.plan?.isReportValidated ? (
-        <Menu.Item
-          icon={<IoCheckmarkSharp />}
-          onClick={() => handleApproveHandler(dataItem?.id, true)}
-          className="text-green-500"
-          key="approve"
-        >
-          <Tooltip
-            title={
-              isApprovalLoading
-                ? 'Processing approval...'
-                : "Approve Report! Once you approve, you can't edit"
-            }
-          >
-            Approve
-          </Tooltip>
-        </Menu.Item>
-      ) : (
-        <Menu.Item
-          className="text-red-400"
-          icon={<IoIosOpen size={16} />}
-          onClick={() => handleApproveHandler(dataItem?.id, false)}
-          key="reject"
-        >
-          <Tooltip title="Open approved Plan">Open</Tooltip>
-        </Menu.Item>
-      )}
-    </Menu>
-  );
-  const actionsMenuEditandDelte = (dataItem: any, setSelectedReportId: any) => (
-    <Menu>
-      {/* Edit Plan */}
-      <Menu.Item
-        icon={<AiOutlineEdit size={16} />}
-        onClick={() => {
-          setSelectedReportId(dataItem?.id);
-          setSelectedPlanId(dataItem?.planId);
-        }}
-        key="edit"
-      >
-        <Tooltip title="Edit Plan">
-          <span>Edit</span>
-        </Tooltip>
-      </Menu.Item>
+    const dataDate = dayjs(createdAt);
 
-      {/* Delete Plan */}
-      {/* <Popconfirm
-          title="Are you sure you want to delete this plan?"
-          onConfirm={() => handleDeleteReport(dataItem?.id || '')}
-          okText="Yes"
-          cancelText="No"
-        >
-      <Menu.Item
-        className="text-red-400"
-        icon={<AiOutlineDelete size={16} />}
-        key="delete"
-      >
-       
-          <Tooltip title="Delete Plan">
-            <span>Delete</span>
-          </Tooltip>
-       
-      </Menu.Item>
-      </Popconfirm> */}
-    </Menu>
-  );
+    // Check if the data falls within any active session
+    const activeSession = selectedFiscalYear.sessions.find((session) => {
+      const sessionStart = dayjs(session.startDate);
+      const sessionEnd = dayjs(session.endDate);
+      return (
+        session.active &&
+        (dataDate.isAfter(sessionStart) || dataDate.isSame(sessionStart)) &&
+        (dataDate.isBefore(sessionEnd) || dataDate.isSame(sessionEnd))
+      );
+    });
+
+    return !!activeSession;
+  };
+
+  // utils/dateHelpers.ts
+  const getDateLabel = (createdAt: string, activeTabName: string): string => {
+    const planDate = dayjs(createdAt);
+    const today = dayjs();
+
+    if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
+      return activeTabName === 'Daily' ? "Today's Plan" : "Today's Report";
+    }
+
+    if (activeTabName === 'Weekly') {
+      const thisFriday = dayjs().day(5);
+      const adjustedThisFriday =
+        today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
+      const lastFriday = adjustedThisFriday.subtract(7, 'day');
+
+      if (
+        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
+        (planDate.isSame(adjustedThisFriday, 'day') ||
+          planDate.isBefore(adjustedThisFriday))
+      ) {
+        return 'This Week Plan';
+      }
+    }
+
+    return '';
+  };
+
   return (
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -249,196 +401,127 @@ function Reporting() {
               className="mb-2"
               key={index}
               title={
-                <div>
-                  <Row gutter={16} className="items-center">
-                    <Col xs={4} sm={2} md={1}>
-                      {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
-                        <Avatar
-                          src={
-                            getEmployeeData(dataItem?.createdBy)?.profileImage
-                          }
-                          style={{ verticalAlign: 'middle' }}
-                          size="default"
-                        />
-                      ) : (
-                        <Avatar
-                          icon={<UserOutlined />}
-                          style={{ verticalAlign: 'middle' }}
-                          size="default"
-                        />
-                      )}
-                    </Col>
-                    <Col xs={20} sm={22} md={23}>
-                      <Row className="flex justify-between items-center">
-                        <Row gutter={16} justify={'start'} align={'middle'}>
-                          <div className="flex flex-col text-xs ml-2">
-                            {getEmployeeData(dataItem?.createdBy)?.firstName +
-                              ' ' +
-                              (getEmployeeData(dataItem?.createdBy)?.middleName
-                                ? getEmployeeData(dataItem?.createdBy)
-                                    .middleName.charAt(0)
-                                    .toUpperCase()
-                                : '')}
-                            .
-                            <span className="text-gray-500 text-xs">
-                              {dataItem?.createdBy
-                                ? getEmployeeData(dataItem?.createdBy)
-                                    ?.employeeJobInformation?.[0]?.department
-                                    ?.name || ''
-                                : ''}
-                            </span>
-                          </div>
-                        </Row>
-                        <Col
-                          span={10}
-                          className="flex justify-end items-center"
-                        >
-                          <Col>
-                            <div
-                              className={` py-1 px-1 text-white rounded-full ${dataItem?.plan?.isReportValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
-                            >
-                              {dataItem?.plan?.isReportValidated ? (
-                                <FiCheckCircle />
-                              ) : (
-                                <MdOutlinePending size={16} />
-                              )}
-                            </div>
-                          </Col>
-                          <div className="flex flex-col text-xs ml-2">
-                            <span className="mr-4">
-                              {dataItem?.plan?.isReportValidated
-                                ? 'Closed'
-                                : 'Open'}
-                            </span>
-                            <span className="mr-4 text-gray-500">
-                              {dayjs(dataItem?.createdAt).format(
-                                'MMMM DD YYYY, h:mm:ss A',
-                              )}
-                            </span>
-                          </div>
-
-                          {/* {!dataItem?.isValidated && ( */}
-                          <>
-                            {userId ===
-                              getEmployeeData(
-                                dataItem?.userId ?? dataItem?.createdBy,
-                              )?.reportingTo?.id && (
-                              <Dropdown
-                                overlay={actionsMenu(
-                                  dataItem,
-                                  handleApproveHandler,
-                                  isApprovalLoading,
-                                )}
-                                trigger={['click']}
-                              >
-                                <Button
-                                  loading={isApprovalLoading}
-                                  type="text"
-                                  icon={
-                                    <IoMdMore className="text-2xl font-bold" />
-                                  }
-                                  className="cursor-pointer text-green border-none  hover:text-success"
-                                />
-                              </Dropdown>
-                            )}
-                            {userId ===
-                              (dataItem?.userId ?? dataItem?.createdBy) &&
-                              dataItem?.plan?.isReportValidated == false && (
-                                <Dropdown
-                                  overlay={actionsMenuEditandDelte(
-                                    dataItem,
-                                    setSelectedReportId,
-                                  )}
-                                  trigger={['click']}
-                                >
-                                  <Button
-                                    // loading={loadingDeleteReport}
-                                    type="text"
-                                    icon={<IoMdMore className="text-2xl" />}
-                                    className="cursor-pointer  text-black border-none  hover:text-primary"
-                                  />
-                                </Dropdown>
-                              )}
-                          </>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                </div>
-              }
-            >
-              {groupTasksByKeyResultAndMilestone(
-                dataItem?.reportTask ?? [],
-              )?.map((keyResult: any, keyResultIndex: number) => (
-                <>
-                  <KeyResultTasks
-                    keyResult={
-                      keyResult ?? {
-                        id: 'defaultKeyResult',
-                        name: 'No Key Result Available',
-                        tasks: [],
-                      }
-                    }
-                    activeTab={activeTab}
-                    keyResultIndex={keyResultIndex}
-                  />
-                </>
-              ))}
-              <div className="flex items-center justify-end mt-2 gap-2 text-sm">
-                <span className="text-black ">Total Point:</span>
-                <span
-                  className={`${
-                    getTotalWeightCalculation(dataItem?.reportTask) > 84
-                      ? 'text-green-500'
-                      : getTotalWeightCalculation(dataItem?.reportTask) >= 64
-                        ? 'text-orange'
-                        : 'text-red-500'
-                  }`}
-                >
-                  {getTotalWeightCalculation(dataItem?.reportTask)}%
+                <span className="hidden sm:block">
+                  {`Create ${activeTabName} Report`}
                 </span>
-              </div>
-              <CommentCard
-                planId={dataItem?.id}
-                data={dataItem?.comments}
-                loading={getReportLoading}
-                isPlanCard={false}
-              />
-            </Card>
-          </>
-        ))}
-        <Pagination
-          disabled={!allReporting?.items?.length} // Ensures no crash if items is undefined
-          className="flex justify-end"
-          total={allReporting?.items?.meta?.totalItems} // Ensures total count instead of pages
-          current={pageReporting}
-          pageSize={pageSizeReporting} // Dynamically control page size
-          showSizeChanger // Allows user to change page size
+              }
+              id="createActiveTabName"
+              icon={<FaPlus className="ml-2 sm:ml-0" />}
+              onClick={() => setOpenReportModal(true)}
+              className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700 w-10 h-10 sm:w-auto sm:min-w-[180px]`}
+              loading={getUserPlanningLoading}
+            />
+          </div>
+        </Tooltip>
+      </div>
+
+      <section className="mt-8">
+        <div className="space-y-6">
+          {getReportLoading
+            ? Array.from({ length: 3 }).map((unusedItem, i) => (
+                <PlanCardSkeleton key={i} />
+              ))
+            : allReporting?.items?.map((dataItem: any) => {
+                const cadence =
+                  (activeTabName?.toLowerCase() as Cadence) || 'weekly';
+                const plan = transformReportToPlanSummary(
+                  dataItem,
+                  cadence,
+                  employeeData,
+                );
+
+                return (
+                  <PlanCard
+                    key={plan.id}
+                    plan={plan}
+                    viewMode="reporting"
+                    activeCadence={cadence}
+                    onApprove={() => handleApproveHandler(dataItem.id, true)}
+                    onOpen={() => handleApproveHandler(dataItem.id, false)}
+                    onEdit={() => {
+                      setSelectedReportId(dataItem.id);
+                      setSelectedPlanId(dataItem.planId);
+                    }}
+                    canApprove={
+                      userId ===
+                      (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
+                        ?.reportingTo?.id ||
+                        getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
+                          ?.delegatedTo?.id)
+                    }
+                    canEdit={
+                      userId === (dataItem?.userId ?? dataItem?.createdBy) &&
+                      dataItem?.plan?.isReportValidated == false &&
+                      isDataFromActiveSession(dataItem?.createdAt)
+                    }
+                    isApprovalLoading={isApprovalLoading}
+                    dateLabel={getDateLabel(dataItem?.createdAt, activeTabName)}
+                  />
+                );
+              })}
+        </div>
+      </section>
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={allReporting?.meta?.totalItems ?? 0}
+          pageSize={pageSizeReporting}
           onChange={(page, pageSize) => {
             setPageReporting(page);
-            setPageSizeReporting(pageSize); // Ensure page size updates dynamically
+            setPageSizeReporting(pageSize);
           }}
-          pageSizeOptions={['10', '20', '50', '100']}
+          onShowSizeChange={(size) => {
+            setPageSizeReporting(size);
+            setPageReporting(1);
+          }}
         />
-        {allReporting?.items?.length <= 0 && (
-          <div className="flex justify-center">
-            <div>
-              <p className="flex justify-center items-center h-[200px]">
-                <Image
-                  src="/image/undraw_empty_re_opql 1.svg"
-                  width={300}
-                  height={300}
-                  alt="Picture of the author"
-                />
-              </p>
-              <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
-                There is no Reported data !!
-              </p>
-            </div>
+      ) : (
+        <CustomPagination
+          total={allReporting?.meta?.totalItems}
+          current={pageReporting}
+          pageSize={pageSizeReporting}
+          onShowSizeChange={(size) => {
+            setPageSizeReporting(size);
+            setPageReporting(1);
+          }}
+          onChange={(page, pageSize) => {
+            setPageReporting(page);
+            setPageSizeReporting(pageSize);
+          }}
+          grayBackground={true}
+        />
+      )}
+      {allReporting?.items?.length <= 0 && (
+        <div className="flex justify-center">
+          <div>
+            <p className="flex justify-center items-center h-[200px]">
+              <Image
+                src="/image/undraw_empty_re_opql 1.svg"
+                width={300}
+                height={300}
+                alt="Picture of the author"
+              />
+            </p>
+            <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+              There is no Reported data !!
+            </p>
           </div>
-        )}
-      </div>
-    </Spin>
+        </div>
+      )}
+      <MobileFilterModal
+        open={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApply={() => setIsFilterModalOpen(false)}
+        planTypeOptions={planTypeOptions}
+        selectedPlanType={selectedPlanType}
+        onPlanTypeChange={handlePlanTypeChange}
+        departmentOptions={departmentOptions}
+        selectedDepartment={selectedDepartment}
+        onDepartmentChange={handleDepartmentChange}
+        showPlanType={hasPermission}
+        showDepartment={hasPermission}
+      />
+    </div>
   );
 }
 export default Reporting;

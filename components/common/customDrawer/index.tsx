@@ -13,6 +13,8 @@ interface CustomDrawerLayoutProps {
   paddingBottom?: number;
   footer?: React.ReactNode | null;
   hideButton?: boolean;
+  customMobileHeight?: string | null;
+  customPadding?: string | null;
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -21,9 +23,12 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   modalHeader,
   children,
   width,
+  width: widthProp,
   hideButton = false,
   footer = null,
-  paddingBottom = 50,
+  paddingBottom = 10,
+  customMobileHeight = null,
+  customPadding = null,
 }) => {
   // Default width
   const {
@@ -39,39 +44,31 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
 
   useEffect(() => {
     setIsClient(true);
-    if (window.innerWidth <= 768 && placement !== 'bottom') {
-      setPlacement?.('bottom');
-    } else if (window.innerWidth > 768 && placement !== 'right') {
-      setPlacement?.('right');
-    }
-    const updateWidth = () => {
-      // if (window.innerWidth <= 768) {
-      //   setCurrentWidth('90%');
-      // } else {
-      //   setCurrentWidth(width || '70%');
-      // }
-      setCurrentWidth(window.innerWidth <= 768 ? '100%' : width || '40%');
+
+    const updateLayout = () => {
+      const width = window.innerWidth;
+
+      setCurrentWidth(width <= 768 ? '100%' : widthProp || '40%');
+
+      if (width <= 768 && placement !== 'bottom') {
+        setPlacement?.('bottom');
+      } else if (width > 768 && placement !== 'right') {
+        setPlacement?.('right');
+      }
     };
 
-    // Run the width update once on mount
-    updateWidth();
+    updateLayout(); // run once on mount
 
-    // Add the resize event listener
-    window.addEventListener('resize', updateWidth);
-
-    // Cleanup the event listener on unmount
-    return () => {
-      window.removeEventListener('resize', updateWidth);
-    };
-  }, [width, currentWidth, setCurrentWidth]);
+    window.addEventListener('resize', updateLayout);
+    return () => window.removeEventListener('resize', updateLayout);
+  }, [widthProp, placement, setCurrentWidth, setPlacement, setIsClient]);
 
   // Render the component only on the client side
   if (!isClient) return null;
 
   return (
-    <div>
+    <div data-cy="custom-drawer-container">
       <>
-        {' '}
         {open && !hideButton && (
           <Button
             id="closeSidebarButton"
@@ -98,14 +95,28 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         closable={false}
         onClose={onClose}
         open={open}
-        style={{ paddingBottom: paddingBottom }}
+        style={{ paddingBottom: isMobile ? 0 : paddingBottom }}
         footer={footer}
         styles={{
-          header: { borderBottom: 'none' },
-          footer: { borderTop: 'none' },
-          body: { padding: isMobile ? '0 12px' : '0 36px' },
+          header: {
+            borderBottom: 'none',
+            padding: isMobile ? '24px 12px' : '24px 36px',
+          },
+          footer: {
+            borderTop: 'none',
+            paddingBlock: isMobile ? 8 : 8,
+            paddingInline: isMobile ? 12 : 16,
+            boxShadow: 'none',
+          },
+          body: {
+            padding: isMobile
+              ? `0 ${customPadding ? customPadding : '12px'}`
+              : `0 ${customPadding ? customPadding : '36px'}`,
+          },
         }}
-        height={isMobile ? 600 : 400}
+        height={
+          customMobileHeight ? customMobileHeight : isMobile ? '65vh' : 400
+        }
         placement={placement}
       >
         {children}

@@ -3,10 +3,7 @@ import React from 'react';
 import { Spin } from 'antd';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { useFetchCategories } from '@/store/server/features/feedback/category/queries';
-import {
-  useDeleteFormCategory,
-  useUpdateFormCategory,
-} from '@/store/server/features/feedback/category/mutation';
+import { useDeleteFormCategory } from '@/store/server/features/feedback/category/mutation';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import CategoryCard from './categoryCard';
 import EditCategoryModal from './editCategory';
@@ -35,7 +32,6 @@ const CategoriesCard: React.FC = () => {
       searchParams?.createdBy || '',
     );
 
-  const updateCategory = useUpdateFormCategory();
   const deleteCategory = useDeleteFormCategory();
 
   const userOptions = React.useMemo(() => {
@@ -58,30 +54,17 @@ const CategoriesCard: React.FC = () => {
 
   const handleMenuClick = (key: string, category: any) => {
     if (key === 'edit') {
+      setEditModal(true);
+
       setEditingCategory({
         ...category,
-        users: Array.isArray(category.users)
-          ? category.items.map((user: any) => user.id || user)
+        users: Array.isArray(category.permissions)
+          ? category.permissions.map((user: any) => user.userId)
           : [],
       });
-      setEditModal(true);
     } else if (key === 'delete') {
       setDeletedItem(category.id);
       setDeleteModal(true);
-    }
-  };
-  const handleUpdate = (values: any) => {
-    const editingCategory =
-      CategoriesManagementStore.getState().editingCategory;
-    if (editingCategory) {
-      updateCategory.mutate({
-        id: editingCategory.id,
-        data: {
-          name: values.name,
-          description: values.description,
-          users: values.users,
-        },
-      });
     }
   };
 
@@ -92,39 +75,67 @@ const CategoriesCard: React.FC = () => {
 
   if (isCategoriesLoading)
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
+      <div
+        className="flex justify-center items-center h-64"
+        data-cy="feedback-categories-components-categoriescard-div-loading"
+        id="feedback-categories-components-categoriescard-div-loading"
+      >
+        <Spin
+          size="large"
+          data-cy="feedback-categories-components-categoriescard-spin"
+        />
       </div>
     );
 
   const NoData = () => {
     return (
-      <div className="w-full h-full flex justify-center items-center my-5">
-        <div>No Form Category available.</div>
+      <div
+        className="w-full h-full flex justify-center items-center my-5"
+        data-cy="feedback-categories-components-categoriescard-div-no-data"
+        id="feedback-categories-components-categoriescard-div-no-data"
+      >
+        <div
+          data-cy="feedback-categories-components-categoriescard-div-no-data-text"
+          id="feedback-categories-components-categoriescard-div-no-data-text"
+        >
+          No Form Category available.
+        </div>
       </div>
     );
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-4 mb-[80px]">
+    <div
+      data-cy="feedback-categories-components-categoriescard-div"
+      id="feedback-categories-components-categoriescard-div"
+    >
+      <div
+        className="flex flex-wrap gap-4 mb-[80px]"
+        data-cy="feedback-categories-components-categoriescard-div-cards"
+        id="feedback-categories-components-categoriescard-div-cards"
+      >
         {categories?.items && categories?.items?.length >= 1 ? (
           categories?.items.map((category: any) => (
             <CategoryCard
               key={category.id}
               category={category}
               onMenuClick={handleMenuClick}
+              data-cy="feedback-categories-category-card"
             />
           ))
         ) : (
-          <NoData />
+          <NoData data-cy="feedback-categories-components-categoriescard-div-no-data" />
         )}
       </div>
-      <EditCategoryModal onConfirm={handleUpdate} userOptions={userOptions} />
+      <EditCategoryModal
+        userOptions={userOptions}
+        data-cy="feedback-categories-edit-category-modal"
+      />
       <DeleteModal
         open={deleteModal}
         onCancel={() => setDeleteModal(false)}
         onConfirm={handleDelete}
+        data-cy="feedback-categories-components-categoriescard-modal-delete"
       />
       <FeedbackPagination
         current={current}
@@ -138,6 +149,7 @@ const CategoriesCard: React.FC = () => {
           setPageSize(size);
           setCurrent(1);
         }}
+        data-cy="feedback-categories-components-categoriescard-pagination"
       />
     </div>
   );

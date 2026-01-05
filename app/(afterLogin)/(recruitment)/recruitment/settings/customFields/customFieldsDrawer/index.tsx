@@ -113,6 +113,8 @@ const CustomFieldsDrawer: React.FC<{
 
   const renderFormContent = () => (
     <Form
+      id="talent-acquisition-custom-fields-form"
+      data-cy="talent-acquisition-custom-fields-form"
       form={form}
       autoComplete="off"
       layout="vertical"
@@ -133,6 +135,8 @@ const CustomFieldsDrawer: React.FC<{
         rules={[{ required: true, message: 'Please input the title!' }]}
       >
         <Input
+          id="talent-acquisition-custom-fields-input-title"
+          data-cy="talent-acquisition-custom-fields-input-title"
           size="large"
           className="text-sm w-full  h-10"
           placeholder="Enter your question here"
@@ -141,7 +145,7 @@ const CustomFieldsDrawer: React.FC<{
       </Form.Item>
 
       <Row gutter={12}>
-        <Col lg={8} md={10} xs={24}>
+        <Col lg={8} md={10} xs={12}>
           <Form.Item
             label={
               <span className="text-md font-semibold text-gray-700">
@@ -151,15 +155,45 @@ const CustomFieldsDrawer: React.FC<{
             name="fieldType"
             rules={[{ required: true, message: 'Field type is required' }]}
           >
-            <Select allowClear placeholder="Select type">
-              <Option value="multiple_choice">Multiple Choice</Option>
-              <Option value="checkbox">Checkbox</Option>
-              <Option value="short_text">Short Text</Option>
-              <Option value="paragraph">Paragraph</Option>
+            <Select
+              id="talent-acquisition-custom-fields-select-field-type"
+              data-cy="talent-acquisition-custom-fields-select-field-type"
+              allowClear
+              placeholder="Select type"
+              className="h-10"
+            >
+              <Option
+                value="multiple_choice"
+                id="talent-acquisition-custom-fields-option-multiple-choice"
+                data-cy="talent-acquisition-custom-fields-option-multiple-choice"
+              >
+                Multiple Choice
+              </Option>
+              <Option
+                value="checkbox"
+                id="talent-acquisition-custom-fields-option-checkbox"
+                data-cy="talent-acquisition-custom-fields-option-checkbox"
+              >
+                Checkbox
+              </Option>
+              <Option
+                value="short_text"
+                id="talent-acquisition-custom-fields-option-short-text"
+                data-cy="talent-acquisition-custom-fields-option-short-text"
+              >
+                Short Text
+              </Option>
+              <Option
+                value="paragraph"
+                id="talent-acquisition-custom-fields-option-paragraph"
+                data-cy="talent-acquisition-custom-fields-option-paragraph"
+              >
+                Paragraph
+              </Option>
             </Select>
           </Form.Item>
         </Col>
-        <Col lg={16} md={10} xs={24}>
+        <Col lg={16} md={10} xs={12}>
           <Form.Item
             label={
               <span className="text-md font-semibold text-gray-700">
@@ -170,7 +204,13 @@ const CustomFieldsDrawer: React.FC<{
             name="question"
             rules={[{ required: true, message: 'This field is required' }]}
           >
-            <Input placeholder="Enter your question here" allowClear />
+            <Input
+              id="talent-acquisition-custom-fields-input-question"
+              data-cy="talent-acquisition-custom-fields-input-question"
+              placeholder="Enter your question here"
+              allowClear
+              className="h-10"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -180,7 +220,13 @@ const CustomFieldsDrawer: React.FC<{
         className="mb-2 mt-0 ml-4"
         valuePropName="checked"
       >
-        <Checkbox defaultChecked={false}>Is Required</Checkbox>
+        <Checkbox
+          id="talent-acquisition-custom-fields-checkbox-required"
+          data-cy="talent-acquisition-custom-fields-checkbox-required"
+          defaultChecked={false}
+        >
+          Is Required
+        </Checkbox>
       </Form.Item>
 
       <Form.List
@@ -227,10 +273,16 @@ const CustomFieldsDrawer: React.FC<{
                         },
                       ]}
                     >
-                      <Input placeholder="Option" />
+                      <Input
+                        id={`talent-acquisition-custom-fields-input-option-${field.name}`}
+                        data-cy={`talent-acquisition-custom-fields-input-option-${field.name}`}
+                        placeholder="Option"
+                      />
                     </Form.Item>
                     {fields.length > 0 && (
                       <MinusCircleOutlined
+                        id={`talent-acquisition-custom-fields-button-remove-option-${field.name}`}
+                        data-cy={`talent-acquisition-custom-fields-button-remove-option-${field.name}`}
                         className="dynamic-delete-button"
                         onClick={() => remove(field.name)}
                       />
@@ -244,6 +296,8 @@ const CustomFieldsDrawer: React.FC<{
                 <Form.Item>
                   <div className="flex flex-col items-center justify-center">
                     <div
+                      id="talent-acquisition-custom-fields-button-add-option"
+                      data-cy="talent-acquisition-custom-fields-button-add-option"
                       onClick={() => add()}
                       className="w-6 h-6 flex items-center justify-center rounded-full bg-primary cursor-pointer"
                     >
@@ -273,11 +327,27 @@ const CustomFieldsDrawer: React.FC<{
   if (isEdit) {
     return (
       <Modal
+        data-cy="talent-acquisition-custom-fields-modal-edit"
         centered
         title="Edit Question"
         open={true}
         onCancel={onClose}
-        footer={null}
+        footer={
+          <div className="flex justify-center w-full space-x-5 p-4">
+            <Button
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              onClick={() => form.submit()}
+            >
+              Update
+            </Button>
+          </div>
+        }
       >
         {renderFormContent()}
       </Modal>
@@ -287,21 +357,34 @@ const CustomFieldsDrawer: React.FC<{
   return (
     isCustomFieldsDrawerOpen && (
       <CustomDrawerLayout
+        data-cy="talent-acquisition-custom-fields-drawer"
         open={isCustomFieldsDrawerOpen}
         modalHeader={customFieldsDrawerHeader}
         onClose={onClose}
-        width="30%"
+        width="40%"
         footer={
-          <div className="flex justify-center w-full bg-[#fff] absolute bottom-8 space-x-5">
+          <div className="flex justify-center w-full bg-[#fff] space-x-5 p-4">
             <Button
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              id="talent-acquisition-custom-fields-button-cancel"
+              data-cy="talent-acquisition-custom-fields-button-cancel"
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
               onClick={onClose}
             >
               Cancel
             </Button>
             <Button
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
-              htmlType="submit"
+              id={
+                isEdit
+                  ? 'talent-acquisition-custom-fields-button-update'
+                  : 'talent-acquisition-custom-fields-button-create'
+              }
+              data-cy={
+                isEdit
+                  ? 'talent-acquisition-custom-fields-button-update'
+                  : 'talent-acquisition-custom-fields-button-create'
+              }
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              onClick={() => form.submit()}
             >
               {isEdit ? 'Update Template' : 'Create'}
             </Button>

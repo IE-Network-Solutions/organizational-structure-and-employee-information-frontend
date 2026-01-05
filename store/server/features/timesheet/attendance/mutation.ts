@@ -11,37 +11,42 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import useAttendanceImportErrorModalStore from '@/store/uistate/features/timesheet/employeeAttendanceImport';
 
 const attendanceImport = async (file: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/import`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { file },
+    // skipEncryption: true,
   });
 };
 
 const breakAttendanceImport = async (file: string, breakTypeId: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-import`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { file, breakTypeId },
   });
 };
 
 const setEditAttendance = async (data: EditAttendance, id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/${id}`,
     method: 'PATCH',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 
 const setCurrentAttendance = async (data: AttendanceSetShiftRequestBody) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -61,6 +66,13 @@ export const useAttendanceImport = () => {
         useAttendanceImportErrorModalStore
           .getState()
           .showModal(error.response.data.errors || []);
+      }
+
+      if (error?.response?.data?.message) {
+        NotificationMessage.error({
+          message: 'Error',
+          description: error.response.data.message,
+        });
       }
     },
   });
@@ -85,6 +97,12 @@ export const useBreakAttendanceImport = () => {
           useAttendanceImportErrorModalStore
             .getState()
             .showModal(error.response.data.errors || []);
+        }
+        if (error?.response?.data?.message) {
+          NotificationMessage.error({
+            message: 'Error',
+            description: error.response.data.message,
+          });
         }
       },
     },

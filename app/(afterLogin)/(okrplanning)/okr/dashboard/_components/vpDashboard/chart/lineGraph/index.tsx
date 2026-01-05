@@ -1,21 +1,25 @@
-import React from 'react';
+'use client';
+import React, { useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import {
-  useGetVPLineGraphData,
   useGetAllMonth,
+  useGetVPLineGraphDataByMonth,
 } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-import { Skeleton } from 'antd';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useDashboardVPStore } from '@/store/uistate/features/dashboard/vp';
+import { Select } from 'antd';
 import dayjs from 'dayjs';
 
 ChartJS.register(
@@ -23,6 +27,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -43,64 +48,200 @@ interface PayCardInterface {
 
 const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   const userId = useAuthenticationStore?.getState().userId;
-  const { data: getAllMonth } = useGetAllMonth();
+  const {
+    type,
+    displayData,
+    setDisplayData,
+    setType,
+    selectedMonth,
+    setSelectedMonth,
+  } = useDashboardVPStore();
+  const { data: activeFiscalYear } = useGetActiveFiscalYears();
+  const { data: monthData } = useGetAllMonth();
+
   const identifier = id ?? userId;
+  const { data: lineGraphByMonth } = useGetVPLineGraphDataByMonth(
+    identifier,
+    selectedMonth,
+  );
 
-  const { data: lineGraph, isLoading: isGraphLoading } =
-    useGetVPLineGraphData(identifier);
-  const getMonthName = (id: string) => {
-    return (
-      getAllMonth?.items?.find((monthItem: any) => monthItem?.id === id) ?? {}
-    );
+  const requests = [
+    {
+      type: 'Quarterly',
+      value: 'Quarterly',
+    },
+    {
+      type: 'Yearly',
+      value: 'Yearly',
+    },
+  ];
+  const handleChange = (value: string) => {
+    setType(value);
   };
+  useEffect(() => {
+    if (type === 'Quarterly') {
+      const months = activeFiscalYear?.sessions?.find(
+        (item: any) => item.active,
+      )?.months;
+      setSelectedMonth(months?.map((month: any) => month.id) ?? []);
+    } else if (type === 'Yearly') {
+      const months = monthData?.items?.map((month: any) => month.id);
 
-  const dataValue = lineGraph?.map((item: any) => {
-    const monthData = getMonthName(item?.monthId);
-
-    if (!monthData?.startDate || !monthData?.endDate) {
-      return {
-        ...item,
-        monthName: '',
-        MonthsName: '',
-      };
+      setSelectedMonth(months ?? []);
     }
+  }, [type, activeFiscalYear, monthData]);
+  useEffect(() => {
+    if (type === 'Quarterly') {
+      const session = activeFiscalYear?.sessions?.find(
+        (item: any) => item.active,
+      );
+      const month = session?.months;
 
-    const startDate = dayjs(monthData?.startDate);
-    const endDate = dayjs(monthData?.endDate);
+      if (month) {
+        const filteredData = lineGraphByMonth
+          ?.map((item: any) => {
+            const matchedMonth = month?.find((m: any) => m.id === item.monthId);
+            return {
+              ...item,
+              monthName: matchedMonth?.startDate
+                ? dayjs(matchedMonth.startDate).format('MMMM')
+                : matchedMonth?.name,
+            };
+          })
+          ?.sort(
+            (a: any, b: any) =>
+              dayjs(a.createdAt).valueOf() - dayjs(b.createdAt).valueOf(),
+          );
 
-    const formattedStartDate = startDate.format('MMM D');
-    const formattedEndDate = endDate.format('MMM D');
+        setDisplayData(filteredData);
+      } else {
+        setDisplayData([]);
+      }
+    } else if (type === 'Yearly') {
+      if (monthData?.items) {
+        const filteredData = lineGraphByMonth
+          ?.map((item: any) => {
+            const matchedMonth = monthData?.items?.find(
+              (m: any) => m.id === item.monthId,
+            );
+            return {
+              ...item,
+              monthName: matchedMonth?.startDate
+                ? dayjs(matchedMonth.startDate).format('MMMM')
+                : matchedMonth?.name,
+            };
+          })
+          ?.sort(
+            (a: any, b: any) =>
+              dayjs(a.createdAt).valueOf() - dayjs(b.createdAt).valueOf(),
+          );
 
-    return {
-      ...item,
-      monthName: monthData?.name ?? '',
-      monthRange: `${formattedStartDate} - ${formattedEndDate}`,
-    };
-  });
-  if (isGraphLoading) {
-    return (
-      <div>
-        <Skeleton active />
-      </div>
-    );
-  }
+        setDisplayData(filteredData);
+      } else {
+        setDisplayData(lineGraphByMonth);
+      }
+    }
+  }, [type, activeFiscalYear, lineGraphByMonth]);
 
   const data = {
-    labels: dataValue?.map((item: any) => item?.monthRange),
+    labels: displayData?.map((month: any) =>
+      month.monthName ? month.monthName.toUpperCase().slice(0, 3) : 'Unknown',
+    ),
     datasets: [
       {
-        label: 'Score Data',
-        data: dataValue?.map((item: any) => item?.vpScore),
-        borderColor: '#3636f0',
-        backgroundColor: '#3636f0',
-        fill: false,
+        label: 'Actual Value',
+        data: displayData?.map((item: any) => item.vpScore),
+        backgroundColor: 'rgba(54, 54, 240, 0.7)',
+        barPercentage: 0.5,
       },
     ],
   };
 
+  const options = {
+    responsive: true,
+    maxBarThickness: 50,
+
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { family: 'inherit', size: 14 } },
+      },
+      y: {
+        max: 100,
+        ticks: { stepSize: 20 },
+        beginAtZero: true,
+        grid: { color: '#9ca3af' },
+      },
+    },
+
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'rect', // 'circle' | 'rect' | 'line' | etc.
+          boxWidth: 14,
+        },
+      },
+      title: {
+        display: false,
+      },
+      datalabels: { display: false },
+    },
+  };
+
   return (
-    <div>
-      <Line options={options} data={data} />
+    <div
+      className="border-[1px] border-gray-200 rounded-lg pb-2 px-3 pt-3 h-full"
+      id="okr-vplinegraph-container-display-div"
+      data-cy="okr-vplinegraph-container-display-div"
+    >
+      <div
+        className="flex items-center justify-between mb-4"
+        id="okr-vplinegraph-header-display-div"
+        data-cy="okr-vplinegraph-header-display-div"
+      >
+        <h4
+          className="text-lg font-bold"
+          id="okr-vplinegraph-title-display-h4"
+          data-cy="okr-vplinegraph-title-display-h4"
+        >
+          Actual Value{' '}
+        </h4>
+        <div
+          className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer"
+          id="okr-vplinegraph-filter-display-div"
+          data-cy="okr-vplinegraph-filter-display-div"
+        >
+          <Select
+            placeholder="select"
+            allowClear
+            className="min-w-10   text-sm font-semibold border-none"
+            options={requests.map((item) => ({
+              value: item.type,
+              label: item.value,
+            }))}
+            bordered={false}
+            defaultValue="Quarterly"
+            onChange={handleChange}
+            id="okr-vplinegraph-period-select-display-select"
+            data-cy="okr-vplinegraph-period-select-display-select"
+          />
+        </div>
+      </div>
+      <Bar
+        data={data}
+        options={options}
+        height={
+          window.innerWidth >= 1536
+            ? 130 // 2xl
+            : window.innerWidth >= 1280
+              ? 172 // xl
+              : 230 // default/mobile
+        }
+        id="okr-vplinegraph-bar-chart-display-chart"
+        data-cy="okr-vplinegraph-bar-chart-display-chart"
+      />
     </div>
   );
 };

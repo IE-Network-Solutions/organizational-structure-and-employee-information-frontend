@@ -5,19 +5,16 @@
 #### [Process (initiated by API request):](https://lobster.stoplight.io/docs/api-docs/branches/master/5db4ba2e144b4-1-subscription-management-scenarios#process-initiated-by-api-request)
 
 1. System validates:
-
    - Client has no other subscriptions in any status (active, expired, trial, etc.) - client can have only one subscription in the system
    - Client has no unpaid invoices
 
 2. System receives data for new subscription creation:
-
    - Client ID (tenantId)
    - Plan ID (planId)
    - Plan Period ID (planPeriodId) - identifies which period option is selected for the plan
    - Number of slots (slotTotal)
 
 3. System validates plan and period:
-
    - Plan exists in `subscription_module.plans` table
    - Plan has no `deletedAt` (not deleted)
    - Plan has `isPublic` = true (if request from client)
@@ -25,12 +22,10 @@
    - If plan has trial period (trialDurationDays is not null) and maxTrialSlots is set, verify requested slots don't exceed this limit
 
 4. System retrieves period information:
-
    - Gets period type details from `subscription_module.periodTypes` via `subscription_module.planPeriods`
    - Calculates actual subscription duration based on periodTypeId and periodMultiplier
 
 5. System creates record in `subscription_module.subscriptions`:
-
    - `id` = generated UUID
    - `tenantId` = client ID
    - `planId` = selected plan ID
@@ -91,11 +86,9 @@
    - `scheduledChangesMetadata` = null
 
    If plan has trial period:
-
    - `trialEndAt` = startAt + plan.trialDurationDays
 
 6. System creates record in `subscription_module.subscriptionSlotTransactions` for initial slot count:
-
    - `subscriptionId` = ID created subscription
    - `transactionType` = subscription.isTrial ? 'trial' : 'purchase'
    - `slotCount` = requested number of slots
@@ -106,7 +99,6 @@
    - `reason` = subscription.isTrial ? 'Trial subscription slots' : 'Initial subscription slots'
 
 7. Creates audit log record in `subscription_module.auditLogs`:
-
    - `entity` = 'subscription'
    - `entityId` = ID created subscription
    - `action` = 'created'
@@ -114,7 +106,6 @@
    - `actionAt` = current date and time
 
 8. If subscription is not in trial period or it's free plan (`isFree` = true), system creates invoice:
-
    - `tenantId` = client ID
    - `subscriptionId` = ID created subscription
    - `invoiceNumber` = generated unique number
@@ -128,7 +119,6 @@
      <pre tabindex="0" class="sl-code-viewer sl-grid sl-inverted sl-overflow-x-hidden sl-overflow-y-hidden sl-relative sl-bg-canvas sl-outline-none sl-rounded-lg focus:sl-ring sl-ring-primary sl-ring-opacity-50 sl-group" role="group"><div class="sl-code-viewer__scroller sl-overflow-x-auto sl-overflow-y-auto"><div class="sl-code-highlight prism-code language-json"><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token punctuation">{</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"operationType"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"new_subscription"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"targetState"</span><span class="token operator">:</span><span class="token plain"></span><span class="token punctuation">{</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"subscriptionId"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[ID_subscription]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"planId"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[ID_plan]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"slotTotal"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[number_of_slots]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"startAt"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[start_date]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"endAt"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[end_date]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"price"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[subscription_price]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"isActive"</span><span class="token operator">:</span><span class="token plain"></span><span class="token boolean">true</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token punctuation">}</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token punctuation">}</span></div></div></div></div><div data-testid="copy-button" class="sl-absolute sl-right-0 sl-pr-2 sl-invisible group-hover:sl-visible sl-invisible"><button type="button" class="sl-button sl-form-group-border sl-h-sm sl-text-base sl-font-medium sl-px-1.5 hover:sl-bg-canvas-50 active:sl-bg-canvas-100 sl-text-muted hover:sl-text-body focus:sl-text-body sl-rounded sl-border-transparent sl-border disabled:sl-opacity-70"><div class="sl-mx-0"><i role="img" aria-hidden="true" class="sl-icon fal fa-copy fa-fw fa-sm"></i></div></button></div></pre>
 
 9. After invoice paid:
-
    - Updates invoice status to 'paid'
    - Updates subscription status to 'active'
    - Sets `isActive` = true for subscription
@@ -157,14 +147,12 @@ Process (initiated through admin panel):
 #### [The process of decreasing or increasing is essentially the same, but depends on the cost of the subscription to which the transition is made](https://lobster.stoplight.io/docs/api-docs/branches/master/5db4ba2e144b4-1-subscription-management-scenarios#the-process-of-decreasing-or-increasing-is-essentially-the-same-but-depends-on-the-cost-of-the-subscription-to-which-the-transition-is-made)
 
 1. System validates:
-
    - Current subscription is active (`isActive` = true)
    - Client has no unpaid invoices of any type (all invoices must have status 'paid')
    - New plan exists and is valid (not deleted)
    - New plan has higher slot price than current
 
 2. If client has unpaid invoices:
-
    - System rejects operation
    - Returns message "Cannot upgrade plan when there are unpaid bills. Please pay all current bills or contact support."
 
@@ -243,18 +231,26 @@ Process (initiated through admin panel):
 
    **}**
 
-   **current_plan_cost_for_period = current_slot_price _ subscription.slotTotal _ current_planPeriod.periodMultiplier**
+<<<<<<< HEAD
+**current*plan_cost_for_period = current_slot_price * subscription.slotTotal \_ current_planPeriod.periodMultiplier**
 
-   **current_cost_for_remaining_days = current_plan_cost_for_period \* period_share**
+**current_cost_for_remaining_days = current_plan_cost_for_period \* period_share**
 
-   **new_plan_cost_for_full_period = new_slot_price _ subscription.slotTotal _ new_planPeriod.periodMultiplier**
+# **new*plan_cost_for_full_period = new_slot_price * subscription.slotTotal \_ new_planPeriod.periodMultiplier**
 
-   **new_cost_for_remaining_days = new_plan_cost_for_full_period \* period_share**
+**current*plan_cost_for_period = current_slot_price * subscription.slotTotal \_ current_planPeriod.periodMultiplier**
 
-   **additional_cost = new_cost_for_remaining_days - current_cost_for_remaining_days**
+**current_cost_for_remaining_days = current_plan_cost_for_period \* period_share**
+
+**new*plan_cost_for_full_period = new_slot_price * subscription.slotTotal \_ new_planPeriod.periodMultiplier**
+
+> > > > > > > 4b059e9f813fb421e5d82c40abf0a735e4dcfa62
+
+**new_cost_for_remaining_days = new_plan_cost_for_full_period \* period_share**
+
+**additional_cost = new_cost_for_remaining_days - current_cost_for_remaining_days**
 
 4. Creates invoice in `subscription_module.invoices`:
-
    - `tenantId` = client ID
    - `subscriptionId` = ID current subscription
    - `invoiceNumber` = generated unique number (format: UPG-YYYYMMDD-XXXX)
@@ -269,7 +265,6 @@ Process (initiated through admin panel):
      <pre tabindex="0" class="sl-code-viewer sl-grid sl-inverted sl-overflow-x-hidden sl-overflow-y-hidden sl-relative sl-bg-canvas sl-outline-none sl-rounded-lg focus:sl-ring sl-ring-primary sl-ring-opacity-50 sl-group" role="group"><div class="sl-code-viewer__scroller sl-overflow-x-auto sl-overflow-y-auto"><div class="sl-code-highlight prism-code language-json"><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token punctuation">{</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"operationType"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"plan_upgrade"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"previousState"</span><span class="token operator">:</span><span class="token plain"></span><span class="token punctuation">{</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"planId"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[ID_current_plan]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"slotTotal"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[number_of_slots]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"price"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[current_subscription_cost]"</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"targetState"</span><span class="token operator">:</span><span class="token plain"></span><span class="token punctuation">{</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"planId"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[ID_new_plan]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"slotTotal"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[number_of_slots]"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"price"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[new_subscription_cost]"</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"effectiveDate"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[date_of_changes_application]"</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token punctuation">}</span></div></div></div></div><div data-testid="copy-button" class="sl-absolute sl-right-0 sl-pr-2 sl-invisible group-hover:sl-visible sl-invisible"><button type="button" class="sl-button sl-form-group-border sl-h-sm sl-text-base sl-font-medium sl-px-1.5 hover:sl-bg-canvas-50 active:sl-bg-canvas-100 sl-text-muted hover:sl-text-body focus:sl-text-body sl-rounded sl-border-transparent sl-border disabled:sl-opacity-70"><div class="sl-mx-0"><i role="img" aria-hidden="true" class="sl-icon fal fa-copy fa-fw fa-sm"></i></div></button></div></pre>
 
 5. After invoice paid:
-
    - Gets metadata from paymentMetadata field
    - Updates subscription record in `subscription_module.subscriptions`:
      - `planId` = ID new plan
@@ -333,13 +328,11 @@ Process (initiated through admin panel):
 #### [Process (initiated by API request):](https://lobster.stoplight.io/docs/api-docs/branches/master/5db4ba2e144b4-1-subscription-management-scenarios#process-initiated-by-api-request-3)
 
 1. System validates:
-
    - Current subscription is active (`isActive` = true and `subscriptionStatus` = 'active')
    - Client has no unpaid invoices of any type (all invoices must have status 'paid')
    - Number of additional slots is greater than zero
 
 2. If client has unpaid invoices:
-
    - System rejects operation
    - Returns message "Cannot add slots when there are unpaid bills. Please pay all current bills or contact support."
 
@@ -388,10 +381,9 @@ Process (initiated through admin panel):
 
    **}**
 
-   **additional_slots_cost = slot_price _ number_of_additional_slots _ period_share**
+   **additional*slots_cost = slot_price * number*of_additional_slots * period_share**
 
 4. System creates preliminary record in `subscription_module.subscriptionSlotTransactions`:
-
    - `subscriptionId` = ID subscription
    - `transactionType` = 'purchase'
    - `slotCount` = number of slots to add
@@ -400,7 +392,6 @@ Process (initiated through admin panel):
    - `status` = 'pending' // Status will be changed to 'completed' after invoice payment
 
 5. System creates invoice in `subscription_module.invoices`:
-
    - `tenantId` = client ID
    - `subscriptionId` = ID current subscription
    - `invoiceNumber` = generated unique number (format: TOP-YYYYMMDD-XXXX)
@@ -411,7 +402,6 @@ Process (initiated through admin panel):
      <pre tabindex="0" class="sl-code-viewer sl-grid sl-inverted sl-overflow-x-hidden sl-overflow-y-hidden sl-relative sl-bg-canvas sl-outline-none sl-rounded-lg focus:sl-ring sl-ring-primary sl-ring-opacity-50 sl-group" role="group"><div class="sl-code-viewer__scroller sl-overflow-x-auto sl-overflow-y-auto"><div class="sl-code-highlight prism-code language-json"><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token punctuation">{</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"operationType"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"slot_purchase"</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"previousState"</span><span class="token operator">:</span><span class="token plain"></span><span class="token punctuation">{</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"slotTotal"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[current_number_of_slots]"</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"targetState"</span><span class="token operator">:</span><span class="token plain"></span><span class="token punctuation">{</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"slotTotal"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[current_number_of_slots + number_of_additional_slots]"</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"relatedIds"</span><span class="token operator">:</span><span class="token plain"></span><span class="token punctuation">{</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"slotTransactionId"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[ID_slot_transaction]"</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token property">"effectiveDate"</span><span class="token operator">:</span><span class="token plain"></span><span class="token string">"[current_date]"</span><span class="token plain"></span></div></div><div class="sl-flex"><div class="sl-flex-1 sl-break-all"><span class="token plain"></span><span class="token punctuation">}</span></div></div></div></div><div data-testid="copy-button" class="sl-absolute sl-right-0 sl-pr-2 sl-invisible group-hover:sl-visible sl-invisible"><button type="button" class="sl-button sl-form-group-border sl-h-sm sl-text-base sl-font-medium sl-px-1.5 hover:sl-bg-canvas-50 active:sl-bg-canvas-100 sl-text-muted hover:sl-text-body focus:sl-text-body sl-rounded sl-border-transparent sl-border disabled:sl-opacity-70"><div class="sl-mx-0"><i role="img" aria-hidden="true" class="sl-icon fal fa-copy fa-fw fa-sm"></i></div></button></div></pre>
 
 6. After invoice paid:
-
    - Gets metadata from paymentMetadata field
    - Finds related slot transaction and updates its status to 'completed'
    - Increases number of slots in subscription:
@@ -673,7 +663,6 @@ Process (initiated through admin panel):
 #### [2.2.1 Automatic Transition Process to Successor Plan When Extending:](https://lobster.stoplight.io/docs/api-docs/branches/master/5db4ba2e144b4-1-subscription-management-scenarios#221-automatic-transition-process-to-successor-plan-when-extending)
 
 1. When it's time to create renewal invoice for subscription to deleted plan, system:
-
    - Checks that plan has `deletedAt` (plan deleted)
    - Checks for existence of `successorPlanId` (successor plan specified)
    - Gets successor plan information
@@ -694,19 +683,16 @@ Process (initiated through admin panel):
    **extension_cost = slot_price \* current_subscription.slotTotal**
 
 4. System creates renewal invoice with detailed plan change information:
-
    - In notes, specifies: "Plan [old_plan_name] was replaced with plan [new_plan_name] due to changes in plan lineup."
    - In invoice metadata, transition information from deleted plan to successor plan is saved
 
 5. After invoice payment:
-
    - New subscription is created already on successor plan
    - Client receives all modules and functions according to successor plan
    - Automated transition in audit log is recorded
 
 6. Client receives detailed notification about transition to new plan with explanation of changes in functionality and cost.
 7. Important features:
-
    - If successor plan is more expensive than deleted plan, client will be notified about cost change in advance
    - If successor plan is cheaper, client receives new price automatically
    - Administrator can track all automated transitions through special report in admin panel
@@ -729,7 +715,6 @@ Process is essentially the same as for updating
    - Client has no unpaid invoices with status 'pending' or 'overdue'
 2. For each subscription system checks existence of planned changes in scheduledChangesMetadata field.
 3. System calculates extension cost:
-
    - If there is planned plan change:
      **new_plan = get_plan(scheduledChangesMetadata.changes.newPlanId)**
 
@@ -771,48 +756,58 @@ Process is essentially the same as for updating
 
      **}**
 
-     **extension_cost = slot_price _ number_of_slots _ new_planPeriod.periodMultiplier**
+<<<<<<< HEAD
+**extension*cost = slot_price * number*of_slots * new_planPeriod.periodMultiplier**
+=======
+**extension*cost = slot_price * number*of_slots * new_planPeriod.periodMultiplier**
 
-   - If no planned plan change:
-     **plan = get_plan(current_subscription.planId)**
+> > > > > > > 4b059e9f813fb421e5d82c40abf0a735e4dcfa62
 
-     **planPeriod = get_plan_period(current_subscription.planPeriodId)**
+- If no planned plan change:
+  **plan = get_plan(current_subscription.planId)**
 
-     **// Determine effective slot price**
+  **planPeriod = get_plan_period(current_subscription.planPeriodId)**
 
-     **if (planPeriod.periodSlotPrice IS NOT NULL) {**
+  **// Determine effective slot price**
 
-     **if (planPeriod.periodSlotDiscountPrice IS NOT NULL) {**
+  **if (planPeriod.periodSlotPrice IS NOT NULL) {**
 
-     **slot_price = planPeriod.periodSlotDiscountPrice**
+  **if (planPeriod.periodSlotDiscountPrice IS NOT NULL) {**
 
-     **} else if (planPeriod.discountPercentage IS NOT NULL) {**
+  **slot_price = planPeriod.periodSlotDiscountPrice**
 
-     **slot_price = planPeriod.periodSlotPrice \* (1 - planPeriod.discountPercentage / 100)**
+  **} else if (planPeriod.discountPercentage IS NOT NULL) {**
 
-     **} else {**
+  **slot_price = planPeriod.periodSlotPrice \* (1 - planPeriod.discountPercentage / 100)**
 
-     **slot_price = planPeriod.periodSlotPrice**
+  **} else {**
 
-     **}**
+  **slot_price = planPeriod.periodSlotPrice**
 
-     **} else {**
+  **}**
 
-     **slot_price = plan.slotDiscountPrice !== null**
+  **} else {**
 
-     **? plan.slotDiscountPrice**
+  **slot_price = plan.slotDiscountPrice !== null**
 
-     **: plan.slotPrice**
+  **? plan.slotDiscountPrice**
 
-     **if (planPeriod.discountPercentage IS NOT NULL) {**
+  **: plan.slotPrice**
 
-     **slot_price = slot_price \* (1 - planPeriod.discountPercentage / 100)**
+  **if (planPeriod.discountPercentage IS NOT NULL) {**
 
-     **}**
+  **slot_price = slot_price \* (1 - planPeriod.discountPercentage / 100)**
 
-     **}**
+  **}**
 
-     **extension_cost = slot_price _ current_subscription.slotTotal _ planPeriod.periodMultiplier**
+  **}**
+
+<<<<<<< HEAD
+**extension*cost = slot_price * current*subscription.slotTotal * planPeriod.periodMultiplier**
+=======
+**extension*cost = slot_price * current*subscription.slotTotal * planPeriod.periodMultiplier**
+
+> > > > > > > 4b059e9f813fb421e5d82c40abf0a735e4dcfa62
 
 4. System creates invoice for extension:
    - `tenantId` = client ID

@@ -12,9 +12,12 @@ const CustomDrawerHeader: FC<CustomDrawerHeaderProps> = ({
 }) => {
   return (
     <div
-      className={classNames('text-xl font-bold text-gray-800', undefined, [
-        className,
-      ])}
+      className={classNames(
+        'text-base sm:text-xl font-bold text-gray-700',
+        undefined,
+        [className],
+      )}
+      data-cy="custom-drawer-header"
     >
       {children}
     </div>

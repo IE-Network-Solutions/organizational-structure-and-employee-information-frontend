@@ -5,14 +5,13 @@ import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRul
 import { TableColumnsType } from '@/types/table/table';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button, Table } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
 import usePagination from '@/utils/usePagination';
 import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const Page = () => {
   const {
@@ -39,19 +38,40 @@ const Page = () => {
       dataIndex: 'title',
       key: 'title',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-accrual-rule-table-row-title"
+          data-cy="time-attendance-settings-accrual-rule-table-row-title"
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: 'Accrual Period',
       dataIndex: 'period',
       key: 'period',
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-accrual-rule-table-row-title"
+          data-cy="time-attendance-settings-accrual-rule-table-row-title"
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: 'Submitted Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (text: string) => <div>{dayjs(text).format(DATE_FORMAT)}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-accrual-rule-table-row-created-at"
+          data-cy="time-attendance-settings-accrual-rule-table-row-created-at"
+        >
+          {dayjs(text).format(DATE_FORMAT)}
+        </div>
+      ),
     },
   ];
 
@@ -73,28 +93,57 @@ const Page = () => {
   }, [isShowNewAccrualRuleSidebar]);
 
   return (
-    <>
-      <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-1/2 mb-4 ">
-          <PageHeader title="Accrual Rule" size="small">
-            <AccessGuard permissions={[Permissions.CreateLeaveAccrual]}>
-              <Button
-                size="large"
-                type="primary"
-                id="accrutualRuleId"
-                icon={<LuPlus size={18} />}
-                onClick={() => setIsShowNewAccrualRuleSidebar(true)}
-              >
-                <span className="hidden md:inline"> New Accrual Rule</span>
-              </Button>
-            </AccessGuard>
-          </PageHeader>
-        </div>
+    <div
+      className="p-5 rounded-2xl bg-white w-full h-full"
+      id="time-attendance-settings-accrual-rule-container"
+      data-cy="time-attendance-settings-accrual-rule-container"
+    >
+      <div
+        className="flex items-center justify-between mb-4"
+        id="time-attendance-settings-accrual-rule-header"
+        data-cy="time-attendance-settings-accrual-rule-header"
+      >
+        <h1
+          className="text-lg text-bold"
+          id="time-attendance-settings-accrual-rule-title"
+          data-cy="time-attendance-settings-accrual-rule-title"
+        >
+          Accrual Rule
+        </h1>
+        <AccessGuard
+          permissions={[Permissions.CreateLeaveAccrual]}
+          data-cy="time-attendance-settings-accrual-rule-add-button-access-guard"
+        >
+          <Button
+            size="large"
+            type="primary"
+            id="time-attendance-settings-accrual-rule-add-button"
+            data-cy="time-attendance-settings-accrual-rule-add-button"
+            icon={
+              <FaPlus data-cy="time-attendance-settings-accrual-rule-add-button-icon" />
+            }
+            className="h-10 w-10 sm:w-auto"
+            onClick={() => setIsShowNewAccrualRuleSidebar(true)}
+          >
+            <span
+              id="time-attendance-settings-accrual-rule-add-button-label"
+              data-cy="time-attendance-settings-accrual-rule-add-button-label"
+              className="hidden md:inline"
+            >
+              {' '}
+              New Accrual Rule
+            </span>
+          </Button>
+        </AccessGuard>
       </div>
-      <div className="overflow-x-auto scrollbar-none w-full">
+      <div
+        className="overflow-x-auto scrollbar-none w-full"
+        id="time-attendance-settings-accrual-rule-table-container"
+        data-cy="time-attendance-settings-accrual-rule-table-container"
+      >
         <Table
           columns={columns}
-          className="mt-12"
+          className=""
           loading={isFetching}
           dataSource={tableData()}
           pagination={DefaultTablePagination(data?.meta?.totalItems)}
@@ -104,15 +153,13 @@ const Page = () => {
             setOrderDirection(sorter['order']);
             setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
           }}
+          id="time-attendance-settings-accrual-rule-table"
+          data-cy="time-attendance-settings-accrual-rule-table"
         />
       </div>
 
-      {/* Scrollable Container for Horizontal Scroll */}
-
-      {/* Sidebar for creating new accrual rule */}
-
-      <NewAccrualRuleSidebar />
-    </>
+      <NewAccrualRuleSidebar data-cy="time-attendance-settings-accrual-rule-sidebar" />
+    </div>
   );
 };
 

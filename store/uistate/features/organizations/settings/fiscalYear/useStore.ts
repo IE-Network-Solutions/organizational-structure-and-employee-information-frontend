@@ -5,6 +5,7 @@ import { shallowEqual } from '@/utils/shallowEqual';
 
 export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   isFiscalYearOpen: false,
+  openfiscalYearDrawer: false,
   workingHour: '40',
   isEditMode: false,
   selectedFiscalYear: null,
@@ -26,12 +27,14 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   toggleFiscalYearDrawer: () =>
     set((state) => ({ isFiscalYearOpen: !state.isFiscalYearOpen })),
   closeFiscalYearDrawer: () => set({ isFiscalYearOpen: false }),
-  openDrawer: () => set({ isFiscalYearOpen: true }),
+  openFiscalYearDrawer: () => set({ isFiscalYearOpen: true }),
+  setOpenFiscalYearDrawer: (isOpen: boolean) =>
+    set({ openfiscalYearDrawer: isOpen }),
   setWorkingHour: (hours) => set({ workingHour: hours }),
   setEditMode: (isEdit: any) => set({ isEditMode: isEdit }),
   setSelectedFiscalYear: (fiscalYear: any) =>
     set({ selectedFiscalYear: fiscalYear }),
-  setDeleteMode: (isDelete) => set({ isDeleteMode: isDelete }),
+  setDeleteMode: (isDelete: boolean) => set({ isDeleteMode: isDelete }),
   setCurrent: (value: number) => set({ current: value }),
   formData: {},
   setFormData: (newData) =>
@@ -39,14 +42,10 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
       formData: { ...state.formData, ...newData },
     })),
   fiscalYearEnd: null,
-  setFiscalYearEnd: (value: Dayjs) => set({ fiscalYearEnd: value }),
+  setFiscalYearEnd: (value: Dayjs | null) => set({ fiscalYearEnd: value }),
   fiscalYearStart: null,
-  setFiscalYearStart: (value: Dayjs) => set({ fiscalYearStart: value }),
+  setFiscalYearStart: (value: Dayjs | null) => set({ fiscalYearStart: value }),
   clearFormData: () => set({ formData: {} }),
-
-  isOpenfiscalYearDrawer: false,
-  setIsOpenFiscalYearDrawer: (isOpenfiscalYearDrawer: boolean) =>
-    set({ isOpenfiscalYearDrawer }),
 
   sessionData: [],
   setSessionData: (value: any[]) => set({ sessionData: value }),
@@ -54,21 +53,43 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   fiscalYearFormValues: {},
   setFiscalYearFormValues: (newData) => set({ fiscalYearFormValues: newData }),
 
-  monthRangeValues: [],
-  // setMonthRangeFormValues: (newData) =>
-  //   set((state) =>
-  //     JSON.stringify(state.monthRangeValues) !== JSON.stringify(newData)
-  //       ? { monthRangeValues: newData }
-  //       : state,
-  //   ),
+  formValidation: {
+    fiscalYearName: '',
+    fiscalYearStartDate: null,
+    fiscalYearEndDate: null,
+  },
+  setFormValidation: (newData) =>
+    set((state) => ({
+      formValidation: { ...state.formValidation, ...newData },
+    })),
+  isFormValid: false,
+  setIsFormValid: (isValid: boolean) => set({ isFormValid: isValid }),
 
+  resetFormState: () =>
+    set(() => ({
+      formValidation: {
+        fiscalYearName: '',
+        fiscalYearStartDate: null,
+        fiscalYearEndDate: null,
+      },
+      isFormValid: false,
+      fiscalYearFormValues: {},
+    })),
+
+  monthRangeValues: [],
   setMonthRangeFormValues: (newData) =>
     set((state) =>
       !shallowEqual(state.monthRangeValues, newData)
         ? { monthRangeValues: newData }
         : state,
     ),
-
-  openfiscalYearDrawer: false,
-  setOpenFiscalYearDrawer: (value) => set({ openfiscalYearDrawer: value }),
+  openDrawer: () => set({ openfiscalYearDrawer: true }),
+  setIsOpenFiscalYearDrawer: (isOpen: boolean) =>
+    set({ openfiscalYearDrawer: isOpen }),
+  fiscalYearPayLoad: null,
+  setFiscalYearPayLoad: (value) => set({ fiscalYearPayLoad: value }),
+  hasOverlapError: false,
+  setHasOverlapError: (value: boolean) => set({ hasOverlapError: value }),
+  searchQuery: '',
+  setSearchQuery: (query: string) => set({ searchQuery: query }),
 }));

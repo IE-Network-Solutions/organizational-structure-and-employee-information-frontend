@@ -2,8 +2,8 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 type Metric = {
   id: string;
@@ -23,6 +23,7 @@ type ResponseData = {
  * @returns The response data from the API
  */
 const getMetrics = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/metric-types`,
     method: 'GET',

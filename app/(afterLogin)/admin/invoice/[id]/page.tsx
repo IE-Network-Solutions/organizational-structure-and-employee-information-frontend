@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { Invoice, Plan } from '@/types/tenant-management';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
-import { TENANT_BASE_URL } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useInitiatePayment } from '@/store/server/features/tenant-management/payments/queries';
@@ -21,9 +20,6 @@ const InvoiceItem = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [invoiceData, setInvoiceData] = useState<Invoice | null>(null);
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    'chapa' | 'stripe' | null
-  >(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // Get plans data
@@ -65,20 +61,20 @@ const InvoiceItem = () => {
   }, [invoiceResponse, plans]);
 
   // Handle payment method selection
-  const handlePaymentMethodSelect = (method: 'chapa' | 'stripe') => {
-    if (selectedPaymentMethod === method) {
-      setSelectedPaymentMethod(null);
-    } else {
-      setSelectedPaymentMethod(method);
-    }
-  };
-
-  // Handle payment
   const handlePayment = async () => {
+    const paymentCurrency = currentPlan?.currency.code;
+
+    const selectedPaymentMethod =
+      paymentCurrency === 'ETB'
+        ? 'chapa'
+        : paymentCurrency === 'USD'
+          ? 'stripe'
+          : null;
+
     if (!selectedPaymentMethod || !id) {
       notification.error({
         message: 'Payment Error',
-        description: 'Please select a payment method to continue.',
+        description: 'Please select a valid payment method to continue.',
       });
       return;
     }
@@ -86,41 +82,34 @@ const InvoiceItem = () => {
     setIsProcessingPayment(true);
 
     try {
-      // Get current URL as return URL
-      const returnUrl = window.location.href;
+      const returnUrl = `${window.location.origin}/admin/dashboard`;
 
-      // Prepare payment data
       const paymentData = {
         paymentMethod: selectedPaymentMethod.toUpperCase(),
         paymentProvider: selectedPaymentMethod,
         returnUrl,
       };
 
-      // Call the payment API
       const response = await initiatePaymentMutation.mutateAsync({
         invoiceId: id as string,
         data: paymentData,
       });
 
-      // Handle successful response
       const apiResponse = response as any;
 
-      if (apiResponse && apiResponse.data && apiResponse.data.redirectUrl) {
+      if (apiResponse?.data?.redirectUrl) {
         notification.success({
           message: 'Payment Initiated',
           description: 'You will be redirected to the payment page.',
         });
 
-        // Redirect to payment provider page
         window.location.href = apiResponse.data.redirectUrl;
-      } else if (apiResponse && apiResponse.redirectUrl) {
-        // Handle case where redirectUrl is at the root level
+      } else if (apiResponse?.redirectUrl) {
         notification.success({
           message: 'Payment Initiated',
           description: 'You will be redirected to the payment page.',
         });
 
-        // Redirect to payment provider page
         window.location.href = apiResponse.redirectUrl;
       } else {
         throw new Error('No redirect URL received from payment provider');
@@ -133,6 +122,7 @@ const InvoiceItem = () => {
             ? error.message
             : 'There was an error initiating payment. Please try again later.',
       });
+    } finally {
       setIsProcessingPayment(false);
     }
   };
@@ -141,10 +131,10 @@ const InvoiceItem = () => {
   useEffect(() => {
     if (pdfResponse) {
       const response = pdfResponse as any;
-      const filePath = response.path || response.data?.path;
+      const downloadUrl = response.downloadUrl || response.data?.downloadUrl;
 
-      if (filePath) {
-        setPdfUrl(`${TENANT_BASE_URL}/${filePath}`);
+      if (downloadUrl) {
+        setPdfUrl(downloadUrl);
       }
     }
   }, [pdfResponse]);
@@ -162,21 +152,12 @@ const InvoiceItem = () => {
     setIsDownloading(true);
 
     try {
-      // Download file from the known URL
-      const response = await fetch(pdfUrl);
-      const blob = await response.blob();
-
-      // Create download link
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `Invoice-${invoiceData?.invoiceNumber || id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Open PDF in a new tab
+      window.open(pdfUrl, '_blank');
     } catch {
       notification.error({
-        message: 'Download Failed',
-        description: 'Unable to download the PDF. Please try again later.',
+        message: 'Failed to Open PDF',
+        description: 'Unable to open the PDF. Please try again later.',
       });
     } finally {
       setIsDownloading(false);
@@ -210,31 +191,79 @@ const InvoiceItem = () => {
   };
 
   return (
-    <div className="h-auto w-auto px-6 py-6">
-      <CustomBreadcrumb title="Invoice Details" subtitle="" />
+    <div
+      id="invoice-detail-page"
+      data-cy="invoice-detail-page"
+      className="h-auto w-auto px-6 py-6"
+    >
+      <CustomBreadcrumb
+        title="Invoice Details"
+        subtitle=""
+        data-cy="invoice-detail-page-breadcrumb"
+      />
 
-      <div className="mt-8">
-        <div className="flex flex-col bg-white rounded-lg border border-gray-200 pt-4 pb-10 max-w-[700px] min-h-[280px] mx-auto">
+      <div
+        id="invoice-detail-container"
+        data-cy="invoice-detail-container"
+        className="mt-8"
+      >
+        <div
+          id="invoice-detail-card"
+          data-cy="invoice-detail-card"
+          className="flex flex-col bg-white rounded-lg border border-gray-200 pt-4 pb-10 max-w-[700px] min-h-[280px] mx-auto"
+        >
           {isInvoiceLoading ? (
-            <div className="flex flex-col h-full" style={{ margin: '20px' }}>
-              <Skeleton paragraph={{ rows: 6 }} active />
+            <div
+              id="invoice-detail-loading"
+              data-cy="invoice-detail-loading"
+              className="flex flex-col h-full"
+              style={{ margin: '20px' }}
+            >
+              <Skeleton
+                paragraph={{ rows: 6 }}
+                active
+                data-cy="invoice-detail-loading-skeleton"
+              />
             </div>
           ) : (
-            <div className="flex flex-col">
-              <div className="flex items-center justify-between gap-2 border-b border-gray-200 pb-4 px-8">
-                <span className="text-2xl font-bold">
+            <div
+              id="invoice-detail-content"
+              data-cy="invoice-detail-content"
+              className="flex flex-col"
+            >
+              <div
+                id="invoice-detail-header"
+                data-cy="invoice-detail-header"
+                className="flex items-center justify-between gap-2 border-b border-gray-200 pb-4 px-8"
+              >
+                <span
+                  id="invoice-detail-title"
+                  data-cy="invoice-detail-title"
+                  className="text-2xl font-bold"
+                >
                   Invoice {invoiceData?.invoiceNumber}:{' '}
-                  <span className="text-primary">
+                  <span
+                    id="invoice-detail-date"
+                    data-cy="invoice-detail-date"
+                    className="text-primary"
+                  >
                     {formatDate(invoiceData?.invoiceAt)}
                   </span>
                 </span>
                 <button
+                  id="invoice-detail-download-button"
+                  data-cy="invoice-detail-download-button"
                   className="text-blue-600 hover:text-blue-800"
                   onClick={handleDownloadPdf}
                   disabled={isDownloading || isPdfLoading || !pdfUrl}
                 >
                   {isDownloading || isPdfLoading ? (
-                    <LoadingOutlined style={{ fontSize: 25 }} spin />
+                    <LoadingOutlined
+                      style={{ fontSize: 25 }}
+                      spin
+                      id="invoice-detail-download-button-indicator"
+                      data-cy="invoice-detail-download-button-indicator"
+                    />
                   ) : (
                     <Image
                       src="/icons/file-download.svg"
@@ -244,20 +273,37 @@ const InvoiceItem = () => {
                       style={{
                         minWidth: '25px',
                       }}
+                      id="invoice-detail-download-button-icon"
+                      data-cy="invoice-detail-download-button-icon"
                     />
                   )}
                 </button>
               </div>
 
-              <div className="flex flex-col gap-2 border-b border-gray-200 mt-6 mb-2 pb-6 px-8">
-                <div className="text-2xl font-bold mb-4">
+              <div
+                id="invoice-payment-info"
+                data-cy="invoice-payment-info"
+                className="flex flex-col gap-2 border-b border-gray-200 mt-6 mb-2 pb-6 px-8"
+              >
+                <div
+                  id="invoice-payment-info-title"
+                  data-cy="invoice-payment-info-title"
+                  className="text-2xl font-bold mb-4"
+                >
                   Invoice Payment Information
                 </div>
-                <div className="flex flex-col gap-2">
+                <div
+                  id="invoice-payment-info-details"
+                  data-cy="invoice-payment-info-details"
+                  className="flex flex-col gap-2"
+                >
                   {[
                     ['Invoice Number:', `#${invoiceData?.invoiceNumber || ''}`],
                     ['Issue Date:', formatDate(invoiceData?.invoiceAt)],
-                    ['Payment Date:', formatDate(invoiceData?.dueAt)],
+                    [
+                      'Payment Date:',
+                      formatDate(invoiceData?.payments[0]?.paymentAt) || '-',
+                    ],
                     [
                       'Billing Period:',
                       invoiceData?.subscription?.startAt &&
@@ -267,39 +313,69 @@ const InvoiceItem = () => {
                     ],
                     [
                       'Number of users:',
-                      invoiceData?.subscription?.slotTotal || '-',
+                      invoiceData?.paymentMetadata?.targetState?.slotTotal || 0,
+                      ,
                     ],
                     ['Amount', `${invoiceData?.totalAmount}`],
                   ].map(([label, value], index) => (
                     <div
                       key={index}
+                      id={`invoice-payment-info-row-${index}`}
+                      data-cy={`invoice-payment-info-row-${index}`}
                       className="flex items-center justify-start gap-2"
                     >
-                      <span className="text-md min-w-[90px] md:min-w-[150px]">
+                      <span
+                        id={`invoice-payment-info-label-${index}`}
+                        data-cy={`invoice-payment-info-label-${index}`}
+                        className="text-md min-w-[90px] md:min-w-[150px]"
+                      >
                         {label}
                       </span>
-                      <span className="text-md font-bold">{value}</span>
+                      <span
+                        id={`invoice-payment-info-value-${index}`}
+                        data-cy={`invoice-payment-info-value-${index}`}
+                        className="text-md font-bold"
+                      >
+                        {value}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
+              <div
+                id="invoice-details-section"
+                data-cy="invoice-details-section"
+                className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8"
+              >
                 {[
                   [
                     'Plan Type',
                     <span
                       key="plan"
+                      id="invoice-plan-type-value"
+                      data-cy="invoice-plan-type-value"
                       className="flex items-center justify-center text-md font-bold border border-success rounded-lg px-2 gap-2"
                     >
-                      <span className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"></span>
-                      <span>{currentPlan?.name || 'N/A'}</span>
+                      <span
+                        id="invoice-plan-type-indicator"
+                        data-cy="invoice-plan-type-indicator"
+                        className="flex min-w-[10px] w-[10px] h-[10px] bg-success rounded-full"
+                      ></span>
+                      <span
+                        id="invoice-plan-type-value-text"
+                        data-cy="invoice-plan-type-value-text"
+                      >
+                        {currentPlan?.name || 'N/A'}
+                      </span>
                     </span>,
                   ],
                   [
                     'Status',
                     <span
                       key="status"
+                      id="invoice-status-value"
+                      data-cy="invoice-status-value"
                       className={`text-md font-bold rounded-lg px-4 py-2 ${getStatusClass(invoiceData?.status)}`}
                     >
                       {invoiceData?.status}
@@ -307,23 +383,45 @@ const InvoiceItem = () => {
                   ],
                   [
                     'Amount',
-                    <span key="amount" className="text-md font-bold">
+                    <span
+                      key="amount"
+                      id="invoice-amount-value"
+                      data-cy="invoice-amount-value"
+                      className="text-md font-bold"
+                    >
                       {invoiceData?.totalAmount}
                     </span>,
                   ],
                   [
                     'Notes',
-                    <span key="notes" className="text-md">
+                    <span
+                      key="notes"
+                      id="invoice-notes-value"
+                      data-cy="invoice-notes-value"
+                      className="text-md"
+                    >
                       {invoiceData?.notes || '-'}
                     </span>,
                   ],
                 ].map(([label, value], index) => (
                   <div
                     key={index}
+                    id={`invoice-details-row-${index}`}
+                    data-cy={`invoice-details-row-${index}`}
                     className="flex items-center justify-between w-full gap-2 mb-2"
                   >
-                    <span className="text-md font-bold">{label}</span>
-                    <span className="min-w-[150px] flex items-center justify-center">
+                    <span
+                      id={`invoice-details-label-${index}`}
+                      data-cy={`invoice-details-label-${index}`}
+                      className="text-md font-bold"
+                    >
+                      {label}
+                    </span>
+                    <span
+                      id={`invoice-details-value-${index}`}
+                      data-cy={`invoice-details-value-${index}`}
+                      className="min-w-[150px] flex items-center justify-center"
+                    >
                       {value}
                     </span>
                   </div>
@@ -331,51 +429,39 @@ const InvoiceItem = () => {
               </div>
 
               {invoiceData?.status?.toLowerCase() === 'pending' && (
-                <div className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
-                  <span className="text-2xl font-bold">Pay with</span>
-                  <div className="flex justify-around gap-2 mt-4">
-                    <div className="flex flex-col gap-2">
-                      <div
-                        className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
-                          selectedPaymentMethod === 'chapa'
-                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
-                            : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
-                        }`}
-                        onClick={() => handlePaymentMethodSelect('chapa')}
-                      >
-                        <Image
-                          src="/icons/chapa-pay.svg"
-                          alt="Chapa Payment"
-                          width={108}
-                          height={40}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <div
-                        className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
-                          selectedPaymentMethod === 'stripe'
-                            ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
-                            : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
-                        }`}
-                        onClick={() => handlePaymentMethodSelect('stripe')}
-                      >
-                        <Image
-                          src="/icons/stripe-pay.svg"
-                          alt="Stripe Payment"
-                          width={108}
-                          height={40}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                <div
+                  id="invoice-payment-section"
+                  data-cy="invoice-payment-section"
+                  className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8"
+                >
+                  <span
+                    id="invoice-payment-title"
+                    data-cy="invoice-payment-title"
+                    className="text-2xl font-bold"
+                  >
+                    Pay
+                  </span>
                 </div>
               )}
 
-              <div className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
-                <div className="flex justify-around gap-2 mt-4">
-                  <div className="flex justify-center gap-4 mt-8">
+              <div
+                id="invoice-actions"
+                data-cy="invoice-actions"
+                className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8"
+              >
+                <div
+                  id="invoice-actions-container"
+                  data-cy="invoice-actions-container"
+                  className="flex justify-around gap-2 mt-4"
+                >
+                  <div
+                    id="invoice-actions-buttons"
+                    data-cy="invoice-actions-buttons"
+                    className="flex justify-center gap-4 mt-8"
+                  >
                     <Button
+                      id="invoice-dashboard-button"
+                      data-cy="invoice-dashboard-button"
                       onClick={() => router.push('/admin/dashboard')}
                       className="text-center flex justify-center items-center"
                       type="default"
@@ -384,15 +470,20 @@ const InvoiceItem = () => {
                     </Button>
                     {invoiceData?.status?.toLowerCase() === 'pending' && (
                       <Button
+                        id="invoice-pay-button"
+                        data-cy="invoice-pay-button"
                         onClick={handlePayment}
                         className="text-center flex justify-center items-center"
                         type="primary"
-                        disabled={
-                          isInvoiceLoading ||
-                          !selectedPaymentMethod ||
-                          isProcessingPayment
+                        disabled={isInvoiceLoading || isProcessingPayment}
+                        icon={
+                          isProcessingPayment ? (
+                            <LoadingOutlined
+                              id="invoice-pay-button-indicator"
+                              data-cy="invoice-pay-button-indicator"
+                            />
+                          ) : null
                         }
-                        icon={isProcessingPayment ? <LoadingOutlined /> : null}
                       >
                         {isProcessingPayment ? 'Processing...' : 'Pay Now'}
                       </Button>

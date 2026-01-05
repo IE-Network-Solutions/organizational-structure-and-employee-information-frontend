@@ -58,56 +58,148 @@ const EditQuestionTemplate: React.FC<{
         open={true}
         onCancel={onClose}
         footer={null}
+        data-cy="edit-question-template-modal"
       >
-        <Form onFinish={handleSubmit} form={form} layout="vertical">
+        <Form
+          onFinish={handleSubmit}
+          form={form}
+          layout="vertical"
+          data-cy="edit-question-template-form"
+          id="editQuestionTemplateForm"
+        >
           <Form.Item
             name="customFieldName"
             label="Template Title"
             rules={[{ required: true, message: 'Please input the title!' }]}
+            data-cy="edit-question-template-title-field"
+            id="editQuestionTemplateTitleField"
           >
-            <Input allowClear />
+            <Input
+              allowClear
+              data-cy="edit-question-template-title-input"
+              id="editQuestionTemplateTitleInput"
+            />
           </Form.Item>
-          <Row gutter={12}>
-            <Col lg={8} md={10} xs={24}>
+          <Row
+            gutter={12}
+            data-cy="edit-question-template-row"
+            id="editQuestionTemplateRow"
+          >
+            <Col
+              lg={8}
+              md={10}
+              xs={24}
+              data-cy="edit-question-template-field-type-col"
+              id="editQuestionTemplateFieldTypeCol"
+            >
               <Form.Item
                 name="fieldType"
                 label="Field Type"
                 rules={[
                   { required: true, message: 'Please select a field type!' },
                 ]}
+                data-cy="edit-question-template-field-type-field"
+                id="editQuestionTemplateFieldTypeField"
               >
-                <Select placeholder="Select type">
-                  <Option value="multiple_choice">Multiple Choice</Option>
-                  <Option value="checkbox">Checkbox</Option>
-                  <Option value="short_text">Short Text</Option>
-                  <Option value="paragraph">Paragraph</Option>
+                <Select
+                  placeholder="Select type"
+                  data-cy="edit-question-template-field-type-select"
+                  id="editQuestionTemplateFieldTypeSelect"
+                >
+                  <Option
+                    value="multiple_choice"
+                    data-cy="edit-question-template-field-type-option-multiple-choice"
+                    id="editQuestionTemplateFieldTypeOptionMultipleChoice"
+                  >
+                    Multiple Choice
+                  </Option>
+                  <Option
+                    value="checkbox"
+                    data-cy="edit-question-template-field-type-option-checkbox"
+                    id="editQuestionTemplateFieldTypeOptionCheckbox"
+                  >
+                    Checkbox
+                  </Option>
+                  <Option
+                    value="short_text"
+                    data-cy="edit-question-template-field-type-option-short-text"
+                    id="editQuestionTemplateFieldTypeOptionShortText"
+                  >
+                    Short Text
+                  </Option>
+                  <Option
+                    value="paragraph"
+                    data-cy="edit-question-template-field-type-option-paragraph"
+                    id="editQuestionTemplateFieldTypeOptionParagraph"
+                  >
+                    Paragraph
+                  </Option>
                 </Select>
               </Form.Item>
             </Col>
-            <Col lg={16} md={10} xs={24}>
+            <Col
+              lg={16}
+              md={10}
+              xs={24}
+              data-cy="edit-question-template-question-col"
+              id="editQuestionTemplateQuestionCol"
+            >
               <Form.Item
                 name="question"
                 label="Question"
                 rules={[
                   { required: true, message: 'Please input the question!' },
                 ]}
+                data-cy="edit-question-template-question-field"
+                id="editQuestionTemplateQuestionField"
               >
-                <Input />
+                <Input
+                  data-cy="edit-question-template-question-input"
+                  id="editQuestionTemplateQuestionInput"
+                />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="required" valuePropName="checked">
-            <Checkbox defaultChecked={false}>Is Required</Checkbox>
+          <Form.Item
+            name="required"
+            valuePropName="checked"
+            data-cy="edit-question-template-required-field"
+            id="editQuestionTemplateRequiredField"
+          >
+            <Checkbox
+              defaultChecked={false}
+              data-cy="edit-question-template-required-checkbox"
+              id="editQuestionTemplateRequiredCheckbox"
+            >
+              Is Required
+            </Checkbox>
           </Form.Item>
 
-          <Form.List name="field" initialValue={question?.field || []}>
+          <Form.List
+            name="field"
+            initialValue={question?.field || []}
+            data-cy="edit-question-template-field-list"
+          >
             {(fields, { add, remove }) => {
               const questionType = form.getFieldValue('fieldType');
               return (
-                <div className="mx-8">
+                <div
+                  className="mx-8"
+                  data-cy="edit-question-template-field-list-container"
+                  id="editQuestionTemplateFieldListContainer"
+                >
                   {fields.map((field) => (
-                    <Form.Item key={field.key} required={false}>
-                      <div className="flex items-center gap-3">
+                    <Form.Item
+                      key={field.key}
+                      required={false}
+                      data-cy={`edit-question-template-field-item-${field.name}`}
+                      id={`editQuestionTemplateFieldItem${field.name}`}
+                    >
+                      <div
+                        className="flex items-center gap-3"
+                        data-cy={`edit-question-template-field-item-container-${field.name}`}
+                        id={`editQuestionTemplateFieldItemContainer${field.name}`}
+                      >
                         <Form.Item
                           {...field}
                           noStyle
@@ -117,13 +209,21 @@ const EditQuestionTemplate: React.FC<{
                               message: 'Please input an option!',
                             },
                           ]}
+                          data-cy={`edit-question-template-field-input-field-${field.name}`}
+                          id={`editQuestionTemplateFieldInputField${field.name}`}
                         >
-                          <Input placeholder="Option" />
+                          <Input
+                            placeholder="Option"
+                            data-cy={`edit-question-template-field-input-${field.name}`}
+                            id={`editQuestionTemplateFieldInput${field.name}`}
+                          />
                         </Form.Item>
                         {fields.length > 1 && (
                           <MinusCircleOutlined
                             className="dynamic-delete-button"
                             onClick={() => remove(field.name)}
+                            data-cy={`edit-question-template-field-remove-${field.name}`}
+                            id={`editQuestionTemplateFieldRemove${field.name}`}
                           />
                         )}
                       </div>
@@ -131,15 +231,33 @@ const EditQuestionTemplate: React.FC<{
                   ))}
                   {questionType === FieldType.MULTIPLE_CHOICE ||
                   questionType === FieldType.CHECKBOX ? (
-                    <Form.Item>
-                      <div className="flex flex-col items-center justify-center">
+                    <Form.Item
+                      data-cy="edit-question-template-add-option-container"
+                      id="editQuestionTemplateAddOptionContainer"
+                    >
+                      <div
+                        className="flex flex-col items-center justify-center"
+                        data-cy="edit-question-template-add-option"
+                        id="editQuestionTemplateAddOption"
+                      >
                         <div
                           onClick={() => add()}
                           className="w-6 h-6 flex items-center justify-center rounded-full bg-primary cursor-pointer"
+                          data-cy="edit-question-template-add-option-button"
+                          id="editQuestionTemplateAddOptionButton"
                         >
-                          <PlusOutlined size={30} className="text-white" />
+                          <PlusOutlined
+                            size={30}
+                            className="text-white"
+                            data-cy="edit-question-template-add-option-button-icon"
+                            id="editQuestionTemplateAddOptionButtonIcon"
+                          />
                         </div>
-                        <p className="text-xs font-light text-gray-400 ">
+                        <p
+                          className="text-xs font-light text-gray-400 "
+                          data-cy="edit-question-template-add-option-label"
+                          id="editQuestionTemplateAddOptionLabel"
+                        >
                           Add Option
                         </p>
                       </div>
@@ -152,12 +270,29 @@ const EditQuestionTemplate: React.FC<{
             }}
           </Form.List>
 
-          <Form.Item>
-            <div className="flex items-center justify-end gap-3">
-              <Button type="primary" htmlType="submit">
+          <Form.Item
+            data-cy="edit-question-template-form-actions"
+            id="editQuestionTemplateFormActions"
+          >
+            <div
+              className="flex items-center justify-end gap-3"
+              data-cy="edit-question-template-form-buttons"
+              id="editQuestionTemplateFormButtons"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                data-cy="edit-question-template-save-button"
+                id="editQuestionTemplateSaveButton"
+              >
                 Save
               </Button>
-              <Button type="default" onClick={onClose}>
+              <Button
+                type="default"
+                onClick={onClose}
+                data-cy="edit-question-template-cancel-button"
+                id="editQuestionTemplateCancelButton"
+              >
                 Cancel
               </Button>
             </div>

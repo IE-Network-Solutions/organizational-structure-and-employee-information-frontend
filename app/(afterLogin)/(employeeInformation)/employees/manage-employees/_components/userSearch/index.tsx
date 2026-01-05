@@ -3,17 +3,22 @@ import {
   useEmployeeBranches,
   useEmployeeDepartments,
 } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { useDebounce } from '@/utils/useDebounce';
-import { Button, Col, Input, Row, Select } from 'antd';
-import { IoMdSwitch } from 'react-icons/io';
+import { Select, DatePicker, Radio, Button } from 'antd';
 import { Modal } from 'antd';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
 const EmployeeSearch: React.FC = () => {
-  const { searchParams, setSearchParams, pageSize, userCurrentPage } =
-    useEmployeeManagementStore();
+  const {
+    searchParams,
+    setSearchParams,
+    pageSize,
+    userCurrentPage,
+    setJoinedDateType,
+  } = useEmployeeManagementStore();
 
   const { data: allFilterData } = useEmployeeAllFilter(
     pageSize,
@@ -22,10 +27,15 @@ const EmployeeSearch: React.FC = () => {
     searchParams.allJobs ? searchParams.allJobs : '',
     searchParams.employee_name ? searchParams.employee_name : '',
     searchParams.allStatus ? searchParams.allStatus : '',
+    searchParams.gender ? searchParams.gender : '',
+    searchParams.employmentType ? searchParams.employmentType : '',
+    searchParams.joinedDate ? searchParams.joinedDate : '',
+    searchParams.joinedDateType || 'after',
   );
 
   const { data: EmployeeBranches } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
+  const { data: EmploymentTypes } = useGetEmployementTypes();
   const { isMobileFilterVisible, setIsMobileFilterVisible } =
     useEmployeeManagementStore();
 
@@ -37,15 +47,6 @@ const EmployeeSearch: React.FC = () => {
   };
 
   const onSelectChange = handleSearchEmployee;
-  const onSearchChange = useDebounce(handleSearchEmployee, 2000);
-
-  const handleSearchInput = (
-    value: string,
-    keyValue: keyof typeof searchParams,
-  ) => {
-    const trimmedValue = value.trim();
-    onSearchChange(trimmedValue, keyValue);
-  };
   const handleBranchChange = (value: string) => {
     onSelectChange(value, 'allOffices');
   };
@@ -58,6 +59,19 @@ const EmployeeSearch: React.FC = () => {
     onSelectChange(value, 'allStatus');
   };
 
+  const handleGenderChange = (value: string) => {
+    onSelectChange(value, 'gender');
+  };
+
+  const handleEmploymentTypeChange = (value: string) => {
+    onSelectChange(value, 'employmentType');
+  };
+
+  const handleJoinedDateChange = (date: any, dateString: string | string[]) => {
+    const dateValue = Array.isArray(dateString) ? dateString[0] : dateString;
+    onSelectChange(dateValue, 'joinedDate');
+  };
+
   const activeStatusValue =
     allFilterData?.items?.find((item: any) => item.deletedAt === null)
       ?.deletedAt || 'null';
@@ -67,142 +81,38 @@ const EmployeeSearch: React.FC = () => {
     ? 'notNull'
     : 'notNull';
 
-  return (
-    <div>
-      <Row
-        gutter={[16, 24]}
-        justify="space-between"
-        align="middle"
-        className="mb-5"
-      >
-        <Col xs={24} sm={24} lg={10}>
-          <Row gutter={8} align="middle">
-            <Col flex="auto">
-              <Input
-                id={`inputEmployeeNames${searchParams.employee_name}`}
-                placeholder="Search employee"
-                onChange={(e) =>
-                  handleSearchInput(e.target.value, 'employee_name')
-                }
-                className="w-full h-10"
-                allowClear
-              />
-            </Col>
-            <Col className="block lg:hidden">
-              <IoMdSwitch
-                className="cursor-pointer w-10 h-10 rounded-md border-gray-100 border-2"
-                onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
-              />
-            </Col>
-          </Row>
-        </Col>
-
-        <Col lg={11} className="hidden lg:block ">
-          <Row gutter={[8, 16]}>
-            <Col lg={8} sm={12} xs={24}>
-              <Select
-                id={`selectBranches${searchParams.allOffices}`}
-                placeholder="All Offices"
-                onChange={handleBranchChange}
-                allowClear
-                className="w-full h-10"
-              >
-                {EmployeeBranches?.items?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-            <Col lg={8} sm={12} xs={24}>
-              <Select
-                id={`selectDepartment${searchParams.allJobs}`}
-                placeholder="All Departments"
-                onChange={handleDepartmentChange}
-                allowClear
-                className=" w-full h-10"
-              >
-                {EmployeeDepartment?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-            <Col lg={8} sm={12} xs={24}>
-              <Select
-                id={`selectStatus${searchParams.allStatus}`}
-                placeholder="Active"
-                onChange={handleStatusChange}
-                allowClear
-                className="w-full h-10"
-              >
-                <Option
-                  key="active"
-                  value={activeStatusValue}
-                  style={{
-                    backgroundColor:
-                      searchParams.allStatus === activeStatusValue
-                        ? '#f5f5f5'
-                        : 'transparent',
-                  }}
-                  className="hover:bg-gray-100"
-                >
-                  Active
-                </Option>
-                <Option
-                  key="inactive"
-                  value={inactiveStatusValue}
-                  style={{
-                    backgroundColor:
-                      searchParams.allStatus === inactiveStatusValue
-                        ? '#f5f5f5'
-                        : 'transparent',
-                  }}
-                  className="hover:bg-gray-100"
-                >
-                  Inactive
-                </Option>
-              </Select>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-
-      <Modal
-        centered
-        title="Filter Employees"
-        open={isMobileFilterVisible}
-        onCancel={() => setIsMobileFilterVisible(false)}
-        width="85%"
-        footer={
-          <div className="flex justify-center items-center space-x-4">
-            <Button
-              type="default"
-              className="px-3"
-              onClick={() => setIsMobileFilterVisible(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => setIsMobileFilterVisible(false)}
-              type="primary"
-              className="px-3"
-            >
-              Filter
-            </Button>
-          </div>
-        }
+  const Filters = (
+    <div
+      className="space-y-4"
+      id="employee-search-filters"
+      data-cy="employee-search-filters"
+    >
+      <div
+        className="space-y-4"
+        id="employee-search-filters-content"
+        data-cy="employee-search-filters-content"
       >
         <Select
           id={`selectBranches${searchParams.allOffices}`}
-          placeholder="All Offices"
+          data-cy={`selectBranches${searchParams.allOffices}`}
+          placeholder="Office"
+          value={searchParams.allOffices || undefined}
           onChange={handleBranchChange}
           allowClear
-          className="w-full mb-4"
+          showSearch
+          filterOption={(input, option) =>
+            String(option?.children || '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeBranches?.items?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
+            <Option
+              key={item?.id}
+              value={item?.id}
+              data-cy={`employee-search-select-branch-option-${item?.id}`}
+            >
               {item?.name}
             </Option>
           ))}
@@ -210,13 +120,80 @@ const EmployeeSearch: React.FC = () => {
 
         <Select
           id={`selectDepartment${searchParams.allJobs}`}
-          placeholder="All Departments"
+          data-cy={`selectDepartment${searchParams.allJobs}`}
+          placeholder="Department"
+          value={searchParams.allJobs || undefined}
           onChange={handleDepartmentChange}
           allowClear
-          className="w-full mb-4"
+          showSearch
+          filterOption={(input, option) =>
+            String(option?.children || '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeDepartment?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
+            <Option
+              key={item?.id}
+              value={item?.id}
+              data-cy={`employee-search-select-department-option-${item?.id}`}
+            >
+              {item?.name}
+            </Option>
+          ))}
+        </Select>
+
+        <Select
+          id={`selectGender${searchParams.gender}`}
+          data-cy={`selectGender${searchParams.gender}`}
+          placeholder="Gender"
+          value={searchParams.gender || undefined}
+          onChange={handleGenderChange}
+          allowClear
+          className="w-full h-12 rounded-lg border-gray-200"
+        >
+          <Option
+            value="male"
+            data-cy="employee-search-select-gender-option-male"
+          >
+            Male
+          </Option>
+          <Option
+            value="female"
+            data-cy="employee-search-select-gender-option-female"
+          >
+            Female
+          </Option>
+          <Option
+            value="other"
+            data-cy="employee-search-select-gender-option-other"
+          >
+            Other
+          </Option>
+        </Select>
+
+        <Select
+          id={`selectEmploymentType${searchParams.employmentType}`}
+          data-cy={`selectEmploymentType${searchParams.employmentType}`}
+          placeholder="Employment Type"
+          value={searchParams.employmentType || undefined}
+          onChange={handleEmploymentTypeChange}
+          allowClear
+          showSearch
+          filterOption={(input, option) =>
+            String(option?.children || '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          className="w-full h-12 rounded-lg border-gray-200"
+        >
+          {EmploymentTypes?.items?.map((item: any) => (
+            <Option
+              key={item?.id}
+              value={item?.id}
+              data-cy={`employee-search-select-employment-type-option-${item?.id}`}
+            >
               {item?.name}
             </Option>
           ))}
@@ -224,16 +201,165 @@ const EmployeeSearch: React.FC = () => {
 
         <Select
           id={`selectStatus${searchParams.allStatus}`}
-          placeholder="Active"
+          data-cy={`selectStatus${searchParams.allStatus}`}
+          placeholder="Status"
+          value={searchParams.allStatus || undefined}
           onChange={handleStatusChange}
           allowClear
-          className="w-full"
+          className="w-full h-12 rounded-lg border-gray-200"
         >
-          <Option value={activeStatusValue}>Active</Option>
-          <Option value={inactiveStatusValue}>Inactive</Option>
+          <Option
+            value={activeStatusValue}
+            data-cy={`employee-search-select-status-option-active`}
+          >
+            Active
+          </Option>
+          <Option
+            value={inactiveStatusValue}
+            data-cy={`employee-search-select-status-option-inactive`}
+          >
+            Inactive
+          </Option>
         </Select>
-      </Modal>
+
+        <DatePicker
+          id={`datePickerJoinedDate${searchParams.joinedDate}`}
+          data-cy={`datePickerJoinedDate${searchParams.joinedDate}`}
+          placeholder="Joined Date"
+          value={
+            searchParams.joinedDate ? dayjs(searchParams.joinedDate) : undefined
+          }
+          onChange={handleJoinedDateChange}
+          className="w-full h-12 rounded-lg border-gray-200"
+          format="YYYY-MM-DD"
+          allowClear
+          suffixIcon={
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              id="employee-search-date-picker-suffix-icon"
+              data-cy="employee-search-date-picker-suffix-icon"
+            >
+              <rect
+                x="2"
+                y="3"
+                width="12"
+                height="10"
+                rx="1"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                id="employee-search-date-picker-suffix-icon-rect"
+                data-cy="employee-search-date-picker-suffix-icon-rect"
+              />
+              <path
+                d="M5 1v4M11 1v4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                id="employee-search-date-picker-suffix-icon-path"
+                data-cy="employee-search-date-picker-suffix-icon-path"
+              />
+              <path
+                d="M2 6h12"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                id="employee-search-date-picker-suffix-icon-path-2"
+                data-cy="employee-search-date-picker-suffix-icon-path-2"
+              />
+              <text
+                x="8"
+                y="10"
+                textAnchor="middle"
+                fontSize="6"
+                fill="currentColor"
+                id="employee-search-date-picker-suffix-icon-text"
+                data-cy="employee-search-date-picker-suffix-icon-text"
+              >
+                1
+              </text>
+            </svg>
+          }
+          renderExtraFooter={() => (
+            <div
+              className="flex items-center justify-between w-full px-2"
+              id="employee-search-date-footer"
+              data-cy="employee-search-date-footer"
+            >
+              <span
+                className="font-semibold text-sm"
+                id="employee-search-date-label"
+                data-cy="employee-search-date-label"
+              >
+                Set Date
+              </span>
+              <Radio.Group
+                value={searchParams.joinedDateType || 'after'}
+                onChange={(e) => setJoinedDateType(e.target.value)}
+                size="small"
+                id="employee-search-date-type-group"
+                data-cy="employee-search-date-type-group"
+              >
+                <Radio
+                  value="before"
+                  id="employee-search-date-before"
+                  data-cy="employee-search-date-before"
+                >
+                  Before
+                </Radio>
+                <Radio
+                  value="after"
+                  id="employee-search-date-after"
+                  data-cy="employee-search-date-after"
+                >
+                  After
+                </Radio>
+              </Radio.Group>
+            </div>
+          )}
+        />
+      </div>
     </div>
+  );
+  return (
+    <Modal
+      centered
+      title="Filter"
+      open={isMobileFilterVisible}
+      onCancel={() => setIsMobileFilterVisible(false)}
+      data-cy="employee-search-modal"
+      footer={
+        <div
+          className="flex justify-center space-x-4 "
+          id="employee-search-modal-footer"
+          data-cy="employee-search-modal-footer"
+        >
+          <Button
+            type="default"
+            onClick={() => setIsMobileFilterVisible(false)}
+            className="px-8 py-1 rounded-lg "
+            id="employee-search-modal-cancel-btn"
+            data-cy="employee-search-modal-cancel-btn"
+          >
+            Cancel
+          </Button>
+          <Button
+            className="bg-primary text-white px-10 py-1 rounded-lg border-none"
+            onClick={() => setIsMobileFilterVisible(false)}
+            id="employee-search-modal-filter-btn"
+            data-cy="employee-search-modal-filter-btn"
+          >
+            Filter
+          </Button>
+        </div>
+      }
+      className="max-w-md"
+      width={400}
+    >
+      {Filters}
+    </Modal>
   );
 };
 

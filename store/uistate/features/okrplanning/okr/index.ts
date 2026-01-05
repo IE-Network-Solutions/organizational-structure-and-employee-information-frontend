@@ -15,24 +15,16 @@ export const useOKRStore = create<OKRState>()(
     selectedPeriodId: '',
     setSelectedPeriodId: (value) => set({ selectedPeriodId: value }),
 
+    selectedCard: null,
+    setSelectedCard: (selectedCard: string | null) => set({ selectedCard }),
+
     // Initialize objective state with keyResults as an empty array
     objective: {
       title: '',
       userId: '',
       deadline: '',
       isClosed: false,
-      keyResults: [
-        {
-          key_type: 'Milestone',
-          metricTypeId: '',
-          title: '',
-          weight: 0,
-          deadline: null,
-          initialValue: 0,
-          targetValue: 0,
-          milestones: [],
-        },
-      ],
+      keyResults: [],
     },
     objectiveValue: {
       title: '',
@@ -63,25 +55,83 @@ export const useOKRStore = create<OKRState>()(
     setObjectiveId: (objectiveId: string) => set({ objectiveId }),
 
     // Add key result to objective
-    addKeyResult: () =>
-      set((state) => ({
-        objective: {
-          ...state.objective,
-          keyResults: [
-            ...state.objective.keyResults,
-            {
-              key_type: 'Milestone',
-              metricTypeId: '',
-              title: '',
-              weight: 0,
-              deadline: null,
-              initialValue: 0,
-              targetValue: 0,
-              milestones: [],
-            },
-          ],
-        },
-      })),
+    addKeyResult: (
+      keyType = 'Milestone',
+      metricTypeId = '',
+      suggestion?: any,
+    ) =>
+      set((state) => {
+        // Build suggested milestones for Milestone type; if absent, derive a single parent milestone from the title
+        let suggestedMilestones = Array.isArray(suggestion?.milestones)
+          ? suggestion.milestones.filter((m: any) => m && m.title)
+          : [];
+        if (keyType === 'Milestone' && suggestedMilestones.length === 0) {
+          if (suggestion?.title) {
+            suggestedMilestones = [
+              {
+                title: suggestion.title,
+                weight: 100,
+              },
+            ];
+          }
+        }
+
+        // Normalize milestone weights to sum to 100 if provided
+        let normalizedMilestones = suggestedMilestones;
+        if (suggestedMilestones.length > 0) {
+          const total = suggestedMilestones.reduce(
+            (sum: number, m: any) => sum + Number(m.weight || 0),
+            0,
+          );
+          if (total > 0 && total !== 100) {
+            normalizedMilestones = suggestedMilestones.map((m: any) => ({
+              ...m,
+              weight: Math.round((Number(m.weight || 0) / total) * 100),
+            }));
+            const adjustedTotal = normalizedMilestones.reduce(
+              (sum: number, m: any) => sum + Number(m.weight || 0),
+              0,
+            );
+            if (adjustedTotal !== 100 && normalizedMilestones.length > 0) {
+              normalizedMilestones[0] = {
+                ...normalizedMilestones[0],
+                weight:
+                  Number(normalizedMilestones[0].weight || 0) +
+                  (100 - adjustedTotal),
+              };
+            }
+          }
+        }
+
+        const newKeyResult: KeyResult = {
+          // @ts-expect-error id can be added later by backend
+          id: undefined,
+          key_type: keyType,
+          metricTypeId: metricTypeId,
+          // Always use the AI suggestion title as the KR title
+          title: suggestion?.title || '',
+          weight: suggestion?.weight || 0,
+          deadline: null,
+          // For Numeric/Percentage, prefer backend-provided snake_case values exactly
+          initialValue:
+            keyType === 'Numeric' || keyType === 'Percentage'
+              ? (suggestion?.initialValue ?? suggestion?.initial_value ?? 0)
+              : (suggestion?.initialValue ?? 0),
+          targetValue:
+            keyType === 'Numeric' || keyType === 'Percentage'
+              ? (suggestion?.targetValue ?? suggestion?.target_value ?? 0)
+              : (suggestion?.targetValue ?? 0),
+          milestones: keyType === 'Milestone' ? normalizedMilestones : [],
+          isAISuggestion: Boolean(suggestion?.isAISuggestion),
+        };
+
+        return {
+          objective: {
+            ...state.objective,
+            keyResults: [...state.objective.keyResults, newKeyResult],
+          },
+        };
+      }),
 
     // Add last key result to keyResultValue
     addKeyResultValue: (newKeyResult) =>
@@ -171,11 +221,12 @@ export const useOKRStore = create<OKRState>()(
       field: string,
     ) =>
       set((state) => {
+        const coercedValue = field === 'weight' ? Number(value ?? 0) : value;
         const newKeyResult = [...state.objectiveValue.keyResults];
         newKeyResult[keyResultIndex].milestones = newKeyResult[
           keyResultIndex
         ].milestones.map((m: any, i: number) =>
-          i === mindex ? { ...m, [field]: value } : m,
+          i === mindex ? { ...m, [field]: coercedValue } : m,
         );
         return {
           objectiveValue: {
@@ -191,10 +242,13 @@ export const useOKRStore = create<OKRState>()(
       field: string,
     ) => {
       set((state) => {
+        const coercedValue = field === 'weight' ? Number(value ?? 0) : value;
         // Update milestones based on the provided index and field
         const updatedMilestones = state.keyResultValue.milestones.map(
           (milestone: any, index: number) =>
-            index === mindex ? { ...milestone, [field]: value } : milestone,
+            index === mindex
+              ? { ...milestone, [field]: coercedValue }
+              : milestone,
         );
 
         // Return the updated keyResultValue
@@ -209,16 +263,66 @@ export const useOKRStore = create<OKRState>()(
 
     // Remove a specific key result from objective
     removeKeyResult: (index: number) =>
-      set((state) => ({
-        objective: {
-          ...state.objective,
-          /* eslint-disable @typescript-eslint/no-unused-vars */
-          keyResults: state.objective.keyResults.filter(
-            (form: any, i: number) => i !== index,
-            /* eslint-enable @typescript-eslint/no-unused-vars */
-          ),
-        },
-      })),
+      set((state) => {
+        const currentKeyResults = [...state.objective.keyResults];
+        const removedKeyResult = currentKeyResults[index];
+        const remainingKeyResults = currentKeyResults.filter(
+          (form: any, i: number) => i !== index,
+        );
+
+        // Redistribute the weight of the removed key result
+        if (remainingKeyResults.length > 0 && removedKeyResult) {
+          const removedWeight = Number(removedKeyResult.weight || 0);
+          const weightPerRemaining = Math.round(
+            removedWeight / remainingKeyResults.length,
+          );
+
+          const redistributedKeyResults = remainingKeyResults.map(
+            (kr: any) => ({
+              ...kr,
+              weight: Number(kr.weight || 0) + weightPerRemaining,
+            }),
+          );
+
+          // Check if there's a rounding discrepancy and add 1% to the first key result
+          const totalWeight = redistributedKeyResults.reduce(
+            (sum: number, kr: any) => sum + Number(kr.weight || 0),
+            0,
+          );
+
+          // Calculate the expected total (original total should be 100%)
+          const originalTotal =
+            remainingKeyResults.reduce(
+              (sum: number, kr: any) => sum + Number(kr.weight || 0),
+              0,
+            ) + Number(removedKeyResult.weight || 0);
+
+          // Only add 1% if we lost weight due to rounding and we're below the original total
+          if (
+            totalWeight < originalTotal &&
+            redistributedKeyResults.length > 0
+          ) {
+            redistributedKeyResults[0] = {
+              ...redistributedKeyResults[0],
+              weight: Number(redistributedKeyResults[0].weight || 0) + 1,
+            };
+          }
+
+          return {
+            objective: {
+              ...state.objective,
+              keyResults: redistributedKeyResults,
+            },
+          };
+        }
+
+        return {
+          objective: {
+            ...state.objective,
+            keyResults: remainingKeyResults,
+          },
+        };
+      }),
 
     // Remove a specific key result from keyResultValue
     removeKeyResultValue: (index: number) =>
@@ -230,19 +334,66 @@ export const useOKRStore = create<OKRState>()(
           /* eslint-enable @typescript-eslint/no-unused-vars */
         );
 
-        // Also update objectiveValue's keyResults array
+        // Handle weight redistribution for objectiveValue's keyResults
+        const currentKeyResults = [...(state.objectiveValue.keyResults || [])];
+        const removedKeyResult = currentKeyResults[index];
+        const remainingKeyResults = currentKeyResults.filter(
+          (form: any, i: number) => i !== index,
+        );
+
+        // Track deleted ID if it exists in database (has id)
+        const deletedIds = removedKeyResult?.id
+          ? [...(state.deletedKeyResultIds || []), removedKeyResult.id]
+          : state.deletedKeyResultIds || [];
+
+        let redistributedKeyResults = remainingKeyResults;
+
+        // Redistribute the weight of the removed key result
+        if (remainingKeyResults.length > 0 && removedKeyResult) {
+          const removedWeight = Number(removedKeyResult.weight || 0);
+          const weightPerRemaining = Math.round(
+            removedWeight / remainingKeyResults.length,
+          );
+
+          redistributedKeyResults = remainingKeyResults.map((kr: any) => ({
+            ...kr,
+            weight: Number(kr.weight || 0) + weightPerRemaining,
+          }));
+
+          // Check if there's a rounding discrepancy and add 1% to the first key result
+          const totalWeight = redistributedKeyResults.reduce(
+            (sum: number, kr: any) => sum + Number(kr.weight || 0),
+            0,
+          );
+
+          // Calculate the expected total (original total should be 100%)
+          const originalTotal =
+            remainingKeyResults.reduce(
+              (sum: number, kr: any) => sum + Number(kr.weight || 0),
+              0,
+            ) + Number(removedKeyResult.weight || 0);
+
+          // Only add 1% if we lost weight due to rounding and we're below the original total
+          if (
+            totalWeight < originalTotal &&
+            redistributedKeyResults.length > 0
+          ) {
+            redistributedKeyResults[0] = {
+              ...redistributedKeyResults[0],
+              weight: Number(redistributedKeyResults[0].weight || 0) + 1,
+            };
+          }
+        }
+
         const updatedObjectiveValue = {
           ...state.objectiveValue,
-          keyResults: state.objectiveValue.keyResults.filter(
-            /* eslint-disable @typescript-eslint/no-unused-vars */
-            (form: any, i: number) => i !== index,
-            /* eslint-enable @typescript-eslint/no-unused-vars */
-          ),
+          keyResults: redistributedKeyResults,
         };
 
         return {
           keyResultValue: updatedKeyResultValue,
           objectiveValue: updatedObjectiveValue,
+          deletedKeyResultIds: deletedIds,
         };
       }),
     searchObjParams: {
@@ -281,5 +432,11 @@ export const useOKRStore = create<OKRState>()(
     setFiscalYearId: (fiscalYearId: string) => set({ fiscalYearId }),
     sessionIds: [],
     setSessionIds: (sessionIds: string[]) => set({ sessionIds }),
+    deletedKeyResultIds: [],
+    setDeletedKeyResultIds: (ids: string[]) =>
+      set({ deletedKeyResultIds: ids }),
+    deletedMilestoneIds: [],
+    setDeletedMilestoneIds: (ids: string[]) =>
+      set({ deletedMilestoneIds: ids }),
   })),
 );

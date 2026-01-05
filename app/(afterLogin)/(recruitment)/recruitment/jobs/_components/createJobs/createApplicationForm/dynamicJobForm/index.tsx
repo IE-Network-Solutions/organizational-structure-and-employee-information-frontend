@@ -36,7 +36,7 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
         initialValue={[
           {
             id: '',
-            fieldType: '',
+            fieldType: undefined,
             question: '',
             required: false,
             field: [],
@@ -56,7 +56,7 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                 </div>
 
                 <Row gutter={12} key={key}>
-                  <Col lg={16} md={10} xs={24}>
+                  <Col lg={14} md={14} xs={24} sm={14} xl={14}>
                     <Form.Item
                       label=""
                       name={[name, 'question']}
@@ -69,28 +69,68 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                     >
                       <div className="flex items-center">
                         <Input
+                          id={`talent-acquisition-create-application-form-input-question-${index}`}
+                          data-cy={`talent-acquisition-create-application-form-input-question-${index}`}
                           placeholder="Enter your question here"
                           allowClear
                         />
                       </div>
                     </Form.Item>
                   </Col>
-                  <Col lg={8} md={10} xs={24}>
-                    <Row>
-                      <Col lg={16} sm={12} xs={24}>
-                        <Form.Item {...restField} name={[name, 'fieldType']}>
-                          <Select placeholder="Select type" allowClear>
-                            <Option value="multiple_choice">
+                  <Col lg={10} md={10} xs={24} sm={10} xl={10}>
+                    <Row gutter={[8, 8]} justify="space-between">
+                      <Col lg={18} sm={18} xs={24} md={18} xl={18}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'fieldType']}
+                          rules={[
+                            {
+                              required: true,
+                              message: 'Please select a field type',
+                            },
+                          ]}
+                        >
+                          <Select
+                            id={`talent-acquisition-create-application-form-select-field-type-${index}`}
+                            data-cy={`talent-acquisition-create-application-form-select-field-type-${index}`}
+                            placeholder="Select type"
+                            allowClear
+                          >
+                            <Option
+                              id="talent-acquisition-create-application-form-option-field-type-multiple-choice"
+                              data-cy="talent-acquisition-create-application-form-option-field-type-multiple-choice"
+                              value="multiple_choice"
+                            >
                               Multiple Choice
                             </Option>
-                            <Option value="checkbox">Checkbox</Option>
-                            <Option value="short_text">Short Text</Option>
-                            <Option value="paragraph">Paragraph</Option>
+                            <Option
+                              id="talent-acquisition-create-application-form-option-field-type-checkbox"
+                              data-cy="talent-acquisition-create-application-form-option-field-type-checkbox"
+                              value="checkbox"
+                            >
+                              Checkbox
+                            </Option>
+                            <Option
+                              id="talent-acquisition-create-application-form-option-field-type-short-text"
+                              data-cy="talent-acquisition-create-application-form-option-field-type-short-text"
+                              value="short_text"
+                            >
+                              Short Text
+                            </Option>
+                            <Option
+                              id="talent-acquisition-create-application-form-option-field-type-paragraph"
+                              data-cy="talent-acquisition-create-application-form-option-field-type-paragraph"
+                              value="paragraph"
+                            >
+                              Paragraph
+                            </Option>
                           </Select>
                         </Form.Item>
                       </Col>
-                      <Col lg={8} sm={12} xs={24}>
+                      <Col lg={4} sm={4} xs={24} md={4} xl={4}>
                         <MinusCircleOutlined
+                          id={`talent-acquisition-create-application-form-button-remove-question-${index}`}
+                          data-cy={`talent-acquisition-create-application-form-button-remove-question-${index}`}
                           onClick={() => remove(name)}
                           className="flex items-center justify-center"
                         />
@@ -105,7 +145,13 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                   valuePropName="checked"
                 >
                   <div className="flex items-center text-sm">
-                    <Checkbox defaultChecked={false}>Is Required</Checkbox>
+                    <Checkbox
+                      id={`talent-acquisition-create-application-form-checkbox-required-${index}`}
+                      data-cy={`talent-acquisition-create-application-form-checkbox-required-${index}`}
+                      defaultChecked={false}
+                    >
+                      Is Required
+                    </Checkbox>
                   </div>
                 </Form.Item>
 
@@ -164,10 +210,16 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                                 ]}
                                 noStyle
                               >
-                                <Input placeholder="" />
+                                <Input
+                                  id={`talent-acquisition-create-application-form-input-option-${name}-${field.name}`}
+                                  data-cy={`talent-acquisition-create-application-form-input-option-${name}-${field.name}`}
+                                  placeholder=""
+                                />
                               </Form.Item>
                               {fields.length > 0 ? (
                                 <MinusCircleOutlined
+                                  id={`talent-acquisition-create-application-form-button-remove-option-${name}-${field.name}`}
+                                  data-cy={`talent-acquisition-create-application-form-button-remove-option-${name}-${field.name}`}
                                   className="dynamic-delete-button"
                                   onClick={() => remove(field.name)}
                                 />
@@ -181,6 +233,8 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                           <Form.Item>
                             <div className="flex flex-col items-center justify-center">
                               <div
+                                id={`talent-acquisition-create-application-form-button-add-option-${name}`}
+                                data-cy={`talent-acquisition-create-application-form-button-add-option-${name}`}
                                 onClick={() => add()}
                                 className="w-6 h-6 flex items-center justify-center rounded-full bg-primary cursor-pointer"
                               >
@@ -206,6 +260,8 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
             <Form.Item>
               <div className="flex flex-col items-center justify-center my-8">
                 <div
+                  id="talent-acquisition-create-application-form-button-add-question"
+                  data-cy="talent-acquisition-create-application-form-button-add-question"
                   className="rounded-full bg-primary w-8 h-8 flex items-center justify-center"
                   onClick={() => add()}
                 >

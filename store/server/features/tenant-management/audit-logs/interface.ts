@@ -10,3 +10,14 @@ export interface AuditLogRequestBody {
     actionSource?: string;
   };
 }
+
+export interface AggregateAuditLogParams {
+  module?: string | null | undefined;
+  page?: number;
+  limit?: number;
+  orderBy?: string;
+  orderDirection?: 'ASC' | 'DESC';
+  action?: string;
+  performedBy?: string;
+  entityType?: string;
+}

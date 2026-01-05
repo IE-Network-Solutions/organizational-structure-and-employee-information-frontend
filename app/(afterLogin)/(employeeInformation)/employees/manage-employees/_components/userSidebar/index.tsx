@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Form, Steps } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useAddEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
@@ -18,6 +18,7 @@ import AdditionalInformationForm from '../allFormData/additionalInformationForm'
 import ButtonContinue from '../allFormData/SaveAndContinueButton';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
 
 const { Step } = Steps;
 
@@ -34,6 +35,8 @@ const UserSidebar = (props: any) => {
     setSelectedWorkSchedule,
   } = useEmployeeManagementStore();
   const { mutate: createEmployee, isLoading, isSuccess } = useAddEmployee();
+  const { setTempAllowances } = useEmployeeManagementStore();
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
   useEffect(() => {
     if (isSuccess) {
@@ -43,12 +46,18 @@ const UserSidebar = (props: any) => {
       setSelectedPermissions([]);
       setSelectedWorkSchedule(null);
       setCurrent(0);
+      setTempAllowances([]); // Clear temp allowances on success
       form.resetFields();
+      setIsSuccessModalVisible(true);
     }
-  }, [isSuccess]);
+  }, [isSuccess, setTempAllowances]);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+    <div
+      className="flex justify-center text-lg font-bold text-gray-800 py-0 sm:py-6"
+      id="user-sidebar-header"
+      data-cy="user-sidebar-header"
+    >
       Add New Employee
     </div>
   );
@@ -56,7 +65,9 @@ const UserSidebar = (props: any) => {
   const handleCreateUser = async () => {
     await form.validateFields();
     const allValues = form.getFieldsValue(true);
-    createEmployee(transformData(allValues));
+
+    const formData = transformData(allValues);
+    createEmployee(formData);
   };
   const handleContinueClick = async () => {
     if (current !== 2) {
@@ -77,96 +88,157 @@ const UserSidebar = (props: any) => {
     }
   };
 
-  const customDot = (step: number) => (
-    <div
-      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${
-        current >= step
-          ? 'bg-indigo-700 text-white'
-          : 'bg-white border-gray-300 text-gray-500'
-      }`}
-    >
-      {current >= step ? (
-        <IoCheckmarkSharp className="text-xs font-bold" />
-      ) : (
-        <span className="text-2xl leading-none pb-1">•</span>
-      )}
-    </div>
-  );
+  const customDot = (step: number) => {
+    if (current > step) {
+      // Completed step: blue circle with checkmark
+      return (
+        <div
+          className="border-2 border-indigo-700 bg-indigo-700 rounded-full h-6 w-6 flex items-center justify-center"
+          data-cy={`user-sidebar-step-dot-completed-${step}`}
+        >
+          <IoCheckmarkSharp className="text-white text-[12px] font-bold" />
+        </div>
+      );
+    } else if (current === step) {
+      // Current step: blue dot in blue-outlined circle
+      return (
+        <div
+          className="border-2 border-indigo-700 rounded-full h-6 w-6 flex items-center justify-center"
+          data-cy={`user-sidebar-step-dot-current-${step}`}
+        >
+          <span className="bg-indigo-700 rounded-full h-2.5 w-2.5 block"></span>
+        </div>
+      );
+    } else {
+      // Upcoming step: empty gray-outlined circle
+      return (
+        <div
+          className="border-2 border-gray-300 rounded-full h-6 w-6 flex items-center justify-center"
+          data-cy={`user-sidebar-step-dot-upcoming-${step}`}
+        ></div>
+      );
+    }
+  };
+
   function handleCancel() {
     props?.onClose();
+    setTempAllowances([]); // Clear temp allowances on cancel
     form.resetFields();
     setProfileFileList([]);
   }
   return (
-    open && (
-      <CustomDrawerLayout
-        open={open}
-        onClose={handleCancel}
-        modalHeader={modalHeader}
-        width="40%"
-      >
-        <Steps
-          current={current}
-          size="small"
-          responsive={false}
-          // onChange={onChange}
-          className="  sm:my-10"
+    <>
+      {open && (
+        <CustomDrawerLayout
+          open={open}
+          onClose={handleCancel}
+          modalHeader={modalHeader}
+          width="40%"
+          data-cy="user-sidebar-drawer"
         >
-          <Step icon={customDot(1)} />
-          <Step icon={customDot(2)} />
-          <Step icon={customDot(3)} />
-        </Steps>
-        <Form
-          form={form}
-          name="dependencies"
-          autoComplete="off"
-          style={{ maxWidth: '100%' }}
-          layout="vertical"
-          onFinish={handleCreateUser}
-          onFinishFailed={() =>
-            NotificationMessage.error({
-              message: 'Something wrong or unfilled',
-              description: 'please back and check the unfilled fields',
-            })
-          }
-        >
-          {current === 0 && (
-            <Card className="p-4 sm:p-6">
-              <BasicInformationForm form={form} />
-              <EmployeeAddressForm />
-              <EmergencyContactForm />
-              <BankInformationForm />
-              <ButtonContinue
-                handleContinueClick={handleContinueClick}
-                handleBackClick={handleBackClick}
-              />
-            </Card>
-          )}
-          {current === 1 && (
-            <Card className="p-4 sm:p-6">
-              <JobTimeLineForm />
-              <RolePermissionForm form={form} />
-              <WorkScheduleForm />
-              <ButtonContinue
-                handleContinueClick={handleContinueClick}
-                handleBackClick={handleBackClick}
-              />
-            </Card>
-          )}
-          {current === 2 && (
-            <Card className="p-4 sm:p-6">
-              <AdditionalInformationForm />
-              <DocumentUploadForm />
-              <ButtonContinue
-                handleBackClick={handleBackClick}
-                handleContinueClick={handleContinueClick}
-                isLoading={isLoading}
-              />
-            </Card>
-          )}
-        </Form>
-      </CustomDrawerLayout>
-    )
+          <Steps
+            current={current}
+            size="small"
+            responsive={false}
+            // onChange={onChange}
+            className="flex justify-center items-center my-0 sm:my-4 max-w-[200px] mx-auto scale-90"
+            data-cy="user-sidebar-steps"
+          >
+            <Step icon={customDot(0)} data-cy="user-sidebar-step-1" />
+            <Step icon={customDot(1)} data-cy="user-sidebar-step-2" />
+            <Step icon={customDot(2)} data-cy="user-sidebar-step-3" />
+          </Steps>
+          <Form
+            form={form}
+            name="dependencies"
+            autoComplete="off"
+            style={{ maxWidth: '100%' }}
+            layout="vertical"
+            onFinish={handleCreateUser}
+            onFinishFailed={() =>
+              NotificationMessage.error({
+                message: 'Something wrong or unfilled',
+                description: 'please back and check the unfilled fields',
+              })
+            }
+            id="user-sidebar-form"
+            data-cy="user-sidebar-form"
+          >
+            {current === 0 && (
+              <Card
+                bordered={false}
+                bodyStyle={{ padding: 0 }}
+                className="p-2 sm:p-6 mt-2"
+                id="user-sidebar-card-basic"
+                data-cy="user-sidebar-card-basic"
+              >
+                <BasicInformationForm
+                  form={form}
+                  data-cy="user-sidebar-basic-information-form"
+                />
+                <EmployeeAddressForm data-cy="user-sidebar-employee-address-form" />
+                <EmergencyContactForm data-cy="user-sidebar-emergency-contact-form" />
+                <BankInformationForm data-cy="user-sidebar-bank-information-form" />
+                <ButtonContinue
+                  handleContinueClick={handleContinueClick}
+                  handleBackClick={handleBackClick}
+                  data-cy="user-sidebar-button-continue"
+                />
+              </Card>
+            )}
+            {current === 1 && (
+              <Card
+                bodyStyle={{ padding: 0 }}
+                className="p-2 sm:p-6"
+                id="user-sidebar-card-job"
+                data-cy="user-sidebar-card-job"
+              >
+                <JobTimeLineForm
+                  form={form}
+                  data-cy="user-sidebar-job-time-line-form"
+                />
+                <RolePermissionForm
+                  form={form}
+                  data-cy="user-sidebar-role-permission-form"
+                />
+                <WorkScheduleForm data-cy="user-sidebar-work-schedule-form" />
+                <ButtonContinue
+                  handleContinueClick={handleContinueClick}
+                  handleBackClick={handleBackClick}
+                  data-cy="user-sidebar-button-continue"
+                />
+              </Card>
+            )}
+            {current === 2 && (
+              <Card
+                bodyStyle={{ padding: 0 }}
+                className="p-2 sm:p-6"
+                id="user-sidebar-card-additional"
+                data-cy="user-sidebar-card-additional"
+              >
+                <AdditionalInformationForm data-cy="user-sidebar-additional-information-form" />
+                <DocumentUploadForm data-cy="user-sidebar-document-upload-form" />
+                <ButtonContinue
+                  handleBackClick={handleBackClick}
+                  handleContinueClick={handleContinueClick}
+                  isLoading={isLoading}
+                  data-cy="user-sidebar-button-continue"
+                />
+              </Card>
+            )}
+          </Form>
+        </CustomDrawerLayout>
+      )}
+      <CustomModal
+        visible={isSuccessModalVisible}
+        onClose={() => {
+          setIsSuccessModalVisible(false);
+        }}
+        text="You have successfully added new employee"
+        route=""
+        data-cy="user-sidebar-success-modal"
+      />
+    </>
   );
 };
 

@@ -20,12 +20,26 @@ function General({ id }: { id: string }) {
   const [form] = Form.useForm();
   const { data: employeeInformationForm } = useGetEmployeInformationForms();
 
-  const mergedFields = employeeInformationForm?.items.flatMap((form) =>
-    form.form.map((field) => ({
-      ...field,
-      formTitle: form.formTitle, // Add formTitle to each field
-    })),
-  );
+  const mergedFields =
+    employeeInformationForm?.items.flatMap((form) =>
+      form.form.map((field) => {
+        // Handle both FormField and FormFieldWithFieldProperty types
+        if ('field' in field) {
+          // FormFieldWithFieldProperty case
+          return {
+            ...field.field,
+            formTitle: form.formTitle,
+            id: field.id,
+          };
+        } else {
+          // FormField case
+          return {
+            ...field,
+            formTitle: form.formTitle,
+          };
+        }
+      }),
+    ) || [];
 
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
@@ -72,26 +86,34 @@ function General({ id }: { id: string }) {
 
   return (
     <>
-      <PersonalDataComponent id={id} handleSaveChanges={handleSaveChanges} />
+      <PersonalDataComponent
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+        data-cy="general-personal-data-component"
+      />
       <EmergencyContact
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
+        data-cy="general-emergency-contact-component"
       />
       <AddressComponent
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
+        data-cy="general-address-component"
       />
       <BankInformationComponent
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
+        data-cy="general-bank-information-component"
       />
       <AdditionalInformation
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
+        data-cy="general-additional-information-component"
       />
     </>
   );

@@ -1,7 +1,8 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TNA_URL } from '@/utils/constants';
-import axios from 'axios';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
+import { crudRequest } from '@/utils/crudRequest';
 
 // Define the OKRDashboard interface
 interface CoursePermittedrs {
@@ -17,7 +18,7 @@ type ResponseData = CoursePermittedrs[];
  * @returns The response data from the API
  */
 const getCoursePermitted = async (): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 
@@ -30,11 +31,12 @@ const getCoursePermitted = async (): Promise<ResponseData> => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get<ResponseData>(
-      `${TNA_URL}/learning/course/user-courses/category/${userId}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${TNA_URL}/learning/course/user-courses/category/${userId}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw new Error(`Error fetching applicant summary: ${error}`);
   }

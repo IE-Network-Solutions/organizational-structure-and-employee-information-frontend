@@ -9,7 +9,9 @@ import React from 'react';
 import CustomFieldsDrawer from '../customFieldsDrawer';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import RecruitmentPagination from '../../../_components';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 const CustomFieldsCard: React.FC = () => {
   const {
@@ -27,8 +29,10 @@ const CustomFieldsCard: React.FC = () => {
     setTemplatePageSize,
   } = useRecruitmentSettingsStore();
 
+  const { isMobile, isTablet } = useIsMobile();
+
   const { data: customFields, isLoading: isCustomFieldsLoading } =
-    useGetCustomFieldsTemplate();
+    useGetCustomFieldsTemplate(templatePageSize, templateCurrentPage);
 
   const { mutate: deleteCustomField } = useDeleteCustomFieldsTemplate();
   const handleCustomFieldsModalOpen = (question: any) => {
@@ -52,10 +56,27 @@ const CustomFieldsCard: React.FC = () => {
 
   if (isCustomFieldsLoading)
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
+      <div
+        className="flex justify-center items-center h-64"
+        data-cy="talent-acquisition-custom-fields-card-loading"
+      >
+        <Spin
+          size="large"
+          data-cy="talent-acquisition-custom-fields-card-spin"
+        />
       </div>
     );
+
+  const onPageChange = (page: number, pageSize?: number) => {
+    setTemplateCurrentPage(page);
+    if (pageSize) {
+      setTemplatePageSize(pageSize);
+    }
+  };
+  const onSizeChange = (size: number) => {
+    setTemplatePageSize(size);
+    setTemplateCurrentPage(1);
+  };
 
   return (
     <>
@@ -65,11 +86,18 @@ const CustomFieldsCard: React.FC = () => {
             key={index}
             className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
           >
-            <div className="text-medium font-medium">{questions?.title}</div>
+            <div
+              className="text-medium font-medium"
+              data-cy={`talent-acquisition-custom-fields-card-title-${questions?.id}`}
+            >
+              {questions?.title}
+            </div>
             <div className="flex items-center justify-center gap-2">
               <AccessGuard permissions={[Permissions.UpdateCustomFields]}>
                 <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
                   <Pencil
+                    id={`talent-acquisition-custom-fields-button-edit-${questions?.id}`}
+                    data-cy={`talent-acquisition-custom-fields-button-edit-${questions?.id}`}
                     size={15}
                     className="text-white cursor-pointer"
                     onClick={() => handleCustomFieldsModalOpen(questions)}
@@ -79,6 +107,8 @@ const CustomFieldsCard: React.FC = () => {
               <AccessGuard permissions={[Permissions.DeleteCustomFields]}>
                 <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
                   <Trash2
+                    id={`talent-acquisition-custom-fields-button-delete-${questions?.id}`}
+                    data-cy={`talent-acquisition-custom-fields-button-delete-${questions?.id}`}
                     size={15}
                     className="text-white cursor-pointer"
                     onClick={() => handleDeleteModalOpen(questions)}
@@ -103,7 +133,24 @@ const CustomFieldsCard: React.FC = () => {
           isEdit={editCustomFieldsModalOpen}
         />
       )}
-      <RecruitmentPagination
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={customFields?.meta?.totalItems ?? 1}
+          pageSize={templatePageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={templateCurrentPage}
+          total={customFields?.meta?.totalItems ?? 1}
+          pageSize={templatePageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
+      {/* <RecruitmentPagination
         current={templateCurrentPage}
         total={customFields?.meta?.totalItems ?? 1}
         pageSize={templatePageSize}
@@ -115,7 +162,7 @@ const CustomFieldsCard: React.FC = () => {
           setTemplatePageSize(size);
           setTemplateCurrentPage(1);
         }}
-      />
+      /> */}
     </>
   );
 };

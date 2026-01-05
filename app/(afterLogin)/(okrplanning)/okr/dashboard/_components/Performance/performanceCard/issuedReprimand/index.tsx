@@ -1,17 +1,30 @@
 import { Card } from 'antd';
 import React from 'react';
-import { FaArrowUp } from 'react-icons/fa';
 
-const IssuedReprimand: React.FC = () => {
+const IssuedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
+  kpi,
+  engagement,
+}) => {
   return (
-    <Card>
-      <div className="text-md gap-4 flex justify-start mb-2">
+    <Card
+      className="text-md gap-2 flex flex-col  p-4 shadow-lg"
+      bodyStyle={{ padding: '0px', margin: '0px' }}
+      id="okr-issued-reprimand-card-display-card"
+      data-cy="okr-issued-reprimand-card-display-card"
+    >
+      <div
+        className="flex items-center gap-5 justify-start"
+        id="okr-issued-reprimand-header-display-div"
+        data-cy="okr-issued-reprimand-header-display-div"
+      >
         <svg
           width="40"
           height="41"
           viewBox="0 0 40 41"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          id="okr-issued-reprimand-icon-display-svg"
+          data-cy="okr-issued-reprimand-icon-display-svg"
         >
           <rect
             y="0.730957"
@@ -19,7 +32,7 @@ const IssuedReprimand: React.FC = () => {
             height="40"
             rx="20"
             fill="#FF782D"
-            fill-opacity="0.2"
+            fillOpacity="0.2"
           />
           <g clip-path="url(#clip0_7606_452751)">
             <path
@@ -28,7 +41,10 @@ const IssuedReprimand: React.FC = () => {
             />
           </g>
           <defs>
-            <clipPath id="clip0_7606_452751">
+            <clipPath
+              data-cy="okr-issued-reprimand-clip-path"
+              id="clip0_7606_452751"
+            >
               <rect
                 width="20"
                 height="20"
@@ -38,23 +54,58 @@ const IssuedReprimand: React.FC = () => {
             </clipPath>
           </defs>
         </svg>
-        <div className="flex flex-col items-start justify-start">
-          <div className="flex items-center justify-start">
-            Issued Reprimand
+        <div
+          className="flex items-center justify-start text-sm font-medium text-gray-600"
+          id="okr-issued-reprimand-title-display-div"
+          data-cy="okr-issued-reprimand-title-display-div"
+        >
+          Issued Reprimand
+        </div>
+      </div>
+      <div
+        className="flex items-center justify-center gap-6 text-primary pl-10 lg:pl-0 "
+        id="okr-issued-reprimand-metrics-display-div"
+        data-cy="okr-issued-reprimand-metrics-display-div"
+      >
+        <div
+          className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg"
+          id="okr-issued-reprimand-kpi-display-div"
+          data-cy="okr-issued-reprimand-kpi-display-div"
+        >
+          <div
+            className="text-2xl font-extrabold"
+            id="okr-issued-reprimand-kpi-value-display-div"
+            data-cy="okr-issued-reprimand-kpi-value-display-div"
+          >
+            {kpi}
           </div>
-          <div className="flex gap-1 items-center justify-end">
-            <h3>56.02</h3>
-            <h5>%</h5>
+          <div
+            className="text-sm font-bold"
+            id="okr-issued-reprimand-kpi-label-display-div"
+            data-cy="okr-issued-reprimand-kpi-label-display-div"
+          >
+            KPI
           </div>
         </div>
-        <div className="flex flex-col justify-between ">
-          <div className="flex items-center justify-end gap-[2px]">
-            <span className="text-green-500 font-light">12.7</span>
-            <FaArrowUp className="text-green-500 font-light" />
+        <div
+          className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg"
+          id="okr-issued-reprimand-engagement-display-div"
+          data-cy="okr-issued-reprimand-engagement-display-div"
+        >
+          <div
+            className="text-2xl font-extrabold"
+            id="okr-issued-reprimand-engagement-value-display-div"
+            data-cy="okr-issued-reprimand-engagement-value-display-div"
+          >
+            {engagement}
           </div>
-          <span className="text-xs font-normal">
-            Updated: {new Date().toLocaleDateString()}
-          </span>
+          <div
+            className="text-sm font-bold"
+            id="okr-issued-reprimand-engagement-label-display-div"
+            data-cy="okr-issued-reprimand-engagement-label-display-div"
+          >
+            Engagement
+          </div>
         </div>
       </div>
     </Card>

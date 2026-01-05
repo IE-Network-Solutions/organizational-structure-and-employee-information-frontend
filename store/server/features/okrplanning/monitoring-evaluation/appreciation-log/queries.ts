@@ -1,10 +1,10 @@
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
 import { AppreciationLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-log/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import { crudRequest } from '@/utils/crudRequest';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 type ResponseData = {
@@ -25,35 +25,36 @@ type ResponseDataDetail = AppreciationLog;
  * @returns The response data from the API
  */
 const getAppreciationLog = async (userId: string, typeId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/appreciation-log?userId=${userId}&typeId=${typeId}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/appreciation-log?userId=${userId}&typeId=${typeId}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
 };
+
 const getAppRepAll = async (userId: string, typeId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/appreciation-log/all?userId=${userId}&typeId=${typeId}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/appreciation-log/all?userId=${userId}&typeId=${typeId}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -65,18 +66,18 @@ const getAppRepAll = async (userId: string, typeId: string) => {
  * @returns The response data from the API
  */
 const getAppreciationLogById = async (id: number | string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/appreciation-log/${id}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/appreciation-log/${id}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }

@@ -6,18 +6,20 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 import { BreakType } from '@/types/timesheet/breakType';
 
 const getBreakTypes = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-type/all`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getBreakType = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-type/all`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };

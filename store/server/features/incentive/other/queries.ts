@@ -1,6 +1,8 @@
 import { requestHeader } from '@/helpers/requestHeader';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { INCENTIVE_URL, ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 const fetchAllIncentiveData = async (
@@ -11,10 +13,16 @@ const fetchAllIncentiveData = async (
   page: number,
   current: number,
 ) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentives/get-all-incentives?limit=${page}&page=${current}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers,
     data: {
       userId: employeeName,
       year: year,
@@ -33,10 +41,11 @@ const fetchProjectIncentiveData = async (
   page: number,
   current: number,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentives/all/${recognitionsTypeId}?limit=${page}&page=${current}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: {
       userId: employeeName,
       year: year,
@@ -47,62 +56,70 @@ const fetchProjectIncentiveData = async (
 };
 
 const fetchAllRecognition = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 const fetchUserDetail = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentives/get-incentive/group-by-session`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const fetchRecognitionTypeByParentId = async (parentId: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-type/childe-recognition-type/child/${parentId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 const fetchAllChildrenRecognition = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-type/childe-recognition-type/child`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 const fetchParentRecognition = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-type/parent-recognition-type/parent`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 const fetchRecognitionById = async (recognitionId: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-type/${recognitionId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const fetchIncentiveCriteria = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-criterias/all-criteria`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
-const fetchIncentiveFormula = async (recognitionTypeId: string) => {
+const fetchIncentiveFormula = async (recognitionTypeId: string | undefined) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas/recognition-type/${recognitionTypeId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -121,10 +138,14 @@ export const useRecognitionByParentId = (recognitionTypeId: string) => {
   );
 };
 export const useIncentiveFormulaByRecognitionId = (
-  recognitionTypeId: string,
+  recognitionTypeId: string | undefined,
 ) => {
-  return useQuery<any>(['incentiveFormula', recognitionTypeId], () =>
-    fetchIncentiveFormula(recognitionTypeId),
+  return useQuery<any>(
+    ['incentiveFormula', recognitionTypeId],
+    () => fetchIncentiveFormula(recognitionTypeId),
+    {
+      enabled: !!recognitionTypeId, // Only run when recognitionTypeId is truthy
+    },
   );
 };
 
@@ -186,5 +207,47 @@ export const useGetAllIncentiveData = (
     ['getAllIncentiveData', employeeName, year, session, month, page, current],
     () =>
       fetchAllIncentiveData(employeeName, year, session, month, page, current),
+  );
+};
+
+// Fetch all incentive IDs without pagination (for select all functionality)
+const fetchAllIncentiveIds = async (
+  employeeName: string,
+  year: string,
+  session: string | string[],
+  month: string,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${INCENTIVE_URL}/incentives/get-all-incentives?limit=10000&page=1`,
+    method: 'POST',
+    headers,
+    data: {
+      userId: employeeName,
+      year: year,
+      sessionId: session,
+      monthId: month,
+    },
+  });
+};
+
+export const useGetAllIncentiveIds = (
+  employeeName: string,
+  year: string,
+  session: string,
+  month: string,
+  enabled: boolean = false,
+) => {
+  return useQuery<any>(
+    ['allIncentiveIds', employeeName, year, session, month],
+    () => fetchAllIncentiveIds(employeeName, year, session, month),
+    {
+      enabled,
+    },
   );
 };

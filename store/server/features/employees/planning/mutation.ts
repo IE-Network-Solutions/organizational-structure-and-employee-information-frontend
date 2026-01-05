@@ -3,11 +3,12 @@ import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const createPlanTasks = async (values: any) => {
+  const token = await getCurrentToken();
   const updatedData = {
     ...values,
     tasks: values.tasks.map((task: any) => ({
@@ -31,8 +32,10 @@ export const useCreatePlanTasks = () => {
   return useMutation(createPlanTasks, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('okrReports');
       queryClient.invalidateQueries('okrPlannedData');
+      queryClient.invalidateQueries('planningPeriodsHierarchy');
       NotificationMessage.success({
         message: 'Successfully Created ',
         description: ' ',
@@ -48,6 +51,7 @@ export const useCreatePlanTasks = () => {
 };
 
 const updatePlanTasks = async (values: any) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/plan-tasks`,
     method: 'PATCH',
@@ -63,7 +67,10 @@ export const useUpdatePlanTasks = () => {
   return useMutation(updatePlanTasks, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('okrPlannedData');
+      queryClient.invalidateQueries('okrPlannedData');
+      queryClient.invalidateQueries('planningPeriodsHierarchy');
       NotificationMessage.success({
         message: 'Successfully Updated ',
         description: ' ',

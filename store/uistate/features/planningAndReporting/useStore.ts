@@ -1,5 +1,5 @@
 // useStore.ts
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { useAuthenticationStore } from '../authentication';
 type MkAsATask = {
@@ -59,6 +59,16 @@ export interface PlanningAndReporting {
 
   selectedReportId: string;
   setSelectedReportId: (selectedReportId: string) => void;
+
+  // Fiscal year and session filters
+  selectedFiscalYearId: string | null;
+  setSelectedFiscalYearId: (yearId: string | null) => void;
+
+  selectedSessionIds: string[];
+  setSelectedSessionIds: (sessionIds: string[]) => void;
+
+  allSessionsOfYear: string[];
+  setAllSessionsOfYear: (sessions: string[]) => void;
 }
 const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -123,9 +133,9 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     setWeight: (key, weight) =>
       set((state) => {
-        const updatedWeights = { ...state.weights, [key]: weight };
+        const updatedWeights = { ...state.weights, [key]: Number(weight) || 0 };
         const newTotal = Object.values(updatedWeights).reduce(
-          (acc, val) => acc + val,
+          (acc, val) => acc + Number(val || 0),
           0,
         );
         return { weights: updatedWeights, totalWeight: newTotal };
@@ -140,12 +150,25 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
         /* eslint-ensable-next-line @typescript-eslint/naming-convention */
 
         const newTotal = Object.values(remainingWeights).reduce(
-          (acc, val) => acc + val,
+          (acc, val) => Number(acc) + Number(val || 0),
           0,
         );
         return { weights: remainingWeights, totalWeight: newTotal };
       }),
 
     resetWeights: () => set({ weights: {}, totalWeight: 0 }),
+
+    // Fiscal year and session filters
+    selectedFiscalYearId: null,
+    setSelectedFiscalYearId: (selectedFiscalYearId: string | null) =>
+      set({ selectedFiscalYearId }),
+
+    selectedSessionIds: [],
+    setSelectedSessionIds: (selectedSessionIds: string[]) =>
+      set({ selectedSessionIds }),
+
+    allSessionsOfYear: [],
+    setAllSessionsOfYear: (allSessionsOfYear: string[]) =>
+      set({ allSessionsOfYear }),
   })),
 );

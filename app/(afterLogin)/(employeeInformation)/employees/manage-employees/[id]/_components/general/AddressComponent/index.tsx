@@ -29,9 +29,29 @@ const AddressComponent = ({
 
   const getFieldValidation = (fieldName: string) => {
     return (
-      mergedFields?.find((field: any) => field?.name === fieldName) ?? null
+      mergedFields?.find((field: any) => field?.fieldName === fieldName)
+        ?.fieldValidation ?? 'any'
     );
   };
+
+  // Filter custom fields for address section
+  const addressFields =
+    mergedFields?.filter((field: any) => field?.formTitle === 'address') || [];
+
+  // Merge existing employee data with custom fields
+  const existingData = employeeData?.employeeInformation?.addresses || {};
+  const defaultFields = {
+    country: '',
+    city: '',
+  };
+  const allFields = { ...defaultFields, ...existingData };
+
+  // Add custom fields to allFields if they don't exist
+  addressFields.forEach((field: any) => {
+    if (!(field.fieldName in allFields)) {
+      allFields[field.fieldName] = '';
+    }
+  });
 
   const titleMap: Record<string, string> = {
     phoneNumber: 'Phone Number',
@@ -46,14 +66,19 @@ const AddressComponent = ({
           permissions={[Permissions.UpdateEmployeeDetails]}
           selfShouldAccess
           id={id}
+          data-cy="address-edit-guard"
         >
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('addresses')}
+            id="address-edit-icon"
+            data-cy="address-edit-icon"
           />
         </AccessGuard>
       }
       className="my-6"
+      id="address-card"
+      data-cy="address-card"
     >
       {edit.addresses ? (
         <Form
@@ -61,20 +86,31 @@ const AddressComponent = ({
           onFinish={(values) => handleSaveChanges('addresses', values)}
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
-          initialValues={employeeData?.employeeInformation?.addresses || {}}
+          initialValues={allFields}
+          id="address-form"
+          data-cy="address-form"
         >
-          <Row gutter={[16, 24]}>
-            <Col lg={16}>
-              {Object.entries(
-                employeeData?.employeeInformation?.addresses || {
-                  country: '',
-                  city: '',
-                },
-              ).map(([key, val]) => (
+          <Row
+            gutter={[16, 24]}
+            id="address-form-row"
+            data-cy="address-form-row"
+          >
+            <Col lg={16} id="address-form-col" data-cy="address-form-col">
+              {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
                   name={key}
-                  label={key}
+                  label={
+                    titleMap[key] ||
+                    key
+                      .split('_')
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(' ')
+                  }
+                  id={`address-${key}-form-item`}
+                  data-cy={`address-${key}-form-item`}
                   rules={[
                     {
                       /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -93,8 +129,13 @@ const AddressComponent = ({
                             fieldValidation = 'any';
                             break;
 
+                          case 'country':
+                          case 'city':
+                            fieldValidation = 'text';
+                            break;
+
                           default:
-                            fieldValidation = getFieldValidation(key);
+                            fieldValidation = getFieldValidation(key) || 'any';
                         }
 
                         const validationError = validateField(
@@ -109,29 +150,53 @@ const AddressComponent = ({
                     },
                   ]}
                 >
-                  <Input placeholder={key} defaultValue={val?.toString()} />
+                  <Input
+                    placeholder={key.replace(/_/g, ' ')}
+                    defaultValue={val?.toString()}
+                    id={`address-${key}-input`}
+                    data-cy={`address-${key}-input`}
+                  />
                 </Form.Item>
               ))}
             </Col>
           </Row>
-          <Row>
-            <Col span={24} style={{ textAlign: 'right' }}>
-              <Button type="primary" htmlType="submit">
+          <Row id="address-submit-row" data-cy="address-submit-row">
+            <Col
+              span={24}
+              style={{ textAlign: 'right' }}
+              id="address-submit-col"
+              data-cy="address-submit-col"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="address-submit-btn"
+                data-cy="address-submit-btn"
+              >
                 Save Changes
               </Button>
             </Col>
           </Row>
         </Form>
       ) : (
-        <Row gutter={[16, 24]}>
-          <Col lg={16}>
-            {Object.entries(
-              employeeData?.employeeInformation?.addresses || {},
-            ).map(([key, val]) => (
+        <Row
+          gutter={[16, 24]}
+          id="address-display-row"
+          data-cy="address-display-row"
+        >
+          <Col lg={16} id="address-display-col" data-cy="address-display-col">
+            {Object.entries(allFields).map(([key, val]) => (
               <InfoLine
                 key={key}
-                title={(titleMap[key] || key).replace('address', '')}
+                title={(
+                  titleMap[key] ||
+                  key
+                    .split('_')
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ')
+                ).replace('address', '')}
                 value={val?.toString() || '-'}
+                data-cy={`address-display-${key}-info-line`}
               />
             ))}
           </Col>

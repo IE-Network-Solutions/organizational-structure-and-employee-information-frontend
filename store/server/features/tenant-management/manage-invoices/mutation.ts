@@ -6,10 +6,11 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { CancelInvoiceRequest, CreateAdvanceInvoiceRequest } from './interface';
 
 const createAdvanceInvoice = async (data: CreateAdvanceInvoiceRequest) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/invoices/advance`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -30,10 +31,11 @@ const cancelInvoice = async ({
   invoiceId,
   ...data
 }: CancelInvoiceRequest & { invoiceId: string }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/invoices/${invoiceId}/cancel`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

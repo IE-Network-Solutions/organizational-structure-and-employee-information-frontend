@@ -1,48 +1,74 @@
 'use client';
 import React from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import ClosedDateTable from './_components/closedDateTable';
 import ClosedDateSidebar from './_components/closedDateSidebar';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const Page = () => {
   const { setIsShowClosedDateSidebar, setSelectedClosedDate } =
     useTimesheetSettingsStore();
 
   return (
-    <>
-      <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-1/2 mb-3 ">
-          <PageHeader title="Closed Date" size="small">
-            <AccessGuard permissions={[Permissions.CreateClosedDate]}>
-              <Button
-                size="large"
-                type="primary"
-                id="createNewClosedHolidayFieldId"
-                icon={<LuPlus size={18} />}
-                onClick={() => {
-                  setSelectedClosedDate(null);
-                  setIsShowClosedDateSidebar(true);
-                }}
-              >
-                <span className="hidden sm:inline"> New Closed Date</span>
-              </Button>
-            </AccessGuard>
-          </PageHeader>
-        </div>
+    <div
+      className="p-5 rounded-2xl bg-white "
+      id="time-attendance-settings-closed-date-container"
+      data-cy="time-attendance-settings-closed-date-container"
+    >
+      <div
+        className="flex justify-between mb-4"
+        id="time-attendance-settings-closed-date-header"
+        data-cy="time-attendance-settings-closed-date-header"
+      >
+        <h1
+          className="text-lg text-bold"
+          id="time-attendance-settings-closed-date-title"
+          data-cy="time-attendance-settings-closed-date-title"
+        >
+          Closed Date
+        </h1>
+
+        <AccessGuard
+          permissions={[Permissions.CreateClosedDate]}
+          data-cy="time-attendance-settings-closed-date-add-button-access-guard"
+        >
+          <Button
+            type="primary"
+            id="createNewClosedHolidayFieldId"
+            data-cy="time-attendance-settings-closed-date-add-button-id"
+            icon={
+              <FaPlus data-cy="time-attendance-settings-closed-date-add-button-icon" />
+            }
+            className="h-10 w-10 sm:w-auto"
+            onClick={() => {
+              setSelectedClosedDate(null);
+              setIsShowClosedDateSidebar(true);
+            }}
+          >
+            <span
+              className="hidden sm:inline"
+              id="time-attendance-settings-closed-date-add-button-label"
+              data-cy="time-attendance-settings-closed-date-add-button-label"
+            >
+              New Closed Date
+            </span>
+          </Button>
+        </AccessGuard>
       </div>
 
-      {/* Scrollable Container for Horizontal Scroll */}
-      <div className="w-full overflow-x-auto border border-gray-300 rounded-lg p-2 mt-12">
-        <ClosedDateTable />
+      <div
+        className="w-full overflow-x-auto scrollbar-none"
+        id="time-attendance-settings-closed-date-table-container"
+        data-cy="time-attendance-settings-closed-date-table-container"
+      >
+        <ClosedDateTable data-cy="time-attendance-settings-closed-date-table" />
       </div>
 
-      <ClosedDateSidebar />
-    </>
+      <ClosedDateSidebar data-cy="time-attendance-settings-closed-date-sidebar" />
+    </div>
   );
 };
 

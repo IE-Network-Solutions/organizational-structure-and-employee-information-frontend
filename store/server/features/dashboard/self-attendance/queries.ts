@@ -1,6 +1,8 @@
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 // Define the OKRDashboard interface
@@ -21,7 +23,7 @@ const getSelfAttendance = async (
   start: string,
   end: string,
 ): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 
@@ -34,14 +36,26 @@ const getSelfAttendance = async (
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get<ResponseData>(
-      `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw new Error(`Error fetching applicant summary: ${error}`);
   }
+};
+
+const getAnnualAttendance = async () => {
+  const userId = useAuthenticationStore.getState().userId;
+  const requestHeaders = await requestHeader();
+  const response = await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/${userId}`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
+  return response;
 };
 
 /**
@@ -56,3 +70,9 @@ export const useGetSelfAttendance = (start: string, end: string) =>
       keepPreviousData: true,
     },
   );
+
+export const useGetAnnualAttendance = () => {
+  return useQuery<any>(['annualAttendance'], () => getAnnualAttendance(), {
+    keepPreviousData: true,
+  });
+};

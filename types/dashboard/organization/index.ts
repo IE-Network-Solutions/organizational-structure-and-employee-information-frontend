@@ -17,6 +17,7 @@ export interface DepartmentFormProps {
   submitAction: (values: any) => void;
   departmentData?: Department | null | undefined;
   title: string;
+  loading?: boolean;
 }
 
 export interface OrgData {
@@ -45,6 +46,10 @@ export interface OrganizationState {
   departmentTobeDeletedId: string;
   departmentTobeShiftedId: string;
   selectedKey: string;
+  hasManuallyDeletedDepartments: boolean;
+  setHasManuallyDeletedDepartments: (
+    hasManuallyDeletedDepartments: boolean,
+  ) => void;
   setSelectedKey: (key: string) => void;
   setOrgData: (orgData: OrgData) => void;
   setBranchId: (branchId: string) => void;

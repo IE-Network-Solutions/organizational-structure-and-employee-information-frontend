@@ -277,6 +277,7 @@ export interface Invoice extends TenantRelatedEntity {
   notes: string | null;
   paymentMetadata: Record<string, any> | null;
   payments: Payment[];
+  paymentAt: string;
 }
 
 /**
@@ -327,6 +328,19 @@ export interface AuditLog {
   metadata: Record<string, any>;
   createdAt: string;
   updatedAt: string;
+  // Additional fields from aggregate audit log endpoint
+  performedAt?: string;
+  performedBy?: string;
+  performedByUser?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    profileImage?: string;
+  };
+  previousValue?: Record<string, any> | null;
+  newValue?: Record<string, any> | null;
+  remarks?: string | null;
+  module?: string;
 }
 
 /*********************************************

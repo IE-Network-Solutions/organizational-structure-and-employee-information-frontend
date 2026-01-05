@@ -108,14 +108,26 @@ const AssignTargetDrawer: React.FC = () => {
       open={isDrawerVisible}
       onClose={closeDrawer}
       modalHeader={
-        <span className="text-xl font-semibold">
+        <span
+          className="text-xl font-semibold"
+          id="okr-assign-target-drawer-header-title"
+          data-cy="okr-assign-target-drawer-header-title"
+        >
           {currentId ? 'Update Target' : 'Assign Target'}
         </span>
       }
       width="30%"
       footer={
-        <div className="flex justify-center items-center w-full h-full">
-          <div className="flex justify-between items-center gap-4">
+        <div
+          className="flex justify-center items-center w-full h-full"
+          id="okr-assign-target-drawer-footer"
+          data-cy="okr-assign-target-drawer-footer"
+        >
+          <div
+            className="flex justify-between items-center gap-4"
+            id="okr-assign-target-drawer-footer-buttons"
+            data-cy="okr-assign-target-drawer-footer-buttons"
+          >
             <CustomButton
               type="default"
               title="Cancel"
@@ -124,30 +136,50 @@ const AssignTargetDrawer: React.FC = () => {
                 closeDrawer();
                 resetState();
               }}
+              id="okr-assign-target-drawer-cancel-button"
+              data-cy="okr-assign-target-drawer-cancel-button"
             />
             <CustomButton
               title={currentId ? 'Update' : 'Assign'}
               onClick={() => form.submit()}
               loading={currentId ? isUpdateLoading : isCreateLoading}
+              id="okr-assign-target-drawer-submit-button"
+              data-cy="okr-assign-target-drawer-submit-button"
             />
           </div>
         </div>
       }
+      data-cy="okr-assign-target-drawer"
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={onSubmit}
         className="space-y-4"
+        id="okr-assign-target-drawer-form"
+        data-cy="okr-assign-target-drawer-form"
       >
-        <Form.Item label="Department" name="department">
+        <Form.Item
+          label="Department"
+          name="department"
+          id="okr-assign-target-drawer-department-field"
+          data-cy="okr-assign-target-drawer-department-field"
+        >
           <Select
             placeholder="Select Department"
             onChange={handleDepartmentChange}
             className="w-full h-12"
+            allowClear
+            id="okr-assign-target-drawer-department-select"
+            data-cy="okr-assign-target-drawer-department-select"
           >
             {departmentData?.map((dept: any) => (
-              <Option key={dept.id} value={dept.id}>
+              <Option
+                key={dept.id}
+                value={dept.id}
+                id={`okr-assign-target-drawer-department-option-${dept.id}`}
+                data-cy={`okr-assign-target-drawer-department-option-${dept.id}`}
+              >
                 {dept.name}
               </Option>
             ))}
@@ -160,14 +192,23 @@ const AssignTargetDrawer: React.FC = () => {
           rules={[
             { required: true, message: 'Please select at least one criteria' },
           ]}
+          id="okr-assign-target-drawer-criteria-field"
+          data-cy="okr-assign-target-drawer-criteria-field"
         >
           <Select
             placeholder="Select criteria"
             onChange={handleCriteriaChange}
             className="flex-1 h-12"
+            id="okr-assign-target-drawer-criteria-select"
+            data-cy="okr-assign-target-drawer-criteria-select"
           >
             {criteriaData?.items?.map((criteria: any) => (
-              <Option key={criteria.id} value={criteria.id}>
+              <Option
+                key={criteria.id}
+                value={criteria.id}
+                id={`okr-assign-target-drawer-criteria-option-${criteria.id}`}
+                data-cy={`okr-assign-target-drawer-criteria-option-${criteria.id}`}
+              >
                 {criteria.name}
               </Option>
             ))}
@@ -178,6 +219,8 @@ const AssignTargetDrawer: React.FC = () => {
           name="month"
           label="Month"
           rules={[{ required: true, message: 'Please select a month!' }]}
+          id="okr-assign-target-drawer-month-field"
+          data-cy="okr-assign-target-drawer-month-field"
         >
           <Select
             className="h-12"
@@ -186,9 +229,16 @@ const AssignTargetDrawer: React.FC = () => {
             onChange={
               (value) => setSelectedMonths(currentId ? [value] : value) // Normalize to an array
             }
+            id="okr-assign-target-drawer-month-select"
+            data-cy="okr-assign-target-drawer-month-select"
           >
             {activeSessionData?.months?.map((month: any) => (
-              <Option key={month.id} value={month.name}>
+              <Option
+                key={month.id}
+                value={month.name}
+                id={`okr-assign-target-drawer-month-option-${month.id}`}
+                data-cy={`okr-assign-target-drawer-month-option-${month.id}`}
+              >
                 {month.name}
               </Option>
             ))}
@@ -196,14 +246,30 @@ const AssignTargetDrawer: React.FC = () => {
         </Form.Item>
 
         {selectedMonths?.map((month) => (
-          <div key={month} className="flex items-center gap-4">
-            <Form.Item>
-              <Input value={month} disabled className="flex-1 h-12" />
+          <div
+            key={month}
+            className="flex items-center gap-4"
+            id={`okr-assign-target-drawer-month-block-${month}`}
+            data-cy={`okr-assign-target-drawer-month-block-${month}`}
+          >
+            <Form.Item
+              id={`okr-assign-target-drawer-month-label-field-${month}`}
+              data-cy={`okr-assign-target-drawer-month-label-field-${month}`}
+            >
+              <Input
+                value={month}
+                disabled
+                className="flex-1 h-12"
+                id={`okr-assign-target-drawer-month-label-input-${month}`}
+                data-cy={`okr-assign-target-drawer-month-label-input-${month}`}
+              />
             </Form.Item>
             <Form.Item
               name={`${month}`}
               className="flex-1"
               rules={[{ required: true, message: 'Enter the weight here!' }]}
+              id={`okr-assign-target-drawer-month-weight-field-${month}`}
+              data-cy={`okr-assign-target-drawer-month-weight-field-${month}`}
             >
               <Input
                 placeholder="Enter Weight"
@@ -211,6 +277,8 @@ const AssignTargetDrawer: React.FC = () => {
                 min={0}
                 max={100}
                 className="h-12"
+                id={`okr-assign-target-drawer-month-weight-input-${month}`}
+                data-cy={`okr-assign-target-drawer-month-weight-input-${month}`}
               />
             </Form.Item>
           </div>

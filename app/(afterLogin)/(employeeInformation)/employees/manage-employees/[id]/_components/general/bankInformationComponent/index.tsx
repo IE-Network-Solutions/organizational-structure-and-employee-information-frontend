@@ -23,9 +23,34 @@ const BankInformationComponent = ({
 
   const getFieldValidation = (fieldName: string) => {
     return (
-      mergedFields?.find((field: any) => field?.name === fieldName) ?? null
+      mergedFields?.find((field: any) => field?.fieldName === fieldName)
+        ?.fieldValidation ?? null
     );
   };
+
+  // Filter custom fields for bankInformation section
+  const bankInformationFields =
+    mergedFields?.filter(
+      (field: any) => field?.formTitle === 'bankInformation',
+    ) || [];
+
+  // Merge existing employee data with custom fields
+  const existingData = employeeData?.employeeInformation?.bankInformation || {};
+  const defaultFields = {
+    bankName: '',
+    branch: '',
+    accountName: '',
+    accountNumber: '',
+  };
+  const allFields = { ...defaultFields, ...existingData };
+
+  // Add custom fields to allFields if they don't exist
+  bankInformationFields.forEach((field: any) => {
+    if (!(field.fieldName in allFields)) {
+      allFields[field.fieldName] = '';
+    }
+  });
+
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
   };
@@ -43,14 +68,19 @@ const BankInformationComponent = ({
           permissions={[Permissions.UpdateEmployeeDetails]}
           selfShouldAccess
           id={id}
+          data-cy="bank-information-edit-guard"
         >
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('bankInformation')}
+            id="bank-information-edit-icon"
+            data-cy="bank-information-edit-icon"
           />
         </AccessGuard>
       }
       className="my-6"
+      id="bank-information-card"
+      data-cy="bank-information-card"
     >
       {edit.bankInformation ? (
         <Form
@@ -58,24 +88,35 @@ const BankInformationComponent = ({
           onFinish={(values) => handleSaveChanges('bankInformation', values)}
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
-          initialValues={
-            employeeData?.employeeInformation?.bankInformation || {}
-          }
+          initialValues={allFields}
+          id="bank-information-form"
+          data-cy="bank-information-form"
         >
-          <Row gutter={[16, 24]}>
-            <Col lg={16}>
-              {Object.entries(
-                employeeData?.employeeInformation?.bankInformation || {
-                  bankName: '',
-                  branch: '',
-                  accountName: '',
-                  accountNumber: '',
-                },
-              ).map(([key, val]) => (
+          <Row
+            gutter={[16, 24]}
+            id="bank-information-form-row"
+            data-cy="bank-information-form-row"
+          >
+            <Col
+              lg={16}
+              id="bank-information-form-col"
+              data-cy="bank-information-form-col"
+            >
+              {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
                   name={key}
-                  label={key}
+                  label={
+                    titleMap[key] ||
+                    key
+                      .split('_')
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(' ')
+                  }
+                  id={`bank-information-${key}-form-item`}
+                  data-cy={`bank-information-${key}-form-item`}
                   rules={[
                     {
                       /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -94,7 +135,7 @@ const BankInformationComponent = ({
                             fieldValidation = 'text';
                             break;
                           default:
-                            fieldValidation = getFieldValidation(key);
+                            fieldValidation = getFieldValidation(key) || 'any';
                         }
 
                         const validationError = validateField(
@@ -114,29 +155,60 @@ const BankInformationComponent = ({
                   //     : []
                   // }
                 >
-                  <Input placeholder={key} defaultValue={val?.toString()} />
+                  <Input
+                    placeholder={key.replace(/_/g, ' ')}
+                    defaultValue={val?.toString()}
+                    id={`bank-information-${key}-input`}
+                    data-cy={`bank-information-${key}-input`}
+                  />
                 </Form.Item>
               ))}
             </Col>
           </Row>
-          <Row>
-            <Col span={24} style={{ textAlign: 'right' }}>
-              <Button type="primary" htmlType="submit">
+          <Row
+            id="bank-information-submit-row"
+            data-cy="bank-information-submit-row"
+          >
+            <Col
+              span={24}
+              style={{ textAlign: 'right' }}
+              id="bank-information-submit-col"
+              data-cy="bank-information-submit-col"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="bank-information-submit-btn"
+                data-cy="bank-information-submit-btn"
+              >
                 Save Changes
               </Button>
             </Col>
           </Row>
         </Form>
       ) : (
-        <Row gutter={[16, 24]}>
-          <Col lg={16}>
-            {Object.entries(
-              employeeData?.employeeInformation?.bankInformation || {},
-            ).map(([key, val]) => (
+        <Row
+          gutter={[16, 24]}
+          id="bank-information-display-row"
+          data-cy="bank-information-display-row"
+        >
+          <Col
+            lg={16}
+            id="bank-information-display-col"
+            data-cy="bank-information-display-col"
+          >
+            {Object.entries(allFields).map(([key, val]) => (
               <InfoLine
                 key={key}
-                title={titleMap[key] || key}
+                title={
+                  titleMap[key] ||
+                  key
+                    .split('_')
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ')
+                }
                 value={val?.toString() || '-'}
+                data-cy={`bank-information-display-${key}-info-line`}
               />
             ))}
           </Col>

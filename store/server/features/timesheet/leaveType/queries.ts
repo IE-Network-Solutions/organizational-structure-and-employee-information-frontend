@@ -6,18 +6,20 @@ import { LeaveType } from '@/types/timesheet/settings';
 import { requestHeader } from '@/helpers/requestHeader';
 
 const getLeaveTypes = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-type`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getLeaveType = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-type`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };

@@ -54,6 +54,7 @@ export enum Permissions {
   UpdateAppreciationType = 'update-appreciation-type',
   DeleteAppreciationType = 'delete-appreciation-type',
   CreateOkrRule = 'create-okr-rule',
+  ViewAllEmployeePerformance = 'view-all-employee-performance',
 
   // OKR Criteria Management
   CreateVpScoringConfigurations = 'create-vp-scoring-configurations',
@@ -108,6 +109,7 @@ export enum Permissions {
   UpdateCourse = 'update-course',
   DeleteCourse = 'delete-course',
   CreateCourse = 'create-course',
+  ViewAllCourse = 'view-all-course', // View all courses including drafts
 
   // Course Category Permissions
   CreateCourseCategory = 'create-course-category',
@@ -323,6 +325,9 @@ export enum Permissions {
   AddRecognitionCriteria = 'create-recognition-criteria',
   DeleteRecognitionCriteria = 'delete-recognition-criteria',
   EditRecognitionCriteria = 'edit-recognition-criteria',
+
+  //Incentive
+  DeleteIncentive = 'delete-incentive',
   // //oneToOne
   // CreateOneToOne = 'create-one-to-one',
   // DeleteOneToOne = 'delete-one-to-one',
@@ -352,4 +357,13 @@ export enum Permissions {
   //basic Salary
   CreateBasicSalary = 'create-basic-salary',
   UpdateBasicSalary = 'update-basic-salary',
+
+  //probation
+  ViewProbationTarget = 'view-probation-target',
+  CreateProbationTarget = 'create-probation-target',
+  UpdateProbationTarget = 'update-probation-target',
+  DeleteProbationTarget = 'delete-probation-target',
+  CreateProbationTask = 'create-probation-task',
+  UpdateProbationTask = 'update-probation-task',
+  DeleteProbationTask = 'delete-probation-task',
 }

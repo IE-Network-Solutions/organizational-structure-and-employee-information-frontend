@@ -3,14 +3,15 @@ import { Payment } from '@/types/tenant-management';
 import { crudRequest } from '@/utils/crudRequest';
 import { TENANT_MGMT_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
-import { useQuery, useMutation } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 
 const getPayments = async (data: Partial<PaymentRequestBody>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/payments`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -48,19 +49,26 @@ const initiatePayment = async (
   invoiceId: string,
   data: InitiatePaymentRequest,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/payments/initiate/${invoiceId}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 
 // Hook for initiating payment
 export const useInitiatePayment = () => {
+  const queryClient = useQueryClient();
   return useMutation<
     ApiResponse<InitiatePaymentResponse>,
     Error,
     { invoiceId: string; data: InitiatePaymentRequest }
-  >(({ invoiceId, data }) => initiatePayment(invoiceId, data));
+  >(({ invoiceId, data }) => initiatePayment(invoiceId, data), {
+    onSuccess: () => {
+      queryClient.invalidateQueries('invoices');
+      queryClient.invalidateQueries('subscriptions');
+    },
+  });
 };

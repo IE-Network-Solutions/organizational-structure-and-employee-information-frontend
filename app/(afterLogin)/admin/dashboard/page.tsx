@@ -8,12 +8,12 @@ import {
   FileImageFilled,
   FileDoneOutlined,
 } from '@ant-design/icons';
-import { Card, Checkbox, Skeleton, Tooltip } from 'antd';
+import { Button, Card, Checkbox, Skeleton, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import CustomButton from '@/components/common/buttons/customButton';
 import InvoicesTable from '../_components/invoicesTable/invoicesTable';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetInvoices } from '@/store/server/features/tenant-management/invoices/queries';
 import { useGetCurrencies } from '@/store/server/features/tenant-management/currencies/queries';
 import {
@@ -25,6 +25,8 @@ import {
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
+import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
+import { useQueryClient } from 'react-query';
 
 const AdminDashboard = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -34,12 +36,18 @@ const AdminDashboard = () => {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [activeSubscription, setActiveSubscription] =
     useState<Subscription | null>(null);
-  const [paymentCurrency, setPaymentCurrency] = useState('USD');
 
   const [lastInvoice, setLastInvoice] = useState<Invoice | null>(null);
+  const { setTransactionType } = usePaymentStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
-  const { data: invoicesData, isLoading: isInvoicesLoading } = useGetInvoices(
+  const {
+    data: invoicesData,
+    isLoading: isInvoicesLoading,
+    refetch: refetchInvoices,
+  } = useGetInvoices(
     {
       filter: {
         tenantId: DEFAULT_TENANT_ID,
@@ -57,19 +65,66 @@ const AdminDashboard = () => {
     'ASC',
   );
 
+  const currentCurrencyId = currentPlan?.currencyId;
+
+  const plansWithSameCurrency = plansData?.items?.filter(
+    (plan: { currencyId: string | undefined }) =>
+      plan.currencyId === currentCurrencyId,
+  );
+
   const { data: currenciesData, isLoading: currenciesLoading } =
     useGetCurrencies({ filter: {} }, true, true);
 
-  const { data: subscriptionsData, isLoading: subscriptionsLoading } =
-    useGetSubscriptions(
-      {
-        filter: {
-          tenantId: [DEFAULT_TENANT_ID],
-        },
+  const {
+    data: subscriptionsData,
+    isLoading: subscriptionsLoading,
+    refetch: refetchSubscriptions,
+  } = useGetSubscriptions(
+    {
+      filter: {
+        tenantId: [DEFAULT_TENANT_ID],
       },
-      true,
-      true,
-    );
+    },
+    true,
+    true,
+  );
+
+  // Refetch data when returning from payment or when page becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        queryClient.invalidateQueries('invoices').then(() => {
+          refetchInvoices();
+        });
+        queryClient.invalidateQueries('subscriptions').then(() => {
+          refetchSubscriptions();
+        });
+      }
+    };
+
+    const paymentSuccess = searchParams.get('payment_success');
+    const paymentReturn = searchParams.get('payment_return');
+
+    if (paymentSuccess === 'true' || paymentReturn === 'true') {
+      queryClient.invalidateQueries('invoices');
+      queryClient.invalidateQueries('subscriptions');
+      refetchInvoices();
+      refetchSubscriptions();
+      router.replace('/admin/dashboard', { scroll: false });
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [
+    searchParams,
+    router,
+    queryClient,
+    refetchInvoices,
+    refetchSubscriptions,
+  ]);
 
   useEffect(() => {
     if (invoicesData) {
@@ -217,30 +272,39 @@ const AdminDashboard = () => {
 
   const dashboardValues = getDashboardValues();
 
-  const allPlans = plans
-    .filter((plan: any) => plan.isPublic)
-    .sort((a: any, b: any) => a.slotPrice - b.slotPrice);
-
   const isLoading =
     isInvoicesLoading ||
     plansLoading ||
     currenciesLoading ||
     subscriptionsLoading;
   const hasSelectedPlan = !!currentPlan;
-
+  const activeSubscriptionData = subscriptionsData?.items?.find(
+    (sub) => sub.isActive === true,
+  );
   return (
-    <div className="h-auto w-auto px-6 py-6">
+    <div
+      id="admin-dashboard"
+      data-cy="admin-dashboard"
+      className="h-auto w-auto px-6 py-6"
+    >
       <CustomBreadcrumb
         title="Hi, Admin"
         subtitle="Manage Tenant Billing, Invoices, and Profile Information"
+        data-cy="admin-dashboard-breadcrumb"
       />
 
-      <div className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5">
+      <div
+        id="dashboard-cards"
+        data-cy="dashboard-cards"
+        className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5"
+      >
         {dashboardData.map((item, idx) => {
           const valueData = dashboardValues.find((v) => v.id === item.id);
           return (
             <Card
               key={idx}
+              id={`dashboard-card-${item.id}`}
+              data-cy={`dashboard-card-${item.id}`}
               loading={isLoading}
               className="rounded-lg bg-white relative"
               bordered={false}
@@ -258,22 +322,52 @@ const AdminDashboard = () => {
               }}
             >
               {isLoading ? (
-                <Skeleton active paragraph={{ rows: 2 }} />
+                <Skeleton
+                  active
+                  paragraph={{ rows: 2 }}
+                  data-cy="dashboard-card-loading-skeleton"
+                />
               ) : (
                 <>
-                  <div className="flex flex-col gap-2 pt-6 pl-4 pr-4 pb-4">
-                    <div className="bg-gray-100 rounded-md py-2 px-3 w-fit">
+                  <div
+                    id={`dashboard-card-${item.id}-header`}
+                    data-cy={`dashboard-card-${item.id}-header`}
+                    className="flex flex-col gap-2 pt-6 pl-4 pr-4 pb-4"
+                  >
+                    <div
+                      id={`dashboard-card-${item.id}-icon`}
+                      data-cy={`dashboard-card-${item.id}-icon`}
+                      className="bg-gray-100 rounded-md py-2 px-3 w-fit"
+                    >
                       {React.cloneElement(item.icon, {
                         style: { color: item.color },
                         size: 24,
                       })}
                     </div>
-                    <div className="text-sm text-gray-500">{item.overview}</div>
+                    <div
+                      id={`dashboard-card-${item.id}-label`}
+                      data-cy={`dashboard-card-${item.id}-label`}
+                      className="text-sm text-gray-500"
+                    >
+                      {item.overview}
+                    </div>
                   </div>
 
-                  <div className="flex flex-col">
-                    <div className="p-4 pt-0">
-                      <div className="text-1xl font-bold flex items-center justify-between">
+                  <div
+                    id={`dashboard-card-${item.id}-content`}
+                    data-cy={`dashboard-card-${item.id}-content`}
+                    className="flex flex-col"
+                  >
+                    <div
+                      id={`dashboard-card-${item.id}-value-container`}
+                      data-cy={`dashboard-card-${item.id}-value-container`}
+                      className="p-4 pt-0"
+                    >
+                      <div
+                        id={`dashboard-card-${item.id}-value`}
+                        data-cy={`dashboard-card-${item.id}-value`}
+                        className="text-1xl font-bold flex items-center justify-between"
+                      >
                         {valueData?.value}
                       </div>
                     </div>
@@ -285,70 +379,82 @@ const AdminDashboard = () => {
         })}
       </div>
 
-      <div className="text-2xl font-bold mb-5">
+      <div
+        id="tenant-plans-title"
+        data-cy="tenant-plans-title"
+        className="text-2xl font-bold mb-5"
+      >
         Tenant Plan & Available Upgrades
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col md:flex-row gap-4">
+        <div
+          id="tenant-plans-loading"
+          data-cy="tenant-plans-loading"
+          className="flex flex-col md:flex-row gap-4"
+        >
           {[1, 2].map((index) => (
             <div
               key={index}
+              id={`tenant-plans-loading-skeleton-${index}`}
+              data-cy={`tenant-plans-loading-skeleton-${index}`}
               className="bg-white rounded-lg p-4 w-full md:w-1/2 mb-4"
               style={{
                 boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
                 minHeight: '571px',
               }}
             >
-              <Skeleton active paragraph={{ rows: 10 }} />
+              <Skeleton
+                active
+                paragraph={{ rows: 10 }}
+                data-cy="tenant-plans-loading-skeleton"
+              />
             </div>
           ))}
         </div>
       ) : (
         <>
-          <div className="flex items-center bg-gray-200 shadow-md rounded-lg w-36 h-12 p-1">
-            {currenciesData?.items &&
-              currenciesData.items.length > 0 &&
-              currenciesData.items.map((currency, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPaymentCurrency(currency?.code)}
-                  className={`w-1/2 h-full ${
-                    paymentCurrency === currency.code
-                      ? 'bg-white text-black shadow-sm'
-                      : 'bg-transparent text-black'
-                  } text-sm rounded-md transition-all duration-300 ease-in-out`}
-                >
-                  {currency.code}
-                </button>
-              ))}
-          </div>
           <div
+            id="tenant-plans-container"
+            data-cy="tenant-plans-container"
             className="flex flex-col mb-[35px] mt-[25px] md:flex-row justify-between items-center gap-4 bg-purple/10 rounded-lg p-4"
             style={{
               boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
               overflowX: 'auto',
             }}
           >
-            {allPlans.length > 0 ? (
-              allPlans
-                .filter(
-                  (p) =>
-                    p.currency.code === paymentCurrency ||
-                    p.id === currentPlan?.id,
-                )
+            {(plansWithSameCurrency ?? []).length > 0 ? (
+              (plansWithSameCurrency ?? [])
+                ?.filter((plan) => plan.isFree == false)
                 .map((plan) => (
                   <div
                     key={plan.id}
+                    id={`tenant-plan-${plan.id}`}
+                    data-cy={`tenant-plan-${plan.id}`}
                     className={`flex flex-col justify-between gap-2 rounded-lg p-4
-                                  ${plan.id === currentPlan?.id ? 'w-full' : 'bg-white'}
-                                  ${allPlans.length > 2 && plan.id !== currentPlan?.id ? 'md:min-w-[335px]' : 'md:min-w-[435px]'}
-                                  min-h-[571px] w-full md:w-auto`}
+    ${plan.id === currentPlan?.id ? 'md:min-w-[542px]' : 'md:min-w-[435px] bg-white'}
+    min-h-[571px] w-full md:w-auto `}
                   >
-                    <div className="flex flex-col gap-2">
-                      <div className="flex justify-between text-lg font-extrabold mb-2">
-                        <span>{plan.name}</span>
-                        <div>
+                    <div
+                      id={`tenant-plan-${plan.id}-content`}
+                      data-cy={`tenant-plan-${plan.id}-content`}
+                      className="flex flex-col gap-2"
+                    >
+                      <div
+                        id={`tenant-plan-${plan.id}-header`}
+                        data-cy={`tenant-plan-${plan.id}-header`}
+                        className="flex justify-between text-lg font-extrabold mb-2"
+                      >
+                        <span
+                          id={`tenant-plan-${plan.id}-name`}
+                          data-cy={`tenant-plan-${plan.id}-name`}
+                        >
+                          {plan.name}
+                        </span>
+                        <div
+                          id={`tenant-plan-${plan.id}-status`}
+                          data-cy={`tenant-plan-${plan.id}-status`}
+                        >
                           {' '}
                           {/* {plan.id === currentPlan?.id && (
                             <div className="text-sm rounded-lg bg-white font-bold p-2">
@@ -366,9 +472,15 @@ const AdminDashboard = () => {
                           )} */}
                           {activeSubscription &&
                             plan.id === currentPlan?.id && (
-                              <div className="text-sm rounded-lg bg-white font-bold p-2 ">
+                              <div
+                                id={`tenant-plan-${plan.id}-expires`}
+                                data-cy={`tenant-plan-${plan.id}-expires`}
+                                className="text-sm rounded-lg bg-white font-bold p-2 "
+                              >
                                 Expires in{' '}
                                 <span
+                                  id={`tenant-plan-${plan.id}-expires-days`}
+                                  data-cy={`tenant-plan-${plan.id}-expires-days`}
                                   className={
                                     new Date(
                                       activeSubscription.trialEndAt &&
@@ -399,48 +511,127 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       {!plan.isFree && (
-                        <>
-                          <div className="text-5xl font-bold">
-                            {plan.currency.symbol}
-                            {plan.slotPrice}
+                        <div
+                          id={`tenant-plan-${plan.id}-pricing`}
+                          data-cy={`tenant-plan-${plan.id}-pricing`}
+                          className="flex gap-5 items-center"
+                        >
+                          <div
+                            id={`tenant-plan-${plan.id}-main-price`}
+                            data-cy={`tenant-plan-${plan.id}-main-price`}
+                          >
+                            <div
+                              id={`tenant-plan-${plan.id}-price`}
+                              data-cy={`tenant-plan-${plan.id}-price`}
+                              className="text-5xl font-bold"
+                            >
+                              {plan.currency.symbol}
+                              {plan.id === currentPlan?.id
+                                ? plan.periods?.find(
+                                    (period) =>
+                                      period.id ==
+                                      activeSubscriptionData?.planPeriodId,
+                                  )?.periodSlotPrice
+                                : plan.slotPrice}
+                            </div>
+                            <div
+                              id={`tenant-plan-${plan.id}-price-label`}
+                              data-cy={`tenant-plan-${plan.id}-price-label`}
+                              className="text-sm text-gray-500"
+                            >
+                              per user billed annually
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-500">
-                            per user billed annually
+                          <div
+                            id={`tenant-plan-${plan.id}-other-periods`}
+                            data-cy={`tenant-plan-${plan.id}-other-periods`}
+                          >
+                            {plan.periods
+                              ?.filter(
+                                (period) =>
+                                  period.id !=
+                                  activeSubscriptionData?.planPeriodId,
+                              )
+                              ?.map((period, index) => (
+                                <div
+                                  key={index}
+                                  id={`tenant-plan-${plan.id}-period-${period.id}`}
+                                  data-cy={`tenant-plan-${plan.id}-period-${period.id}`}
+                                  className={`text-sm rounded-lg font-bold p-2 my-2  ${plan.id === currentPlan?.id ? 'bg-white' : 'bg-purple/10'} w-fit`}
+                                >
+                                  {plan.currency.symbol}
+                                  {period.periodSlotPrice}/
+                                  {period?.periodType?.code}
+                                </div>
+                              ))}
                           </div>
-                        </>
+                        </div>
                       )}
-                      <div className="mt-8 mb-6 font-bold">
+                      <div
+                        id={`tenant-plan-${plan.id}-features-title`}
+                        data-cy={`tenant-plan-${plan.id}-features-title`}
+                        className="mt-8 mb-6 font-bold"
+                      >
                         Get in depth with our system
                       </div>
-                      <div className="flex flex-col gap-5">
+                      <div
+                        id={`tenant-plan-${plan.id}-features`}
+                        data-cy={`tenant-plan-${plan.id}-features`}
+                        className="flex flex-col gap-5"
+                      >
                         {plan.planDetails &&
                           plan.planDetails.map((detail, index) => (
-                            <div key={index} className="flex gap-2 font-bold">
-                              <Checkbox checked={true} />
-                              <span>{detail}</span>
+                            <div
+                              key={index}
+                              id={`tenant-plan-${plan.id}-feature-${index}`}
+                              data-cy={`tenant-plan-${plan.id}-feature-${index}`}
+                              className="flex gap-2 font-bold"
+                            >
+                              <Checkbox
+                                id={`tenant-plan-${plan.id}-feature-checkbox-${index}`}
+                                data-cy={`tenant-plan-${plan.id}-feature-checkbox-${index}`}
+                                checked={true}
+                              />
+                              <span
+                                id={`tenant-plan-${plan.id}-feature-text-${index}`}
+                                data-cy={`tenant-plan-${plan.id}-feature-text-${index}`}
+                              >
+                                {detail}
+                              </span>
                             </div>
                           ))}
                       </div>
                     </div>
                     {plan.id === currentPlan?.id ? (
-                      <div className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4">
+                      <div
+                        id={`tenant-plan-${plan.id}-current-actions`}
+                        data-cy={`tenant-plan-${plan.id}-current-actions`}
+                        className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4"
+                      >
                         {plan.isFree !== true && (
                           <Tooltip
                             title={
                               !isLatestInvoicePaid() ? getDisabledTooltip() : ''
                             }
                             placement="bottom"
+                            data-cy={`tenant-plan-${plan.id}-update-quota-button-tooltip`}
                           >
-                            <span className="w-full md:w-auto">
-                              <CustomButton
-                                title="Update User Quota"
+                            <span
+                              className="w-full md:w-auto"
+                              data-cy={`tenant-plan-${plan.id}-update-quota-button-container`}
+                            >
+                              <Button
+                                id={`tenant-plan-${plan.id}-update-quota-button`}
+                                data-cy={`tenant-plan-${plan.id}-update-quota-button`}
                                 onClick={() =>
                                   router.push('/admin/plan?source=quota')
                                 }
-                                className="text-center flex justify-center items-center w-full"
+                                className="h-8 rounded-lg w-full px-2 h-8"
                                 type="default"
                                 disabled={!isLatestInvoicePaid()}
-                              />
+                              >
+                                Update User Quota
+                              </Button>
                             </span>
                           </Tooltip>
                         )}
@@ -450,54 +641,80 @@ const AdminDashboard = () => {
                               !isLatestInvoicePaid() ? getDisabledTooltip() : ''
                             }
                             placement="bottom"
+                            data-cy={`tenant-plan-${plan.id}-update-period-button-tooltip`}
                           >
-                            <span className="w-full md:w-auto">
-                              <CustomButton
-                                title="Update Subscription Period"
+                            <span
+                              className="w-full md:w-auto"
+                              data-cy={`tenant-plan-${plan.id}-update-period-button-container`}
+                            >
+                              <Button
+                                id={`tenant-plan-${plan.id}-update-period-button`}
+                                data-cy={`tenant-plan-${plan.id}-update-period-button`}
                                 onClick={() =>
                                   router.push(
                                     '/admin/plan?source=period&step=1',
                                   )
                                 }
-                                className="text-center flex justify-center items-center w-full"
+                                className="h-8 rounded-lg w-full px-2 h-8"
                                 type="default"
                                 disabled={!isLatestInvoicePaid()}
-                              />
+                              >
+                                Update Subscription Period
+                              </Button>
                             </span>
                           </Tooltip>
                         )}
                         {plan.isFree !== true && (
-                          <CustomButton
-                            title="Pay Next Bill"
-                            onClick={() =>
-                              router.push(
-                                `/admin/invoice/${activeSubscription?.invoices[0]?.id}`,
-                              )
-                            }
-                            className="text-center flex justify-center items-center w-full md:w-auto"
-                            type="default"
-                          />
+                          <span
+                            className="w-full md:w-auto"
+                            data-cy={`tenant-plan-${plan.id}-pay-bill-button-container`}
+                          >
+                            <Button
+                              id={`tenant-plan-${plan.id}-pay-bill-button`}
+                              data-cy={`tenant-plan-${plan.id}-pay-bill-button`}
+                              onClick={() =>
+                                router.push(
+                                  `/admin/invoice/${activeSubscription?.invoices[0]?.id}`,
+                                )
+                              }
+                              className="h-8 rounded-lg w-full px-2 h-8"
+                              type="default"
+                            >
+                              Pay Next Bill
+                            </Button>
+                          </span>
                         )}
                       </div>
                     ) : (
-                      <div className="flex justify-center mt-8">
+                      <div
+                        id={`tenant-plan-${plan.id}-upgrade-actions`}
+                        data-cy={`tenant-plan-${plan.id}-upgrade-actions`}
+                        className="flex justify-center mt-8"
+                      >
                         <Tooltip
                           title={
                             !isLatestInvoicePaid() ? getDisabledTooltip() : ''
                           }
                           placement="bottom"
+                          data-cy={`tenant-plan-${plan.id}-upgrade-button-tooltip`}
                         >
-                          <span className="w-full">
+                          <span
+                            className="w-full"
+                            data-cy={`tenant-plan-${plan.id}-upgrade-button-container`}
+                          >
                             <CustomButton
+                              id={`tenant-plan-${plan.id}-upgrade-button`}
+                              data-cy={`tenant-plan-${plan.id}-upgrade-button`}
                               title={
                                 hasSelectedPlan &&
                                 plan.slotPrice < Number(currentPlan?.slotPrice)
                                   ? 'Downgrade Plan'
                                   : 'Upgrade Plan'
                               }
-                              onClick={() =>
-                                router.push(`/admin/plan?planId=${plan.id}`)
-                              }
+                              onClick={() => {
+                                setTransactionType('purchase_subscription');
+                                router.push(`/admin/plan?planId=${plan.id}`);
+                              }}
                               className="w-full text-center flex justify-center items-center"
                               type="primary"
                               disabled={!isLatestInvoicePaid()}
@@ -509,8 +726,16 @@ const AdminDashboard = () => {
                   </div>
                 ))
             ) : (
-              <div className="w-full py-10 text-center">
-                <p className="text-gray-500 text-lg">
+              <div
+                id="tenant-plans-empty"
+                data-cy="tenant-plans-empty"
+                className="w-full py-10 text-center"
+              >
+                <p
+                  id="tenant-plans-empty-message"
+                  data-cy="tenant-plans-empty-message"
+                  className="text-gray-500 text-lg"
+                >
                   No plans available. Please check back later.
                 </p>
               </div>
@@ -519,7 +744,13 @@ const AdminDashboard = () => {
         </>
       )}
 
-      <div className="text-2xl font-bold mb-5">Tenant Billing History</div>
+      <div
+        id="billing-history-title"
+        data-cy="billing-history-title"
+        className="text-2xl font-bold mb-5"
+      >
+        Tenant Billing History
+      </div>
 
       <InvoicesTable
         data={invoices}

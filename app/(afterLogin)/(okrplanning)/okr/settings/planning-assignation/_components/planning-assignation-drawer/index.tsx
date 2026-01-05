@@ -4,7 +4,6 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { Form, Select, Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-
 import React, { useEffect } from 'react';
 import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import {
@@ -12,6 +11,7 @@ import {
   useUpdateAssignPlanningPeriodToUsers,
 } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
+import { PlanningPeriodItem } from '@/store/uistate/features/okrplanning/okrSetting/interface';
 interface RepDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -33,32 +33,72 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   const [form] = Form.useForm();
 
   const renderEmployeeOption = (option: any) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-      <Avatar size={20} icon={<UserOutlined />} />
-      {option.firstName} {option.middleName} {option.lastName}
+    <div
+      style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+      id={`okr-planning-assignation-drawer-employee-option-${option.id}`}
+      data-cy={`okr-planning-assignation-drawer-employee-option-${option.id}`}
+    >
+      <Avatar
+        size={20}
+        icon={
+          <UserOutlined
+            data-cy={`okr-planning-assignation-drawer-employee-option-avatar-icon-${option.id}`}
+          />
+        }
+        data-cy={`okr-planning-assignation-drawer-employee-option-avatar-${option.id}`}
+      />
+      <span
+        id={`okr-planning-assignation-drawer-employee-option-name-${option.id}`}
+        data-cy={`okr-planning-assignation-drawer-employee-option-name-${option.id}`}
+      >
+        {option.firstName} {option.middleName} {option.lastName}
+      </span>
     </div>
   );
 
   const customTagRender = (props: any) => {
     const { label, closable, onClose } = props;
     return (
-      <div className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1">
-        <Avatar size={20} icon={<UserOutlined />} />
-        <span>{label}</span>
+      <div
+        className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1"
+        id="okr-planning-assignation-drawer-selected-user-tag"
+        data-cy="okr-planning-assignation-drawer-selected-user-tag"
+      >
+        <Avatar
+          size={20}
+          icon={
+            <UserOutlined
+              data-cy={`okr-planning-assignation-drawer-selected-user-tag-avatar-icon`}
+            />
+          }
+          data-cy="okr-planning-assignation-drawer-selected-user-tag-avatar"
+        />
+        <span
+          id="okr-planning-assignation-drawer-selected-user-tag-label"
+          data-cy="okr-planning-assignation-drawer-selected-user-tag-label"
+        >
+          {label}
+        </span>
         {closable && (
-          <span onClick={onClose} className="text-black text-xs cursor-pointer">
+          <span
+            onClick={onClose}
+            className="text-black text-xs cursor-pointer"
+            id="okr-planning-assignation-drawer-selected-user-tag-close"
+            data-cy="okr-planning-assignation-drawer-selected-user-tag-close"
+          >
             ✖
           </span>
         )}
       </div>
     );
   };
+
   useEffect(() => {
     if (selectedPlanningUser) {
       form.setFieldsValue({
         userIds: [selectedPlanningUser.userId], // Wrapping userId in an array to match the expected structure
-        planningPeriods: selectedPlanningUser.items.map(
-          (item) => item.planningPeriodId,
+        planningPeriods: selectedPlanningUser.planningPeriod.map(
+          (item: PlanningPeriodItem) => item.planningPeriodId,
         ),
       });
     } else {
@@ -90,26 +130,44 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   };
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Assign
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      id="okr-planning-assignation-drawer-header"
+      data-cy="okr-planning-assignation-drawer-header"
+    >
+      <span
+        id="okr-planning-assignation-drawer-header-title"
+        data-cy="okr-planning-assignation-drawer-header-title"
+      >
+        Assign
+      </span>
     </div>
   );
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div
+      className="w-full flex justify-center items-center gap-4 pt-8"
+      id="okr-planning-assignation-drawer-footer"
+      data-cy="okr-planning-assignation-drawer-footer"
+    >
       <CustomButton
         type="default"
         title="Cancel"
         onClick={handleDrawerClose}
         style={{ marginRight: 8 }}
+        id="okr-planning-assignation-drawer-cancel-button"
+        data-cy="okr-planning-assignation-drawer-cancel-button"
       />
       <CustomButton
         onClick={() => form.submit()}
         title={selectedPlanningUser ? 'Edit' : 'Add'}
         type="primary"
         loading={isLoading || editLoading}
+        id="okr-planning-assignation-drawer-submit-button"
+        data-cy="okr-planning-assignation-drawer-submit-button"
       />
     </div>
   );
+
   return (
     <CustomDrawerLayout
       open={open}
@@ -117,6 +175,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       modalHeader={modalHeader}
       footer={footer}
       width="30%"
+      data-cy="okr-planning-assignation-drawer"
     >
       <Form
         form={form}
@@ -124,12 +183,16 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
         layout="vertical"
         onFinish={selectedPlanningUser ? onUpdate : onFinish}
         autoComplete="off"
+        id="okr-planning-assignation-drawer-form"
+        data-cy="okr-planning-assignation-drawer-form"
       >
         {/* Select Employee */}
         <Form.Item
           name="userIds"
           label="Select Assignee"
           rules={[{ required: true, message: 'Please select employees' }]}
+          id="okr-planning-assignation-drawer-assignee-field"
+          data-cy="okr-planning-assignation-drawer-assignee-field"
         >
           <Select
             mode="multiple"
@@ -137,8 +200,9 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
             placeholder="Select Employees"
             optionLabelProp="label"
             tagRender={customTagRender}
-            // className="h-12"
             optionFilterProp="label"
+            id="okr-planning-assignation-drawer-assignee-select"
+            data-cy="okr-planning-assignation-drawer-assignee-select"
           >
             {allUsers?.items.map((option: any) => (
               <Select.Option
@@ -151,6 +215,8 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
                   ' ' +
                   option.lastName
                 }
+                id={`okr-planning-assignation-drawer-assignee-option-${option.id}`}
+                data-cy={`okr-planning-assignation-drawer-assignee-option-${option.id}`}
               >
                 {renderEmployeeOption(option)}
               </Select.Option>
@@ -162,17 +228,25 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
           name="planningPeriods"
           label="Assigned Planning periods"
           rules={[{ required: true, message: 'Please Assigned Plan' }]}
+          id="okr-planning-assignation-drawer-plans-field"
+          data-cy="okr-planning-assignation-drawer-plans-field"
         >
           <Select
             mode="multiple"
             placeholder="Select Plans"
-            className="h-12"
             dropdownClassName="bg-white shadow-lg rounded-md"
+            id="okr-planning-assignation-drawer-plans-select"
+            data-cy="okr-planning-assignation-drawer-plans-select"
           >
             {allPlanningperiod?.items
               ?.filter((all) => all.isActive === true)
               .map((planning, index) => (
-                <Option key={index} value={planning?.id}>
+                <Option
+                  key={index}
+                  value={planning?.id}
+                  id={`okr-planning-assignation-drawer-plan-option-${planning?.id}`}
+                  data-cy={`okr-planning-assignation-drawer-plan-option-${planning?.id}`}
+                >
                   {planning.name}
                 </Option>
               ))}

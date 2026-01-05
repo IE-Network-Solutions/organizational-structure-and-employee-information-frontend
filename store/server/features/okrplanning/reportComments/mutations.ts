@@ -4,6 +4,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { CommentsData } from '@/types/okr';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /**
  * Function to add a new post by sending a POST request to the API
@@ -11,7 +12,7 @@ import { CommentsData } from '@/types/okr';
  * @returns The response data from the API
  */
 const addComment = async (newPost: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -31,12 +32,12 @@ const addComment = async (newPost: any) => {
  * @returns The response data from the API
  */
 const deleteComment = async (commentId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     return crudRequest({
       url: `${OKR_URL}/report-comments/${commentId}`,
-      method: 'delete',
+      method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
         tenantId: tenantId, // Pass tenantId in the headers
@@ -56,12 +57,12 @@ const updateComment = async (
   commentId: string,
   updatedComment: CommentsData,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     return crudRequest({
       url: `${OKR_URL}/report-comments/${commentId}`,
-      method: 'patch',
+      method: 'PATCH',
       data: updatedComment,
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -130,8 +131,8 @@ export const useUpdateReportComment = () => {
         queryClient.invalidateQueries('reportComments');
 
         NotificationMessage.success({
-          message: 'comment Successfully deleted ',
-          description: 'okr report comment deleted successfully',
+          message: 'comment Successfully updated ',
+          description: 'okr report comment updated successfully',
         });
       },
     },

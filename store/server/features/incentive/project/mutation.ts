@@ -1,14 +1,21 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { requestHeader } from '@/helpers/requestHeader';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { INCENTIVE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useMutation, useQueryClient } from 'react-query';
 
 const generateIncentive = async (data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentives/generate/incentive`,
     method: 'POST',
-    headers: requestHeader(),
+    headers,
     data,
   });
 };
@@ -21,6 +28,12 @@ export const useGenerateIncentive = () => {
       NotificationMessage.success({
         message: 'Incentive generated successfully!',
         description: 'Incentive has been successfully generated',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Incentive generation failed!',
+        description: 'Incentive generation failed',
       });
     },
   });

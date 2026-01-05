@@ -1,7 +1,8 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { RECRUITMENT_URL } from '@/utils/constants';
-import axios from 'axios';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
+import { crudRequest } from '@/utils/crudRequest';
 
 // Define the OKRDashboard interface
 export interface Applicant {
@@ -28,7 +29,7 @@ type ResponseData = ApplicantData;
  * @returns The response data from the API
  */
 const getApplicantSummary = async (status: string): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   if (!token || !tenantId) {
@@ -40,11 +41,12 @@ const getApplicantSummary = async (status: string): Promise<ResponseData> => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get<ResponseData>(
-      `${RECRUITMENT_URL}/applicant-status-stages/status/applicant?status=${status}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${RECRUITMENT_URL}/applicant-status-stages/status/applicant?status=${status}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw new Error(`Error fetching applicant summary: ${error}`);
   }

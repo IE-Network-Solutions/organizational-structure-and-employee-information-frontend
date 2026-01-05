@@ -6,6 +6,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -18,7 +19,7 @@ import { useMutation, useQueryClient } from 'react-query';
  * @returns {Promise<any>} The response from the API.
  */
 const createAllowanceEntitlement = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -42,7 +43,7 @@ const createAllowanceEntitlement = async (data: any) => {
  * @returns {Promise<any>} The response from the API.
  */
 const deleteAllowanceEntitlement = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -67,6 +68,7 @@ export const useCreateAllowanceEntitlement = () => {
   return useMutation(createAllowanceEntitlement, {
     onSuccess: (notused: any, variables: any) => {
       queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -84,6 +86,7 @@ export const useDeleteAllowanceEntitlement = () => {
   return useMutation(deleteAllowanceEntitlement, {
     onSuccess: (notused: any, variables: any) => {
       queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

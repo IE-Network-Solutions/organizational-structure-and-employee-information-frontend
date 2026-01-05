@@ -7,10 +7,11 @@ import { CourseLesson } from '@/types/tna/course';
 import { CourseLessonRequestBody } from '@/store/server/features/tna/lesson/interface';
 
 const getCoursesLesson = async (data: Partial<CourseLessonRequestBody>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/learning/course/lesson`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

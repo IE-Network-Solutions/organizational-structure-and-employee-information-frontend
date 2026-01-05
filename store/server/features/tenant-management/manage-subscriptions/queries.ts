@@ -9,15 +9,15 @@ import {
   GetSubscriptionByTenantRequest,
 } from './interface';
 import { Subscription } from '@/types/tenant-management';
-import { notification } from 'antd';
 
 const getSubscriptionByTenant = async (
   data: GetSubscriptionByTenantRequest,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/get`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -39,10 +39,11 @@ export const useGetSubscriptionByTenant = (
 const calculateSubscriptionPrice = async (
   data: CalculateSubscriptionPriceDto,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/slot-transactions/calculation`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -88,12 +89,7 @@ export const useCalculateSubscriptionPrice = (
         }
 
         return response;
-      } catch (error) {
-        notification.error({
-          message: 'Calculation failed',
-          description:
-            error instanceof Error ? error.message : 'Please try again',
-        });
+      } catch (error: any) {
         throw error;
       }
     },

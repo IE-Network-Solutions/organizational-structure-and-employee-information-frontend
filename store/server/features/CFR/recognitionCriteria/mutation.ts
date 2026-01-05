@@ -1,11 +1,12 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
 const addRecognitionCriteria = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const createdBy = useAuthenticationStore.getState().userId;
   const headers = {
@@ -21,7 +22,7 @@ const addRecognitionCriteria = async (data: any) => {
   });
 };
 const updateRecognitionCriteria = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -35,7 +36,7 @@ const updateRecognitionCriteria = async (data: any) => {
   });
 };
 const deleteRecognitionCriteia = async (id: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const createdBy = useAuthenticationStore.getState().userId;
   const headers = {

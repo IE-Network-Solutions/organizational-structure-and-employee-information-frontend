@@ -30,6 +30,33 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
         ?.fieldValidation ?? null
     );
   };
+
+  // Filter custom fields for emergencyContact section
+  const emergencyContactFields =
+    mergedFields?.filter(
+      (field: any) => field?.formTitle === 'emergencyContact',
+    ) || [];
+
+  // Merge existing employee data with custom fields
+  const existingData =
+    employeeData?.employeeInformation?.emergencyContact || {};
+  const defaultFields = {
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    phoneNumber: '',
+    gender: '',
+    nationality: '',
+  };
+  const allFields = { ...defaultFields, ...existingData };
+
+  // Add custom fields to allFields if they don't exist
+  emergencyContactFields.forEach((field: any) => {
+    if (!(field.fieldName in allFields)) {
+      allFields[field.fieldName] = '';
+    }
+  });
+
   const titleMap: Record<string, string> = {
     firstName: 'First Name',
     middleName: 'Middle Name',
@@ -48,14 +75,19 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
           permissions={[Permissions.UpdateEmployeeDetails]}
           selfShouldAccess
           id={id}
+          data-cy="emergency-contact-edit-guard"
         >
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('emergencyContact')}
+            id="emergency-contact-edit-icon"
+            data-cy="emergency-contact-edit-icon"
           />
         </AccessGuard>
       }
       className="my-6"
+      id="emergency-contact-card"
+      data-cy="emergency-contact-card"
     >
       {edit.emergencyContact ? (
         <Form
@@ -63,26 +95,35 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
           onFinish={(values) => handleSaveChanges('emergencyContact', values)}
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }}
-          initialValues={
-            employeeData?.employeeInformation?.emergencyContact || {}
-          }
+          initialValues={allFields}
+          id="emergency-contact-form"
+          data-cy="emergency-contact-form"
         >
-          <Row gutter={[16, 24]}>
-            <Col lg={16}>
-              {Object.entries(
-                employeeData?.employeeInformation?.emergencyContact || {
-                  firstName: '',
-                  middleName: '',
-                  lastName: '',
-                  phoneNumber: '',
-                  gender: '',
-                  nationality: '',
-                },
-              ).map(([key, val]) => (
+          <Row
+            gutter={[16, 24]}
+            id="emergency-contact-form-row"
+            data-cy="emergency-contact-form-row"
+          >
+            <Col
+              lg={16}
+              id="emergency-contact-form-col"
+              data-cy="emergency-contact-form-col"
+            >
+              {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
                   name={key}
-                  label={key}
+                  label={
+                    titleMap[key] ||
+                    key
+                      .split('_')
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(' ')
+                  }
+                  id={`emergency-contact-${key}-form-item`}
+                  data-cy={`emergency-contact-${key}-form-item`}
                   rules={[
                     {
                       /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -104,7 +145,7 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                             fieldValidation = 'any'; // Assuming nationality should be text-based
                             break;
                           default:
-                            fieldValidation = getFieldValidation(key);
+                            fieldValidation = getFieldValidation(key) || 'any';
                         }
 
                         const validationError = validateField(
@@ -124,52 +165,116 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                       placeholder={`Select ${key}`}
                       allowClear
                       defaultValue={val}
+                      id={`emergency-contact-${key}-select`}
+                      data-cy={`emergency-contact-${key}-select`}
                     >
-                      <Option value="male">Male</Option>
-                      <Option value="female">Female</Option>
+                      <Option
+                        value="male"
+                        id={`emergency-contact-${key}-option-male`}
+                        data-cy={`emergency-contact-${key}-option-male`}
+                      >
+                        Male
+                      </Option>
+                      <Option
+                        value="female"
+                        id={`emergency-contact-${key}-option-female`}
+                        data-cy={`emergency-contact-${key}-option-female`}
+                      >
+                        Female
+                      </Option>
                     </Select>
                   ) : key === 'nationality' ? (
                     <Select
                       placeholder={`Select ${key}`}
                       allowClear
                       defaultValue={val}
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        String(option?.children || '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      id={`emergency-contact-${key}-select`}
+                      data-cy={`emergency-contact-${key}-select`}
                     >
                       {nationalities?.items?.map(
                         (nationality: any, index: number) => (
-                          <Option key={index} value={nationality?.id}>
+                          <Option
+                            key={index}
+                            value={nationality?.id}
+                            id={`emergency-contact-${key}-option-${nationality?.id}`}
+                            data-cy={`emergency-contact-${key}-option-${nationality?.id}`}
+                          >
                             {nationality?.name}
                           </Option>
                         ),
                       )}
                     </Select>
                   ) : (
-                    <Input placeholder={key} defaultValue={val?.toString()} />
+                    <Input
+                      placeholder={key.replace(/_/g, ' ')}
+                      defaultValue={val?.toString()}
+                      id={`emergency-contact-${key}-input`}
+                      data-cy={`emergency-contact-${key}-input`}
+                    />
                   )}
                 </Form.Item>
               ))}
             </Col>
           </Row>
-          <Row>
-            <Col span={24} style={{ textAlign: 'right' }}>
-              <Button type="primary" htmlType="submit">
+          <Row
+            id="emergency-contact-submit-row"
+            data-cy="emergency-contact-submit-row"
+          >
+            <Col
+              span={24}
+              style={{ textAlign: 'right' }}
+              id="emergency-contact-submit-col"
+              data-cy="emergency-contact-submit-col"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="emergency-contact-submit-btn"
+                data-cy="emergency-contact-submit-btn"
+              >
                 Save Changes
               </Button>
             </Col>
           </Row>
         </Form>
       ) : (
-        <Row gutter={[16, 24]}>
-          <Col lg={16}>
-            {Object.entries(
-              employeeData?.employeeInformation?.emergencyContact || {},
-            ).map(([key, val]) => {
+        <Row
+          gutter={[16, 24]}
+          id="emergency-contact-display-row"
+          data-cy="emergency-contact-display-row"
+        >
+          <Col
+            lg={16}
+            id="emergency-contact-display-col"
+            data-cy="emergency-contact-display-col"
+          >
+            {Object.entries(allFields).map(([key, val]) => {
               const displayValue =
                 key === 'nationality'
                   ? nationalities?.items?.find((item) => item.id === val)
                       ?.name || '-'
                   : val?.toString() || '-';
-              const title = titleMap[key] || key;
-              return <InfoLine key={key} title={title} value={displayValue} />;
+              const title =
+                titleMap[key] ||
+                key
+                  .split('_')
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
+              return (
+                <InfoLine
+                  key={key}
+                  title={title}
+                  value={displayValue}
+                  data-cy={`emergency-contact-display-${key}-info-line`}
+                />
+              );
             })}
           </Col>
         </Row>

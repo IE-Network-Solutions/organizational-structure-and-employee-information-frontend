@@ -1,7 +1,8 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
-import axios from 'axios';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
+import { crudRequest } from '@/utils/crudRequest';
 
 // Define the OKRDashboard interface
 
@@ -24,7 +25,7 @@ type ResponseData = BirthDayData[];
  * @returns The response data from the API
  */
 const getBirthDay = async (): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   if (!token || !tenantId) {
@@ -36,11 +37,12 @@ const getBirthDay = async (): Promise<ResponseData> => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get<ResponseData>(
-      `${ORG_AND_EMP_URL}/employee-information/users/birth-day`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/employee-information/users/birth-day`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw new Error(`Error fetching applicant summary: ${error}`);
   }

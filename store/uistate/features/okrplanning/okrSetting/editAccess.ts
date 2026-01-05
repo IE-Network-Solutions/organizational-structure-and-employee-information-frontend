@@ -39,7 +39,7 @@ const useObjectiveEditAccessStore = create<ObjectiveEditAccessState>((set) => ({
   currentPage: 1,
   setCurrentPage: (value: number) => set({ currentPage: value }),
 
-  pageSize: 10,
+  pageSize: 7,
   setPageSize: (value: number) => set({ pageSize: value }),
 
   checked: true,

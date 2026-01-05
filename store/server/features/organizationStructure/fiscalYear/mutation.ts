@@ -6,15 +6,15 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const createFiscalYear = async (fiscalYear: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'POST',
@@ -24,6 +24,12 @@ const createFiscalYear = async (fiscalYear: any) => {
 };
 
 const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'PUT',
@@ -33,6 +39,13 @@ const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
 };
 
 const deleteFiscalYear = async (id: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'DELETE',
@@ -78,7 +91,7 @@ export const useDeleteFiscalYear = () => {
   return useMutation((id: string) => deleteFiscalYear(id), {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-
+      queryClient.invalidateQueries('fiscalActiveYear');
       handleSuccessMessage('DELETE');
     },
   });
@@ -88,6 +101,13 @@ const updateClosedDate = async (
   fiscalYearId: string,
   closedDates: ClosedDates[],
 ) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${fiscalYearId}`,
     method: 'PUT',

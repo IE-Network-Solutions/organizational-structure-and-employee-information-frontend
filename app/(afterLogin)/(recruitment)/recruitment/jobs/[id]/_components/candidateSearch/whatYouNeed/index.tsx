@@ -25,14 +25,19 @@ const WhatYouNeed: React.FC = () => {
   };
 
   return (
-    <div className="w-full">
+    <div
+      id="talent-acquisition-what-you-need-div-container"
+      data-cy="talent-acquisition-what-you-need-div-container"
+      className="w-full"
+    >
       <Input
         id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
+        data-cy="talent-acquisition-job-candidate-search-input"
         placeholder="Search what you need"
         onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
         className="w-full h-14"
         allowClear
-        prefix={<AiOutlineSearch className="text-gray-400" />}
+        suffix={<AiOutlineSearch className="text-gray-400" />}
       />
     </div>
   );

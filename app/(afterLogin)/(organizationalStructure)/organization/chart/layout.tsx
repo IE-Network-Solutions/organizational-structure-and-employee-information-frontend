@@ -1,11 +1,21 @@
 'use client';
-import { Card, Dropdown, Menu, Button } from 'antd';
+import { Card, Dropdown, Button } from 'antd';
 import { FaDownload } from 'react-icons/fa';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import CustomButton from '@/components/common/buttons/customButton';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
 import { useRouter } from 'next/navigation';
-import React, { useRef } from 'react';
+import React, { RefObject, useRef, createContext, useContext } from 'react';
+
+// Create context for chart ref
+const ChartRefContext = createContext<RefObject<HTMLDivElement> | null>(null);
+
+export const useChartRef = () => {
+  const context = useContext(ChartRefContext);
+  if (!context) {
+    throw new Error('useChartRef must be used within a ChartRefProvider');
+  }
+  return context;
+};
 
 // import { exportOrgStrucutreMenu, orgComposeAndMergeMenues } from '../menues/inex';
 
@@ -25,7 +35,6 @@ import { Form } from 'antd';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-
 // Layout component definition
 export default function ChartLayout({
   children,
@@ -63,20 +72,8 @@ export default function ChartLayout({
     reset();
   };
 
-  const items = [
-    {
-      key: 'structure',
-      label: 'Structure',
-    },
-    {
-      key: 'chart',
-      label: 'Chart',
-    },
-  ];
-
   // Handling menu click and navigation
-  const onMenuClick = (e: any) => {
-    const key = e['key'] as string;
+  const onMenuClick = (key: string) => {
     setSelectedKey(key);
     switch (key) {
       case 'structure':
@@ -91,91 +88,192 @@ export default function ChartLayout({
   };
 
   return (
-    <div className="flex flex-col w-full">
-      {/* ORG Structure Section */}
-      <div className="w-full overflow-x-auto">
-        <Card
-          className="w-full border-none"
-          title={<div className="text-2xl font-bold">ORG Structure</div>}
-          extra={
-            <div className="py-4 flex justify-center items-center gap-4">
-              <Dropdown
-                overlay={exportOrgStrucutreMenu(chartRef, exportToPDFOrJPEG)}
-                trigger={['click']}
-              >
-                <AccessGuard
-                  permissions={[Permissions.DownloadOrganizationStructure]}
-                >
-                  <CustomButton
-                    title="Download"
-                    icon={<FaDownload size={16} />}
-                    type="default"
-                  />
-                </AccessGuard>
-              </Dropdown>
-              {selectedKey !== 'chart' && (
-                <AccessGuard permissions={[Permissions.MergeDepartment]}>
-                  <Dropdown
-                    overlay={orgComposeAndMergeMenues}
-                    trigger={['click']}
-                    placement="bottomRight"
-                  >
-                    <Button
-                      type="primary"
-                      className="w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2"
-                    >
-                      <BsThreeDotsVertical size={16} />
-                    </Button>
-                  </Dropdown>
-                </AccessGuard>
-              )}
-            </div>
-          }
+    <ChartRefContext.Provider
+      value={chartRef}
+      data-cy="org-structure-layout-provider"
+    >
+      <div
+        className="flex flex-col w-full"
+        data-cy="org-structure-layout"
+        id="org-structure-layout"
+      >
+        {/* ORG Structure Section */}
+        <div
+          className="w-full overflow-x-auto"
+          data-cy="org-structure-card-container"
+          id="org-structure-card-container"
         >
-          <div className="flex justify-end">
-            <Menu
-              className="w-[250px] rounded-2xl py-2 pl-10 h-max border-none"
-              items={items}
-              mode="horizontal"
-              defaultActiveFirst
-              onClick={onMenuClick}
-            />
-          </div>
-          <CustomDrawer
-            loading={transferDepartment ? isTransferLoading : isLoading}
-            visible={drawerVisible}
-            onClose={() => {
-              closeDrawer();
-              resetStore();
-              setDepartmentTobeDeletedId('');
-            }}
-            drawerContent={drawerContent}
-            footerButtonText={footerButtonText}
-            onSubmit={() => {
-              if (footerButtonText == 'Transfer') {
-                if (transferDepartment) {
-                  transferDepartments(transferDepartment, {
+          <Card
+            data-cy="org-structure-card"
+            id="org-structure-card"
+            className="w-full border-none"
+            title={
+              <div
+                className="text-2xl font-bold"
+                data-cy="org-structure-title"
+                id="org-structure-title"
+              >
+                ORG Structure
+              </div>
+            }
+            extra={
+              <div
+                className="py-4 flex justify-center items-center gap-4"
+                data-cy="org-structure-actions"
+                id="org-structure-actions"
+              >
+                <Dropdown
+                  overlay={exportOrgStrucutreMenu(
+                    chartRef as RefObject<HTMLDivElement>,
+                    exportToPDFOrJPEG,
+                  )}
+                  trigger={['click']}
+                  placement="bottomRight"
+                  data-cy="org-structure-export-dropdown"
+                >
+                  {/* <AccessGuard
+                    permissions={[Permissions.DownloadOrganizationStructure]}
+                  > */}
+                  <Button
+                    title="Download"
+                    icon={
+                      <FaDownload
+                        size={16}
+                        data-cy="org-structure-download-btn-icon"
+                        id="org-structure-download-btn-icon"
+                      />
+                    }
+                    type="default"
+                    className="h-10 sm:h-14 w-10 sm:w-auto"
+                    data-cy="org-structure-download-btn"
+                    id="org-structure-download-btn"
+                  >
+                    <span
+                      className="hidden sm:inline"
+                      data-cy="org-structure-download-btn-span"
+                      id="org-structure-download-btn-span"
+                    >
+                      Download
+                    </span>
+                  </Button>
+                  {/* </AccessGuard> */}
+                </Dropdown>
+                {selectedKey !== 'chart' && (
+                  <AccessGuard
+                    permissions={[Permissions.MergeDepartment]}
+                    data-cy="org-structure-actions-guard"
+                    id="org-structure-actions-guard"
+                  >
+                    <Dropdown
+                      overlay={orgComposeAndMergeMenues}
+                      trigger={['click']}
+                      placement="bottomRight"
+                      data-cy="org-structure-actions-dropdown"
+                    >
+                      <Button
+                        type="primary"
+                        className="w-10 sm:w-[68px] h-10 sm:h-14  rounded-lg flex items-center justify-center gap-2"
+                        data-cy="org-structure-actions-btn"
+                        id="org-structure-actions-btn"
+                      >
+                        <BsThreeDotsVertical
+                          size={24}
+                          data-cy="org-structure-actions-btn-icon"
+                          id="org-structure-actions-btn-icon"
+                        />
+                      </Button>
+                    </Dropdown>
+                  </AccessGuard>
+                )}
+              </div>
+            }
+          >
+            <div
+              className="flex justify-end"
+              data-cy="org-structure-tabs-menu-container"
+              id="org-structure-tabs-menu-container"
+            >
+              <div
+                data-cy="org-structure-tabs-menu-container"
+                id="org-structure-tabs-menu-container"
+                className="flex justify-end bg-[#f5f5f5] shadow-md rounded-lg w-fit h-10 sm:h-12 py-[5px] px-[6px] gap-[14px] border-1"
+              >
+                <button
+                  data-cy="org-structure-tabs-menu-button"
+                  id="org-structure-tabs-menu-button"
+                  onClick={() => onMenuClick('structure')}
+                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
+                    selectedKey === 'structure'
+                      ? 'bg-white rounded-md shadow-sm border-1'
+                      : 'bg-transparent'
+                  }`}
+                >
+                  Org Chart
+                </button>
+                <button
+                  data-cy="org-structure-tabs-menu-button"
+                  id="org-structure-tabs-menu-button"
+                  onClick={() => onMenuClick('chart')}
+                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
+                    selectedKey === 'chart'
+                      ? 'bg-white rounded-md shadow-sm border-1'
+                      : 'bg-transparent'
+                  }`}
+                >
+                  Team View
+                </button>
+              </div>
+            </div>
+            <CustomDrawer
+              data-cy="org-structure-custom-drawer"
+              loading={transferDepartment ? isTransferLoading : isLoading}
+              visible={drawerVisible}
+              onClose={() => {
+                closeDrawer();
+                resetStore();
+                setDepartmentTobeDeletedId('');
+              }}
+              drawerContent={drawerContent}
+              footerButtonText={footerButtonText}
+              onSubmit={() => {
+                if (footerButtonText == 'Transfer') {
+                  if (transferDepartment) {
+                    transferDepartments(transferDepartment, {
+                      onSuccess: () => {
+                        closeDrawer();
+                        reset();
+                      },
+                    });
+                  }
+                } else if (footerButtonText == 'Merge') {
+                  mergeDepartments(mergeData, {
                     onSuccess: () => {
                       closeDrawer();
+                      reset();
                     },
                   });
+                } else {
+                  setIsDeleteConfirmVisible(true);
+                  closeDrawer();
                 }
-              } else if (footerButtonText == 'Merge') {
-                mergeDepartments(mergeData);
-              } else {
-                setIsDeleteConfirmVisible(true);
-                closeDrawer();
-              }
-            }}
-            title={drawTitle}
-            form={form}
-          />
-        </Card>
-      </div>
+              }}
+              title={drawTitle}
+              form={form}
+            />
+          </Card>
+          {/* <OrgChartComponent /> */}
+        </div>
 
-      {/* Page Content */}
-      <main className="p-4">{children}</main>
-    </div>
+        {/* Page Content */}
+        <main
+          className="p-4"
+          data-cy="org-structure-main-content"
+          id="org-structure-main-content"
+        >
+          {children}
+        </main>
+      </div>
+    </ChartRefContext.Provider>
   );
   // return (
   //   <div className="h-auto w-auto pr-6 pb-6 pl-3">

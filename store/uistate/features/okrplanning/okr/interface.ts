@@ -44,6 +44,7 @@ export interface KeyResult {
   initialValue: number;
   targetValue: number | string;
   milestones: Milestone[];
+  isAISuggestion?: boolean;
 }
 
 export interface Objective {
@@ -59,6 +60,7 @@ export interface Objective {
   user?: User;
   keyResultValue?: KeyResult[] | any;
   isClosed: boolean;
+  sessionId?: string;
 }
 export const defaultObjective: Objective = {
   allignedKeyResultId: '',
@@ -109,6 +111,9 @@ export interface OKRState {
   selectedPeriodId: string;
   setSelectedPeriodId: (value: string) => void;
 
+  selectedCard: string | null;
+  setSelectedCard: (selectedCard: string | null) => void;
+
   keyResultValue?: KeyResult[] | any;
   setKeyResultValue: (keyResultValue: KeyResult[]) => void;
   keyResults?: KeyResult[];
@@ -121,7 +126,11 @@ export interface OKRState {
   setKeyResult: (keyResult: KeyResult[]) => void;
   setKeyResultId: (keyResultId: string) => void;
   setObjectiveId: (objectiveId: string) => void;
-  addKeyResult: () => void;
+  addKeyResult: (
+    keyType?: string,
+    metricTypeId?: string,
+    suggestion?: Partial<KeyResult> & { milestones?: Milestone[] },
+  ) => void;
   addKeyResultValue: (value: any) => void;
   handleKeyResultChange: (value: any, index: number, field: string) => void;
   handleSingleKeyResultChange: (value: any, field: string) => void;
@@ -172,4 +181,8 @@ export interface OKRState {
   setFiscalYearId: (fiscalYearId: string) => void;
   sessionIds: string[];
   setSessionIds: (sessionId: string[]) => void;
+  deletedKeyResultIds: string[];
+  setDeletedKeyResultIds: (ids: string[]) => void;
+  deletedMilestoneIds: string[];
+  setDeletedMilestoneIds: (ids: string[]) => void;
 }

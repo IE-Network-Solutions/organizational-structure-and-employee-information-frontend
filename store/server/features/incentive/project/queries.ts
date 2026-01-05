@@ -5,18 +5,20 @@ import { useQuery } from 'react-query';
 import { FiscalYearResponseData } from './interface';
 
 const fetchPayPeriod = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${PAYROLL_URL}/pay-period`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const fetchIncentiveTemplate = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${PAYROLL_URL}/incentive-criteria/import/template`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -27,27 +29,29 @@ const fetchProjectIncentiveData = async (
   year: string,
   session: string,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive?employee_name=${employeeName}&project=${project}&recognition=${recognition}&year=${year}&&sessions=${session}`,
-    // url: 'https://mocki.io/v1/5fe0076e-72f0-4e89-a30b-0d296b5bd123',
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const fetchProjectIncentiveDataByID = async (projectId: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive/${projectId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const fetchIncentiveSessions = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/session`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

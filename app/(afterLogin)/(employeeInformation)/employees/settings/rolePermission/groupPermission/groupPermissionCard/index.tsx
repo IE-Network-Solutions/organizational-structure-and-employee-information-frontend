@@ -30,20 +30,47 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
   };
 
   return (
-    <Card className="cursor-pointer relative" key={props?.item?.id}>
-      <div className="flex flex-row md:flex-row justify-between">
-        <p className="font-bold truncate w-full md:w-auto">
+    <Card
+      bodyStyle={{
+        paddingTop: '10px',
+        paddingBottom: '10px',
+        paddingLeft: '2px',
+        paddingRight: '2px',
+      }}
+      className="cursor-pointer relative md:p-3"
+      key={props?.item?.id}
+      id={`settings-group-permission-card-${props?.item?.id}`}
+      data-cy={`settings-group-permission-card-${props?.item?.id}`}
+    >
+      <div
+        className="flex flex-row md:flex-row justify-between"
+        id={`settings-group-permission-wrapper`}
+        data-cy={`settings-group-permission-wrapper`}
+      >
+        <p
+          className="font-bold truncate text-xs"
+          id={`settings-group-permission-card-name-${props?.item?.id}`}
+          data-cy={`settings-group-permission-card-name-${props?.item?.id}`}
+        >
           {props?.item?.name}
         </p>
 
         {props?.item?.tenantId && (
-          <div className="mt-2 md:mt-0">
+          <div
+            className="mt-2 md:mt-0"
+            id={`settings-group-permission-card-menu-wrapper-${props?.item?.id}`}
+            data-cy={`settings-group-permission-card-menu-wrapper-${props?.item?.id}`}
+          >
             <button
               id={props?.item?.id}
               className="rounded px-2 py-0.5 text-xl text-gray-600"
               onClick={() => props?.handleButtonClick(props?.item?.id)}
+              data-cy={`settings-group-permission-card-menu-btn-${props?.item?.id}`}
             >
-              <IoMdMore />
+              <IoMdMore
+                data-cy={`settings-group-permission-card-menu-btn-icon-${props?.item?.id}`}
+                id={`settings-group-permission-card-menu-btn-icon-${props?.item?.id}`}
+              />
             </button>
 
             {props?.visibleEditCardId === props?.item?.id && (
@@ -52,19 +79,26 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
                   Permissions.UpdateGroupPermission,
                   Permissions.DeleteGroupPermission,
                 ]}
+                id={`settings-group-permission-card-menu-guard-${props?.item?.id}`}
+                data-cy={`settings-group-permission-card-menu-guard-${props?.item?.id}`}
               >
                 <KebabMenu
                   item={props?.item}
                   handleButtonClick={props?.handleButtonClick}
                   editGroupPermissionHandler={editGroupPermissionHandler}
                   deleteGroupPermissionHandler={deleteGroupPermissionHandler}
+                  data-cy={`settings-group-permission-card-menu-${props?.item?.id}`}
                 />
               </AccessGuard>
             )}
           </div>
         )}
       </div>
-      <p className="text-gray-400 text-xs mt-8 truncate">
+      <p
+        className="text-gray-400 text-xs mt-8 truncate"
+        id={`settings-group-permission-card-description-${props?.item?.id}`}
+        data-cy={`settings-group-permission-card-description-${props?.item?.id}`}
+      >
         {props?.item?.description}
       </p>
     </Card>

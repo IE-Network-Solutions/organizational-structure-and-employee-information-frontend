@@ -27,25 +27,47 @@ function Form({ params: { id } }: CategoryForms) {
   };
 
   return (
-    <div className="h-auto w-full p-4 bg-white rounded-md">
-      <div className="flex flex-wrap justify-between items-center">
+    <div
+      id="category-form-page-container"
+      data-cy="category-form-page-container"
+      className="h-auto w-full p-4 bg-white rounded-md"
+    >
+      <div
+        id="category-form-page-header"
+        data-cy="category-form-page-header"
+        className="flex flex-wrap justify-between items-center"
+      >
         <CustomBreadcrumb
           title={formCategories?.name ? formCategories?.name : ''}
           subtitle={`Manage your ${formCategories?.name ? formCategories?.name : ''}`}
+          data-cy="category-form-page-breadcrumb"
         />
-        <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
+        <div
+          id="category-form-page-actions"
+          data-cy="category-form-page-actions"
+          className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
+        >
           <CustomButton
             title={`Create ${formCategories?.name ? formCategories?.name : ''}`}
             id="createSurveyButton"
+            data-cy="createSurveyButton"
             icon={<FaPlus size={13} className="mr-2" />}
             onClick={showDrawer}
             className="bg-blue-600 hover:bg-blue-700"
           />
-          <FormDrawer onClose={onClose} id={id} />
+          <FormDrawer
+            onClose={onClose}
+            id={id}
+            data-cy="category-form-page-form-drawer"
+          />
         </div>
-        <div className="w-full h-auto">
-          <FormSearch />
-          <FormCard id={id} />
+        <div
+          id="category-form-page-list"
+          data-cy="category-form-page-list"
+          className="w-full h-auto"
+        >
+          <FormSearch data-cy="category-form-page-form-search" />
+          <FormCard id={id} data-cy="category-form-page-form-card" />
         </div>
       </div>
     </div>

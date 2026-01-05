@@ -10,7 +10,6 @@ import { MdOutlineUploadFile } from 'react-icons/md';
 import { useImportData } from '@/store/server/features/incentive/all/mutation';
 import { useRecognitionByParentId } from '@/store/server/features/incentive/other/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { IoInformationCircleOutline } from 'react-icons/io5';
 import DownloadExcelButton from '../dowloadTemplateExcel';
 
 interface ImportDataProps {
@@ -36,8 +35,8 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
     const formData = new FormData();
     formData.append('file', values?.fileName?.file?.originFileObj);
     formData.append('payPeriodId', values?.importDate);
-    formData.append('recognitionTypeId', values?.recognitionTypeId || ''),
-      formData.append('userId', userId || '');
+    (formData.append('recognitionTypeId', values?.recognitionTypeId || ''),
+      formData.append('userId', userId || ''));
 
     importData(formData, {
       onSuccess: () => {
@@ -49,20 +48,59 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
 
   return (
     <CustomDrawerLayout
+      data-cy="import-drawer"
       open={projectDrawer}
       onClose={handleClose}
       modalHeader={
-        <CustomDrawerHeader className="flex justify-between">
-          <span>Import {selectedRecognition?.name} Data</span>
-          <div>
+        <CustomDrawerHeader
+          data-cy="import-drawer-header"
+          className="flex justify-between"
+        >
+          <span
+            id="import-drawer-header-text"
+            data-cy="import-drawer-header-text"
+            className="text-sm"
+          >
+            Import {selectedRecognition?.name} Data
+          </span>
+          <div
+            id="import-drawer-header-download-wrapper"
+            data-cy="import-drawer-header-download-wrapper"
+          >
             <DownloadExcelButton />
           </div>
         </CustomDrawerHeader>
       }
-      footer={null}
+      footer={
+        <div
+          id="import-drawer-footer"
+          data-cy="import-drawer-footer"
+          className="flex justify-center gap-4 p-4"
+        >
+          <Button
+            id="import-drawer-cancel-button"
+            data-cy="import-drawer-cancel-button"
+            type="default"
+            className=" h-10 px-10"
+            onClick={() => setProjectDrawer(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            id="import-drawer-submit-button"
+            data-cy="import-drawer-submit-button"
+            type="primary"
+            onClick={() => form.submit()}
+            className=" h-10 px-10"
+          >
+            Create
+          </Button>
+        </div>
+      }
       width="600px"
+      customMobileHeight="75vh"
     >
-      <div className="flex items-start justify-center space-x-2">
+      {/* <div className="flex items-start justify-center space-x-2">
         <div>
           <IoInformationCircleOutline size={14} />
         </div>
@@ -71,25 +109,43 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
           clicking the <strong>&quot;Download Format&quot;</strong> button
           above.
         </div>
-      </div>
+      </div> */}
 
       <Form
+        id="import-drawer-form"
+        data-cy="import-drawer-form"
         requiredMark={false}
         layout="vertical"
         form={form}
         onFinish={handleSubmit}
       >
-        <Form.Item name="fileName">
+        <Form.Item
+          id="import-drawer-form-file-name"
+          data-cy="import-drawer-form-file-name"
+          name="fileName"
+        >
           <Upload.Dragger
+            id="import-drawer-form-upload"
+            data-cy="import-drawer-form-upload"
             name="file"
-            className="w-full p-6"
+            className="w-full p-3 bg-white"
             showUploadList
             accept=".xlsx"
             maxCount={1}
           >
-            <span className="flex flex-col gap-3 py-8">
-              <p className="ant-upload-drag-icon flex items-center justify-center">
+            <span
+              id="import-drawer-form-upload-content"
+              data-cy="import-drawer-form-upload-content"
+              className="flex flex-col gap-3 py-2"
+            >
+              <p
+                id="import-drawer-form-upload-icon-wrapper"
+                data-cy="import-drawer-form-upload-icon-wrapper"
+                className="ant-upload-drag-icon flex items-center justify-center"
+              >
                 <svg
+                  id="import-drawer-form-upload-icon"
+                  data-cy="import-drawer-form-upload-icon"
                   width="54"
                   height="59"
                   viewBox="0 0 54 59"
@@ -97,32 +153,32 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M49.9669 33.5475L50.8783 31.1313L42.8137 29.1792L41.6011 31.6026L22.6576 27.5859L20.7169 32.7591L11.3359 30.4005L15.9811 50.76L40.2901 58.4979L53.0881 34.3173L49.9669 33.5475Z"
                     fill="#3636F0"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M23.4119 14.4129L21.8711 17.9886C21.8711 17.9886 26.9993 17.22 29.9036 17.8224C34.592 18.795 31.481 23.9241 31.481 23.9241L28.511 23.6151L31.3547 31.9851L39.4295 25.3926L36.1856 24.8337C36.1856 24.8337 39.248 20.4537 35.87 16.6182C32.0546 12.2853 23.4119 14.4129 23.4119 14.4129Z"
                     fill="#1D9BF0"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M49.6555 6.88037L42.3544 4.98047C42.3544 4.98047 37.5754 8.68457 40.2352 15.5564L46.9834 16.9784C46.9834 16.9784 44.1091 10.1804 49.6555 6.88037Z"
                     fill="white"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M0.910156 34.6404L7.03196 32.4062C7.03196 32.4062 9.76376 37.9331 11.1588 40.1679L5.90186 44.2647C5.90186 44.2647 3.57596 41.4279 0.910156 34.6404Z"
                     fill="white"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M13.6329 13.5312L13.5381 22.497C13.5381 22.497 2.8236 26.4723 1.5681 27.069C1.5681 27.069 0.678597 19.8504 0.968097 17.2696C0.968097 17.2705 8.2419 14.5017 13.6329 13.5312Z"
                     fill="white"
                   />
@@ -135,38 +191,38 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
                     fill="#111827"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M2.04716 25.914C2.04716 25.914 1.59716 19.524 1.74446 17.823C1.74446 17.823 9.32006 15.3165 12.8718 14.4219V21.8469L2.04716 25.914Z"
                     fill="#6666FF"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M19.15 9.96787C19.15 9.96787 16.9471 6.17737 16.5352 5.14387C16.5352 5.14387 20.7052 2.96137 22.7536 2.10547L25.0036 6.55297L19.15 9.96787Z"
                     fill="#6666FF"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M1.92188 23.977L4.31768 20.3023L7.30447 22.4113L10.3741 18.4492L12.8941 21.301L12.8701 21.8491L2.04668 25.9162L1.92188 23.977Z"
                     fill="#2B2BBD"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M19.1494 9.96709L18.4453 8.73919L19.0033 6.38029L21.6091 7.33429L22.3573 4.80469L24.7744 6.10129L25.0024 6.55129L19.1494 9.96709Z"
                     fill="#2B2BBD"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M4.12225 18.0352C4.32791 18.0551 4.51876 18.151 4.65762 18.304C4.79648 18.457 4.87341 18.6562 4.87341 18.8629C4.87341 19.0695 4.79648 19.2687 4.65762 19.4217C4.51876 19.5747 4.32791 19.6706 4.12225 19.6906C3.91659 19.6706 3.72574 19.5747 3.58688 19.4217C3.44802 19.2687 3.37109 19.0695 3.37109 18.8629C3.37109 18.6562 3.44802 18.457 3.58688 18.304C3.72574 18.151 3.91659 18.0551 4.12225 18.0352Z"
                     fill="#3636F0"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M18.149 5.05565C18.3002 5.04815 18.4503 5.08462 18.5812 5.16065C18.712 5.23668 18.8181 5.34901 18.8864 5.48405C19.0229 5.75795 18.914 6.01055 18.6437 6.04805C18.4926 6.0555 18.3425 6.01898 18.2117 5.94289C18.0808 5.8668 17.9749 5.75442 17.9066 5.61935C17.7701 5.34545 17.8787 5.09285 18.149 5.05565Z"
                     fill="#3636F0"
                   />
@@ -272,14 +328,40 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
                   />
                 </svg>
               </p>
-              <p className="text-lg font-semibold">
+              <p
+                id="import-drawer-form-upload-text"
+                data-cy="import-drawer-form-upload-text"
+                className="text-lg font-semibold"
+              >
                 Drag & Drop here to upload
               </p>
-              <p className="text-gray-500">Or select file from your computer</p>
-              <span className="flex items-center justify-center my-3">
-                <Button className="gap-3 bg-primary w-fit border-none rounded-lg">
-                  <MdOutlineUploadFile fill="white" />
-                  <span className=" flex items-center justify-center text-md font-normal text-white">
+              <p
+                id="import-drawer-form-upload-subtext"
+                data-cy="import-drawer-form-upload-subtext"
+                className="text-gray-500"
+              >
+                Or select file from your computer
+              </p>
+              <span
+                id="import-drawer-form-upload-button-wrapper"
+                data-cy="import-drawer-form-upload-button-wrapper"
+                className="flex items-center justify-center my-3"
+              >
+                <Button
+                  id="import-drawer-form-upload-button"
+                  data-cy="import-drawer-form-upload-button"
+                  className="gap-3 bg-primary w-fit border-none rounded-lg"
+                >
+                  <MdOutlineUploadFile
+                    id="import-drawer-form-upload-button-icon"
+                    data-cy="import-drawer-form-upload-button-icon"
+                    fill="white"
+                  />
+                  <span
+                    id="import-drawer-form-upload-button-text"
+                    data-cy="import-drawer-form-upload-button-text"
+                    className=" flex items-center justify-center text-md font-normal text-white"
+                  >
                     Upload file
                   </span>
                 </Button>
@@ -289,9 +371,22 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
         </Form.Item>
 
         <Form.Item
+          id="import-drawer-form-recognition-type"
+          data-cy="import-drawer-form-recognition-type"
           label={
-            <span className="text-normal font-medium">
-              Recognition Type <span style={{ color: 'red' }}>*</span>
+            <span
+              id="import-drawer-form-recognition-type-label"
+              data-cy="import-drawer-form-recognition-type-label"
+              className="text-normal font-medium"
+            >
+              Recognition Type{' '}
+              <span
+                id="import-drawer-form-recognition-type-required"
+                data-cy="import-drawer-form-recognition-type-required"
+                style={{ color: 'red' }}
+              >
+                *
+              </span>
             </span>
           }
           rules={[
@@ -304,16 +399,26 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
           name="recognitionTypeId"
         >
           <Select
+            id="import-drawer-form-recognition-type-select"
+            data-cy="import-drawer-form-recognition-type-select"
             size="large"
-            className="my-1 h-12 text-sm font-normal"
+            className="mt-2 h-10 text-sm font-normal"
             placeholder="Select recognition type"
             allowClear
           >
             {responseLoading ? (
-              <Spin size="small" />
+              <Spin
+                data-cy="import-drawer-form-recognition-type-spin"
+                size="small"
+              />
             ) : (
               recognitionData?.map((recognition: any) => (
-                <Select.Option key={recognition?.id} value={recognition?.id}>
+                <Select.Option
+                  id={`import-drawer-form-recognition-type-option-${recognition?.id}`}
+                  data-cy={`import-drawer-form-recognition-type-option-${recognition?.id}`}
+                  key={recognition?.id}
+                  value={recognition?.id}
+                >
                   {recognition?.name}
                 </Select.Option>
               ))
@@ -322,9 +427,22 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
         </Form.Item>
 
         <Form.Item
+          id="import-drawer-form-pay-period"
+          data-cy="import-drawer-form-pay-period"
           label={
-            <span className="text-normal font-medium">
-              Select Pay Period <span style={{ color: 'red' }}>*</span>
+            <span
+              id="import-drawer-form-pay-period-label"
+              data-cy="import-drawer-form-pay-period-label"
+              className="text-normal font-medium"
+            >
+              Select Pay Period{' '}
+              <span
+                id="import-drawer-form-pay-period-required"
+                data-cy="import-drawer-form-pay-period-required"
+                style={{ color: 'red' }}
+              >
+                *
+              </span>
             </span>
           }
           rules={[
@@ -337,16 +455,23 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
           name="importDate"
         >
           <Select
+            id="import-drawer-form-pay-period-select"
+            data-cy="import-drawer-form-pay-period-select"
             size="large"
-            className="my-1 h-12 text-sm font-normal"
+            className="my-1 h-10 text-sm font-normal mt-2"
             placeholder="Select pay period"
             allowClear
           >
             {responseLoading ? (
-              <Spin size="small" />
+              <Spin data-cy="import-drawer-form-pay-period-spin" size="small" />
             ) : (
               payPeriodData?.map((payPeriod: any) => (
-                <Select.Option key={payPeriod?.id} value={payPeriod?.id}>
+                <Select.Option
+                  id={`import-drawer-form-pay-period-option-${payPeriod?.id}`}
+                  data-cy={`import-drawer-form-pay-period-option-${payPeriod?.id}`}
+                  key={payPeriod?.id}
+                  value={payPeriod?.id}
+                >
                   {`${dayjs(payPeriod?.startDate).format('YYYY-MM-DD')} — ${dayjs(payPeriod?.endDate).format('YYYY-MM-DD')}`}
                 </Select.Option>
               ))
@@ -355,28 +480,28 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
         </Form.Item>
 
         <Form.Item
+          id="import-drawer-form-source"
+          data-cy="import-drawer-form-source"
           label={
-            <span className="text-normal font-medium">
+            <span
+              id="import-drawer-form-source-label"
+              data-cy="import-drawer-form-source-label"
+              className="text-normal font-medium"
+            >
               Other Necessary Information
             </span>
           }
           name="source"
         >
           <TextArea
+            id="import-drawer-form-source-textarea"
+            data-cy="import-drawer-form-source-textarea"
+            className="mt-2"
             rows={2}
             size="large"
             placeholder="Insert other necessary information"
             allowClear
           />
-        </Form.Item>
-        <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            className="w-full gap-3 rounded-lg bg-primary text-white h-14"
-          >
-            Create
-          </Button>
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

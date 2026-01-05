@@ -50,21 +50,15 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
   const { data: jobList } = useGetJobs(
     searchParams?.whatYouNeed || '',
-    pageSize,
     currentPage,
+    pageSize,
   );
 
   const isInternalApplicant = useAuthenticationStore.getState().userId;
   const { data: statusStage } = useGetStages();
 
-  // ==========> Initial Stage Id <=========
-  const titleToFind = 'Initial Stage';
-  const foundStage = statusStage?.items?.find(
-    (stage: any) => stage.title === titleToFind,
-  );
-
-  const stageId = foundStage ? foundStage.id : '';
-  const { mutate: createCandidate } = useCreateCandidate();
+  const { mutate: createCandidate, isLoading: isCreatingCandidate } =
+    useCreateCandidate();
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -88,7 +82,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   }
 
   const createJobDrawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 ">
       Add New Candidate
     </div>
   );
@@ -97,15 +91,15 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     const formValues = form.getFieldsValue();
     const formData = new FormData();
 
-    const resumeUrl = formValues.resumeUrl as
-      | {
-          file?: { originFileObj?: File };
-        }
-      | undefined;
+    // Get the actual file from documentFileList (the Upload component's file list)
+    const fileToUpload =
+      documentFileList?.[0]?.originFileObj || documentFileList?.[0];
 
-    if (resumeUrl?.file?.originFileObj) {
-      formData.append('documentName', resumeUrl.file.originFileObj);
+    if (fileToUpload && fileToUpload instanceof File) {
+      formData.append('documentName', fileToUpload);
     }
+
+    // Remove resumeUrl from form values since we're handling file separately
     delete formValues?.resumeUrl;
 
     const formattedValues = {
@@ -113,36 +107,57 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       isExternal: isInternalApplicant === ' ' ? true : false,
       createdBy: isInternalApplicant,
       jobInformationId: jobId && jobId ? jobId : formValues?.jobInformationId,
-      applicantStatusStageId: stageId,
+      applicantStatusStageId: formValues?.stageId,
     };
-    formData.append('newFormData', JSON.stringify(formattedValues));
+
+    // Append each field individually instead of as JSON string
+    // This way backend can access body.email, body.phone, etc. directly
+    Object.keys(formattedValues).forEach((key) => {
+      const value = formattedValues[key];
+      if (value !== undefined && value !== null) {
+        formData.append(
+          key,
+          typeof value === 'object' ? JSON.stringify(value) : String(value),
+        );
+      }
+    });
 
     createCandidate(formData, {
       onSuccess: () => {
         setCreateJobDrawer(false);
         form.resetFields();
+        setDocumentFileList([]);
       },
     });
   };
 
   return (
     <CustomDrawerLayout
+      data-cy="talent-acquisition-job-create-candidate-drawer"
       open={createJobDrawer}
       onClose={onClose}
       modalHeader={createJobDrawerHeader}
       width="40%"
+      customMobileHeight="75vh"
       footer={
         <Form.Item>
-          <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
+          <div className="flex justify-center w-full bg-[#fff] gap-6 p-3">
             <Button
+              id="talent-acquisition-job-create-candidate-button-cancel"
+              data-cy="talent-acquisition-job-create-candidate-button-cancel"
               onClick={onClose}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+              disabled={isCreatingCandidate}
             >
               Cancel
             </Button>
             <Button
+              id="talent-acquisition-job-create-candidate-button-submit"
+              data-cy="talent-acquisition-job-create-candidate-button-submit"
               onClick={() => form.submit()}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              loading={isCreatingCandidate}
+              disabled={isCreatingCandidate}
             >
               Create
             </Button>
@@ -150,7 +165,13 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         </Form.Item>
       }
     >
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+      <Form
+        id="talent-acquisition-job-create-candidate-form"
+        data-cy="talent-acquisition-job-create-candidate-form"
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+      >
         <Form.Item
           id="fullNameId"
           name="fullName"
@@ -167,7 +188,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             },
           ]}
         >
-          <Input placeholder="Full Name" className="w-full h-10 text-sm" />
+          <Input
+            id="talent-acquisition-job-create-candidate-input-full-name"
+            data-cy="talent-acquisition-job-create-candidate-input-full-name"
+            placeholder="Full Name"
+            className="w-full h-10 text-sm"
+          />
         </Form.Item>
 
         <Row gutter={16}>
@@ -189,6 +215,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               ]}
             >
               <Input
+                id="talent-acquisition-job-create-candidate-input-email"
+                data-cy="talent-acquisition-job-create-candidate-input-email"
                 type="email"
                 className="text-sm w-full h-10"
                 placeholder="Email address"
@@ -208,12 +236,14 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               rules={[
                 { required: true, message: 'Please input the phone number!' },
                 {
-                  pattern: /^\+?[1-9]\d{1,14}$/,
+                  pattern: /^\+?[0-9]\d{1,14}$/,
                   message: 'Please enter a valid phone number!',
                 },
               ]}
             >
               <Input
+                id="talent-acquisition-job-create-candidate-input-phone"
+                data-cy="talent-acquisition-job-create-candidate-input-phone"
                 type="tel"
                 className="text-sm w-full h-10"
                 placeholder="Phone number"
@@ -237,13 +267,20 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               }
             >
               <Select
+                id="talent-acquisition-job-create-candidate-select-job"
+                data-cy="talent-acquisition-job-create-candidate-select-job"
                 className="text-sm w-full h-10"
                 placeholder="Select a job type"
                 disabled={!!jobId}
               >
                 {jobList &&
                   jobList?.items?.map((job: any) => (
-                    <Option key={job?.id} value={job?.id}>
+                    <Option
+                      key={job?.id}
+                      value={job?.id}
+                      id={`talent-acquisition-job-create-candidate-option-job-${job?.id}`}
+                      data-cy={`talent-acquisition-job-create-candidate-option-job-${job?.id}`}
+                    >
                       {job?.jobTitle}
                     </Option>
                   ))}
@@ -262,6 +299,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               rules={[{ required: true, message: 'Please input CGPA' }]}
             >
               <InputNumber
+                id="talent-acquisition-job-create-candidate-input-cgpa"
+                data-cy="talent-acquisition-job-create-candidate-input-cgpa"
                 min={0}
                 max={4}
                 step={0.01}
@@ -275,6 +314,32 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </div>
           </Col>
         </Row>
+        <Form.Item
+          id="stageId"
+          name="stageId"
+          label={
+            <span className="text-md font-semibold text-gray-700">Stage</span>
+          }
+        >
+          <Select
+            id="talent-acquisition-job-create-candidate-input-full-name"
+            data-cy="talent-acquisition-job-create-candidate-input-full-name"
+            placeholder="Select a stage"
+            className="w-full h-10 text-sm"
+          >
+            {statusStage &&
+              statusStage?.items?.map((stage: any) => (
+                <Option
+                  key={stage?.id}
+                  value={stage?.id}
+                  id={`talent-acquisition-job-create-candidate-option-stage-${stage?.id}`}
+                  data-cy={`talent-acquisition-job-create-candidate-option-stage-${stage?.id}`}
+                >
+                  {stage?.title}
+                </Option>
+              ))}
+          </Select>
+        </Form.Item>
 
         <Form.Item
           id="coverLetterId"
@@ -290,6 +355,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             rows={4}
             className="text-sm w-full"
             placeholder="Please enter your cover letter here"
+            id="talent-acquisition-job-create-candidate-textarea-cover-letter"
+            data-cy="talent-acquisition-job-create-candidate-textarea-cover-letter"
           />
         </Form.Item>
 
@@ -304,6 +371,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
           rules={[{ required: true, message: 'Please upload your CV' }]}
         >
           <Dragger
+            id="talent-acquisition-job-create-candidate-upload-cv"
+            data-cy="talent-acquisition-job-create-candidate-upload-cv"
             name="documentName"
             fileList={documentFileList}
             onChange={handleDocumentChange}

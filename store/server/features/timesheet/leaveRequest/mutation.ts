@@ -12,7 +12,9 @@ import { requestHeader } from '@/helpers/requestHeader';
 import {
   AllLeaveRequestApproveData,
   LeaveRequestStatusBody,
+  LeaveRequestNotificationBody,
 } from '@/store/server/features/timesheet/leaveRequest/interface';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const setLeaveRequest = async ({
   item,
@@ -21,97 +23,120 @@ const setLeaveRequest = async ({
   item: Partial<LeaveRequest>;
   userId: string;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/make  `,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { item: { ...item, user: userId } },
   });
 };
 
 const deleteLeaveRequest = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/make`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };
 
 const setStatusToLeaveRequest = async (data: LeaveRequestStatusBody) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/escalate`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 const setApproveLeaveRequest = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${APPROVER_URL}/approver/approvalLog`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 const setFinalApproveLeaveRequest = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/escalate`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 const setFinalApproveBranchRequest = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/branch-request/${data?.requestId}`,
     method: 'PATCH',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 const setAllApproveLeaveRequest = async (data: AllLeaveRequestApproveData) => {
   const roleId = { roleId: data?.roleId };
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/CurrentApproved/${data?.userId}?page=${data?.page}&limit=${data?.limit}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: roleId,
   });
 };
 const setAllRejectLeaveRequest = async (data: AllLeaveRequestApproveData) => {
   const roleId = { roleId: data?.roleId };
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/CurrentRejected/${data?.userId}?page=${data?.page}&limit=${data?.limit}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: roleId,
   });
 };
 const setAllApproveTnaRequest = async (data: AllLeaveRequestApproveData) => {
   const roleId = { roleId: data?.roleId };
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna/tna-currentApproved/${data?.userId}?page=${data?.page}&limit=${data?.limit}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: roleId,
   });
 };
 const setAllRejectTnaRequest = async (data: AllLeaveRequestApproveData) => {
   const roleId = { roleId: data?.roleId };
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna/tna-currentRejected/${data?.userId}?page=${data?.page}&limit=${data?.limit}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: roleId,
   });
 };
 
 const setAllFinalApproveLeaveRequest = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/allEscalate`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
+    data,
+  });
+};
+
+const setAllLeaveRequestNotification = async (
+  data?: LeaveRequestNotificationBody,
+) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/current-approver/pending-leaves/notify`,
+    method: 'POST',
+    headers: requestHeaders,
     data,
   });
 };
@@ -122,8 +147,14 @@ export const useSetLeaveRequest = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
       queryClient.invalidateQueries('current_approval');
+      queryClient.invalidateQueries('userLeaveRequests');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
+    },
+    onError: (error: any) => {
+      NotificationMessage.error({
+        message: error?.response?.data?.message,
+      });
     },
   });
 };
@@ -134,6 +165,8 @@ export const useDeleteLeaveRequest = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
+      queryClient.invalidateQueries('current_approval');
+      queryClient.invalidateQueries('userLeaveRequests');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -244,6 +277,18 @@ export const useSetAllFinalApproveLeaveRequest = () => {
       queryClient.invalidateQueries('current_approval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
+    },
+  });
+};
+
+export const useSetAllLeaveRequestNotification = () => {
+  // const queryClient = useQueryClient();
+  return useMutation(setAllLeaveRequestNotification, {
+    onSuccess: () => {
+      NotificationMessage.success({
+        message: 'Email Sent successfully',
+        description: 'Email Sent successfully',
+      });
     },
   });
 };

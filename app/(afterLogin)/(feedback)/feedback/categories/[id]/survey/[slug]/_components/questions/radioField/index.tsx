@@ -18,13 +18,20 @@ const RadioField: React.FC<RadioFieldProps> = ({
   className,
 }) => (
   <Radio.Group
+    id="radio-field-group"
+    data-cy="radio-field-group"
     className={className}
     value={!disabled ? selectedValue?.id : undefined} // Set `value` only if `disabled` is false
     onChange={onChange}
     disabled={disabled} // Apply `disabled` to the entire group
   >
     {options?.map((option, index) => (
-      <Radio key={index} value={option}>
+      <Radio
+        key={index}
+        id={`radio-field-option-${index}`}
+        data-cy={`radio-field-option-${index}`}
+        value={option}
+      >
         {option}
       </Radio>
     ))}

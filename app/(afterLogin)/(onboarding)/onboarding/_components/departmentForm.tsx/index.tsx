@@ -5,6 +5,7 @@ import { DepartmentFormProps } from '@/types/dashboard/organization';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const { Option } = Select;
 
@@ -14,14 +15,14 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   submitAction,
   departmentData,
   title,
+  loading = false,
 }) => {
   const [form] = Form.useForm();
   const { data: branches } = useGetBranches();
   const { setSelectedDepartment } = useOrganizationStore();
+  const { data: departments } = useGetDepartments();
   useEffect(() => {
     if (departmentData) {
-      form.resetFields();
-
       form.setFieldsValue({
         ...departmentData,
       });
@@ -30,13 +31,17 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
     }
   }, [departmentData, form]);
 
+  useEffect(() => {
+    if (open && !departmentData) {
+      form.resetFields();
+    }
+  }, [open, departmentData, form]);
+
   const handleSubmit = () => {
     form
       .validateFields()
       .then((values) => {
         submitAction(values);
-        onClose();
-        form.resetFields();
       })
       .catch((info) => {
         showValidationErrors(info?.errorFields);
@@ -44,14 +49,13 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   };
   const handleCancel = () => {
     form.resetFields();
-    onClose();
     setSelectedDepartment(null);
+    onClose();
   };
   return (
     <Modal
       title={title}
       width={520}
-      onClose={() => form.resetFields()}
       onCancel={handleCancel}
       open={open}
       footer={
@@ -68,6 +72,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
               }
               type="primary"
               onClick={handleSubmit}
+              loading={loading}
             >
               {departmentData ? 'Update' : 'Create'}
             </Button>
@@ -88,7 +93,12 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
         <Form.Item
           name="branchId"
           label="Select Branch"
-          rules={[{ required: true, message: 'Please select a branch' }]}
+          rules={[
+            {
+              required: departments?.length === 0 ? false : true,
+              message: 'Please select a branch',
+            },
+          ]}
         >
           <Select size="large" placeholder="Select a branch">
             {branches?.items?.map((branch, i) => (
