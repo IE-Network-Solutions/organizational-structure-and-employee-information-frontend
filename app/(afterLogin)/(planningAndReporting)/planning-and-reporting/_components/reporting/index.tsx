@@ -1,9 +1,5 @@
 import CustomButton from '@/components/common/buttons/customButton';
-import {
-  Button,
-  Tooltip,
-  Select,
-} from 'antd';
+import { Button, Tooltip, Select } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import SessionFilter from '../filters/SessionFilter';
 import MobileFilterModal from '../filters/MobileFilterModal';
@@ -57,7 +53,9 @@ function Reporting() {
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
-  const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
+  const [selectedDepartment, setSelectedDepartment] = useState<
+    string | undefined
+  >(undefined);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedPlanType, setSelectedPlanType] = useState<string>('all');
   const { data: planningPeriods } = useDefaultPlanningPeriods();
@@ -128,7 +126,9 @@ function Reporting() {
 
   // Helper function to get user IDs by department
   const getUserIdsByDepartmentId = (departmentId: string) => {
-    const department = departmentData?.find((dep: any) => dep.id === departmentId);
+    const department = departmentData?.find(
+      (dep: any) => dep.id === departmentId,
+    );
     if (department && department.users) {
       return department.users.map((user: any) => user.id);
     }
@@ -140,17 +140,18 @@ function Reporting() {
     const options = [{ label: 'All employees', value: 'all' }];
     if (employeeData?.items) {
       let employeesToShow = employeeData.items;
-      
+
       // If a department is selected, filter employees by that department
       if (selectedDepartment && selectedDepartment !== 'all') {
         const departmentUserIds = getUserIdsByDepartmentId(selectedDepartment);
-        employeesToShow = employeeData.items.filter((emp: any) => 
-          departmentUserIds.includes(emp.id)
+        employeesToShow = employeeData.items.filter((emp: any) =>
+          departmentUserIds.includes(emp.id),
         );
       }
-      
+
       employeesToShow.forEach((emp: any) => {
-        const name = `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim();
+        const name =
+          `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim();
         if (name) {
           options.push({ label: name, value: emp.id });
         }
@@ -162,11 +163,17 @@ function Reporting() {
   // Get the current selected employee value - only if it exists in options
   const getSelectedEmployeeValue = () => {
     const currentValue = selectedUser?.[0];
-    if (!currentValue || currentValue === 'all' || currentValue === 'subordinate') {
+    if (
+      !currentValue ||
+      currentValue === 'all' ||
+      currentValue === 'subordinate'
+    ) {
       return 'all';
     }
     // Check if the value exists in employeeOptions
-    const optionExists = employeeOptions.some(opt => opt.value === currentValue);
+    const optionExists = employeeOptions.some(
+      (opt) => opt.value === currentValue,
+    );
     // Only return the value if the option exists, otherwise return undefined to show placeholder
     return optionExists ? currentValue : undefined;
   };
@@ -212,13 +219,19 @@ function Reporting() {
     } else if (value === 'myPlan') {
       setSelectedUser([userId]);
     } else if (value === 'subordinatePlan') {
-      const subordinates = employeeData?.items
-        ?.filter(
-          (employee: any) =>
-            (employee?.delegatedTo?.id || employee.reportingTo?.id) === userId,
-        )
-        .map((employee: any) => employee.id) || [];
-      setSelectedUser(subordinates.length > 0 ? ['subordinate', ...subordinates] : ['subordinate']);
+      const subordinates =
+        employeeData?.items
+          ?.filter(
+            (employee: any) =>
+              (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
+              userId,
+          )
+          .map((employee: any) => employee.id) || [];
+      setSelectedUser(
+        subordinates.length > 0
+          ? ['subordinate', ...subordinates]
+          : ['subordinate'],
+      );
     }
   };
 
@@ -233,18 +246,24 @@ function Reporting() {
       } else if (selectedPlanType === 'myPlan') {
         setSelectedUser([userId]);
       } else if (selectedPlanType === 'subordinatePlan') {
-        const subordinates = employeeData?.items
-          ?.filter(
-            (employee: any) =>
-              (employee?.delegatedTo?.id || employee.reportingTo?.id) === userId,
-          )
-          .map((employee: any) => employee.id) || [];
-        setSelectedUser(subordinates.length > 0 ? ['subordinate', ...subordinates] : ['subordinate']);
+        const subordinates =
+          employeeData?.items
+            ?.filter(
+              (employee: any) =>
+                (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
+                userId,
+            )
+            .map((employee: any) => employee.id) || [];
+        setSelectedUser(
+          subordinates.length > 0
+            ? ['subordinate', ...subordinates]
+            : ['subordinate'],
+        );
       }
     } else {
       // Apply department filter while preserving plan type
       const departmentUserIds = getUserIdsByDepartmentId(value);
-      
+
       if (selectedPlanType === 'all') {
         setSelectedUser(departmentUserIds.length > 0 ? departmentUserIds : []);
       } else if (selectedPlanType === 'myPlan') {
@@ -253,14 +272,19 @@ function Reporting() {
         setSelectedUser(userInDepartment ? [userId] : []);
       } else if (selectedPlanType === 'subordinatePlan') {
         // Filter subordinates within the selected department
-        const subordinates = employeeData?.items
-          ?.filter(
-            (employee: any) =>
-              (employee?.delegatedTo?.id || employee.reportingTo?.id) === userId &&
-              departmentUserIds.includes(employee.id),
-          )
-          .map((employee: any) => employee.id) || [];
-        setSelectedUser(subordinates.length > 0 ? ['subordinate', ...subordinates] : ['subordinate']);
+        const subordinates =
+          employeeData?.items
+            ?.filter(
+              (employee: any) =>
+                (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
+                  userId && departmentUserIds.includes(employee.id),
+            )
+            .map((employee: any) => employee.id) || [];
+        setSelectedUser(
+          subordinates.length > 0
+            ? ['subordinate', ...subordinates]
+            : ['subordinate'],
+        );
       }
     }
   };
@@ -279,7 +303,6 @@ function Reporting() {
     };
     ReportApproval(data);
   };
-
 
   // Check if data belongs to an active session
   const isDataFromActiveSession = (createdAt: string): boolean => {
@@ -347,9 +370,14 @@ function Reporting() {
               showSearch
               optionFilterProp="label"
               filterOption={(input, option) =>
-                (option?.label?.toString().toLowerCase().includes(input.toLowerCase())) ?? false
+                option?.label
+                  ?.toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase()) ?? false
               }
-              notFoundContent={!employeeData ? 'Loading...' : 'No employees found'}
+              notFoundContent={
+                !employeeData ? 'Loading...' : 'No employees found'
+              }
             />
             <div className="hidden md:contents">
               <Select
@@ -374,7 +402,10 @@ function Reporting() {
                 showSearch
                 optionFilterProp="label"
                 filterOption={(input, option) =>
-                  (option?.label?.toString().toLowerCase().includes(input.toLowerCase())) ?? false
+                  option?.label
+                    ?.toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase()) ?? false
                 }
               />
             </div>
@@ -399,9 +430,7 @@ function Reporting() {
         >
           <div style={{ display: 'inline-block' }}>
             <CustomButton
-              disabled={
-                !allUserPlanning || allUserPlanning.length === 0
-              }
+              disabled={!allUserPlanning || allUserPlanning.length === 0}
               title={
                 <span className="hidden sm:block">
                   {`Create ${activeTabName} Report`}
@@ -419,33 +448,48 @@ function Reporting() {
 
       <section className="mt-8">
         <div className="space-y-6">
-          {getReportLoading ? (
-            Array.from({ length: 3 }).map((unusedItem, i) => <PlanCardSkeleton key={i} />)
-          ) : (
-            allReporting?.items?.map((dataItem: any) => {
-              const cadence = activeTabName?.toLowerCase() as Cadence || 'weekly';
-              const plan = transformReportToPlanSummary(dataItem, cadence, employeeData);
+          {getReportLoading
+            ? Array.from({ length: 3 }).map((unusedItem, i) => (
+                <PlanCardSkeleton key={i} />
+              ))
+            : allReporting?.items?.map((dataItem: any) => {
+                const cadence =
+                  (activeTabName?.toLowerCase() as Cadence) || 'weekly';
+                const plan = transformReportToPlanSummary(
+                  dataItem,
+                  cadence,
+                  employeeData,
+                );
 
-              return (
-                <PlanCard
-                  key={plan.id}
-                  plan={plan}
-                  viewMode="reporting"
-                  activeCadence={cadence}
-                  onApprove={() => handleApproveHandler(dataItem.id, true)}
-                  onOpen={() => handleApproveHandler(dataItem.id, false)}
-                  onEdit={() => {
-                    setSelectedReportId(dataItem.id);
-                    setSelectedPlanId(dataItem.planId);
-                  }}
-                  canApprove={userId === (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.reportingTo?.id || getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.delegatedTo?.id)}
-                  canEdit={userId === (dataItem?.userId ?? dataItem?.createdBy) && dataItem?.plan?.isReportValidated == false && isDataFromActiveSession(dataItem?.createdAt)}
-                  isApprovalLoading={isApprovalLoading}
-                  dateLabel={getDateLabel(dataItem?.createdAt, activeTabName)}
-                />
-              );
-            })
-          )}
+                return (
+                  <PlanCard
+                    key={plan.id}
+                    plan={plan}
+                    viewMode="reporting"
+                    activeCadence={cadence}
+                    onApprove={() => handleApproveHandler(dataItem.id, true)}
+                    onOpen={() => handleApproveHandler(dataItem.id, false)}
+                    onEdit={() => {
+                      setSelectedReportId(dataItem.id);
+                      setSelectedPlanId(dataItem.planId);
+                    }}
+                    canApprove={
+                      userId ===
+                      (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
+                        ?.reportingTo?.id ||
+                        getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
+                          ?.delegatedTo?.id)
+                    }
+                    canEdit={
+                      userId === (dataItem?.userId ?? dataItem?.createdBy) &&
+                      dataItem?.plan?.isReportValidated == false &&
+                      isDataFromActiveSession(dataItem?.createdAt)
+                    }
+                    isApprovalLoading={isApprovalLoading}
+                    dateLabel={getDateLabel(dataItem?.createdAt, activeTabName)}
+                  />
+                );
+              })}
         </div>
       </section>
 
@@ -475,6 +519,7 @@ function Reporting() {
             setPageReporting(page);
             setPageSizeReporting(pageSize);
           }}
+          grayBackground={true}
         />
       )}
       {allReporting?.items?.length <= 0 && (

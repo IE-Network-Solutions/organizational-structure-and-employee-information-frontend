@@ -56,6 +56,7 @@ import {
   useLastApprovingPayroll,
 } from '@/store/server/features/payroll/payrollApproval/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useRouter } from 'next/navigation';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -141,6 +142,8 @@ const Payroll = () => {
         (item: any) => item.type === 'ALLOWANCE' && item.isActive,
       )
     : [];
+
+  const router = useRouter();
 
   useEffect(() => {
     // Check if division filter is applied
@@ -1137,6 +1140,10 @@ const Payroll = () => {
     });
   };
 
+  const routerToReconcilation = () => {
+    router.push(`/payroll/reconcilation`);
+  };
+
   return (
     <div
       id="payroll-dashboard-view-container"
@@ -1189,6 +1196,14 @@ const Payroll = () => {
               </Button>
             </Tooltip>
           </AccessGuard>
+          <Button
+            id="payroll-reconcilation-click-button"
+            data-cy="payroll-reconcilation-click-button"
+            className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
+            onClick={() => routerToReconcilation()}
+          >
+            {isMobile ? <PiExportLight size={24} /> : 'Reconcilation'}
+          </Button>
 
           {!isMobile && (
             <AccessGuard

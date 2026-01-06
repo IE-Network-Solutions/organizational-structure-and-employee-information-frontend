@@ -160,6 +160,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employee-information/[id]',
       permissions: [], // Allow all users to access employee information
     },
+    {
+      key: '/feedback/action-plan',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
+    {
+      key: '/feedback/meeting',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
+    {
+      key: '/feedback/categories',
+      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+    },
   ];
 
   const getRoutesAndPermissions = (
@@ -907,8 +919,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     if (!selectedKey) return;
 
     // Check if node has children - handle both undefined and empty arrays
-    const hasChildren = info.node.children && Array.isArray(info.node.children) && info.node.children.length > 0;
-    
+    const hasChildren =
+      info.node.children &&
+      Array.isArray(info.node.children) &&
+      info.node.children.length > 0;
+
     if (hasChildren) {
       setExpandedKeys((prev) =>
         prev.includes(selectedKey) ? [] : [selectedKey],

@@ -80,19 +80,74 @@ function SubTaskComponent({
                       {
                         required: true,
                         whitespace: true,
-                        message: 'Please input a task name or delete this field.',
+                        message:
+                          'Please input a task name or delete this field.',
                       },
                     ]}
                     key={`task-${subField.key}`}
                     label={<div className="text-xs">Task</div>}
                     className="mb-0"
                   >
-                    <Input 
+                    <Input
                       id={`subtask-task-input-${field.name}-${subField.name}`}
                       data-cy={`subtask-task-input-${field.name}-${subField.name}`}
-                      className="text-xs h-10" 
-                      placeholder="Task name" 
+                      className="text-xs h-10"
+                      placeholder="Task name"
                     />
+                  </Form.Item>
+                </Col>
+                <Col xs={12} sm={8} lg={5}>
+                  <Form.Item
+                    {...subField}
+                    name={[subField.name, 'priority']}
+                    validateTrigger={['onChange', 'onBlur']}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please select a priority',
+                      },
+                    ]}
+                    key={`priority-${subField.key}`}
+                    className="mb-0"
+                  >
+                    <Row align="middle" gutter={8} wrap={false}>
+                      <Col flex="none">
+                        <div className="text-xs whitespace-nowrap">
+                          Priority
+                        </div>
+                      </Col>
+                      <Col flex="auto">
+                        <Select
+                          id={`subtask-priority-select-${field.name}-${subField.name}`}
+                          data-cy={`subtask-priority-select-${field.name}-${subField.name}`}
+                          className="w-full h-10 text-xs"
+                          options={[
+                            {
+                              label: (
+                                <span className="text-error text-xs">High</span>
+                              ),
+                              value: 'high',
+                            },
+                            {
+                              label: (
+                                <span className="text-warning text-xs">
+                                  Medium
+                                </span>
+                              ),
+                              value: 'medium',
+                            },
+                            {
+                              label: (
+                                <span className="text-success text-xs">
+                                  Low
+                                </span>
+                              ),
+                              value: 'low',
+                            },
+                          ]}
+                        />
+                      </Col>
+                    </Row>
                   </Form.Item>
                 </Col>
                 <Col xs={12} sm={8} lg={5}>
@@ -119,49 +174,12 @@ function SubTaskComponent({
                     </Row>
                   </Form.Item>
                 </Col>
-                <Col xs={12} sm={8} lg={5}>
-                  <Form.Item
-                    {...subField}
-                    name={[subField.name, 'priority']}
-                    validateTrigger={['onChange', 'onBlur']}
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please select a priority',
-                      },
-                    ]}
-                    key={`priority-${subField.key}`}
-                    className="mb-0"
-                  >
-                    <Row align="middle" gutter={8} wrap={false}>
-                      <Col flex="none">
-                        <div className="text-xs whitespace-nowrap">Priority</div>
-                      </Col>
-                      <Col flex="auto">
-                        <Select
-                          id={`subtask-priority-select-${field.name}-${subField.name}`}
-                          data-cy={`subtask-priority-select-${field.name}-${subField.name}`}
-                          className="w-full h-10 text-xs"
-                          options={[
-                            {
-                              label: <span className="text-error text-xs">High</span>,
-                              value: 'high',
-                            },
-                            {
-                              label: <span className="text-warning text-xs">Medium</span>,
-                              value: 'medium',
-                            },
-                            {
-                              label: <span className="text-success text-xs">Low</span>,
-                              value: 'low',
-                            },
-                          ]}
-                        />
-                      </Col>
-                    </Row>
-                  </Form.Item>
-                </Col>
-                <Col xs={24} sm={8} lg={2} className="flex items-center justify-end h-10">
+                <Col
+                  xs={24}
+                  sm={8}
+                  lg={2}
+                  className="flex items-center justify-end h-10"
+                >
                   <Form.Item
                     {...subField}
                     name={[subField.name, 'weight']}
@@ -170,10 +188,10 @@ function SubTaskComponent({
                     key={`weight-${subField.key}`}
                     hidden
                   >
-                    <InputNumber 
+                    <InputNumber
                       id={`subtask-weight-input-${field.name}-${subField.name}`}
                       data-cy={`subtask-weight-input-${field.name}-${subField.name}`}
-                      defaultValue={0} 
+                      defaultValue={0}
                     />
                   </Form.Item>
                   <MdCancel

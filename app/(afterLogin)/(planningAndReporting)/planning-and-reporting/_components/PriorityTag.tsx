@@ -15,12 +15,12 @@ const priorityPalette: Record<Priority, { bg: string; text: string }> = {
 
 export default function PriorityTag({ priority }: PriorityTagProps) {
   // Fallback to 'Low' if priority is undefined or not in the palette
-  const safePriority = (priority && priorityPalette[priority]) ? priority : 'Low';
+  const safePriority = priority && priorityPalette[priority] ? priority : 'Low';
   const colors = priorityPalette[safePriority];
 
   return (
     <Tag
-      className="rounded-[4px] border-none px-3 py-1 text-xs font-medium"
+      className="rounded-[4px] border-none px-3 py-1 text-xs font-bold"
       style={{
         backgroundColor: colors.bg,
         color: colors.text,
@@ -30,5 +30,3 @@ export default function PriorityTag({ priority }: PriorityTagProps) {
     </Tag>
   );
 }
-
-

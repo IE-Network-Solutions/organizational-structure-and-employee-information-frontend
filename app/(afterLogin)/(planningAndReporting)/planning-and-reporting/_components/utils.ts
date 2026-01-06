@@ -38,5 +38,3 @@ export function getButtonText(cadence: Cadence, viewMode: ViewMode): string {
 export function getCadenceTagText(cadence: Cadence): string {
   return `${getCadenceLabel(cadence)} cadence`;
 }
-
-

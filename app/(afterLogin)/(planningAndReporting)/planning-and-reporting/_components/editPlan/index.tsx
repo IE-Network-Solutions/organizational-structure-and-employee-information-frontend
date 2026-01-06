@@ -68,7 +68,6 @@ function EditPlan() {
     planningPeriodId || '', // Provide a default string value if undefined
   );
 
-
   const handleAddName = (
     currentBoardValues: Record<string, string | number>,
     kId: string,
@@ -89,7 +88,7 @@ function EditPlan() {
     setWeight(namesKey, totalWeight);
   };
 
-  const handleAddBoard = (kId: string) => {
+  const handleAddBoard = (kId: string, metadata?: any) => {
     const namesKey = `names-${kId}`;
     const names = form.getFieldValue(namesKey) || [];
 
@@ -98,14 +97,15 @@ function EditPlan() {
     const taskTitle = latestMkAsATask?.title || '';
     const achieveMK = !!latestMkAsATask;
 
-    // Create a task object - if mkAsATask exists, use its title
+    // Create a task object - include metadata to avoid missing fields
     const newTask = {
       task: taskTitle,
       priority: undefined,
       weight: undefined,
-      targetValue: undefined,
+      targetValue: metadata?.targetValue ?? undefined,
       achieveMK: achieveMK,
       planId: planGroupData?.id,
+      ...metadata,
     };
 
     form.setFieldsValue({ [namesKey]: [newTask, ...names] });
@@ -211,14 +211,12 @@ function EditPlan() {
             planningPeriodId: String(
               task.planningPeriodId || planningPeriodId || '',
             ),
-            planningUserId: String(
-              task.planningUserId || planningUserId || '',
-            ),
+            planningUserId: String(task.planningUserId || planningUserId || ''),
             // keyResultId is required.
             keyResultId: String(
               task.keyResultId ||
-              (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
-              '',
+                (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
+                '',
             ),
             // milestoneId and parentTaskId can be null but should be strings if they exist
             milestoneId: task.milestoneId ? String(task.milestoneId) : null,
@@ -348,8 +346,8 @@ function EditPlan() {
           Cancel
         </Button>
       </div>
-      <div className="flex-1 flex justify-end pr-4 sm:pr-0">
-        <div className="my-2 font-bold mx-0 sm:mx-6 whitespace-nowrap">
+      <div className="flex-1 flex justify-end pr-5">
+        <div className="my-2 font-bold mx-0 whitespace-nowrap">
           <span className="hidden md:inline">Weight Point: </span>
           <span className="md:hidden">WP: </span>
           {Math.round(Number(totalWeight) || 0)}%

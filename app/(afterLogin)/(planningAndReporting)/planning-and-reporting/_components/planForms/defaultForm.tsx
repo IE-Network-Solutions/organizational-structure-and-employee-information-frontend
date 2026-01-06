@@ -51,7 +51,12 @@ function DefaultCardForm({
   return (
     <div
       className="[&_.ant-form-list]:!mb-0 [&_.ant-form-list]:!pb-0 [&_.ant-form-item]:!mb-0"
-      style={{ marginBottom: '-32px', paddingBottom: 0, marginTop: 0, paddingTop: 0 }}
+      style={{
+        marginBottom: '-32px',
+        paddingBottom: 0,
+        marginTop: 0,
+        paddingTop: 0,
+      }}
     >
       <Form.List name={name}>
         {(fields, { remove }, { errors }) => (
@@ -135,7 +140,15 @@ function DefaultCardForm({
                 >
                   <Input type="hidden" value={userId} />
                 </Form.Item>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', marginBottom: '0' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    width: '100%',
+                    marginBottom: '0',
+                  }}
+                >
                   <Form.Item
                     {...field}
                     name={[field.name, 'task']}
@@ -181,75 +194,6 @@ function DefaultCardForm({
                 </div>
                 <div className="mt-2" style={{ marginTop: '8px' }}>
                   <Row gutter={[12, 12]} align="bottom">
-                    {keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                      keyResult?.metricType?.name !== NAME.MILESTONE && (
-                        <Col flex="none">
-                          <Row align="middle" gutter={8} wrap={false}>
-                            <Col flex="none">
-                              <div className="text-xs flex items-center gap-1.5 text-gray-500">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
-                                Target
-                              </div>
-                            </Col>
-                            <Col flex="none" style={{ width: '80px' }}>
-                              <Form.Item
-                                hidden={hasTargetValue}
-                                {...field}
-                                name={[field.name, 'targetValue']}
-                                key={`${field.key}-targetValue`}
-                                noStyle
-                                rules={[
-                                  {
-                                    validator(nonused, value: any) {
-                                      // Allow empty/null values (optional field)
-                                      if (value === null || value === undefined || value === '') {
-                                        return Promise.resolve();
-                                      }
-
-                                      // Skip validation for Milestone and Achieve metric types
-                                      if (
-                                        keyResult?.metricType?.name === NAME.ACHIEVE ||
-                                        keyResult?.metricType?.name === NAME.MILESTONE
-                                      ) {
-                                        return Promise.resolve();
-                                      }
-
-                                      const numericValue = Number(value);
-                                      if (isNaN(numericValue)) {
-                                        return Promise.reject(new Error('Please enter a valid number.'));
-                                      }
-
-                                      // Check if total exceeds key result's available target
-                                      if (targetValue !== null && targetValue !== undefined) {
-                                        if (numericValue <= targetValue) return Promise.resolve();
-                                      } else {
-                                        if (sumTargetValue(name) <= keyResult.targetValue - keyResult.currentValue) {
-                                          return Promise.resolve();
-                                        }
-                                      }
-                                      return Promise.reject(
-                                        new Error(
-                                          'Target value exceeds limit',
-                                        ),
-                                      );
-                                    },
-                                  },
-                                ]}
-                              >
-                                <InputNumber
-                                  id={`default-form-target-input-${name}-${field.name}`}
-                                  data-cy={`default-form-target-input-${name}-${field.name}`}
-                                  min={0}
-                                  className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
-                                  defaultValue={0}
-                                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                />
-                              </Form.Item>
-                            </Col>
-                          </Row>
-                        </Col>
-                      )}
-
                     <Col flex="none">
                       <Row align="middle" gutter={8} wrap={false}>
                         <Col flex="none">
@@ -269,7 +213,11 @@ function DefaultCardForm({
                             }}
                           >
                             {({ getFieldValue }) => {
-                              const priorityVal = getFieldValue([name, field.name, 'priority']);
+                              const priorityVal = getFieldValue([
+                                name,
+                                field.name,
+                                'priority',
+                              ]);
                               const bgColors: Record<string, string> = {
                                 high: '#FFF1F0',
                                 medium: '#FFFBE6',
@@ -282,23 +230,33 @@ function DefaultCardForm({
                                   name={[field.name, 'priority']}
                                   key={`${field.key}-priority`}
                                   noStyle
-                                  rules={[{ required: true, message: 'Priority is required' }]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: 'Priority is required',
+                                    },
+                                  ]}
                                 >
                                   <Select
                                     id={`default-form-priority-select-${name}-${field.name}`}
                                     data-cy={`default-form-priority-select-${name}-${field.name}`}
-                                    placeholder={<div className="text-xs">Priority</div>}
+                                    placeholder={
+                                      <div className="text-xs">Priority</div>
+                                    }
                                     className="w-full h-10 priority-select [&_.ant-select-selector]:!bg-transparent [&_.ant-select-selector]:!border-[#D9D9D9]"
                                     dropdownStyle={{ borderRadius: '8px' }}
                                     style={{
-                                      backgroundColor: bgColors[priorityVal] || 'transparent',
+                                      backgroundColor:
+                                        bgColors[priorityVal] || 'transparent',
                                       borderRadius: '8px',
                                       transition: 'background-color 0.3s ease',
                                     }}
                                     options={[
                                       {
                                         label: (
-                                          <div className="text-error text-xs font-medium">High</div>
+                                          <div className="text-error text-xs font-medium">
+                                            High
+                                          </div>
                                         ),
                                         value: 'high',
                                       },
@@ -347,8 +305,16 @@ function DefaultCardForm({
                               { required: true, message: 'Weight is required' },
                               {
                                 validator: (nonused, value) => {
-                                  if (value !== undefined && value !== null && value <= 0) {
-                                    return Promise.reject(new Error('Weight must be greater than 0'));
+                                  if (
+                                    value !== undefined &&
+                                    value !== null &&
+                                    value <= 0
+                                  ) {
+                                    return Promise.reject(
+                                      new Error(
+                                        'Weight must be greater than 0',
+                                      ),
+                                    );
                                   }
                                   return Promise.resolve();
                                 },
@@ -363,9 +329,11 @@ function DefaultCardForm({
                               min={1}
                               max={100}
                               onChange={() => {
-                                const fieldValue = form.getFieldValue(name) || [];
+                                const fieldValue =
+                                  form.getFieldValue(name) || [];
                                 const totalWeight = fieldValue.reduce(
-                                  (sum: number, f: any) => Number(sum) + Number(f?.weight || 0),
+                                  (sum: number, f: any) =>
+                                    Number(sum) + Number(f?.weight || 0),
                                   0,
                                 );
                                 setWeight(name, totalWeight);
@@ -375,6 +343,96 @@ function DefaultCardForm({
                         </Col>
                       </Row>
                     </Col>
+
+                    {keyResult?.metricType?.name !== NAME.ACHIEVE &&
+                      keyResult?.metricType?.name !== NAME.MILESTONE && (
+                        <Col flex="none">
+                          <Row align="middle" gutter={8} wrap={false}>
+                            <Col flex="none">
+                              <div className="text-xs flex items-center gap-1.5 text-gray-500">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                                Target
+                              </div>
+                            </Col>
+                            <Col flex="none" style={{ width: '130px' }}>
+                              <Form.Item
+                                hidden={hasTargetValue}
+                                {...field}
+                                name={[field.name, 'targetValue']}
+                                key={`${field.key}-targetValue`}
+                                noStyle
+                                rules={[
+                                  {
+                                    validator(nonused, value: any) {
+                                      // Allow empty/null values (optional field)
+                                      if (
+                                        value === null ||
+                                        value === undefined ||
+                                        value === ''
+                                      ) {
+                                        return Promise.resolve();
+                                      }
+
+                                      // Skip validation for Milestone and Achieve metric types
+                                      if (
+                                        keyResult?.metricType?.name ===
+                                          NAME.ACHIEVE ||
+                                        keyResult?.metricType?.name ===
+                                          NAME.MILESTONE
+                                      ) {
+                                        return Promise.resolve();
+                                      }
+
+                                      const numericValue = Number(value);
+                                      if (isNaN(numericValue)) {
+                                        return Promise.reject(
+                                          new Error(
+                                            'Please enter a valid number.',
+                                          ),
+                                        );
+                                      }
+
+                                      // Check if total exceeds key result's available target
+                                      if (
+                                        targetValue !== null &&
+                                        targetValue !== undefined
+                                      ) {
+                                        if (numericValue <= targetValue)
+                                          return Promise.resolve();
+                                      } else {
+                                        if (
+                                          sumTargetValue(name) <=
+                                          keyResult.targetValue -
+                                            keyResult.currentValue
+                                        ) {
+                                          return Promise.resolve();
+                                        }
+                                      }
+                                      return Promise.reject(
+                                        new Error('Target value exceeds limit'),
+                                      );
+                                    },
+                                  },
+                                ]}
+                              >
+                                <InputNumber
+                                  id={`default-form-target-input-${name}-${field.name}`}
+                                  data-cy={`default-form-target-input-${name}-${field.name}`}
+                                  min={0}
+                                  className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
+                                  defaultValue={0}
+                                  formatter={(value) =>
+                                    `${value}`.replace(
+                                      /\B(?=(\d{3})+(?!\d))/g,
+                                      ',',
+                                    )
+                                  }
+                                />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        </Col>
+                      )}
                   </Row>
                 </div>
 
@@ -408,5 +466,3 @@ function DefaultCardForm({
 }
 
 export default DefaultCardForm;
-
-

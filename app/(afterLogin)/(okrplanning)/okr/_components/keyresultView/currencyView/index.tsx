@@ -39,7 +39,7 @@ const CurrencyView: React.FC<OKRProps> = ({
       handleKeyResultChange(value, index, field);
     }
   };
-  
+
   //eslint-disable-next-line @typescript-eslint/no-unused-vars
   function handleKeyResultDelete(id: string) {
     // Remove from local state only - deletion will happen on Save

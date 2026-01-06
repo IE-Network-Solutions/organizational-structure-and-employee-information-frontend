@@ -1,9 +1,18 @@
-import { PlanSummary, PlanTask, KeyResult, ViewMode, Cadence, Milestone } from '../types';
+import {
+  PlanSummary,
+  PlanTask,
+  KeyResult,
+  ViewMode,
+  Cadence,
+  Milestone,
+} from '../types';
 
 /**
  * Normalize priority values to match the expected format
  */
-const normalizePriority = (priority: string | undefined): 'Low' | 'Medium' | 'High' => {
+const normalizePriority = (
+  priority: string | undefined,
+): 'Low' | 'Medium' | 'High' => {
   if (!priority) return 'Medium';
   const normalized = priority.toLowerCase();
   if (normalized === 'high') return 'High';
@@ -14,7 +23,10 @@ const normalizePriority = (priority: string | undefined): 'Low' | 'Medium' | 'Hi
 /**
  * Get task status for reporting mode
  */
-const getTaskStatus = (task: any, viewMode: ViewMode): 'completed' | 'pending' | 'failed' | undefined => {
+const getTaskStatus = (
+  task: any,
+  viewMode: ViewMode,
+): 'completed' | 'pending' | 'failed' | undefined => {
   if (viewMode === 'reporting') {
     if (task.isAchieved === true) return 'completed';
     if (task.isAchieved === false) return 'failed';
@@ -29,7 +41,8 @@ const getTaskStatus = (task: any, viewMode: ViewMode): 'completed' | 'pending' |
 const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
   const baseTask: PlanTask = {
     id: task.id || task.taskId || '',
-    title: task.taskName || task.task || task.title || task.name || 'Untitled Task',
+    title:
+      task.taskName || task.task || task.title || task.name || 'Untitled Task',
     priority: normalizePriority(task.priority),
     weight: task.weight || 0,
     hasAttachment: task.hasAttachment || false,
@@ -38,10 +51,12 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
   if (viewMode === 'planning') {
     baseTask.target = task.targetValue || task.target || 0;
   } else {
-    baseTask.achieved = task.actualValue || task.achievedValue || task.achieved || 0;
+    baseTask.achieved =
+      task.actualValue || task.achievedValue || task.achieved || 0;
     baseTask.status = getTaskStatus(task, viewMode);
     // For reporting, use weightPlan if available
-    baseTask.weight = task.weightPlan || task.planTask?.weight || task.weight || 0;
+    baseTask.weight =
+      task.weightPlan || task.planTask?.weight || task.weight || 0;
   }
 
   return baseTask;
@@ -52,52 +67,60 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
  */
 const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const isMilestoneMetric = keyResult.metricType?.name === 'Milestone';
-  
+
   // Transform tasks - filter out empty tasks
   const transformedTasks = (keyResult.tasks || [])
     .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
     .map((task: any) => transformTask(task, viewMode));
 
   // Transform milestones
-  const transformedMilestones = (keyResult.milestones || []).map((milestone: any) => ({
-    id: milestone.id || '',
-    name: milestone.name,
-    title: milestone.title || milestone.name,
-    tasks: (milestone.tasks || [])
-      .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
-      .map((task: any) => transformTask(task, viewMode)),
-    parentTask: (milestone.parentTask || []).map((parent: any) => ({
+  const transformedMilestones = (keyResult.milestones || []).map(
+    (milestone: any) => ({
+      id: milestone.id || '',
+      name: milestone.name,
+      title: milestone.title || milestone.name,
+      tasks: (milestone.tasks || [])
+        .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+        .map((task: any) => transformTask(task, viewMode)),
+      parentTask: (milestone.parentTask || []).map((parent: any) => ({
+        ...parent,
+        tasks: (parent.tasks || [])
+          .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+          .map((task: any) => transformTask(task, viewMode)),
+      })),
+    }),
+  );
+
+  // Transform parent tasks
+  const transformedParentTasks = (keyResult.parentTask || []).map(
+    (parent: any) => ({
       ...parent,
       tasks: (parent.tasks || [])
         .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
         .map((task: any) => transformTask(task, viewMode)),
-    })),
-  }));
-
-  // Transform parent tasks
-  const transformedParentTasks = (keyResult.parentTask || []).map((parent: any) => ({
-    ...parent,
-    tasks: (parent.tasks || [])
-      .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
-      .map((task: any) => transformTask(task, viewMode)),
-  }));
+    }),
+  );
 
   // For non-milestone metric types, promote milestone parentTask groups to keyResult level
   // This ensures we show parent tasks with subtasks directly under the key result
   let finalParentTasks = [...transformedParentTasks];
   let finalMilestones = [...transformedMilestones];
   let finalTasks = [...transformedTasks];
-  
+
   if (!isMilestoneMetric) {
     // Extract all parentTask groups from milestones and merge into keyResult.parentTask
-    const milestoneParentTasks = transformedMilestones.flatMap((m: Milestone) => m.parentTask || []);
+    const milestoneParentTasks = transformedMilestones.flatMap(
+      (m: Milestone) => m.parentTask || [],
+    );
     finalParentTasks = [...transformedParentTasks, ...milestoneParentTasks];
-    
+
     // Also promote standalone tasks from milestones to keyResult.tasks
     // These are tasks that don't have a parentTask and aren't parents themselves
-    const milestoneStandaloneTasks = transformedMilestones.flatMap((m: Milestone) => m.tasks || []);
+    const milestoneStandaloneTasks = transformedMilestones.flatMap(
+      (m: Milestone) => m.tasks || [],
+    );
     finalTasks = [...transformedTasks, ...milestoneStandaloneTasks];
-    
+
     // Clear milestones for non-milestone metric types to avoid showing empty milestone sections
     finalMilestones = [];
   }
@@ -115,11 +138,12 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const targetValue = allTasks.reduce((sum, t) => sum + (t.target || 0), 0);
   // Calculate achieved as sum of weights of completed/achieved tasks for this key result only
   // IMPORTANT: Sum the WEIGHTS of completed tasks, not the achieved values
-  const achievedValue = viewMode === 'reporting'
-    ? allTasks
-        .filter(t => t.status === 'completed' || t.isAchieved === true)
-        .reduce((sum, t) => sum + (Number(t.weight) || 0), 0)
-    : 0;
+  const achievedValue =
+    viewMode === 'reporting'
+      ? allTasks
+          .filter((t) => t.status === 'completed' || t.isAchieved === true)
+          .reduce((sum, t) => sum + (Number(t.weight) || 0), 0)
+      : 0;
 
   return {
     id: keyResult.id || '',
@@ -145,14 +169,20 @@ export const transformReportToPlanSummary = (
   employeeData: any,
 ): PlanSummary => {
   // Find employee - if employeeData is not loaded yet, employee will be empty
-  const employee = employeeData?.items?.find((emp: any) => emp?.id === (dataItem?.createdBy || dataItem?.userId)) || {};
+  const employee =
+    employeeData?.items?.find(
+      (emp: any) => emp?.id === (dataItem?.createdBy || dataItem?.userId),
+    ) || {};
   const firstName = employee?.firstName || '';
   const middleName = employee?.middleName || '';
   const lastName = employee?.lastName || '';
   // Use 'Unknown User' and 'N/A' as placeholders - UserInfo component will detect these and show skeleton
-  const fullName = `${firstName} ${middleName} ${lastName}`.trim() || 'Unknown User';
-  const initials = `${firstName.charAt(0)}${middleName.charAt(0)}`.toUpperCase() || 'UU';
-  const department = employee?.employeeJobInformation?.[0]?.department?.name || 'N/A';
+  const fullName =
+    `${firstName} ${middleName} ${lastName}`.trim() || 'Unknown User';
+  const initials =
+    `${firstName.charAt(0)}${middleName.charAt(0)}`.toUpperCase() || 'UU';
+  const department =
+    employee?.employeeJobInformation?.[0]?.department?.name || 'N/A';
 
   // Transform keyResults from reportTask data
   const reportTasks = dataItem?.reportTask || [];
@@ -192,7 +222,9 @@ export const transformReportToPlanSummary = (
         keyResultsMap[krId].tasks.push(taskObj);
       }
     } else {
-      let existingMilestone = keyResultsMap[krId].milestones.find((m: any) => m.id === milestone.id);
+      let existingMilestone = keyResultsMap[krId].milestones.find(
+        (m: any) => m.id === milestone.id,
+      );
       if (!existingMilestone) {
         existingMilestone = {
           ...milestone,
@@ -206,13 +238,17 @@ export const transformReportToPlanSummary = (
       existingMilestone.tasks.push(taskObj);
     }
   });
-  
+
   // Group parent tasks for each key result
   Object.values(keyResultsMap).forEach((kr: any) => {
     // Group tasks with parentTask at keyResult level
-    const tasksWithParent = (kr.tasks || []).filter((t: any) => t?.parentTask?.id);
-    const tasksWithoutParent = (kr.tasks || []).filter((t: any) => !t?.parentTask?.id);
-    
+    const tasksWithParent = (kr.tasks || []).filter(
+      (t: any) => t?.parentTask?.id,
+    );
+    const tasksWithoutParent = (kr.tasks || []).filter(
+      (t: any) => !t?.parentTask?.id,
+    );
+
     const parentTaskMap: Record<string, any> = {};
     tasksWithParent.forEach((task: any) => {
       const parentId = task.parentTask.id;
@@ -220,30 +256,38 @@ export const transformReportToPlanSummary = (
         parentTaskMap[parentId] = {
           ...task.parentTask,
           id: parentId,
-          task: task.parentTask.task || task.parentTask.title || task.parentTask.name,
+          task:
+            task.parentTask.task ||
+            task.parentTask.title ||
+            task.parentTask.name,
           tasks: [],
         };
       }
       parentTaskMap[parentId].tasks.push(task);
     });
-    
+
     kr.parentTask = Object.values(parentTaskMap);
-    
+
     // Remove parent tasks that are already grouped, and tasks that are children
     const parentTaskIds = new Set(Object.keys(parentTaskMap));
     const childTaskIds = new Set(tasksWithParent.map((t: any) => t.id));
-    
-    kr.tasks = tasksWithoutParent.filter((t: any) => 
-      !parentTaskIds.has(t.id) && 
-      !childTaskIds.has(t.id) &&
-      (t.title || t.taskName || t.task) // Exclude empty tasks
+
+    kr.tasks = tasksWithoutParent.filter(
+      (t: any) =>
+        !parentTaskIds.has(t.id) &&
+        !childTaskIds.has(t.id) &&
+        (t.title || t.taskName || t.task), // Exclude empty tasks
     );
-    
+
     // Group parent tasks within milestones
     (kr.milestones || []).forEach((milestone: any) => {
-      const milestoneTasksWithParent = (milestone.tasks || []).filter((t: any) => t?.parentTask?.id);
-      const milestoneTasksWithoutParent = (milestone.tasks || []).filter((t: any) => !t?.parentTask?.id);
-      
+      const milestoneTasksWithParent = (milestone.tasks || []).filter(
+        (t: any) => t?.parentTask?.id,
+      );
+      const milestoneTasksWithoutParent = (milestone.tasks || []).filter(
+        (t: any) => !t?.parentTask?.id,
+      );
+
       const milestoneParentTaskMap: Record<string, any> = {};
       milestoneTasksWithParent.forEach((task: any) => {
         const parentId = task.parentTask.id;
@@ -251,51 +295,64 @@ export const transformReportToPlanSummary = (
           milestoneParentTaskMap[parentId] = {
             ...task.parentTask,
             id: parentId,
-            task: task.parentTask.task || task.parentTask.title || task.parentTask.name,
+            task:
+              task.parentTask.task ||
+              task.parentTask.title ||
+              task.parentTask.name,
             tasks: [],
           };
         }
         milestoneParentTaskMap[parentId].tasks.push(task);
       });
-      
+
       milestone.parentTask = Object.values(milestoneParentTaskMap);
-      
+
       // Remove parent tasks that are already grouped, and tasks that are children
-      const milestoneParentTaskIds = new Set(Object.keys(milestoneParentTaskMap));
-      const milestoneChildTaskIds = new Set(milestoneTasksWithParent.map((t: any) => t.id));
-      
-      milestone.tasks = milestoneTasksWithoutParent.filter((t: any) => 
-        !milestoneParentTaskIds.has(t.id) && 
-        !milestoneChildTaskIds.has(t.id) &&
-        (t.title || t.taskName || t.task) // Exclude empty tasks
+      const milestoneParentTaskIds = new Set(
+        Object.keys(milestoneParentTaskMap),
+      );
+      const milestoneChildTaskIds = new Set(
+        milestoneTasksWithParent.map((t: any) => t.id),
+      );
+
+      milestone.tasks = milestoneTasksWithoutParent.filter(
+        (t: any) =>
+          !milestoneParentTaskIds.has(t.id) &&
+          !milestoneChildTaskIds.has(t.id) &&
+          (t.title || t.taskName || t.task), // Exclude empty tasks
       );
     });
   });
 
   const transformedKeyResults = Object.values(keyResultsMap).map((kr: any) => {
     const isMilestoneMetric = kr.metricType?.name === 'Milestone';
-    
+
     // For non-milestone metric types, promote milestone parentTask groups to keyResult level
     let finalParentTasks = [...(kr.parentTask || [])];
     let finalMilestones = [...(kr.milestones || [])];
     let finalTasks = [...(kr.tasks || [])];
-    
+
     if (!isMilestoneMetric) {
       // Extract all parentTask groups from milestones and merge into keyResult.parentTask
-      const milestoneParentTasks = (kr.milestones || []).flatMap((m: any) => m.parentTask || []);
+      const milestoneParentTasks = (kr.milestones || []).flatMap(
+        (m: any) => m.parentTask || [],
+      );
       finalParentTasks = [...(kr.parentTask || []), ...milestoneParentTasks];
-      
+
       // Also promote standalone tasks from milestones to keyResult.tasks
       // These are tasks that don't have a parentTask and aren't parents themselves
-      const milestoneStandaloneTasks = (kr.milestones || []).flatMap((m: any) => 
-        (m.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task) // Exclude empty tasks
+      const milestoneStandaloneTasks = (kr.milestones || []).flatMap(
+        (m: any) =>
+          (m.tasks || []).filter(
+            (t: any) => t?.title || t?.taskName || t?.task,
+          ), // Exclude empty tasks
       );
       finalTasks = [...(kr.tasks || []), ...milestoneStandaloneTasks];
-      
+
       // Clear milestones for non-milestone metric types to avoid showing empty milestone sections
       finalMilestones = [];
     }
-    
+
     // Collect ALL tasks from this key result including:
     // - Direct tasks
     // - Tasks in milestones (only for milestone metric type)
@@ -304,16 +361,20 @@ export const transformReportToPlanSummary = (
     const allTasks = [
       ...finalTasks.filter((t: any) => t?.title || t?.taskName || t?.task), // Exclude empty tasks
       ...finalMilestones.flatMap((m: any) => [
-        ...(m.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task),
-        ...(m.parentTask || []).flatMap((p: any) => 
-          (p.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task)
-        )
+        ...(m.tasks || []).filter(
+          (t: any) => t?.title || t?.taskName || t?.task,
+        ),
+        ...(m.parentTask || []).flatMap((p: any) =>
+          (p.tasks || []).filter(
+            (t: any) => t?.title || t?.taskName || t?.task,
+          ),
+        ),
       ]),
-      ...finalParentTasks.flatMap((p: any) => 
-        (p.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task)
+      ...finalParentTasks.flatMap((p: any) =>
+        (p.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task),
       ),
     ];
-    
+
     // Calculate achieved as sum of weights of completed/achieved tasks
     // IMPORTANT: Sum the WEIGHTS of completed tasks, not the achieved values
     const achieved = allTasks
@@ -325,9 +386,12 @@ export const transformReportToPlanSummary = (
         // Use weight, not achieved value
         return sum + (Number(t.weight) || 0);
       }, 0);
-    
-    const totalWeight = allTasks.reduce((sum: number, t: any) => sum + (t.weight || 0), 0);
-    
+
+    const totalWeight = allTasks.reduce(
+      (sum: number, t: any) => sum + (t.weight || 0),
+      0,
+    );
+
     return {
       ...kr,
       tasks: finalTasks.filter((t: any) => t?.title || t?.taskName || t?.task), // Exclude empty tasks
@@ -340,16 +404,20 @@ export const transformReportToPlanSummary = (
   });
 
   // Calculate overall progress
-  const allTasks = transformedKeyResults.flatMap(kr => [
+  const allTasks = transformedKeyResults.flatMap((kr) => [
     ...kr.tasks,
     ...kr.milestones.flatMap((m: any) => m.tasks),
   ]);
   const totalTasks = allTasks.length;
-  const completedTasks = allTasks.filter(t => t.status === 'completed').length;
+  const completedTasks = allTasks.filter(
+    (t) => t.status === 'completed',
+  ).length;
   const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   // Calculate total achieved
-  const achieved = allTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + (Number(t.weight) || 0), 0);
+  const achieved = allTasks
+    .filter((t) => t.status === 'completed')
+    .reduce((sum, t) => sum + (Number(t.weight) || 0), 0);
 
   const summary = transformedKeyResults[0]?.title || 'No key result specified';
   const statusLabel = dataItem?.plan?.isReportValidated ? 'Closed' : 'Open';
@@ -403,43 +471,54 @@ export const transformToPlanSummary = (
   employeeData: any,
 ): PlanSummary => {
   // Find employee - if employeeData is not loaded yet, employee will be empty
-  const employee = employeeData?.items?.find((emp: any) => emp?.id === dataItem?.userId) || {};
+  const employee =
+    employeeData?.items?.find((emp: any) => emp?.id === dataItem?.userId) || {};
   const firstName = employee?.firstName || '';
   const middleName = employee?.middleName || '';
   const lastName = employee?.lastName || '';
   // Use 'Unknown User' and 'N/A' as placeholders - UserInfo component will detect these and show skeleton
-  const fullName = `${firstName} ${middleName} ${lastName}`.trim() || 'Unknown User';
-  const initials = `${firstName.charAt(0)}${middleName.charAt(0)}`.toUpperCase() || 'UU';
-  const department = employee?.employeeJobInformation?.[0]?.department?.name || 'N/A';
+  const fullName =
+    `${firstName} ${middleName} ${lastName}`.trim() || 'Unknown User';
+  const initials =
+    `${firstName.charAt(0)}${middleName.charAt(0)}`.toUpperCase() || 'UU';
+  const department =
+    employee?.employeeJobInformation?.[0]?.department?.name || 'N/A';
 
   // Transform keyResults
-  const transformedKeyResults = (dataItem.keyResults || []).map((kr: any) => transformKeyResult(kr, viewMode));
+  const transformedKeyResults = (dataItem.keyResults || []).map((kr: any) =>
+    transformKeyResult(kr, viewMode),
+  );
 
   // Collect all tasks for flat list
   const allTasks: PlanTask[] = [];
   transformedKeyResults.forEach((kr: KeyResult) => {
     allTasks.push(...kr.tasks);
-    kr.milestones?.forEach(m => {
+    kr.milestones?.forEach((m) => {
       allTasks.push(...m.tasks);
-      m.parentTask?.forEach(p => {
+      m.parentTask?.forEach((p) => {
         allTasks.push(...p.tasks);
       });
     });
-    kr.parentTask?.forEach(p => {
+    kr.parentTask?.forEach((p) => {
       allTasks.push(...p.tasks);
     });
   });
 
   // Calculate progress
   const totalTasks = allTasks.length;
-  const completedTasks = allTasks.filter(t => t.status === 'completed').length;
+  const completedTasks = allTasks.filter(
+    (t) => t.status === 'completed',
+  ).length;
   const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   // Calculate target and achieved
   const target = allTasks.reduce((sum, t) => sum + (t.target || 0), 0);
-  const achieved = viewMode === 'reporting'
-    ? allTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + (t.weight || 0), 0)
-    : 0;
+  const achieved =
+    viewMode === 'reporting'
+      ? allTasks
+          .filter((t) => t.status === 'completed')
+          .reduce((sum, t) => sum + (t.weight || 0), 0)
+      : 0;
 
   // Get summary from first keyResult
   const summary = transformedKeyResults[0]?.title || 'No key result specified';
@@ -486,4 +565,3 @@ export const transformToPlanSummary = (
     appreciationCount: dataItem.appreciationCount || 0,
   };
 };
-
