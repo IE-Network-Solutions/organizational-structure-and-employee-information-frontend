@@ -35,6 +35,53 @@ const createAllowanceEntitlement = async (data: any) => {
 };
 
 /**
+ * Creates a new allowance/deduction entitlement with settlement tracking by sending a POST request.
+ * This endpoint properly handles the payments array with amounts and pay periods.
+ *
+ * @async
+ * @function createAllowanceEntitlementSettlement
+ * @returns {Promise<any>} The response from the API.
+ */
+const createAllowanceEntitlementSettlement = async (data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-item-entitlement/employee-settlement-tracking`,
+    method: 'POST',
+    data,
+    headers,
+  });
+};
+
+/**
+ * Updates an allowance/deduction entitlement settlement by sending a PATCH request to the API.
+ *
+ * @async
+ * @function updateAllowanceEntitlementSettlement
+ * @returns {Promise<any>} The response from the API.
+ */
+const updateAllowanceEntitlementSettlement = async (data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-item-entitlement/employee-settlement-tracking/${data.id}`,
+    method: 'PATCH',
+    data,
+    headers,
+  });
+};
+
+/**
  * Deletes a custom question template by sending a DELETE request to the API.
  * The request includes pagination details such as the current page and page size for managing the UI state.
  *
@@ -76,6 +123,25 @@ export const useCreateAllowanceEntitlement = () => {
 };
 
 /**
+ * Custom hook to create an allowance/deduction entitlement with settlement tracking.
+ * This is the correct hook for rate-based deductions that need proper payment schedule handling.
+ *
+ * @returns {MutationObject} The mutation object for creating an entitlement with settlement tracking.
+ */
+export const useCreateAllowanceEntitlementSettlement = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createAllowanceEntitlementSettlement, {
+    onSuccess: (notused: any, variables: any) => {
+      queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries('allowanceType');
+      queryClient.invalidateQueries('employeeSettlementTracking');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+
+/**
  * Custom hook to delete a question template using React Query's useMutation hook.
  * On success, the cache for `questionTemplate` is invalidated and a success message is displayed.
  *
@@ -89,6 +155,24 @@ export const useDeleteAllowanceEntitlement = () => {
       queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
+    },
+  });
+};
+
+/**
+ * Custom hook to update an allowance/deduction entitlement settlement using React Query's useMutation hook.
+ * On success, the cache is invalidated and a success message is displayed.
+ *
+ * @returns {MutationObject} The mutation object for updating an entitlement settlement.
+ */
+export const useUpdateAllowanceEntitlementSettlement = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateAllowanceEntitlementSettlement, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries('allowanceType');
+      queryClient.invalidateQueries('employeeSettlementTracking');
+      handleSuccessMessage('PATCH');
     },
   });
 };

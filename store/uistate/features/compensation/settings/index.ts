@@ -31,6 +31,8 @@ export interface CompensationSettingTypes {
 
   isDeductionOpen: boolean;
   setIsDeductionOpen: (value: boolean) => void;
+  isRateDeduction: boolean;
+  setIsRateDeduction: (value: boolean) => void;
 
   selectedDeductionRecord: any;
   setSelectedDeductionRecord: (selectedDeductionRecord: any) => void;
@@ -53,6 +55,7 @@ const compensationSettingInitialState = {
   isAllowanceOpen: false,
   isRateAllowance: false,
   isDeductionOpen: false,
+  isRateDeduction: false,
 
   selectedAllowanceRecord: null,
   selectedDeductionRecord: null,
@@ -104,6 +107,7 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
       set({ selectedAllowanceRecord: value }),
 
     setIsDeductionOpen: (isDeductionOpen: boolean) => set({ isDeductionOpen }),
+    setIsRateDeduction: (value: boolean) => set({ isRateDeduction: value }),
 
     setSelectedDeductionRecord: (selectedDeductionRecord: any) =>
       set({ selectedDeductionRecord }),
