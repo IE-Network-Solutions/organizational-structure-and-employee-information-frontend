@@ -136,6 +136,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   onChange={(e) =>
                     updateKeyResult(index, 'title', e.target.value)
                   }
+                  onPressEnter={(e) => {
+                    e.preventDefault();
+                  }}
                 />
               </Form.Item>
             </div>
@@ -277,6 +280,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     onChange={(e) =>
                       handleMilestoneChange(0, 'title', e.target.value)
                     }
+                    onPressEnter={(e) => {
+                      e.preventDefault();
+                    }}
                   />
                 </Form.Item>
                 <Form.Item
@@ -359,6 +365,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                           e.target.value,
                         )
                       }
+                      onPressEnter={(e) => {
+                        e.preventDefault();
+                      }}
                     />
                   </Form.Item>
                   <Form.Item
@@ -442,6 +451,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   onChange={(e) =>
                     updateKeyResult(index, 'title', e.target.value)
                   }
+                  onPressEnter={(e) => {
+                    e.preventDefault();
+                  }}
                 />
               </Form.Item>
               <Form.Item
@@ -578,6 +590,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     onChange={(e) =>
                       handleMilestoneChange(0, 'title', e.target.value)
                     }
+                    onPressEnter={(e) => {
+                      e.preventDefault();
+                    }}
                   />
                 </Form.Item>
                 <Form.Item
@@ -667,6 +682,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                           e.target.value,
                         )
                       }
+                      onPressEnter={(e) => {
+                        e.preventDefault();
+                      }}
                     />
                   </Form.Item>
                   <Form.Item
