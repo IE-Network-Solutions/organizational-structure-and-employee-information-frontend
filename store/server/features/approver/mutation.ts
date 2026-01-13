@@ -147,6 +147,7 @@ export const useCreateApproverMutation = () => {
   return useMutation(({ values }: { values: any }) => createApprover(values), {
     onSuccess: () => {
       queryClient.invalidateQueries('approvals');
+      queryClient.invalidateQueries('getAllApprovalWorkflow');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Approval WorkFlow Created Successfully',

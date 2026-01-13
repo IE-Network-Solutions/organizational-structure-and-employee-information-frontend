@@ -19,13 +19,14 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { FaPlus } from 'react-icons/fa';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import AddApprover from '../addApprover';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import EditWorkFLow from '../editWorkFLow';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import ApproverListTable from '@/components/Approval/ApprovalListTable';
 import { APPROVALTYPES, commonClass } from '@/types/enumTypes';
 import { IoMdSwap } from 'react-icons/io';
+import WorkflowModal from '../workflowModal';
 
 const ApprovalListTable = () => {
   const { data: employeeData, isLoading: isEmployeeDataLoading } =
@@ -52,7 +53,11 @@ const ApprovalListTable = () => {
     setWorkflowApplies,
     setApproverType,
     selectedItem,
+    setDepartmentApproval,
+    approverType,
+    isCreated,
   } = useApprovalStore();
+  const [workflowModal, setWorkflowModal] = useState(false);
   const { searchParams } = useApprovalStore();
   const { data: allFilterData, isLoading: isEmployeeLoading } =
     useApprovalFilter(
@@ -90,22 +95,36 @@ const ApprovalListTable = () => {
 
   const [form] = Form.useForm(); // Form instance
   const onFinish = (values: any) => {
-    deleteWorkflow(values.currentWorkFlow, {
-      onSuccess: () => {
-        // Fix: Pass the correct structure for updateWorkflow
-        updateWorkflow(
-          {
-            currentapprovalWorkflowId: values.currentWorkFlow,
-            approvalWorkflowId: values.workflow,
+    if (isCreated) {
+      updateWorkflow(
+        {
+          currentapprovalWorkflowId: values.currentWorkFlow,
+          approvalWorkflowId: values.workflow,
+        },
+        {
+          onSuccess: () => {
+            setTransferModal(false);
           },
-          {
-            onSuccess: () => {
-              setTransferModal(false);
+        },
+      );
+    } else {
+      deleteWorkflow(values.currentWorkFlow, {
+        onSuccess: () => {
+          // Fix: Pass the correct structure for updateWorkflow
+          updateWorkflow(
+            {
+              currentapprovalWorkflowId: values.currentWorkFlow,
+              approvalWorkflowId: values.workflow,
             },
-          },
-        );
-      },
-    });
+            {
+              onSuccess: () => {
+                setTransferModal(false);
+              },
+            },
+          );
+        },
+      });
+    }
   };
 
   const MAX_NAME_LENGTH = 10;
@@ -395,6 +414,38 @@ const ApprovalListTable = () => {
     }
   };
 
+  const onChange = (value: string) => {
+    setApproverType(value);
+    if (approverType) {
+      setDepartmentApproval(true);
+    }
+  };
+
+  const handleCreateNewWorkflow = () => {
+    // Find the current workflow from allFilterData
+    const currentWorkflow = allFilterData?.items?.find(
+      (item: any) => item.id === deletedItem,
+    );
+
+    // Set the workflowApplies type from the current workflow
+    if (currentWorkflow?.entityType) {
+      setWorkflowApplies(currentWorkflow.entityType);
+    }
+
+    setWorkflowModal(true);
+  };
+
+  const handleWorkflowModalCancel = () => {
+    setWorkflowModal(false);
+    setApproverType(null);
+    setDepartmentApproval(false);
+  };
+
+  const handleTransferModalCancel = () => {
+    setTransferModal(false);
+    form.resetFields();
+  };
+
   return (
     <div
       className="mt-2"
@@ -426,17 +477,21 @@ const ApprovalListTable = () => {
       <Modal
         title={
           <p
-            className={`${commonClass}`}
+            className={`${commonClass} text-xl font-semibold`}
             id="time-attendance-settings-approvals-table-transfer-modal-title"
             data-cy="time-attendance-settings-approvals-table-transfer-modal-title"
           >
-            Should be Transfer to Another WorkFlow
+            In order to remove this workflow you have to transfer this workflow
+            to another workflow
           </p>
         }
         open={transferModal}
-        onCancel={() => setTransferModal(false)}
+        onCancel={handleTransferModalCancel}
         footer={null}
         data-cy="time-attendance-settings-approvals-table-transfer-modal"
+        centered
+        className="p-5"
+        width={930}
       >
         <Form
           form={form}
@@ -449,7 +504,7 @@ const ApprovalListTable = () => {
           data-cy="time-attendance-settings-approvals-table-transfer-modal-form"
         >
           <div
-            className="flex items-center gap-4"
+            className="flex flex-col md:flex-row md:justify-between gap-4"
             id="time-attendance-settings-approvals-table-transfer-modal-form-fields"
             data-cy="time-attendance-settings-approvals-table-transfer-modal-form-fields"
           >
@@ -459,15 +514,20 @@ const ApprovalListTable = () => {
               rules={[{ required: true, message: 'Please enter a value!' }]}
               id="time-attendance-settings-approvals-table-transfer-modal-current-workflow"
               data-cy="time-attendance-settings-approvals-table-transfer-modal-current-workflow"
+              className="w-full"
             >
               <Select
+                className="h-10"
                 disabled
                 placeholder="Select Workflow"
-                style={{ width: '200px' }}
-                options={approvalWorkflowData?.items?.map((item) => ({
-                  label: item.name,
-                  value: item.id, // ✅ Use `value` instead of `id`
-                }))}
+                options={approvalWorkflowData?.items
+                  ?.filter(
+                    (item: any) => item.approvalType === APPROVALTYPES.LEAVE,
+                  )
+                  ?.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                  }))}
                 id="time-attendance-settings-approvals-table-transfer-modal-current-workflow-select"
                 data-cy="time-attendance-settings-approvals-table-transfer-modal-current-workflow-select"
               />
@@ -487,15 +547,22 @@ const ApprovalListTable = () => {
               rules={[{ required: true, message: 'Please select a workflow!' }]}
               id="time-attendance-settings-approvals-table-transfer-modal-workflow"
               data-cy="time-attendance-settings-approvals-table-transfer-modal-workflow"
+              className="w-full"
             >
               <Select
+                className="h-10"
                 placeholder="Select Workflow"
                 allowClear
-                style={{ width: '200px' }}
-                options={approvalWorkflowData?.items?.map((item) => ({
-                  label: item.name,
-                  value: item.id,
-                }))}
+                showSearch
+                optionFilterProp="label"
+                options={approvalWorkflowData?.items
+                  ?.filter(
+                    (item: any) => item.approvalType === APPROVALTYPES.LEAVE,
+                  )
+                  ?.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                  }))}
                 id="time-attendance-settings-approvals-table-transfer-modal-workflow-select"
                 data-cy="time-attendance-settings-approvals-table-transfer-modal-workflow-select"
               />
@@ -508,34 +575,55 @@ const ApprovalListTable = () => {
             data-cy="time-attendance-settings-approvals-table-transfer-modal-actions"
           >
             <div
-              className="flex justify-end space-x-8"
+              className="flex flex-col md:flex-row md:justify-between gap-4 mt-4"
               id="time-attendance-settings-approvals-table-transfer-modal-buttons"
               data-cy="time-attendance-settings-approvals-table-transfer-modal-buttons"
             >
-              <Button
-                loading={updateLoading}
-                className="text-sm"
-                type="primary"
-                htmlType="submit"
-                id="time-attendance-settings-approvals-table-transfer-modal-transfer-button"
-                data-cy="time-attendance-settings-approvals-table-transfer-modal-transfer-button"
+              <div
+                data-cy="time-attendance-settings-approvals-table-transfer-modal-create-button-container"
+                id="time-attendance-settings-approvals-table-transfer-modal-create-button-container"
               >
-                Transfer
-              </Button>
-              <Button
-                className={`${commonClass}`}
-                type="dashed"
-                danger
-                htmlType="reset"
-                id="time-attendance-settings-approvals-table-transfer-modal-reset-button"
-                data-cy="time-attendance-settings-approvals-table-transfer-modal-reset-button"
-              >
-                Reset
-              </Button>
+                <Button
+                  data-cy="time-attendance-settings-approvals-table-transfer-modal-create-button"
+                  id="time-attendance-settings-approvals-table-transfer-modal-create-button"
+                  className="text-sm px-10 h-10"
+                  type="primary"
+                  onClick={handleCreateNewWorkflow}
+                >
+                  Create New
+                </Button>
+              </div>
+              <div className="sm:space-x-8 space-x-2">
+                <Button
+                  className={`${commonClass} px-10 h-10`}
+                  type="default"
+                  htmlType="reset"
+                  id="time-attendance-settings-approvals-table-transfer-modal-reset-button"
+                  data-cy="time-attendance-settings-approvals-table-transfer-modal-reset-button"
+                >
+                  Reset
+                </Button>
+                <Button
+                  loading={updateLoading}
+                  className="text-sm px-10 h-10"
+                  type="primary"
+                  htmlType="submit"
+                  id="time-attendance-settings-approvals-table-transfer-modal-transfer-button"
+                  data-cy="time-attendance-settings-approvals-table-transfer-modal-transfer-button"
+                >
+                  Transfer
+                </Button>
+              </div>
             </div>
           </Form.Item>
         </Form>
       </Modal>
+      <WorkflowModal
+        open={workflowModal}
+        onCancel={handleWorkflowModalCancel}
+        onChange={onChange}
+        currentWorkFlow={deletedItem}
+      />
     </div>
   );
 };
