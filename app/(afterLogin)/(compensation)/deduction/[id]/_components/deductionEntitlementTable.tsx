@@ -5,7 +5,10 @@ import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
+import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import DeductionEntitlementSideBar from './deductionEntitlementSidebar';
+import DeductionEntitlementSideBarEdit from './deductionEntitlementSidebarEdit';
+import BenefitEntitlementSideBarEdit from '../../../benefit/[id]/_components/benefitEntitlementSidebarEdit';
 import { useFetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
@@ -15,8 +18,19 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AllowanceEntitlementTable = () => {
-  const { currentPage, pageSize, setCurrentPage, setPageSize } =
-    useAllowanceEntitlementStore();
+  const {
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    setIsDeductionEntitlementSidebarEditOpen,
+    setEditDeductionData,
+  } = useAllowanceEntitlementStore();
+
+  // For non-rate deductions, use the benefit edit sidebar
+  const { setIsBenefitEntitlementSidebarUpdateOpen, setEditBenefitData } =
+    useBenefitEntitlementStore();
+
   const { isMobile, isTablet } = useIsMobile();
   const { mutate: deleteAllowanceEntitlement } =
     useDeleteAllowanceEntitlement();
@@ -36,6 +50,18 @@ const AllowanceEntitlementTable = () => {
     })) || [];
   const handleDelete = (id: string) => {
     deleteAllowanceEntitlement(id);
+  };
+
+  const handleEdit = (record: any) => {
+    if (record.isRate) {
+      // Rate-based deduction - use the new deduction edit sidebar
+      setEditDeductionData(record);
+      setIsDeductionEntitlementSidebarEditOpen(true);
+    } else {
+      // Fixed deduction - use the benefit edit sidebar (existing working flow)
+      setEditBenefitData(record);
+      setIsBenefitEntitlementSidebarUpdateOpen(true);
+    }
   };
 
   const columns: TableColumnsType<any> = [
@@ -94,8 +120,7 @@ const AllowanceEntitlementTable = () => {
         >
           <ActionButtons
             id={record?.id ?? null}
-            onEdit={() => {}}
-            disableEdit
+            onEdit={() => handleEdit(record)}
             onDelete={() => handleDelete(record.id)}
             data-cy="compensation-deduction-entitlement-actions-button"
           />
@@ -153,6 +178,16 @@ const AllowanceEntitlementTable = () => {
         />
       )}
       <DeductionEntitlementSideBar data-cy="compensation-deduction-entitlement-sidebar" />
+      {/* Edit sidebar for rate-based deductions (isRate: true) */}
+      <DeductionEntitlementSideBarEdit
+        title="Deduction"
+        data-cy="compensation-deduction-entitlement-sidebar-edit"
+      />
+      {/* Edit sidebar for fixed deductions (isRate: false) - uses benefit sidebar */}
+      <BenefitEntitlementSideBarEdit
+        title="Deduction"
+        data-cy="compensation-deduction-entitlement-benefit-sidebar-edit"
+      />
     </Spin>
   );
 };

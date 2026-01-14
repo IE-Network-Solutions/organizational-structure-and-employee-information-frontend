@@ -505,7 +505,7 @@ const Payroll = () => {
               a.type?.toLowerCase().includes('position'),
           )?.amount || 0;
 
-            // Calculate taxable income: subtract 600 only if Transport Allowance >= 600
+        // Calculate taxable income: subtract 600 only if Transport Allowance >= 600
         const taxableIncomeDeduction = transportAllowance >= 600 ? 600 : 0;
         const taxableIncome = item.grossSalary - taxableIncomeDeduction;
 
