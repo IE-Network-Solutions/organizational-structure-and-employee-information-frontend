@@ -6,8 +6,11 @@ import {
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
 import { Skeleton, Table, TableColumnsType } from 'antd';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
+import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
+import DeletePopover from '@/components/common/actionButton/deletePopover';
+import { useRouter } from 'next/navigation';
 
 const columns: TableColumnsType<IncentiveSettingParams> = [
   {
@@ -46,14 +49,24 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
   recognitionData,
   responseLoading,
 }) => {
+  const router = useRouter();
   const { setOpenIncentiveDrawer, setIncentiveId, setIncentive } =
     useIncentiveStore();
   const { data: recognitionDataIndexed } = useAllChildrenRecognition();
+  const { mutate: deleteRecognitionType } = useDeleteRecognitionType();
 
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
     setOpenIncentiveDrawer(true);
     setIncentiveId(value?.id ?? '');
+  };
+
+  const handleDelete = (id: string) => {
+    deleteRecognitionType(id, {
+      onSuccess: () => {
+        router.push('/incentives/settings');
+      },
+    });
   };
 
   const incentiveTableData = {
@@ -88,17 +101,32 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
       <div
         id="default-incentive-settings-table-action-wrapper"
         data-cy="default-incentive-settings-table-action-wrapper"
-        className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center"
+        className="flex items-center gap-2"
       >
-        <Pencil
-          id="default-incentive-settings-table-action-pencil"
-          data-cy="default-incentive-settings-table-action-pencil"
-          size={15}
-          className="text-white cursor-pointer"
-          onClick={() =>
-            handleProjectIncentiveEdit(recognitionDataIndexed?.[0])
-          }
-        />
+        <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+          <Pencil
+            id="default-incentive-settings-table-action-pencil"
+            data-cy="default-incentive-settings-table-action-pencil"
+            size={15}
+            className="text-white cursor-pointer"
+            onClick={() =>
+              handleProjectIncentiveEdit(recognitionDataIndexed?.[0])
+            }
+          />
+        </div>
+        <DeletePopover
+          onDelete={() => handleDelete(recognitionDataIndexed?.[0]?.id)}
+          data-cy="default-incentive-settings-table-delete-popover"
+        >
+          <div className="bg-red-500 w-7 h-7 rounded-md flex items-center justify-center">
+            <Trash2
+              id="default-incentive-settings-table-action-delete"
+              data-cy="default-incentive-settings-table-action-delete"
+              size={15}
+              className="text-white cursor-pointer"
+            />
+          </div>
+        </DeletePopover>
       </div>
     ),
   };
