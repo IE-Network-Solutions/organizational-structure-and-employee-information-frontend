@@ -166,13 +166,16 @@ const downloadEmployeeOkrScore = async (data: any) => {
       data,
       headers: requestHeaders,
       skipEncryption: true, // Skip encryption for file downloads
+      responseType: 'blob', // Tell axios to handle binary data
     });
 
-    // Note: crudRequest returns the data directly, so we need to handle blob differently
-    // This might need adjustment based on how the API returns file data
-    const blob = new Blob([response], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
+    // Response is already a blob from the API when responseType is 'blob'
+    const blob =
+      response instanceof Blob
+        ? response
+        : new Blob([response], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     const fileName = 'Employee okr score export.xlsx';
