@@ -48,7 +48,6 @@ const DeductionEntitlementSideBar = () => {
 
   // State for duplicate confirmation modal
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
-  const [pendingFormData, setPendingFormData] = useState<any>(null);
   const [duplicateEmployeeNames, setDuplicateEmployeeNames] = useState<
     string[]
   >([]);
@@ -145,7 +144,6 @@ const DeductionEntitlementSideBar = () => {
     resetStore();
     setSelectedDepartment(null);
     setShowDuplicateModal(false);
-    setPendingFormData(null);
     setDuplicateEmployeeNames([]);
     setDeductionPayPeriodSchedule([]);
     setSelectedEmployeeForDeduction(null);
@@ -207,7 +205,6 @@ const DeductionEntitlementSideBar = () => {
 
     if (hasDuplicates) {
       setDuplicateEmployeeNames(duplicateNames);
-      setPendingFormData({});
       setShowDuplicateModal(true);
     } else {
       proceedWithCreation();
@@ -243,13 +240,11 @@ const DeductionEntitlementSideBar = () => {
   const handleDuplicateConfirm = () => {
     proceedWithCreation();
     setShowDuplicateModal(false);
-    setPendingFormData(null);
     setDuplicateEmployeeNames([]);
   };
 
   const handleDuplicateCancel = () => {
     setShowDuplicateModal(false);
-    setPendingFormData(null);
     setDuplicateEmployeeNames([]);
   };
 
@@ -396,6 +391,7 @@ const DeductionEntitlementSideBar = () => {
                 rules={[
                   { required: true, message: 'Total amount is required!' },
                   {
+                    // eslint-disable-next-line 
                     validator: (_, value) => {
                       if (value && value < 0) {
                         return Promise.reject(

@@ -277,6 +277,7 @@ const DeductiontypeSideBar = () => {
                 rules={[
                   { required: true, message: 'Rate is Required!' },
                   {
+                    // eslint-disable-next-line
                     validator: (_, value) => {
                       if (value && (value < 0 || value > 100)) {
                         return Promise.reject(
