@@ -12,6 +12,13 @@ const nextConfig = {
       'files.ienetworks.co',
       'example.com',
     ],
+     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'files.ienetworks.co',
+        pathname: '/**',
+      },
+    ],
   },
   env: {
     PAYROLL_DEV_URL: process.env.PAYROLL_DEV_URL,

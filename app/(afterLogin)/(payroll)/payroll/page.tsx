@@ -47,6 +47,16 @@ import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
+import {
+  useGetPendingPayrollApprovals,
+  useGetPayrollApprovalByPayPeriodId,
+} from '@/store/server/features/payroll/payrollApproval/queries';
+import {
+  useApprovePayrollApproval,
+  useLastApprovingPayroll,
+} from '@/store/server/features/payroll/payrollApproval/mutation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useRouter } from 'next/navigation';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,6 +67,17 @@ const Payroll = () => {
   const [exportPayrollData, setExportPayrollData] = useState(true);
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+
+  const authStore = useAuthenticationStore.getState();
+  const { userId } = useAuthenticationStore();
+  const tenantId = authStore.tenantId;
+  const userRollId = authStore.userData?.roleId;
+
+  const { mutate: approvePayroll, isLoading: isApproving } =
+    useApprovePayrollApproval();
+  const { mutate: lastApproving, isLoading: isLastApproving } =
+    useLastApprovingPayroll();
 
   const {
     searchQuery,
@@ -83,6 +104,25 @@ const Payroll = () => {
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
+
+  // Get payPeriodId from filters or from payroll data
+  const currentPayPeriodId = payPeriodId || payroll?.items?.[0]?.payPeriodId;
+
+  // Fetch pending approvals with payPeriodId
+  const { data: pendingApprovals, refetch: refetchPendingApprovals } =
+    useGetPendingPayrollApprovals(currentPayPeriodId, 1, 10);
+
+  // Fetch payroll approval by payPeriodId
+  const {
+    data: payrollApprovalByPayPeriod,
+    refetch: refetchPayrollApprovalByPayPeriod,
+  } = useGetPayrollApprovalByPayPeriodId(currentPayPeriodId);
+
+  const hasPendingApprovals = pendingApprovals?.items?.length > 0;
+  const pendingApproval = pendingApprovals?.items?.[0] || null;
+  const canGenerateOrRegenerate =
+    !payrollApprovalByPayPeriod ||
+    payrollApprovalByPayPeriod?.approved === false;
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
@@ -102,6 +142,8 @@ const Payroll = () => {
         (item: any) => item.type === 'ALLOWANCE' && item.isActive,
       )
     : [];
+
+  const router = useRouter();
 
   useEffect(() => {
     // Check if division filter is applied
@@ -330,6 +372,7 @@ const Payroll = () => {
         {
           onSuccess: () => {
             setIsPayrollModalOpen(false);
+            refetchPayrollApprovalByPayPeriod();
             setTimeout(() => {
               setOpen(true);
             }, 500);
@@ -1069,6 +1112,53 @@ const Payroll = () => {
     setPageSize(pageSize);
     setCurrentPage(1);
   };
+
+  const handleApprovePayroll = () => {
+    if (!pendingApproval) return;
+
+    const approvalWorkflowId = String(pendingApproval.approvalWorkflowId || '');
+    const stepOrder = Number(pendingApproval.nextApprover?.[0]?.stepOrder || 0);
+
+    if (!approvalWorkflowId || stepOrder === 0) {
+      notification.error({
+        message: 'Invalid Approval Data',
+        description: 'Missing required approval information. Please try again.',
+      });
+      return;
+    }
+
+    const approvalData = {
+      approvalWorkflowId,
+      stepOrder,
+      requestId: pendingApproval.id,
+      approvedUserId: userId,
+      approverRoleId: userRollId,
+      action: 'Approved',
+      tenantId,
+    };
+
+    const handleSuccess = () => {
+      setIsApproveModalOpen(false);
+      refetchPendingApprovals();
+      refetchPayrollApprovalByPayPeriod();
+      refetch();
+    };
+
+    approvePayroll(approvalData, {
+      onSuccess: (data) => {
+        if (data?.last === true) {
+          lastApproving(undefined, { onSuccess: handleSuccess });
+        } else {
+          handleSuccess();
+        }
+      },
+    });
+  };
+
+  const routerToReconcilation = () => {
+    router.push(`/payroll/reconcilation`);
+  };
+
   return (
     <div
       id="payroll-dashboard-view-container"
@@ -1121,6 +1211,14 @@ const Payroll = () => {
               </Button>
             </Tooltip>
           </AccessGuard>
+          <Button
+            id="payroll-reconcilation-click-button"
+            data-cy="payroll-reconcilation-click-button"
+            className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
+            onClick={() => routerToReconcilation()}
+          >
+            {isMobile ? <PiExportLight size={24} /> : 'Reconcilation'}
+          </Button>
 
           {!isMobile && (
             <AccessGuard
@@ -1289,68 +1387,140 @@ const Payroll = () => {
               </Modal>
             </AccessGuard>
           )}
-          <Popconfirm
-            id="payroll-generate-popconfirm-view-component"
-            data-cy="payroll-generate-popconfirm-view-component"
-            title={
-              payroll?.items?.length
-                ? 'Are you sure you want to regenerate the payroll ?'
-                : 'Are you sure you want to generate the payroll ?'
-            }
-            onConfirm={handleDeletePayroll}
-            okText="Yes"
-            cancelText="No"
-            disabled={!(payroll?.items?.length > 0)}
-          >
-            <AccessGuard
-              id="payroll-generate-guard-view-component"
-              data-cy="payroll-generate-guard-view-component"
-              permissions={[
-                Permissions.GeneratePayroll,
-                Permissions.DeletePayroll,
-              ]}
+          {canGenerateOrRegenerate && (
+            <Popconfirm
+              id="payroll-generate-popconfirm-view-component"
+              data-cy="payroll-generate-popconfirm-view-component"
+              title={
+                payroll?.items?.length
+                  ? 'Are you sure you want to regenerate the payroll ?'
+                  : 'Are you sure you want to generate the payroll ?'
+              }
+              onConfirm={handleDeletePayroll}
+              okText="Yes"
+              cancelText="No"
+              disabled={!(payroll?.items?.length > 0)}
             >
-              <Tooltip
-                id="payroll-generate-tooltip-view-component"
-                data-cy="payroll-generate-tooltip-view-component"
-                title={
-                  payroll?.items?.length > 0
-                    ? 'Regenerate Payroll'
-                    : 'Generate Payroll'
-                }
+              <AccessGuard
+                id="payroll-generate-guard-view-component"
+                data-cy="payroll-generate-guard-view-component"
+                permissions={[
+                  Permissions.GeneratePayroll,
+                  Permissions.DeletePayroll,
+                ]}
               >
-                <Button
-                  id="payroll-generate-open-modal-click-button"
-                  data-cy="payroll-generate-open-modal-click-button"
-                  type="primary"
-                  className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
-                  onClick={() => setIsPayrollModalOpen(true)}
-                  loading={isCreatingPayroll || loading || deleteLoading}
+                <Tooltip
+                  id="payroll-generate-tooltip-view-component"
+                  data-cy="payroll-generate-tooltip-view-component"
+                  title={
+                    payroll?.items?.length > 0
+                      ? 'Regenerate Payroll'
+                      : 'Generate Payroll'
+                  }
                 >
-                  {isMobile ? (
-                    <TbFileExport
-                      data-cy="payroll-generate-open-modal-click-icon"
-                      size={24}
-                    />
-                  ) : payroll?.items?.length > 0 ? (
-                    'Regenerate'
-                  ) : (
-                    'Generate'
-                  )}
-                </Button>
+                  <Button
+                    id="payroll-generate-open-modal-click-button"
+                    data-cy="payroll-generate-open-modal-click-button"
+                    type="primary"
+                    className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+                    onClick={() => setIsPayrollModalOpen(true)}
+                    loading={isCreatingPayroll || loading || deleteLoading}
+                  >
+                    {isMobile ? (
+                      <TbFileExport
+                        data-cy="payroll-generate-open-modal-click-icon"
+                        size={24}
+                      />
+                    ) : payroll?.items?.length > 0 ? (
+                      'Regenerate'
+                    ) : (
+                      'Generate'
+                    )}
+                  </Button>
 
-                {isPayrollModalOpen && (
-                  <GeneratePayrollModal
-                    data-cy="payroll-generate-modal-view-component"
-                    onGenerate={handleGeneratePayroll}
-                    onClose={() => setIsPayrollModalOpen(false)}
-                  />
-                )}
-              </Tooltip>
-            </AccessGuard>
-          </Popconfirm>
+                  {isPayrollModalOpen && (
+                    <GeneratePayrollModal
+                      data-cy="payroll-generate-modal-view-component"
+                      onGenerate={handleGeneratePayroll}
+                      onClose={() => setIsPayrollModalOpen(false)}
+                    />
+                  )}
+                </Tooltip>
+              </AccessGuard>
+            </Popconfirm>
+          )}
+          {hasPendingApprovals && (
+            <Button
+              id="payroll-approve-button"
+              data-cy="payroll-approve-button"
+              type="primary"
+              className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+              onClick={() => setIsApproveModalOpen(true)}
+              loading={isApproving || isLastApproving}
+            >
+              {isMobile ? (
+                <TbFileExport data-cy="payroll-approve-icon" size={24} />
+              ) : (
+                'Approve Payroll'
+              )}
+            </Button>
+          )}
         </div>
       </div>
+      <Modal
+        data-cy="payroll-approve-modal"
+        open={isApproveModalOpen}
+        onCancel={() => setIsApproveModalOpen(false)}
+        footer={null}
+        centered
+        width={600}
+        className="p-6"
+      >
+        <div
+          id="payroll-approve-modal-content"
+          data-cy="payroll-approve-modal-content"
+          className="flex flex-col items-center justify-center gap-4"
+        >
+          <h2
+            id="payroll-approve-modal-title"
+            data-cy="payroll-approve-modal-title"
+            className="text-2xl font-bold"
+          >
+            Approve Payroll
+          </h2>
+          <p
+            id="payroll-approve-modal-description"
+            data-cy="payroll-approve-modal-description"
+            className="text-lg text-gray-600"
+          >
+            Do you wish to Approve this payroll
+          </p>
+          <div
+            id="payroll-approve-modal-footer"
+            data-cy="payroll-approve-modal-footer"
+            className="flex gap-4 w-full justify-center mt-4"
+          >
+            <Button
+              id="payroll-approve-modal-cancel"
+              data-cy="payroll-approve-modal-cancel"
+              className="w-full h-12 text-lg font-semibold"
+              onClick={() => setIsApproveModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              id="payroll-approve-modal-approve"
+              data-cy="payroll-approve-modal-approve"
+              type="primary"
+              className="w-full h-12 text-lg font-semibold bg-primary"
+              onClick={handleApprovePayroll}
+              loading={isApproving || isLastApproving}
+            >
+              Approve
+            </Button>
+          </div>
+        </div>
+      </Modal>
       <div
         id="payroll-filters-wrapper-view-container"
         data-cy="payroll-filters-wrapper-view-container"

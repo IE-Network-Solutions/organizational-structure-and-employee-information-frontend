@@ -53,13 +53,14 @@ function CreatePlan() {
   const {
     data: planningPeriodHierarchy,
     isLoading: loadingPlanningPeriodHierarchy,
+    refetch: refetchHierarchy,
   } = useGetPlanningPeriodsHierarchy(
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
 
   // Fetch the last report to get failed tasks
-  const { data: lastReportData } = useGetReporting({
+  const { data: lastReportData, refetch: refetchLastReport } = useGetReporting({
     userId: [userId],
     planPeriodId: planningPeriodId || '',
     pageReporting: 1,
@@ -67,20 +68,31 @@ function CreatePlan() {
     sessionId: [],
   });
 
+  // Refetch data when drawer opens to ensure we have the latest failed tasks
+  useEffect(() => {
+    if (open && planningPeriodId) {
+      refetchHierarchy();
+      refetchLastReport();
+    }
+  }, [open, planningPeriodId, refetchHierarchy, refetchLastReport]);
+
+
   // Extract and group failed tasks from the last report
   const failedTasksByKeyResult: FailedTasksByKeyResult = useMemo(() => {
     if (!lastReportData?.items?.[0]?.reportTask) return {};
 
     const lastReport = lastReportData.items[0];
     const failedTasks = lastReport.reportTask.filter(
-      (task: any) => task.isAchieved === false,
+      (task: any) => task.isAchieved === false || task?.status === 'Not',
     );
 
     // Group failed tasks by keyResultId and milestoneId
     const grouped: Record<string, Record<string | 'noMilestone', any[]>> = {};
 
     failedTasks.forEach((task: any) => {
-      const keyResultId = String(task?.planTask?.keyResultId || '');
+      const keyResultId = String(
+        task?.planTask?.keyResult?.id || task?.planTask?.keyResultId || '',
+      );
       const milestoneId = task?.planTask?.milestone?.id
         ? String(task.planTask.milestone.id)
         : 'noMilestone';
@@ -193,16 +205,22 @@ function CreatePlan() {
                       task?.id,
                     );
 
-                    const boardsKey = `board-${compositeKey}`;
-                    const existingBoard = form.getFieldValue(boardsKey) || [];
+                    const namesKey = `names-${compositeKey}`;
+                    const existingBoard = form.getFieldValue(namesKey) || [];
 
                     if (existingBoard.length === 0) {
-                      formUpdates[boardsKey] = matchingFailedTasks.map(
+                      formUpdates[namesKey] = matchingFailedTasks.map(
                         (failedTask: any) => ({
                           task: failedTask.task,
                           priority: failedTask.priority,
                           weight: failedTask.weight,
                           targetValue: failedTask.targetValue,
+                          userId: userId,
+                          planningPeriodId: planningPeriodId,
+                          planningUserId: planningUserId,
+                          keyResultId: failedTask.keyResultId,
+                          milestoneId: failedTask.milestoneId,
+                          parentTaskId: failedTask.parentTaskId,
                         }),
                       );
                     }
@@ -246,17 +264,23 @@ function CreatePlan() {
 
                         if (matchingFailedTasks.length > 0) {
                           const compositeKey = buildKey(krId, mlId, taskId);
-                          const boardsKey = `board-${compositeKey}`;
+                          const namesKey = `names-${compositeKey}`;
                           const existingBoard =
-                            form.getFieldValue(boardsKey) || [];
+                            form.getFieldValue(namesKey) || [];
 
                           if (existingBoard.length === 0) {
-                            formUpdates[boardsKey] = matchingFailedTasks.map(
+                            formUpdates[namesKey] = matchingFailedTasks.map(
                               (failedTask: any) => ({
                                 task: failedTask.task,
                                 priority: failedTask.priority,
                                 weight: failedTask.weight,
                                 targetValue: failedTask.targetValue,
+                                userId: userId,
+                                planningPeriodId: planningPeriodId,
+                                planningUserId: planningUserId,
+                                keyResultId: failedTask.keyResultId,
+                                milestoneId: failedTask.milestoneId,
+                                parentTaskId: failedTask.parentTaskId,
                               }),
                             );
                           }
@@ -266,16 +290,22 @@ function CreatePlan() {
                   });
                 } else if (milestoneKey === 'noMilestone' && !kr?.milestones) {
                   // Handle key results without milestones
-                  const boardsKey = `board-${krId}`;
-                  const existingBoard = form.getFieldValue(boardsKey) || [];
+                  const namesKey = `names-${krId}`;
+                  const existingBoard = form.getFieldValue(namesKey) || [];
 
                   if (existingBoard.length === 0) {
-                    formUpdates[boardsKey] = failedTasks.map(
+                    formUpdates[namesKey] = failedTasks.map(
                       (failedTask: any) => ({
                         task: failedTask.task,
                         priority: failedTask.priority,
                         weight: failedTask.weight,
                         targetValue: failedTask.targetValue,
+                        userId: userId,
+                        planningPeriodId: planningPeriodId,
+                        planningUserId: planningUserId,
+                        keyResultId: failedTask.keyResultId,
+                        milestoneId: failedTask.milestoneId,
+                        parentTaskId: failedTask.parentTaskId,
                       }),
                     );
                   }
@@ -289,6 +319,17 @@ function CreatePlan() {
       // Apply all form updates at once
       if (Object.keys(formUpdates).length > 0) {
         form.setFieldsValue(formUpdates);
+
+        // Update weights for each auto-populated key
+        Object.entries(formUpdates).forEach(([key, tasks]: [string, any]) => {
+          if (key.startsWith('names-')) {
+            const calculatedWeight = tasks.reduce(
+              (sum: number, task: any) => sum + Number(task.weight || 0),
+              0,
+            );
+            setWeight(key, calculatedWeight);
+          }
+        });
       }
 
       hasAutoPopulated.current = true;
@@ -330,9 +371,9 @@ function CreatePlan() {
     }, 0);
     setWeight(namesKey, totalWeight);
   };
-  const handleAddBoard = (kId: string) => {
-    const boardsKey = `board-${kId}`;
-    const currentBoard = form.getFieldValue(boardsKey) || [];
+  const handleAddBoard = (kId: string, metadata?: any) => {
+    const namesKey = `names-${kId}`;
+    const currentBoard = form.getFieldValue(namesKey) || [];
 
     // Always grab the latest mkAsATask value to avoid stale reads
     const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
@@ -347,57 +388,38 @@ function CreatePlan() {
     const taskTitle = shouldUseMkAsATask ? latestMkAsATask.title : '';
     const achieveMK = shouldUseMkAsATask;
 
-    // Create a task object - if mkAsATask exists and matches, use its title
+    // Create a task object - include metadata to avoid missing fields
     const newTask = {
       task: taskTitle,
       priority: undefined,
       weight: undefined,
-      targetValue: undefined,
+      targetValue: metadata?.targetValue ?? undefined,
       achieveMK: achieveMK,
+      ...metadata,
     };
 
     setTimeout(() => {
-      form.setFieldsValue({ [boardsKey]: [...currentBoard, newTask] });
+      form.setFieldsValue({ [namesKey]: [newTask, ...currentBoard] });
     }, 0);
-  };
-  const handleRemoveBoard = (index: number, kId: string) => {
-    const boardsKey = `board-${kId}`;
-
-    const boards = form.getFieldValue(boardsKey) || [];
-    if (index > -1 && index < boards.length) {
-      boards.splice(index, 1);
-      form.setFieldsValue({ [boardsKey]: boards });
-    }
   };
 
   const modalHeader = (
     <div
-      className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4"
+      className="flex items-center justify-center text-2xl font-bold text-[#161A2C] p-4 relative"
       data-cy="create-plan-modal-header"
     >
       <div data-cy="create-plan-modal-header-title">
-        Create {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'New'}{' '}
-        Plan
+        {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'Daily'} Plan
       </div>
       <div
-        className="text-right"
+        className="absolute right-4 top-1/2 -translate-y-1/2"
         id="planning-ai-suggestions-wrapper-view-space"
         data-cy="planning-ai-suggestions-wrapper-view-space"
       >
         {/* AI Suggestions button + modal */}
         <AISuggestionsModal
           getKeyResults={() => {
-            const out: {
-              id: string;
-              title: string;
-              progress?: number;
-              metricType?: { name: string };
-              milestones?: Array<{
-                id: string | number;
-                title: string;
-                status?: string;
-              }>;
-            }[] = [];
+            const out: any[] = [];
 
             if (!planningPeriodHierarchy?.parentPlan) {
               // Weekly Plan: Get Key Results from Objectives
@@ -407,15 +429,9 @@ function CreatePlan() {
                     out.push({
                       id: String(kr.id),
                       title: kr.title,
-                      progress: kr.progress,
                       metricType: kr.metricType,
-                      milestones: Array.isArray(kr?.milestones)
-                        ? kr.milestones.map((m: any) => ({
-                            id: m?.id,
-                            title: m?.title,
-                            status: m?.status,
-                          }))
-                        : [],
+                      milestones: kr.milestones,
+                      progress: kr.progress,
                     });
                   }
                 });
@@ -437,8 +453,9 @@ function CreatePlan() {
                   out.push({
                     id: krId,
                     title: krTitle,
-                    progress: t?.keyResult?.progress,
                     metricType: t?.keyResult?.metricType,
+                    milestones: t?.keyResult?.milestones,
+                    progress: t?.keyResult?.progress,
                   });
                 }
               });
@@ -447,7 +464,7 @@ function CreatePlan() {
             return out;
           }}
           getWeeklyPlanTasks={() => {
-            // Only for daily plans - get all weekly plan tasks WITH krId
+            // Only for daily plans - get all weekly plan tasks
             if (!planningPeriodHierarchy?.parentPlan) return [];
 
             const tasks =
@@ -458,7 +475,8 @@ function CreatePlan() {
             return tasks.map((t: any) => ({
               id: String(t?.id || ''),
               task: t?.task || '',
-              krId: String(t?.keyResult?.id || ''), // Add krId to the task object
+              krId: String(t?.keyResult?.id || ''),
+              milestoneId: t?.milestone?.id ? String(t.milestone.id) : null,
             }));
           }}
           form={form}
@@ -472,12 +490,77 @@ function CreatePlan() {
       </div>
     </div>
   );
+  const footer = (
+    <div className="flex items-center justify-between w-full">
+      <div className="flex-1"></div>
+      <div className="flex justify-center gap-4 flex-1">
+        <Tooltip
+          title={
+            totalWeight !== 100
+              ? "Summation of all task's weights must be equal to 100!"
+              : 'Create Plan'
+          }
+        >
+          <Button
+            id="submit-plan-button-for-planning-and-reporting"
+            data-cy="submit-plan-button-for-planning-and-reporting"
+            className="py-3 px-6 sm:py-6 sm:px-10"
+            type="primary"
+            onClick={() => form.submit()}
+            loading={isLoading}
+            disabled={totalWeight !== 100}
+          >
+            <span className="md:hidden">Plan</span>
+            <span className="hidden md:inline">Create Plan</span>
+          </Button>
+        </Tooltip>
+
+        <Button
+          id="cancel-plan-button-for-planning-and-reporting"
+          data-cy="cancel-plan-button-for-planning-and-reporting"
+          className="py-3 px-6 sm:py-6 sm:px-10"
+          onClick={onClose}
+          disabled={isLoading}
+        >
+          Cancel
+        </Button>
+      </div>
+      <div className="flex-1 flex justify-end pr-5">
+        <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
+          <span className="md:hidden">WP:</span>{' '}
+          <span className="hidden md:inline">Weight Point:</span>{' '}
+          {Math.round(Number(totalWeight) || 0)}%
+        </span>
+      </div>
+    </div>
+  );
+
   const handleOnFinish = (values: Record<string, any>) => {
     const mergeValues = (obj: any) => {
       return Object.entries(obj)
         .filter(([key]) => key.startsWith('names-'))
-        .map(([, value]) => value)
-        .filter((value) => Array.isArray(value))
+        .map(([key, value]) => {
+          if (!Array.isArray(value)) return [];
+          const extractedKRId = key.replace('names-', '');
+
+          return value.map((task: any) => ({
+            ...task,
+            userId: String(task.userId || userId || ''),
+            planningPeriodId: String(
+              task.planningPeriodId || planningPeriodId || '',
+            ),
+            planningUserId: String(
+              task.planningUserId || planningUserId || '',
+            ),
+            keyResultId: String(
+              task.keyResultId ||
+              (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
+              '',
+            ),
+            milestoneId: task.milestoneId ? String(task.milestoneId) : null,
+            parentTaskId: task.parentTaskId ? String(task.parentTaskId) : null,
+          }));
+        })
         .flat();
     };
     const finalValues = mergeValues(values);
@@ -503,6 +586,7 @@ function CreatePlan() {
         modalHeader={modalHeader}
         width={'60%'}
         paddingBottom={10}
+        footer={footer}
       >
         {loadingPlanningPeriodHierarchy ? (
           <div className="flex items-center justify-center min-h-screen">
@@ -526,7 +610,6 @@ function CreatePlan() {
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
                 handleAddName={handleAddName}
-                handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
                 failedTasksByKeyResult={failedTasksByKeyResult}
               />
@@ -541,45 +624,10 @@ function CreatePlan() {
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
                 handleAddName={handleAddName}
-                handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
                 failedTasksByKeyResult={failedTasksByKeyResult}
               />
             )}
-
-            <Form.Item className="mt-10">
-              <div className="my-2">
-                Total Weights: {Math.round(Number(totalWeight) || 0)} / 100
-              </div>
-
-              <Tooltip
-                title={
-                  totalWeight !== 100
-                    ? "Summation of all task's weights must be equal to 100!"
-                    : 'Submit'
-                }
-              >
-                <Button
-                  id="submit-plan-button-for-planning-and-reporting"
-                  className="mr-5 py-6 px-10"
-                  type="primary"
-                  htmlType="submit"
-                  loading={isLoading}
-                  disabled={totalWeight !== 100}
-                >
-                  Submit
-                </Button>
-              </Tooltip>
-
-              <Button
-                id="cancel-plan-button-for-planning-and-reporting"
-                className="py-6 px-10"
-                onClick={onClose}
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
-            </Form.Item>
           </Form>
         )}
       </CustomDrawerLayout>

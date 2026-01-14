@@ -13,7 +13,6 @@ import dayjs from 'dayjs';
 import { VscClose } from 'react-icons/vsc';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 
@@ -40,14 +39,11 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
     }
   };
 
-  const { mutate: deleteKeyResult } = useDeleteKeyResult();
-
+  
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
   function handleKeyResultDelete(id: string) {
-    deleteKeyResult(id, {
-      onSuccess: () => {
-        removeKeyResultValue(index);
-      },
-    });
+    // Remove from local state only - deletion will happen on Save
+    removeKeyResultValue(index);
   }
   const { isMobile } = useIsMobile();
   const viewPrefix = keyValue?.id
