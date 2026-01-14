@@ -54,7 +54,7 @@ export const useGenerateBankLetter = () => {
   const { data: activeMonth } = useGetActiveMonth();
 
   const generateBankLetter = async (amount: number | string) => {
-    // Ensure amount is a valid number
+    // Ensure amount is a valid number (in case string is passed)
     const numericAmount =
       typeof amount === 'number' ? amount : parseFloat(String(amount)) || 0;
 
@@ -179,7 +179,7 @@ export const useGenerateBankLetter = () => {
       doc.setTextColor(68, 68, 68);
 
       // First paragraph
-      const paragraph1 = `We hereby authorize your branch to transfer ETB ${numericAmount.toFixed(2)} for the month of ${currentMonth} for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch of Enat Bank.`;
+      const paragraph1 = `We hereby authorize your branch to transfer ETB ${numericAmount?.toLocaleString()} for the month of ${currentMonth} for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch of Enat Bank.`;
 
       const textWidth = 180;
       const lines1 = doc.splitTextToSize(paragraph1, textWidth);
