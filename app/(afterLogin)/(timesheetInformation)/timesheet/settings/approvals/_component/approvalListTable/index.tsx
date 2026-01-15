@@ -142,6 +142,18 @@ const ApprovalListTable = () => {
     }
   }, [allFilterData?.items, selectedItem]);
 
+  useEffect(() => {
+    if (transferModal) {
+      form.resetFields();
+      if (deletedItem) {
+        form.setFieldsValue({
+          currentWorkFlow: deletedItem,
+          workflow: undefined,
+        });
+      }
+    }
+  }, [transferModal, deletedItem, form]);
+
   const data =
     !isDataLoading && allFilterData?.items
       ? allFilterData.items.map((item: any, index: number) => {
@@ -444,6 +456,8 @@ const ApprovalListTable = () => {
   const handleTransferModalCancel = () => {
     setTransferModal(false);
     form.resetFields();
+    setApproverType(null);
+    setDepartmentApproval(false);
   };
 
   return (
