@@ -22,7 +22,6 @@ const Approvals = () => {
     addDepartmentApproval,
     departmentApproval,
     approverType,
-    workflowApplies,
     selections,
   } = useApprovalStore();
   const { userCurrentPage, pageSize, searchParams } = useApprovalBranchStore();
