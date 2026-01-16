@@ -237,9 +237,21 @@ export default function PlanCard({
                     size={24}
                     className="text-[#574CFF] flex-shrink-0 mt-0.5"
                   />
-                  <p className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2">
-                    {keyResult.title || keyResult.name || plan.summary}
-                  </p>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <p className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2">
+                      {keyResult.title || keyResult.name || plan.summary}
+                    </p>
+                    {keyResult.deletedAt !== null && keyResult.deletedAt !== undefined && (
+                      <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                        Deleted KR
+                      </span>
+                    )}
+                    {keyResult.objective?.deletedAt !== null && keyResult.objective?.deletedAt !== undefined && (
+                      <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                        Deleted OKR
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Key Result Tasks (directly under key result) - Show with grouping if metric is not Milestone */}

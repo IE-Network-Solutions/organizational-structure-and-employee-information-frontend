@@ -23,12 +23,14 @@ interface KeyResult {
   targetValue?: number;
   milestones?: Milestone[];
   weight?: number;
+  deletedAt?: string | null;
 }
 
 interface Objective {
   items: {
     title: string;
     keyResults: KeyResult[];
+    deletedAt?: string | null;
   }[];
 }
 
@@ -78,8 +80,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
             data-cy={`planning-objective-panel-${panelIndex}`}
             forceRender={true}
             header={
-              <div className="p-2">
-                <strong>OBJECTIVE:</strong> {e.title}
+              <div className="p-2 flex items-center gap-2">
+                <strong>OBJECTIVE:</strong> <span>{e.title}</span>
+                {e.deletedAt !== null && e.deletedAt !== undefined && (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                    Deleted OKR
+                  </span>
+                )}
               </div>
             }
             key={panelIndex}
@@ -107,12 +114,24 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                           size={24}
                           className="text-[#574CFF] flex-shrink-0"
                         />
-                        <span
-                          className="text-sm font-bold text-[#161A2C] truncate flex-1 min-w-0"
-                          title={kr?.title}
-                        >
-                          {kr?.title}
-                        </span>
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span
+                            className="text-sm font-bold text-[#161A2C] truncate flex-1 min-w-0"
+                            title={kr?.title}
+                          >
+                            {kr?.title}
+                          </span>
+                          {kr?.deletedAt !== null && kr?.deletedAt !== undefined && (
+                            <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                              Deleted KR
+                            </span>
+                          )}
+                          {e?.deletedAt !== null && e?.deletedAt !== undefined && (
+                            <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                              Deleted OKR
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       {kr?.metricType?.name === NAME.MILESTONE &&
