@@ -3,7 +3,7 @@ import { useCreateApproverMutation } from '@/store/server/features/approver/muta
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { APPROVALTYPES } from '@/types/enumTypes';
 import { Button, Form } from 'antd';
-import React from 'react';
+import React, { useMemo } from 'react';
 import ApprovalTable from './_component/ApprovalTable';
 import { FaPlus } from 'react-icons/fa';
 import PermissionWraper from '@/utils/permissionGuard';
@@ -12,6 +12,7 @@ import { PayrollApprovalWorkFlow } from './_component/payrollapprovalWorkFlow';
 import PayrollApprovalWorkFlowSetting from './_component/payrollApprovalWorkFlowSetting';
 import { useApprovalFilter } from '@/store/server/features/approver/queries';
 import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const Approvals = () => {
   const {
@@ -33,6 +34,13 @@ const Approvals = () => {
     searchParams?.name || '',
     APPROVALTYPES.PAYROLL,
   );
+  
+  // Get departments and find the one with level 0
+  const { data: departments } = useGetDepartments();
+  const level0Department = useMemo(() => {
+    if (!departments || !Array.isArray(departments)) return null;
+    return departments.find((dept: any) => dept.level === 0) || null;
+  }, [departments]);
 
   const onChange = (value: string) => {
     setApproverType(value);
@@ -46,13 +54,13 @@ const Approvals = () => {
   const handleSubmit = () => {
     const name = form.getFieldValue('workFlownName');
     const description = form.getFieldValue('description');
-    const workflowAppliesId = form.getFieldValue('workflowAppliesId');
 
+    // Always use Department as entityType and level 0 department ID as entityId
     const jsonPayload = {
       name: name,
       description: description,
-      entityType: workflowApplies,
-      entityId: workflowAppliesId,
+      entityType: 'Department', // Always set to "Department"
+      entityId: level0Department?.id || '', // Always use level 0 department ID
       approvalType: APPROVALTYPES.PAYROLL,
       approvalWorkflowType:
         approverType === 'Sequential'
