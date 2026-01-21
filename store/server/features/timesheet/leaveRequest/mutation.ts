@@ -152,8 +152,27 @@ export const useSetLeaveRequest = () => {
       handleSuccessMessage(method);
     },
     onError: (error: any) => {
+      let errorMessage = error?.response?.data?.message || 'An error occurred';
+
+      // Format the error message to round available leave balance to 2 decimal places
+      // Pattern: "You only have X days of leave available but you applied for Y."
+      const leaveBalancePattern =
+        /You only have ([\d.]+) days of leave available but you applied for ([\d.]+)\./;
+      const match = errorMessage.match(leaveBalancePattern);
+
+      if (match) {
+        const availableDays = parseFloat(match[1]);
+        const appliedDays = parseFloat(match[2]);
+        const roundedAvailableDays = availableDays.toFixed(2);
+        const roundedAppliedDays = Number.isInteger(appliedDays)
+          ? appliedDays.toString()
+          : appliedDays.toFixed(2);
+
+        errorMessage = `You only have ${roundedAvailableDays} days of leave available but you applied for ${roundedAppliedDays}.`;
+      }
+
       NotificationMessage.error({
-        message: error?.response?.data?.message,
+        message: errorMessage,
       });
     },
   });
