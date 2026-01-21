@@ -136,6 +136,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   onChange={(e) =>
                     updateKeyResult(index, 'title', e.target.value)
                   }
+                  onPressEnter={(e) => {
+                    e.preventDefault();
+                  }}
                 />
               </Form.Item>
             </div>
@@ -277,6 +280,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     onChange={(e) =>
                       handleMilestoneChange(0, 'title', e.target.value)
                     }
+                    onPressEnter={(e) => {
+                      e.preventDefault();
+                    }}
                   />
                 </Form.Item>
                 <Form.Item
@@ -359,6 +365,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                           e.target.value,
                         )
                       }
+                      onPressEnter={(e) => {
+                        e.preventDefault();
+                      }}
                     />
                   </Form.Item>
                   <Form.Item
@@ -442,6 +451,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   onChange={(e) =>
                     updateKeyResult(index, 'title', e.target.value)
                   }
+                  onPressEnter={(e) => {
+                    e.preventDefault();
+                  }}
                 />
               </Form.Item>
               <Form.Item
@@ -578,6 +590,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     onChange={(e) =>
                       handleMilestoneChange(0, 'title', e.target.value)
                     }
+                    onPressEnter={(e) => {
+                      e.preventDefault();
+                    }}
                   />
                 </Form.Item>
                 <Form.Item
@@ -604,6 +619,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   className="w-48 flex gap-2 items-center"
                 >
                   <button
+                    type="button"
                     id={`okr-milestone-desktop-remove-0-${index}`}
                     data-cy={`okr-milestone-desktop-remove-0-${index}`}
                     onClick={() => handleRemoveMilestone(0)}
@@ -667,6 +683,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                           e.target.value,
                         )
                       }
+                      onPressEnter={(e) => {
+                        e.preventDefault();
+                      }}
                     />
                   </Form.Item>
                   <Form.Item
@@ -693,6 +712,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     data-cy={`okr-milestone-desktop-actions-${mIndex + 1}-${index}`}
                   >
                     <button
+                      type="button"
                       id={`okr-milestone-desktop-remove-${mIndex + 1}-${index}`}
                       data-cy={`okr-milestone-desktop-remove-${mIndex + 1}-${index}`}
                       onClick={() => handleRemoveMilestone(mIndex + 1)}

@@ -76,7 +76,6 @@ function CreatePlan() {
     }
   }, [open, planningPeriodId, refetchHierarchy, refetchLastReport]);
 
-
   // Extract and group failed tasks from the last report
   const failedTasksByKeyResult: FailedTasksByKeyResult = useMemo(() => {
     if (!lastReportData?.items?.[0]?.reportTask) return {};
@@ -549,13 +548,11 @@ function CreatePlan() {
             planningPeriodId: String(
               task.planningPeriodId || planningPeriodId || '',
             ),
-            planningUserId: String(
-              task.planningUserId || planningUserId || '',
-            ),
+            planningUserId: String(task.planningUserId || planningUserId || ''),
             keyResultId: String(
               task.keyResultId ||
-              (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
-              '',
+                (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
+                '',
             ),
             milestoneId: task.milestoneId ? String(task.milestoneId) : null,
             parentTaskId: task.parentTaskId ? String(task.parentTaskId) : null,

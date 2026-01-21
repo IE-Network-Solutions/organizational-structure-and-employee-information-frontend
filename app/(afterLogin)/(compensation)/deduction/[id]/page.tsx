@@ -8,15 +8,24 @@ import { Button, Select } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { FaPlus } from 'react-icons/fa';
 import { Permissions } from '@/types/commons/permissionEnum';
+import DeductionEntitlementTable from './_components/deductionEntitlementTable';
 import BenefitEntitlementTable from '../../benefit/[id]/_components/benefitEntitelmentTable';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 
 const SingleDeductionPage = () => {
   const { id } = useParams();
   const { data: deductionData } = useFetchAllowance(id);
-  const { setIsAllowanceGlobal, isAllowanceGlobal } =
-    useAllowanceEntitlementStore();
-  const { setIsBenefitEntitlementSidebarOpen } = useBenefitEntitlementStore();
+  const {
+    setIsAllowanceGlobal,
+    isAllowanceGlobal,
+    setIsAllowanceEntitlementSidebarOpen,
+  } = useAllowanceEntitlementStore();
+  const { setIsBenefitEntitlementSidebarOpen, employeeBenefitData } =
+    useBenefitEntitlementStore();
+
+  // Check if deduction type is rate-based
+  const isRateBased = deductionData?.isRate === true;
+
   useEffect(() => {
     if (deductionData?.applicableTo === 'GLOBAL') {
       setIsAllowanceGlobal(true);
@@ -24,7 +33,16 @@ const SingleDeductionPage = () => {
       setIsAllowanceGlobal(false);
     }
   }, [deductionData, setIsAllowanceGlobal]);
-  const { employeeBenefitData } = useBenefitEntitlementStore();
+
+  const handleAddEmployee = () => {
+    if (isRateBased) {
+      // Rate-based: Use the new Deduction sidebar
+      setIsAllowanceEntitlementSidebarOpen(true);
+    } else {
+      // Non-rate: Use the original Benefit sidebar
+      setIsBenefitEntitlementSidebarOpen(true);
+    }
+  };
 
   return (
     <div
@@ -125,9 +143,7 @@ const SingleDeductionPage = () => {
                       icon={
                         <FaPlus data-cy="compensation-deduction-create-button-icon" />
                       }
-                      onClick={() => {
-                        setIsBenefitEntitlementSidebarOpen(true);
-                      }}
+                      onClick={handleAddEmployee}
                       disabled={isAllowanceGlobal}
                     >
                       <span
@@ -145,10 +161,15 @@ const SingleDeductionPage = () => {
           </div>
         )}
 
-        <BenefitEntitlementTable
-          title={deductionData?.name ? deductionData?.name : ''}
-          data-cy="compensation-deduction-entitlement-table"
-        />
+        {/* Conditionally render table based on isRate */}
+        {isRateBased ? (
+          <DeductionEntitlementTable data-cy="compensation-deduction-entitlement-table" />
+        ) : (
+          <BenefitEntitlementTable
+            title={deductionData?.name ? deductionData?.name : ''}
+            data-cy="compensation-deduction-entitlement-table"
+          />
+        )}
       </div>
     </div>
   );
