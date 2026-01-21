@@ -119,17 +119,20 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    const paymentAmount = (formValues?.payments || []).reduce(
-      (acc: number, item: { amount?: number }) =>
-        acc + Number(item.amount || 0),
-      0,
-    );
-    const totalAmountChecker = totalAmount == paymentAmount;
-    if (totalAmountChecker == false) {
-      NotificationMessage.warning({
-        message: `Total Amount should be equal to the sum of all payments. total amount ${totalAmount} and payment amount ${paymentAmount}`,
-      });
-      return;
+    // For non-periodic benefits, skip payment validation
+    if (benefitDatas?.isPeriodic !== false) {
+      const paymentAmount = (formValues?.payments || []).reduce(
+        (acc: number, item: { amount?: number }) =>
+          acc + Number(item.amount || 0),
+        0,
+      );
+      const totalAmountChecker = totalAmount == paymentAmount;
+      if (totalAmountChecker == false) {
+        NotificationMessage.warning({
+          message: `Total Amount should be equal to the sum of all payments. total amount ${totalAmount} and payment amount ${paymentAmount}`,
+        });
+        return;
+      }
     }
 
     // Check for duplicates before proceeding
@@ -193,6 +196,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   };
 
   useEffect(() => {
+    // For non-periodic benefits, don't generate payment data
+    if (benefitDatas?.isPeriodic === false) {
+      setData([]);
+      form.setFieldsValue({ payments: [] });
+      return;
+    }
+
     if (!payPeriods?.length) return;
 
     const now = dayjs();
@@ -254,7 +264,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
     setData(newData);
     form.setFieldsValue({ payments: newData });
-  }, [totalAmount, settlementPeriod, payPeriods, form]);
+  }, [totalAmount, settlementPeriod, payPeriods, form, benefitDatas?.isPeriodic]);
   const columns = [
     {
       dataIndex: 'amount',
@@ -279,10 +289,10 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
       render: (notused: any, notuseds: any, index: number) => (
         <Form.Item
           label={'Pay Period'}
-          required
+          required={benefitDatas?.isPeriodic !== false}
           name={['payments', index, 'payPeriodId']}
           className="mb-0"
-          rules={[{ required: true, message: 'Pay Period is required' }]}
+          rules={benefitDatas?.isPeriodic !== false ? [{ required: true, message: 'Pay Period is required' }] : []}
           data-cy={`benefit-entitlement-sidebar-pay-period-item-${index}`}
         >
           <Select
@@ -326,7 +336,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
       render: (notused: any, notuseds: any, index: number) => (
         <Form.Item
           label="Reason"
-          required
+          required={benefitDatas?.isPeriodic !== false}
           name={['payments', index, 'reason']}
           className="mb-0"
           data-cy={`benefit-entitlement-sidebar-reason-item-${index}`}
@@ -411,7 +421,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               data-cy="compensation-benefit-sidebar-form"
             >
               <div
-                className="grid grid-cols-2 gap-4"
+                className={`grid gap-4 ${benefitDatas?.isPeriodic === false ? 'grid-cols-1' : 'grid-cols-2'}`}
                 id="compensation-benefit-sidebar-amount-grid"
                 data-cy="compensation-benefit-sidebar-amount-grid"
               >
@@ -429,26 +439,28 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                     data-cy="compensation-benefit-sidebar-total-amount-input"
                   />
                 </Form.Item>
-                <Form.Item
-                  required
-                  name="settlementPeriod"
-                  label={
-                    benefitDatas?.mode === 'CREDIT' ? (
-                      <span>Settlement Period </span>
-                    ) : (
-                      <span>Payout Period</span>
-                    )
-                  }
-                  data-cy="compensation-benefit-sidebar-settlement-period-item"
-                >
-                  <InputNumber
-                    className="w-full h-10 mt-1"
-                    value={settlementPeriod}
-                    onChange={(value) => setSettlementPeriod(value || 0)}
-                    id="compensation-benefit-sidebar-settlement-input"
-                    data-cy="compensation-benefit-sidebar-settlement-input"
-                  />
-                </Form.Item>
+                {benefitDatas?.isPeriodic !== false && (
+                  <Form.Item
+                    required
+                    name="settlementPeriod"
+                    label={
+                      benefitDatas?.mode === 'CREDIT' ? (
+                        <span>Settlement Period </span>
+                      ) : (
+                        <span>Payout Period</span>
+                      )
+                    }
+                    data-cy="compensation-benefit-sidebar-settlement-period-item"
+                  >
+                    <InputNumber
+                      className="w-full h-10 mt-1"
+                      value={settlementPeriod}
+                      onChange={(value) => setSettlementPeriod(value || 0)}
+                      id="compensation-benefit-sidebar-settlement-input"
+                      data-cy="compensation-benefit-sidebar-settlement-input"
+                    />
+                  </Form.Item>
+                )}
               </div>
 
               {data && data.length > 0 && (
