@@ -36,7 +36,6 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
       onSuccess(); // Call success callback
     } catch (error) {
       // Error handling is done in the mutation
-      console.error('Failed to save OKR mode:', error);
     } finally {
       setIsSaving(false);
     }
@@ -65,10 +64,7 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
     >
       <div className="px-2">
         <div className="text-center mb-8">
-          <h2
-            className="text-3xl font-bold mb-4"
-            style={{ color: '#14b8a6' }}
-          >
+          <h2 className="text-3xl font-bold mb-4" style={{ color: '#14b8a6' }}>
             Welcome to SelamNew OKR
           </h2>
           <p className="text-gray-600 text-base leading-relaxed">
@@ -105,14 +101,18 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
                 >
                   <FaBolt
                     className={`text-2xl transition-colors duration-300 ${
-                      selectedMode === 'Basic' ? 'text-teal-600' : 'text-gray-500'
+                      selectedMode === 'Basic'
+                        ? 'text-teal-600'
+                        : 'text-gray-500'
                     }`}
                   />
                 </div>
                 <div>
                   <h3
                     className={`text-lg font-semibold transition-colors duration-300 ${
-                      selectedMode === 'Basic' ? 'text-teal-700' : 'text-gray-900'
+                      selectedMode === 'Basic'
+                        ? 'text-teal-700'
+                        : 'text-gray-900'
                     }`}
                   >
                     Basic OKR
@@ -204,14 +204,18 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
                 >
                   <FaRocket
                     className={`text-2xl transition-colors duration-300 ${
-                      selectedMode === 'Advanced' ? 'text-teal-600' : 'text-gray-500'
+                      selectedMode === 'Advanced'
+                        ? 'text-teal-600'
+                        : 'text-gray-500'
                     }`}
                   />
                 </div>
                 <div>
                   <h3
                     className={`text-lg font-semibold transition-colors duration-300 ${
-                      selectedMode === 'Advanced' ? 'text-teal-700' : 'text-gray-900'
+                      selectedMode === 'Advanced'
+                        ? 'text-teal-700'
+                        : 'text-gray-900'
                     }`}
                   >
                     Advanced OKR
@@ -232,7 +236,9 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
               <li className="flex items-start gap-2">
                 <span
                   className={`mt-1 transition-colors duration-300 ${
-                    selectedMode === 'Advanced' ? 'text-teal-500' : 'text-gray-400'
+                    selectedMode === 'Advanced'
+                      ? 'text-teal-500'
+                      : 'text-gray-400'
                   }`}
                 >
                   •
@@ -242,7 +248,9 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
               <li className="flex items-start gap-2">
                 <span
                   className={`mt-1 transition-colors duration-300 ${
-                    selectedMode === 'Advanced' ? 'text-teal-500' : 'text-gray-400'
+                    selectedMode === 'Advanced'
+                      ? 'text-teal-500'
+                      : 'text-gray-400'
                   }`}
                 >
                   •
@@ -252,7 +260,9 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
               <li className="flex items-start gap-2">
                 <span
                   className={`mt-1 transition-colors duration-300 ${
-                    selectedMode === 'Advanced' ? 'text-teal-500' : 'text-gray-400'
+                    selectedMode === 'Advanced'
+                      ? 'text-teal-500'
+                      : 'text-gray-400'
                   }`}
                 >
                   •
@@ -262,7 +272,9 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
               <li className="flex items-start gap-2">
                 <span
                   className={`mt-1 transition-colors duration-300 ${
-                    selectedMode === 'Advanced' ? 'text-teal-500' : 'text-gray-400'
+                    selectedMode === 'Advanced'
+                      ? 'text-teal-500'
+                      : 'text-gray-400'
                   }`}
                 >
                   •

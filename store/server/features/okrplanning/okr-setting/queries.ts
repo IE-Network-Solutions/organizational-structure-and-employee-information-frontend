@@ -3,10 +3,7 @@ import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { crudRequest } from '@/utils/crudRequest';
-import {
-  OkrSetting,
-  OkrSettingCheckResponse,
-} from './interface';
+import { OkrSetting, OkrSettingCheckResponse } from './interface';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -70,13 +67,9 @@ export const useCheckOkrSetting = (enabled: boolean = true) => {
 };
 
 export const useGetOkrSetting = () => {
-  return useQuery<OkrSetting | null>(
-    ['okrSetting'],
-    () => getOkrSetting(),
-    {
-      retry: false,
-      refetchOnWindowFocus: false,
-      enabled: false, // Only fetch when explicitly called
-    },
-  );
+  return useQuery<OkrSetting | null>(['okrSetting'], () => getOkrSetting(), {
+    retry: false,
+    refetchOnWindowFocus: false,
+    enabled: false, // Only fetch when explicitly called
+  });
 };

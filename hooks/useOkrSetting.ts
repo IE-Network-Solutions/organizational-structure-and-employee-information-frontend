@@ -67,9 +67,7 @@ export function useOkrSetting() {
   }, [settingData, setStoreOkrMode]);
 
   // Save OKR mode
-  const saveOkrMode = async (
-    mode: 'Basic' | 'Advanced',
-  ): Promise<boolean> => {
+  const saveOkrMode = async (mode: 'Basic' | 'Advanced'): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       createOrUpdate(mode, {
         onSuccess: async (data) => {

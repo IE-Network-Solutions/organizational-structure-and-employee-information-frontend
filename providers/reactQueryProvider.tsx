@@ -23,7 +23,7 @@ const FullPageSpinner = () => (
 // Helper function to check for tenant ID missing error and redirect to login
 const handleTenantIdError = (error: any): boolean => {
   const errorCode = error?.response?.data?.code;
-  
+
   if (errorCode === 'TENANT_ID_MISSING') {
     window.location.href = '/authentication/login';
     return true;

@@ -1,6 +1,6 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import OkrDrawer from './_components/okrDrawer';
 import Dashboard from './_components/dashboard';
@@ -26,7 +26,6 @@ const OKR: React.FC<any> = () => {
 
   // OKR Mode Selection Integration
   const {
-    okrMode,
     isLoading: isOkrLoading,
     showModal,
     isAdminOrOwner,
