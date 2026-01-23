@@ -144,7 +144,7 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
                 >
                   •
                 </span>
-                <span>Simple 'Done / Not Done' tracking</span>
+                 <span>Simple &apos;Done / Not Done&apos; tracking</span>
               </li>
               <li className="flex items-start gap-2">
                 <span
