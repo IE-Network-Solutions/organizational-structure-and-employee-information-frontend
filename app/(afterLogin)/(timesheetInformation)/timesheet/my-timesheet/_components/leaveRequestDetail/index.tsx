@@ -6,7 +6,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useGetSingleApproval,
@@ -23,6 +23,7 @@ import ApprovalStatusCard from '@/components/common/approvalStatuses/approvalSta
 import ApprovalStatusCardSkeleton from '@/components/common/approvalStatuses/approvalStatusCardSkeleton';
 import Image from 'next/image';
 import { classNames } from '@/utils/classNames';
+import { SingleLogRequest } from '@/types/timesheet/settings';
 
 const LeaveRequestDetail = () => {
   const {
@@ -64,6 +65,47 @@ const LeaveRequestDetail = () => {
     leaveRequestSidebarData ?? '',
   );
 
+  // Merge data from both endpoints to show historical approvers who took action
+  const enrichedApprovalData = useMemo(() => {
+    if (!logData || !Array.isArray(logData)) return [];
+
+    // Handle both response formats: direct array or wrapped in items
+    const historicalLogs = Array.isArray(approverLog)
+      ? approverLog
+      : approverLog?.items || [];
+
+    return logData.map((approval: ApprovalRecord) => {
+      // Find matching historical record from approverLog array
+      // Match by stepOrder to find who actually took action
+      const historicalRecord = historicalLogs.find(
+        (log: SingleLogRequest) => log.stepOrder === approval.stepOrder,
+      );
+
+      // If historical record exists with action taken, use it
+      const hasActionTaken =
+        historicalRecord &&
+        (historicalRecord.action === 'Approved' ||
+          historicalRecord.action === 'Rejected');
+
+      return {
+        ...approval,
+        // Store historical approver who took action
+        approvedUserId: historicalRecord?.approvedUserId,
+        // Update status based on historical action if available
+        // Trust historical record over endpoint 1's status field
+        status: hasActionTaken
+          ? historicalRecord.action === 'Approved'
+            ? 'Approved'
+            : 'Rejected'
+          : approval.status,
+        // Determine which userId to display
+        displayUserId: hasActionTaken
+          ? historicalRecord.approvedUserId // Show historical approver who took action
+          : approval.userId, // Show current approver (pending, no action taken)
+      };
+    });
+  }, [logData, approverLog]);
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -83,13 +125,15 @@ const LeaveRequestDetail = () => {
 
   type ApprovalRecord = {
     approverId: string; // UUID
-    userId: string; // UUID
+    userId: string; // UUID - Current approver assigned
+    approvedUserId?: string; // UUID - Historical: who actually took action
+    displayUserId?: string; // UUID - Which userId to display
     stepOrder: number;
     status: 'Approved' | 'Rejected' | 'Pending'; // Adjust enum as needed
     conditionField: string | null;
     conditionRangeValue: string | null;
     tenantId: string; // UUID
-    approvalLogId: string; // UUID
+    approvalLogId: string | null; // UUID
     requestId: string; // UUID
     approvalWorkflowId: string; // UUID
     action: 'Approved' | 'Rejected'; // Adjust enum as needed
@@ -340,8 +384,7 @@ const LeaveRequestDetail = () => {
                     />
                   ))
                 : // Show actual approval status cards when data is loaded
-                  Array.isArray(logData) &&
-                  logData
+                  enrichedApprovalData
                     ?.sort((a, b) => a.stepOrder - b.stepOrder)
                     ?.map((approvalCard: ApprovalRecord, idx: number) => (
                       <ApprovalStatusCard
