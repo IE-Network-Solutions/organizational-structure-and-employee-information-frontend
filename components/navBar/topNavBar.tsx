@@ -9,6 +9,7 @@ import { usePWA } from '@/hooks/usePWA';
 import { BellOutlined, DownloadOutlined } from '@ant-design/icons';
 import NotificationBar from './notificationBar';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
+import Copilot from '@/components/copilot';
 
 const { Header } = Layout;
 
@@ -80,6 +81,9 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
             title="Install App"
           />
         )}
+
+        {/* Copilot Button */}
+        <Copilot />
 
         {/* Notification Bell */}
         <div className="relative">
