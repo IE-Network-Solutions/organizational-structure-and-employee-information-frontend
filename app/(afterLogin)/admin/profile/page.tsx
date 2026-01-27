@@ -456,7 +456,6 @@ const AdminProfile = () => {
               <img
                 id="logo-preview"
                 data-cy="logo-preview"
-
                 src={logoPreview}
                 alt="Company Logo"
                 width={100}
@@ -475,7 +474,6 @@ const AdminProfile = () => {
               <img
                 id="logo-placeholder"
                 data-cy="logo-placeholder"
-
                 src="/icons/gallery-add.svg"
                 alt="Upload"
                 width={40}
@@ -673,7 +671,6 @@ const AdminProfile = () => {
               <img
                 id="stamp-preview"
                 data-cy="stamp-preview"
-
                 src={stampPreview}
                 alt="Company Stamp"
                 width={100}
@@ -692,7 +689,6 @@ const AdminProfile = () => {
               <img
                 id="stamp-placeholder"
                 data-cy="stamp-placeholder"
-
                 src="/icons/gallery-add.svg"
                 alt="Upload"
                 width={40}
