@@ -5,13 +5,13 @@ import { BsKey } from 'react-icons/bs';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
-import dayjs from 'dayjs';
 import { PlanSummary, ViewMode } from '../types';
 import UserInfo from '../UserInfo';
 import StatusBadge from '../StatusBadge';
 import KRSummaryBar from '../KRSummaryBar';
 import TaskRow from '../TaskRow';
 import CommentsSection from '../comments/CommentsSection';
+import { getDateLabel as formatDateLabel } from '../utils';
 
 interface PlanCardProps {
   plan: PlanSummary;
@@ -94,10 +94,7 @@ export default function PlanCard({
   const getDateLabel = () => {
     if (dateLabel) return dateLabel;
 
-    const planDate = dayjs(plan.createdAt);
-
-    // Format date as "15 Jan 2026" (DD MMM YYYY)
-    return planDate.format('D MMM YYYY');
+    return formatDateLabel(plan.createdAt);
   };
 
   // Calculate total achieved points for the plan (sum of weights of completed tasks)

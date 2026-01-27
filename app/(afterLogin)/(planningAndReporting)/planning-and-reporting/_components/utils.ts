@@ -1,4 +1,5 @@
 import { Cadence, ViewMode } from './types';
+import dayjs from 'dayjs';
 
 export function getCadenceLabel(cadence: Cadence): string {
   const labels: Record<Cadence, string> = {
@@ -37,4 +38,27 @@ export function getButtonText(cadence: Cadence, viewMode: ViewMode): string {
 
 export function getCadenceTagText(cadence: Cadence): string {
   return `${getCadenceLabel(cadence)} cadence`;
+}
+
+// Returns ordinal suffix for day (st, nd, rd, th)
+export function getOrdinalSuffix(day: number): string {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1:
+      return 'st';
+    case 2:
+      return 'nd';
+    case 3:
+      return 'rd';
+    default:
+      return 'th';
+  }
+}
+
+// Formats date as "August 26th 2024, 5:32:55 PM"
+export function getDateLabel(createdAt: string): string {
+  const planDate = dayjs(createdAt);
+  const day = planDate.date();
+  const ordinalSuffix = getOrdinalSuffix(day);
+  return `${planDate.format('MMMM')} ${day}${ordinalSuffix} ${planDate.format('YYYY, h:mm:ss A')}`;
 }
