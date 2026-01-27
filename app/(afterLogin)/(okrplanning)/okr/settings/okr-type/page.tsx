@@ -65,7 +65,6 @@ const OkrTypePage = () => {
     if (!settingData?.id) {
       // Setting doesn't exist, we can't update - this shouldn't happen in normal flow
       // as admin should have created a setting already
-      console.error('OKR setting does not exist');
       setConfirmationModalOpen(false);
       return;
     }
@@ -207,7 +206,7 @@ const OkrTypePage = () => {
         >
           <ExclamationCircleOutlined className="text-gray-500 text-lg" />
           <span className="text-gray-900 text-sm">
-            Please Note that you can not use both types of OKR's at the same time
+            Please Note that you can not use both types of OKR&apos;s at the same time
           </span>
         </div>
 
