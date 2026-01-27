@@ -358,9 +358,9 @@ function Planning() {
     return !!activeSession;
   };
 
-  const getDateLabel = (createdAt: string, activeTabName: string): string => {
+  const getDateLabel = (createdAt: string): string => {
     const planDate = dayjs(createdAt);
-    
+
     // Format date as "15 Jan 2026" (DD MMM YYYY)
     return planDate.format('D MMM YYYY');
   };
@@ -480,9 +480,6 @@ function Planning() {
                     key={plan.id}
                     plan={plan}
                     viewMode="planning"
-                    activeCadence={
-                      (activeTabName?.toLowerCase() as Cadence) || 'weekly'
-                    }
                     // Pass action handlers as props if needed
                     onApprove={() =>
                       handleApproveHandler(originalDataItem.id, true)
@@ -509,10 +506,7 @@ function Planning() {
                       isDataFromActiveSession(originalDataItem?.createdAt)
                     }
                     isApprovalLoading={isApprovalLoading}
-                    dateLabel={getDateLabel(
-                      originalDataItem?.createdAt,
-                      activeTabName,
-                    )}
+                    dateLabel={getDateLabel(originalDataItem?.createdAt)}
                   />
                 );
               })}
