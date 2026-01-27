@@ -32,6 +32,7 @@ import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import { transformToPlanSummary } from '../dataTransformer/vamp';
 import { ViewMode, Cadence } from '../types';
+import { getDateLabel } from '../utils';
 
 function Planning() {
   const {
@@ -358,12 +359,6 @@ function Planning() {
     return !!activeSession;
   };
 
-  const getDateLabel = (createdAt: string): string => {
-    const planDate = dayjs(createdAt);
-
-    // Format date as "15 Jan 2026" (DD MMM YYYY)
-    return planDate.format('D MMM YYYY');
-  };
 
   return (
     <div className="min-h-screen bg-gray-100">
