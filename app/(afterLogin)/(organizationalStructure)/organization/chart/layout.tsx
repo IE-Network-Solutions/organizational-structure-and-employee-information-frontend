@@ -1,5 +1,5 @@
 'use client';
-import { Card, Dropdown, Menu, Button } from 'antd';
+import { Card, Dropdown, Button } from 'antd';
 import { FaDownload } from 'react-icons/fa';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
@@ -72,20 +72,8 @@ export default function ChartLayout({
     reset();
   };
 
-  const items = [
-    {
-      key: 'structure',
-      label: 'Structure',
-    },
-    {
-      key: 'chart',
-      label: 'Chart',
-    },
-  ];
-
   // Handling menu click and navigation
-  const onMenuClick = (e: any) => {
-    const key = e['key'] as string;
+  const onMenuClick = (key: string) => {
     setSelectedKey(key);
     switch (key) {
       case 'structure':
@@ -205,15 +193,36 @@ export default function ChartLayout({
               data-cy="org-structure-tabs-menu-container"
               id="org-structure-tabs-menu-container"
             >
-              <Menu
-                className="w-full"
-                items={items}
-                mode="horizontal"
-                selectedKeys={[selectedKey]}
-                onClick={onMenuClick}
-                data-cy="org-structure-tabs-menu"
-                id="org-structure-tabs-menu"
-              />
+              <div
+                data-cy="org-structure-tabs-menu-container"
+                id="org-structure-tabs-menu-container"
+                className="flex justify-end bg-[#f5f5f5] shadow-md rounded-lg w-fit h-10 sm:h-12 py-[5px] px-[6px] gap-[14px] border-1"
+              >
+                <button
+                  data-cy="org-structure-tabs-menu-button"
+                  id="org-structure-tabs-menu-button"
+                  onClick={() => onMenuClick('structure')}
+                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
+                    selectedKey === 'structure'
+                      ? 'bg-white rounded-md shadow-sm border-1'
+                      : 'bg-transparent'
+                  }`}
+                >
+                  Org Chart
+                </button>
+                <button
+                  data-cy="org-structure-tabs-menu-button"
+                  id="org-structure-tabs-menu-button"
+                  onClick={() => onMenuClick('chart')}
+                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
+                    selectedKey === 'chart'
+                      ? 'bg-white rounded-md shadow-sm border-1'
+                      : 'bg-transparent'
+                  }`}
+                >
+                  Team View
+                </button>
+              </div>
             </div>
             <CustomDrawer
               data-cy="org-structure-custom-drawer"

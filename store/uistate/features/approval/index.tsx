@@ -20,6 +20,9 @@ interface SectionProps {
 }
 
 interface UserState {
+  isCreated: boolean;
+  setIsCreated: (isCreated: boolean) => void;
+
   level: number;
   setLevel: (level: number) => void;
 
@@ -91,6 +94,9 @@ export const useApprovalStore = create<UserState>()(
   devtools(
     persist(
       (set) => ({
+        isCreated: false,
+        setIsCreated: (isCreated: boolean) => set({ isCreated }),
+
         level: 1,
         setLevel: (level: number) => {
           set({ level });

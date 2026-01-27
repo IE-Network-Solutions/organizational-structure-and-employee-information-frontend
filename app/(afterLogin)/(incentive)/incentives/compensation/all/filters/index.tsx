@@ -106,10 +106,25 @@ const IncentiveFilter: React.FC = () => {
 
   const Filters = (
     <>
-      <Row gutter={[16, 10]} justify="space-between">
+      <Row
+        id="incentive-filter-row"
+        data-cy="incentive-filter-row"
+        gutter={[16, 10]}
+        justify="space-between"
+      >
         {!(isMobile || isTablet) && (
-          <Col xs={24} sm={24} md={24} lg={10} xl={10}>
+          <Col
+            id="incentive-filter-employee-col"
+            data-cy="incentive-filter-employee-col"
+            xs={24}
+            sm={24}
+            md={24}
+            lg={10}
+            xl={10}
+          >
             <Select
+              id="incentive-filter-employee-select"
+              data-cy="incentive-filter-employee-select"
               onChange={(value) => handleSearchInput(value, 'employee_name')}
               placeholder="Search Employee"
               allowClear
@@ -124,31 +139,73 @@ const IncentiveFilter: React.FC = () => {
               }
             >
               {employeeData?.items?.map((items: any) => (
-                <Select.Option key={items?.id} value={items?.id}>
+                <Select.Option
+                  id={`incentive-filter-employee-option-${items?.id}`}
+                  data-cy={`incentive-filter-employee-option-${items?.id}`}
+                  key={items?.id}
+                  value={items?.id}
+                >
                   {items?.firstName + ' ' + items?.middleName}
                 </Select.Option>
               ))}
             </Select>
           </Col>
         )}
-        <Col xs={24} sm={24} md={24} lg={14} xl={14}>
-          <Row gutter={[8, 16]}>
-            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+        <Col
+          id="incentive-filter-date-col"
+          data-cy="incentive-filter-date-col"
+          xs={24}
+          sm={24}
+          md={24}
+          lg={14}
+          xl={14}
+        >
+          <Row
+            id="incentive-filter-date-row"
+            data-cy="incentive-filter-date-row"
+            gutter={[8, 16]}
+          >
+            <Col
+              id="incentive-filter-year-col"
+              data-cy="incentive-filter-year-col"
+              xs={24}
+              sm={24}
+              md={24}
+              lg={8}
+              xl={8}
+            >
               <Select
+                id="incentive-filter-year-select"
+                data-cy="incentive-filter-year-select"
                 allowClear
                 placeholder={activeFiscalYearName}
                 className="w-full h-14"
                 onChange={handleCreatedByYear}
               >
                 {fiscalYear?.items?.map((year: any) => (
-                  <Select.Option key={year.id} value={year.id}>
+                  <Select.Option
+                    id={`incentive-filter-year-option-${year.id}`}
+                    data-cy={`incentive-filter-year-option-${year.id}`}
+                    key={year.id}
+                    value={year.id}
+                  >
                     {year?.name}
                   </Select.Option>
                 ))}
               </Select>
             </Col>
-            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+            <Col
+              id="incentive-filter-session-col"
+              data-cy="incentive-filter-session-col"
+              xs={24}
+              sm={24}
+              md={24}
+              lg={8}
+              xl={8}
+            >
               <Select
+                id="incentive-filter-session-select"
+                data-cy="incentive-filter-session-select"
                 mode="multiple"
                 allowClear
                 placeholder="Select Session"
@@ -162,14 +219,29 @@ const IncentiveFilter: React.FC = () => {
                   fiscalYear?.items
                     ?.find((year: any) => year.id === selectedYear)
                     ?.sessions?.map((session: any) => (
-                      <Select.Option key={session.id} value={session.id}>
+                      <Select.Option
+                        id={`incentive-filter-session-option-${session.id}`}
+                        data-cy={`incentive-filter-session-option-${session.id}`}
+                        key={session.id}
+                        value={session.id}
+                      >
                         {session.name}
                       </Select.Option>
                     ))}
               </Select>
             </Col>
-            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+            <Col
+              id="incentive-filter-month-col"
+              data-cy="incentive-filter-month-col"
+              xs={24}
+              sm={24}
+              md={24}
+              lg={8}
+              xl={8}
+            >
               <Select
+                id="incentive-filter-month-select"
+                data-cy="incentive-filter-month-select"
                 allowClear
                 placeholder="Select Month "
                 className="w-full h-14"
@@ -177,7 +249,12 @@ const IncentiveFilter: React.FC = () => {
                 disabled={!selectedSessionMonths?.length}
               >
                 {selectedSessionMonths?.map((month: any) => (
-                  <Select.Option key={month?.id} value={month?.id}>
+                  <Select.Option
+                    id={`incentive-filter-month-option-${month?.id}`}
+                    data-cy={`incentive-filter-month-option-${month?.id}`}
+                    key={month?.id}
+                    value={month?.id}
+                  >
                     {month?.name}
                   </Select.Option>
                 ))}
@@ -190,10 +267,20 @@ const IncentiveFilter: React.FC = () => {
   );
 
   return (
-    <div className="my-7 mx-1">
+    <div
+      id="incentive-filter-container"
+      data-cy="incentive-filter-container"
+      className="my-7 mx-1"
+    >
       {isMobile || isTablet ? (
-        <div className="flex justify-end m-2 space-x-4">
+        <div
+          id="incentive-filter-mobile-wrapper"
+          data-cy="incentive-filter-mobile-wrapper"
+          className="flex justify-end m-2 space-x-4"
+        >
           <Select
+            id="incentive-filter-mobile-employee-select"
+            data-cy="incentive-filter-mobile-employee-select"
             onChange={(value) => handleSearchInput(value, 'employee_name')}
             placeholder="Search Employee"
             allowClear
@@ -208,24 +295,40 @@ const IncentiveFilter: React.FC = () => {
             }
           >
             {employeeData?.items?.map((items: any) => (
-              <Select.Option key={items?.id} value={items?.id}>
+              <Select.Option
+                id={`incentive-filter-mobile-employee-option-${items?.id}`}
+                data-cy={`incentive-filter-mobile-employee-option-${items?.id}`}
+                key={items?.id}
+                value={items?.id}
+              >
                 {items?.firstName + ' ' + items?.middleName}
               </Select.Option>
             ))}
           </Select>
-          <div className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
+          <div
+            id="incentive-filter-mobile-settings-wrapper"
+            data-cy="incentive-filter-mobile-settings-wrapper"
+            className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3"
+          >
             <LuSettings2
+              id="incentive-filter-mobile-settings-icon"
+              data-cy="incentive-filter-mobile-settings-icon"
               onClick={() => setShowMobileFilter(true)}
               className="text-lg cursor-pointer"
             />
           </div>
           <Modal
+            data-cy="incentive-filter-mobile-modal"
             centered
             title="Filter"
             open={showMobileFilter}
             onCancel={() => setShowMobileFilter(false)}
             modalRender={(modal) => (
-              <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+              <div
+                id="incentive-filter-mobile-modal-content"
+                data-cy="incentive-filter-mobile-modal-content"
+                style={{ maxHeight: '70vh', overflowY: 'auto' }}
+              >
                 {modal}
               </div>
             )}

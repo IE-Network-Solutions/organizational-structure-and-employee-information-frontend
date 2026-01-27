@@ -282,6 +282,7 @@ type IncentiveState = {
   showMobileFilter: boolean;
   selectedYear: string | null;
   formulaError: string;
+  showBulkDeleteModal: boolean;
 };
 
 type IncentiveActions = {
@@ -322,6 +323,7 @@ type IncentiveActions = {
   setShowMobileFilter: (value: boolean) => void;
   setSelectedYear: (value: string | null) => void;
   setFormulaError: (error: string) => void;
+  setShowBulkDeleteModal: (value: boolean) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -439,6 +441,8 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   setSelectedYear: (value) => set({ selectedYear: value }),
   formulaError: '',
   setFormulaError: (error) => set({ formulaError: error }),
+  showBulkDeleteModal: false,
+  setShowBulkDeleteModal: (value) => set({ showBulkDeleteModal: value }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

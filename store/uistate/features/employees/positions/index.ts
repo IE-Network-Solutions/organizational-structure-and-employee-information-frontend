@@ -31,6 +31,9 @@ interface PositionState {
 
   createNewPositionFormValues: PositionFormValues;
   setFormValues: (values: PositionFormValues) => void;
+
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
 }
 
 export const usePositionState = create<PositionState>((set) => ({
@@ -65,4 +68,7 @@ export const usePositionState = create<PositionState>((set) => ({
     set({
       createNewPositionFormValues: values,
     }),
+
+  searchTerm: '',
+  setSearchTerm: (value) => set({ searchTerm: value }),
 }));

@@ -9,6 +9,7 @@ import CustomDrawerFooterButton, {
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalStatusesInfo';
 import ApprovalStatusCard from '@/components/common/approvalStatuses/approvalStatusCard';
+import ApprovalStatusCardSkeleton from '@/components/common/approvalStatuses/approvalStatusCardSkeleton';
 import UserCard from '@/components/common/userCard/userCard';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import dayjs from 'dayjs';
@@ -34,10 +35,8 @@ const LeaveRequestManagementSidebar = () => {
   const { data: leaveData, isLoading } = useGetSingleLeaveRequest(
     leaveRequestId ?? '',
   );
-  const { data: logData } = useGetSingleApprovalLog(
-    leaveRequestId ?? '',
-    leaveRequestWorkflowId ?? '',
-  );
+  const { data: logData, isLoading: isLogDataLoading } =
+    useGetSingleApprovalLog(leaveRequestId ?? '', leaveRequestWorkflowId ?? '');
   const { data: employeeData } = useGetAllUsers();
   const userData = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
@@ -66,6 +65,7 @@ const LeaveRequestManagementSidebar = () => {
   ];
 
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
+
   type ApprovalRecord = {
     approverId: string; // UUID
     userId: string; // UUID
@@ -83,28 +83,56 @@ const LeaveRequestManagementSidebar = () => {
   return (
     isShow && (
       <CustomDrawerLayout
+        data-cy="time-attendance-leave-management-sidebar"
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader>Leave Request Management</CustomDrawerHeader>
+          <CustomDrawerHeader data-cy="time-attendance-leave-management-sidebar-header">
+            Leave Request Management
+          </CustomDrawerHeader>
         }
         footer={
-          <div className="p-4">
-            <CustomDrawerFooterButton buttons={footerModalItems} />
+          <div
+            className="p-4"
+            id="time-attendance-leave-management-sidebar-footer"
+            data-cy="time-attendance-leave-management-sidebar-footer"
+          >
+            <CustomDrawerFooterButton
+              data-cy="time-attendance-leave-management-sidebar-footer-buttons"
+              buttons={footerModalItems}
+            />
           </div>
         }
         width="40%"
         customMobileHeight="90vh"
       >
         {!leaveData ? (
-          <div className="flex justify-center py-10">
-            <Spin />
+          <div
+            className="flex justify-center py-10"
+            id="time-attendance-leave-management-sidebar-loading"
+            data-cy="time-attendance-leave-management-sidebar-loading"
+          >
+            <Spin data-cy="time-attendance-leave-management-sidebar-loading-spin" />
           </div>
         ) : (
-          <Spin spinning={isLoading}>
-            <div className="flex items-center gap-[15px] mb-8">
-              <div className="text-xs text-gray-900">Requester:</div>
+          <Spin
+            spinning={isLoading}
+            data-cy="time-attendance-leave-management-sidebar-spin"
+          >
+            <div
+              className="flex items-center gap-[15px] mb-8"
+              id="time-attendance-leave-management-sidebar-requester-section"
+              data-cy="time-attendance-leave-management-sidebar-requester-section"
+            >
+              <div
+                id="time-attendance-leave-management-sidebar-requester-label"
+                data-cy="time-attendance-leave-management-sidebar-requester-label"
+                className="text-xs text-gray-900"
+              >
+                Requester:
+              </div>
               <UserCard
+                data-cy="time-attendance-leave-management-sidebar-requester-card"
                 data={leaveData}
                 name={
                   leaveData?.items?.userId &&
@@ -117,10 +145,25 @@ const LeaveRequestManagementSidebar = () => {
                 size="small"
               />
             </div>
-            <Row gutter={[32, 32]}>
-              <Col span={8}>
-                <div className={labelClass}>Leave Type</div>
+            <Row
+              data-cy="time-attendance-leave-management-sidebar-leave-type-row"
+              gutter={[32, 32]}
+            >
+              <Col
+                span={8}
+                id="time-attendance-leave-management-sidebar-leave-type-col"
+                data-cy="time-attendance-leave-management-sidebar-leave-type-col"
+              >
                 <div
+                  id="time-attendance-leave-management-sidebar-leave-type-label"
+                  data-cy="time-attendance-leave-management-sidebar-leave-type-label"
+                  className={labelClass}
+                >
+                  Leave Type
+                </div>
+                <div
+                  id="time-attendance-leave-management-sidebar-leave-type-value"
+                  data-cy="time-attendance-leave-management-sidebar-leave-type-value"
                   className={classNames(labelClass, undefined, [
                     'font-semibold',
                     'mb-0',
@@ -133,9 +176,20 @@ const LeaveRequestManagementSidebar = () => {
                     : ''}
                 </div>
               </Col>
-              <Col span={8}>
-                <div className={labelClass}>Date</div>
+              <Col
+                data-cy="time-attendance-leave-management-sidebar-date-col"
+                span={8}
+              >
                 <div
+                  id="time-attendance-leave-management-sidebar-date-label"
+                  data-cy="time-attendance-leave-management-sidebar-date-label"
+                  className={labelClass}
+                >
+                  Date
+                </div>
+                <div
+                  id="time-attendance-leave-management-sidebar-date-value"
+                  data-cy="time-attendance-leave-management-sidebar-date-value"
                   className={classNames(labelClass, undefined, [
                     'font-semibold',
                     'mb-0',
@@ -146,9 +200,20 @@ const LeaveRequestManagementSidebar = () => {
                   {dayjs(leaveData?.items?.endAt).format(DATE_FORMAT)}
                 </div>
               </Col>
-              <Col span={8}>
-                <div className={labelClass}>Total Days</div>
+              <Col
+                data-cy="time-attendance-leave-management-sidebar-total-days-col"
+                span={8}
+              >
                 <div
+                  id="time-attendance-leave-management-sidebar-total-days-label"
+                  data-cy="time-attendance-leave-management-sidebar-total-days-label"
+                  className={labelClass}
+                >
+                  Total Days
+                </div>
+                <div
+                  id="time-attendance-leave-management-sidebar-total-days-value"
+                  data-cy="time-attendance-leave-management-sidebar-total-days-value"
                   className={classNames(labelClass, undefined, [
                     'font-semibold',
                     'mb-0',
@@ -159,16 +224,36 @@ const LeaveRequestManagementSidebar = () => {
               </Col>
 
               {leaveData?.items?.justificationDocument && (
-                <Col span={24}>
-                  <div className={labelClass}>
-                    Attachment <span className="text-error">*</span>
+                <Col
+                  data-cy="time-attendance-leave-management-sidebar-attachment-col"
+                  span={24}
+                >
+                  <div
+                    className={labelClass}
+                    id="time-attendance-leave-management-sidebar-attachment-label"
+                    data-cy="time-attendance-leave-management-sidebar-attachment-label"
+                  >
+                    Attachment{' '}
+                    <span
+                      id="time-attendance-leave-management-sidebar-attachment-label-asterisk"
+                      data-cy="time-attendance-leave-management-sidebar-attachment-label-asterisk"
+                      className="text-error"
+                    >
+                      *
+                    </span>
                   </div>
                   <a
                     href={leaveData?.items?.justificationDocument}
                     target="_blank"
                     className="w-full h-[54px] border border-gray-200 rounded-[10px] flex items-center justify-between px-5 text-gray-900"
+                    id="time-attendance-leave-management-sidebar-attachment-link"
+                    data-cy="time-attendance-leave-management-sidebar-attachment-link"
                   >
-                    <div className="text-sm font-medium">
+                    <div
+                      id="time-attendance-leave-management-sidebar-attachment-link-name"
+                      data-cy="time-attendance-leave-management-sidebar-attachment-link-name"
+                      className="text-sm font-medium"
+                    >
                       {
                         formatLinkToUploadFile(
                           leaveData?.items?.justificationDocument,
@@ -176,42 +261,90 @@ const LeaveRequestManagementSidebar = () => {
                       }
                     </div>
 
-                    <TbFileDownload size={20} />
+                    <TbFileDownload
+                      data-cy="time-attendance-leave-management-sidebar-attachment-link-icon"
+                      size={20}
+                    />
                   </a>
                 </Col>
               )}
             </Row>
-            <Divider className="my-8 h-[5px] bg-gray-200" />
-            <div>
-              <div className="text-lg font-semibold text-gray-900">
+            <Divider
+              data-cy="time-attendance-leave-management-sidebar-approval-levels-status-divider"
+              className="my-8 h-[5px] bg-gray-200"
+            />
+            <div
+              id="time-attendance-leave-management-sidebar-approval-section"
+              data-cy="time-attendance-leave-management-sidebar-approval-section"
+            >
+              <div
+                id="time-attendance-leave-management-sidebar-approval-levels-status-label"
+                data-cy="time-attendance-leave-management-sidebar-approval-levels-status-label"
+                className="text-lg font-semibold text-gray-900"
+              >
                 Approval Levels Status
               </div>
 
-              <div className="my-2.5">
-                <ApprovalStatusesInfo />
+              <div
+                id="time-attendance-leave-management-sidebar-approval-levels-status-info"
+                data-cy="time-attendance-leave-management-sidebar-approval-levels-status-info"
+                className="my-2.5"
+              >
+                <ApprovalStatusesInfo data-cy="time-attendance-leave-management-sidebar-approval-levels-status-info-component" />
               </div>
-              {Array.isArray(logData) &&
-                logData
-                  ?.sort((a, b) => a.stepOrder - b.stepOrder)
-                  ?.map((approvalCard: ApprovalRecord, idx: number) => (
-                    <ApprovalStatusCard
-                      key={idx}
-                      data={approvalCard}
-                      userName={userData}
-                      userImage={userImage}
+              {isLogDataLoading
+                ? // Show skeleton loading while fetching approval log data
+                  // eslint-disable-next-line react/no-array-index-key
+                  Array.from({ length: 3 }).map((unusedItem, idx) => (
+                    <ApprovalStatusCardSkeleton
+                      key={`skeleton-${idx}`}
+                      dataCyPrefix={`time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton-${idx}`}
                     />
-                  ))}
+                  ))
+                : // Show actual approval status cards when data is loaded
+                  Array.isArray(logData) &&
+                  logData
+                    ?.sort((a, b) => a.stepOrder - b.stepOrder)
+                    ?.map((approvalCard: ApprovalRecord, idx: number) => (
+                      <ApprovalStatusCard
+                        data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card"
+                        key={idx}
+                        data={approvalCard}
+                        userName={userData}
+                        userImage={userImage}
+                      />
+                    ))}
             </div>
-            <Divider className="my-8 h-[5px] bg-gray-200" />
 
-            <div>
-              <div className="flex items-center justify-between mt-5 mb-4">
-                <div className="text-sm font-semibold text-gray-900">
+            <Divider
+              data-cy="time-attendance-leave-management-sidebar-approval-levels-status-divider"
+              className="my-8 h-[5px] bg-gray-200"
+            />
+
+            <div
+              id="time-attendance-leave-management-sidebar-overall-status-section"
+              data-cy="time-attendance-leave-management-sidebar-overall-status-section"
+            >
+              <div
+                className="flex items-center justify-between mt-5 mb-4"
+                id="time-attendance-leave-management-sidebar-overall-status-header"
+                data-cy="time-attendance-leave-management-sidebar-overall-status-header"
+              >
+                <div
+                  id="time-attendance-leave-management-sidebar-overall-status-label"
+                  data-cy="time-attendance-leave-management-sidebar-overall-status-label"
+                  className="text-sm font-semibold text-gray-900"
+                >
                   Over All Status
                 </div>
-                <div className="text-sm font-semibold text-gray-900 flex gap-2">
+                <div
+                  id="time-attendance-leave-management-sidebar-overall-status-value"
+                  data-cy="time-attendance-leave-management-sidebar-overall-status-value"
+                  className="text-sm font-semibold text-gray-900 flex gap-2"
+                >
                   {leaveData?.items?.status}
                   <Image
+                    data-cy="time-attendance-leave-management-sidebar-overall-status-image"
                     width={24}
                     height={24}
                     src={

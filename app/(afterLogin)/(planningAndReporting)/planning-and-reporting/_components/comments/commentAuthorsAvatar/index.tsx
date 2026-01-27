@@ -42,7 +42,10 @@ const CommentAuthorsAvatars = (data: CommentsData[]) => {
       : 0;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div
+      style={{ display: 'flex', alignItems: 'center' }}
+      data-cy="comment-authors-avatars-container"
+    >
       {displayData?.map((commentData, index) => {
         const userDetail = getUserDetail(commentData.commentedBy);
         return (

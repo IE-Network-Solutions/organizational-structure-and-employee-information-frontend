@@ -6,8 +6,11 @@ import {
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
 import { Skeleton, Table, TableColumnsType } from 'antd';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
+import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
+import DeletePopover from '@/components/common/actionButton/deletePopover';
+import { useRouter } from 'next/navigation';
 
 const columns: TableColumnsType<IncentiveSettingParams> = [
   {
@@ -46,9 +49,11 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
   recognitionData,
   responseLoading,
 }) => {
+  const router = useRouter();
   const { setOpenIncentiveDrawer, setIncentiveId, setIncentive } =
     useIncentiveStore();
   const { data: recognitionDataIndexed } = useAllChildrenRecognition();
+  const { mutate: deleteRecognitionType } = useDeleteRecognitionType();
 
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
@@ -56,14 +61,33 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
     setIncentiveId(value?.id ?? '');
   };
 
+  const handleDelete = (id: string) => {
+    deleteRecognitionType(id, {
+      onSuccess: () => {
+        router.push('/incentives/settings');
+      },
+    });
+  };
+
   const incentiveTableData = {
     id: recognitionData?.[0]?.id,
     name: recognitionData?.[0]?.name,
     recognition_criteria: recognitionData?.[0]?.recognitionCriteria?.map(
       (criterion: RecognitionCriteria, index: string) => (
-        <Skeleton active loading={responseLoading} key={index}>
-          <div className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
+        <Skeleton
+          data-cy={`default-incentive-settings-table-criterion-skeleton-${index}`}
+          active
+          loading={responseLoading}
+          key={index}
+        >
+          <div
+            id={`default-incentive-settings-table-criterion-wrapper-${index}`}
+            data-cy={`default-incentive-settings-table-criterion-wrapper-${index}`}
+            className=" flex-col flex-wrap inline-block space-x-1 space-y-2"
+          >
             <span
+              id={`default-incentive-settings-table-criterion-${index}`}
+              data-cy={`default-incentive-settings-table-criterion-${index}`}
               key={index}
               className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
             >
@@ -74,24 +98,54 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
       ),
     ),
     action: (
-      <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
-        <Pencil
-          size={15}
-          className="text-white cursor-pointer"
-          onClick={() =>
-            handleProjectIncentiveEdit(recognitionDataIndexed?.[0])
-          }
-        />
+      <div
+        id="default-incentive-settings-table-action-wrapper"
+        data-cy="default-incentive-settings-table-action-wrapper"
+        className="flex items-center gap-2"
+      >
+        <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+          <Pencil
+            id="default-incentive-settings-table-action-pencil"
+            data-cy="default-incentive-settings-table-action-pencil"
+            size={15}
+            className="text-white cursor-pointer"
+            onClick={() =>
+              handleProjectIncentiveEdit(recognitionDataIndexed?.[0])
+            }
+          />
+        </div>
+        <DeletePopover
+          onDelete={() => handleDelete(recognitionDataIndexed?.[0]?.id)}
+          data-cy="default-incentive-settings-table-delete-popover"
+        >
+          <div className="bg-red-500 w-7 h-7 rounded-md flex items-center justify-center">
+            <Trash2
+              id="default-incentive-settings-table-action-delete"
+              data-cy="default-incentive-settings-table-action-delete"
+              size={15}
+              className="text-white cursor-pointer"
+            />
+          </div>
+        </DeletePopover>
       </div>
     ),
   };
 
   return (
-    <div>
+    <div
+      id="default-incentive-settings-table-container"
+      data-cy="default-incentive-settings-table-container"
+    >
       {responseLoading ? (
-        <Skeleton active paragraph={{ rows: 3 }} />
+        <Skeleton
+          data-cy="default-incentive-settings-table-skeleton"
+          active
+          paragraph={{ rows: 3 }}
+        />
       ) : (
         <Table
+          id="default-incentive-settings-table"
+          data-cy="default-incentive-settings-table"
           columns={columns}
           dataSource={[incentiveTableData]}
           pagination={false}

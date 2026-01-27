@@ -109,6 +109,7 @@ export enum Permissions {
   UpdateCourse = 'update-course',
   DeleteCourse = 'delete-course',
   CreateCourse = 'create-course',
+  ViewAllCourse = 'view-all-course', // View all courses including drafts
 
   // Course Category Permissions
   CreateCourseCategory = 'create-course-category',
@@ -324,6 +325,9 @@ export enum Permissions {
   AddRecognitionCriteria = 'create-recognition-criteria',
   DeleteRecognitionCriteria = 'delete-recognition-criteria',
   EditRecognitionCriteria = 'edit-recognition-criteria',
+
+  //Incentive
+  DeleteIncentive = 'delete-incentive',
   // //oneToOne
   // CreateOneToOne = 'create-one-to-one',
   // DeleteOneToOne = 'delete-one-to-one',

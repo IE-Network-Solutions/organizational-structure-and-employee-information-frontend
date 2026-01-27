@@ -200,29 +200,50 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
     deleteComment(id);
   }
   return (
-    <div className="w-full">
+    <div
+      className="w-full"
+      data-cy="feedback-meeting-components-comments-div"
+      id="feedback-meeting-components-comments-div"
+    >
       {commentData?.map((comment: any) => (
         <Row
           key={comment.id}
           justify="space-between"
           align="middle"
           className="w-full p-2 border-b-2"
+          data-cy={`feedback-meeting-components-comments-row-${comment.id}`}
+          id={`feedback-meeting-components-comments-row-${comment.id}`}
         >
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-            <EmployeeDetails type="all" empId={comment.userId} />
+          <div
+            className="grid grid-cols-[auto_1fr_auto] items-center gap-2"
+            data-cy={`feedback-meeting-components-comments-grid-${comment.id}`}
+            id={`feedback-meeting-components-comments-grid-${comment.id}`}
+          >
+            <EmployeeDetails
+              type="all"
+              empId={comment.userId}
+              data-cy={`feedback-meeting-components-comments-employee-details-${comment.id}`}
+            />
 
             <div
               className="text-gray-700 font-semibold text-[12px]"
               dangerouslySetInnerHTML={{ __html: comment.comments }}
+              data-cy={`feedback-meeting-components-comments-text-${comment.id}`}
+              id={`feedback-meeting-components-comments-text-${comment.id}`}
             />
             {comment.userId == userId &&
               (!deleteLoading ? (
                 <CommentActionMenu
                   onEdit={() => handleUpdate(comment)}
                   onDelete={() => handleDelete(comment.id)}
+                  data-cy={`feedback-meeting-components-comments-action-menu-${comment.id}`}
                 />
               ) : (
-                <LoadingOutlined className="text-gray-500" />
+                <LoadingOutlined
+                  className="text-gray-500"
+                  id={`feedback-meeting-components-comments-loading-icon-${comment.id}`}
+                  data-cy={`feedback-meeting-components-comments-loading-icon-${comment.id}`}
+                />
               ))}
           </div>
         </Row>
@@ -232,20 +253,30 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
           form={form}
           layout="inline"
           className="w-full mt-4"
-          // onFinish={handleSubmit}
+          data-cy="feedback-meeting-components-comments-form"
         >
-          <div className="w-full flex flex-col gap-2">
+          <div
+            className="w-full flex flex-col gap-2"
+            id="feedback-meeting-components-comments-div-editor"
+            data-cy="feedback-meeting-components-comments-div-editor"
+          >
             <EditorContent
               className="min-h-20 border rounded-md px-2 py-1 focus:outline-none"
               editor={editor}
+              data-cy="feedback-meeting-components-comments-editor"
             />
 
-            <div className="flex  justify-end mr-0">
+            <div
+              className="flex  justify-end mr-0"
+              data-cy="feedback-meeting-components-comments-div-submit"
+              id="feedback-meeting-components-comments-div-submit"
+            >
               <Button
                 loading={createLoading || updateLoading}
                 type="primary"
                 onClick={() => handleSubmit()}
                 className="w-24"
+                data-cy="feedback-meeting-components-comments-button-send"
               >
                 Send
               </Button>

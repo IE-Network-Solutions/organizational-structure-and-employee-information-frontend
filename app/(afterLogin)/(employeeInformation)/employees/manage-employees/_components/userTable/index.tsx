@@ -1,27 +1,11 @@
 import React from 'react';
-import {
-  Button,
-  Form,
-  Modal,
-  Row,
-  Table,
-  TableColumnsType,
-  Tooltip,
-} from 'antd';
+import { Table, TableColumnsType, Tooltip } from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
-import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
 import userTypeButton from '../userTypeButton';
-import { useDeleteEmployee } from '@/store/server/features/employees/employeeManagment/mutations';
 import Image from 'next/image';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
-import { useRehireTerminatedEmployee } from '@/store/server/features/employees/offboarding/mutation';
-import JobTimeLineForm from '../allFormData/jobTimeLineForm';
-import WorkScheduleForm from '../allFormData/workScheduleForm';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
-import dayjs from 'dayjs';
-import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useRouter } from 'next/navigation';
@@ -74,27 +58,11 @@ const columns: TableColumnsType<EmployeeData> = [
     dataIndex: 'role',
     sorter: (a, b) => a.role.localeCompare(b.role),
   },
-  {
-    title: 'Action',
-    dataIndex: 'action',
-  },
 ];
 
 const UserTable = () => {
-  const {
-    setDeletedItem,
-    deleteModal,
-    setDeleteModal,
-    userCurrentPage,
-    pageSize,
-    reHireModal,
-    setReHireModalVisible,
-    setUserCurrentPage,
-    setPageSize,
-    userToRehire,
-    setUserToRehire,
-  } = useEmployeeManagementStore();
-  const [form] = Form.useForm();
+  const { userCurrentPage, pageSize, setUserCurrentPage, setPageSize } =
+    useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { data: allFilterData } = useEmployeeAllFilter(
     pageSize,
@@ -108,9 +76,6 @@ const UserTable = () => {
     searchParams.joinedDate ? searchParams.joinedDate : '',
     searchParams.joinedDateType || 'after',
   );
-  const { mutate: employeeDeleteMuation } = useDeleteEmployee();
-  const { mutate: rehireEmployee, isLoading: rehireLoading } =
-    useRehireTerminatedEmployee();
   const router = useRouter();
   const { isMobile, isTablet } = useIsMobile();
 
@@ -229,101 +194,14 @@ const UserTable = () => {
         </span>
       ),
       role: item?.role?.name ? item?.role?.name : ' - ',
-      action: (
-        <div
-          className="flex gap-4 text-white"
-          id={`user-table-action-${item?.id}`}
-          data-cy={`user-table-action-${item?.id}`}
-        >
-          <AccessGuard
-            permissions={[Permissions.DeleteEmployee]}
-            id={`user-table-action-access-guard-${item?.id}`}
-            data-cy={`user-table-action-access-guard-${item?.id}`}
-          >
-            {item.deletedAt === null ? (
-              <Tooltip
-                title={'Deactive Employee'}
-                id={`user-table-deactivate-tooltip-${item?.id}`}
-                data-cy={`user-table-deactivate-tooltip-${item?.id}`}
-              >
-                <Button
-                  id={`deleteUserButton${item?.id}`}
-                  data-cy={`deleteUserButton${item?.id}`}
-                  disabled={item?.deletedAt !== null}
-                  className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDeleteModal(true);
-                    setDeletedItem(item?.id);
-                  }}
-                >
-                  <MdAirplanemodeActive />
-                </Button>
-              </Tooltip>
-            ) : (
-              <Tooltip
-                title={'Activate Employee'}
-                id={`user-table-activate-tooltip-${item?.id}`}
-                data-cy={`user-table-activate-tooltip-${item?.id}`}
-              >
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  value={'submit'}
-                  name="submit"
-                  id={`activateUserButton${item?.id}`}
-                  data-cy={`activateUserButton${item?.id}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handelRehireModal(item);
-                  }}
-                  disabled={item.deletedAt === null}
-                >
-                  <MdAirplanemodeInactive />
-                </Button>
-              </Tooltip>
-            )}
-          </AccessGuard>
-        </div>
-      ),
     };
   });
 
-  const handleDeleteConfirm = () => {
-    employeeDeleteMuation();
-  };
   const onPageChange = (page: number, pageSize?: number) => {
     setUserCurrentPage(page);
     if (pageSize) {
       setPageSize(pageSize);
     }
-  };
-
-  // const rowSelection = {
-  //   onChange: () => {},
-  //   getCheckboxProps: (record: EmployeeData) => ({
-  //     disabled: record.employee_name === 'Disabled User',
-  //     name: record.employee_name,
-  //   }),
-  // };
-
-  const handleActivateEmployee = (values: any) => {
-    values['userId'] = userToRehire?.id;
-    values.joinedDate = dayjs(values.joinedDate).format('YYYY-MM-DD');
-    values.jobTitle = values.positionId;
-    values.departmentLeadOrNot = !values.departmentLeadOrNot
-      ? false
-      : values.departmentLeadOrNot;
-    rehireEmployee(values, {
-      onSuccess: () => {
-        setReHireModalVisible(false);
-        form.resetFields();
-      },
-    });
-  };
-  const handelRehireModal = (user: any) => {
-    setUserToRehire(user);
-    setReHireModalVisible(true);
   };
 
   return (
@@ -373,81 +251,6 @@ const UserTable = () => {
           />
         )}
       </div>
-      <DeleteModal
-        deleteText="Confirm"
-        deleteMessage="Are you sure you want to proceed?"
-        customMessage="This action will deactivate the user. You will no longer have access."
-        open={deleteModal}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteModal(false)}
-        data-cy="user-table-delete-modal"
-      />
-      <Modal
-        open={reHireModal}
-        onCancel={() => {
-          setReHireModalVisible(false);
-          setUserToRehire(null);
-        }}
-        footer={false}
-        data-cy="user-table-rehire-modal"
-      >
-        <Form
-          form={form}
-          name="dependencies"
-          autoComplete="off"
-          style={{ maxWidth: '100%' }}
-          layout="vertical"
-          id="user-table-rehire-form"
-          data-cy="user-table-rehire-form"
-          onFinish={(values) => handleActivateEmployee(values)}
-          onFinishFailed={() =>
-            NotificationMessage.error({
-              message: 'Something wrong or unfilled',
-              description: 'please back and check the unfilled fields',
-            })
-          }
-        >
-          <JobTimeLineForm data-cy="user-table-rehire-job-time-line-form" />
-
-          <WorkScheduleForm data-cy="user-table-rehire-work-schedule-form" />
-          <Form.Item
-            id="user-table-rehire-form-actions"
-            data-cy="user-table-rehire-form-actions"
-          >
-            <Row
-              className="flex justify-end gap-3"
-              id="user-table-rehire-form-actions-row"
-              data-cy="user-table-rehire-form-actions-row"
-            >
-              <Button
-                loading={rehireLoading}
-                type="primary"
-                htmlType="submit"
-                value={'submit'}
-                name="submit"
-                id="user-table-rehire-submit-btn"
-                data-cy="user-table-rehire-submit-btn"
-              >
-                Submit
-              </Button>
-              <Button
-                className="text-indigo-500"
-                htmlType="button"
-                value={'cancel'}
-                name="cancel"
-                id="user-table-rehire-cancel-btn"
-                data-cy="user-table-rehire-cancel-btn"
-                onClick={() => {
-                  setReHireModalVisible(false);
-                  form.resetFields();
-                }}
-              >
-                Cancel
-              </Button>
-            </Row>
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 };

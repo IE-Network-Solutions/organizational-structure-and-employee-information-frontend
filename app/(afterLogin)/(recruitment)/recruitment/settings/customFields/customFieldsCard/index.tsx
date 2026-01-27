@@ -56,8 +56,14 @@ const CustomFieldsCard: React.FC = () => {
 
   if (isCustomFieldsLoading)
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
+      <div
+        className="flex justify-center items-center h-64"
+        data-cy="talent-acquisition-custom-fields-card-loading"
+      >
+        <Spin
+          size="large"
+          data-cy="talent-acquisition-custom-fields-card-spin"
+        />
       </div>
     );
 
@@ -80,7 +86,12 @@ const CustomFieldsCard: React.FC = () => {
             key={index}
             className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
           >
-            <div className="text-medium font-medium">{questions?.title}</div>
+            <div
+              className="text-medium font-medium"
+              data-cy={`talent-acquisition-custom-fields-card-title-${questions?.id}`}
+            >
+              {questions?.title}
+            </div>
             <div className="flex items-center justify-center gap-2">
               <AccessGuard permissions={[Permissions.UpdateCustomFields]}>
                 <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">

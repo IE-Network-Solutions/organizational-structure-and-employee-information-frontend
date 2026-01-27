@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Button, Col, Collapse, Dropdown, Row, Space } from 'antd';
+import { Button, Col, Collapse, Dropdown, Input, Row, Space } from 'antd';
 import { FaEdit, FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { MoreOutlined } from '@ant-design/icons';
 import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
@@ -14,7 +14,7 @@ import { InfoLine } from '@/app/(afterLogin)/(employeeInformation)/employees/man
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 interface ScheduleDetail {
   id: string;
@@ -54,9 +54,10 @@ function WorkScheduleTab() {
     pageSize,
     setCurrentPage,
     setPageSize,
+    searchQuery,
+    setSearchQuery,
   } = useScheduleStore();
   const { isMobile, isTablet } = useIsMobile();
-
   const { data: workScheudleData, refetch: refetchSchedules } =
     useFetchSchedule(currentPage, pageSize);
   const { Panel } = Collapse;
@@ -189,6 +190,17 @@ function WorkScheduleTab() {
     }
   };
 
+  const filteredWorkSchedules = useMemo(() => {
+    if (!workScheudleData?.items) return [];
+    if (!searchQuery.trim()) return workScheudleData.items;
+
+    const query = searchQuery.toLowerCase().trim();
+    return workScheudleData.items.filter((schedule: ScheduleItem) => {
+      const name = schedule.name?.toLowerCase() || '';
+      return name.includes(query);
+    });
+  }, [workScheudleData?.items, searchQuery]);
+
   return (
     <>
       <div
@@ -238,8 +250,17 @@ function WorkScheduleTab() {
             </Space>
           </AccessGuard>
         </div>
+        <Input
+          placeholder="Search work schedule"
+          className="flex-1 h-12 rounded-lg border-gray-200 mb-4"
+          allowClear
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          id="org-settings-work-schedule-search-input"
+          data-cy="org-settings-work-schedule-search-input"
+        />
 
-        {workScheudleData?.items?.map((scheduleItem, index) => {
+        {filteredWorkSchedules.map((scheduleItem, index) => {
           const scheduleId = `schedule-item-${index}`;
           return (
             <Collapse

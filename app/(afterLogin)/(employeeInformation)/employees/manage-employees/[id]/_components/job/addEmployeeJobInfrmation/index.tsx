@@ -6,8 +6,9 @@ import WorkScheduleForm from '../../../../_components/allFormData/workScheduleFo
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useParams } from 'next/navigation';
-import { useEffect } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
+import { useEffect } from 'react';
 
 interface Ids {
   id?: string;
@@ -20,9 +21,11 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   id,
 }) => {
   const { userId: userId2 } = useAuthenticationStore();
+
   const [form] = Form.useForm();
   const params = useParams();
-  const userId = id ?? (params?.id as string) ?? userId2;
+  // Prioritize URL parameter over prop to ensure we use the employee ID from URL, not logged-in user's ID
+  const userId = (params?.id as string) ?? id ?? userId2;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
@@ -36,7 +39,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
       form.resetFields(); // Reset form values on modal open
       setTempAllowances([]); // Clear temp allowances when modal opens
     }
-  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances]);
+  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances, form]);
   const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();

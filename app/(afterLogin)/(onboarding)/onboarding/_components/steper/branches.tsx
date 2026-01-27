@@ -77,10 +77,22 @@ const Branches = () => {
     </Menu>
   );
   return (
-    <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
-      <div className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold">
+    <div
+      className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full"
+      data-cy="onboarding-branches-container"
+    >
+      <div
+        className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full"
+        data-cy="onboarding-branches-content"
+      >
+        <div
+          className="flex justify-between items-center mb-8"
+          data-cy="onboarding-branches-header"
+        >
+          <h2
+            className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold"
+            data-cy="onboarding-branches-title"
+          >
             Branches
           </h2>
           <AccessGuard permissions={[Permissions.CreateBranch]}>

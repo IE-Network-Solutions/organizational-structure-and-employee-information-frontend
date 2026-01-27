@@ -289,3 +289,55 @@ export const useDownloadCertificate = () => {
     },
   });
 };
+
+const deleteRecognition = async (id: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition/${id}`,
+    method: 'delete',
+    headers,
+  });
+};
+
+const deleteBulkRecognitions = async (ids: string[]) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition/bulk-delete`,
+    method: 'DELETE',
+    headers,
+    data: { ids },
+  });
+};
+
+export const useDeleteRecognition = () => {
+  const queryClient = useQueryClient();
+  return useMutation(deleteRecognition, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('recognitions');
+      handleSuccessMessage('DELETE');
+    },
+  });
+};
+
+export const useDeleteBulkRecognitions = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ ids }: { ids: string[] }) => deleteBulkRecognitions(ids),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('recognitions');
+        handleSuccessMessage('DELETE');
+      },
+    },
+  );
+};

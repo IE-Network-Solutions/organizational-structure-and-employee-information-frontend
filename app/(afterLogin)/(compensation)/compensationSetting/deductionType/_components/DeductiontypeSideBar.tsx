@@ -3,10 +3,10 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, Spin } from 'antd';
+import { Form, Input, Spin, Switch } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useEffect } from 'react';
-// import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import {
   useCreateAllowanceType,
@@ -24,18 +24,12 @@ const DeductiontypeSideBar = () => {
   const {
     isDeductionOpen,
     setIsDeductionOpen,
-    // isRateBenefit,
+    isRateDeduction,
+    setIsRateDeduction,
     setIsAllEmployee,
-    // isAllEmployee,
-    // setIsRateBenefit,
     resetStore,
     selectedDeductionRecord,
-    // selectedDepartment,
-    // selectedDepartementArray,
-    // setSelectedDepartementArray,
-    // setSelectedDepartment,
     departmentUsers,
-    // setDepartmentUsers,
   } = useCompensationSettingStore();
   const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
   const { mutate: updateAllowanceType, isLoading: updateIsLOading } =
@@ -47,7 +41,7 @@ const DeductiontypeSideBar = () => {
   useEffect(() => {
     if (selectedDeductionRecord) {
       setIsAllEmployee(selectedDeductionRecord.applicableTo == 'GLOBAL');
-      // setBenefitMode(selectedDeductionRecord.mode);
+      setIsRateDeduction(selectedDeductionRecord.isRate || false);
       form.setFieldsValue({
         name: selectedDeductionRecord.name,
         description: selectedDeductionRecord.description,
@@ -60,8 +54,9 @@ const DeductiontypeSideBar = () => {
     } else {
       // Clear form when switching back to Add mode
       form.resetFields();
+      setIsRateDeduction(false);
     }
-  }, [selectedDeductionRecord, form, setIsAllEmployee]);
+  }, [selectedDeductionRecord, form, setIsAllEmployee, setIsRateDeduction]);
 
   useEffect(() => {
     if (departmentUsers.length === 0) {
@@ -82,9 +77,12 @@ const DeductiontypeSideBar = () => {
     setIsDeductionOpen(false);
   };
 
-  // const onRateToggle = (checked: any) => {
-  //   setIsRateBenefit(checked);
-  // };
+  const onRateToggle = (checked: boolean) => {
+    setIsRateDeduction(checked);
+    if (!checked) {
+      form.setFieldsValue({ defaultAmount: undefined });
+    }
+  };
 
   const onFormSubmit = (formValues: any) => {
     const value = {
@@ -92,8 +90,8 @@ const DeductiontypeSideBar = () => {
       description: formValues.description,
       type: 'DEDUCTION',
       mode: 'DEBIT',
-      isRate: false,
-      defaultAmount: 0,
+      isRate: isRateDeduction,
+      defaultAmount: isRateDeduction ? Number(formValues.defaultAmount) : 0,
       applicableTo: 'PER-EMPLOYEE',
     };
     {
@@ -152,9 +150,9 @@ const DeductiontypeSideBar = () => {
     },
     {
       label: selectedDeductionRecord?.id ? (
-        <span>Update</span>
+        <span data-cy="deduction-sidebar-update-button-label">Update</span>
       ) : (
-        <span>Create</span>
+        <span data-cy="deduction-sidebar-create-button-label">Create</span>
       ),
       key: 'create',
       className: 'h-12',
@@ -169,14 +167,28 @@ const DeductiontypeSideBar = () => {
   return (
     isDeductionOpen && (
       <CustomDrawerLayout
+        data-cy="compensation-settings-deduction-sidebar-drawer"
         open={isDeductionOpen}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader
+            className="flex justify-center"
+            data-cy="compensation-settings-deduction-sidebar-header"
+          >
             {selectedDeductionRecord?.id ? (
-              <span>Edit Deduction Type</span>
+              <span
+                id="compensation-settings-deduction-sidebar-header-title"
+                data-cy="compensation-settings-deduction-sidebar-header-title"
+              >
+                Edit Deduction Type
+              </span>
             ) : (
-              <span>Add Deduction Type</span>
+              <span
+                id="compensation-settings-deduction-sidebar-header-title"
+                data-cy="compensation-settings-deduction-sidebar-header-title"
+              >
+                Add Deduction Type
+              </span>
             )}
           </CustomDrawerHeader>
         }
@@ -184,28 +196,38 @@ const DeductiontypeSideBar = () => {
           <CustomDrawerFooterButton
             className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
+            data-cy="compensation-settings-deduction-sidebar-footer"
           />
         }
         width="600px"
         customMobileHeight="55vh"
       >
-        <Spin spinning={isLoading}>
+        <Spin
+          spinning={isLoading}
+          data-cy="compensation-settings-deduction-sidebar-loading"
+        >
           <Form
             layout="vertical"
             form={form}
             onFinish={onFormSubmit}
             requiredMark={CustomLabel}
+            id="compensation-settings-deduction-sidebar-form"
+            data-cy="compensation-settings-deduction-sidebar-form"
           >
             <Form.Item
               name="name"
               label="Name"
               rules={[{ required: true, message: 'Name is Required!' }]}
               className="form-item"
+              id="compensation-settings-deduction-sidebar-name-item"
+              data-cy="compensation-settings-deduction-sidebar-name-item"
             >
               <Input
                 className="control"
                 placeholder="Deduction Name"
                 style={{ height: '40px', padding: '4px 8px' }}
+                id="compensation-settings-deduction-sidebar-name-input"
+                data-cy="compensation-settings-deduction-sidebar-name-input"
               />
             </Form.Item>
             <Form.Item
@@ -213,136 +235,74 @@ const DeductiontypeSideBar = () => {
               label="Description"
               rules={[{ required: true, message: 'Description is Required!' }]}
               className="form-item"
+              id="compensation-settings-deduction-sidebar-description-item"
+              data-cy="compensation-settings-deduction-sidebar-description-item"
             >
               <TextArea
                 className="control"
                 autoSize={{ minRows: 3, maxRows: 5 }}
                 placeholder="Description"
                 style={{ height: '32px', padding: '4px 8px' }}
+                id="compensation-settings-deduction-sidebar-description-input"
+                data-cy="compensation-settings-deduction-sidebar-description-input"
               />
             </Form.Item>
 
-            <>
-              <div style={{ display: 'flex', gap: '20px' }}>
-                {/* <Form.Item
-                    name="isRate"
-                    label={'Is Rate'}
-                    className="form-item"
-                    initialValue={!selectedDeductionRecord && false}
-                  >
-                    <Switch
-                      checkedChildren={<CheckOutlined />}
-                      unCheckedChildren={<CloseOutlined />}
-                      onChange={onRateToggle}
-                    />
-                  </Form.Item> */}
-                {/* <Form.Item
-                    name="isAllEmployee"
-                    label="All Employees are entitled"
-                    className="form-item"
-                    initialValue={
-                      !selectedDeductionRecord
-                        ? true
-                        : selectedDeductionRecord.applicableTo == 'GLOBAL'
-                          ? true
-                          : false
-                    }
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Employee selection is Required!',
-                      },
-                    ]}
-                  >
-                    <Switch
-                      checkedChildren={<CheckOutlined />}
-                      unCheckedChildren={<CloseOutlined />}
-                      checked={form.getFieldValue('isAllEmployee')}
-                      onChange={handleAllEmployeeChange}
-                      disabled={selectedDeductionRecord}
-                    />
-                  </Form.Item> */}
-              </div>
-              {/* <div style={{ display: 'flex', gap: '20px' }}> */}
-              {/* <Form.Item
-                    name="defaultAmount"
-                    label={isRateBenefit ? 'Rate Amount' : 'Fixed Amount'}
-                    className="form-item"
-                    rules={[{ required: true, message: 'Amount is Required' }]}
-                  >
-                    <Input
-                      className="control"
-                      type="number"
-                      placeholder="Benefit Amount"
-                      style={{ height: '32px', padding: '4px 8px' }}
-                    />
-                  </Form.Item> */}
-              {/* {!selectedDeductionRecord && (
-                    <Form.Item
-                      name="NoOfPayPeriod"
-                      label={'Number of Pay Period'}
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Number of Pay Period is required!',
-                        },
-                      ]}
-                      className="form-item"
-                    >
-                      <Input
-                        className="control"
-                        type="number"
-                        placeholder={'Number of Pay Period'}
-                        style={{ height: '32px', padding: '4px 8px' }}
-                      />
-                    </Form.Item>
-                  )} */}
-              {/* </div> */}
-              {/* {!isAllEmployee && !selectedDeductionRecord && (
-                  <> */}
-              {/* <Form.Item
-                      className="form-item"
-                      name="department"
-                      label="Select Department"
-                      
-                    >
-                      <Select
-                        mode='multiple'
-                        placeholder="Select a department"
-                        onChange={handleDepartmentChange}
-                        allowClear
-                      >
-                        {departments?.map((department: any) => (
-                          <Select.Option
-                            key={department.id}
-                            value={department.id}
-                          >
-                            {department.name}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    </Form.Item> */}
+            <Form.Item
+              name="isRate"
+              label="Rated Deduction"
+              className="form-item"
+              id="compensation-settings-deduction-sidebar-rate-item"
+              data-cy="compensation-settings-deduction-sidebar-rate-item"
+            >
+              <Switch
+                checkedChildren={
+                  <CheckOutlined data-cy="compensation-settings-deduction-sidebar-rate-switch-checked" />
+                }
+                unCheckedChildren={
+                  <CloseOutlined data-cy="compensation-settings-deduction-sidebar-rate-switch-unchecked" />
+                }
+                checked={isRateDeduction}
+                onChange={onRateToggle}
+                id="compensation-settings-deduction-sidebar-rate-switch"
+                data-cy="compensation-settings-deduction-sidebar-rate-switch"
+              />
+            </Form.Item>
 
-              {/* <Form.Item
-                      className="form-item"
-                      name="employees"
-                      label="Select Employees"
-                    >
-                      <Select
-                        mode="multiple"
-                        placeholder="Select employees"
-                        disabled={selectedDepartementArray?.length<1}
-                      >
-                        {departmentUsers?.map((user) => (
-                          <Select.Option key={user.id} value={user.id}>
-                            {user?.firstName} {user?.lastName}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    </Form.Item> */}
-              {/* </>
-                )} */}
-            </>
+            {isRateDeduction && (
+              <Form.Item
+                name="defaultAmount"
+                label="Rate"
+                className="form-item"
+                rules={[
+                  { required: true, message: 'Rate is Required!' },
+                  {
+                    // eslint-disable-next-line
+                    validator: (_, value) => {
+                      if (value && (value < 0 || value > 100)) {
+                        return Promise.reject(
+                          new Error('Rate must be between 0 and 100'),
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                id="compensation-settings-deduction-sidebar-rate-amount-item"
+                data-cy="compensation-settings-deduction-sidebar-rate-amount-item"
+              >
+                <Input
+                  className="control"
+                  type="number"
+                  min={0}
+                  max={100}
+                  placeholder="Enter rate %"
+                  style={{ height: '40px', padding: '4px 8px' }}
+                  id="compensation-settings-deduction-sidebar-rate-amount-input"
+                  data-cy="compensation-settings-deduction-sidebar-rate-amount-input"
+                />
+              </Form.Item>
+            )}
           </Form>
         </Spin>
       </CustomDrawerLayout>

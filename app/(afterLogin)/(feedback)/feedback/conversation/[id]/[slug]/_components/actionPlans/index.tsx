@@ -117,34 +117,47 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
   };
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="action-plans-edit-modal-header"
+    >
       Edit Action Plan
     </div>
   );
 
   return (
-    <div>
+    <div data-cy="action-plans-container">
       {conversationInstanceActionPlan?.items?.map(
         (actionPlan: any, index: number) => (
           <Card
             key={actionPlan.id}
             title={
-              <div className="flex items-center justify-start space-x-2 w-full">
+              <div
+                className="flex items-center justify-start space-x-2 w-full"
+                data-cy={`action-plans-card-title-${index}`}
+              >
                 <div
                   onClick={() => handleCollapseChange(index)}
                   style={{ cursor: 'pointer' }}
+                  data-cy={`action-plans-card-collapse-toggle-${index}`}
                 >
                   {collapseStates[index] ? (
-                    <MdKeyboardArrowDown />
+                    <MdKeyboardArrowDown
+                      data-cy={`action-plans-card-collapse-down-${index}`}
+                    />
                   ) : (
-                    <MdKeyboardArrowUp />
+                    <MdKeyboardArrowUp
+                      data-cy={`action-plans-card-collapse-up-${index}`}
+                    />
                   )}
                 </div>
-                <span>{`${actionPlan?.issue}`}</span>
+                <span
+                  data-cy={`action-plans-card-issue-${index}`}
+                >{`${actionPlan?.issue}`}</span>
               </div>
             }
             extra={
-              <Space>
+              <Space data-cy={`action-plans-card-actions-${index}`}>
                 <Button
                   htmlType="button"
                   type="primary"
@@ -153,6 +166,7 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
                   }}
                   icon={<MdEdit />}
                   size="small"
+                  data-cy={`action-plans-card-edit-btn-${index}`}
                 />
                 <Popconfirm
                   title="Are you sure you want to delete this item?"
@@ -160,12 +174,14 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
                   okText="Yes"
                   cancelText="No"
                   placement="topRight"
+                  data-cy={`action-plans-card-delete-confirm-${index}`}
                 >
                   <Button
                     type="primary"
                     icon={<MdDelete />}
                     size="small"
                     danger
+                    data-cy={`action-plans-card-delete-btn-${index}`}
                   />
                 </Popconfirm>
               </Space>
@@ -173,25 +189,56 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
             className="mb-3"
           >
             {!collapseStates[index] && (
-              <List.Item>
-                <div className="flex w-full items-start">
+              <List.Item data-cy={`action-plans-card-content-${index}`}>
+                <div
+                  className="flex w-full items-start"
+                  data-cy={`action-plans-card-content-wrapper-${index}`}
+                >
                   {/* Left Section: Labels */}
-                  <div className="w-1/3 flex flex-col space-y-4">
-                    <div className="text-gray-500 font-semibold">
+                  <div
+                    className="w-1/3 flex flex-col space-y-4"
+                    data-cy={`action-plans-card-labels-${index}`}
+                  >
+                    <div
+                      className="text-gray-500 font-semibold"
+                      data-cy={`action-plans-card-label-responsible-${index}`}
+                    >
                       Responsible Person
                     </div>
-                    <div className="text-gray-500 font-semibold">Deadline</div>
-                    <div className="text-gray-500 font-semibold">Comment</div>
+                    <div
+                      className="text-gray-500 font-semibold"
+                      data-cy={`action-plans-card-label-deadline-${index}`}
+                    >
+                      Deadline
+                    </div>
+                    <div
+                      className="text-gray-500 font-semibold"
+                      data-cy={`action-plans-card-label-comment-${index}`}
+                    >
+                      Comment
+                    </div>
                   </div>
 
                   {/* Right Section: Values */}
-                  <div className="w-2/3 flex flex-col space-y-4">
+                  <div
+                    className="w-2/3 flex flex-col space-y-4"
+                    data-cy={`action-plans-card-values-${index}`}
+                  >
                     {/* Responsible Person */}
-                    <div>
+                    <div data-cy={`action-plans-card-responsible-${index}`}>
                       {actionPlan?.assigneeId ? (
-                        <div className="flex items-center">
-                          <Avatar src={actionPlan?.profileImage} />
-                          <span className="ml-2 font-semibold">
+                        <div
+                          className="flex items-center"
+                          data-cy={`action-plans-card-responsible-wrapper-${index}`}
+                        >
+                          <Avatar
+                            src={actionPlan?.profileImage}
+                            data-cy={`action-plans-card-responsible-avatar-${index}`}
+                          />
+                          <span
+                            className="ml-2 font-semibold"
+                            data-cy={`action-plans-card-responsible-name-${index}`}
+                          >
                             {getEmployeeData(actionPlan?.assigneeId)
                               ?.firstName ?? ''}{' '}
                             {getEmployeeData(actionPlan?.assigneeId)
@@ -201,27 +248,50 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
                           </span>
                         </div>
                       ) : (
-                        <span className="text-gray-400">No assignee</span>
+                        <span
+                          className="text-gray-400"
+                          data-cy={`action-plans-card-responsible-empty-${index}`}
+                        >
+                          No assignee
+                        </span>
                       )}
                     </div>
 
                     {/* Deadline */}
-                    <div>
+                    <div data-cy={`action-plans-card-deadline-${index}`}>
                       {actionPlan?.deadline ? (
-                        <Tag color="blue">{actionPlan?.deadline}</Tag>
+                        <Tag
+                          color="blue"
+                          data-cy={`action-plans-card-deadline-tag-${index}`}
+                        >
+                          {actionPlan?.deadline}
+                        </Tag>
                       ) : (
-                        <span className="text-gray-400">No deadline set</span>
+                        <span
+                          className="text-gray-400"
+                          data-cy={`action-plans-card-deadline-empty-${index}`}
+                        >
+                          No deadline set
+                        </span>
                       )}
                     </div>
 
                     {/* Comment */}
-                    <div>
+                    <div data-cy={`action-plans-card-comment-${index}`}>
                       {actionPlan?.comment ? (
-                        <span className="text-gray-700">
+                        <span
+                          className="text-gray-700"
+                          data-cy={`action-plans-card-comment-text-${index}`}
+                        >
                           {actionPlan?.comment}
                         </span>
                       ) : (
-                        <span className="text-gray-400">No comments</span>
+                        <span
+                          className="text-gray-400"
+                          data-cy={`action-plans-card-comment-empty-${index}`}
+                        >
+                          No comments
+                        </span>
                       )}
                     </div>
                   </div>
@@ -236,6 +306,7 @@ const ActionPlans: React.FC<PropsData> = ({ slug }: PropsData) => {
         onClose={() => setOpenEdit(false)}
         modalHeader={modalHeader}
         width="40%"
+        data-cy="action-plans-edit-drawer"
       >
         <EditActionPlans
           slug={slug}

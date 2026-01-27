@@ -48,21 +48,38 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
 
   return (
     <CustomDrawerLayout
+      data-cy="import-drawer"
       open={projectDrawer}
       onClose={handleClose}
       modalHeader={
-        <CustomDrawerHeader className="flex justify-between">
-          <span className="text-sm">
+        <CustomDrawerHeader
+          data-cy="import-drawer-header"
+          className="flex justify-between"
+        >
+          <span
+            id="import-drawer-header-text"
+            data-cy="import-drawer-header-text"
+            className="text-sm"
+          >
             Import {selectedRecognition?.name} Data
           </span>
-          <div>
+          <div
+            id="import-drawer-header-download-wrapper"
+            data-cy="import-drawer-header-download-wrapper"
+          >
             <DownloadExcelButton />
           </div>
         </CustomDrawerHeader>
       }
       footer={
-        <div className="flex justify-center gap-4 p-4">
+        <div
+          id="import-drawer-footer"
+          data-cy="import-drawer-footer"
+          className="flex justify-center gap-4 p-4"
+        >
           <Button
+            id="import-drawer-cancel-button"
+            data-cy="import-drawer-cancel-button"
             type="default"
             className=" h-10 px-10"
             onClick={() => setProjectDrawer(false)}
@@ -70,6 +87,8 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
             Cancel
           </Button>
           <Button
+            id="import-drawer-submit-button"
+            data-cy="import-drawer-submit-button"
             type="primary"
             onClick={() => form.submit()}
             className=" h-10 px-10"
@@ -93,22 +112,40 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
       </div> */}
 
       <Form
+        id="import-drawer-form"
+        data-cy="import-drawer-form"
         requiredMark={false}
         layout="vertical"
         form={form}
         onFinish={handleSubmit}
       >
-        <Form.Item name="fileName">
+        <Form.Item
+          id="import-drawer-form-file-name"
+          data-cy="import-drawer-form-file-name"
+          name="fileName"
+        >
           <Upload.Dragger
+            id="import-drawer-form-upload"
+            data-cy="import-drawer-form-upload"
             name="file"
             className="w-full p-3 bg-white"
             showUploadList
             accept=".xlsx"
             maxCount={1}
           >
-            <span className="flex flex-col gap-3 py-2">
-              <p className="ant-upload-drag-icon flex items-center justify-center">
+            <span
+              id="import-drawer-form-upload-content"
+              data-cy="import-drawer-form-upload-content"
+              className="flex flex-col gap-3 py-2"
+            >
+              <p
+                id="import-drawer-form-upload-icon-wrapper"
+                data-cy="import-drawer-form-upload-icon-wrapper"
+                className="ant-upload-drag-icon flex items-center justify-center"
+              >
                 <svg
+                  id="import-drawer-form-upload-icon"
+                  data-cy="import-drawer-form-upload-icon"
                   width="54"
                   height="59"
                   viewBox="0 0 54 59"
@@ -291,14 +328,40 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
                   />
                 </svg>
               </p>
-              <p className="text-lg font-semibold">
+              <p
+                id="import-drawer-form-upload-text"
+                data-cy="import-drawer-form-upload-text"
+                className="text-lg font-semibold"
+              >
                 Drag & Drop here to upload
               </p>
-              <p className="text-gray-500">Or select file from your computer</p>
-              <span className="flex items-center justify-center my-3">
-                <Button className="gap-3 bg-primary w-fit border-none rounded-lg">
-                  <MdOutlineUploadFile fill="white" />
-                  <span className=" flex items-center justify-center text-md font-normal text-white">
+              <p
+                id="import-drawer-form-upload-subtext"
+                data-cy="import-drawer-form-upload-subtext"
+                className="text-gray-500"
+              >
+                Or select file from your computer
+              </p>
+              <span
+                id="import-drawer-form-upload-button-wrapper"
+                data-cy="import-drawer-form-upload-button-wrapper"
+                className="flex items-center justify-center my-3"
+              >
+                <Button
+                  id="import-drawer-form-upload-button"
+                  data-cy="import-drawer-form-upload-button"
+                  className="gap-3 bg-primary w-fit border-none rounded-lg"
+                >
+                  <MdOutlineUploadFile
+                    id="import-drawer-form-upload-button-icon"
+                    data-cy="import-drawer-form-upload-button-icon"
+                    fill="white"
+                  />
+                  <span
+                    id="import-drawer-form-upload-button-text"
+                    data-cy="import-drawer-form-upload-button-text"
+                    className=" flex items-center justify-center text-md font-normal text-white"
+                  >
                     Upload file
                   </span>
                 </Button>
@@ -308,9 +371,22 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
         </Form.Item>
 
         <Form.Item
+          id="import-drawer-form-recognition-type"
+          data-cy="import-drawer-form-recognition-type"
           label={
-            <span className="text-normal font-medium">
-              Recognition Type <span style={{ color: 'red' }}>*</span>
+            <span
+              id="import-drawer-form-recognition-type-label"
+              data-cy="import-drawer-form-recognition-type-label"
+              className="text-normal font-medium"
+            >
+              Recognition Type{' '}
+              <span
+                id="import-drawer-form-recognition-type-required"
+                data-cy="import-drawer-form-recognition-type-required"
+                style={{ color: 'red' }}
+              >
+                *
+              </span>
             </span>
           }
           rules={[
@@ -323,16 +399,26 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
           name="recognitionTypeId"
         >
           <Select
+            id="import-drawer-form-recognition-type-select"
+            data-cy="import-drawer-form-recognition-type-select"
             size="large"
             className="mt-2 h-10 text-sm font-normal"
             placeholder="Select recognition type"
             allowClear
           >
             {responseLoading ? (
-              <Spin size="small" />
+              <Spin
+                data-cy="import-drawer-form-recognition-type-spin"
+                size="small"
+              />
             ) : (
               recognitionData?.map((recognition: any) => (
-                <Select.Option key={recognition?.id} value={recognition?.id}>
+                <Select.Option
+                  id={`import-drawer-form-recognition-type-option-${recognition?.id}`}
+                  data-cy={`import-drawer-form-recognition-type-option-${recognition?.id}`}
+                  key={recognition?.id}
+                  value={recognition?.id}
+                >
                   {recognition?.name}
                 </Select.Option>
               ))
@@ -341,9 +427,22 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
         </Form.Item>
 
         <Form.Item
+          id="import-drawer-form-pay-period"
+          data-cy="import-drawer-form-pay-period"
           label={
-            <span className="text-normal font-medium">
-              Select Pay Period <span style={{ color: 'red' }}>*</span>
+            <span
+              id="import-drawer-form-pay-period-label"
+              data-cy="import-drawer-form-pay-period-label"
+              className="text-normal font-medium"
+            >
+              Select Pay Period{' '}
+              <span
+                id="import-drawer-form-pay-period-required"
+                data-cy="import-drawer-form-pay-period-required"
+                style={{ color: 'red' }}
+              >
+                *
+              </span>
             </span>
           }
           rules={[
@@ -356,16 +455,23 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
           name="importDate"
         >
           <Select
+            id="import-drawer-form-pay-period-select"
+            data-cy="import-drawer-form-pay-period-select"
             size="large"
             className="my-1 h-10 text-sm font-normal mt-2"
             placeholder="Select pay period"
             allowClear
           >
             {responseLoading ? (
-              <Spin size="small" />
+              <Spin data-cy="import-drawer-form-pay-period-spin" size="small" />
             ) : (
               payPeriodData?.map((payPeriod: any) => (
-                <Select.Option key={payPeriod?.id} value={payPeriod?.id}>
+                <Select.Option
+                  id={`import-drawer-form-pay-period-option-${payPeriod?.id}`}
+                  data-cy={`import-drawer-form-pay-period-option-${payPeriod?.id}`}
+                  key={payPeriod?.id}
+                  value={payPeriod?.id}
+                >
                   {`${dayjs(payPeriod?.startDate).format('YYYY-MM-DD')} — ${dayjs(payPeriod?.endDate).format('YYYY-MM-DD')}`}
                 </Select.Option>
               ))
@@ -374,14 +480,22 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
         </Form.Item>
 
         <Form.Item
+          id="import-drawer-form-source"
+          data-cy="import-drawer-form-source"
           label={
-            <span className="text-normal font-medium">
+            <span
+              id="import-drawer-form-source-label"
+              data-cy="import-drawer-form-source-label"
+              className="text-normal font-medium"
+            >
               Other Necessary Information
             </span>
           }
           name="source"
         >
           <TextArea
+            id="import-drawer-form-source-textarea"
+            data-cy="import-drawer-form-source-textarea"
             className="mt-2"
             rows={2}
             size="large"

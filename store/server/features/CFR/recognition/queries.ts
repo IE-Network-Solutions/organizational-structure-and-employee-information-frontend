@@ -203,3 +203,40 @@ export const useGetAllRecognition = ({
     () => getAllRecognitions({ searchValue, current, pageSize }),
   );
 };
+
+// Fetch all recognition IDs without pagination (for select all functionality)
+const getAllRecognitionIds = async (
+  searchValue: Record<string, string | undefined>,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const queryString = [
+    `limit=10000`, // Large limit to get all records
+    `page=1`,
+    ...Object.entries(searchValue)
+      .filter(([, value]) => value)
+      .map(([key, value]) => `${key}=${value}`),
+  ].join('&');
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition?${queryString}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetAllRecognitionIds = (
+  searchValue: Record<string, string | undefined>,
+  enabled: boolean = false,
+) => {
+  return useQuery<any>(
+    ['allRecognitionIds', searchValue],
+    () => getAllRecognitionIds(searchValue),
+    {
+      enabled,
+    },
+  );
+};

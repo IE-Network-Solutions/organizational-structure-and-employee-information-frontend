@@ -22,10 +22,16 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: allowance.id,
             label: (
-              <div className=" font-bold" title={allowance.name}>
-                {allowance.name?.length > 15
-                  ? allowance.name?.slice(0, 15) + '...'
-                  : allowance.name || 'Unnamed Allowance'}
+              <div
+                className=" font-bold"
+                title={allowance.name}
+                data-cy={`benefit-menu-item-${allowance.id}`}
+              >
+                <span data-cy={`benefit-menu-item-label-${allowance.id}`}>
+                  {allowance.name?.length > 15
+                    ? allowance.name?.slice(0, 15) + '...'
+                    : allowance.name || 'Unnamed Allowance'}
+                </span>
               </div>
             ),
           },
@@ -35,7 +41,16 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'variablePay',
-          label: <div className=" font-bold">Variable Pay</div>,
+          label: (
+            <div
+              className=" font-bold"
+              data-cy="benefit-menu-item-variable-pay"
+            >
+              <span data-cy="benefit-menu-item-variable-pay-label">
+                Variable Pay
+              </span>
+            </div>
+          ),
         },
         link: '/benefit/variablePay',
       };
@@ -47,20 +62,54 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="h-auto w-auto bg-[#f5f5f5]">
-        <PageHeader
-          title="Benefit"
-          description="Benefit"
-          className="hidden sm:block"
-          horizontalPadding="0px"
-        />
-        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
-          <SidebarMenu menuItems={sidebarMenuItems} />
+    <div
+      className="min-h-screen bg-[#f5f5f5]"
+      id="compensation-benefit-layout-wrapper"
+      data-cy="compensation-benefit-layout-wrapper"
+    >
+      <div
+        className="h-auto w-auto bg-[#f5f5f5]"
+        id="compensation-benefit-layout-body"
+        data-cy="compensation-benefit-layout-body"
+      >
+        <div
+          id="compensation-benefit-layout-page-header"
+          data-cy="compensation-benefit-layout-page-header"
+        >
+          <PageHeader
+            title="Benefit"
+            data-cy="compensation-benefit-layout-page-header-title"
+            description="Benefit"
+            className="hidden sm:block"
+            horizontalPadding="0px"
+          />
+        </div>
+        <div
+          className="flex flex-col lg:flex-row gap-3 sm:gap-6"
+          id="compensation-benefit-layout-content"
+          data-cy="compensation-benefit-layout-content"
+        >
+          <div
+            id="compensation-benefit-layout-sidebar"
+            data-cy="compensation-benefit-layout-sidebar"
+          >
+            <SidebarMenu
+              data-cy="compensation-benefit-layout-sidebar-menu"
+              menuItems={sidebarMenuItems}
+            />
+          </div>
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto">
-            {children}
-          </BlockWrapper>
+          <div
+            id="compensation-benefit-layout-block-wrapper"
+            data-cy="compensation-benefit-layout-block-wrapper"
+          >
+            <BlockWrapper
+              data-cy="compensation-benefit-layout-block-wrapper-content"
+              className="flex-1 h-max overflow-x-auto"
+            >
+              {children}
+            </BlockWrapper>
+          </div>
         </div>
       </div>
     </div>

@@ -71,7 +71,33 @@ const deleteObjective = async (deletedId: string) => {
     });
 
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    // Extract error message from backend response
+    let errorMessage = 'Failed to delete objective';
+    let errorDescription = 'An unexpected error occurred';
+
+    if (error?.response?.data) {
+      const errorData = error.response.data;
+
+      // Handle different error response formats
+      if (typeof errorData === 'string') {
+        errorMessage = errorData;
+      } else if (errorData.message) {
+        errorMessage = errorData.message;
+        errorDescription = errorData.details || errorData.error || '';
+      } else if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } else if (error?.message) {
+      errorMessage = error.message;
+    }
+
+    // Show error notification
+    NotificationMessage.error({
+      message: errorMessage,
+      description: errorDescription,
+    });
+
     throw error;
   }
 };
@@ -115,7 +141,33 @@ const deleteKeyResult = async (deletedId: string) => {
     });
 
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    // Extract error message from backend response
+    let errorMessage = 'Failed to delete key result';
+    let errorDescription = 'An unexpected error occurred';
+
+    if (error?.response?.data) {
+      const errorData = error.response.data;
+
+      // Handle different error response formats
+      if (typeof errorData === 'string') {
+        errorMessage = errorData;
+      } else if (errorData.message) {
+        errorMessage = errorData.message;
+        errorDescription = errorData.details || errorData.error || '';
+      } else if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } else if (error?.message) {
+      errorMessage = error.message;
+    }
+
+    // Show error notification
+    NotificationMessage.error({
+      message: errorMessage,
+      description: errorDescription,
+    });
+
     throw error;
   }
 };
@@ -166,13 +218,16 @@ const downloadEmployeeOkrScore = async (data: any) => {
       data,
       headers: requestHeaders,
       skipEncryption: true, // Skip encryption for file downloads
+      responseType: 'blob', // Tell axios to handle binary data
     });
 
-    // Note: crudRequest returns the data directly, so we need to handle blob differently
-    // This might need adjustment based on how the API returns file data
-    const blob = new Blob([response], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
+    // Response is already a blob from the API when responseType is 'blob'
+    const blob =
+      response instanceof Blob
+        ? response
+        : new Blob([response], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     const fileName = 'Employee okr score export.xlsx';
@@ -206,6 +261,10 @@ export const useDeleteObjective = () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
+    },
+    onError: () => {
+      // Error handling is done in deleteObjective function
+      // This prevents double error notifications
     },
   });
 };
@@ -247,6 +306,10 @@ export const useDeleteKeyResult = () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
+    },
+    onError: () => {
+      // Error handling is done in deleteKeyResult function
+      // This prevents double error notifications
     },
   });
 };

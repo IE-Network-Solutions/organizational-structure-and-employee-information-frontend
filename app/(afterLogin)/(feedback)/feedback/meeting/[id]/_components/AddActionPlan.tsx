@@ -98,8 +98,16 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
   const loading = updateLoading || createLoading;
 
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
-      <Button loading={loading} onClick={handleClose} className="h-10">
+    <div
+      className="w-full flex justify-center items-center gap-4 pt-8"
+      data-cy="feedback-meeting-components-addactionplan-footer"
+    >
+      <Button
+        loading={loading}
+        onClick={handleClose}
+        className="h-10"
+        data-cy="feedback-meeting-components-addactionplan-button-cancel"
+      >
         Cancel
       </Button>
       <Button
@@ -108,6 +116,7 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
         htmlType="submit"
         onClick={() => form.submit()}
         className="h-10"
+        data-cy="feedback-meeting-components-addactionplan-button-submit"
       >
         Submit
       </Button>
@@ -124,23 +133,36 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
       }
       width="50%"
       footer={footer}
+      data-cy="feedback-meeting-components-addactionplan-drawer"
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
         name="actionPlansForm"
+        data-cy="feedback-meeting-components-addactionplan-form"
+        id="feedback-meeting-components-addactionplan-form"
       >
-        <Form.List name="actionPlans">
+        <Form.List
+          name="actionPlans"
+          data-cy="feedback-meeting-components-addactionplan-list"
+        >
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
-                <div key={key} className="mb-4 relative ">
+                <div
+                  key={key}
+                  className="mb-4 relative "
+                  data-cy={`feedback-meeting-components-addactionplan-group-${key}`}
+                  id={`feedback-meeting-components-addactionplan-group-${key}`}
+                >
                   {fields.length > 1 && (
                     <MdClose
                       size={18}
                       className="absolute top-1 right-2  hover:text-red-700 z-50"
                       onClick={() => remove(name)}
+                      id={`feedback-meeting-components-addactionplan-button-remove-${key}`}
+                      data-cy={`feedback-meeting-components-addactionplan-button-remove-${key}`}
                     />
                   )}
 
@@ -151,10 +173,14 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                     rules={[
                       { required: true, message: 'Please input the issue!' },
                     ]}
+                    data-cy={`feedback-meeting-components-addactionplan-issue-${key}`}
+                    id={`feedback-meeting-components-addactionplan-issue-${key}`}
                   >
                     <Input.TextArea
                       placeholder="Input area"
                       className="min-h-[54px]"
+                      data-cy={`feedback-meeting-components-addactionplan-issue-textarea-${key}`}
+                      id={`feedback-meeting-components-addactionplan-issue-textarea-${key}`}
                     />
                   </Form.Item>
 
@@ -168,10 +194,14 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                         message: 'Please describe what needs to be done!',
                       },
                     ]}
+                    data-cy={`feedback-meeting-components-addactionplan-description-${key}`}
+                    id={`feedback-meeting-components-addactionplan-description-${key}`}
                   >
                     <Input.TextArea
                       placeholder="Something to be done"
                       className="min-h-[54px]"
+                      data-cy={`feedback-meeting-components-addactionplan-description-textarea-${key}`}
+                      id={`feedback-meeting-components-addactionplan-description-textarea-${key}`}
                     />
                   </Form.Item>
 
@@ -185,6 +215,8 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                         message: 'Please select a responsible person!',
                       },
                     ]}
+                    data-cy={`feedback-meeting-components-addactionplan-responsible-${key}`}
+                    id={`feedback-meeting-components-addactionplan-responsible-select-${key}`}
                   >
                     <Select
                       showSearch
@@ -199,6 +231,8 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       }
                       options={peopleOptions}
                       maxTagCount={3}
+                      data-cy={`feedback-meeting-components-addactionplan-responsible-select-${key}`}
+                      id={`feedback-meeting-components-addactionplan-responsible-select-${key}`}
                     />
                   </Form.Item>
 
@@ -209,11 +243,36 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                     rules={[
                       { required: true, message: 'Please select a priority!' },
                     ]}
+                    data-cy={`feedback-meeting-components-addactionplan-priority-${key}`}
+                    id={`feedback-meeting-components-addactionplan-priority-select-${key}`}
                   >
-                    <Select placeholder="Select priority" className="h-[54px]">
-                      <Option value="High">High</Option>
-                      <Option value="Medium">Medium</Option>
-                      <Option value="Low">Low</Option>
+                    <Select
+                      placeholder="Select priority"
+                      className="h-[54px]"
+                      data-cy={`feedback-meeting-components-addactionplan-priority-select-${key}`}
+                      id={`feedback-meeting-components-addactionplan-priority-select-${key}`}
+                    >
+                      <Option
+                        value="High"
+                        data-cy={`feedback-meeting-components-addactionplan-priority-option-high-${key}`}
+                        id={`feedback-meeting-components-addactionplan-priority-option-high-${key}`}
+                      >
+                        High
+                      </Option>
+                      <Option
+                        value="Medium"
+                        data-cy={`feedback-meeting-components-addactionplan-priority-option-medium-${key}`}
+                        id={`feedback-meeting-components-addactionplan-priority-option-medium-${key}`}
+                      >
+                        Medium
+                      </Option>
+                      <Option
+                        value="Low"
+                        data-cy={`feedback-meeting-components-addactionplan-priority-option-low-${key}`}
+                        id={`feedback-meeting-components-addactionplan-priority-option-low-${key}`}
+                      >
+                        Low
+                      </Option>
                     </Select>
                   </Form.Item>
                   {actionPlanData && (
@@ -224,11 +283,35 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       rules={[
                         { required: true, message: 'Please select a status!' },
                       ]}
+                      data-cy={`feedback-meeting-components-addactionplan-status-${key}`}
+                      id={`feedback-meeting-components-addactionplan-status-select-${key}`}
                     >
-                      <Select placeholder="Select status" className="h-[54px]">
-                        <Option value="Pending">Pending</Option>
-                        <Option value="In_Progress">In progress </Option>
-                        <Option value="Completed">Completed </Option>
+                      <Select
+                        placeholder="Select status"
+                        className="h-[54px]"
+                        data-cy={`feedback-meeting-components-addactionplan-status-select-${key}`}
+                      >
+                        <Option
+                          value="Pending"
+                          data-cy={`feedback-meeting-components-addactionplan-status-option-pending-${key}`}
+                          id={`feedback-meeting-components-addactionplan-status-option-pending-${key}`}
+                        >
+                          Pending
+                        </Option>
+                        <Option
+                          value="In_Progress"
+                          data-cy={`feedback-meeting-components-addactionplan-status-option-in-progress-${key}`}
+                          id={`feedback-meeting-components-addactionplan-status-option-in-progress-${key}`}
+                        >
+                          In progress{' '}
+                        </Option>
+                        <Option
+                          value="Completed"
+                          data-cy={`feedback-meeting-components-addactionplan-status-option-completed-${key}`}
+                          id={`feedback-meeting-components-addactionplan-status-option-completed-${key}`}
+                        >
+                          Completed{' '}
+                        </Option>
                       </Select>
                     </Form.Item>
                   )}
@@ -239,21 +322,30 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                     label="Deadline"
                     name={[name, 'deadline']}
                     rules={[{ required: true }]}
+                    data-cy={`feedback-meeting-components-addactionplan-deadline-${key}`}
+                    id={`feedback-meeting-components-addactionplan-deadline-picker-${key}`}
                   >
                     <DatePicker
                       format="YYYY-MM-DD"
                       className="w-full h-[54px]"
+                      data-cy={`feedback-meeting-components-addactionplan-deadline-picker-${key}`}
+                      id={`feedback-meeting-components-addactionplan-deadline-picker-${key}`}
                     />
                   </Form.Item>
                 </div>
               ))}
               {actionPlanData == null && (
-                <Form.Item>
+                <Form.Item
+                  data-cy="feedback-meeting-components-addactionplan-button-add-plan"
+                  id="feedback-meeting-components-addactionplan-button-add-plan"
+                >
                   <Button
                     type="primary"
                     onClick={() => add()}
                     block
                     className="h-10"
+                    data-cy="feedback-meeting-components-addactionplan-button-add-plan"
+                    id="feedback-meeting-components-addactionplan-button-add-plan"
                   >
                     Add New Action Plan
                   </Button>

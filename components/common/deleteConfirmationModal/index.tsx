@@ -13,6 +13,8 @@ interface DeleteModalProps {
   deleteText?: React.ReactNode;
   cancelText?: React.ReactNode;
   loading?: boolean;
+  id?: string;
+  'data-cy'?: string;
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -24,9 +26,14 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   deleteText,
   cancelText,
   loading,
+  id,
+  'data-cy': dataCy,
 }) => {
   const deleteModalFooter = (
-    <div className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6">
+    <div
+      className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6"
+      data-cy="delete-confirmation-modal-footer"
+    >
       <Button
         className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
         id="deleteModalCancelButtonId"
@@ -53,6 +60,11 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       onOk={onConfirm}
       onCancel={onCancel}
       footer={deleteModalFooter}
+      modalRender={(modal) => (
+        <div id={id} data-cy={dataCy}>
+          {modal}
+        </div>
+      )}
     >
       <p className="flex justify-center items-center h-[200px]">
         <Image

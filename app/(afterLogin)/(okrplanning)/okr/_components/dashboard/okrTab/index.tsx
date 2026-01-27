@@ -146,7 +146,10 @@ export default function OkrTab() {
   // Return null or loading state during SSR
   if (!isMounted) {
     return (
-      <div className="mt-6 flex justify-center items-center min-h-[200px]">
+      <div
+        className="mt-6 flex justify-center items-center min-h-[200px]"
+        data-cy="okr-tab-loading-container"
+      >
         <Spin size="large" />
       </div>
     );

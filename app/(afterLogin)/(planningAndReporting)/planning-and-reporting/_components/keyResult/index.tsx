@@ -7,9 +7,18 @@ interface KPIMetricsProps {
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   return (
-    <div className="py-3 px-2 sm:px-4 bg-white shadow-sm rounded-lg border">
-      <div className="grid grid-cols-12 sm:justify-between mb-2 items-start">
-        <div className="flex items-start gap-4 col-span-12 sm:col-span-8">
+    <div
+      className="py-3 px-2 sm:px-4 bg-white rounded-lg border"
+      data-cy="planning-key-result-metrics-container"
+    >
+      <div
+        className="grid grid-cols-12 sm:justify-between mb-2 items-start"
+        data-cy="planning-key-result-metrics-header"
+      >
+        <div
+          className="flex items-start gap-4 col-span-12 sm:col-span-8"
+          data-cy="planning-key-result-metrics-title-section"
+        >
           <MdKey size={14} className="text-blue text-xs w-10" />
           <h2 className="text-xs font-semibold">{keyResult?.title}</h2>
         </div>

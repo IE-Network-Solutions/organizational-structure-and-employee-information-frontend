@@ -34,62 +34,95 @@ export default function Home() {
   };
 
   const mainLayout = (
-    <div className="min-h-screen bg-gray-100  pl-2 pr-3">
+    <div
+      className="min-h-screen bg-gray-100  pl-2 pr-3"
+      data-cy="dashboard-main-layout"
+    >
       {isMobile || isTablet ? (
-        <div className=" flex justify-between items-center mb-4">
+        <div
+          className=" flex justify-between items-center mb-4"
+          data-cy="dashboard-mobile-header"
+        >
           {userData?.firstName ? (
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1
+              className="text-2xl font-bold text-gray-800"
+              data-cy="dashboard-mobile-greeting"
+            >
               Hi, {userData?.firstName}
             </h1>
           ) : (
-            ''
+            <span data-cy="dashboard-mobile-greeting-empty"></span>
           )}
           <div
             className=" text-primary text-base font-bold"
             onClick={() => showAnnouncements()}
+            data-cy="dashboard-mobile-announcements-button"
           >
-            Announcements
-          </div>{' '}
+            <span data-cy="dashboard-mobile-announcements-text">
+              Announcements
+            </span>
+          </div>
         </div>
       ) : (
-        <div className=" flex justify-start">
+        <div className=" flex justify-start" data-cy="dashboard-desktop-header">
           {userData?.firstName ? (
-            <div className="mb-4">
-              <h1 className="text-2xl font-bold text-gray-800">
+            <div
+              className="mb-4"
+              data-cy="dashboard-desktop-greeting-container"
+            >
+              <h1
+                className="text-2xl font-bold text-gray-800"
+                data-cy="dashboard-desktop-greeting"
+              >
                 Hi, {userData?.firstName}
               </h1>
             </div>
           ) : (
-            ''
+            <span data-cy="dashboard-desktop-greeting-empty"></span>
           )}
         </div>
       )}
       <Header />
       {isMobile || isTablet ? (
-        <div className="grid grid-cols-1 pb-3">
+        <div className="grid grid-cols-1 pb-3" data-cy="dashboard-mobile-grid">
           {isOpen ? (
             <CustomDashboardModal
               open={isOpen}
               onClose={showAnnouncements}
               width="400px"
             >
-              <div className="col-span-12 ">
+              <div
+                className="col-span-12 "
+                data-cy="dashboard-mobile-rightbar-container"
+              >
                 <RightBar />
               </div>
             </CustomDashboardModal>
           ) : (
             ''
           )}
-          <div className="col-span-12  ">
+          <div
+            className="col-span-12  "
+            data-cy="dashboard-mobile-leftbar-container"
+          >
             <LeftBar />
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-12 gap-4 pb-5">
-          <div className="col-span-8">
+        <div
+          className="grid grid-cols-12 gap-4 pb-5"
+          data-cy="dashboard-desktop-grid"
+        >
+          <div
+            className="col-span-8"
+            data-cy="dashboard-desktop-leftbar-container"
+          >
             <LeftBar />
           </div>
-          <div className="col-span-4 ">
+          <div
+            className="col-span-4 "
+            data-cy="dashboard-desktop-rightbar-container"
+          >
             <RightBar />
           </div>
         </div>
@@ -98,7 +131,7 @@ export default function Home() {
   );
 
   return (
-    <div>
+    <div data-cy="dashboard-page-container">
       {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
       {hasEndedFiscalYear && (
         <AccessGuard permissions={[Permissions.CreateCalendar]}>
@@ -109,11 +142,18 @@ export default function Home() {
                 '/organization/settings/fiscalYear/fiscalYearCard';
             }}
             title="Go to Fiscal Year Settings"
+            data-cy="dashboard-fiscal-year-banner-clickable"
           >
-            <span className="text-[#FFDE65] px-2">
+            <span
+              className="text-[#FFDE65] px-2"
+              data-cy="dashboard-fiscal-year-banner-title"
+            >
               Your fiscal year has ended
             </span>
-            <span className="text-white">
+            <span
+              className="text-white"
+              data-cy="dashboard-fiscal-year-banner-message"
+            >
               Please contact your system admin for more information
             </span>
           </div>
@@ -122,11 +162,20 @@ export default function Home() {
       {/* If user does not have permission, show non-clickable banner */}
       {hasEndedFiscalYear && (
         <AccessGuard permissions={[]}>
-          <div className="bg-[#323B49] p-2 rounded-lg h-12 flex items-center justify-start text-md gap-2">
-            <span className="text-[#FFDE65] px-2">
+          <div
+            className="bg-[#323B49] p-2 rounded-lg h-12 flex items-center justify-start text-md gap-2"
+            data-cy="dashboard-fiscal-year-banner-non-clickable"
+          >
+            <span
+              className="text-[#FFDE65] px-2"
+              data-cy="dashboard-fiscal-year-banner-title-non-clickable"
+            >
               Your fiscal year has ended
             </span>
-            <span className="text-white">
+            <span
+              className="text-white"
+              data-cy="dashboard-fiscal-year-banner-message-non-clickable"
+            >
               Please contact your system admin for more information
             </span>
           </div>

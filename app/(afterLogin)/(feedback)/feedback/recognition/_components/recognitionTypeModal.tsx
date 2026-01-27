@@ -57,17 +57,30 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
       footer={null}
       centered
       onCancel={handleCancel}
+      data-cy="recognition-type-modal"
     >
-      <p className="mb-3">
+      <p
+        className="mb-3"
+        data-cy="recognition-type-modal-description"
+        id="recognitionTypeModalDescription"
+      >
         Select recognition type and view the employees who fit those criteria
       </p>
-      <Form onFinish={handleRecogintionForm} layout="vertical" form={form}>
+      <Form
+        onFinish={handleRecogintionForm}
+        layout="vertical"
+        form={form}
+        data-cy="recognition-type-modal-form"
+        id="recognitionTypeModalForm"
+      >
         <Form.Item
           label="Recognition Type"
           name="recognitionTypeId"
           rules={[
             { required: true, message: 'Please select a recognition type' },
           ]}
+          data-cy="recognition-type-modal-type-field"
+          id="recognitionTypeModalTypeField"
         >
           <Select
             id={`selectRecognitionType`}
@@ -80,6 +93,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
+            data-cy="recognition-type-modal-type-select"
           >
             {RecognitionTypesChild?.map((item: any) => (
               <Select.Option key={item?.id} value={item?.id}>
@@ -92,11 +106,27 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
           label="Date"
           name="dateRange"
           rules={[{ required: true, message: 'Please select a date range' }]}
+          data-cy="recognition-type-modal-date-field"
+          id="recognitionTypeModalDateField"
         >
-          <RangePicker style={{ width: '100%' }} />
+          <RangePicker
+            style={{ width: '100%' }}
+            data-cy="recognition-type-modal-date-picker"
+            id="recognitionTypeModalDatePicker"
+          />
         </Form.Item>
-        <div className="flex justify-start gap-4">
-          <Button loading={isLoading} type="primary" htmlType="submit">
+        <div
+          className="flex justify-start gap-4"
+          data-cy="recognition-type-modal-actions"
+          id="recognitionTypeModalActions"
+        >
+          <Button
+            loading={isLoading}
+            type="primary"
+            htmlType="submit"
+            data-cy="recognition-type-modal-submit-button"
+            id="recognitionTypeModalSubmitButton"
+          >
             Submit
           </Button>
         </div>

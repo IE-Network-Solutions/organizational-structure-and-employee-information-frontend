@@ -28,7 +28,13 @@ const TimeField: React.FC<TimeFieldProps> = ({
     timePickerProps.value = dayjs(value.value, 'HH:mm');
   }
 
-  return <TimePicker {...timePickerProps} />;
+  return (
+    <TimePicker
+      id="time-field-picker"
+      data-cy="time-field-picker"
+      {...timePickerProps}
+    />
+  );
 };
 
 export default TimeField;

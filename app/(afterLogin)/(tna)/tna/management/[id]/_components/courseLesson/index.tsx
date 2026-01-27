@@ -46,12 +46,24 @@ const CourseLesson = () => {
     course?.courseLessons?.map((lesson) => ({
       key: String(lesson.id),
       label: (
-        <div className="flex items-center justify-between w-full">
-          <span className="text-lg font-semibold text-gray-900">
+        <div
+          className="flex items-center justify-between w-full"
+          data-cy="tna-course-lesson-collapse-label"
+          id="tnaCourseLessonCollapseLabelId"
+        >
+          <span
+            className="text-lg font-semibold text-gray-900"
+            data-cy="tna-course-lesson-title"
+            id="tnaCourseLessonTitleId"
+          >
             {lesson.title}
           </span>
           {activeKey === String(lesson.id) && (
-            <div className="flex items-center gap-2">
+            <div
+              className="flex items-center gap-2"
+              data-cy="tna-course-lesson-actions"
+              id="tnaCourseLessonActionsId"
+            >
               <Button
                 id="tnaAddCourseMaterialButtonId"
                 icon={<LuPlus size={16} className="text-primary" />}
@@ -61,6 +73,7 @@ const CourseLesson = () => {
                   setLesson(lesson);
                   setIsShowLessonMaterial(true);
                 }}
+                data-cy="tna-add-course-material-button"
               />
               <ActionButton
                 id={lesson?.id || null}
@@ -73,16 +86,22 @@ const CourseLesson = () => {
                   e.stopPropagation();
                   // Add your delete logic here
                 }}
+                data-cy="tna-course-lesson-action-button"
               />
             </div>
           )}
         </div>
       ),
-      children: <LessonCard lesson={lesson} />, // Just render the content, not a Collapse
+      children: (
+        <LessonCard
+          lesson={lesson}
+          data-cy="tna-course-lesson-card-component"
+        />
+      ), // Just render the content, not a Collapse
     })) || [];
 
   return (
-    <div>
+    <div id="tnaCourseLessonContainerId" data-cy="tna-course-lesson-container">
       <Collapse
         className="mb-6 lesson-card"
         accordion
@@ -92,6 +111,7 @@ const CourseLesson = () => {
         }}
         items={items}
         style={{ borderColor: 'rgb(229 231 235)' }}
+        data-cy="tna-course-lesson-collapse"
         expandIcon={({ isActive }) => (
           <RiTriangleFill
             size={24}
@@ -100,13 +120,20 @@ const CourseLesson = () => {
               { 'rotate-180': !!isActive, 'rotate-90': !isActive },
               [],
             )}
+            id="tnaCourseLessonExpandIconId"
+            data-cy="tna-course-lesson-expand-icon"
           />
         )}
       />
 
-      <div className="flex flex-col justify-center items-center gap-2.5">
+      <div
+        className="flex flex-col justify-center items-center gap-2.5"
+        id="tnaCourseLessonActionsId"
+        data-cy="tna-course-lesson-actions"
+      >
         <Button
           id="tnaCreateLessonButtonId"
+          data-cy="tna-create-lesson-button"
           className="w-full max-w-[325px] h-[56px]"
           type="primary"
           size="large"
@@ -118,16 +145,22 @@ const CourseLesson = () => {
           Create Lesson
         </Button>
 
-        <div className="text-base text-gray-600">
+        <div
+          className="text-base text-gray-600"
+          id="tnaCourseLessonHintId"
+          data-cy="tna-course-lesson-hint"
+        >
           {course?.courseLessons?.length
             ? 'Click to add more Lessons'
             : ' No lessons currently created'}
         </div>
       </div>
 
-      <CourseAddLessonSidebar />
+      <CourseAddLessonSidebar data-cy="tna-course-lesson-add-lesson-sidebar" />
 
-      {!isShowAddLesson && <CourseLessonMaterial />}
+      {!isShowAddLesson && (
+        <CourseLessonMaterial data-cy="tna-course-lesson-material" />
+      )}
     </div>
   );
 };

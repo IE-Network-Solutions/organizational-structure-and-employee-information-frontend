@@ -102,6 +102,9 @@ export interface CategoriesUseState {
 
   editingItem: any;
   setEditingItem: (editingItem: any) => void;
+
+  selectedRowKeys: React.Key[];
+  setSelectedRowKeys: (keys: React.Key[]) => void;
 }
 const initialSearchField: SearchField[] = [
   {
@@ -215,4 +218,7 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   setCurrent: (value) => set({ current: value }),
   setOpen: (open) => set({ open }),
   setOpenModal: (open) => set({ open }),
+
+  selectedRowKeys: [],
+  setSelectedRowKeys: (keys) => set({ selectedRowKeys: keys }),
 }));

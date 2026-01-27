@@ -97,13 +97,20 @@ const BreakImportSidebar = () => {
   return (
     isShowBreakAttendanceImportSidebar && (
       <CustomDrawerLayout
+        data-cy="time-attendance-employee-attendance-break-import-sidebar-container"
         open={isShowBreakAttendanceImportSidebar}
         onClose={() => setIsShowBreakAttendanceImportSidebar(false)}
         modalHeader={
-          <CustomDrawerHeader>Import Break Records</CustomDrawerHeader>
+          <CustomDrawerHeader data-cy="time-attendance-employee-attendance-break-import-sidebar-modal-header">
+            Import Break Records
+          </CustomDrawerHeader>
         }
         footer={
-          <div className="p-6 sm:p-0">
+          <div
+            id="time-attendance-employee-attendance-break-import-sidebar-modal-footer"
+            data-cy="time-attendance-employee-attendance-break-import-sidebar-modal-footer"
+            className="p-6 sm:p-0"
+          >
             <CustomDrawerFooterButton buttons={footerModalItems} />
           </div>
         }
@@ -115,11 +122,14 @@ const BreakImportSidebar = () => {
           requiredMark={CustomLabel}
           onFinish={onFinish}
           autoComplete="off"
+          id="time-attendance-employee-attendance-break-import-form"
+          data-cy="time-attendance-employee-attendance-break-import-form"
         >
           <Form.Item
             name="breakType"
             label="Checkin type"
-            id="checkTypeSelect"
+            id="time-attendance-employee-attendance-break-import-type-select"
+            data-cy="time-attendance-employee-attendance-break-import-type-select"
             rules={[{ required: true, message: 'Required' }]}
             className={itemClass}
           >
@@ -128,25 +138,52 @@ const BreakImportSidebar = () => {
               value={selectedType}
               labelRender={selectLabel}
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown
+                  data-cy="time-attendance-employee-attendance-break-import-type-select-suffix-icon"
+                  size={16}
+                  className="text-gray-900"
+                />
               }
               onChange={setSelectedType}
               loading={breakLoading}
+              id="time-attendance-employee-attendance-break-import-type-select"
+              data-cy="time-attendance-employee-attendance-break-import-type-select"
             >
               {options.map((option, key) => (
                 <Select.Option
                   id={`chekinTypeOption${key}`}
+                  data-cy={`time-attendance-employee-attendance-break-import-type-select-option-${key}`}
                   value={option.value}
                   key={option.value}
                 >
-                  <div className="p-4 pr-1.5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div
+                    id={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div`}
+                    data-cy={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div`}
+                    className="p-4 pr-1.5 flex items-center justify-between"
+                  >
+                    <div
+                      id={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div-inner`}
+                      data-cy={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div-inner`}
+                      className="flex items-center gap-2"
+                    >
                       {selectedType === option.value ? (
-                        <div className="w-6 h-6 rounded-full border-[7px] border-primary"></div>
+                        <div
+                          id={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div-inner-selected`}
+                          data-cy={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div-inner-selected`}
+                          className="w-6 h-6 rounded-full border-[7px] border-primary"
+                        ></div>
                       ) : (
-                        <div className="w-6 h-6 rounded-full bg-gray-200 border"></div>
+                        <div
+                          id={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div-inner-not-selected`}
+                          data-cy={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div-inner-not-selected`}
+                          className="w-6 h-6 rounded-full bg-gray-200 border"
+                        ></div>
                       )}
-                      <span className="text-sm font-bold text-gray-900">
+                      <span
+                        id={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div-inner-label`}
+                        data-cy={`time-attendance-employee-attendance-break-import-type-select-option-${key}-div-inner-label`}
+                        className="text-sm font-bold text-gray-900"
+                      >
                         {option.label}
                       </span>
                     </div>
@@ -161,6 +198,8 @@ const BreakImportSidebar = () => {
             label="Upload File"
             rules={[{ required: true, message: 'Required' }]}
             className={itemClass}
+            id="time-attendance-employee-attendance-break-import-file-item"
+            data-cy="time-attendance-employee-attendance-break-import-file-item"
           >
             <Upload
               customRequest={({ file, onSuccess, onError }) => {
@@ -176,8 +215,21 @@ const BreakImportSidebar = () => {
                     onError && onError(err);
                   });
               }}
+              id="time-attendance-employee-attendance-break-import-upload-control"
+              data-cy="time-attendance-employee-attendance-break-import-upload-control"
             >
-              <Button icon={<TbFileUpload size={18} />}>Click to Upload</Button>
+              <Button
+                icon={
+                  <TbFileUpload
+                    data-cy="time-attendance-employee-attendance-break-import-upload-button-icon"
+                    size={18}
+                  />
+                }
+                id="time-attendance-employee-attendance-break-import-upload-button"
+                data-cy="time-attendance-employee-attendance-break-import-upload-button"
+              >
+                Click to Upload
+              </Button>
             </Upload>
           </Form.Item>
         </Form>

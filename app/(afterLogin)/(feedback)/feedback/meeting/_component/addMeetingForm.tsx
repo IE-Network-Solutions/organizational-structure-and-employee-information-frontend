@@ -169,11 +169,17 @@ export default function AddNewMeetingForm() {
     }
   }, [templateId, meetingAgendaTemplateById]);
   const footer = (
-    <div className="flex justify-center gap-3 mt-6">
+    <div
+      className="flex justify-center gap-3 mt-6"
+      data-cy="add-meeting-form-footer"
+      id="addMeetingFormFooter"
+    >
       <Button
         loading={meetingLoading}
         className="w-36 h-10"
         onClick={step === 2 ? onPrev : handleClose}
+        data-cy="add-meeting-form-cancel-button"
+        id="addMeetingFormCancelButton"
       >
         {step === 2 ? 'Back' : 'Cancel'}
       </Button>
@@ -182,6 +188,8 @@ export default function AddNewMeetingForm() {
         className="w-36 h-10"
         loading={meetingLoading}
         onClick={step === 2 ? () => form.submit() : onNext}
+        data-cy="add-meeting-form-submit-button"
+        id="addMeetingFormSubmitButton"
       >
         {step === 2 ? 'Create' : 'Next'}
       </Button>
@@ -193,47 +201,92 @@ export default function AddNewMeetingForm() {
       open={openAddMeeting}
       onClose={handleClose}
       modalHeader={
-        <h2 className="text-center font-semibold text-2xl mb-1">
+        <h2
+          className="text-center font-semibold text-2xl mb-1"
+          data-cy="add-meeting-form-header"
+          id="addMeetingFormHeader"
+        >
           Add New Meeting
         </h2>
       }
       width="40%"
       footer={footer}
+      data-cy="add-meeting-form-drawer"
     >
-      <style>{stepperStyles}</style>
-      <p className="text-center text-gray-600 mb-1 font-medium text-base">
+      <style
+        data-cy="add-meeting-form-stepper-styles"
+        id="addMeetingFormStepperStyles"
+      >
+        {stepperStyles}
+      </style>
+      <p
+        className="text-center text-gray-600 mb-1 font-medium text-base"
+        data-cy="add-meeting-form-subtitle"
+        id="addMeetingFormSubtitle"
+      >
         Meeting Information
       </p>
 
-      <div className="flex justify-center mb-4">
+      <div
+        className="flex justify-center mb-4"
+        data-cy="add-meeting-form-steps-container"
+        id="addMeetingFormStepsContainer"
+      >
         <Steps
           current={step - 1}
           size="small"
           labelPlacement="vertical"
           className="w-full max-w-md"
           progressDot={false}
+          data-cy="add-meeting-form-steps"
         >
           <Step
             icon={
               step === 1 ? (
-                <div className="w-6 h-6 rounded-full flex items-center justify-center border-2 border-blue-500 bg-blue-500">
-                  <span className="w-2 h-2 bg-white rounded-full"></span>
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center border-2 border-blue-500 bg-blue-500"
+                  data-cy="add-meeting-form-step-1-active"
+                  id="addMeetingFormStep1Active"
+                >
+                  <span
+                    className="w-2 h-2 bg-white rounded-full"
+                    data-cy="add-meeting-form-step-1-active-span"
+                    id="add-meeting-form-step-1-active-span"
+                  ></span>
                 </div>
               ) : (
-                <div className="w-6 h-6 rounded-full bg-gray-300 border-2 border-gray-300"></div>
+                <div
+                  className="w-6 h-6 rounded-full bg-gray-300 border-2 border-gray-300"
+                  data-cy="add-meeting-form-step-1-inactive"
+                  id="addMeetingFormStep1Inactive"
+                ></div>
               )
             }
+            data-cy="add-meeting-form-step-1"
           />
           <Step
             icon={
               step === 2 ? (
-                <div className="w-6 h-6 rounded-full flex items-center justify-center border-2 border-blue-500 bg-blue-500">
-                  <span className="w-2 h-2 bg-white rounded-full"></span>
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center border-2 border-blue-500 bg-blue-500"
+                  data-cy="add-meeting-form-step-2-active"
+                  id="addMeetingFormStep2Active"
+                >
+                  <span
+                    className="w-2 h-2 bg-white rounded-full"
+                    data-cy="add-meeting-form-step-2-active-span"
+                    id="add-meeting-form-step-2-active-span"
+                  ></span>
                 </div>
               ) : (
-                <div className="w-6 h-6 rounded-full border-2 border-gray-300 bg-white"></div>
+                <div
+                  className="w-6 h-6 rounded-full border-2 border-gray-300 bg-white"
+                  data-cy="add-meeting-form-step-2-inactive"
+                  id="addMeetingFormStep2Inactive"
+                ></div>
               )
             }
+            data-cy="add-meeting-form-step-2"
           />
         </Steps>
       </div>
@@ -243,15 +296,28 @@ export default function AddNewMeetingForm() {
         form={form}
         layout="vertical"
         onFinish={onFinish}
+        data-cy="add-meeting-form"
+        id="addMeetingForm"
       >
         {/* Step 1 */}
-        <div style={{ display: step === 1 ? 'block' : 'none' }}>
+        <div
+          style={{ display: step === 1 ? 'block' : 'none' }}
+          data-cy="add-meeting-form-step-1-content"
+          id="addMeetingFormStep1Content"
+        >
           <Form.Item
             label="Title"
             name="title"
             rules={[{ required: true, message: 'Please input the title' }]}
+            data-cy="add-meeting-form-title-field"
+            id="addMeetingFormTitleField"
           >
-            <Input placeholder="Input area" className="h-[54px]" />
+            <Input
+              placeholder="Input area"
+              className="h-[54px]"
+              data-cy="add-meeting-form-title-input"
+              id="addMeetingFormTitleInput"
+            />
           </Form.Item>
 
           <Form.Item
@@ -260,6 +326,8 @@ export default function AddNewMeetingForm() {
             ]}
             label="Meeting Type"
             name="meetingTypeId"
+            data-cy="add-meeting-form-meeting-type-field"
+            id="addMeetingFormMeetingTypeField"
           >
             <Select
               showSearch
@@ -273,6 +341,8 @@ export default function AddNewMeetingForm() {
                   .includes(input.toLowerCase())
               }
               options={meetingOptions}
+              data-cy="add-meeting-form-meeting-type-select"
+              id="addMeetingFormMeetingTypeSelect"
             />
           </Form.Item>
 
@@ -280,29 +350,57 @@ export default function AddNewMeetingForm() {
             label="Location"
             name="locationType"
             rules={[{ required: true, message: 'Please select location type' }]}
+            data-cy="add-meeting-form-location-type-field"
+            id="addMeetingFormLocationTypeField"
           >
             <Radio.Group
               onChange={(e) => setMeetingType(e.target.value)}
               value={locationType}
               className="flex flex-col gap-2 w-full"
+              data-cy="add-meeting-form-location-type-group"
+              id="addMeetingFormLocationTypeGroup"
             >
               <Radio
                 value="in-person"
                 className="w-full border p-3 rounded-md h-[54px] flex items-center"
+                data-cy="add-meeting-form-location-type-in-person"
+                id="addMeetingFormLocationTypeInPerson"
               >
-                <span className="ml-2">In-person</span>
+                <span
+                  className="ml-2"
+                  data-cy="add-meeting-form-location-type-in-person-label"
+                  id="addMeetingFormLocationTypeInPersonLabel"
+                >
+                  In-person
+                </span>
               </Radio>
               <Radio
                 value="virtual"
                 className="w-full border p-3 rounded-md h-[54px] flex items-center"
+                data-cy="add-meeting-form-location-type-virtual"
+                id="addMeetingFormLocationTypeVirtual"
               >
-                <span className="ml-2">Virtual</span>
+                <span
+                  className="ml-2"
+                  data-cy="add-meeting-form-location-type-virtual-label"
+                  id="addMeetingFormLocationTypeVirtualLabel"
+                >
+                  Virtual
+                </span>
               </Radio>
               <Radio
                 value="hybrid"
                 className="w-full border p-3 rounded-md h-[54px] flex items-center"
+                data-cy="add-meeting-form-location-type-hybrid"
+                id="addMeetingFormLocationTypeHybrid"
               >
-                <span className="ml-2">Hybrid</span>
+                <span
+                  className="ml-2"
+                  data-cy="add-meeting-form-location-type-hybrid-label"
+                  id="addMeetingFormLocationTypeHybridLabel"
+                >
+                  Hybrid
+                </span>
               </Radio>
             </Radio.Group>
           </Form.Item>
@@ -311,8 +409,15 @@ export default function AddNewMeetingForm() {
               label="Enter Link"
               name="virtualLink"
               rules={[{ required: true, message: 'Please enter Virtual Link' }]}
+              data-cy="add-meeting-form-virtual-link-field"
+              id="addMeetingFormVirtualLinkField"
             >
-              <Input placeholder="Meeting link" className="h-[54px]" />
+              <Input
+                placeholder="Meeting link"
+                className="h-[54px]"
+                data-cy="add-meeting-form-virtual-link-input"
+                id="addMeetingFormVirtualLinkInput"
+              />
             </Form.Item>
           )}
 
@@ -321,8 +426,15 @@ export default function AddNewMeetingForm() {
               label="Enter Location"
               name="physicalLocation"
               rules={[{ required: true, message: 'Please enter location' }]}
+              data-cy="add-meeting-form-physical-location-field"
+              id="addMeetingFormPhysicalLocationField"
             >
-              <Input placeholder="Conference Room" className="h-[54px]" />
+              <Input
+                placeholder="Conference Room"
+                className="h-[54px]"
+                data-cy="add-meeting-form-physical-location-input"
+                id="addMeetingFormPhysicalLocationInput"
+              />
             </Form.Item>
           )}
 
@@ -330,6 +442,8 @@ export default function AddNewMeetingForm() {
             label="Department"
             name="department"
             rules={[{ required: true, message: 'Please select a department' }]}
+            data-cy="add-meeting-form-department-field"
+            id="addMeetingFormDepartmentField"
           >
             <Select
               showSearch
@@ -344,20 +458,30 @@ export default function AddNewMeetingForm() {
                   .includes(input.toLowerCase())
               }
               options={departmentOptions}
+              data-cy="add-meeting-form-department-select"
+              id="addMeetingFormDepartmentSelect"
             />
           </Form.Item>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div
+            className="grid grid-cols-3 gap-3"
+            data-cy="add-meeting-form-date-time-container"
+            id="addMeetingFormDateTimeContainer"
+          >
             <Form.Item
               label="Date"
               name="date"
               rules={[{ required: true, message: 'Please select date' }]}
+              data-cy="add-meeting-form-date-field"
+              id="addMeetingFormDateField"
             >
               <DatePicker
                 className="w-full h-[54px]"
                 disabledDate={(current) =>
                   current && current < dayjs().startOf('day')
                 }
+                data-cy="add-meeting-form-date-picker"
+                id="addMeetingFormDatePicker"
               />
             </Form.Item>
 
@@ -365,11 +489,15 @@ export default function AddNewMeetingForm() {
               label="Start Time"
               name="startAt"
               rules={[{ required: true, message: 'Please select start time' }]}
+              data-cy="add-meeting-form-start-time-field"
+              id="addMeetingFormStartTimeField"
             >
               <TimePicker
                 format="hh:mm A"
                 use12Hours
                 className="w-full h-[54px]"
+                data-cy="add-meeting-form-start-time-picker"
+                id="addMeetingFormStartTimePicker"
               />
             </Form.Item>
 
@@ -395,11 +523,15 @@ export default function AddNewMeetingForm() {
                   },
                 }),
               ]}
+              data-cy="add-meeting-form-end-time-field"
+              id="addMeetingFormEndTimeField"
             >
               <TimePicker
                 format="hh:mm A"
                 use12Hours
                 className="w-full h-[54px]"
+                data-cy="add-meeting-form-end-time-picker"
+                id="addMeetingFormEndTimePicker"
               />
             </Form.Item>
           </div>
@@ -408,6 +540,8 @@ export default function AddNewMeetingForm() {
             label="Select Chair person"
             name="chairpersonId"
             rules={[{ required: true, message: 'Please select chair person' }]}
+            data-cy="add-meeting-form-chairperson-field"
+            id="addMeetingFormChairpersonField"
           >
             <Select
               showSearch
@@ -420,6 +554,8 @@ export default function AddNewMeetingForm() {
                   .includes(input.toLowerCase())
               }
               options={peopleOptions}
+              data-cy="add-meeting-form-chairperson-select"
+              id="addMeetingFormChairpersonSelect"
             />
           </Form.Item>
 
@@ -427,6 +563,8 @@ export default function AddNewMeetingForm() {
             label="Select Facilitator"
             name="facilitatorId"
             rules={[{ required: true, message: 'Please select facilitator' }]}
+            data-cy="add-meeting-form-facilitator-field"
+            id="addMeetingFormFacilitatorField"
           >
             <Select
               showSearch
@@ -439,6 +577,8 @@ export default function AddNewMeetingForm() {
                   .includes(input.toLowerCase())
               }
               options={peopleOptions}
+              data-cy="add-meeting-form-facilitator-select"
+              id="addMeetingFormFacilitatorSelect"
             />
           </Form.Item>
 
@@ -446,6 +586,8 @@ export default function AddNewMeetingForm() {
             label="Add Attendee"
             name="attendeeIds"
             rules={[{ required: true, message: 'Please add attendees' }]}
+            data-cy="add-meeting-form-attendees-field"
+            id="addMeetingFormAttendeesField"
           >
             <Select
               showSearch
@@ -460,11 +602,20 @@ export default function AddNewMeetingForm() {
                   .includes(input.toLowerCase())
               }
               options={peopleOptions}
+              data-cy="add-meeting-form-attendees-select"
+              id="addMeetingFormAttendeesSelect"
             />
           </Form.Item>
 
-          <Form.Item>
-            <div className="flex justify-end">
+          <Form.Item
+            data-cy="add-meeting-form-allow-guests-field"
+            id="addMeetingFormAllowGuestsField"
+          >
+            <div
+              className="flex justify-end"
+              data-cy="add-meeting-form-allow-guests-container"
+              id="addMeetingFormAllowGuestsContainer"
+            >
               <Checkbox
                 checked={allowGuests}
                 onChange={(e) => {
@@ -481,32 +632,61 @@ export default function AddNewMeetingForm() {
                   }
                 }}
                 className="flex items-center"
+                data-cy="add-meeting-form-allow-guests-checkbox"
+                id="addMeetingFormAllowGuestsCheckbox"
               >
-                <span className="font-bold ml-2">Allow Guests</span>
+                <span
+                  className="font-bold ml-2"
+                  data-cy="add-meeting-form-allow-guests-label"
+                  id="addMeetingFormAllowGuestsLabel"
+                >
+                  Allow Guests
+                </span>
               </Checkbox>
             </div>
 
             {allowGuests && (
-              <Form.List name="guests">
+              <Form.List name="guests" data-cy="add-meeting-form-guests-list">
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
                       <div
                         key={key}
                         className="bg-gray-50 p-4 rounded-lg mb-3 border"
+                        data-cy={`add-meeting-form-guest-item-${name}`}
+                        id={`addMeetingFormGuestItem${name}`}
                       >
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="font-semibold text-gray-700">
+                        <div
+                          className="flex justify-between items-center mb-3"
+                          data-cy={`add-meeting-form-guest-header-${name}`}
+                          id={`addMeetingFormGuestHeader${name}`}
+                        >
+                          <span
+                            className="font-semibold text-gray-700"
+                            data-cy="add-meeting-form-guest-header-label"
+                            id="addMeetingFormGuestHeaderLabel"
+                          >
                             Guest {name + 1}
                           </span>
                           <Button
-                            icon={<MdClose />}
+                            icon={
+                              <MdClose
+                                data-cy="add-meeting-form-guest-header-remove-icon"
+                                id="addMeetingFormGuestHeaderRemoveIcon"
+                              />
+                            }
                             type="text"
                             className="text-gray-500 hover:text-red-500"
                             onClick={() => remove(name)}
+                            data-cy={`add-meeting-form-remove-guest-${name}`}
+                            id={`addMeetingFormRemoveGuest${name}`}
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div
+                          className="grid grid-cols-2 gap-3"
+                          data-cy={`add-meeting-form-guest-fields-${name}`}
+                          id={`addMeetingFormGuestFields${name}`}
+                        >
                           <Form.Item
                             {...restField}
                             name={[name, 'name']}
@@ -531,8 +711,15 @@ export default function AddNewMeetingForm() {
                               },
                             ]}
                             className="w-full"
+                            data-cy={`add-meeting-form-guest-name-field-${name}`}
+                            id={`addMeetingFormGuestNameField${name}`}
                           >
-                            <Input placeholder="Name" className="h-[54px]" />
+                            <Input
+                              placeholder="Name"
+                              className="h-[54px]"
+                              data-cy={`add-meeting-form-guest-name-input-${name}`}
+                              id={`addMeetingFormGuestNameInput${name}`}
+                            />
                           </Form.Item>
 
                           <Form.Item
@@ -576,21 +763,31 @@ export default function AddNewMeetingForm() {
                               },
                             ]}
                             className="w-full"
+                            data-cy={`add-meeting-form-guest-email-field-${name}`}
+                            id={`addMeetingFormGuestEmailField${name}`}
                           >
                             <Input
                               placeholder="Email"
                               type="email"
                               className="h-[54px]"
+                              data-cy={`add-meeting-form-guest-email-input-${name}`}
+                              id={`addMeetingFormGuestEmailInput${name}`}
                             />
                           </Form.Item>
                         </div>
                       </div>
                     ))}
-                    <div className="flex justify-end">
+                    <div
+                      className="flex justify-end"
+                      data-cy="add-meeting-form-add-guest-button-container"
+                      id="addMeetingFormAddGuestButtonContainer"
+                    >
                       <Button
                         type="primary"
                         onClick={() => add()}
                         className="h-10"
+                        data-cy="add-meeting-form-add-guest-button"
+                        id="addMeetingFormAddGuestButton"
                       >
                         Add Guest
                       </Button>
@@ -603,18 +800,26 @@ export default function AddNewMeetingForm() {
         </div>
 
         {/* Step 2 */}
-        <div style={{ display: step === 2 ? 'block' : 'none' }}>
+        <div
+          style={{ display: step === 2 ? 'block' : 'none' }}
+          data-cy="add-meeting-form-step-2-content"
+          id="addMeetingFormStep2Content"
+        >
           <Form.Item
             label="Meeting Objective"
             name="objective"
             rules={[
               { required: true, message: 'Please enter meeting objective' },
             ]}
+            data-cy="add-meeting-form-objective-field"
+            id="addMeetingFormObjectiveField"
           >
             <Input.TextArea
               placeholder="[[Meeting Type + Objective]]"
               rows={4}
               className="min-h-[54px]"
+              data-cy="add-meeting-form-objective-textarea"
+              id="addMeetingFormObjectiveTextarea"
             />
           </Form.Item>
 
@@ -622,6 +827,8 @@ export default function AddNewMeetingForm() {
             label="Templates"
             name="template"
             // rules={[{ required: true, message: 'Please select a template' }]}
+            data-cy="add-meeting-form-template-field"
+            id="addMeetingFormTemplateField"
           >
             <Select
               showSearch
@@ -636,13 +843,23 @@ export default function AddNewMeetingForm() {
               }
               options={meetingTemplateOptions}
               onChange={(value) => setTemplateId(value)}
+              data-cy="add-meeting-form-template-select"
+              id="addMeetingFormTemplateSelect"
             />
           </Form.Item>
-          <Form.List name="agendaItems">
+          <Form.List
+            name="agendaItems"
+            data-cy="add-meeting-form-agenda-items-list"
+          >
             {(fields, { remove }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => (
-                  <div key={key} className="flex mb-1 gap-4 items-center">
+                  <div
+                    key={key}
+                    className="flex mb-1 gap-4 items-center"
+                    data-cy={`add-meeting-form-agenda-item-${name}`}
+                    id={`addMeetingFormAgendaItem${name}`}
+                  >
                     <Form.Item
                       {...restField}
                       name={name}
@@ -651,10 +868,21 @@ export default function AddNewMeetingForm() {
                       ]}
                       className="w-full"
                       label={`Agenda Item ${key + 1}`}
+                      data-cy={`add-meeting-form-agenda-item-field-${name}`}
+                      id={`addMeetingFormAgendaItemField${name}`}
                     >
-                      <Input placeholder="Agenda Item" className="h-[54px]" />
+                      <Input
+                        placeholder="Agenda Item"
+                        className="h-[54px]"
+                        data-cy={`add-meeting-form-agenda-item-input-${name}`}
+                        id={`addMeetingFormAgendaItemInput${name}`}
+                      />
                     </Form.Item>
-                    <MdClose onClick={() => remove(name)} />
+                    <MdClose
+                      onClick={() => remove(name)}
+                      data-cy={`add-meeting-form-remove-agenda-item-${name}`}
+                      id={`addMeetingFormRemoveAgendaItem${name}`}
+                    />
                   </div>
                 ))}
               </>

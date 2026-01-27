@@ -257,8 +257,13 @@ const PayPeriodSideBar = () => {
       onClick: () => onClose(),
     },
     {
-      label: <span>Create</span>,
+      label: (
+        <span data-cy="payroll-payperiod-sidebar-create-button-label">
+          Create
+        </span>
+      ),
       key: 'create',
+      'data-cy': 'payroll-payperiod-sidebar-create-button',
       className: 'h-12',
       type: 'primary',
       size: 'large',

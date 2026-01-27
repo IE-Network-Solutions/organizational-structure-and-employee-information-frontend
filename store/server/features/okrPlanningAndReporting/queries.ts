@@ -75,20 +75,6 @@ const getPlanningPeriodsHierarchy = async (
   });
 };
 
-const getUserChildPlans = async (planId: string | undefined) => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const headers = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-
-  return await crudRequest({
-    url: `${OKR_URL}/plan/get-user-child-plans/${planId}`,
-    method: 'get',
-    headers,
-  });
-};
 const getAllUnReportedPlanningTask = async (
   planningPeriodId: string | undefined,
   forPlan: number,
@@ -250,7 +236,7 @@ export const useGetPlanning = (params: DataType) => {
 };
 export const useGetUserPlanning = (planPeriodId: string, forPlan: string) => {
   return useQuery<any>(
-    ['okrPlans', planPeriodId, forPlan],
+    ['okrUserPlans', planPeriodId, forPlan],
     () => getUserPlanningData(planPeriodId, forPlan),
     {
       enabled: planPeriodId !== undefined && planPeriodId !== '',
@@ -271,15 +257,6 @@ export const useGetPlanningPeriodsHierarchy = (
   );
 };
 
-export const useGetUserChildPlans = (planId: string | undefined) => {
-  return useQuery<any>(
-    ['childPlans', { planId }],
-    () => getUserChildPlans(planId),
-    {
-      enabled: !!planId, // Ensure both are truthy
-    },
-  );
-};
 export const useGetPlanningById = (planningId: string) => {
   return useQuery<any>(
     ['okrPlan', planningId],
@@ -333,3 +310,30 @@ export const useGetReportedPlanning = (planId: string) => {
     },
   );
 };
+
+// Fetch reported daily tasks by weekly task ID
+const getDailyTasksByWeeklyTask = async (weeklyTaskId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report-task/daily-plans/${weeklyTaskId}`,
+    method: 'get',
+    headers,
+  });
+};
+
+export { getReportingData };
+
+// Expose a non-hook function so non-React code can fetch planning periods
+export const fetchAllPlanningPeriods = getAllPlanningPeriods;
+
+export const fetchPlanningPeriodsHierarchy = getPlanningPeriodsHierarchy;
+
+// Export the new endpoint for fetching daily tasks by weekly task
+export const fetchDailyTasksByWeeklyTask = getDailyTasksByWeeklyTask;

@@ -94,6 +94,9 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
     };
   },
 
+  searchQuery: '',
+  setSearchQuery: (query: string) => set({ searchQuery: query }),
+
   clearState: () =>
     set(() => ({
       scheduleName: '',

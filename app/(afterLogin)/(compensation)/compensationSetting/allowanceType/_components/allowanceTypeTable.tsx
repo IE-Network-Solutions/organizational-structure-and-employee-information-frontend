@@ -73,7 +73,12 @@ const AllowanceTypeTable = () => {
       key: 'name',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="allowance-type-name" className="text-xs truncate">
+        <div
+          data-testid="allowance-type-name"
+          className="text-xs truncate"
+          id="compensation-settings-allowance-type-name"
+          data-cy="compensation-settings-allowance-type-name"
+        >
           {text || '-'}
         </div>
       ),
@@ -87,6 +92,8 @@ const AllowanceTypeTable = () => {
         <div
           data-testid="allowance-type-description"
           className="text-xs truncate"
+          id="compensation-settings-allowance-type-description"
+          data-cy="compensation-settings-allowance-type-description"
         >
           {text || '-'}
         </div>
@@ -98,7 +105,12 @@ const AllowanceTypeTable = () => {
       key: 'type',
       sorter: true,
       render: (isRate: boolean) => (
-        <div data-testid="allowance-type-type" className="text-xs truncate">
+        <div
+          data-testid="allowance-type-type"
+          className="text-xs truncate"
+          id="compensation-settings-allowance-type-type"
+          data-cy="compensation-settings-allowance-type-type"
+        >
           {isRate ? 'Rate' : 'Fixed'}
         </div>
       ),
@@ -109,8 +121,16 @@ const AllowanceTypeTable = () => {
       key: 'amount',
       sorter: true,
       render: (amount: number, record: any) => (
-        <div data-testid={`allowance-type-amount-${record.id}`}>
-          <div className="text-xs truncate">
+        <div
+          data-testid={`allowance-type-amount-${record.id}`}
+          id={`compensation-settings-allowance-type-amount-${record.id}`}
+          data-cy={`compensation-settings-allowance-type-amount-${record.id}`}
+        >
+          <div
+            id="compensation-settings-allowance-type-amount-display"
+            data-cy="compensation-settings-allowance-type-amount-display"
+            className="text-xs truncate"
+          >
             {!record.isRate ? `${amount} ETB` : `${amount}% of base salary`}
           </div>
         </div>
@@ -122,8 +142,16 @@ const AllowanceTypeTable = () => {
       key: 'notTaxableAmount',
       sorter: true,
       render: (notTaxableAmount: number, record: any) => (
-        <div data-testid={`allowance-type-non-taxable-${record.id}`}>
-          <div className="text-xs truncate">
+        <div
+          data-testid={`allowance-type-non-taxable-${record.id}`}
+          id={`compensation-settings-allowance-type-nontax-${record.id}`}
+          data-cy={`compensation-settings-allowance-type-nontax-${record.id}`}
+        >
+          <div
+            id="compensation-settings-allowance-type-non-taxable-display"
+            data-cy="compensation-settings-allowance-type-non-taxable-display"
+            className="text-xs truncate"
+          >
             {notTaxableAmount ? `${notTaxableAmount} ETB` : '-'}
           </div>
         </div>
@@ -135,8 +163,16 @@ const AllowanceTypeTable = () => {
       key: 'applicableTo',
       sorter: true,
       render: (applicableTo: string) => (
-        <div data-testid="allowance-type-applicable">
-          <div className="text-xs truncate">
+        <div
+          data-testid="allowance-type-applicable"
+          id="compensation-settings-allowance-type-applicable"
+          data-cy="compensation-settings-allowance-type-applicable"
+        >
+          <div
+            id="compensation-settings-allowance-type-applicable-display"
+            data-cy="compensation-settings-allowance-type-applicable-display"
+            className="text-xs truncate"
+          >
             {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
           </div>
         </div>
@@ -148,12 +184,16 @@ const AllowanceTypeTable = () => {
       key: 'status',
       render: (rule: any, record: any) => (
         <AccessGuard
+          id={`compensation-settings-allowance-type-status-${record.id}`}
+          data-cy={`compensation-settings-allowance-type-status-${record.id}`}
           permissions={[
             Permissions.UpdateAllowanceType,
             Permissions.DeleteAllowanceType,
           ]}
         >
           <Switch
+            id={`compensation-settings-allowance-type-status-switch-${record.id}`}
+            data-cy={`compensation-settings-allowance-type-status-switch-${record.id}`}
             loading={loadingId === record.id}
             onClick={() => updateStatus(record.id)}
             checked={record.isActive}
@@ -168,16 +208,23 @@ const AllowanceTypeTable = () => {
       key: 'action',
       render: (rule: any, record: any) => (
         <AccessGuard
+          id={`compensation-settings-allowance-type-actions-access-guard-${record.id}`}
+          data-cy={`compensation-settings-allowance-type-actions-access-guard-${record.id}`}
           permissions={[
             Permissions.UpdateAllowanceType,
             Permissions.DeleteAllowanceType,
           ]}
         >
-          <div data-testid={`allowance-type-actions-${record.id}`}>
+          <div
+            data-testid={`allowance-type-actions-${record.id}`}
+            id={`compensation-settings-allowance-type-actions-${record.id}`}
+            data-cy={`compensation-settings-allowance-type-actions-${record.id}`}
+          >
             <ActionButtons
               id={record?.id ?? null}
               onEdit={() => handleAllowanceEdit(record)}
               onDelete={() => handleDelete(record.id)}
+              data-cy="compensation-settings-allowance-type-actions-buttons"
             />
           </div>
         </AccessGuard>
@@ -190,20 +237,35 @@ const AllowanceTypeTable = () => {
   );
 
   return (
-    <div data-testid="allowance-type-table-container">
-      <Spin spinning={isLoading} data-testid="allowance-type-table-loading">
-        <div className="flex overflow-x-auto scrollbar-none w-full ">
+    <div
+      data-testid="allowance-type-table-container"
+      id="compensation-settings-allowance-type-table-container"
+      data-cy="compensation-settings-allowance-type-table-container"
+    >
+      <Spin
+        spinning={isLoading}
+        data-testid="allowance-type-table-loading"
+        data-cy="compensation-settings-allowance-type-table-loading"
+      >
+        <div
+          className="flex overflow-x-auto scrollbar-none w-full "
+          id="compensation-settings-allowance-type-table-scroll"
+          data-cy="compensation-settings-allowance-type-table-scroll"
+        >
           <Table
             className="mt-6"
             columns={columns}
             dataSource={paginatedData}
             pagination={false}
             data-testid="allowance-type-table"
+            id="compensation-settings-allowance-type-table"
+            data-cy="compensation-settings-allowance-type-table"
           />
         </div>
 
         {isMobile || isTablet ? (
           <CustomMobilePagination
+            data-cy="compensation-settings-allowance-type-mobile-pagination"
             totalResults={tableData.length}
             pageSize={allowancePageSize}
             onChange={(page, size) => {
@@ -228,6 +290,7 @@ const AllowanceTypeTable = () => {
               setAllowancePageSize(size);
               setAllowanceCurrentPage(1);
             }}
+            data-cy="compensation-settings-allowance-type-pagination"
           />
         )}
       </Spin>

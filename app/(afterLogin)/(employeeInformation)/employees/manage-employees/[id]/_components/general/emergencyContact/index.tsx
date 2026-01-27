@@ -188,6 +188,13 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                       placeholder={`Select ${key}`}
                       allowClear
                       defaultValue={val}
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        String(option?.children || '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
                       id={`emergency-contact-${key}-select`}
                       data-cy={`emergency-contact-${key}-select`}
                     >

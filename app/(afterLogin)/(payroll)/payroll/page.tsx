@@ -47,6 +47,16 @@ import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
+import {
+  useGetPendingPayrollApprovals,
+  useGetPayrollApprovalByPayPeriodId,
+} from '@/store/server/features/payroll/payrollApproval/queries';
+import {
+  useApprovePayrollApproval,
+  useLastApprovingPayroll,
+} from '@/store/server/features/payroll/payrollApproval/mutation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useRouter } from 'next/navigation';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,6 +66,18 @@ const Payroll = () => {
   const { data: allowanceTypesData } = useFetchAllowanceTypes();
   const [exportPayrollData, setExportPayrollData] = useState(true);
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+
+  const authStore = useAuthenticationStore.getState();
+  const { userId } = useAuthenticationStore();
+  const tenantId = authStore.tenantId;
+  const userRollId = authStore.userData?.roleId;
+
+  const { mutate: approvePayroll, isLoading: isApproving } =
+    useApprovePayrollApproval();
+  const { mutate: lastApproving, isLoading: isLastApproving } =
+    useLastApprovingPayroll();
 
   const {
     searchQuery,
@@ -82,6 +104,25 @@ const Payroll = () => {
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
+
+  // Get payPeriodId from filters or from payroll data
+  const currentPayPeriodId = payPeriodId || payroll?.items?.[0]?.payPeriodId;
+
+  // Fetch pending approvals with payPeriodId
+  const { data: pendingApprovals, refetch: refetchPendingApprovals } =
+    useGetPendingPayrollApprovals(currentPayPeriodId, 1, 10);
+
+  // Fetch payroll approval by payPeriodId
+  const {
+    data: payrollApprovalByPayPeriod,
+    refetch: refetchPayrollApprovalByPayPeriod,
+  } = useGetPayrollApprovalByPayPeriodId(currentPayPeriodId);
+
+  const hasPendingApprovals = pendingApprovals?.items?.length > 0;
+  const pendingApproval = pendingApprovals?.items?.[0] || null;
+  const canGenerateOrRegenerate =
+    !payrollApprovalByPayPeriod ||
+    payrollApprovalByPayPeriod?.approved === false;
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
@@ -93,6 +134,7 @@ const Payroll = () => {
   const [loading, setLoading] = useState(false);
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
+  const [open, setOpen] = useState(false);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
   const activeAllowanceTypes = Array.isArray(allowanceTypesData)
@@ -100,6 +142,8 @@ const Payroll = () => {
         (item: any) => item.type === 'ALLOWANCE' && item.isActive,
       )
     : [];
+
+  const router = useRouter();
 
   useEffect(() => {
     // Check if division filter is applied
@@ -172,27 +216,50 @@ const Payroll = () => {
     }
   }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
 
+  // Get selected payroll data or all data if nothing is selected
+  const getSelectedPayrollData = () => {
+    if (selectedRowKeys.length === 0) {
+      return mergedPayrollForExport;
+    }
+    return mergedPayrollForExport.filter((item: any) =>
+      selectedRowKeys.includes(item.id || item.employeeId),
+    );
+  };
+
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
+    const selectedData = getSelectedPayrollData();
+
+    // Check if there's any data available to export
+    if (!selectedData || selectedData.length === 0) {
+      notification.error({
+        message: 'No Data Available',
+        description:
+          selectedRowKeys.length > 0
+            ? 'The selected employees have no payroll data to export. Please adjust your selection or filters.'
+            : 'There is no payroll data available to export. Please check your filters or generate payroll first.',
+      });
+      return;
+    }
 
     if (paySlip)
-      exportTasks.push(
-        Promise.resolve(sendingPaySlipHandler(mergedPayrollForExport)),
-      );
+      exportTasks.push(Promise.resolve(sendingPaySlipHandler(selectedData)));
 
     if (exportPayrollData)
-      exportTasks.push(Promise.resolve(handleDeductionExportPayroll()));
-
-    if (exportBank) exportTasks.push(handleExportBank());
-
-    if (bankLetter)
       exportTasks.push(
-        Promise.resolve(
-          handleBankLetter(
-            payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
-          ),
-        ),
+        Promise.resolve(handleDeductionExportPayroll(selectedData)),
       );
+
+    if (exportBank) exportTasks.push(handleExportBank(selectedData));
+
+    if (bankLetter) {
+      // Calculate total net pay for selected items
+      const totalNetPay = selectedData.reduce(
+        (sum: number, item: any) => sum + (item.netPay || 0),
+        0,
+      );
+      exportTasks.push(Promise.resolve(handleBankLetter(totalNetPay)));
+    }
 
     if (exportTasks?.length === 0) {
       notification.error({
@@ -207,7 +274,7 @@ const Payroll = () => {
       await Promise.all(exportTasks); // Await all promises
       notification.success({
         message: 'Export Successful',
-        description: 'Selected export operations completed successfully.',
+        description: `Selected export operations completed successfully for ${selectedData.length} employee(s).`,
       });
     } catch (error) {
       notification.error({
@@ -272,6 +339,8 @@ const Payroll = () => {
       ? `&${queryParams.toString()}`
       : '';
     setSearchQuery(searchParams);
+    // Reset selection when filters change
+    setSelectedRowKeys([]);
     refetch();
     refetchExportData();
   };
@@ -302,10 +371,13 @@ const Payroll = () => {
         {
           onSuccess: () => {
             setIsPayrollModalOpen(false);
+            refetchPayrollApprovalByPayPeriod();
+            setTimeout(() => {
+              setOpen(true);
+            }, 500);
           },
         },
       );
-      setIsPayrollModalOpen(false);
     } catch (error) {
       notification.error({
         message: 'Error Generating Payroll',
@@ -338,8 +410,9 @@ const Payroll = () => {
     }));
     sendPaySlip({ values });
   };
-  const handleDeductionExportPayroll = async () => {
-    if (!mergedPayrollForExport || mergedPayrollForExport?.length === 0) {
+  const handleDeductionExportPayroll = async (dataToExport?: any[]) => {
+    const payrollDataToExport = dataToExport || mergedPayrollForExport;
+    if (!payrollDataToExport || payrollDataToExport?.length === 0) {
       NotificationMessage.error({
         message: 'No Data Available',
         description: 'There is no data available to export.',
@@ -367,25 +440,27 @@ const Payroll = () => {
       };
 
       const exportColumns = [
+        { type: 'TIN Number', key: 'tinNumber' },
         { type: 'Basic Salary', key: 'basicSalary' },
         { type: 'Transport Allowance', key: 'transportAllowance' },
         { type: 'Taxable Transport', key: 'taxableTransport' },
-        { type: 'Total Award', key: 'totalBenefits' },
-        { type: 'Gross Salary', key: 'grossIncome' },
-        { type: 'Taxable Income', key: 'taxableIncome' },
-        { type: 'Tax', key: 'tax' },
-        { type: 'Total Deduction', key: 'totalDeduction' },
+        { type: 'Position Allowance', key: 'positionAllowance' },
+        { type: 'Total Benefits', key: 'totalBenefits' },
         { type: 'Variable Pay', key: 'variablePay' },
-        { type: 'Total Incentive', key: 'totalIncentive' },
+        { type: 'Gross Salary', key: 'grossIncome' },
         { type: 'Employee Pension', key: 'employeePension' },
+        { type: 'Tax', key: 'tax' },
         { type: 'Company Pension', key: 'companyPesnion' },
+        { type: 'Total Deduction', key: 'totalDeduction' },
+        { type: 'Total Incentive', key: 'totalIncentive' },
+        { type: 'Taxable Income', key: 'taxableIncome' },
         { type: 'Net Income', key: 'netIncome' },
       ];
       const columnHeaderMap = new Map<string, string>(
         exportColumns.map((col) => [col.key, col.type]),
       );
       exportColumns.forEach((col) => uniquePayrollColumns.add(col.key));
-      mergedPayrollForExport.forEach((item: any) => {
+      payrollDataToExport.forEach((item: any) => {
         item.breakdown?.allowances?.forEach((a: any) =>
           uniqueAllowanceTypes.add(a.type),
         );
@@ -397,10 +472,13 @@ const Payroll = () => {
         );
       });
 
-      mergedPayrollForExport.forEach((item: any) => {
+      payrollDataToExport.forEach((item: any) => {
         const fullName =
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
           '--';
+        const tinNumber =
+          item.employeeInfo?.employeeInformation?.additionalInformation
+            ?.tinNumber || '--';
         const basicSalary =
           item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
             ?.basicSalary || 0;
@@ -415,31 +493,46 @@ const Payroll = () => {
           ?.reduce((acc: any, item: any) => {
             return acc + Number(item.amount);
           }, 0);
-        const taxableTransport = transportAllowance - 600;
+        const taxableTransport =
+          transportAllowance >= 600 ? transportAllowance - 600 : 0;
         const totalBenefits = item.totalMerit || 0;
+
+        // Find Position Allowance from allowances
+        const positionAllowance =
+          allowances?.find(
+            (a: any) =>
+              a.type === 'Position Allowance' ||
+              a.type?.toLowerCase().includes('position'),
+          )?.amount || 0;
+
+        // Calculate taxable income: subtract 600 only if Transport Allowance >= 600
+        const taxableIncomeDeduction = transportAllowance >= 600 ? 600 : 0;
+        const taxableIncome = item.grossSalary - taxableIncomeDeduction;
 
         const payrollRowData: any = {
           fullName,
+          tinNumber,
           basicSalary: formatAmount(basicSalary),
           transportAllowance: formatAmount(transportAllowance),
           taxableTransport: formatAmount(taxableTransport),
           totalBenefits: formatAmount(totalBenefits || 0),
-          grossIncome: formatAmount(item.grossSalary || 0),
-          taxableIncome: formatAmount(item.grossSalary - 600 || 0),
-          tax: formatAmount(item.breakdown?.tax?.amount),
-          totalDeduction: formatAmount(item.totalDeductions || 0),
           variablePay: formatAmount(variablePay || 0),
-          totalIncentive: formatAmount(totalIncentive || 0),
+          grossIncome: formatAmount(item.grossSalary || 0),
           employeePension: formatAmount(
             item.breakdown?.pension?.find((i: any) => i.type == 'Pension')
               ?.amount || 0,
           ),
+          tax: formatAmount(item.breakdown?.tax?.amount),
           companyPesnion: formatAmount(
             item.breakdown?.pension?.find(
               (i: any) => i.type == 'CompanyContribution',
             )?.amount || 0,
           ),
+          totalDeduction: formatAmount(item.totalDeductions || 0),
+          totalIncentive: formatAmount(totalIncentive || 0),
+          taxableIncome: formatAmount(taxableIncome || 0),
           netIncome: formatAmount(item.netPay || 0),
+          positionAllowance: formatAmount(positionAllowance || 0),
         };
 
         // Calculate total deductions
@@ -449,6 +542,7 @@ const Payroll = () => {
         );
         const deductionRow: any = {
           fullName,
+          tinNumber,
           totalDeductions: formatAmount(totalDeductions),
         };
 
@@ -459,6 +553,7 @@ const Payroll = () => {
         );
         const allowanceRow: any = {
           fullName,
+          tinNumber,
           totalAllowances: formatAmount(totalAllowances),
         };
 
@@ -469,6 +564,7 @@ const Payroll = () => {
         );
         const meritRow: any = {
           fullName,
+          tinNumber,
           totalMerits: formatAmount(totalMerits),
         };
 
@@ -485,9 +581,7 @@ const Payroll = () => {
 
         uniqueMeritTypes.forEach((type) => {
           const merit = merits.find((m: any) => m.type === type);
-          meritRow[type.replace(/\s+/g, '').toLowerCase()] = formatAmount(
-            merit?.amount || 0,
-          );
+          meritRow[type] = formatAmount(merit?.amount || 0);
         });
 
         payrollData.push(payrollRowData);
@@ -507,17 +601,32 @@ const Payroll = () => {
         const sheet = workbook.addWorksheet(sheetName);
 
         // **Define Headers**
-        const headers = [
-          { header: 'Full Name', key: 'fullName', minWidth: 30 },
-          ...Array.from(uniqueTypes).map((type) => ({
-            header: columnHeaderMap.get(type) || type,
-            key: type,
-            minWidth: 12,
-          })),
-          ...(sheetName !== 'Payrolls'
-            ? [{ header: `Total ${sheetName}`, key: totalKey, minWidth: 18 }]
-            : []),
-        ];
+        // For Payrolls sheet, ensure TIN Number comes right after Full Name
+        const payrollHeaders =
+          sheetName === 'Payrolls'
+            ? [
+                { header: 'Full Name', key: 'fullName', minWidth: 30 },
+                { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
+                ...Array.from(uniqueTypes)
+                  .filter((type) => type !== 'tinNumber') // Remove tinNumber from the rest
+                  .map((type) => ({
+                    header: columnHeaderMap.get(type) || type,
+                    key: type,
+                    minWidth: 12,
+                  })),
+              ]
+            : [
+                { header: 'Full Name', key: 'fullName', minWidth: 30 },
+                { header: 'TIN Number', key: 'tinNumber', minWidth: 15 },
+                ...Array.from(uniqueTypes).map((type) => ({
+                  header: columnHeaderMap.get(type) || type,
+                  key: type,
+                  minWidth: 12,
+                })),
+                { header: `Total ${sheetName}`, key: totalKey, minWidth: 18 },
+              ];
+
+        const headers = payrollHeaders;
 
         // **Set Column Width Dynamically**
         sheet.columns = headers.map((col) => ({
@@ -642,7 +751,8 @@ const Payroll = () => {
     }
   };
 
-  const handleExportBank = async () => {
+  const handleExportBank = async (dataToExport?: any[]) => {
+    const payrollDataToExport = dataToExport || mergedPayrollForExport;
     if (!employeeInfo || employeeInfo?.length === 0) {
       notification.error({
         message: 'No Data Available',
@@ -659,8 +769,16 @@ const Payroll = () => {
         });
       };
 
-      const flatData = employeeInfo.map((employee: any) => {
-        const payroll = mergedPayrollForExport.find(
+      // Filter employees based on selected payroll data
+      const selectedEmployeeIds = new Set(
+        payrollDataToExport.map((p: any) => p.employeeId),
+      );
+      const filteredEmployees = employeeInfo.filter((employee: any) =>
+        selectedEmployeeIds.has(employee.id),
+      );
+
+      const flatData = filteredEmployees.map((employee: any) => {
+        const payroll = payrollDataToExport.find(
           (p: any) => p.employeeId === employee.id,
         ) as Payroll | undefined;
 
@@ -830,6 +948,25 @@ const Payroll = () => {
       ),
     },
     {
+      title: 'TIN Number',
+      dataIndex: 'tinNumber',
+      key: 'tinNumber',
+      minWidth: 150,
+      render: (notused: any, record: any) => {
+        const tinNumber =
+          record.employeeInfo?.employeeInformation?.additionalInformation
+            ?.tinNumber || '--';
+        return (
+          <span
+            id={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
+            data-cy={`payroll-row-${record.id || record.employeeId}-tin-view-text`}
+          >
+            {tinNumber}
+          </span>
+        );
+      },
+    },
+    {
       title: 'Basic Salary',
       dataIndex: 'basicSalary',
       key: 'basicSalary',
@@ -858,16 +995,21 @@ const Payroll = () => {
       minWidth: 150,
       render: (key: string) => Number(key)?.toLocaleString(),
     },
-
     {
-      title: 'Tax',
-      dataIndex: 'tax',
-      key: 'tax',
+      title: 'Variable Pay',
+      dataIndex: 'variablePay',
+      key: 'variablePay',
       minWidth: 150,
       render: (notused: any, record: any) =>
-        Number(record.breakdown?.tax?.amount)?.toLocaleString(),
+        Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
     },
-
+    {
+      title: 'Gross Salary',
+      dataIndex: 'grossSalary',
+      key: 'grossSalary',
+      minWidth: 150,
+      render: (key: string) => Number(key)?.toLocaleString(),
+    },
     {
       title: 'Employee Pension',
       dataIndex: 'pension',
@@ -878,6 +1020,14 @@ const Payroll = () => {
           record.breakdown?.pension?.find((i: any) => i.type == 'Pension')
             ?.amount,
         )?.toLocaleString(),
+    },
+    {
+      title: 'Tax',
+      dataIndex: 'tax',
+      key: 'tax',
+      minWidth: 150,
+      render: (notused: any, record: any) =>
+        Number(record.breakdown?.tax?.amount)?.toLocaleString(),
     },
     {
       title: 'Company Pension',
@@ -907,27 +1057,22 @@ const Payroll = () => {
         Number(record.breakdown?.incentives?.amount)?.toLocaleString(),
     },
     {
-      title: 'Variable Pay',
-      dataIndex: 'variablePay',
-      key: 'variablePay',
-      minWidth: 150,
-      render: (notused: any, record: any) =>
-        Number(record.breakdown?.variablePay?.amount)?.toLocaleString(),
-    },
-    {
-      title: 'Gross Income after VP',
-      dataIndex: 'grossSalary',
-      key: 'grossSalary',
-      minWidth: 150,
-      render: (key: string) => Number(key)?.toLocaleString(),
-    },
-    {
       title: 'Taxable Income',
       dataIndex: 'taxableIncome',
       key: 'taxableIncome',
       minWidth: 150,
-      render: (notused: any, record: any) =>
-        Number(record.grossSalary - 600)?.toLocaleString(),
+      render: (notused: any, record: any) => {
+        const allowances = record.breakdown?.allowances || [];
+        const transportAllowance = allowances
+          ?.filter((item: any) => item.type === 'Transport Allowance')
+          ?.reduce((acc: any, item: any) => {
+            return acc + Number(item.amount);
+          }, 0);
+        // Subtract 600 only if Transport Allowance >= 600
+        const taxableIncomeDeduction = transportAllowance >= 600 ? 600 : 0;
+        const taxableIncome = record.grossSalary - taxableIncomeDeduction;
+        return Number(taxableIncome)?.toLocaleString();
+      },
     },
     {
       title: 'Net Income',
@@ -966,6 +1111,53 @@ const Payroll = () => {
     setPageSize(pageSize);
     setCurrentPage(1);
   };
+
+  const handleApprovePayroll = () => {
+    if (!pendingApproval) return;
+
+    const approvalWorkflowId = String(pendingApproval.approvalWorkflowId || '');
+    const stepOrder = Number(pendingApproval.nextApprover?.[0]?.stepOrder || 0);
+
+    if (!approvalWorkflowId || stepOrder === 0) {
+      notification.error({
+        message: 'Invalid Approval Data',
+        description: 'Missing required approval information. Please try again.',
+      });
+      return;
+    }
+
+    const approvalData = {
+      approvalWorkflowId,
+      stepOrder,
+      requestId: pendingApproval.id,
+      approvedUserId: userId,
+      approverRoleId: userRollId,
+      action: 'Approved',
+      tenantId,
+    };
+
+    const handleSuccess = () => {
+      setIsApproveModalOpen(false);
+      refetchPendingApprovals();
+      refetchPayrollApprovalByPayPeriod();
+      refetch();
+    };
+
+    approvePayroll(approvalData, {
+      onSuccess: (data) => {
+        if (data?.last === true) {
+          lastApproving(undefined, { onSuccess: handleSuccess });
+        } else {
+          handleSuccess();
+        }
+      },
+    });
+  };
+
+  const routerToReconcilation = () => {
+    router.push(`/payroll/reconcilation`);
+  };
+
   return (
     <div
       id="payroll-dashboard-view-container"
@@ -1018,6 +1210,14 @@ const Payroll = () => {
               </Button>
             </Tooltip>
           </AccessGuard>
+          <Button
+            id="payroll-reconcilation-click-button"
+            data-cy="payroll-reconcilation-click-button"
+            className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
+            onClick={() => routerToReconcilation()}
+          >
+            {isMobile ? <PiExportLight size={24} /> : 'Reconcilation'}
+          </Button>
 
           {!isMobile && (
             <AccessGuard
@@ -1025,14 +1225,76 @@ const Payroll = () => {
               data-cy="payroll-payslip-guard-view-component"
               permissions={[Permissions.SendPayslipEmail]}
             >
-              <Popconfirm
-                id="payroll-send-payslip-popconfirm-view-component"
-                data-cy="payroll-send-payslip-popconfirm-view-component"
-                title="Send Payslips"
-                description={
+              <Tooltip
+                id="payroll-send-payslip-tooltip-view-component"
+                data-cy="payroll-send-payslip-tooltip-view-component"
+                title={
+                  mergedPayrollForExport?.length === 0
+                    ? 'No employees selected. Please adjust your filters.'
+                    : mergedPayrollForExport?.length <
+                        (searchValue?.divisionId
+                          ? payrollForExport?.divisionUsers?.length
+                          : allEmployees?.items?.length)
+                      ? `Will send to ${mergedPayrollForExport?.length} filtered employee(s)`
+                      : 'Will send to all employees'
+                }
+              >
+                <span
+                  id="payroll-send-payslip-span-view-component"
+                  data-cy="payroll-send-payslip-span-view-component"
+                >
+                  {' '}
+                  <Button
+                    id="payroll-send-payslip-click-button"
+                    data-cy="payroll-send-payslip-click-button"
+                    type="default"
+                    loading={sendingPaySlipLoading}
+                    className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
+                    disabled={mergedPayrollForExport?.length === 0}
+                    onClick={() => setOpen(true)}
+                  >
+                    <span
+                      id="payroll-send-payslip-span-view-component"
+                      data-cy="payroll-send-payslip-span-view-component"
+                      className="text-base font-semibold"
+                    >
+                      Send Payslip
+                    </span>
+                  </Button>
+                </span>
+              </Tooltip>
+              <Modal
+                data-cy="payroll-send-payslip-modal-view-modal"
+                open={open}
+                onCancel={() => setOpen(false)}
+                footer={null}
+                centered
+                width={600}
+                className="p-6"
+              >
+                <div
+                  id="payroll-send-payslip-modal-content-view-container"
+                  data-cy="payroll-send-payslip-modal-content-view-container"
+                  className="flex flex-col items-center justify-center gap-4"
+                >
+                  <h2
+                    id="payroll-send-payslip-modal-title-view-text"
+                    data-cy="payroll-send-payslip-modal-title-view-text"
+                    className="text-2xl font-bold"
+                  >
+                    Send Payslip
+                  </h2>
+                  <p
+                    id="payroll-send-payslip-modal-description-view-text"
+                    data-cy="payroll-send-payslip-modal-description-view-text"
+                    className="text-lg text-gray-600"
+                  >
+                    Do you wish to send payslip
+                  </p>
                   <div
                     id="payroll-send-payslip-description-view-container"
                     data-cy="payroll-send-payslip-description-view-container"
+                    className="text-center"
                   >
                     {mergedPayrollForExport?.length > 0 ? (
                       mergedPayrollForExport?.length <
@@ -1091,130 +1353,173 @@ const Payroll = () => {
                         </p>
                       )}
                   </div>
-                }
-                okText={
-                  mergedPayrollForExport?.length === 0
-                    ? 'Cannot Send'
-                    : mergedPayrollForExport?.length <
-                        (searchValue?.divisionId
-                          ? payrollForExport?.divisionUsers?.length
-                          : allEmployees?.items?.length)
-                      ? 'Send to Filtered'
-                      : 'Send to All'
-                }
-                cancelText="Cancel"
-                onConfirm={() => {
-                  if (mergedPayrollForExport?.length > 0) {
-                    sendingPaySlipHandler(mergedPayrollForExport);
-                  }
-                }}
-                okButtonProps={{
-                  disabled: mergedPayrollForExport?.length === 0,
-                }}
-              >
-                <Tooltip
-                  id="payroll-send-payslip-tooltip-view-component"
-                  data-cy="payroll-send-payslip-tooltip-view-component"
-                  title={
-                    mergedPayrollForExport?.length === 0
-                      ? 'No employees selected. Please adjust your filters.'
-                      : mergedPayrollForExport?.length <
-                          (searchValue?.divisionId
-                            ? payrollForExport?.divisionUsers?.length
-                            : allEmployees?.items?.length)
-                        ? `Will send to ${mergedPayrollForExport?.length} filtered employee(s)`
-                        : 'Will send to all employees'
-                  }
-                >
-                  <span
-                    id="payroll-send-payslip-span-view-component"
-                    data-cy="payroll-send-payslip-span-view-component"
+                  <div
+                    id="payroll-send-payslip-footer-view-container"
+                    data-cy="payroll-send-payslip-footer-view-container"
+                    className="flex gap-4 w-full justify-center mt-4"
                   >
-                    {' '}
-                    {/* Important: wrap the disabled button in a span for tooltip to work */}
                     <Button
-                      id="payroll-send-payslip-click-button"
-                      data-cy="payroll-send-payslip-click-button"
-                      type="default"
-                      loading={sendingPaySlipLoading}
-                      className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
+                      id="payroll-send-payslip-cancel-click-button"
+                      data-cy="payroll-send-payslip-cancel-click-button"
+                      className="w-full h-12 text-lg font-semibold"
+                      onClick={() => setOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      id="payroll-send-payslip-send-click-button"
+                      data-cy="payroll-send-payslip-send-click-button"
+                      type="primary"
+                      className="w-full h-12 text-lg font-semibold bg-primary"
+                      onClick={() => {
+                        if (mergedPayrollForExport?.length > 0) {
+                          sendingPaySlipHandler(mergedPayrollForExport);
+                          setOpen(false);
+                        }
+                      }}
                       disabled={mergedPayrollForExport?.length === 0}
                     >
-                      <span
-                        id="payroll-send-payslip-span-view-component"
-                        data-cy="payroll-send-payslip-span-view-component"
-                        className="text-base font-semibold"
-                      >
-                        Send Payslip
-                      </span>
+                      Send Payslip
                     </Button>
-                  </span>
-                </Tooltip>
-              </Popconfirm>
+                  </div>
+                </div>
+              </Modal>
             </AccessGuard>
           )}
-          <Popconfirm
-            id="payroll-generate-popconfirm-view-component"
-            data-cy="payroll-generate-popconfirm-view-component"
-            title={
-              payroll?.items?.length
-                ? 'Are you sure you want to regenerate the payroll ?'
-                : 'Are you sure you want to generate the payroll ?'
-            }
-            onConfirm={handleDeletePayroll}
-            okText="Yes"
-            cancelText="No"
-            disabled={!(payroll?.items?.length > 0)}
-          >
-            <AccessGuard
-              id="payroll-generate-guard-view-component"
-              data-cy="payroll-generate-guard-view-component"
-              permissions={[
-                Permissions.GeneratePayroll,
-                Permissions.DeletePayroll,
-              ]}
+          {canGenerateOrRegenerate && (
+            <Popconfirm
+              id="payroll-generate-popconfirm-view-component"
+              data-cy="payroll-generate-popconfirm-view-component"
+              title={
+                payroll?.items?.length
+                  ? 'Are you sure you want to regenerate the payroll ?'
+                  : 'Are you sure you want to generate the payroll ?'
+              }
+              onConfirm={handleDeletePayroll}
+              okText="Yes"
+              cancelText="No"
+              disabled={!(payroll?.items?.length > 0)}
             >
-              <Tooltip
-                id="payroll-generate-tooltip-view-component"
-                data-cy="payroll-generate-tooltip-view-component"
-                title={
-                  payroll?.items?.length > 0
-                    ? 'Regenerate Payroll'
-                    : 'Generate Payroll'
-                }
+              <AccessGuard
+                id="payroll-generate-guard-view-component"
+                data-cy="payroll-generate-guard-view-component"
+                permissions={[
+                  Permissions.GeneratePayroll,
+                  Permissions.DeletePayroll,
+                ]}
               >
-                <Button
-                  id="payroll-generate-open-modal-click-button"
-                  data-cy="payroll-generate-open-modal-click-button"
-                  type="primary"
-                  className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
-                  onClick={() => setIsPayrollModalOpen(true)}
-                  loading={isCreatingPayroll || loading || deleteLoading}
+                <Tooltip
+                  id="payroll-generate-tooltip-view-component"
+                  data-cy="payroll-generate-tooltip-view-component"
+                  title={
+                    payroll?.items?.length > 0
+                      ? 'Regenerate Payroll'
+                      : 'Generate Payroll'
+                  }
                 >
-                  {isMobile ? (
-                    <TbFileExport
-                      data-cy="payroll-generate-open-modal-click-icon"
-                      size={24}
-                    />
-                  ) : payroll?.items?.length > 0 ? (
-                    'Regenerate'
-                  ) : (
-                    'Generate'
-                  )}
-                </Button>
+                  <Button
+                    id="payroll-generate-open-modal-click-button"
+                    data-cy="payroll-generate-open-modal-click-button"
+                    type="primary"
+                    className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+                    onClick={() => setIsPayrollModalOpen(true)}
+                    loading={isCreatingPayroll || loading || deleteLoading}
+                  >
+                    {isMobile ? (
+                      <TbFileExport
+                        data-cy="payroll-generate-open-modal-click-icon"
+                        size={24}
+                      />
+                    ) : payroll?.items?.length > 0 ? (
+                      'Regenerate'
+                    ) : (
+                      'Generate'
+                    )}
+                  </Button>
 
-                {isPayrollModalOpen && (
-                  <GeneratePayrollModal
-                    data-cy="payroll-generate-modal-view-component"
-                    onGenerate={handleGeneratePayroll}
-                    onClose={() => setIsPayrollModalOpen(false)}
-                  />
-                )}
-              </Tooltip>
-            </AccessGuard>
-          </Popconfirm>
+                  {isPayrollModalOpen && (
+                    <GeneratePayrollModal
+                      data-cy="payroll-generate-modal-view-component"
+                      onGenerate={handleGeneratePayroll}
+                      onClose={() => setIsPayrollModalOpen(false)}
+                    />
+                  )}
+                </Tooltip>
+              </AccessGuard>
+            </Popconfirm>
+          )}
+          {hasPendingApprovals && (
+            <Button
+              id="payroll-approve-button"
+              data-cy="payroll-approve-button"
+              type="primary"
+              className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
+              onClick={() => setIsApproveModalOpen(true)}
+              loading={isApproving || isLastApproving}
+            >
+              {isMobile ? (
+                <TbFileExport data-cy="payroll-approve-icon" size={24} />
+              ) : (
+                'Approve Payroll'
+              )}
+            </Button>
+          )}
         </div>
       </div>
+      <Modal
+        data-cy="payroll-approve-modal"
+        open={isApproveModalOpen}
+        onCancel={() => setIsApproveModalOpen(false)}
+        footer={null}
+        centered
+        width={600}
+        className="p-6"
+      >
+        <div
+          id="payroll-approve-modal-content"
+          data-cy="payroll-approve-modal-content"
+          className="flex flex-col items-center justify-center gap-4"
+        >
+          <h2
+            id="payroll-approve-modal-title"
+            data-cy="payroll-approve-modal-title"
+            className="text-2xl font-bold"
+          >
+            Approve Payroll
+          </h2>
+          <p
+            id="payroll-approve-modal-description"
+            data-cy="payroll-approve-modal-description"
+            className="text-lg text-gray-600"
+          >
+            Do you wish to Approve this payroll
+          </p>
+          <div
+            id="payroll-approve-modal-footer"
+            data-cy="payroll-approve-modal-footer"
+            className="flex gap-4 w-full justify-center mt-4"
+          >
+            <Button
+              id="payroll-approve-modal-cancel"
+              data-cy="payroll-approve-modal-cancel"
+              className="w-full h-12 text-lg font-semibold"
+              onClick={() => setIsApproveModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              id="payroll-approve-modal-approve"
+              data-cy="payroll-approve-modal-approve"
+              type="primary"
+              className="w-full h-12 text-lg font-semibold bg-primary"
+              onClick={handleApprovePayroll}
+              loading={isApproving || isLastApproving}
+            >
+              Approve
+            </Button>
+          </div>
+        </div>
+      </Modal>
       <div
         id="payroll-filters-wrapper-view-container"
         data-cy="payroll-filters-wrapper-view-container"
@@ -1366,6 +1671,29 @@ const Payroll = () => {
             dataSource={mergedPayroll || []}
             columns={columns}
             pagination={false}
+            rowSelection={{
+              selectedRowKeys,
+              onChange: (newSelectedRowKeys: React.Key[]) => {
+                setSelectedRowKeys(newSelectedRowKeys);
+              },
+              /* eslint-disable @typescript-eslint/no-unused-vars */
+              onSelectAll: (
+                selected: boolean,
+                selectedRows: any[],
+                changeRows: any[],
+              ) => {
+                if (selected) {
+                  const allKeys = mergedPayroll.map(
+                    (item: any) => item.id || item.employeeId,
+                  );
+                  setSelectedRowKeys(allKeys);
+                } else {
+                  setSelectedRowKeys([]);
+                }
+              },
+              /* eslint-enable @typescript-eslint/no-unused-vars */
+            }}
+            rowKey={(record: any) => record.id || record.employeeId}
           />
           {isMobile || isTablet ? (
             <CustomMobilePagination
@@ -1390,7 +1718,11 @@ const Payroll = () => {
           title="Export for Bank"
           data-cy="payroll-export-modal-view-modal"
           open={isModalOpen}
-          onCancel={() => setIsModalOpen(false)}
+          onCancel={() => {
+            setIsModalOpen(false);
+            // Optionally reset selection when modal closes
+            // setSelectedRowKeys([]);
+          }}
           footer={
             <div
               id="payroll-export-modal-footer-view-container"
@@ -1412,7 +1744,10 @@ const Payroll = () => {
                 type="primary"
                 onClick={handleExportAll}
                 className="text-white bg-blue border-none"
-                disabled={!bankLetter || loading}
+                disabled={
+                  loading ||
+                  (!bankLetter && !exportPayrollData && !paySlip && !exportBank)
+                }
                 loading={loading}
               >
                 Export
@@ -1477,7 +1812,6 @@ const Payroll = () => {
               <Switch
                 id="payroll-export-payslip-toggle-switch"
                 data-cy="payroll-export-payslip-toggle-switch"
-                disabled={!isMobile}
                 checked={paySlip}
                 onChange={() => setPaySlip(!paySlip)}
               />

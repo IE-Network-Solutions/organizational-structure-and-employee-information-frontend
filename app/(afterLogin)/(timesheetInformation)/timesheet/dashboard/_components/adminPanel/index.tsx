@@ -15,17 +15,21 @@ export default function AdminPanel() {
   const hasUser = searchParams.has('user');
 
   return (
-    <div className="space-y-4">
+    <div
+      className="space-y-4"
+      id="time-attendance-admin-panel-layout-div"
+      data-cy="time-attendance-admin-panel-layout-div"
+    >
       {hasEmployeeAttendance && !hasUser ? (
-        <EmployeeAttendanceTable />
+        <EmployeeAttendanceTable data-cy="time-attendance-admin-panel-employee-attendance-table" />
       ) : hasEmployeeAttendance && hasUser ? (
-        <UserLeaveBalance />
+        <UserLeaveBalance data-cy="time-attendance-admin-panel-user-leave-balance" />
       ) : (
         <>
-          <StatsCards />
-          <LeaveSection />
-          <AttendanceReport />
-          <LeaveRequest />
+          <StatsCards data-cy="time-attendance-admin-panel-stats-cards" />
+          <LeaveSection data-cy="time-attendance-admin-panel-leave-section" />
+          <AttendanceReport data-cy="time-attendance-admin-panel-attendance-report" />
+          <LeaveRequest data-cy="time-attendance-admin-panel-leave-request" />
         </>
       )}
     </div>

@@ -17,15 +17,31 @@ export default function PreviousMeeting({ meeting }: { meeting?: any }) {
       loading={meetingLoading}
       bodyStyle={{ padding: 0 }}
       className="p-4 border-none"
+      data-cy="feedback-meeting-components-previousmeeting-card"
+      id="feedback-meeting-components-previousmeeting-card"
     >
       {meetings?.items?.filter((ifm: any) => ifm?.id != meeting.id)?.length !=
         0 && (
         <>
-          <div className="flex justify-between items-center py-2">
-            <h2 className="text-lg font-semibold mb-2">Previous Meeting</h2>
+          <div
+            className="flex justify-between items-center py-2"
+            data-cy="feedback-meeting-components-previousmeeting-div-header"
+            id="feedback-meeting-components-previousmeeting-div-header"
+          >
+            <h2
+              className="text-lg font-semibold mb-2"
+              data-cy="feedback-meeting-components-previousmeeting-heading"
+              id="feedback-meeting-components-previousmeeting-heading"
+            >
+              Previous Meeting
+            </h2>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div
+            className="flex flex-col gap-2"
+            data-cy="feedback-meeting-components-previousmeeting-div-list"
+            id="feedback-meeting-components-previousmeeting-div-list"
+          >
             {meetings?.items
               ?.filter((ifm: any) => ifm?.id != meeting.id)
               ?.map((i: any, index: number) => (
@@ -33,8 +49,16 @@ export default function PreviousMeeting({ meeting }: { meeting?: any }) {
                   key={index}
                   href={`/feedback/meeting/${i.id}`}
                   className="flex items-center justify-between border rounded-md p-3 bg-gray-50"
+                  data-cy={`feedback-meeting-components-previousmeeting-link-${index}`}
+                  id={`feedback-meeting-components-previousmeeting-link-${index}`}
                 >
-                  <span className="font-semibold text-gray-400">{i.title}</span>
+                  <span
+                    className="font-semibold text-gray-400"
+                    data-cy={`feedback-meeting-components-previousmeeting-span-title-${index}`}
+                    id={`feedback-meeting-components-previousmeeting-span-title-${index}`}
+                  >
+                    {i.title}
+                  </span>
                 </Link>
               ))}
           </div>

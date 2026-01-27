@@ -22,10 +22,21 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
   isLoading = false,
 }) => {
   return (
-    <div className="p-2">
+    <div
+      className="p-2"
+      data-cy="talent-acquisition-create-application-form-container"
+    >
       <CustomFieldsSelector />
-      <div className="my-4">
-        <div className="text-md font-semibold">Existing Fields</div>
+      <div
+        className="my-4"
+        data-cy="talent-acquisition-create-application-form-existing-fields-container"
+      >
+        <div
+          className="text-md font-semibold"
+          data-cy="talent-acquisition-create-application-form-existing-fields-title"
+        >
+          Existing Fields
+        </div>
         <div className="flex items-center justify-start text-[10px] text-gray-400 font-normal gap-1 my-1 h-10">
           <CiCircleInfo />
           These fields are automatically created for you-no need to set them up

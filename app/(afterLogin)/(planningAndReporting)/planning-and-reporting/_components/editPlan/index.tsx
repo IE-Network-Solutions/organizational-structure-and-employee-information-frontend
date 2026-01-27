@@ -67,11 +67,6 @@ function EditPlan() {
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
-  // const modalHeader = (
-  //   <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-  //     Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
-  //   </div>
-  // );
 
   const handleAddName = (
     currentBoardValues: Record<string, string | number>,
@@ -80,7 +75,7 @@ function EditPlan() {
     const namesKey = `names-${kId}`;
     const names = form.getFieldValue(namesKey) || [];
     currentBoardValues = { ...currentBoardValues, planId: planGroupData?.id };
-    form.setFieldsValue({ [namesKey]: [...names, currentBoardValues] });
+    form.setFieldsValue({ [namesKey]: [currentBoardValues, ...names] });
     const fieldValue = form.getFieldValue(namesKey);
 
     const totalWeight = fieldValue.reduce(
@@ -93,42 +88,36 @@ function EditPlan() {
     setWeight(namesKey, totalWeight);
   };
 
-  const handleAddBoard = (kId: string) => {
-    const boardsKey = `board-${kId}`;
-    const board = form.getFieldValue(boardsKey) || [];
+  const handleAddBoard = (kId: string, metadata?: any) => {
+    const namesKey = `names-${kId}`;
+    const names = form.getFieldValue(namesKey) || [];
 
     // Always grab the latest mkAsATask value to avoid stale reads
     const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
     const taskTitle = latestMkAsATask?.title || '';
     const achieveMK = !!latestMkAsATask;
 
-    // Create a task object - if mkAsATask exists, use its title
+    // Create a task object - include metadata to avoid missing fields
     const newTask = {
       task: taskTitle,
       priority: undefined,
       weight: undefined,
-      targetValue: undefined,
+      targetValue: metadata?.targetValue ?? undefined,
       achieveMK: achieveMK,
+      planId: planGroupData?.id,
+      ...metadata,
     };
 
-    form.setFieldsValue({ [boardsKey]: [...board, newTask] });
-  };
-  const handleRemoveBoard = (index: number, kId: string) => {
-    const boardsKey = `board-${kId}`;
-
-    const boards = form.getFieldValue(boardsKey) || [];
-    if (index > -1 && index < boards.length) {
-      boards.splice(index, 1);
-      form.setFieldsValue({ [boardsKey]: boards });
-    }
+    form.setFieldsValue({ [namesKey]: [newTask, ...names] });
+    setMKAsATask(null);
   };
 
   const modalHeader = (
-    <div className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4">
+    <div className="relative flex items-center justify-center text-xl font-extrabold text-gray-800 p-4">
       <div>
         Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
       </div>
-      <div className="text-right">
+      <div className="absolute right-4 top-1/2 -translate-y-1/2">
         {/* AI Suggestions for all plan types */}
         <AISuggestionsModal
           getKeyResults={() => {
@@ -188,6 +177,8 @@ function EditPlan() {
             return tasks.map((t: any) => ({
               id: String(t?.id || ''),
               task: t?.task || '',
+              krId: String(t?.keyResult?.id || ''),
+              milestoneId: t?.milestone?.id ? String(t.milestone.id) : null,
             }));
           }}
           form={form}
@@ -197,6 +188,9 @@ function EditPlan() {
           hasParentPlan={!!planningPeriodHierarchy?.parentPlan}
           resolveListNameForKR={(krId: string) => `names-${krId}`}
           resolveBoardKeyForKR={(krId: string) => krId}
+          userId={userId}
+          planningPeriodId={planningPeriodId}
+          planningUserId={planningUserId}
         />
       </div>
     </div>
@@ -206,8 +200,29 @@ function EditPlan() {
     const mergeValues = (obj: any) => {
       return Object.entries(obj)
         .filter(([key]) => key.startsWith('names-'))
-        .map(([, value]) => value)
-        .filter((value) => Array.isArray(value))
+        .map(([key, value]: [string, any]) => {
+          if (!Array.isArray(value)) return [];
+          const extractedKRId = key.replace('names-', '');
+
+          return value.map((task: any) => ({
+            ...task,
+            // Ensure all required fields are present and are strings
+            userId: String(task.userId || userId || ''),
+            planningPeriodId: String(
+              task.planningPeriodId || planningPeriodId || '',
+            ),
+            planningUserId: String(task.planningUserId || planningUserId || ''),
+            // keyResultId is required.
+            keyResultId: String(
+              task.keyResultId ||
+                (extractedKRId ? extractedKRId.substring(0, 36) : '') ||
+                '',
+            ),
+            // milestoneId and parentTaskId can be null but should be strings if they exist
+            milestoneId: task.milestoneId ? String(task.milestoneId) : null,
+            parentTaskId: task.parentTaskId ? String(task.parentTaskId) : null,
+          }));
+        })
         .flat();
     };
     const finalValues = mergeValues(values);
@@ -297,6 +312,50 @@ function EditPlan() {
     );
   }, [planningPeriodHierarchy, selectedPlanId, planGroupData, selectParentId]); // Ensure proper re-execution
 
+  const footer = (
+    <div className="flex items-center justify-between w-full">
+      <div className="flex-1"></div>
+      <div className="flex justify-center gap-4 flex-1">
+        <Tooltip
+          title={
+            totalWeight !== 100
+              ? "Summation of all task's weights must be equal to 100!"
+              : 'Submit'
+          }
+        >
+          <Button
+            id="edit-plan-submit-button"
+            data-cy="edit-plan-submit-button"
+            className="py-3 px-6 sm:py-6 sm:px-10"
+            type="primary"
+            onClick={() => form.submit()}
+            loading={isLoading}
+            disabled={totalWeight !== 100}
+          >
+            Submit
+          </Button>
+        </Tooltip>
+
+        <Button
+          id="edit-plan-cancel-button"
+          data-cy="edit-plan-cancel-button"
+          className="py-3 px-6 sm:py-6 sm:px-10"
+          onClick={onClose}
+          disabled={isLoading}
+        >
+          Cancel
+        </Button>
+      </div>
+      <div className="flex-1 flex justify-end pr-5">
+        <div className="my-2 font-bold mx-0 whitespace-nowrap">
+          <span className="hidden md:inline">Weight Point: </span>
+          <span className="md:hidden">WP: </span>
+          {Math.round(Number(totalWeight) || 0)}%
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     open && (
       <CustomDrawerLayout
@@ -305,6 +364,7 @@ function EditPlan() {
         modalHeader={modalHeader}
         width="70%"
         paddingBottom={5}
+        footer={footer}
       >
         {loadingPlanningPeriodHierarchy || loadingPlanGroupData ? (
           <div className="flex items-center justify-center min-h-screen">
@@ -328,7 +388,6 @@ function EditPlan() {
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
                 handleAddName={handleAddName}
-                handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
               />
             ) : (
@@ -342,40 +401,9 @@ function EditPlan() {
                 setMKAsATask={setMKAsATask}
                 handleAddBoard={handleAddBoard}
                 handleAddName={handleAddName}
-                handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
               />
             )}
-
-            <Form.Item className="mt-10">
-              <div className="my-2">Total Weights:{totalWeight} / 100</div>
-
-              <Tooltip
-                title={
-                  totalWeight !== 100
-                    ? "Summation of all task's weights must be equal to 100!"
-                    : 'Submit'
-                }
-              >
-                <Button
-                  className="mr-5 py-6 px-10"
-                  type="primary"
-                  htmlType="submit"
-                  loading={isLoading}
-                  disabled={totalWeight !== 100}
-                >
-                  Submit
-                </Button>
-              </Tooltip>
-
-              <Button
-                className="py-6 px-10"
-                onClick={onClose}
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
-            </Form.Item>
           </Form>
         )}
       </CustomDrawerLayout>

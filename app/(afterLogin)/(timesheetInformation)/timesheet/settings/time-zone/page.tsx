@@ -42,39 +42,88 @@ const TimezoneSelect = () => {
     }
   };
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id="time-attendance-settings-time-zone-container"
+      data-cy="time-attendance-settings-time-zone-container"
+    >
       {/* <PageHeader title="Time Zone" size="small"></PageHeader> */}
-      <h1 className="text-lg text-bold">Time Zone</h1>
+      <h1
+        className="text-lg text-bold"
+        id="time-attendance-settings-time-zone-title"
+        data-cy="time-attendance-settings-time-zone-title"
+      >
+        Time Zone
+      </h1>
 
-      <div className="mt-4">
-        <div>Update your timezone</div>
+      <div
+        className="mt-4"
+        id="time-attendance-settings-time-zone-content"
+        data-cy="time-attendance-settings-time-zone-content"
+      >
+        <div
+          id="time-attendance-settings-time-zone-description"
+          data-cy="time-attendance-settings-time-zone-description"
+        >
+          Update your timezone
+        </div>
 
-        <Form onFinish={handleFinish}>
+        <Form
+          onFinish={handleFinish}
+          id="time-attendance-settings-time-zone-form"
+          data-cy="time-attendance-settings-time-zone-form"
+        >
           <Form.Item
             name="timezone"
             rules={[
               { required: true, message: 'Please select your timezone!' },
             ]}
+            id="time-attendance-settings-time-zone-timezone-field"
+            data-cy="time-attendance-settings-time-zone-timezone-field"
           >
             <Select
               showSearch
               placeholder="Select GMT offset"
               style={{ width: 200 }}
               options={gmtOffsets}
+              id="time-attendance-settings-time-zone-timezone-select"
+              data-cy="time-attendance-settings-time-zone-timezone-select"
             />
           </Form.Item>
-          <Form.Item>
-            <AccessGuard permissions={[Permissions.UpdateTimeZone]}>
-              <Button type="primary" htmlType="submit" loading={isLoading}>
+          <Form.Item
+            id="time-attendance-settings-time-zone-submit-field"
+            data-cy="time-attendance-settings-time-zone-submit-field"
+          >
+            <AccessGuard
+              permissions={[Permissions.UpdateTimeZone]}
+              data-cy="time-attendance-settings-time-zone-submit-button-access-guard"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={isLoading}
+                id="time-attendance-settings-time-zone-submit-button"
+                data-cy="time-attendance-settings-time-zone-submit-button"
+              >
                 Update Timezone
               </Button>
             </AccessGuard>
           </Form.Item>
         </Form>
         <hr />
-        <div className="text-xl">
+        <div
+          className="text-xl"
+          id="time-attendance-settings-time-zone-current"
+          data-cy="time-attendance-settings-time-zone-current"
+        >
           Your Current Timezone:
-          <span className="font-extrabold">{data?.timezone} GMT</span>{' '}
+          <span
+            className="font-extrabold"
+            id="time-attendance-settings-time-zone-current-value"
+            data-cy="time-attendance-settings-time-zone-current-value"
+          >
+            {data?.timezone} GMT
+          </span>{' '}
         </div>
       </div>
     </div>

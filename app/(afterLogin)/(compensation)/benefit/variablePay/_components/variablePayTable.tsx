@@ -62,8 +62,15 @@ const VariablePayTable = () => {
       key: 'name',
       sorter: true,
       render: (text: string) => (
-        <div data-testid={`variable-pay-employee-${text}`}>
-          <EmployeeDetails empId={text} />
+        <div
+          data-testid={`variable-pay-employee-${text}`}
+          id={`compensation-benefit-variable-pay-employee-${text}`}
+          data-cy={`compensation-benefit-variable-pay-employee-${text}`}
+        >
+          <EmployeeDetails
+            data-cy={`compensation-benefit-variable-pay-employee-details-${text}`}
+            empId={text}
+          />
         </div>
       ),
     },
@@ -74,7 +81,13 @@ const VariablePayTable = () => {
       key: 'VpInPercentile',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="variable-pay-percentage">{text || '-'}</div>
+        <div
+          data-testid="variable-pay-percentage"
+          id="compensation-benefit-variable-pay-percentage"
+          data-cy="compensation-benefit-variable-pay-percentage"
+        >
+          {text || '-'}
+        </div>
       ),
     },
 
@@ -84,7 +97,13 @@ const VariablePayTable = () => {
       key: 'VpScore',
       sorter: (a, b) => (a.VpScore || 0) - (b.VpScore || 0),
       render: (text: string) => (
-        <div data-testid="variable-pay-score">{text || '-'}</div>
+        <div
+          data-testid="variable-pay-score"
+          id="compensation-benefit-variable-pay-score"
+          data-cy="compensation-benefit-variable-pay-score"
+        >
+          {text || '-'}
+        </div>
       ),
     },
     {
@@ -93,7 +112,13 @@ const VariablePayTable = () => {
       key: 'Benefit',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="variable-pay-benefit">{text || '-'}</div>
+        <div
+          data-testid="variable-pay-benefit"
+          id="compensation-benefit-variable-pay-benefit"
+          data-cy="compensation-benefit-variable-pay-benefit"
+        >
+          {text || '-'}
+        </div>
       ),
     },
     {
@@ -126,25 +151,39 @@ const VariablePayTable = () => {
     <div
       className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4"
       data-testid="variable-pay-table-container"
+      id="compensation-benefit-variable-pay-table-container"
+      data-cy="compensation-benefit-variable-pay-table-container"
     >
-      <VariablePayFilter tableData={tableData} />
-      <div data-testid="variable-pay-table-wrapper">
+      <VariablePayFilter data-cy="compensation-benefit-variable-pay-filter" />
+      <div
+        id="compensation-benefit-variable-pay-table-wrapper"
+        data-cy="compensation-benefit-variable-pay-table-wrapper"
+        data-testid="variable-pay-table-wrapper"
+      >
         <Spin
           spinning={isLoading || isFetching || refreshLoading}
           data-testid="variable-pay-table-loading"
+          data-cy="compensation-benefit-variable-pay-table-loading"
         >
-          <div className="overflow-x-auto">
+          <div
+            className="overflow-x-auto"
+            id="compensation-benefit-variable-pay-scroll-container"
+            data-cy="compensation-benefit-variable-pay-scroll-container"
+          >
             <Table
               className="mt-6"
               columns={columns}
               dataSource={paginatedData}
               pagination={false}
               data-testid="variable-pay-table"
+              id="compensation-benefit-variable-pay-table"
+              data-cy="compensation-benefit-variable-pay-table"
             />
           </div>
 
           {isMobile || isTablet ? (
             <CustomMobilePagination
+              data-cy="compensation-benefit-variable-pay-mobile-pagination"
               totalResults={filteredDataSource.length}
               pageSize={pageSize}
               onChange={(page, size) => {
@@ -158,6 +197,7 @@ const VariablePayTable = () => {
             />
           ) : (
             <CustomPagination
+              data-cy="compensation-benefit-variable-pay-pagination"
               current={currentPage}
               total={filteredDataSource.length}
               pageSize={pageSize}
@@ -173,7 +213,10 @@ const VariablePayTable = () => {
             />
           )}
 
-          <VariablePayModal data={filteredDataSource} />
+          <VariablePayModal
+            data-cy="compensation-benefit-variable-pay-modal"
+            data={filteredDataSource}
+          />
         </Spin>
       </div>
     </div>

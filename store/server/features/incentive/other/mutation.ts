@@ -82,3 +82,64 @@ export const useDeleteIncentiveFormula = () => {
     },
   });
 };
+
+const deleteIncentive = async (id: string) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${INCENTIVE_URL}/incentives/${id}`,
+    method: 'DELETE',
+    headers: requestHeaders,
+  });
+};
+
+const deleteBulkIncentives = async (ids: string[]) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${INCENTIVE_URL}/incentives/bulk-delete`,
+    method: 'DELETE',
+    headers: requestHeaders,
+    data: { ids },
+  });
+};
+
+export const useDeleteIncentive = () => {
+  const queryClient = useQueryClient();
+  return useMutation(({ id }: { id: string }) => deleteIncentive(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['getAllIncentiveData']);
+      NotificationMessage.success({
+        message: 'Incentive deleted successfully!',
+        description: 'Incentive record has been successfully deleted',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Delete failed',
+        description: 'Failed to delete incentive record. Please try again.',
+      });
+    },
+  });
+};
+
+export const useDeleteBulkIncentives = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ ids }: { ids: string[] }) => deleteBulkIncentives(ids),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['getAllIncentiveData']);
+        NotificationMessage.success({
+          message: 'Incentives deleted successfully!',
+          description:
+            'Selected incentive records have been successfully deleted',
+        });
+      },
+      onError: () => {
+        NotificationMessage.error({
+          message: 'Delete failed',
+          description: 'Failed to delete incentive records. Please try again.',
+        });
+      },
+    },
+  );
+};

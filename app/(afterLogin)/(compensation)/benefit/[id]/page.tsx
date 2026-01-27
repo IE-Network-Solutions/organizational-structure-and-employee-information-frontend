@@ -29,7 +29,12 @@ const BenefitEntitlemetPage = () => {
     if (benefitData?.mode == 'CREDIT') {
       setBenefitDefaultAmount(benefitData?.defaultAmount);
     }
-  }, [benefitData, setBenefitMode]);
+  }, [
+    benefitData,
+    setBenefitMode,
+    setBenefitApplicableTo,
+    setBenefitDefaultAmount,
+  ]);
 
   const handleSearchChange = (value: any) => {
     setSearchQuery(value);
@@ -47,12 +52,26 @@ const BenefitEntitlemetPage = () => {
     })) || [];
   const { employeeBenefitData } = useBenefitEntitlementStore();
   return (
-    <div className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4">
-      <div>
+    <div
+      className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4"
+      id="compensation-benefit-single-wrapper"
+      data-cy="compensation-benefit-single-wrapper"
+    >
+      <div
+        id="compensation-benefit-single-inner"
+        data-cy="compensation-benefit-single-inner"
+      >
         {employeeBenefitData == null && (
-          <div>
+          <div
+            id="compensation-benefit-header-section"
+            data-cy="compensation-benefit-header-section"
+          >
             {/* PageHeader for mobile only */}
-            <div className="block sm:hidden mb-4">
+            <div
+              className="block sm:hidden mb-4"
+              id="compensation-benefit-mobile-header-wrapper"
+              data-cy="compensation-benefit-mobile-header-wrapper"
+            >
               <PageHeader
                 title={
                   benefitData?.name
@@ -63,13 +82,22 @@ const BenefitEntitlemetPage = () => {
                 }
                 toolTip={benefitData?.name}
                 horizontalPadding="0px"
+                data-cy="compensation-benefit-mobile-page-header"
               />
             </div>
 
             {/* Header and controls layout for larger screens */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-2">
+            <div
+              className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-2"
+              id="compensation-benefit-desktop-header-row"
+              data-cy="compensation-benefit-desktop-header-row"
+            >
               {/* PageHeader for larger screens only */}
-              <div className="hidden sm:block">
+              <div
+                className="hidden sm:block"
+                id="compensation-benefit-desktop-header-wrapper"
+                data-cy="compensation-benefit-desktop-header-wrapper"
+              >
                 <PageHeader
                   title={
                     benefitData?.name
@@ -80,13 +108,18 @@ const BenefitEntitlemetPage = () => {
                   }
                   toolTip={benefitData?.name}
                   horizontalPadding="0px"
+                  data-cy="compensation-benefit-desktop-page-header"
                 />
               </div>
 
               {/* Select and Button layout */}
               <div className="flex flex-row w-full sm:w-auto gap-2">
                 {/* Select - takes 75% on mobile, fixed width on desktop */}
-                <div className="w-10/12 mr-2 sm:hidden">
+                <div
+                  className="w-10/12 mr-2 sm:hidden"
+                  id="compensation-benefit-mobile-select-wrapper"
+                  data-cy="compensation-benefit-mobile-select-wrapper"
+                >
                   <Select
                     showSearch
                     allowClear
@@ -101,12 +134,19 @@ const BenefitEntitlemetPage = () => {
                       );
                     }}
                     options={options}
+                    id="compensation-benefit-mobile-search-select"
+                    data-cy="compensation-benefit-mobile-search-select"
                   />
                 </div>
 
                 {/* Button - takes 25% on mobile, auto on desktop */}
-                <div className="w-auto">
+                <div
+                  className="w-auto"
+                  id="compensation-benefit-create-button-wrapper"
+                  data-cy="compensation-benefit-create-button-wrapper"
+                >
                   <AccessGuard
+                    data-cy="compensation-benefit-create-button-access-guard"
                     permissions={[Permissions.CreateBenefitEntitlement]}
                   >
                     <Button
@@ -114,17 +154,30 @@ const BenefitEntitlemetPage = () => {
                       type="primary"
                       className="h-10 w-full sm:w-auto"
                       id="createNewClosedHolidayFieldId"
-                      icon={<FaPlus />}
+                      data-cy="compensation-benefit-create-button"
+                      icon={
+                        <FaPlus data-cy="compensation-benefit-create-button-icon" />
+                      }
                       onClick={handleBenefitEntitlementAdd}
                       disabled={BenefitApplicableTo === 'GLOBAL'}
                     >
-                      <span className="hidden sm:inline">Employees</span>
+                      <span
+                        className="hidden sm:inline"
+                        id="compensation-benefit-create-button-text"
+                        data-cy="compensation-benefit-create-button-text"
+                      >
+                        Employees
+                      </span>
                     </Button>
                   </AccessGuard>
                 </div>
               </div>
             </div>
-            <div className="w-full sm:block hidden mt-2">
+            <div
+              className="w-full sm:block hidden mt-2"
+              id="compensation-benefit-desktop-select-wrapper"
+              data-cy="compensation-benefit-desktop-select-wrapper"
+            >
               <Select
                 showSearch
                 allowClear
@@ -139,15 +192,22 @@ const BenefitEntitlemetPage = () => {
                   );
                 }}
                 options={options}
+                id="compensation-benefit-desktop-search-select"
+                data-cy="compensation-benefit-desktop-search-select"
               />
             </div>
           </div>
         )}
 
         {/* Table Section */}
-        <div className="overflow-x-auto mt-4">
+        <div
+          className="overflow-x-auto mt-4"
+          id="compensation-benefit-table-wrapper"
+          data-cy="compensation-benefit-table-wrapper"
+        >
           <BenefitEntitlementTable
             title={benefitData?.name ? benefitData?.name : ''}
+            data-cy="compensation-benefit-entitlement-table"
           />
         </div>
       </div>

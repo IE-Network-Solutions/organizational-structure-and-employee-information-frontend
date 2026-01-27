@@ -318,38 +318,14 @@ const downloadJobPostPerformanceExport = async (params: {
 
     // Extract download URL and filename from response
 
-    const { downloadUrl, fileName } = response;
+    const { downloadUrl } = response;
 
     if (!downloadUrl) {
       throw new Error('Download URL not found in response');
     }
 
-    // Download the file using the provided URL
-    const fileResponse = await axios({
-      url: downloadUrl,
-      method: 'GET',
-      responseType: 'blob',
-    });
-
-    // Create blob from response data
-    const blob = new Blob([fileResponse.data], {
-      type:
-        fileResponse.headers['content-type'] ||
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-
-    // Create download link
-    const downloadUrl2 = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-
-    link.href = downloadUrl2;
-    link.download =
-      fileName ||
-      `job-post-performance-${new Date().toISOString().split('T')[0]}.xlsx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(downloadUrl2);
+    // Open the download URL in a new tab
+    window.open(downloadUrl, '_blank');
 
     return { success: true };
   } catch (error) {

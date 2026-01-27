@@ -135,9 +135,18 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
   const { isMobile, isTablet } = useIsMobile();
 
   return (
-    <div className="flex items-center justify-between bg-white p-2 rounded-lg  overflow-y-auto scrollbar-none mb-3">
-      <div className="flex items-center space-x-3">
-        <div className="relative w-7 h-7 rounded-full overflow-hidden">
+    <div
+      className="flex items-center justify-between bg-white p-2 rounded-lg  overflow-y-auto scrollbar-none mb-3"
+      data-cy="approval-status-card"
+    >
+      <div
+        className="flex items-center space-x-3"
+        data-cy="approval-status-card-content"
+      >
+        <div
+          className="relative w-7 h-7 rounded-full overflow-hidden"
+          data-cy="approval-status-card-avatar"
+        >
           <Image
             src={
               employeeData?.profileImage &&
