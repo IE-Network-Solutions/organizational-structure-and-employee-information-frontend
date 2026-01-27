@@ -6,6 +6,7 @@ import CopilotHeader from './CopilotHeader';
 import CopilotMessages, { Message } from './CopilotMessages';
 import CopilotInput from './CopilotInput';
 import CopilotEmptyState from './CopilotEmptyState';
+import { sendCopilotChatRequest } from '@/utils/copilotApiService';
 
 interface CopilotPanelProps {
   open: boolean;
@@ -60,45 +61,6 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  /**
-   * Mock response generator
-   * TODO: Replace with actual AI API integration
-   * 
-   * Expected API signature:
-   * async function fetchCopilotResponse(
-   *   query: string,
-   *   context: { messages: Message[], userRole: string, tenantId: string }
-   * ): Promise<{ text: string, metadata?: { source: string, confidence: string } }>
-   */
-  const generateMockResponse = useCallback((userQuery: string): string => {
-    const lowerQuery = userQuery.toLowerCase();
-
-    // Time & Attendance responses
-    if (lowerQuery.includes('late') || lowerQuery.includes('attendance')) {
-      return `Based on attendance records, I found 3 employees who were late today:\n\n• John Doe (Engineering) - 15 minutes late\n• Jane Smith (Sales) - 8 minutes late\n• Bob Johnson (Marketing) - 22 minutes late\n\n⚠️ Note: Bob Johnson has been late 3 times this week.`;
-    }
-
-    if (lowerQuery.includes('leave') || lowerQuery.includes('approval')) {
-      return `You have 2 pending leave approvals:\n\n• Sarah Williams - Vacation (Jan 30 - Feb 5)\n• Mike Davis - Sick Leave (Jan 27)\n\n✅ Both requests are within policy guidelines.`;
-    }
-
-    // Employee & Organization responses
-    if (lowerQuery.includes('report') || lowerQuery.includes('team')) {
-      return `Your direct reports:\n\n• Engineering Team (5 members)\n• Product Team (3 members)\n• Design Team (2 members)\n\nFrom OKR data (Q1 2026), all teams are on track with their objectives.`;
-    }
-
-    if (lowerQuery.includes('department') || lowerQuery.includes('organization')) {
-      return `The Engineering department has 25 employees across 3 teams:\n\n• Backend Team: 10 members\n• Frontend Team: 8 members\n• DevOps Team: 7 members\n\nBased on organizational structure data.`;
-    }
-
-    // OKR responses
-    if (lowerQuery.includes('okr') || lowerQuery.includes('objective')) {
-      return `Your team's OKR progress for Q1 2026:\n\n✅ On Track:\n• Increase user engagement by 20% (75% complete)\n• Reduce support tickets by 15% (80% complete)\n\n⚠️ At Risk:\n• Launch new feature by end of Q1 (45% complete)\n\nFrom OKR data (Q1 2026).`;
-    }
-
-    // Default response
-    return `I understand you're asking about "${userQuery}". This is a mock response.\n\nIn production, I'll connect to the SelamNew AI service to provide role-aware, secure responses based on your system data.\n\nResponses are role-aware and based on system data.`;
-  }, []);
 
   const handleSend = useCallback(async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -116,29 +78,23 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
     setIsLoading(true);
 
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // TODO: Replace with actual API call
-      // const response = await fetchCopilotResponse(query, {
-      //   messages: [...messages, userMessage],
-      //   userRole: userData?.role,
-      //   tenantId: tenantId,
-      // });
-
-      const responseText = generateMockResponse(query);
+      // Call Azure App Service backend
+      const responseText = await sendCopilotChatRequest(query);
 
       // Determine metadata based on response content
       const metadata: Message['metadata'] = {};
-      if (responseText.includes('attendance records')) {
+      if (responseText.includes('attendance records') || responseText.includes('Time & Attendance')) {
         metadata.source = 'Time & Attendance';
         metadata.confidence = 'Based on attendance records';
-      } else if (responseText.includes('OKR data')) {
+      } else if (responseText.includes('OKR data') || responseText.includes('OKR System')) {
         metadata.source = 'OKR System';
-        metadata.confidence = 'From OKR data (Q1 2026)';
-      } else if (responseText.includes('organizational structure')) {
+        metadata.confidence = 'From OKR data';
+      } else if (responseText.includes('organizational structure') || responseText.includes('Employee & Organization')) {
         metadata.source = 'Employee & Organization';
         metadata.confidence = 'Based on organizational structure data';
+      } else if (responseText.includes('Authentication successful')) {
+        metadata.source = 'Copilot Service';
+        metadata.confidence = 'Authenticated with backend';
       }
 
       const copilotMessage: Message = {
@@ -153,7 +109,7 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
     } catch (error) {
       const errorMessage: Message = {
         id: `msg-${Date.now()}-error`,
-        text: 'Sorry, I encountered an error. Please try again.',
+        text: error instanceof Error ? error.message : 'Sorry, I encountered an error. Please try again.',
         sender: 'copilot',
         timestamp: new Date(),
       };
@@ -161,7 +117,7 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [inputValue, isLoading, generateMockResponse]);
+  }, [inputValue, isLoading]);
 
   const handlePromptSelect = useCallback((prompt: string) => {
     setInputValue(prompt);
