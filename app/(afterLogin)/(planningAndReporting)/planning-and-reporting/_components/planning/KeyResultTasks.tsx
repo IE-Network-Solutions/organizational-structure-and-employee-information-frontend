@@ -89,14 +89,14 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
             >
               {keyResult?.metricType?.name === 'Milestone'
                 ? keyResult?.milestones?.filter(
-                  (e: any) => e.status === 'Completed',
-                )?.length || 0
+                    (e: any) => e.status === 'Completed',
+                  )?.length || 0
                 : keyResult?.metricType?.name === 'Achieve'
                   ? keyResult?.progress
                   : (
-                    Number(keyResult?.currentValue) +
-                    Number(keyResult?.initialValue)
-                  )?.toLocaleString() || 0}
+                      Number(keyResult?.currentValue) +
+                      Number(keyResult?.initialValue)
+                    )?.toLocaleString() || 0}
             </Tag>
           </div>
 

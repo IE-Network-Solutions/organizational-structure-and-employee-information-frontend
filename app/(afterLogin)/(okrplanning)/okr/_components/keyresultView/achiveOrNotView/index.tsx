@@ -39,7 +39,6 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
     }
   };
 
-  
   //eslint-disable-next-line @typescript-eslint/no-unused-vars
   function handleKeyResultDelete(id: string) {
     // Remove from local state only - deletion will happen on Save

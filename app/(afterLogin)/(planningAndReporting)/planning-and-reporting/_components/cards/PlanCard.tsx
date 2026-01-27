@@ -6,7 +6,7 @@ import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
 import dayjs from 'dayjs';
-import { PlanSummary, ViewMode, Cadence } from '../types';
+import { PlanSummary, ViewMode } from '../types';
 import UserInfo from '../UserInfo';
 import StatusBadge from '../StatusBadge';
 import KRSummaryBar from '../KRSummaryBar';
@@ -16,7 +16,6 @@ import CommentsSection from '../comments/CommentsSection';
 interface PlanCardProps {
   plan: PlanSummary;
   viewMode: ViewMode;
-  activeCadence: Cadence;
   // Optional action handlers
   onApprove?: () => void;
   onOpen?: () => void;
@@ -30,7 +29,6 @@ interface PlanCardProps {
 export default function PlanCard({
   plan,
   viewMode,
-  activeCadence: _activeCadence,
   onApprove,
   onOpen,
   onEdit,
@@ -97,7 +95,7 @@ export default function PlanCard({
     if (dateLabel) return dateLabel;
 
     const planDate = dayjs(plan.createdAt);
-    
+
     // Format date as "15 Jan 2026" (DD MMM YYYY)
     return planDate.format('D MMM YYYY');
   };

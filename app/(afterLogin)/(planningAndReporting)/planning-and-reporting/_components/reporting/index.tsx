@@ -447,7 +447,6 @@ function Reporting() {
                     key={plan.id}
                     plan={plan}
                     viewMode="reporting"
-                    activeCadence={cadence}
                     onApprove={() => handleApproveHandler(dataItem.id, true)}
                     onOpen={() => handleApproveHandler(dataItem.id, false)}
                     onEdit={() => {
