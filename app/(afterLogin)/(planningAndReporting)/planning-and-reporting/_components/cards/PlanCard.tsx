@@ -97,19 +97,9 @@ export default function PlanCard({
     if (dateLabel) return dateLabel;
 
     const planDate = dayjs(plan.createdAt);
-    const today = dayjs();
-    const yesterday = dayjs().subtract(1, 'day');
-    const cadenceType =
-      activeCadence.charAt(0).toUpperCase() + activeCadence.slice(1);
-    const type = viewMode === 'planning' ? 'Plan' : 'Report';
-
-    if (planDate.isSame(today, 'day')) {
-      return `Today's ${cadenceType} ${type}`;
-    }
-    if (planDate.isSame(yesterday, 'day')) {
-      return `Yesterday's ${cadenceType} ${type}`;
-    }
-    return `${planDate.format('MMM D')} ${cadenceType} ${type}`;
+    
+    // Format date as "15 Jan 2026" (DD MMM YYYY)
+    return planDate.format('D MMM YYYY');
   };
 
   // Calculate total achieved points for the plan (sum of weights of completed tasks)
