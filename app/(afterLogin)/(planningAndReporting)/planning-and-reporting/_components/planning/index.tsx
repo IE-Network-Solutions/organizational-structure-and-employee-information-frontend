@@ -358,9 +358,9 @@ function Planning() {
     return !!activeSession;
   };
 
-  const getDateLabel = (createdAt: string, activeTabName: string): string => {
+  const getDateLabel = (createdAt: string): string => {
     const planDate = dayjs(createdAt);
-    
+
     // Format date as "15 Jan 2026" (DD MMM YYYY)
     return planDate.format('D MMM YYYY');
   };
@@ -509,10 +509,7 @@ function Planning() {
                       isDataFromActiveSession(originalDataItem?.createdAt)
                     }
                     isApprovalLoading={isApprovalLoading}
-                    dateLabel={getDateLabel(
-                      originalDataItem?.createdAt,
-                      activeTabName,
-                    )}
+                    dateLabel={getDateLabel(originalDataItem?.createdAt)}
                   />
                 );
               })}

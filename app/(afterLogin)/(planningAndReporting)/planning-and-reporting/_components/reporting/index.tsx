@@ -328,9 +328,9 @@ function Reporting() {
   };
 
   // utils/dateHelpers.ts
-  const getDateLabel = (createdAt: string, activeTabName: string): string => {
+  const getDateLabel = (createdAt: string): string => {
     const planDate = dayjs(createdAt);
-    
+
     // Format date as "15 Jan 2026" (DD MMM YYYY)
     return planDate.format('D MMM YYYY');
   };
@@ -467,7 +467,7 @@ function Reporting() {
                       isDataFromActiveSession(dataItem?.createdAt)
                     }
                     isApprovalLoading={isApprovalLoading}
-                    dateLabel={getDateLabel(dataItem?.createdAt, activeTabName)}
+                    dateLabel={getDateLabel(dataItem?.createdAt)}
                   />
                 );
               })}

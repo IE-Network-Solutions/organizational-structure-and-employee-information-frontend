@@ -30,7 +30,7 @@ interface PlanCardProps {
 export default function PlanCard({
   plan,
   viewMode,
-  activeCadence,
+  activeCadence: _activeCadence,
   onApprove,
   onOpen,
   onEdit,
