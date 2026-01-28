@@ -45,14 +45,26 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
       maskClosable={true}
       data-cy="okr-mode-effects-modal"
     >
-      <div className="py-4">
-        <div className="flex items-start gap-4 mb-6">
+      <div
+        className="py-4"
+        data-cy="okr-mode-effects-modal-content"
+        id="okr-mode-effects-modal-content"
+      >
+        <div
+          className="flex items-start gap-4 mb-6"
+          data-cy="okr-mode-effects-modal-header"
+          id="okr-mode-effects-modal-header"
+        >
           <InfoCircleOutlined
             className="text-blue-500 text-2xl mt-1"
             data-cy="okr-mode-effects-modal-info-icon"
             id="okr-mode-effects-modal-info-icon"
           />
-          <div className="flex-1">
+          <div
+            className="flex-1"
+            data-cy="okr-mode-effects-modal-text-container"
+            id="okr-mode-effects-modal-text-container"
+          >
             <h3
               className="text-lg font-semibold text-gray-900 mb-4"
               data-cy="okr-mode-effects-modal-title"
@@ -60,7 +72,11 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
             >
               {title}
             </h3>
-            <ul className="space-y-2">
+            <ul
+              className="space-y-2"
+              data-cy="okr-mode-effects-modal-messages-list"
+              id="okr-mode-effects-modal-messages-list"
+            >
               {messages.map((message, index) => (
                 <li
                   key={index}
@@ -68,14 +84,29 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
                   data-cy={`okr-mode-effects-modal-message-${index}`}
                   id={`okr-mode-effects-modal-message-${index}`}
                 >
-                  <span className="text-gray-400 mt-1">•</span>
-                  <span>{message}</span>
+                  <span
+                    className="text-gray-400 mt-1"
+                    data-cy={`okr-mode-effects-modal-bullet-${index}`}
+                    id={`okr-mode-effects-modal-bullet-${index}`}
+                  >
+                    •
+                  </span>
+                  <span
+                    data-cy={`okr-mode-effects-modal-message-text-${index}`}
+                    id={`okr-mode-effects-modal-message-text-${index}`}
+                  >
+                    {message}
+                  </span>
                 </li>
               ))}
             </ul>
           </div>
         </div>
-        <div className="flex justify-end mt-6">
+        <div
+          className="flex justify-end mt-6"
+          data-cy="okr-mode-effects-modal-footer"
+          id="okr-mode-effects-modal-footer"
+        >
           <Button
             type="primary"
             onClick={onClose}

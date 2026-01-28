@@ -124,7 +124,11 @@ const OkrTypePage = () => {
       data-cy="okr-type-page-container"
       id="okr-type-page-container"
     >
-      <div className="space-y-6 mb-6">
+      <div
+        className="space-y-6 mb-6"
+        data-cy="okr-type-cards-container"
+        id="okr-type-cards-container"
+      >
         {/* Basic OKR Card */}
         <Card
           title={
@@ -204,8 +208,16 @@ const OkrTypePage = () => {
           data-cy="okr-type-warning-alert"
           id="okr-type-warning-alert"
         >
-          <ExclamationCircleOutlined className="text-gray-500 text-lg" />
-          <span className="text-gray-900 text-sm">
+          <ExclamationCircleOutlined
+            className="text-gray-500 text-lg"
+            data-cy="okr-type-warning-icon"
+            id="okr-type-warning-icon"
+          />
+          <span
+            className="text-gray-900 text-sm"
+            data-cy="okr-type-warning-text"
+            id="okr-type-warning-text"
+          >
             Please Note that you can not use both types of OKR&apos;s at the same time
           </span>
         </div>

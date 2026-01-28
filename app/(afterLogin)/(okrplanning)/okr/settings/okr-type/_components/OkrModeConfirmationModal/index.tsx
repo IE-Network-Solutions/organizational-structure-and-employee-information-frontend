@@ -49,14 +49,26 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
       maskClosable={!loading}
       data-cy="okr-mode-confirmation-modal"
     >
-      <div className="py-4">
-        <div className="flex items-start gap-4 mb-6">
+      <div
+        className="py-4"
+        data-cy="okr-mode-confirmation-modal-content"
+        id="okr-mode-confirmation-modal-content"
+      >
+        <div
+          className="flex items-start gap-4 mb-6"
+          data-cy="okr-mode-confirmation-modal-header"
+          id="okr-mode-confirmation-modal-header"
+        >
           <ExclamationCircleOutlined
             className="text-yellow-500 text-2xl mt-1"
             data-cy="okr-mode-confirmation-modal-warning-icon"
             id="okr-mode-confirmation-modal-warning-icon"
           />
-          <div className="flex-1">
+          <div
+            className="flex-1"
+            data-cy="okr-mode-confirmation-modal-text-container"
+            id="okr-mode-confirmation-modal-text-container"
+          >
             <h3
               className="text-lg font-semibold text-gray-900 mb-4"
               data-cy="okr-mode-confirmation-modal-title"
@@ -64,7 +76,11 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
             >
               {title}
             </h3>
-            <ul className="space-y-2">
+            <ul
+              className="space-y-2"
+              data-cy="okr-mode-confirmation-modal-messages-list"
+              id="okr-mode-confirmation-modal-messages-list"
+            >
               {messages.map((message, index) => (
                 <li
                   key={index}
@@ -72,14 +88,29 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
                   data-cy={`okr-mode-confirmation-modal-message-${index}`}
                   id={`okr-mode-confirmation-modal-message-${index}`}
                 >
-                  <span className="text-gray-400 mt-1">•</span>
-                  <span>{message}</span>
+                  <span
+                    className="text-gray-400 mt-1"
+                    data-cy={`okr-mode-confirmation-modal-bullet-${index}`}
+                    id={`okr-mode-confirmation-modal-bullet-${index}`}
+                  >
+                    •
+                  </span>
+                  <span
+                    data-cy={`okr-mode-confirmation-modal-message-text-${index}`}
+                    id={`okr-mode-confirmation-modal-message-text-${index}`}
+                  >
+                    {message}
+                  </span>
                 </li>
               ))}
             </ul>
           </div>
         </div>
-        <div className="flex justify-end gap-3 mt-6">
+        <div
+          className="flex justify-end gap-3 mt-6"
+          data-cy="okr-mode-confirmation-modal-footer"
+          id="okr-mode-confirmation-modal-footer"
+        >
           <Button
             onClick={onCancel}
             disabled={loading}
