@@ -8,14 +8,16 @@ const AZURE_APP_SERVICE_URL =
   'https://selamnew-copilot-dev-dbdcc9ahe7eqgbez.eastus-01.azurewebsites.net';
 
 interface CopilotChatRequest {
-  query: string;
+  prompt: string;
+  context?: Record<string, any>;
 }
 
 interface CopilotChatResponse {
+  success: boolean;
   answer: string;
-  authenticated: boolean;
-  tenant_id: string;
-  user_id: string | null;
+  data?: any;
+  intent?: string;
+  error?: string;
 }
 
 /**
@@ -28,14 +30,22 @@ interface CopilotChatResponse {
 export const sendCopilotChatRequest = async (
   query: string
 ): Promise<string> => {
-  // Get fresh token from Firebase
-  const token = await getCurrentToken();
+  // Get fresh token from Firebase (force refresh to ensure it's valid)
+  // forceRefresh=true ensures we always get a newly refreshed token
+  const token = await getCurrentToken(true);
   
   // Get tenant and user info from store
   const { tenantId, userId } = useAuthenticationStore.getState();
   
   if (!tenantId || !token) {
     throw new Error('Authentication required. Please log in again.');
+  }
+
+  // Log token info in development (first 20 chars only for security)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔑 Using refreshed token:', token.substring(0, 20) + '...');
+    console.log('📋 Tenant ID:', tenantId);
+    console.log('👤 User ID:', userId || 'not provided');
   }
 
   // Prepare headers exactly as frontend does for other API calls
@@ -51,8 +61,8 @@ export const sendCopilotChatRequest = async (
 
   try {
     const response = await axios.post<CopilotChatResponse>(
-      `${AZURE_APP_SERVICE_URL}/api/copilot/chat`,
-      { query: query.trim() } as CopilotChatRequest,
+      `${AZURE_APP_SERVICE_URL}/copilot`,
+      { prompt: query.trim() } as CopilotChatRequest,
       {
         headers,
         timeout: 30000, // 30 seconds timeout
@@ -63,7 +73,7 @@ export const sendCopilotChatRequest = async (
   } catch (error) {
     // Handle different error types
     if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError<{ detail?: string }>;
+      const axiosError = error as AxiosError<{ detail?: string; message?: string }>;
       
       if (axiosError.response) {
         // Backend returned an error response
