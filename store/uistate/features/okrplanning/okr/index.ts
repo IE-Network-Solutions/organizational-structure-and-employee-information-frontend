@@ -438,5 +438,13 @@ export const useOKRStore = create<OKRState>()(
     deletedMilestoneIds: [],
     setDeletedMilestoneIds: (ids: string[]) =>
       set({ deletedMilestoneIds: ids }),
+    okrMode: null,
+    setOkrMode: (mode: 'Basic' | 'Advanced' | null) => set({ okrMode: mode }),
+    okrModalSelectedMode: null,
+    setOkrModalSelectedMode: (mode: 'Basic' | 'Advanced' | null) =>
+      set({ okrModalSelectedMode: mode }),
+    okrModalIsSaving: false,
+    setOkrModalIsSaving: (isSaving: boolean) =>
+      set({ okrModalIsSaving: isSaving }),
   })),
 );
