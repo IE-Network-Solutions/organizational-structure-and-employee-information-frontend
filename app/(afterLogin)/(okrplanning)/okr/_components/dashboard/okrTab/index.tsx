@@ -2,7 +2,9 @@
 import { Spin, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
 import ObjectiveCard from '../objectivecard';
+import ObjectiveBasic from '../objectiveBasic';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useIsBasicOkr } from '../../../_utils/okrMode';
 import {
   useGetCompanyObjective,
   useGetTeamObjective,
@@ -29,6 +31,7 @@ export default function OkrTab() {
   const { userId } = useAuthenticationStore();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
+  const isBasicOkr = useIsBasicOkr();
   const departmentId = userData?.employeeJobInformation[0]?.departmentId;
   const users =
     departmentUsers
@@ -182,14 +185,23 @@ export default function OkrTab() {
                     id="my-okr-objectives-list"
                     data-cy="okr-my-okr-objectives-list"
                   >
-                    {userObjectives?.items?.map((obj: any) => (
-                      <ObjectiveCard
-                        data-cy={`okr-my-okr-objective-card-${obj?.id}`}
-                        key={obj.id}
-                        myOkr={true}
-                        objective={obj}
-                      />
-                    ))}
+                    {userObjectives?.items?.map((obj: any) =>
+                      isBasicOkr ? (
+                        <ObjectiveBasic
+                          data-cy={`okr-my-okr-objective-basic-card-${obj?.id}`}
+                          key={obj.id}
+                          myOkr={true}
+                          objective={obj}
+                        />
+                      ) : (
+                        <ObjectiveCard
+                          data-cy={`okr-my-okr-objective-card-${obj?.id}`}
+                          key={obj.id}
+                          myOkr={true}
+                          objective={obj}
+                        />
+                      ),
+                    )}
                     {isMobile || isTablet ? (
                       <CustomMobilePagination
                         data-cy="okr-my-okr-mobile-pagination"
@@ -257,13 +269,21 @@ export default function OkrTab() {
                           id="team-okr-objectives-list"
                           data-cy="okr-team-okr-objectives-list"
                         >
-                          {teamObjective?.items?.map((obj: any) => (
-                            <ObjectiveCard
-                              key={obj.id}
-                              myOkr={false}
-                              objective={obj}
-                            />
-                          ))}
+                          {teamObjective?.items?.map((obj: any) =>
+                            isBasicOkr ? (
+                              <ObjectiveBasic
+                                key={obj.id}
+                                myOkr={false}
+                                objective={obj}
+                              />
+                            ) : (
+                              <ObjectiveCard
+                                key={obj.id}
+                                myOkr={false}
+                                objective={obj}
+                              />
+                            ),
+                          )}
                           {isMobile || isTablet ? (
                             <CustomMobilePagination
                               data-cy="okr-team-okr-mobile-pagination"
@@ -336,14 +356,23 @@ export default function OkrTab() {
                           id="company-okr-objectives-list"
                           data-cy="okr-company-okr-objectives-list"
                         >
-                          {companyObjective?.items?.map((obj: any) => (
-                            <ObjectiveCard
-                              data-cy={`okr-company-okr-objective-card-${obj?.id}`}
-                              key={obj.id}
-                              myOkr={false}
-                              objective={obj}
-                            />
-                          ))}
+                          {companyObjective?.items?.map((obj: any) =>
+                            isBasicOkr ? (
+                              <ObjectiveBasic
+                                data-cy={`okr-company-okr-objective-basic-card-${obj?.id}`}
+                                key={obj.id}
+                                myOkr={false}
+                                objective={obj}
+                              />
+                            ) : (
+                              <ObjectiveCard
+                                data-cy={`okr-company-okr-objective-card-${obj?.id}`}
+                                key={obj.id}
+                                myOkr={false}
+                                objective={obj}
+                              />
+                            ),
+                          )}
                           {isMobile || isTablet ? (
                             <CustomMobilePagination
                               data-cy="okr-company-okr-mobile-pagination"
