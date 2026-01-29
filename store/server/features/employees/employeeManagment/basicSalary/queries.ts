@@ -25,4 +25,6 @@ const getBasicSalaryById = async (id: string) => {
 };
 
 export const useGetBasicSalaryById = (empId: string) =>
-  useQuery<any>(['basicSalary', empId], () => getBasicSalaryById(empId));
+  useQuery<any>(['basicSalary', empId], () => getBasicSalaryById(empId), {
+    enabled: !!empId && empId.length > 0,
+  });
