@@ -236,7 +236,6 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           data-cy={`okr-objective-basic-key-results-${objective?.id}`}
           className="space-y-3"
         >
-          {console.log('objective?.keyResults', objective?.keyResults)}
           {objective?.keyResults?.map((keyResult: any) => {
             const statusInfo = getKeyResultStatus(keyResult);
             const keyResultMenu = getKeyResultMenu(keyResult);
