@@ -49,11 +49,12 @@ const BenefitypeSideBar = () => {
         isAllEmployee:
           selectedBenefitRecord.applicableTo == 'GLOBAL' ? true : false,
         mode: selectedBenefitRecord.mode,
-        type: selectedBenefitRecord.isPeriodic !== undefined
-          ? selectedBenefitRecord.isPeriodic
-            ? 'PERIODIC'
-            : 'NON_PERIODIC'
-          : undefined,
+        type:
+          selectedBenefitRecord.isPeriodic !== undefined
+            ? selectedBenefitRecord.isPeriodic
+              ? 'PERIODIC'
+              : 'NON_PERIODIC'
+            : undefined,
       });
     }
   }, [selectedBenefitRecord, form, setBenefitMode, setIsAllEmployee]);
@@ -86,14 +87,19 @@ const BenefitypeSideBar = () => {
       settlementPeriod: formValues.NoOfPayPeriod
         ? Number(formValues.NoOfPayPeriod)
         : null,
-      isPeriodic: formValues.mode == 'DEBIT' ? (formValues.type === 'PERIODIC' ? true : false) : undefined,
+      isPeriodic:
+        formValues.mode == 'DEBIT'
+          ? formValues.type === 'PERIODIC'
+            ? true
+            : false
+          : undefined,
     });
     onClose();
   };
 
   const handleModeChange = (e: RadioChangeEvent) => {
     setBenefitMode(e.target.value);
-    form.setFieldsValue({ 
+    form.setFieldsValue({
       isAllEmployee: isAllEmployee,
       type: undefined,
     });

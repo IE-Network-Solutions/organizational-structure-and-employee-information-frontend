@@ -185,4 +185,10 @@ export interface OKRState {
   setDeletedKeyResultIds: (ids: string[]) => void;
   deletedMilestoneIds: string[];
   setDeletedMilestoneIds: (ids: string[]) => void;
+  okrMode: 'Basic' | 'Advanced' | null;
+  setOkrMode: (mode: 'Basic' | 'Advanced' | null) => void;
+  okrModalSelectedMode: 'Basic' | 'Advanced' | null;
+  setOkrModalSelectedMode: (mode: 'Basic' | 'Advanced' | null) => void;
+  okrModalIsSaving: boolean;
+  setOkrModalIsSaving: (isSaving: boolean) => void;
 }
