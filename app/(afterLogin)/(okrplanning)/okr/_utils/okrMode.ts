@@ -8,5 +8,5 @@ import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 export const useIsBasicOkr = (): boolean => {
   const okrMode = useOKRStore((state) => state.okrMode);
 
-  return useMemo(() => okrMode === 'Advanced', [okrMode]);
+  return useMemo(() => okrMode === 'Basic', [okrMode]);
 };
