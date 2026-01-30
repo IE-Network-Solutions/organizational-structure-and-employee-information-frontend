@@ -1,11 +1,14 @@
-import { Dropdown, Menu, Progress, Select, Tag } from 'antd';
+import { Dropdown, Menu, Progress, Select } from 'antd';
 import { FC, useState } from 'react';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
-import { useUpdateObjectiveNestedDelete, useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import {
+  useUpdateObjectiveNestedDelete,
+  useUpdateKeyResult,
+} from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
@@ -111,7 +114,10 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   // Get status display value and color for key result (Basic OKR mode)
   const getKeyResultStatus = () => {
     // Check status field first, then fall back to progress
-    if (keyResult?.status === 'achieved' || Number(keyResult?.progress) === 100) {
+    if (
+      keyResult?.status === 'achieved' ||
+      Number(keyResult?.progress) === 100
+    ) {
       return { value: 'achieved', label: 'Achieved', color: 'green' };
     } else if (keyResult?.status === 'failed') {
       return { value: 'failed', label: 'Failed', color: 'red' };
@@ -144,7 +150,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   };
 
   // Check if this is Basic OKR mode with AchieveOrNot metric
-  const isBasicAchieveOrNot = isBasicOkr && keyResult?.metricType?.name === 'Achieve';
+  const isBasicAchieveOrNot =
+    isBasicOkr && keyResult?.metricType?.name === 'Achieve';
   return (
     <div
       id={`key-result-metrics-${keyResult?.id}`}
