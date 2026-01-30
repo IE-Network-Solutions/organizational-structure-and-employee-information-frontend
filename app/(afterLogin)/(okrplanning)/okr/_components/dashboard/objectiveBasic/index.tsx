@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Menu, Dropdown, Select, Tag } from 'antd';
+import { Card, Menu, Dropdown, Select } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { MoreOutlined, DownOutlined } from '@ant-design/icons';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
@@ -19,8 +19,12 @@ import EditObjective from '../editObjective';
 const { Option } = Select;
 
 const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
-  const { setObjectiveValue, objectiveValue, keyResultValue, setKeyResultValue, setKeyResultId, setObjectiveId } =
-    useOKRStore();
+  const {
+    setObjectiveValue,
+    objectiveValue,
+    keyResultValue,
+    setKeyResultValue,
+  } = useOKRStore();
   const { userId } = useAuthenticationStore();
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -64,9 +68,12 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   };
 
   // Calculate objective progress based on key result statuses
-  const calculateObjectiveProgress = (): { progress: number; status: string } => {
+  const calculateObjectiveProgress = (): {
+    progress: number;
+    status: string;
+  } => {
     const objectiveProgress = Number(objective?.objectiveProgress) || 0;
-    
+
     if (objectiveProgress === 0) {
       return { progress: 0, status: '0% On Progress' };
     }
@@ -76,7 +83,10 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     }
 
     if (objectiveProgress > 0 && objectiveProgress < 100) {
-      return { progress: objectiveProgress, status: `${objectiveProgress}% On Progress` };
+      return {
+        progress: objectiveProgress,
+        status: `${objectiveProgress}% On Progress`,
+      };
     }
 
     // Default fallback
@@ -115,9 +125,9 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   // Get status display value and color for key result
   const getKeyResultStatus = (keyResult: any) => {
     // Check status field first, then fall back to progress
-    if (keyResult?.keyResultCompletionStatus === 'Achieved' ) {
+    if (keyResult?.keyResultCompletionStatus === 'Achieved') {
       return { value: 'Achieved', label: 'Achieved', color: 'green' };
-    } else if (keyResult?.keyResultCompletionStatus === 'Failed' ) {
+    } else if (keyResult?.keyResultCompletionStatus === 'Failed') {
       return { value: 'Failed', label: 'Failed', color: 'red' };
     } else if (keyResult?.keyResultCompletionStatus === 'Pending') {
       return { value: 'Pending', label: 'Pending', color: 'yellow' };
@@ -151,8 +161,9 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
 
   // Key result menu
   const getKeyResultMenu = (keyResult: any) => {
-    const canEditDelete = (myOkr || objective?.userId === userId) && isInActiveSession;
-    
+    const canEditDelete =
+      (myOkr || objective?.userId === userId) && isInActiveSession;
+
     if (!canEditDelete) return null;
 
     return (
@@ -189,47 +200,50 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         data-cy={`okr-objective-basic-card-container-${objective?.id}`}
         className="bg-white shadow-sm rounded-lg w-full"
         bodyStyle={{ padding: isMobile ? '16px' : '24px' }}
-        title={<div
-          id={`okr-objective-basic-header-${objective?.id}`}
-          data-cy={`okr-objective-basic-header-${objective?.id}`}
-          className={`flex justify-between items-start gap-2 ${isMobile ? 'flex-row py-3' : 'py-4'}`}
-        >
-          <div className={`flex  ${isMobile ? 'flex-col' : 'items-center justify-between'} flex-1 min-w-0`}>
-            <h2
-              id={`objective-basic-title-${objective?.id}`}
-              data-cy={`okr-objective-basic-title-${objective?.id}`}
-              className={`font-bold text-black ${isMobile ? 'text-sm truncate' : 'text-base text-wrap'}`}
+        title={
+          <div
+            id={`okr-objective-basic-header-${objective?.id}`}
+            data-cy={`okr-objective-basic-header-${objective?.id}`}
+            className={`flex justify-between items-start gap-2 ${isMobile ? 'flex-row py-3' : 'py-4'}`}
+          >
+            <div
+              className={`flex  ${isMobile ? 'flex-col' : 'items-center justify-between'} flex-1 min-w-0`}
             >
-              {objective?.title}
-            </h2>
-            <span
-              id={`objective-basic-status-${objective?.id}`}
-              data-cy={`okr-objective-basic-status-${objective?.id}`}
-              className={`font-semibold mt-1 ${isMobile ? 'text-xs' : 'text-sm'}`}
-              style={{
-                color: status === 'Completed' ? '#2563eb' : '#16a34a'
-              }}
-            >
-              {status}
-            </span>
+              <h2
+                id={`objective-basic-title-${objective?.id}`}
+                data-cy={`okr-objective-basic-title-${objective?.id}`}
+                className={`font-bold text-black ${isMobile ? 'text-sm truncate' : 'text-base text-wrap'}`}
+              >
+                {objective?.title}
+              </h2>
+              <span
+                id={`objective-basic-status-${objective?.id}`}
+                data-cy={`okr-objective-basic-status-${objective?.id}`}
+                className={`font-semibold mt-1 ${isMobile ? 'text-xs' : 'text-sm'}`}
+                style={{
+                  color: status === 'Completed' ? '#2563eb' : '#16a34a',
+                }}
+              >
+                {status}
+              </span>
+            </div>
+            {objective?.isClosed === false && menu && (
+              <Dropdown
+                data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
+                overlay={menu}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <MoreOutlined
+                  id={`objective-basic-menu-button-${objective?.id}`}
+                  data-cy={`okr-objective-basic-menu-button-${objective?.id}`}
+                  className="text-gray-500 text-lg cursor-pointer flex-shrink-0"
+                />
+              </Dropdown>
+            )}
           </div>
-          {objective?.isClosed === false && menu && (
-            <Dropdown
-              data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
-              overlay={menu}
-              trigger={['click']}
-              placement="bottomRight"
-            >
-              <MoreOutlined
-                id={`objective-basic-menu-button-${objective?.id}`}
-                data-cy={`okr-objective-basic-menu-button-${objective?.id}`}
-                className="text-gray-500 text-lg cursor-pointer flex-shrink-0"
-              />
-            </Dropdown>
-          )}
-        </div>}
+        }
       >
-
         {/* Key Results List */}
         <div
           id={`okr-objective-basic-key-results-${objective?.id}`}
@@ -255,12 +269,16 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 data-cy={`okr-key-result-basic-${keyResult.id}`}
                 className={`flex gap-2 ${isMobile ? 'flex-col' : 'items-center justify-between'}`}
               >
-                <div className={`flex gap-2 flex-1 min-w-0 ${isMobile ? 'items-start' : 'items-center'}`}>
+                <div
+                  className={`flex gap-2 flex-1 min-w-0 ${isMobile ? 'items-start' : 'items-center'}`}
+                >
                   <MdKey
                     size={isMobile ? 18 : 20}
                     className="text-blue flex-shrink-0 mt-0.5"
                   />
-                  <div className={`flex-1 min-w-0 flex ${isMobile ? 'flex-col gap-1' : 'items-center justify-between'}`}>
+                  <div
+                    className={`flex-1 min-w-0 flex ${isMobile ? 'flex-col gap-1' : 'items-center justify-between'}`}
+                  >
                     <div className="flex items-center justify-between gap-2 min-w-0 flex-1">
                       <span
                         className={`text-gray-800 truncate ${isMobile ? 'text-xs' : 'text-sm'}`}
@@ -271,9 +289,17 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <Select
                             value={statusInfo.value}
-                            onChange={(value) => handleStatusChange(keyResult, value)}
-                            disabled={!isOwner || !isInActiveSession || objective?.isClosed}
-                            suffixIcon={<DownOutlined className="text-gray-400" />}
+                            onChange={(value) =>
+                              handleStatusChange(keyResult, value)
+                            }
+                            disabled={
+                              !isOwner ||
+                              !isInActiveSession ||
+                              objective?.isClosed
+                            }
+                            suffixIcon={
+                              <DownOutlined className="text-gray-400" />
+                            }
                             className={`min-w-[120px] ${statusSelectClass}`}
                             size="middle"
                             dropdownStyle={{ zIndex: 1050 }}
@@ -316,9 +342,15 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     {isMobile && (
                       <Select
                         value={statusInfo.value}
-                        onChange={(value) => handleStatusChange(keyResult, value)}
-                        disabled={!isOwner || !isInActiveSession || objective?.isClosed}
-                        suffixIcon={<DownOutlined className="text-gray-400 text-xs" />}
+                        onChange={(value) =>
+                          handleStatusChange(keyResult, value)
+                        }
+                        disabled={
+                          !isOwner || !isInActiveSession || objective?.isClosed
+                        }
+                        suffixIcon={
+                          <DownOutlined className="text-gray-400 text-xs" />
+                        }
                         className={`w-fit min-w-[100px] ${statusSelectClass}`}
                         size="small"
                         dropdownStyle={{ zIndex: 1050 }}

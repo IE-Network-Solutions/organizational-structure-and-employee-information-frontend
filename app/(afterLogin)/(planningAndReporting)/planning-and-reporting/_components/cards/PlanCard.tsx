@@ -241,16 +241,18 @@ export default function PlanCard({
                     <p className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2">
                       {keyResult.title || keyResult.name || plan.summary}
                     </p>
-                    {keyResult.deletedAt !== null && keyResult.deletedAt !== undefined && (
-                      <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
-                        Deleted KR
-                      </span>
-                    )}
-                    {keyResult.objective?.deletedAt !== null && keyResult.objective?.deletedAt !== undefined && (
-                      <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
-                        Deleted OKR
-                      </span>
-                    )}
+                    {keyResult.deletedAt !== null &&
+                      keyResult.deletedAt !== undefined && (
+                        <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                          Deleted KR
+                        </span>
+                      )}
+                    {keyResult.objective?.deletedAt !== null &&
+                      keyResult.objective?.deletedAt !== undefined && (
+                        <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                          Deleted OKR
+                        </span>
+                      )}
                   </div>
                 </div>
 

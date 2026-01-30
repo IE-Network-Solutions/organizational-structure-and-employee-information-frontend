@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   Button,
   DatePicker,
@@ -10,7 +10,6 @@ import {
   Menu,
   Modal,
 } from 'antd';
-import { GoPlus } from 'react-icons/go';
 import KeyResultForm from '../keyresultForm';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
@@ -435,7 +434,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 data-cy="okr-drawer-mobile-deadline-picker"
                 className="h-11 w-1/2 mb-0"
                 name="ObjectiveDeadline"
-                label={isMobile ? "Deadline" : "Objective Deadline"}
+                label={isMobile ? 'Deadline' : 'Objective Deadline'}
                 rules={[
                   { required: true, message: 'Please select a deadline' },
                 ]}

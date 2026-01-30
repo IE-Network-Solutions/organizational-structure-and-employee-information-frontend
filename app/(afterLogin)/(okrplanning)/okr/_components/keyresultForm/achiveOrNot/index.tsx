@@ -20,7 +20,6 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
   const { isMobile } = useIsMobile();
   const isBasic = useIsBasicOkr();
 
-
   return (
     <div
       id={`okr-achieve-form-container-${index}`}
@@ -86,7 +85,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
             />
           </Form.Item>
-          <Form.Item  
+          <Form.Item
             className={`w-48 mb-0 ${isBasic ? 'hidden' : ''}`}
             id={`select-metric-${index}`}
             data-cy={`okr-achieve-desktop-type-item-${index}`}
