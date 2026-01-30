@@ -26,9 +26,13 @@ interface CopilotChatResponse {
  * 1. Authenticate the user using headers (Authorization, tenantId, userId)
  * 2. Process the query
  * 3. Return the AI response
+ * 
+ * @param query - The user's query/prompt
+ * @param sessionId - Optional session ID for OKR session-specific queries
  */
 export const sendCopilotChatRequest = async (
-  query: string
+  query: string,
+  sessionId?: string
 ): Promise<string> => {
   // Get fresh token from Firebase (force refresh to ensure it's valid)
   // forceRefresh=true ensures we always get a newly refreshed token
@@ -58,6 +62,16 @@ export const sendCopilotChatRequest = async (
   if (userId) {
     headers.userId = userId;
   }
+  
+  // Add sessionId header if provided (for OKR session-specific queries)
+  if (sessionId) {
+    headers.sessionId = sessionId;
+  }
+
+  // Log the URL being used in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🌐 Copilot API URL:', `${AZURE_APP_SERVICE_URL}/copilot`);
+  }
 
   try {
     const response = await axios.post<CopilotChatResponse>(
@@ -65,7 +79,7 @@ export const sendCopilotChatRequest = async (
       { prompt: query.trim() } as CopilotChatRequest,
       {
         headers,
-        timeout: 30000, // 30 seconds timeout
+        timeout: 60000, // 60 seconds timeout (increased for complex queries like daily plans)
       }
     );
 
@@ -94,7 +108,24 @@ export const sendCopilotChatRequest = async (
         }
       } else if (axiosError.request) {
         // Request was made but no response received
-        throw new Error('Unable to reach the server. Please check your connection.');
+        // This could be: network error, CORS issue, timeout, or server unreachable
+        const errorMessage = axiosError.code === 'ECONNABORTED'
+          ? `Request timeout. The server took too long to respond (60s). This query may require processing large amounts of data. Please try again or contact support if the issue persists.`
+          : axiosError.code === 'ERR_NETWORK'
+          ? `Network error. Unable to connect to ${AZURE_APP_SERVICE_URL}. Please check your internet connection and CORS settings.`
+          : `Unable to reach the server at ${AZURE_APP_SERVICE_URL}. Please check your connection and verify the server is running.`;
+        
+        // Log detailed error in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ Request failed:', {
+            url: `${AZURE_APP_SERVICE_URL}/copilot`,
+            code: axiosError.code,
+            message: axiosError.message,
+            request: axiosError.request,
+          });
+        }
+        
+        throw new Error(errorMessage);
       }
     }
     
