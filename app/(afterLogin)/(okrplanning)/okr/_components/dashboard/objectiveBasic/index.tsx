@@ -192,106 +192,143 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         title={<div
           id={`okr-objective-basic-header-${objective?.id}`}
           data-cy={`okr-objective-basic-header-${objective?.id}`}
-          className="flex justify-between items-start py-4"
+          className={`flex justify-between items-start gap-2 ${isMobile ? 'flex-row py-3' : 'py-4'}`}
         >
-          <h2
-            id={`objective-basic-title-${objective?.id}`}
-            data-cy={`okr-objective-basic-title-${objective?.id}`}
-            className={`font-bold text-black flex-1 text-wrap ${isMobile ? 'text-sm' : 'text-base'}`}
-          >
-            {objective?.title}
-          </h2>
-          <div className="flex items-center gap-2 ml-4">
+          <div className={`flex  ${isMobile ? 'flex-col' : 'items-center justify-between'} flex-1 min-w-0`}>
+            <h2
+              id={`objective-basic-title-${objective?.id}`}
+              data-cy={`okr-objective-basic-title-${objective?.id}`}
+              className={`font-bold text-black ${isMobile ? 'text-sm truncate' : 'text-base text-wrap'}`}
+            >
+              {objective?.title}
+            </h2>
             <span
               id={`objective-basic-status-${objective?.id}`}
               data-cy={`okr-objective-basic-status-${objective?.id}`}
-              className={`font-semibold  ${isMobile ? 'text-xs' : 'text-sm'}`}
+              className={`font-semibold mt-1 ${isMobile ? 'text-xs' : 'text-sm'}`}
               style={{
                 color: status === 'Completed' ? '#2563eb' : '#16a34a'
               }}
             >
               {status}
             </span>
-            {objective?.isClosed === false && menu && (
-              <Dropdown
-                data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
-                overlay={menu}
-                trigger={['click']}
-                placement="bottomRight"
-              >
-                <MoreOutlined
-                  id={`objective-basic-menu-button-${objective?.id}`}
-                  data-cy={`okr-objective-basic-menu-button-${objective?.id}`}
-                  className="text-gray-500 text-lg cursor-pointer"
-                />
-              </Dropdown>
-            )}
           </div>
+          {objective?.isClosed === false && menu && (
+            <Dropdown
+              data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
+              overlay={menu}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <MoreOutlined
+                id={`objective-basic-menu-button-${objective?.id}`}
+                data-cy={`okr-objective-basic-menu-button-${objective?.id}`}
+                className="text-gray-500 text-lg cursor-pointer flex-shrink-0"
+              />
+            </Dropdown>
+          )}
         </div>}
-      >        
+      >
 
         {/* Key Results List */}
         <div
           id={`okr-objective-basic-key-results-${objective?.id}`}
           data-cy={`okr-objective-basic-key-results-${objective?.id}`}
-          className="space-y-3"
+          className="space-y-4"
         >
           {objective?.keyResults?.map((keyResult: any) => {
             const statusInfo = getKeyResultStatus(keyResult);
             const keyResultMenu = getKeyResultMenu(keyResult);
+
+            const statusSelectClass = `${
+              statusInfo.color === 'yellow'
+                ? '[&_.ant-select-selector]:!bg-yellow-100 [&_.ant-select-selector]:!text-yellow-800 [&_.ant-select-selector]:!border-yellow-300 [&_.ant-select-selector]:!rounded-md'
+                : statusInfo.color === 'red'
+                  ? '[&_.ant-select-selector]:!bg-red-100 [&_.ant-select-selector]:!text-red-800 [&_.ant-select-selector]:!border-red-300 [&_.ant-select-selector]:!rounded-md'
+                  : '[&_.ant-select-selector]:!bg-green-100 [&_.ant-select-selector]:!text-green-800 [&_.ant-select-selector]:!border-green-300 [&_.ant-select-selector]:!rounded-md'
+            }`;
 
             return (
               <div
                 key={keyResult.id}
                 id={`key-result-basic-${keyResult.id}`}
                 data-cy={`okr-key-result-basic-${keyResult.id}`}
-                className="flex items-center justify-between gap-2"
+                className={`flex gap-2 ${isMobile ? 'flex-col' : 'items-center justify-between'}`}
               >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className={`flex gap-2 flex-1 min-w-0 ${isMobile ? 'items-start' : 'items-center'}`}>
                   <MdKey
                     size={isMobile ? 18 : 20}
-                    className="text-blue flex-shrink-0"
+                    className="text-blue flex-shrink-0 mt-0.5"
                   />
-                  <span
-                    className={`text-gray-800 flex-1 truncate ${isMobile ? 'text-xs' : 'text-sm'}`}
-                  >
-                    {keyResult?.title}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Select
-                    value={statusInfo.value}
-                    onChange={(value) => handleStatusChange(keyResult, value)}
-                    disabled={!isOwner || !isInActiveSession || objective?.isClosed}
-                    suffixIcon={<DownOutlined className="text-gray-400" />}
-                    className={`min-w-[120px] ${
-                      statusInfo.color === 'yellow'
-                        ? '[&_.ant-select-selector]:!bg-yellow-100 [&_.ant-select-selector]:!text-yellow-800 [&_.ant-select-selector]:!border-yellow-300'
-                        : statusInfo.color === 'red'
-                          ? '[&_.ant-select-selector]:!bg-red-100 [&_.ant-select-selector]:!text-red-800 [&_.ant-select-selector]:!border-red-300'
-                          : '[&_.ant-select-selector]:!bg-green-100 [&_.ant-select-selector]:!text-green-800 [&_.ant-select-selector]:!border-green-300'
-                    }`}
-                    size={isMobile ? 'small' : 'middle'}
-                    dropdownStyle={{ zIndex: 1050 }}
-                  >
-                    <Option value="Pending">Pending</Option>
-                    <Option value="Failed">Failed</Option>
-                    <Option value="Achieved">Achieved</Option>
-                  </Select>
-                  {keyResultMenu && (
-                    <Dropdown
-                      data-cy={`okr-key-result-basic-actions-dropdown-${keyResult.id}`}
-                      overlay={keyResultMenu}
-                      trigger={['click']}
-                      placement="bottomRight"
-                    >
-                      <MoreOutlined
-                        id={`key-result-basic-menu-button-${keyResult.id}`}
-                        data-cy={`okr-key-result-basic-menu-button-${keyResult.id}`}
-                        className="text-gray-500 text-lg cursor-pointer"
-                      />
-                    </Dropdown>
-                  )}
+                  <div className={`flex-1 min-w-0 flex ${isMobile ? 'flex-col gap-1' : 'items-center justify-between'}`}>
+                    <div className="flex items-center justify-between gap-2 min-w-0 flex-1">
+                      <span
+                        className={`text-gray-800 truncate ${isMobile ? 'text-xs' : 'text-sm'}`}
+                      >
+                        {keyResult?.title}
+                      </span>
+                      {!isMobile && (
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Select
+                            value={statusInfo.value}
+                            onChange={(value) => handleStatusChange(keyResult, value)}
+                            disabled={!isOwner || !isInActiveSession || objective?.isClosed}
+                            suffixIcon={<DownOutlined className="text-gray-400" />}
+                            className={`min-w-[120px] ${statusSelectClass}`}
+                            size="middle"
+                            dropdownStyle={{ zIndex: 1050 }}
+                          >
+                            <Option value="Pending">Pending</Option>
+                            <Option value="Failed">Failed</Option>
+                            <Option value="Achieved">Achieved</Option>
+                          </Select>
+                          {keyResultMenu && (
+                            <Dropdown
+                              data-cy={`okr-key-result-basic-actions-dropdown-${keyResult.id}`}
+                              overlay={keyResultMenu}
+                              trigger={['click']}
+                              placement="bottomRight"
+                            >
+                              <MoreOutlined
+                                id={`key-result-basic-menu-button-${keyResult.id}`}
+                                data-cy={`okr-key-result-basic-menu-button-${keyResult.id}`}
+                                className="text-gray-500 text-lg cursor-pointer"
+                              />
+                            </Dropdown>
+                          )}
+                        </div>
+                      )}
+                      {isMobile && keyResultMenu && (
+                        <Dropdown
+                          data-cy={`okr-key-result-basic-actions-dropdown-${keyResult.id}`}
+                          overlay={keyResultMenu}
+                          trigger={['click']}
+                          placement="bottomRight"
+                        >
+                          <MoreOutlined
+                            id={`key-result-basic-menu-button-${keyResult.id}`}
+                            data-cy={`okr-key-result-basic-menu-button-${keyResult.id}`}
+                            className="text-gray-500 text-lg cursor-pointer flex-shrink-0"
+                          />
+                        </Dropdown>
+                      )}
+                    </div>
+                    {isMobile && (
+                      <Select
+                        value={statusInfo.value}
+                        onChange={(value) => handleStatusChange(keyResult, value)}
+                        disabled={!isOwner || !isInActiveSession || objective?.isClosed}
+                        suffixIcon={<DownOutlined className="text-gray-400 text-xs" />}
+                        className={`w-fit min-w-[100px] ${statusSelectClass}`}
+                        size="small"
+                        dropdownStyle={{ zIndex: 1050 }}
+                      >
+                        <Option value="Pending">Pending</Option>
+                        <Option value="Failed">Failed</Option>
+                        <Option value="Achieved">Achieved</Option>
+                      </Select>
+                    )}
+                  </div>
                 </div>
               </div>
             );
