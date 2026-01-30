@@ -1,4 +1,3 @@
-
 'use client';
 import React from 'react';
 import { Modal, Button } from 'antd';
@@ -28,7 +27,9 @@ const FeatureItem = ({ text, index }: { text: string; index: number }) => (
       data-cy={`okr-mode-selection-feature-icon-${index}`}
       id={`okr-mode-selection-feature-icon-${index}`}
     >
-      <CheckOutlined style={{ fontSize: '12px', color: 'white', fontWeight: 'bold' }} />
+      <CheckOutlined
+        style={{ fontSize: '12px', color: 'white', fontWeight: 'bold' }}
+      />
     </div>
     <span
       className="text-gray-600 font-medium text-sm leading-6"
@@ -166,7 +167,8 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
           >
             Select how you want to track objectives for your organization.
             <br />
-            This setting applies to all users but can be changed later by admins.
+            This setting applies to all users but can be changed later by
+            admins.
           </p>
         </div>
 

@@ -152,10 +152,12 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     tasks: finalTasks,
     milestones: finalMilestones,
     parentTask: finalParentTasks,
-    objective: keyResult.objective ? {
-      ...keyResult.objective,
-      deletedAt: keyResult.objective.deletedAt || null, // Preserve objective deletedAt
-    } : null,
+    objective: keyResult.objective
+      ? {
+          ...keyResult.objective,
+          deletedAt: keyResult.objective.deletedAt || null, // Preserve objective deletedAt
+        }
+      : null,
     metricType: keyResult.metricType,
     targetValue: keyResult.targetValue || targetValue,
     currentValue: achievedValue, // Always use calculated achieved value from this key result's tasks
@@ -200,13 +202,23 @@ export const transformReportToPlanSummary = (
         ...keyResult,
         id: krId,
         // Preserve title even if keyResult is deleted - use title from keyResult or fallback to planTask data
-        title: keyResult.title || keyResult.name || task?.planTask?.keyResultTitle || 'Deleted Key Result',
-        name: keyResult.name || keyResult.title || task?.planTask?.keyResultTitle || 'Deleted Key Result',
+        title:
+          keyResult.title ||
+          keyResult.name ||
+          task?.planTask?.keyResultTitle ||
+          'Deleted Key Result',
+        name:
+          keyResult.name ||
+          keyResult.title ||
+          task?.planTask?.keyResultTitle ||
+          'Deleted Key Result',
         deletedAt: keyResult.deletedAt || null, // Preserve deletedAt
-        objective: keyResult.objective ? {
-          ...keyResult.objective,
-          deletedAt: keyResult.objective.deletedAt || null, // Preserve objective deletedAt
-        } : null,
+        objective: keyResult.objective
+          ? {
+              ...keyResult.objective,
+              deletedAt: keyResult.objective.deletedAt || null, // Preserve objective deletedAt
+            }
+          : null,
         tasks: [],
         milestones: [],
         parentTask: [],
@@ -417,10 +429,12 @@ export const transformReportToPlanSummary = (
       currentValue: achieved, // Sum of weights of achieved tasks for this key result only
       progress: totalWeight > 0 ? (achieved / totalWeight) * 100 : 0,
       deletedAt: kr.deletedAt || null, // Preserve deletedAt for visual indicators
-      objective: kr.objective ? {
-        ...kr.objective,
-        deletedAt: kr.objective.deletedAt || null, // Preserve objective deletedAt
-      } : null,
+      objective: kr.objective
+        ? {
+            ...kr.objective,
+            deletedAt: kr.objective.deletedAt || null, // Preserve objective deletedAt
+          }
+        : null,
     };
   });
 
