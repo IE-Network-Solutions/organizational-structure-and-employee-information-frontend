@@ -7,10 +7,12 @@ const groupTasksByKeyResultId = (plans: any) => {
         keyResultMap[keyResultId] = {
           ...task?.keyResult,
           deletedAt: task?.keyResult?.deletedAt || null, // Preserve deletedAt
-          objective: task?.keyResult?.objective ? {
-            ...task?.keyResult?.objective,
-            deletedAt: task?.keyResult?.objective?.deletedAt || null, // Preserve objective deletedAt
-          } : null,
+          objective: task?.keyResult?.objective
+            ? {
+                ...task?.keyResult?.objective,
+                deletedAt: task?.keyResult?.objective?.deletedAt || null, // Preserve objective deletedAt
+              }
+            : null,
           tasks: [],
         };
       }
