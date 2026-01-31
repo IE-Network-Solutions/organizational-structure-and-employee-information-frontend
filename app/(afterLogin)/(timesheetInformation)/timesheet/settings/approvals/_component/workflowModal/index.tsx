@@ -91,7 +91,7 @@ const WorkflowModal = ({
   const { data: users } = useGetAllUsers();
   const { data: approvalWorkflowData } = useGetAllApprovalWorkflow();
   const { mutate: deleteWorkflow } = useDeleteApprovalWorkFLow();
-  const { mutate: updateWorkflow, isLoading: updateLoading } =
+  const { mutate: updateWorkflow } =
     useUpdateLeaverequestApprovalWorkFlow();
 
   const [form] = Form.useForm();
