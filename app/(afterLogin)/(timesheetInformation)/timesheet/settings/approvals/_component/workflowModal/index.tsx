@@ -1,6 +1,7 @@
 import {
   useCreateApproverMutation,
   useDeleteApprovalWorkFLow,
+  useUpdateLeaverequestApprovalWorkFlow,
 } from '@/store/server/features/approver/mutation';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { Button, Form, Input, Modal, Radio, Row, Select } from 'antd';
@@ -79,6 +80,7 @@ const WorkflowModal = ({
     setDepartmentApproval,
     setAddDepartmentApproval,
     setIsCreated,
+    setTransferModal,
   } = useApprovalStore();
 
   const isSequentialSelected = approverType === 'Sequential';
@@ -89,6 +91,8 @@ const WorkflowModal = ({
   const { data: users } = useGetAllUsers();
   const { data: approvalWorkflowData } = useGetAllApprovalWorkflow();
   const { mutate: deleteWorkflow } = useDeleteApprovalWorkFLow();
+  const { mutate: updateWorkflow, isLoading: updateLoading } =
+    useUpdateLeaverequestApprovalWorkFlow();
 
   const [form] = Form.useForm();
 
@@ -166,10 +170,24 @@ const WorkflowModal = ({
         CreateApprover(
           { values: jsonPayload },
           {
-            onSuccess: () => {
-              setAddDepartmentApproval(false);
+            onSuccess: (data: any) => {
+              const newWorkFlowId = data?.[1]?.[0]?.approvalWorkflowId;
+
+              updateWorkflow(
+                {
+                  currentapprovalWorkflowId: currentWorkFlow,
+                  approvalWorkflowId: newWorkFlowId,
+                },
+                {
+                  onSuccess: () => {
+                    setTransferModal(false);
+                    setAddDepartmentApproval(false);
               setDepartmentApproval(false);
+              form.resetFields();
               onCancel();
+                  },
+                },
+              );
             },
           },
         );
@@ -597,7 +615,7 @@ const WorkflowModal = ({
               htmlType="submit"
               onClick={createFlag}
             >
-              Submit
+              Submit and Transfer
             </Button>
           </Row>
         </Form.Item>
