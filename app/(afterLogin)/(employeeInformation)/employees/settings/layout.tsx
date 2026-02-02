@@ -100,31 +100,31 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       },
       link: '/employees/settings/positions',
     },
-    {
-      item: {
-        key: 'approvals',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/employees/settings/approvals') ? 'lg:ml-4' : ''}`}
-            id="settings-menu-approvals"
-            data-cy="settings-menu-approvals"
-          >
-            <IoMdSettings
-              className={`hidden lg:block ${pathname.includes('/employees/settings/approvals') ? 'text-[#1677FF]' : ''}`}
-              data-cy="settings-menu-approvals-icon"
-              id="settings-menu-approvals-icon"
-            />
-            <p
-              id="settings-menu-approvals-label"
-              data-cy="settings-menu-approvals-label"
-            >
-              Approval Workflow
-            </p>
-          </div>
-        ),
-      },
-      link: '/employees/settings/approvals',
-    },
+    // {
+    //   item: {
+    //     key: 'approvals',
+    //     icon: (
+    //       <div
+    //         className={`lg:flex items-center gap-2 ${pathname.includes('/employees/settings/approvals') ? 'lg:ml-4' : ''}`}
+    //         id="settings-menu-approvals"
+    //         data-cy="settings-menu-approvals"
+    //       >
+    //         <IoMdSettings
+    //           className={`hidden lg:block ${pathname.includes('/employees/settings/approvals') ? 'text-[#1677FF]' : ''}`}
+    //           data-cy="settings-menu-approvals-icon"
+    //           id="settings-menu-approvals-icon"
+    //         />
+    //         <p
+    //           id="settings-menu-approvals-label"
+    //           data-cy="settings-menu-approvals-label"
+    //         >
+    //           Approval Workflow
+    //         </p>
+    //       </div>
+    //     ),
+    //   },
+    //   link: '/employees/settings/approvals',
+    // },
   ]);
 
   // Handle Menu Clicks

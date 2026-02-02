@@ -152,11 +152,15 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     tasks: finalTasks,
     milestones: finalMilestones,
     parentTask: finalParentTasks,
-    objective: keyResult.objective,
+    objective: keyResult.objective ? {
+      ...keyResult.objective,
+      deletedAt: keyResult.objective.deletedAt || null, // Preserve objective deletedAt
+    } : null,
     metricType: keyResult.metricType,
     targetValue: keyResult.targetValue || targetValue,
     currentValue: achievedValue, // Always use calculated achieved value from this key result's tasks
     progress: keyResult.progress || 0,
+    deletedAt: keyResult.deletedAt || null, // Preserve deletedAt for visual indicators
   };
 };
 
@@ -191,9 +195,18 @@ export const transformReportToPlanSummary = (
   reportTasks.forEach((task: any) => {
     const krId = task?.planTask?.keyResultId || '';
     if (!keyResultsMap[krId]) {
+      const keyResult = task?.planTask?.keyResult || {};
       keyResultsMap[krId] = {
-        ...task?.planTask?.keyResult,
+        ...keyResult,
         id: krId,
+        // Preserve title even if keyResult is deleted - use title from keyResult or fallback to planTask data
+        title: keyResult.title || keyResult.name || task?.planTask?.keyResultTitle || 'Deleted Key Result',
+        name: keyResult.name || keyResult.title || task?.planTask?.keyResultTitle || 'Deleted Key Result',
+        deletedAt: keyResult.deletedAt || null, // Preserve deletedAt
+        objective: keyResult.objective ? {
+          ...keyResult.objective,
+          deletedAt: keyResult.objective.deletedAt || null, // Preserve objective deletedAt
+        } : null,
         tasks: [],
         milestones: [],
         parentTask: [],
@@ -394,12 +407,20 @@ export const transformReportToPlanSummary = (
 
     return {
       ...kr,
+      // Ensure title is preserved even if keyResult is deleted
+      title: kr.title || kr.name || 'Deleted Key Result',
+      name: kr.name || kr.title || 'Deleted Key Result',
       tasks: finalTasks.filter((t: any) => t?.title || t?.taskName || t?.task), // Exclude empty tasks
       milestones: finalMilestones,
       parentTask: finalParentTasks,
       targetValue: kr.targetValue || 0,
       currentValue: achieved, // Sum of weights of achieved tasks for this key result only
       progress: totalWeight > 0 ? (achieved / totalWeight) * 100 : 0,
+      deletedAt: kr.deletedAt || null, // Preserve deletedAt for visual indicators
+      objective: kr.objective ? {
+        ...kr.objective,
+        deletedAt: kr.objective.deletedAt || null, // Preserve objective deletedAt
+      } : null,
     };
   });
 

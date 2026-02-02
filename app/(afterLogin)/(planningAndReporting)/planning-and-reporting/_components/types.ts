@@ -37,6 +37,7 @@ export interface KeyResult {
   targetValue?: string | number;
   currentValue?: string | number;
   progress?: string | number;
+  deletedAt?: string | null;
 }
 
 export interface PlanOwner {
