@@ -391,7 +391,7 @@ const DeductionEntitlementSideBar = () => {
                 rules={[
                   { required: true, message: 'Total amount is required!' },
                   {
-                    // eslint-disable-next-line 
+                    // eslint-disable-next-line
                     validator: (_, value) => {
                       if (value && value < 0) {
                         return Promise.reject(

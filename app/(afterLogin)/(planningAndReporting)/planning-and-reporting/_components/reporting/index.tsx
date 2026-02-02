@@ -496,7 +496,7 @@ function Reporting() {
           grayBackground={true}
         />
       )}
-      {!getReportLoading && allReporting?.items?.length <= 0 && (
+      {!getReportLoading && (allReporting?.items?.length ?? 0) <= 0 && (
         <div className="flex justify-center">
           <div>
             <p className="flex justify-center items-center h-[200px]">
