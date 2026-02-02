@@ -10,7 +10,6 @@ import {
   Menu,
   Modal,
 } from 'antd';
-import { GoPlus } from 'react-icons/go';
 import KeyResultForm from '../keyresultForm';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
@@ -435,7 +434,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 data-cy="okr-drawer-mobile-deadline-picker"
                 className="h-11 w-1/2 mb-0"
                 name="ObjectiveDeadline"
-                label="Objective Deadline"
+                label={isMobile ? 'Deadline' : 'Objective Deadline'}
                 rules={[
                   { required: true, message: 'Please select a deadline' },
                 ]}
@@ -463,7 +462,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 />
               </Form.Item>
             </div>
-            <div
+            {/* <div
               id="okr-drawer-mobile-form-add-keyresult-button"
               data-cy="okr-drawer-mobile-form-add-keyresult-button"
               className="w-full flex justify-end mb-10"
@@ -497,7 +496,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   </Button>
                 </Dropdown>
               )}
-            </div>
+            </div> */}
           </div>
         ) : (
           <div
@@ -642,7 +641,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               >
                 <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
               </svg>
-              AI Suggestions
+              <span className="hidden sm:inline">AI Suggestions</span>
             </Button>
             {isBasic ? (
               <Button
@@ -669,7 +668,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                Key Result
+                <span className="hidden sm:inline">Key Result</span>
               </Button>
             ) : (
               <Dropdown
