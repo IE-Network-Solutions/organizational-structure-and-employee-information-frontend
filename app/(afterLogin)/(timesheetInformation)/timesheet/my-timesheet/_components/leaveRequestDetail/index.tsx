@@ -6,7 +6,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useGetSingleApproval,
@@ -20,8 +20,10 @@ import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { TbFileDownload } from 'react-icons/tb';
 import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalStatusesInfo';
 import ApprovalStatusCard from '@/components/common/approvalStatuses/approvalStatusCard';
+import ApprovalStatusCardSkeleton from '@/components/common/approvalStatuses/approvalStatusCardSkeleton';
 import Image from 'next/image';
 import { classNames } from '@/utils/classNames';
+import { SingleLogRequest } from '@/types/timesheet/settings';
 
 const LeaveRequestDetail = () => {
   const {
@@ -53,14 +55,56 @@ const LeaveRequestDetail = () => {
     leaveRequestSidebarData ?? '',
   );
 
-  const { data: logData } = useGetSingleApprovalLog(
-    leaveRequestSidebarData ?? '',
-    leaveRequestSidebarWorkflowData ?? '',
-  );
+  const { data: logData, isLoading: isLogDataLoading } =
+    useGetSingleApprovalLog(
+      leaveRequestSidebarData ?? '',
+      leaveRequestSidebarWorkflowData ?? '',
+    );
 
   const { data: approverLog } = useGetSingleApproval(
     leaveRequestSidebarData ?? '',
   );
+
+  // Merge data from both endpoints to show historical approvers who took action
+  const enrichedApprovalData = useMemo(() => {
+    if (!logData || !Array.isArray(logData)) return [];
+
+    // Handle both response formats: direct array or wrapped in items
+    const historicalLogs = Array.isArray(approverLog)
+      ? approverLog
+      : approverLog?.items || [];
+
+    return logData.map((approval: ApprovalRecord) => {
+      // Find matching historical record from approverLog array
+      // Match by stepOrder to find who actually took action
+      const historicalRecord = historicalLogs.find(
+        (log: SingleLogRequest) => log.stepOrder === approval.stepOrder,
+      );
+
+      // If historical record exists with action taken, use it
+      const hasActionTaken =
+        historicalRecord &&
+        (historicalRecord.action === 'Approved' ||
+          historicalRecord.action === 'Rejected');
+
+      return {
+        ...approval,
+        // Store historical approver who took action
+        approvedUserId: historicalRecord?.approvedUserId,
+        // Update status based on historical action if available
+        // Trust historical record over endpoint 1's status field
+        status: hasActionTaken
+          ? historicalRecord.action === 'Approved'
+            ? 'Approved'
+            : 'Rejected'
+          : approval.status,
+        // Determine which userId to display
+        displayUserId: hasActionTaken
+          ? historicalRecord.approvedUserId // Show historical approver who took action
+          : approval.userId, // Show current approver (pending, no action taken)
+      };
+    });
+  }, [logData, approverLog]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -78,15 +122,18 @@ const LeaveRequestDetail = () => {
     },
   ];
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
+
   type ApprovalRecord = {
     approverId: string; // UUID
-    userId: string; // UUID
+    userId: string; // UUID - Current approver assigned
+    approvedUserId?: string; // UUID - Historical: who actually took action
+    displayUserId?: string; // UUID - Which userId to display
     stepOrder: number;
     status: 'Approved' | 'Rejected' | 'Pending'; // Adjust enum as needed
     conditionField: string | null;
     conditionRangeValue: string | null;
     tenantId: string; // UUID
-    approvalLogId: string; // UUID
+    approvalLogId: string | null; // UUID
     requestId: string; // UUID
     approvalWorkflowId: string; // UUID
     action: 'Approved' | 'Rejected'; // Adjust enum as needed
@@ -327,18 +374,27 @@ const LeaveRequestDetail = () => {
               >
                 <ApprovalStatusesInfo data-cy="time-attendance-leave-request-detail-approval-statuses-info-component" />
               </div>
-              {Array.isArray(logData) &&
-                logData
-                  ?.sort((a, b) => a.stepOrder - b.stepOrder)
-                  ?.map((approvalCard: ApprovalRecord, idx: number) => (
-                    <ApprovalStatusCard
-                      key={idx}
-                      data={approvalCard}
-                      userName={userData}
-                      userImage={userImage}
-                      data-cy={`time-attendance-leave-request-detail-approval-status-card-${idx}`}
+              {isLogDataLoading
+                ? // Show skeleton loading while fetching approval log data
+                  // eslint-disable-next-line react/no-array-index-key
+                  Array.from({ length: 3 }).map((unusedItem, idx) => (
+                    <ApprovalStatusCardSkeleton
+                      key={`skeleton-${idx}`}
+                      dataCyPrefix={`time-attendance-leave-request-detail-approval-status-card-skeleton-${idx}`}
                     />
-                  ))}
+                  ))
+                : // Show actual approval status cards when data is loaded
+                  enrichedApprovalData
+                    ?.sort((a, b) => a.stepOrder - b.stepOrder)
+                    ?.map((approvalCard: ApprovalRecord, idx: number) => (
+                      <ApprovalStatusCard
+                        key={idx}
+                        data={approvalCard}
+                        userName={userData}
+                        userImage={userImage}
+                        data-cy={`time-attendance-leave-request-detail-approval-status-card-${idx}`}
+                      />
+                    ))}
             </div>
             <Divider
               data-cy="time-attendance-leave-request-detail-overall-status-divider"

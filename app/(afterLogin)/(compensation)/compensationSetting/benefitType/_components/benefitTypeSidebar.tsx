@@ -49,9 +49,15 @@ const BenefitypeSideBar = () => {
         isAllEmployee:
           selectedBenefitRecord.applicableTo == 'GLOBAL' ? true : false,
         mode: selectedBenefitRecord.mode,
+        type:
+          selectedBenefitRecord.isPeriodic !== undefined
+            ? selectedBenefitRecord.isPeriodic
+              ? 'PERIODIC'
+              : 'NON_PERIODIC'
+            : undefined,
       });
     }
-  }, [selectedBenefitRecord, form]);
+  }, [selectedBenefitRecord, form, setBenefitMode, setIsAllEmployee]);
 
   const onClose = () => {
     form.resetFields();
@@ -81,13 +87,22 @@ const BenefitypeSideBar = () => {
       settlementPeriod: formValues.NoOfPayPeriod
         ? Number(formValues.NoOfPayPeriod)
         : null,
+      isPeriodic:
+        formValues.mode == 'DEBIT'
+          ? formValues.type === 'PERIODIC'
+            ? true
+            : false
+          : undefined,
     });
     onClose();
   };
 
   const handleModeChange = (e: RadioChangeEvent) => {
     setBenefitMode(e.target.value);
-    form.setFieldsValue({ isAllEmployee: isAllEmployee });
+    form.setFieldsValue({
+      isAllEmployee: isAllEmployee,
+      type: undefined,
+    });
   };
 
   const handleDepartmentChange = (value: string) => {
@@ -245,6 +260,36 @@ const BenefitypeSideBar = () => {
                 </Radio>
               </Radio.Group>
             </Form.Item>
+            {benefitMode == 'DEBIT' && (
+              <Form.Item
+                name="type"
+                label="Type"
+                rules={[{ required: true, message: 'Type is Required!' }]}
+                className="form-item"
+                id="compensation-settings-benefit-sidebar-type-item"
+                data-cy="compensation-settings-benefit-sidebar-type-item"
+              >
+                <Radio.Group
+                  id="compensation-settings-benefit-sidebar-type-group"
+                  data-cy="compensation-settings-benefit-sidebar-type-group"
+                >
+                  <Radio
+                    value="PERIODIC"
+                    id="compensation-settings-benefit-sidebar-type-periodic"
+                    data-cy="compensation-settings-benefit-sidebar-type-periodic"
+                  >
+                    Periodic
+                  </Radio>
+                  <Radio
+                    value="NON_PERIODIC"
+                    id="compensation-settings-benefit-sidebar-type-non-periodic"
+                    data-cy="compensation-settings-benefit-sidebar-type-non-periodic"
+                  >
+                    Non-Periodic
+                  </Radio>
+                </Radio.Group>
+              </Form.Item>
+            )}
             {benefitMode == 'CREDIT' && (
               <>
                 <div

@@ -20,11 +20,27 @@ const FullPageSpinner = () => (
   </div>
 );
 
+// Helper function to check for tenant ID missing error and redirect to login
+const handleTenantIdError = (error: any): boolean => {
+  const errorCode = error?.response?.data?.code;
+
+  if (errorCode === 'TENANT_ID_MISSING') {
+    window.location.href = '/authentication/login';
+    return true;
+  }
+  return false;
+};
+
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         onError: async (error: any) => {
+          // Check for tenant ID missing error first
+          if (handleTenantIdError(error)) {
+            return;
+          }
+
           if (error?.response?.status === 401) {
             const newToken = await getCurrentToken();
             if (newToken) {
@@ -39,6 +55,11 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       },
       mutations: {
         onError: async (error: any) => {
+          // Check for tenant ID missing error first
+          if (handleTenantIdError(error)) {
+            return;
+          }
+
           if (error?.response?.status === 401) {
             const newToken = await getCurrentToken();
             if (newToken) {
@@ -60,6 +81,11 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
     },
     queryCache: new QueryCache({
       onError: async (error: any) => {
+        // Check for tenant ID missing error first
+        if (handleTenantIdError(error)) {
+          return;
+        }
+
         if (error?.response?.status === 401) {
           const newToken = await getCurrentToken();
           if (newToken) {

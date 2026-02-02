@@ -3,21 +3,25 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { Col, Divider, Row, Spin } from 'antd';
 import { classNames } from '@/utils/classNames';
 import { TbFileDownload } from 'react-icons/tb';
+import React, { useMemo } from 'react';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalStatusesInfo';
 import ApprovalStatusCard from '@/components/common/approvalStatuses/approvalStatusCard';
+import ApprovalStatusCardSkeleton from '@/components/common/approvalStatuses/approvalStatusCardSkeleton';
 import UserCard from '@/components/common/userCard/userCard';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import {
+  useGetSingleApproval,
   useGetSingleApprovalLog,
   useGetSingleLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/queries';
+import { SingleLogRequest } from '@/types/timesheet/settings';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import Image from 'next/image';
 
@@ -34,10 +38,9 @@ const LeaveRequestManagementSidebar = () => {
   const { data: leaveData, isLoading } = useGetSingleLeaveRequest(
     leaveRequestId ?? '',
   );
-  const { data: logData } = useGetSingleApprovalLog(
-    leaveRequestId ?? '',
-    leaveRequestWorkflowId ?? '',
-  );
+  const { data: logData, isLoading: isLogDataLoading } =
+    useGetSingleApprovalLog(leaveRequestId ?? '', leaveRequestWorkflowId ?? '');
+  const { data: approverLog } = useGetSingleApproval(leaveRequestId ?? '');
   const { data: employeeData } = useGetAllUsers();
   const userData = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
@@ -66,20 +69,65 @@ const LeaveRequestManagementSidebar = () => {
   ];
 
   const labelClass = 'text-sm text-gray-900 font-medium mb-2.5';
+
   type ApprovalRecord = {
     approverId: string; // UUID
-    userId: string; // UUID
+    userId: string; // UUID - Current approver assigned
+    approvedUserId?: string; // UUID - Historical: who actually took action
+    displayUserId?: string; // UUID - Which userId to display
     stepOrder: number;
     status: 'Approved' | 'Rejected' | 'Pending'; // Adjust enum as needed
     conditionField: string | null;
     conditionRangeValue: string | null;
     tenantId: string; // UUID
-    approvalLogId: string; // UUID
+    approvalLogId: string | null; // UUID
     requestId: string; // UUID
     approvalWorkflowId: string; // UUID
     action: 'Approved' | 'Rejected'; // Adjust enum as needed
     approvalComments: any;
   };
+
+  // Merge data from both endpoints to show historical approvers who took action
+  const enrichedApprovalData = useMemo(() => {
+    if (!logData || !Array.isArray(logData)) return [];
+
+    // Handle both response formats: direct array or wrapped in items
+    const historicalLogs = Array.isArray(approverLog)
+      ? approverLog
+      : approverLog?.items || [];
+
+    return logData.map((approval: ApprovalRecord) => {
+      // Find matching historical record from approverLog array
+      // Match by stepOrder to find who actually took action
+      const historicalRecord = historicalLogs.find(
+        (log: SingleLogRequest) => log.stepOrder === approval.stepOrder,
+      );
+
+      // If historical record exists with action taken, use it
+      const hasActionTaken =
+        historicalRecord &&
+        (historicalRecord.action === 'Approved' ||
+          historicalRecord.action === 'Rejected');
+
+      return {
+        ...approval,
+        // Store historical approver who took action
+        approvedUserId: historicalRecord?.approvedUserId,
+        // Update status based on historical action if available
+        // Trust historical record over endpoint 1's status field
+        status: hasActionTaken
+          ? historicalRecord.action === 'Approved'
+            ? 'Approved'
+            : 'Rejected'
+          : approval.status,
+        // Determine which userId to display
+        displayUserId: hasActionTaken
+          ? historicalRecord.approvedUserId // Show historical approver who took action
+          : approval.userId, // Show current approver (pending, no action taken)
+      };
+    });
+  }, [logData, approverLog]);
+
   return (
     isShow && (
       <CustomDrawerLayout
@@ -292,19 +340,29 @@ const LeaveRequestManagementSidebar = () => {
               >
                 <ApprovalStatusesInfo data-cy="time-attendance-leave-management-sidebar-approval-levels-status-info-component" />
               </div>
-              {Array.isArray(logData) &&
-                logData
-                  ?.sort((a, b) => a.stepOrder - b.stepOrder)
-                  ?.map((approvalCard: ApprovalRecord, idx: number) => (
-                    <ApprovalStatusCard
-                      data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card"
-                      key={idx}
-                      data={approvalCard}
-                      userName={userData}
-                      userImage={userImage}
+              {isLogDataLoading
+                ? // Show skeleton loading while fetching approval log data
+                  // eslint-disable-next-line react/no-array-index-key
+                  Array.from({ length: 3 }).map((unusedItem, idx) => (
+                    <ApprovalStatusCardSkeleton
+                      key={`skeleton-${idx}`}
+                      dataCyPrefix={`time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton-${idx}`}
                     />
-                  ))}
+                  ))
+                : // Show actual approval status cards when data is loaded
+                  enrichedApprovalData
+                    ?.sort((a, b) => a.stepOrder - b.stepOrder)
+                    ?.map((approvalCard: ApprovalRecord, idx: number) => (
+                      <ApprovalStatusCard
+                        data-cy="time-attendance-leave-management-sidebar-approval-levels-status-card"
+                        key={idx}
+                        data={approvalCard}
+                        userName={userData}
+                        userImage={userImage}
+                      />
+                    ))}
             </div>
+
             <Divider
               data-cy="time-attendance-leave-management-sidebar-approval-levels-status-divider"
               className="my-8 h-[5px] bg-gray-200"

@@ -13,9 +13,9 @@ import dayjs from 'dayjs';
 import { VscClose } from 'react-icons/vsc';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+import { useIsBasicOkr } from '@/app/(afterLogin)/(okrplanning)/okr/_utils/okrMode';
 
 const AchieveOrNotView: React.FC<OKRProps> = ({
   keyValue,
@@ -31,7 +31,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
   } = useOKRStore();
 
   const { data: metrics } = useGetMetrics();
-
+  const isBasicOkr = useIsBasicOkr();
   const handleChange = (value: any, field: string) => {
     if (isEdit) {
       handleSingleKeyResultChange(value, field);
@@ -40,14 +40,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
     }
   };
 
-  const { mutate: deleteKeyResult } = useDeleteKeyResult();
-
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
   function handleKeyResultDelete(id: string) {
-    deleteKeyResult(id, {
-      onSuccess: () => {
-        removeKeyResultValue(index);
-      },
-    });
+    // Remove from local state only - deletion will happen on Save
+    removeKeyResultValue(index);
   }
   const { isMobile } = useIsMobile();
   const viewPrefix = keyValue?.id
@@ -134,7 +130,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
           </div>
 
           {/* Metric Type Dropdown */}
-          <div className="w-48 ml-6">
+          <div className={`w-48 ml-6 ${isBasicOkr ? 'hidden' : ''}`}>
             <Form.Item
               id={`${viewPrefix}-desktop-metric-select-item`}
               data-cy={`${viewPrefix}-desktop-metric-select-item`}

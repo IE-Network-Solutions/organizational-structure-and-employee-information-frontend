@@ -16,7 +16,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
 }) => {
   return (
     <div
-      className="my-3 pb-8 bg-white shadow-sm rounded-lg border"
+      className="my-3 pb-8 bg-white rounded-lg border"
       data-cy={`key-result-tasks-container-${keyResultIndex}`}
     >
       <div

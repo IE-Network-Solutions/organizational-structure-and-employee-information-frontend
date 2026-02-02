@@ -8,7 +8,7 @@ interface KPIMetricsProps {
 const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   return (
     <div
-      className="py-3 px-2 sm:px-4 bg-white shadow-sm rounded-lg border"
+      className="py-3 px-2 sm:px-4 bg-white rounded-lg border"
       data-cy="planning-key-result-metrics-container"
     >
       <div

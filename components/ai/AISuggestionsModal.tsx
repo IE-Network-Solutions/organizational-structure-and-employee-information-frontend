@@ -35,18 +35,23 @@ interface AISuggestionsModalProps {
   resolveListNameForKR?: (krId: string) => string; // returns form list name e.g., names-<id or composite>
   resolveBoardKeyForKR?: (krId: string) => string; // what to pass to handleAddBoard
   hasParentPlan?: boolean; // Explicitly indicates if this is a child plan (e.g., Daily under Weekly)
+  userId?: string;
+  planningPeriodId?: string;
+  planningUserId?: string;
 }
 
 const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   getKeyResults,
   getWeeklyPlanTasks,
   form,
-  handleAddBoard,
   handleAddName,
   planTypeName,
   resolveListNameForKR,
   resolveBoardKeyForKR,
   hasParentPlan,
+  userId,
+  planningPeriodId,
+  planningUserId,
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -559,8 +564,12 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     let boardKey, listName;
 
     if (isDaily && weeklyPlanTaskId) {
-      // Daily plan: use composite key with both keyResultId and parentTaskId
-      const compositeKey = `${targetKeyResultId}${weeklyPlanTaskId}`;
+      // Daily plan: use composite key with keyResultId, milestoneId, and parentTaskId
+      const selectedWeeklyTask = weeklyPlanTasks.find(
+        (t) => t.id === weeklyPlanTaskId,
+      );
+      const mId = (selectedWeeklyTask as any)?.milestoneId || '';
+      const compositeKey = `${targetKeyResultId}${mId}${weeklyPlanTaskId}`;
       boardKey = resolveBoardKeyForKR
         ? resolveBoardKeyForKR(compositeKey)
         : compositeKey;
@@ -589,18 +598,16 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       }
     }
 
-    // Create the board form if it doesn't exist
-    const currentList = form.getFieldValue(listName) || [];
-    if (currentList.length === 0) {
-      handleAddBoard(boardKey);
-    }
-
     // Prepare the task data with proper structure
     const taskData = {
       task: item.title,
       weight: item.weight,
       priority: (item.priority || 'medium').toLowerCase(),
       targetValue: typeof item.target === 'number' ? item.target : 0,
+      userId: userId,
+      planningPeriodId: planningPeriodId,
+      planningUserId: planningUserId,
+      keyResultId: targetKeyResultId,
       // Always false for generated tasks; only true when planning milestone itself elsewhere
       achieveMK: false,
       // If adding under a milestone, include milestoneId
@@ -625,38 +632,23 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       return;
     }
 
-    // Use the same logic for both weekly and daily plans
-    const boardFormKey = `board-${boardKey}`;
-    const boardFormValues = form.getFieldValue(boardFormKey) || [];
+    // Handle task addition and weight calculation
+    if (handleAddName) {
+      // Delegate to handleAddName if provided (standard approach in CreatePlan/EditPlan)
+      handleAddName(taskData, boardKey);
+    } else {
+      // Add directly and update weights manually if no handler provided (fallback)
+      const updatedList = [taskData, ...existingList];
+      form.setFieldsValue({ [listName]: updatedList });
 
-    // Add the task data to the first position (index 0) in the board form
-    boardFormValues[0] = taskData;
-    form.setFieldsValue({ [boardFormKey]: boardFormValues });
-
-    // Give the form a moment to update
-    setTimeout(async () => {
-      try {
-        // Validate the board form fields
-        await form.validateFields([
-          [boardFormKey, 0, 'task'],
-          [boardFormKey, 0, 'weight'],
-          [boardFormKey, 0, 'priority'],
-        ]);
-
-        // Call handleAddName to save the task (this handles the names list and weight calculation)
-        if (handleAddName) {
-          handleAddName(taskData, boardKey);
-        }
-
-        // Clear the board form after adding
-        form.setFieldsValue({ [boardFormKey]: [] });
-      } catch (error) {
-        // Validation failed - error is expected during form validation
-      }
-    }, 100);
+      const totalWeight = updatedList.reduce(
+        (sum: number, f: { weight?: number }) => sum + Number(f?.weight ?? 0),
+        0,
+      );
+      PlanningAndReportingStore.getState().setWeight(listName, totalWeight);
+    }
 
     // Remove the suggestion from the list after successfully adding.
-    // If the list becomes empty, ask to switch to another key result (weekly only).
     if (items.length === 1) {
       askAnother();
     }
@@ -672,7 +664,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         data-cy="ai-suggestion-trigger-button"
         id="ai-suggestion-trigger-button"
       >
-        AI Suggestion
+        <span className="hidden sm:inline">AI Suggestion</span>
+        <span className="sm:hidden">AI</span>
       </Button>
       <Modal
         title={
