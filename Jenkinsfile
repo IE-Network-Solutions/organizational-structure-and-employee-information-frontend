@@ -19,7 +19,7 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
-                        if (branchName.contains('develop')) {
+                        if (branchName.contains('develop') || branchName.contains('feature/copilot')) {
                             env.REMOTE_SERVER = REMOTE_SERVER_TEST
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
                             env.SECRET_KEY = 'peptest'
@@ -31,6 +31,11 @@ pipeline {
                             env.REMOTE_SERVER = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
                             env.SECRET_KEY = 'pepproduction'
+                        } else {
+                            // Skip CI/CD for other feature branches
+                            echo "Branch '${branchName}' is not configured for CI/CD. Skipping pipeline."
+                            currentBuild.result = 'ABORTED'
+                            return
                         }
                     }
                 }
