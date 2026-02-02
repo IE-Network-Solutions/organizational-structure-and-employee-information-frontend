@@ -369,6 +369,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['manage_planning_reporting'],
         },
         {
+          title: <span>Basic planning</span>,
+          key: '/basic-okr/planning-and-reporting',
+          className: 'font-bold',
+          permissions: ['manage_planning_reporting'],
+        },
+        {
           title: <span>Weekly Priority</span>,
           key: '/weekly-priority',
           className: 'font-bold h-8',
@@ -999,7 +1005,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const filteredMenuItems = treeData
@@ -1014,10 +1020,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ...item,
         children: item.children
           ? item.children.filter((child) =>
-              AccessGuard.checkAccess({
-                permissions: child.permissions,
-              }),
-            )
+            AccessGuard.checkAccess({
+              permissions: child.permissions,
+            }),
+          )
           : [],
       };
     })
@@ -1034,9 +1040,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             {children.map((child) => (
               <div
                 key={child.key}
-                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${
-                  selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
-                }`}
+                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
+                  }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = String(child.key);

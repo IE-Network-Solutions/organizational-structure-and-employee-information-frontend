@@ -40,6 +40,7 @@ export interface KeyResult {
 }
 
 export interface PlanOwner {
+  id: string;
   name: string;
   role: string;
   avatarInitials: string;

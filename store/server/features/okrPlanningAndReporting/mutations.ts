@@ -87,6 +87,32 @@ const createReportForUnReportedtasks = async (
     headers,
   });
 };
+
+// Create report without OKR calculations (for basic-okr)
+const createBasicReport = async (
+  reportData: any,
+  sessionId?: string,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers: Record<string, string> = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  // Add sessionId to headers if provided
+  if (sessionId) {
+    headers.sessionId = sessionId;
+  }
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report/create-report`,
+    method: 'POST',
+    data: reportData,
+    headers,
+  });
+};
 const editReport = async (values: any, selectedReportId: string) => {
   const token = await getCurrentToken(); // Assuming you have a way to get the token
   const tenantId = useAuthenticationStore.getState().tenantId; // Assuming you have a way to get the tenantId
@@ -157,6 +183,40 @@ export const useCreateReportForUnReportedtasks = () => {
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
+        });
+      },
+    },
+  );
+};
+
+// Hook for creating basic reports without OKR calculations (for basic-okr)
+export const useCreateBasicReport = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({
+      reportData,
+      sessionId,
+    }: {
+      reportData: any;
+      sessionId?: string;
+    }) => createBasicReport(reportData, sessionId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('okrReports');
+        queryClient.invalidateQueries('okrPlans');
+        queryClient.invalidateQueries('okrUserPlans');
+        queryClient.invalidateQueries('okrPlannedData');
+        queryClient.invalidateQueries('planningPeriodsHierarchy');
+        NotificationMessage.success({
+          message: 'Successfully created',
+          description: 'Report created successfully',
+        });
+      },
+      onError: () => {
+        NotificationMessage.error({
+          message: 'Creating Failed',
+          description: 'Failed to create report',
         });
       },
     },
