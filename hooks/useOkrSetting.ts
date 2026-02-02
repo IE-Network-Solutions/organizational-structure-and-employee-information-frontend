@@ -22,12 +22,12 @@ export function useOkrSetting() {
     userRole === 'administrator' ||
     userRole === 'owner';
 
-  // Check if OKR setting exists (only for admin/owner)
+  // Check if OKR setting exists (for all users so everyone gets current mode)
   const {
     data: checkData,
     isLoading: isChecking,
     refetch: refetchCheck,
-  } = useCheckOkrSetting(isAdminOrOwner);
+  } = useCheckOkrSetting(true);
 
   // Get OKR setting
   const {
@@ -40,9 +40,9 @@ export function useOkrSetting() {
   const { mutate: createOrUpdate, isLoading: isSaving } =
     useCreateOrUpdateOkrSetting();
 
-  // Check setting on mount (only for admin/owner)
+  // Check setting on mount: refetch for all when exists; show modal for all when no setting
   useEffect(() => {
-    if (isAdminOrOwner && checkData) {
+    if (checkData) {
       if (!checkData.exists && !okrMode) {
         // Setting doesn't exist and we don't have a mode yet, show modal
         setShowModal(true);
@@ -52,7 +52,7 @@ export function useOkrSetting() {
         refetchSetting();
       }
     }
-  }, [isAdminOrOwner, checkData, okrMode, refetchSetting]);
+  }, [checkData, okrMode, refetchSetting]);
 
   // Update mode when setting is loaded
   useEffect(() => {
