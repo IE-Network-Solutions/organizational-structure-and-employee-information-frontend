@@ -55,7 +55,6 @@ const ApprovalListTable = () => {
     selectedItem,
     setDepartmentApproval,
     approverType,
-    isCreated,
   } = useApprovalStore();
   const [workflowModal, setWorkflowModal] = useState(false);
   const { searchParams } = useApprovalStore();
@@ -95,19 +94,6 @@ const ApprovalListTable = () => {
 
   const [form] = Form.useForm(); // Form instance
   const onFinish = (values: any) => {
-    if (isCreated) {
-      updateWorkflow(
-        {
-          currentapprovalWorkflowId: values.currentWorkFlow,
-          approvalWorkflowId: values.workflow,
-        },
-        {
-          onSuccess: () => {
-            setTransferModal(false);
-          },
-        },
-      );
-    } else {
       deleteWorkflow(values.currentWorkFlow, {
         onSuccess: () => {
           // Fix: Pass the correct structure for updateWorkflow
@@ -125,7 +111,7 @@ const ApprovalListTable = () => {
         },
       });
     }
-  };
+  
 
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
