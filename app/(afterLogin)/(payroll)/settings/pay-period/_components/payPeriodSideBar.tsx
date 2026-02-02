@@ -389,7 +389,7 @@ const PayPeriodSideBar = () => {
                     <div
                       id={`payroll-payperiod-sidebar-division-form-${index}`}
                       data-cy={`payroll-payperiod-sidebar-division-form-${index}`}
-                      className="flex justify-between"
+                      className="w-full"
                     >
                       <Form.Item
                         name={`range${index}`}
@@ -460,6 +460,7 @@ const PayPeriodSideBar = () => {
                         <RangePicker
                           data-cy={`payroll-payperiod-sidebar-division-rangepicker-${index}`}
                           value={[dayjs(range[0]), dayjs(range[1])]}
+                          className="w-full"
                           onOpenChange={(open) => {
                             if (!open)
                               setActivePicker({ index: null, part: null });
@@ -702,7 +703,7 @@ const PayPeriodSideBar = () => {
                           }}
                         />
                       </Form.Item>
-                      <Form.Item
+                      {/* <Form.Item
                         name={`monthId${index}`}
                         data-cy={`payroll-payperiod-sidebar-division-monthid-formitem-${index}`}
                         label="Pay Period month"
@@ -733,7 +734,7 @@ const PayPeriodSideBar = () => {
                             ));
                           })()}
                         </Select>
-                      </Form.Item>
+                      </Form.Item> */}
                     </div>
                     <div
                       id={`payroll-payperiod-sidebar-division-footer-${index}`}
