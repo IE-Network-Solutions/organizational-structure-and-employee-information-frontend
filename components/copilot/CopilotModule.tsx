@@ -295,12 +295,24 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
       try {
         const responseText = await sendCopilotChatRequest(query);
         // Parse response to extract answer and table data
-        let parsedResponse: { answer: string; data?: any; intent?: string };
+        let parsedResponse: { success?: boolean; answer: string; data?: any; intent?: string; error?: string };
         try {
           parsedResponse = JSON.parse(responseText);
         } catch {
           // Fallback if response is plain text
-          parsedResponse = { answer: responseText };
+          parsedResponse = { success: true, answer: responseText };
+        }
+        
+        // Check if the request failed
+        if (parsedResponse.success === false || parsedResponse.error) {
+          const errorMessage: Message = {
+            id: `msg-${Date.now()}-error`,
+            text: parsedResponse.answer || parsedResponse.error || 'Unable to fetch data. Please try again.',
+            sender: 'copilot',
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, errorMessage]);
+          return;
         }
         
         // Transform raw data to table format if backend doesn't send table structure

@@ -91,11 +91,13 @@ export const sendCopilotChatRequest = async (
       }
     );
 
-    // Return the full response object so frontend can access table data
+    // Return the full response object so frontend can access table data and error status
     return JSON.stringify({
+      success: response.data.success !== false, // Default to true if not explicitly false
       answer: response.data.answer || 'No response received',
       data: response.data.data,
       intent: response.data.intent,
+      error: response.data.error || null,
     });
   } catch (error) {
     // Handle different error types
