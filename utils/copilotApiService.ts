@@ -15,7 +15,15 @@ interface CopilotChatRequest {
 interface CopilotChatResponse {
   success: boolean;
   answer: string;
-  data?: any;
+  data?: {
+    table?: {
+      type: string;
+      title?: string;
+      columns: Array<{ key: string; title: string; dataIndex: string }>;
+      rows: Array<Record<string, any>>;
+    };
+    [key: string]: any;
+  };
   intent?: string;
   error?: string;
 }
@@ -83,7 +91,12 @@ export const sendCopilotChatRequest = async (
       }
     );
 
-    return response.data.answer || 'No response received';
+    // Return the full response object so frontend can access table data
+    return JSON.stringify({
+      answer: response.data.answer || 'No response received',
+      data: response.data.data,
+      intent: response.data.intent,
+    });
   } catch (error) {
     // Handle different error types
     if (axios.isAxiosError(error)) {
