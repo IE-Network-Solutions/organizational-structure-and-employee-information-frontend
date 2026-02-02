@@ -1,14 +1,15 @@
 'use client';
-import React, { useState } from 'react';
-import { Avatar, Menu, Dropdown, Layout, Button, Badge, Drawer } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Menu, Dropdown, Layout, Button, Badge } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useNotificationStore } from '@/store/uistate/features/notification';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { useGetUnreadCount } from '@/store/server/features/notification/queries';
 import { usePWA } from '@/hooks/usePWA';
 import { BellOutlined, DownloadOutlined } from '@ant-design/icons';
-import NotificationBar from './notificationBar';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
+import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 const { Header } = Layout;
 
@@ -21,9 +22,19 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
   const router = useRouter();
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetEmployee(userId);
-  const { notificationCount } = useNotificationStore();
+  const { notificationCount, setNotificationCount } = useNotificationStore();
+  const [mounted, setMounted] = useState(false);
+  const { data: unreadCount } = useGetUnreadCount(userId ?? '', mounted);
   const { isInstallable, isInstalled, isStandalone, installApp } = usePWA();
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && typeof unreadCount === 'number') setNotificationCount(unreadCount);
+  }, [mounted, unreadCount, setNotificationCount]);
 
   const handleProfileRoute = () => {
     router.push(`/employees/manage-employees/${userId}`);
@@ -81,16 +92,24 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           />
         )}
 
-        {/* Notification Bell */}
-        <div className="relative">
-          <Badge count={notificationCount} size="small">
-            <Button
-              type="text"
-              icon={<BellOutlined />}
-              onClick={() => setIsNotificationOpen(true)}
-            />
-          </Badge>
-        </div>
+        {/* Notification Bell - opens dropdown with all notification functionality */}
+        <Dropdown
+          open={notificationDropdownOpen}
+          onOpenChange={setNotificationDropdownOpen}
+          trigger={['click']}
+          placement="bottomRight"
+          overlay={<NotificationDropdownPanel />}
+        >
+          <div className="relative inline-block">
+            <Badge
+              count={notificationCount}
+              size="small"
+              offset={[-2, 2]}
+            >
+              <Button type="text" icon={<BellOutlined />} />
+            </Badge>
+          </div>
+        </Dropdown>
 
         <Dropdown overlay={menu} placement="bottomRight">
           <Avatar
@@ -103,17 +122,6 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           />
         </Dropdown>
       </div>
-
-      {/* Notification Drawer */}
-      <Drawer
-        title="Notifications"
-        placement="right"
-        onClose={() => setIsNotificationOpen(false)}
-        open={isNotificationOpen}
-        width={400}
-      >
-        <NotificationBar />
-      </Drawer>
     </Header>
   );
 };
