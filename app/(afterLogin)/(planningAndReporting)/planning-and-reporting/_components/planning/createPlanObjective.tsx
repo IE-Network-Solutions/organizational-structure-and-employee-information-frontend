@@ -121,16 +121,18 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                           >
                             {kr?.title}
                           </span>
-                          {kr?.deletedAt !== null && kr?.deletedAt !== undefined && (
-                            <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
-                              Deleted KR
-                            </span>
-                          )}
-                          {e?.deletedAt !== null && e?.deletedAt !== undefined && (
-                            <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
-                              Deleted OKR
-                            </span>
-                          )}
+                          {kr?.deletedAt !== null &&
+                            kr?.deletedAt !== undefined && (
+                              <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                                Deleted KR
+                              </span>
+                            )}
+                          {e?.deletedAt !== null &&
+                            e?.deletedAt !== undefined && (
+                              <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                                Deleted OKR
+                              </span>
+                            )}
                         </div>
                       </div>
 

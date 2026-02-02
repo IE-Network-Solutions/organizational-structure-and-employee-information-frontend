@@ -33,7 +33,7 @@ const Approvals = () => {
     searchParams?.name || '',
     APPROVALTYPES.PAYROLL,
   );
-  
+
   // Get departments and find the one with level 0
   const { data: departments } = useGetDepartments();
   const level0Department = useMemo(() => {

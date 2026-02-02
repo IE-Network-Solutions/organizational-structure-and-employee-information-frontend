@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Avatar,
-  Card,
-  Divider,
-  List,
-  message,
-  Tag,
-  Modal,
-  Button,
-} from 'antd';
+import { Avatar, Card, Divider, List, message, Tag, Modal, Button } from 'antd';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { HiOutlineMail } from 'react-icons/hi';
 import { FiTrash2 } from 'react-icons/fi';
@@ -423,11 +414,11 @@ function BasicInfo({ id }: { id: string }) {
             //   id="basic-info-office-popover"
             //   data-cy="basic-info-office-popover"
             // >
-              <MdKeyboardArrowRight
-                key="arrow"
-                id="basic-info-office-arrow"
-                data-cy="basic-info-office-arrow"
-              />
+            <MdKeyboardArrowRight
+              key="arrow"
+              id="basic-info-office-arrow"
+              data-cy="basic-info-office-arrow"
+            />,
             // </Popover>,
           ]}
           id="basic-info-office-item"

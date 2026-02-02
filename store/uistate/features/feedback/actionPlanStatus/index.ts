@@ -38,7 +38,7 @@ export const useActionPlanStatusStore = create<ActionPlanStatusState>(
     clearOptimisticStatus: (actionPlanId: string) =>
       set((state) => {
         // eslint-disable-next-line
-      const { [actionPlanId]: _, ...rest } = state.optimisticStatuses;
+        const { [actionPlanId]: _, ...rest } = state.optimisticStatuses;
         return { optimisticStatuses: rest };
       }),
 
