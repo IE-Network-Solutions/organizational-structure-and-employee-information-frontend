@@ -138,9 +138,9 @@ const OkrTypePage = () => {
             data-cy="okr-type-basic-card-description"
             id="okr-type-basic-card-description"
           >
-            Basic OKR allows employees to define Objectives and Key Results
-            for goal tracking. Daily and weekly plans are not linked to OKRs,
-            and OKR progress has no impact on variable pay.
+            Basic OKR allows employees to define Objectives and Key Results for
+            goal tracking. Daily and weekly plans are not linked to OKRs, and
+            OKR progress has no impact on variable pay.
           </p>
         </Card>
 
@@ -175,53 +175,54 @@ const OkrTypePage = () => {
             data-cy="okr-type-advanced-card-description"
             id="okr-type-advanced-card-description"
           >
-            Basic OKR allows employees to define Objectives and Key Results
-            for goal tracking. Daily and weekly plans are not linked to OKRs,
-            and OKR progress has no impact on variable pay.
+            Basic OKR allows employees to define Objectives and Key Results for
+            goal tracking. Daily and weekly plans are not linked to OKRs, and
+            OKR progress has no impact on variable pay.
           </p>
         </Card>
       </div>
 
-        {/* Warning Message */}
-        <div
-          className="flex items-center gap-3 mb-4"
-          data-cy="okr-type-warning-alert"
-          id="okr-type-warning-alert"
+      {/* Warning Message */}
+      <div
+        className="flex items-center gap-3 mb-4"
+        data-cy="okr-type-warning-alert"
+        id="okr-type-warning-alert"
+      >
+        <ExclamationCircleOutlined
+          className="text-gray-500 text-lg"
+          data-cy="okr-type-warning-icon"
+          id="okr-type-warning-icon"
+        />
+        <span
+          className="text-gray-900 text-sm"
+          data-cy="okr-type-warning-text"
+          id="okr-type-warning-text"
         >
-          <ExclamationCircleOutlined
-            className="text-gray-500 text-lg"
-            data-cy="okr-type-warning-icon"
-            id="okr-type-warning-icon"
-          />
-          <span
-            className="text-gray-900 text-sm"
-            data-cy="okr-type-warning-text"
-            id="okr-type-warning-text"
-          >
-            Please Note that you can not use both types of OKR&apos;s at the same time
-          </span>
-        </div>
-
-        {/* Confirmation Modal */}
-        {transitionDirection && (
-          <OkrModeConfirmationModal
-            open={confirmationModalOpen}
-            transitionDirection={transitionDirection}
-            onConfirm={handleConfirm}
-            onCancel={handleCancel}
-            loading={isUpdating}
-          />
-        )}
-
-        {/* Effects Modal */}
-        {transitionDirection && (
-          <OkrModeEffectsModal
-            open={effectsModalOpen}
-            transitionDirection={transitionDirection}
-            onClose={handleEffectsModalClose}
-          />
-        )}
+          Please Note that you can not use both types of OKR&apos;s at the same
+          time
+        </span>
       </div>
+
+      {/* Confirmation Modal */}
+      {transitionDirection && (
+        <OkrModeConfirmationModal
+          open={confirmationModalOpen}
+          transitionDirection={transitionDirection}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+          loading={isUpdating}
+        />
+      )}
+
+      {/* Effects Modal */}
+      {transitionDirection && (
+        <OkrModeEffectsModal
+          open={effectsModalOpen}
+          transitionDirection={transitionDirection}
+          onClose={handleEffectsModalClose}
+        />
+      )}
+    </div>
   );
 };
 

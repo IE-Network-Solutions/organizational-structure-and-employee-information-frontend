@@ -11,6 +11,15 @@ const ApprovalStatusCard = ({
   userName: (a: string) => string;
   userImage: (a: any) => any;
 }) => {
+  // Use displayUserId if provided (from enriched data)
+  // Otherwise, fallback logic: use approvedUserId if action taken, else userId
+  const displayUserId =
+    data?.displayUserId ||
+    ((data?.status === 'Approved' || data?.status === 'Rejected') &&
+    data?.approvedUserId
+      ? data.approvedUserId // Historical approver who took action
+      : data?.userId); // Current approver (for pending)
+
   return (
     <div className="border-b border-gray-200" data-cy="approval-status-card">
       <div
@@ -34,8 +43,8 @@ const ApprovalStatusCard = ({
         />
         <UserCard
           data={data}
-          name={userName(String(data?.userId))}
-          profileImage={data?.userId && userImage(String(data?.userId))}
+          name={userName(String(displayUserId))}
+          profileImage={displayUserId && userImage(String(displayUserId))}
           size="small"
         />
       </div>

@@ -24,6 +24,7 @@ import { defaultObjective } from '@/store/uistate/features/okrplanning/okr/inter
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import OKRInlineSuggestions from '@/components/ai/OKRInlineSuggestions';
+import { useIsBasicOkr } from '../../_utils/okrMode';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -46,6 +47,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const { mutate: createObjective, isLoading } = useCreateObjective();
   const { isMobile } = useIsMobile();
   const [showAISuggestions, setShowAISuggestions] = React.useState(false);
+  const isBasic = useIsBasicOkr();
   const modalHeader = (
     <div
       id="okr-drawer-modal-header"
@@ -278,6 +280,17 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     addKeyResult(key, metricTypeId);
   };
 
+  const handleAddKeyResult = () => {
+    // If isBasic is true, directly add "Achieve or Not" metric type
+    if (isBasic) {
+      const metricType = metrics?.items?.find(
+        (metric: any) => metric.name === 'Achieve',
+      );
+      const metricTypeId = metricType?.id || '';
+      addKeyResult('Achieved', metricTypeId);
+    }
+  };
+
   const getCurrentTotalWeight = () => {
     return (
       objective?.keyResults?.reduce(
@@ -455,22 +468,35 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               data-cy="okr-drawer-mobile-form-add-keyresult-button"
               className="w-full flex justify-end mb-10"
             >
-              <Dropdown
-                data-cy="okr-drawer-mobile-form-add-keyresult-button-dropdown"
-                overlay={keyResultMenu}
-                trigger={['click']}
-                className=""
-              >
+              {isBasic ? (
                 <Button
                   type="default"
                   id="okr-drawer-mobile-add-keyresult-button"
                   data-cy="okr-drawer-mobile-add-keyresult-button"
                   className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
                   aria-label="Add Key Result"
+                  onClick={handleAddKeyResult}
                 >
                   <GoPlus size={24} />
                 </Button>
-              </Dropdown>
+              ) : (
+                <Dropdown
+                  data-cy="okr-drawer-mobile-form-add-keyresult-button-dropdown"
+                  overlay={keyResultMenu}
+                  trigger={['click']}
+                  className=""
+                >
+                  <Button
+                    type="default"
+                    id="okr-drawer-mobile-add-keyresult-button"
+                    data-cy="okr-drawer-mobile-add-keyresult-button"
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
+                    aria-label="Add Key Result"
+                  >
+                    <GoPlus size={24} />
+                  </Button>
+                </Dropdown>
+              )}
             </div>
           </div>
         ) : (
@@ -618,17 +644,14 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               </svg>
               AI Suggestions
             </Button>
-            <Dropdown
-              data-cy="okr-drawer-desktop-add-keyresult-button-dropdown"
-              overlay={keyResultMenu}
-              trigger={['click']}
-            >
+            {isBasic ? (
               <Button
                 type="default"
                 id="okr-drawer-desktop-add-keyresult-button"
                 data-cy="okr-drawer-desktop-add-keyresult-button"
                 className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
                 aria-label="Add Key Result"
+                onClick={handleAddKeyResult}
               >
                 <svg
                   width="12"
@@ -647,24 +670,56 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   />
                 </svg>
                 Key Result
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-white"
-                >
-                  <path
-                    d="M6 9L12 15L18 9"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
               </Button>
-            </Dropdown>
+            ) : (
+              <Dropdown
+                data-cy="okr-drawer-desktop-add-keyresult-button-dropdown"
+                overlay={keyResultMenu}
+                trigger={['click']}
+              >
+                <Button
+                  type="default"
+                  id="okr-drawer-desktop-add-keyresult-button"
+                  data-cy="okr-drawer-desktop-add-keyresult-button"
+                  className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
+                  aria-label="Add Key Result"
+                >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="text-white"
+                  >
+                    <path
+                      d="M12 5V19M5 12H19"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Key Result
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="text-white"
+                  >
+                    <path
+                      d="M6 9L12 15L18 9"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Button>
+              </Dropdown>
+            )}
           </div>
         </div>
 
