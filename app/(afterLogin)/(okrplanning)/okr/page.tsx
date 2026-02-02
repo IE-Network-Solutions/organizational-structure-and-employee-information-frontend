@@ -28,7 +28,6 @@ const OKR: React.FC<any> = () => {
   const {
     isLoading: isOkrLoading,
     showModal,
-    isAdminOrOwner,
     saveOkrMode,
     refetch,
   } = useOkrSetting();
@@ -92,7 +91,7 @@ const OKR: React.FC<any> = () => {
     }
   }
   // Show loading state while checking OKR setting
-  if (isOkrLoading && isAdminOrOwner) {
+  if (isOkrLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spin size="large" />
@@ -100,8 +99,8 @@ const OKR: React.FC<any> = () => {
     );
   }
 
-  // Show modal if setting doesn't exist and user is admin/owner
-  if (showModal && isAdminOrOwner) {
+  // Show modal if setting doesn't exist
+  if (showModal) {
     return (
       <>
         <OkrModeSelectionModal

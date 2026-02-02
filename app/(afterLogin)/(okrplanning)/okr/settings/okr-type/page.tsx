@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, Switch, Alert } from 'antd';
+import { Card, Switch } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
 import { useUpdateOkrSetting } from '@/store/server/features/okrplanning/okr-setting/mutations';
@@ -10,7 +10,7 @@ import OkrModeConfirmationModal from './_components/OkrModeConfirmationModal';
 import OkrModeEffectsModal from './_components/OkrModeEffectsModal';
 
 const OkrTypePage = () => {
-  const { okrMode, isAdminOrOwner, refetch } = useOkrSetting();
+  const { okrMode, refetch } = useOkrSetting();
   const { data: settingData, refetch: refetchSetting } = useGetOkrSetting();
   const { mutate: updateOkrSetting, isLoading: isUpdating } =
     useUpdateOkrSetting();
@@ -24,12 +24,10 @@ const OkrTypePage = () => {
     'BasicToAdvanced' | 'AdvancedToBasic' | null
   >(null);
 
-  // Fetch setting data when component mounts and user is admin
+  // Fetch setting data when component mounts
   useEffect(() => {
-    if (isAdminOrOwner) {
-      refetchSetting();
-    }
-  }, [isAdminOrOwner, refetchSetting]);
+    refetchSetting();
+  }, [refetchSetting]);
 
   const handleToggleChange = (checked: boolean, mode: 'Basic' | 'Advanced') => {
     if (!checked) {
@@ -100,24 +98,6 @@ const OkrTypePage = () => {
   const isBasicActive = okrMode === 'Basic';
   const isAdvancedActive = okrMode === 'Advanced';
 
-  // Show access denied message if not admin
-  if (!isAdminOrOwner) {
-    return (
-      <div
-        className="p-6 bg-white rounded-lg"
-        data-cy="okr-type-page-access-denied"
-        id="okr-type-page-access-denied"
-      >
-        <Alert
-          message="Access Denied"
-          description="You do not have permission to access this page. Only administrators can change OKR type settings."
-          type="error"
-          showIcon
-        />
-      </div>
-    );
-  }
-
   return (
     <div
       className="p-6 bg-white rounded-lg"
@@ -144,7 +124,7 @@ const OkrTypePage = () => {
             <Switch
               checked={isBasicActive}
               onChange={(checked) => handleToggleChange(checked, 'Basic')}
-              disabled={isUpdating || !isAdminOrOwner}
+              disabled={isUpdating}
               data-cy="okr-type-basic-card-switch"
               id="okr-type-basic-card-switch"
             />
@@ -181,7 +161,7 @@ const OkrTypePage = () => {
               onChange={(checked) =>
                 handleToggleChange(checked, 'Advanced')
               }
-              disabled={isUpdating || !isAdminOrOwner}
+              disabled={isUpdating}
               data-cy="okr-type-advanced-card-switch"
               id="okr-type-advanced-card-switch"
             />
