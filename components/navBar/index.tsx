@@ -38,6 +38,8 @@ import { useCreateEmployee } from '@/store/server/features/employees/employeeDet
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
+import { useCopilotStore } from '@/store/uistate/features/copilot';
+import CopilotModule from '@/components/copilot/CopilotModule';
 
 interface CustomMenuItem {
   key: string;
@@ -83,6 +85,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
+    useCopilotStore();
   const pathName = usePathname();
 
   const triggerRouteLoaderStart = () => {
@@ -1293,7 +1297,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
               }}
             >
-              {children}
+              {isCopilotOpen ? (
+                <CopilotModule onClose={() => setCopilotOpen(false)} />
+              ) : (
+                children
+              )}
             </div>
           )}
           <CreateEmployeeJobInformation
