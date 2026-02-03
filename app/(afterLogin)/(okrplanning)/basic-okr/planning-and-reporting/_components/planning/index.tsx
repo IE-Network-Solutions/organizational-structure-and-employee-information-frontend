@@ -15,7 +15,6 @@ import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndR
 import {
     useGetPlanning,
     useGetReporting,
-    useDefaultPlanningPeriods,
     AllPlanningPeriods,
     useGetUserPlanning,
     useGetPlanningPeriodsHierarchy
@@ -41,12 +40,10 @@ import ReportModal from './modals/ReportModal';
 export default function BasicPlanning() {
     const { userId } = useAuthenticationStore();
     const {
-        activePlanPeriod,
         page,
         setPage,
         pageSize,
         setPageSize,
-        activePlanPeriodId,
         selectedUser,
         setSelectedUser,
         allSessionsOfYear,
@@ -196,18 +193,6 @@ export default function BasicPlanning() {
         return !!activeSession;
     };
 
-    const getDateLabel = (createdAt: string, cadence: string): string => {
-        const planDate = dayjs(createdAt);
-        const today = dayjs();
-        const type = 'Plan';
-        const cadenceType = cadence.charAt(0).toUpperCase() + cadence.slice(1);
-
-        if (planDate.isSame(today, 'day')) return `Today's ${cadenceType} ${type}`;
-        const yesterday = dayjs().subtract(1, 'day');
-        if (planDate.isSame(yesterday, 'day')) return `Yesterday's ${cadenceType} ${type}`;
-        return `${planDate.format('MMM D')} ${cadenceType} ${type}`;
-    };
-
     // Filter Helper functions from main planning
     const getUserIdsByDepartmentId = (departmentId: string) => {
         const department = departmentData?.find((dep: any) => dep.id === departmentId);
@@ -305,6 +290,8 @@ export default function BasicPlanning() {
         return [...weeklyItems, ...dailyItems];
     }, [weeklyReportingData, dailyReportingData]);
 
+    // getUserIdsByDepartmentId is stable (defined in component) and not used in this memo
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const planSummaries = useMemo(() => {
         return transformedData?.map((dataItem: any) => {
             const rawItem = combinedPlanningData?.find((i: any) => i.id === dataItem.id);
@@ -647,7 +634,10 @@ export default function BasicPlanning() {
             />
 
             <div className="space-y-4 mt-6">
-                {isLoadingLoad ? Array.from({ length: 3 }).map((_, i) => <PlanCardSkeleton key={i} />) : planSummaries.length > 0 ? (
+                {isLoadingLoad ? Array.from({ length: 3 }).map(
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- map callback uses index only
+                    (skeletonKey, i) => <PlanCardSkeleton key={i} />
+                ) : planSummaries.length > 0 ? (
                     planSummaries.map((plan: any) => (
                         <BasicPlanCard
                             key={plan.id}

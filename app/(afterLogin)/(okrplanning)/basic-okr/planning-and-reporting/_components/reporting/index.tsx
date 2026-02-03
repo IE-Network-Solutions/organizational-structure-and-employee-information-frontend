@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Tooltip, Empty } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -58,32 +58,6 @@ export default function BasicReporting() {
         }) || [];
     }, [reportingData, activeTabName, employeeData]);
 
-    const getDateLabel = (createdAt: string, activeTabName: string): string => {
-        const planDate = dayjs(createdAt);
-        const today = dayjs();
-
-        if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
-            return activeTabName === 'Daily' ? "Today's Plan" : "Today's Report";
-        }
-
-        if (activeTabName === 'Weekly') {
-            const thisFriday = dayjs().day(5);
-            const adjustedThisFriday =
-                today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
-            const lastFriday = adjustedThisFriday.subtract(7, 'day');
-
-            if (
-                (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
-                (planDate.isSame(adjustedThisFriday, 'day') ||
-                    planDate.isBefore(adjustedThisFriday))
-            ) {
-                return 'This Week Plan';
-            }
-        }
-
-        return '';
-    };
-
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -101,7 +75,10 @@ export default function BasicReporting() {
 
             <div className="space-y-4">
                 {isLoading ? (
-                    Array.from({ length: 3 }).map((_, i) => <PlanCardSkeleton key={i} />)
+                    Array.from({ length: 3 }).map(
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- map uses index only
+                        (skeletonKey, i) => <PlanCardSkeleton key={i} />
+                    )
                 ) : reportSummaries.length > 0 ? (
                     reportSummaries.map((plan: any) => (
                         <BasicPlanCard

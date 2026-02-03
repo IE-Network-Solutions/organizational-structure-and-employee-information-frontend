@@ -3,7 +3,7 @@ import { Button, Avatar, Dropdown, MenuProps } from 'antd';
 import { IoEllipsisVertical, IoCheckmarkSharp } from "react-icons/io5";
 import { BsThreeDots } from "react-icons/bs";
 import CommentsSection from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/comments/CommentsSection';
-import StatPill from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/StatPill';
+// import StatPill from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/StatPill';
 import { CommentsData } from '@/types/okr';
 import TaskRow from './TaskRow';
 
@@ -72,7 +72,7 @@ export default function BasicPlanCard({
     onDelete,
     onTaskStatusChange,
     onApprove,
-    onOpen,
+    // onOpen,
     canApprove = false,
     canEdit = false,
     canDelete = false
@@ -118,9 +118,9 @@ export default function BasicPlanCard({
         );
     }
 
-    const totalWeight = tasks.reduce((sum, t) => sum + (t.weight || 0), 0);
+    // const totalWeight = tasks.reduce((sum, t) => sum + (t.weight || 0), 0);
     const achievedWeight = tasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + (t.weight || 0), 0);
-    const progressPercent = totalWeight > 0 ? Math.round((achievedWeight / totalWeight) * 100) : 0;
+    // const progressPercent = totalWeight > 0 ? Math.round((achievedWeight / totalWeight) * 100) : 0;
 
     return (
         <div className="bg-white rounded-xl p-6 border border-gray-200">

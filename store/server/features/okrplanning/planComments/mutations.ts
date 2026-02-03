@@ -146,7 +146,7 @@ export const useUpdatePlanComment = () => {
     ({ id, updatedComment }: { id: string; updatedComment: CommentsData }) =>
       updateComment(id, updatedComment),
     {
-      onSuccess: (_data: any, variables: { id: string; updatedComment: CommentsData }) => {
+      onSuccess: (responseData: any, variables: { id: string; updatedComment: CommentsData }) => {
         const commentId = variables.id;
         const newText = variables.updatedComment?.comment;
 
@@ -190,7 +190,7 @@ export const useUpdatePlanComment = () => {
 export const useDeletePlanComment = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteComment, {
-    onSuccess: (_data: any, commentId: string) => {
+    onSuccess: (responseData: any, commentId: string) => {
       updateOkrPlansCaches(queryClient, (data) => {
         if (!data?.items || !Array.isArray(data.items)) return undefined;
         const updatedItems = data.items.map((plan: any) => {

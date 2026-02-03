@@ -3,7 +3,7 @@ import React from 'react';
 import { Select } from 'antd';
 import SessionFilter from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/filters/SessionFilter';
 
-const { Option } = Select;
+// const { Option } = Select;
 
 interface PlanFiltersProps {
     employeeOptions: any[];

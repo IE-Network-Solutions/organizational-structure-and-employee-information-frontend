@@ -1,6 +1,5 @@
 import React from 'react';
-import { Tag, Select, Button } from 'antd';
-import { IoCheckmarkCircleOutline, IoCloseCircleOutline, IoTimeOutline, IoEllipsisVertical } from "react-icons/io5";
+import { IoCheckmarkCircleOutline, IoCloseCircleOutline, IoTimeOutline } from "react-icons/io5";
 import { BsChevronDown } from "react-icons/bs";
 import { Dropdown, type MenuProps } from 'antd';
 

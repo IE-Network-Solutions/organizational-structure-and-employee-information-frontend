@@ -42,7 +42,8 @@ export default function DailyPlanModal({
         }
     }, [open, isEdit, initialValues, form]);
 
-    const handleValuesChange = (_: any, allValues: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- only allValues is used
+    const handleValuesChange = (changedValues: any, allValues: any) => {
         const tasks = allValues.tasks || [];
         const total = tasks.reduce((sum: number, task: any) => sum + (Number(task?.weight) || 0), 0);
         setWeightTotal(total);
@@ -53,8 +54,8 @@ export default function DailyPlanModal({
             onAdd(values);
             form.resetFields();
             setWeightTotal(0);
-        }).catch(info => {
-            console.log('Validate Failed:', info);
+        }).catch(() => {
+            // Validation failed - form will show field errors
         });
     };
 

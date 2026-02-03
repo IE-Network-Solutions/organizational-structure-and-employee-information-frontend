@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Button, Checkbox } from 'antd';
+import { Modal, Form, Input, Button } from 'antd';
 import { IoCheckmarkCircle, IoCloseCircle } from 'react-icons/io5';
 
 const { TextArea } = Input;
@@ -80,8 +80,8 @@ export default function ReportModal({
     const handleSubmit = () => {
         form.validateFields().then(values => {
             onReport(values);
-        }).catch(info => {
-            console.log('Validate Failed:', info);
+        }).catch(() => {
+            // Validation failed - form will show field errors
         });
     };
 

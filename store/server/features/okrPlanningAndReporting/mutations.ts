@@ -381,7 +381,7 @@ export const useUpdateStatus = () => {
           description: 'Task status updated successfully',
         });
       },
-      onError: (_error, variables) => {
+      onError: () => {
         // On error, revert optimistic update by invalidating
         queryClient.invalidateQueries('okrPlans');
         queryClient.invalidateQueries('okrUserPlans');

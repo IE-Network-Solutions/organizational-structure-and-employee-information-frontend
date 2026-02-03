@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -19,7 +19,10 @@ export function useFiscalYearRedirect() {
     refetchInterval: 30000, // Poll every 30 seconds
   });
   const { userData } = useAuthenticationStore();
-  const userPermissions = userData?.userPermissions || [];
+  const userPermissions = useMemo(
+    () => userData?.userPermissions || [],
+    [userData?.userPermissions]
+  );
   const isOwner = userData?.role?.slug === 'owner';
 
   // Fiscal year end logic (replace with your real logic if needed)

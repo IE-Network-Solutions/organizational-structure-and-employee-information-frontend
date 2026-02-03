@@ -149,7 +149,7 @@ export const useAddReportComment = () => {
 export const useDeleteReportComment = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteComment, {
-    onSuccess: (_data: any, commentId: string) => {
+    onSuccess: (responseData: any, commentId: string) => {
       updateOkrReportsCaches(queryClient, (data) => {
         if (!data?.items || !Array.isArray(data.items)) return undefined;
         const updatedItems = data.items.map((report: any) => {
@@ -175,7 +175,7 @@ export const useUpdateReportComment = () => {
     ({ id, updatedComment }: { id: string; updatedComment: CommentsData }) =>
       updateComment(id, updatedComment),
     {
-      onSuccess: (_data: any, variables: { id: string; updatedComment: CommentsData }) => {
+      onSuccess: (responseData: any, variables: { id: string; updatedComment: CommentsData }) => {
         const commentId = variables.id;
         const newText = variables.updatedComment?.comment;
 
