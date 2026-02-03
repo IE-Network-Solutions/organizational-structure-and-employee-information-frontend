@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const AZURE_APP_SERVICE_URL =
   process.env.NEXT_PUBLIC_AZURE_APP_SERVICE ||
-  'https://selamnew-copilot-prod-fwbef9g7ehhacbg7.canadacentral-01.azurewebsites.net';
+  'https://selamnew-copilot-dev-dbdcc9ahe7eqgbez.eastus-01.azurewebsites.net';
 
 // Some Azure deployments mount the app under /api; use env to override path (default: /copilot)
 const COPILOT_PATH =
