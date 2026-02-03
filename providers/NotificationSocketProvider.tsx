@@ -56,12 +56,12 @@ export function NotificationSocketProvider({
         sessionStorage.removeItem(PUSH_PROMPT_STORAGE_KEY);
         setPushPromptDismissed(true);
         queryClient.invalidateQueries(['push-subscription-status', userId]);
-        notification.success('Notifications enabled. You’ll receive important updates.');
+        notification.success({ message: 'Notifications enabled. You’ll receive important updates.' });
       } else {
-        notification.warning('Please click “Allow” in your browser to enable notifications.');
+        notification.warning({ message: 'Please click “Allow” in your browser to enable notifications.' });
       }
     } catch {
-      notification.error('We couldn’t enable notifications. Please try again.');
+      notification.error({ message: 'We couldn’t enable notifications. Please try again.' });
     } finally {
       setPushPromptLoading(false);
     }
