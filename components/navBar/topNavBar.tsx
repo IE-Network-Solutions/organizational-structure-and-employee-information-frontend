@@ -26,14 +26,16 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
   const [mounted, setMounted] = useState(false);
   const { data: unreadCount } = useGetUnreadCount(userId ?? '', mounted);
   const { isInstallable, isInstalled, isStandalone, installApp } = usePWA();
-  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] =
+    useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (mounted && typeof unreadCount === 'number') setNotificationCount(unreadCount);
+    if (mounted && typeof unreadCount === 'number')
+      setNotificationCount(unreadCount);
   }, [mounted, unreadCount, setNotificationCount]);
 
   const handleProfileRoute = () => {
@@ -92,20 +94,16 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           />
         )}
 
-        {/* Notification Bell - opens dropdown with all notification functionality */}
+        {/* Notification Bell */}
         <Dropdown
           open={notificationDropdownOpen}
           onOpenChange={setNotificationDropdownOpen}
           trigger={['click']}
           placement="bottomRight"
-          overlay={<NotificationDropdownPanel />}
+          overlay={mounted ? <NotificationDropdownPanel /> : <div />}
         >
           <div className="relative inline-block">
-            <Badge
-              count={notificationCount}
-              size="small"
-              offset={[-2, 2]}
-            >
+            <Badge count={notificationCount} size="small" offset={[-2, 2]}>
               <Button type="text" icon={<BellOutlined />} />
             </Badge>
           </div>

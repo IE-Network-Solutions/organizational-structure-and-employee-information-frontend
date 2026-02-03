@@ -25,7 +25,8 @@ const getNotifications = async (
   // Backend (nestjs-typeorm-paginate) returns { items, meta }
   const list = (res as any)?.items ?? (res as any)?.data;
   const arr = Array.isArray(list) ? list : [];
-  const total = (res as any)?.meta?.itemCount ?? (res as any)?.total ?? arr.length;
+  const total =
+    (res as any)?.meta?.itemCount ?? (res as any)?.total ?? arr.length;
   return { data: arr, total };
 };
 
@@ -48,7 +49,9 @@ const getUnreadCount = async (userId: string) => {
     params: { userId },
     headers,
   });
-  return typeof res === 'number' ? res : (res as { count?: number })?.count ?? 0;
+  return typeof res === 'number'
+    ? res
+    : ((res as { count?: number })?.count ?? 0);
 };
 
 export const useGetUnreadCount = (userId: string, enabled = true) =>

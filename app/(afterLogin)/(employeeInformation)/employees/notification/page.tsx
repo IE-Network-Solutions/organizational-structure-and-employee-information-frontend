@@ -36,7 +36,7 @@ const Notifications = () => {
     updateNotificationStatus(id);
   };
   const { data, isLoading } = useGetNotifications(userId);
-  const list = Array.isArray(data) ? data : (data as any)?.data ?? [];
+  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
   const unReadNotification = list.filter(
     (item: NotificationType) => item.isRead === false,
   );

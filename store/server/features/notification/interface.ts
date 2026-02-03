@@ -16,4 +16,11 @@ export interface NotificationListResponse {
   total?: number;
   page?: number;
   limit?: number;
-} 
+}
+
+/** Push subscription payload for POST /push-subscriptions */
+export interface PushSubscriptionPayload {
+  userId: string;
+  subscription: PushSubscriptionJSON;
+  tenantId?: string;
+}

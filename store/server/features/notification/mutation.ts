@@ -2,6 +2,19 @@ import { NOTIFICATION_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
+import type { PushSubscriptionPayload } from './interface';
+
+export const registerPushSubscription = async (
+  payload: PushSubscriptionPayload,
+) => {
+  const headers = await requestHeader();
+  return crudRequest({
+    url: `${NOTIFICATION_URL}/push-subscriptions`,
+    method: 'POST',
+    data: payload,
+    headers,
+  });
+};
 
 export const markAsRead = async (id: string, userId: string) => {
   const headers = await requestHeader();
@@ -38,15 +51,12 @@ export const useMarkAsRead = () => {
 
 export const useMarkAllAsRead = () => {
   const queryClient = useQueryClient();
-  return useMutation(
-    (userId: string) => markAllAsRead(userId),
-    {
-      onSuccess: (_, userId) => {
-        queryClient.invalidateQueries(['notifications', userId]);
-        queryClient.invalidateQueries(['notifications-unread-count', userId]);
-      },
+  return useMutation((userId: string) => markAllAsRead(userId), {
+    onSuccess: (_, userId) => {
+      queryClient.invalidateQueries(['notifications', userId]);
+      queryClient.invalidateQueries(['notifications-unread-count', userId]);
     },
-  );
+  });
 };
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';

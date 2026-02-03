@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { Spin, Button } from 'antd';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Spin, Button, message } from 'antd';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
 import { NotificationType } from '@/store/server/features/notification/interface';
 import {
@@ -10,8 +10,10 @@ import {
 } from '@/store/server/features/notification/mutation';
 import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { EyeOutlined, FileTextOutlined } from '@ant-design/icons';
+import { EyeOutlined, FileTextOutlined, BellOutlined } from '@ant-design/icons';
 import { NotificationDetailVisible } from '@/app/(afterLogin)/(employeeInformation)/employees/notification/_component/notificationDetail';
+import { requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription';
+import { VAPID_PUBLIC_KEY } from '@/utils/constants';
 
 const PANEL_WIDTH = 400;
 const MAX_HEIGHT = 520;
@@ -66,7 +68,10 @@ function NotificationItem({
         <div className="text-sm font-medium text-gray-600 truncate">
           {item.title}
         </div>
-        <div className="text-xs text-gray-500 mt-0.5 line-clamp-2" title={item.body}>
+        <div
+          className="text-xs text-gray-500 mt-0.5 line-clamp-2"
+          title={item.body}
+        >
           {item.body?.length
             ? item.body.length > 60
               ? `${item.body.slice(0, 60)}...`
@@ -99,7 +104,101 @@ function NotificationItem({
 
 export function NotificationDropdownPanel() {
   const userId = useAuthenticationStore.getState().userId ?? '';
+  const tenantId = useAuthenticationStore.getState().tenantId ?? undefined;
   const [filter, setFilter] = useState<FilterType>('all');
+  const [pushPermission, setPushPermission] =
+    useState<NotificationPermission | null>(null);
+  const [pushEnabling, setPushEnabling] = useState(false);
+  const [pushRegistering, setPushRegistering] = useState(false);
+
+  useEffect(() => {
+    setPushPermission(
+      typeof window !== 'undefined' && 'Notification' in window
+        ? Notification.permission
+        : null,
+    );
+  }, []);
+
+  useEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !('serviceWorker' in navigator) ||
+      !VAPID_PUBLIC_KEY ||
+      !userId
+    ) {
+      return;
+    }
+    navigator.serviceWorker.getRegistration('/').then((existing) => {
+      if (!existing || !existing.active) {
+        navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'imports' });
+      }
+    });
+    navigator.serviceWorker.getRegistration('/push/').then((existing) => {
+      if (!existing || !existing.active) {
+        navigator.serviceWorker.register('/sw-push.js', { scope: '/push/', updateViaCache: 'imports' });
+      }
+    });
+  }, [userId, pushPermission]);
+
+  const handleEnablePush = async () => {
+    if (!userId) return;
+    setPushEnabling(true);
+    try {
+      const ok = await requestAndRegisterPushSubscription(userId, tenantId);
+      if (ok) {
+        setPushPermission('granted');
+        message.success('Notifications enabled. You’ll receive important updates.');
+      } else {
+        message.warning('Please click “Allow” in your browser to enable notifications.');
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      message.error(
+        msg.includes('401') || msg.includes('403')
+          ? 'Your session has expired. Please sign in again.'
+          : 'We couldn’t enable notifications. Please try again.',
+      );
+    } finally {
+      setPushEnabling(false);
+    }
+  };
+
+  /** Register current push subscription with backend (when permission already granted). */
+  const handleRegisterPushWithServer = async () => {
+    if (!userId) return;
+    setPushRegistering(true);
+    try {
+      const ok = await requestAndRegisterPushSubscription(userId, tenantId);
+      if (ok) {
+        message.success('You’re all set. You’ll get notifications when you’re away.');
+      } else {
+        message.warning('Notifications are blocked. Please allow them in your browser settings.');
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('Timeout')) {
+        message.error('This is taking longer than expected. Reload and try again.');
+      } else if (msg.includes('401') || msg.includes('403')) {
+        message.error('Your session has expired. Please sign in again.');
+      } else {
+        message.error('We couldn’t finish setting up notifications. Please try again.');
+      }
+    } finally {
+      setPushRegistering(false);
+    }
+  };
+
+  const showEnablePush =
+    pushPermission !== null &&
+    pushPermission !== 'granted' &&
+    !!VAPID_PUBLIC_KEY &&
+    !!userId;
+
+  const showRegisterPushWithServer =
+    pushPermission === 'granted' && !!VAPID_PUBLIC_KEY && !!userId;
+
+  const showPushNotConfigured = !!userId && !VAPID_PUBLIC_KEY;
+
   const {
     setSelectedNotificationId,
     setIsNotificationDetailVisible,
@@ -112,7 +211,7 @@ export function NotificationDropdownPanel() {
   const { mutate: markAsRead } = useUpdateNotificationStatus();
   const { mutate: markAllAsRead } = useMarkAllAsRead();
 
-  const list = Array.isArray(data) ? data : (data as any)?.data ?? [];
+  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
   const unreadList = useMemo(() => list.filter(isUnread), [list]);
   const readList = useMemo(
     () => list.filter((i: NotificationType) => !isUnread(i)),
@@ -195,8 +294,63 @@ export function NotificationDropdownPanel() {
           </button>
         </div>
 
+        {/* Push not configured - no VAPID key in env */}
+        {showPushNotConfigured && (
+          <div className="px-4 py-2 border-b border-gray-100 bg-amber-50/80">
+            <p className="text-xs text-amber-800">
+              Push not configured. Add{' '}
+              <code className="bg-amber-100 px-1 rounded">
+                NEXT_PUBLIC_VAPID_PUBLIC_KEY
+              </code>{' '}
+              to .env and rebuild.
+            </p>
+          </div>
+        )}
+
+        {/* Enable push notifications - when permission not yet granted */}
+        {showEnablePush && (
+          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+            <p className="text-xs text-gray-600 mb-2">
+              Stay in the loop. Get notified about important updates even when
+              you&apos;re not in the app.
+            </p>
+            <Button
+              type="primary"
+              size="small"
+              icon={<BellOutlined />}
+              loading={pushEnabling}
+              onClick={handleEnablePush}
+              className="w-full"
+            >
+              Turn on notifications
+            </Button>
+          </div>
+        )}
+
+        {showRegisterPushWithServer && (
+          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+            <p className="text-xs text-gray-600 mb-2">
+              Allow notifications to receive updates and reminders when
+              you&apos;re away.
+            </p>
+            <Button
+              type="primary"
+              size="small"
+              icon={<BellOutlined />}
+              loading={pushRegistering}
+              onClick={handleRegisterPushWithServer}
+              className="w-full"
+            >
+              Allow notifications
+            </Button>
+          </div>
+        )}
+
         {/* List */}
-        <div className="overflow-y-auto" style={{ maxHeight: MAX_HEIGHT - 140 }}>
+        <div
+          className="overflow-y-auto"
+          style={{ maxHeight: MAX_HEIGHT - 140 }}
+        >
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Spin size="small" />
@@ -209,7 +363,8 @@ export function NotificationDropdownPanel() {
                   ? 'No unread notifications'
                   : 'No seen notifications'}
             </div>
-          ) : filter === 'all' && (unreadList.length > 0 || readList.length > 0) ? (
+          ) : filter === 'all' &&
+            (unreadList.length > 0 || readList.length > 0) ? (
             <div className="p-2 space-y-4">
               {unreadList.length > 0 && (
                 <div>
