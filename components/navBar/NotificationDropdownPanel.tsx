@@ -2,7 +2,11 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { Spin, Button, message } from 'antd';
-import { useGetNotifications } from '@/store/server/features/notification/queries';
+import { useQueryClient } from 'react-query';
+import {
+  useGetNotifications,
+  useGetPushSubscriptionStatus,
+} from '@/store/server/features/notification/queries';
 import { NotificationType } from '@/store/server/features/notification/interface';
 import {
   useUpdateNotificationStatus,
@@ -102,14 +106,14 @@ function NotificationItem({
   );
 }
 
-export function NotificationDropdownPanel() {
+export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } = {}) {
+  const queryClient = useQueryClient();
   const userId = useAuthenticationStore.getState().userId ?? '';
   const tenantId = useAuthenticationStore.getState().tenantId ?? undefined;
   const [filter, setFilter] = useState<FilterType>('all');
   const [pushPermission, setPushPermission] =
     useState<NotificationPermission | null>(null);
   const [pushEnabling, setPushEnabling] = useState(false);
-  const [pushRegistering, setPushRegistering] = useState(false);
 
   useEffect(() => {
     setPushPermission(
@@ -118,6 +122,21 @@ export function NotificationDropdownPanel() {
         : null,
     );
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      setPushPermission(Notification.permission);
+    }
+  }, [isOpen]);
+
+  const { data: subscriptionStatus } = useGetPushSubscriptionStatus(
+    userId,
+    !!isOpen && !!userId,
+  );
+  const isSubscribed =
+    subscriptionStatus?.subscribed === true ||
+    subscriptionStatus?.hasSubscription === true;
 
   useEffect(() => {
     if (
@@ -147,6 +166,7 @@ export function NotificationDropdownPanel() {
       const ok = await requestAndRegisterPushSubscription(userId, tenantId);
       if (ok) {
         setPushPermission('granted');
+        queryClient.invalidateQueries(['push-subscription-status', userId]);
         message.success('Notifications enabled. You’ll receive important updates.');
       } else {
         message.warning('Please click “Allow” in your browser to enable notifications.');
@@ -163,39 +183,11 @@ export function NotificationDropdownPanel() {
     }
   };
 
-  /** Register current push subscription with backend (when permission already granted). */
-  const handleRegisterPushWithServer = async () => {
-    if (!userId) return;
-    setPushRegistering(true);
-    try {
-      const ok = await requestAndRegisterPushSubscription(userId, tenantId);
-      if (ok) {
-        message.success('You’re all set. You’ll get notifications when you’re away.');
-      } else {
-        message.warning('Notifications are blocked. Please allow them in your browser settings.');
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('Timeout')) {
-        message.error('This is taking longer than expected. Reload and try again.');
-      } else if (msg.includes('401') || msg.includes('403')) {
-        message.error('Your session has expired. Please sign in again.');
-      } else {
-        message.error('We couldn’t finish setting up notifications. Please try again.');
-      }
-    } finally {
-      setPushRegistering(false);
-    }
-  };
 
   const showEnablePush =
-    pushPermission !== null &&
-    pushPermission !== 'granted' &&
     !!VAPID_PUBLIC_KEY &&
-    !!userId;
-
-  const showRegisterPushWithServer =
-    pushPermission === 'granted' && !!VAPID_PUBLIC_KEY && !!userId;
+    !!userId &&
+    (pushPermission !== 'granted' || !isSubscribed);
 
   const showPushNotConfigured = !!userId && !VAPID_PUBLIC_KEY;
 
@@ -320,25 +312,6 @@ export function NotificationDropdownPanel() {
               icon={<BellOutlined />}
               loading={pushEnabling}
               onClick={handleEnablePush}
-              className="w-full"
-            >
-              Turn on notifications
-            </Button>
-          </div>
-        )}
-
-        {showRegisterPushWithServer && (
-          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-            <p className="text-xs text-gray-600 mb-2">
-              Allow notifications to receive updates and reminders when
-              you&apos;re away.
-            </p>
-            <Button
-              type="primary"
-              size="small"
-              icon={<BellOutlined />}
-              loading={pushRegistering}
-              onClick={handleRegisterPushWithServer}
               className="w-full"
             >
               Allow notifications

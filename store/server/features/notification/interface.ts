@@ -24,3 +24,9 @@ export interface PushSubscriptionPayload {
   subscription: PushSubscriptionJSON;
   tenantId?: string;
 }
+
+/** Response from GET /push-subscriptions/status?userId=... */
+export interface PushSubscriptionStatusResponse {
+  subscribed?: boolean;
+  hasSubscription?: boolean;
+}

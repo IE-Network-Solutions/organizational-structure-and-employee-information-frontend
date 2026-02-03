@@ -100,7 +100,7 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           onOpenChange={setNotificationDropdownOpen}
           trigger={['click']}
           placement="bottomRight"
-          overlay={mounted ? <NotificationDropdownPanel /> : <div />}
+          overlay={mounted ? <NotificationDropdownPanel open={notificationDropdownOpen} /> : <div />}
         >
           <div className="relative inline-block">
             <Badge count={notificationCount} size="small" offset={[-2, 2]}>

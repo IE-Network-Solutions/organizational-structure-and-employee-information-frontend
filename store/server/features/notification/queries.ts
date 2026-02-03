@@ -2,7 +2,10 @@ import { NOTIFICATION_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
-import type { NotificationListResponse } from './interface';
+import type {
+  NotificationListResponse,
+  PushSubscriptionStatusResponse,
+} from './interface';
 
 export interface GetNotificationsOptions {
   page?: number;
@@ -58,5 +61,25 @@ export const useGetUnreadCount = (userId: string, enabled = true) =>
   useQuery(
     ['notifications-unread-count', userId],
     () => getUnreadCount(userId),
+    { enabled: !!userId && enabled },
+  );
+
+const getPushSubscriptionStatus = async (
+  userId: string,
+): Promise<PushSubscriptionStatusResponse> => {
+  const headers = await requestHeader();
+  const res = await crudRequest({
+    url: `${NOTIFICATION_URL}/push-subscriptions/status`,
+    method: 'GET',
+    params: { userId },
+    headers,
+  });
+  return (res ?? {}) as PushSubscriptionStatusResponse;
+};
+
+export const useGetPushSubscriptionStatus = (userId: string, enabled: boolean) =>
+  useQuery(
+    ['push-subscription-status', userId],
+    () => getPushSubscriptionStatus(userId),
     { enabled: !!userId && enabled },
   );
