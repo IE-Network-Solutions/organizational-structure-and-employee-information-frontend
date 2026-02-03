@@ -286,15 +286,11 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
           </button>
         </div>
 
-        {/* Push not configured - no VAPID key in env */}
+        {/* Push not configured (no VAPID key) - show nothing to avoid exposing dev details */}
         {showPushNotConfigured && (
-          <div className="px-4 py-2 border-b border-gray-100 bg-amber-50/80">
-            <p className="text-xs text-amber-800">
-              Push not configured. Add{' '}
-              <code className="bg-amber-100 px-1 rounded">
-                NEXT_PUBLIC_VAPID_PUBLIC_KEY
-              </code>{' '}
-              to .env and rebuild.
+          <div className="px-4 py-2 border-b border-gray-100 bg-gray-50/50">
+            <p className="text-xs text-gray-600">
+              Push notifications are not available right now.
             </p>
           </div>
         )}
