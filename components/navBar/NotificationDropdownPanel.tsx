@@ -356,15 +356,17 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
         >
           {isLoading ? (
             <div
-              className="flex justify-center py-8"
+              id="notification-list-loading"
               data-cy="notification-list-loading"
+              className="flex justify-center py-8"
             >
               <Spin size="small" />
             </div>
           ) : filtered.length === 0 ? (
             <div
-              className="py-10 text-center text-gray-500 text-sm"
+              id="notification-list-empty"
               data-cy="notification-list-empty"
+              className="py-10 text-center text-gray-500 text-sm"
             >
               {filter === 'all'
                 ? 'No notifications'
