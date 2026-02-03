@@ -434,8 +434,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     const nFilter: Partial<AttendanceRequestBody['filter']> = {};
     if (val.date) {
       nFilter['date'] = {
-        from: val.date[0],
-        to: val.date[1],
+        from: val.date[0]
+          ? dayjs(val.date[0]).format('YYYY-MM-DD')
+          : val.date[0],
+        to: val.date[1] ? dayjs(val.date[1]).format('YYYY-MM-DD') : val.date[1],
       };
     }
 
