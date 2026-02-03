@@ -2,10 +2,14 @@ import axios, { AxiosError } from 'axios';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-// Azure App Service URL for copilot
+// Azure App Service URL for copilot (used by server-side proxy)
 const AZURE_APP_SERVICE_URL =
   process.env.NEXT_PUBLIC_AZURE_APP_SERVICE ||
   'https://selamnew-copilot-dev-dbdcc9ahe7eqgbez.eastus-01.azurewebsites.net';
+
+// In the browser we call our API route to avoid CORS; the server proxies to Azure
+const getCopilotUrl = () =>
+  typeof window !== 'undefined' ? '/api/copilot' : `${AZURE_APP_SERVICE_URL}/copilot`;
 
 interface CopilotChatRequest {
   prompt: string;
@@ -76,14 +80,15 @@ export const sendCopilotChatRequest = async (
     headers.sessionId = sessionId;
   }
 
+  const copilotUrl = getCopilotUrl();
   // Log the URL being used in development
   if (process.env.NODE_ENV === 'development') {
-    console.log('🌐 Copilot API URL:', `${AZURE_APP_SERVICE_URL}/copilot`);
+    console.log('🌐 Copilot API URL:', copilotUrl);
   }
 
   try {
     const response = await axios.post<CopilotChatResponse>(
-      `${AZURE_APP_SERVICE_URL}/copilot`,
+      copilotUrl,
       { prompt: query.trim() } as CopilotChatRequest,
       {
         headers,
@@ -102,38 +107,48 @@ export const sendCopilotChatRequest = async (
   } catch (error) {
     // Handle different error types
     if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError<{ detail?: string; message?: string }>;
-      
+      type ErrorPayload = { detail?: string; message?: string; answer?: string; error?: string };
+      const axiosError = error as AxiosError<ErrorPayload>;
+
       if (axiosError.response) {
         // Backend returned an error response
+        const data = axiosError.response.data;
         const status = axiosError.response.status;
         const message =
-          axiosError.response.data?.detail ||
-          axiosError.response.data?.message ||
+          data?.detail ||
+          data?.message ||
           axiosError.message;
-        
+
         if (status === 401) {
           throw new Error('Authentication failed. Please log in again.');
         } else if (status === 400) {
           throw new Error(message || 'Invalid request. Please check your input.');
         } else if (status === 503) {
-          throw new Error('Service is temporarily unavailable. Please try again later.');
+          const serviceMessage =
+            data?.answer ||
+            data?.error ||
+            message;
+          throw new Error(
+            serviceMessage || 'Service is temporarily unavailable. Please try again later.'
+          );
         } else {
           throw new Error(message || `Server error (${status}). Please try again.`);
         }
       } else if (axiosError.request) {
         // Request was made but no response received
         // This could be: network error, CORS issue, timeout, or server unreachable
+        const targetLabel =
+          typeof window !== 'undefined' ? 'the copilot service' : AZURE_APP_SERVICE_URL;
         const errorMessage = axiosError.code === 'ECONNABORTED'
           ? `Request timeout. The server took too long to respond (60s). This query may require processing large amounts of data. Please try again or contact support if the issue persists.`
           : axiosError.code === 'ERR_NETWORK'
-          ? `Network error. Unable to connect to ${AZURE_APP_SERVICE_URL}. Please check your internet connection and CORS settings.`
-          : `Unable to reach the server at ${AZURE_APP_SERVICE_URL}. Please check your connection and verify the server is running.`;
+          ? `Network error. Unable to connect to ${targetLabel}. Please check your internet connection and try again.`
+          : `Unable to reach ${targetLabel}. Please check your connection and try again.`;
         
         // Log detailed error in development
         if (process.env.NODE_ENV === 'development') {
           console.error('❌ Request failed:', {
-            url: `${AZURE_APP_SERVICE_URL}/copilot`,
+            url: copilotUrl,
             code: axiosError.code,
             message: axiosError.message,
             request: axiosError.request,
