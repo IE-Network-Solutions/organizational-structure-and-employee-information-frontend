@@ -41,7 +41,10 @@ const DeletePopover: FC<DeletePopoverProps> = ({
                   id={`buttonPopOverActionFor${titleText}Id`}
                   size="small"
                   className={buttonClass}
-                  onClick={onCancel}
+                  onClick={() => {
+                    setOpen(false);
+                    onCancel();
+                  }}
                 >
                   Cancel
                 </Button>
@@ -54,7 +57,10 @@ const DeletePopover: FC<DeletePopoverProps> = ({
                   className={buttonClass}
                   type="primary"
                   id={`buttonPopOverActionDeleteFor${titleText}Id`}
-                  onClick={onDelete}
+                  onClick={(e) => {
+                    setOpen(false);
+                    onDelete(e);
+                  }}
                 >
                   Delete
                 </Button>

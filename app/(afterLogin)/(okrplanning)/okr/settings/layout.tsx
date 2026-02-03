@@ -241,6 +241,29 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
+        key: 'okr-type',
+        icon: !isMobile ? (
+          <TbTarget
+            data-cy="okr-settings-layout-okr-type-icon-display-icon"
+            className={
+              currentItem === 'okr-type' ? 'text-[#4DAEF0]' : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-okr-type-label-display-label"
+          >
+            OKR Type
+          </p>
+        ),
+        className: currentItem === 'okr-type' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/okr-type',
+    },
+    {
+      item: {
         key: 'check-in-rule',
         icon: !isMobile ? (
           <BiCheckDouble

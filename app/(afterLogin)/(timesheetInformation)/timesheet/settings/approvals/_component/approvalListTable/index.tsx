@@ -55,7 +55,6 @@ const ApprovalListTable = () => {
     selectedItem,
     setDepartmentApproval,
     approverType,
-    isCreated,
   } = useApprovalStore();
   const [workflowModal, setWorkflowModal] = useState(false);
   const { searchParams } = useApprovalStore();
@@ -95,36 +94,22 @@ const ApprovalListTable = () => {
 
   const [form] = Form.useForm(); // Form instance
   const onFinish = (values: any) => {
-    if (isCreated) {
-      updateWorkflow(
-        {
-          currentapprovalWorkflowId: values.currentWorkFlow,
-          approvalWorkflowId: values.workflow,
-        },
-        {
-          onSuccess: () => {
-            setTransferModal(false);
+    deleteWorkflow(values.currentWorkFlow, {
+      onSuccess: () => {
+        // Fix: Pass the correct structure for updateWorkflow
+        updateWorkflow(
+          {
+            currentapprovalWorkflowId: values.currentWorkFlow,
+            approvalWorkflowId: values.workflow,
           },
-        },
-      );
-    } else {
-      deleteWorkflow(values.currentWorkFlow, {
-        onSuccess: () => {
-          // Fix: Pass the correct structure for updateWorkflow
-          updateWorkflow(
-            {
-              currentapprovalWorkflowId: values.currentWorkFlow,
-              approvalWorkflowId: values.workflow,
+          {
+            onSuccess: () => {
+              setTransferModal(false);
             },
-            {
-              onSuccess: () => {
-                setTransferModal(false);
-              },
-            },
-          );
-        },
-      });
-    }
+          },
+        );
+      },
+    });
   };
 
   const MAX_NAME_LENGTH = 10;

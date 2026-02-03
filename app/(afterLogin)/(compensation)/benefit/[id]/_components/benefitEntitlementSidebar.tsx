@@ -264,7 +264,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
     setData(newData);
     form.setFieldsValue({ payments: newData });
-  }, [totalAmount, settlementPeriod, payPeriods, form, benefitDatas?.isPeriodic]);
+  }, [
+    totalAmount,
+    settlementPeriod,
+    payPeriods,
+    form,
+    benefitDatas?.isPeriodic,
+  ]);
   const columns = [
     {
       dataIndex: 'amount',
@@ -292,7 +298,11 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           required={benefitDatas?.isPeriodic !== false}
           name={['payments', index, 'payPeriodId']}
           className="mb-0"
-          rules={benefitDatas?.isPeriodic !== false ? [{ required: true, message: 'Pay Period is required' }] : []}
+          rules={
+            benefitDatas?.isPeriodic !== false
+              ? [{ required: true, message: 'Pay Period is required' }]
+              : []
+          }
           data-cy={`benefit-entitlement-sidebar-pay-period-item-${index}`}
         >
           <Select
