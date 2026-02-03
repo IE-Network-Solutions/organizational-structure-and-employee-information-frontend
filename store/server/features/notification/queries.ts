@@ -2,10 +2,7 @@ import { NOTIFICATION_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
-import type {
-  NotificationListResponse,
-  PushSubscriptionStatusResponse,
-} from './interface';
+import type { PushSubscriptionStatusResponse } from './interface';
 
 export interface GetNotificationsOptions {
   page?: number;

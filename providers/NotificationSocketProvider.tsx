@@ -89,10 +89,8 @@ export function NotificationSocketProvider({
 
       socketRef.current = socket;
 
-      socket.on('connect_error', (err) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('[Notification WS]', err.message);
-        }
+      socket.on('connect_error', () => {
+        // Connection failed; WS will retry or user can reload
       });
 
       socket.on(NOTIFICATION_CREATED, (payload?: { title?: string; body?: string }) => {
