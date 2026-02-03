@@ -91,8 +91,7 @@ const WorkflowModal = ({
   const { data: users } = useGetAllUsers();
   const { data: approvalWorkflowData } = useGetAllApprovalWorkflow();
   const { mutate: deleteWorkflow } = useDeleteApprovalWorkFLow();
-  const { mutate: updateWorkflow } =
-    useUpdateLeaverequestApprovalWorkFlow();
+  const { mutate: updateWorkflow } = useUpdateLeaverequestApprovalWorkFlow();
 
   const [form] = Form.useForm();
 
@@ -182,9 +181,9 @@ const WorkflowModal = ({
                   onSuccess: () => {
                     setTransferModal(false);
                     setAddDepartmentApproval(false);
-              setDepartmentApproval(false);
-              form.resetFields();
-              onCancel();
+                    setDepartmentApproval(false);
+                    form.resetFields();
+                    onCancel();
                   },
                 },
               );

@@ -158,9 +158,7 @@ const OkrTypePage = () => {
           extra={
             <Switch
               checked={isAdvancedActive}
-              onChange={(checked) =>
-                handleToggleChange(checked, 'Advanced')
-              }
+              onChange={(checked) => handleToggleChange(checked, 'Advanced')}
               disabled={isUpdating}
               data-cy="okr-type-advanced-card-switch"
               id="okr-type-advanced-card-switch"
