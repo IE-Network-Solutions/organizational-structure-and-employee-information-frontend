@@ -52,6 +52,8 @@ function NotificationItem({
 }) {
   return (
     <div
+      id={`notification-item-${item.id}`}
+      data-cy={`notification-item-${item.id}`}
       onClick={() => onClick(item.id)}
       className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 border-l-2 border-transparent ${
         unread ? 'opacity-100' : 'opacity-70'
@@ -88,6 +90,8 @@ function NotificationItem({
       </div>
       <button
         type="button"
+        id={`notification-item-mark-read-${item.id}`}
+        data-cy={`notification-item-mark-read-${item.id}`}
         onClick={(e) => {
           e.stopPropagation();
           if (unread) onMarkAsRead(e, item.id);
@@ -232,16 +236,24 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
   return (
     <>
       <div
+        id="notification-dropdown-panel"
+        data-cy="notification-dropdown-panel"
         className="bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden"
         style={{ width: PANEL_WIDTH, maxHeight: MAX_HEIGHT }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <div
+          id="notification-panel-header"
+          data-cy="notification-panel-header"
+          className="flex items-center justify-between px-4 py-3 border-b border-gray-100"
+        >
           <span className="font-semibold text-gray-900 text-base">
             Notifications
           </span>
           <button
             type="button"
+            id="notification-mark-all-read"
+            data-cy="notification-mark-all-read"
             onClick={handleMarkAllAsRead}
             className="text-sm font-medium text-[#5B4FFF] hover:underline"
           >
@@ -250,9 +262,15 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
         </div>
 
         {/* Filters - selected tab: solid blue bg + white text (match design) */}
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-100">
+        <div
+          id="notification-filters"
+          data-cy="notification-filters"
+          className="flex items-center gap-2 px-4 py-2 border-b border-gray-100"
+        >
           <button
             type="button"
+            id="notification-filter-all"
+            data-cy="notification-filter-all"
             onClick={() => setFilter('all')}
             className={`text-sm font-medium py-2 px-3 rounded transition-colors ${
               filter === 'all'
@@ -264,6 +282,8 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
           </button>
           <button
             type="button"
+            id="notification-filter-unread"
+            data-cy="notification-filter-unread"
             onClick={() => setFilter('unread')}
             className={`text-sm font-medium py-2 px-3 rounded transition-colors ${
               filter === 'unread'
@@ -275,6 +295,8 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
           </button>
           <button
             type="button"
+            id="notification-filter-seen"
+            data-cy="notification-filter-seen"
             onClick={() => setFilter('seen')}
             className={`text-sm font-medium py-2 px-3 rounded transition-colors ${
               filter === 'seen'
@@ -288,7 +310,11 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
 
         {/* Push not configured (no VAPID key) - show nothing to avoid exposing dev details */}
         {showPushNotConfigured && (
-          <div className="px-4 py-2 border-b border-gray-100 bg-gray-50/50">
+          <div
+            id="notification-push-not-available"
+            data-cy="notification-push-not-available"
+            className="px-4 py-2 border-b border-gray-100 bg-gray-50/50"
+          >
             <p className="text-xs text-gray-600">
               Push notifications are not available right now.
             </p>
@@ -297,7 +323,11 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
 
         {/* Enable push notifications - when permission not yet granted */}
         {showEnablePush && (
-          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+          <div
+            id="notification-enable-push-section"
+            data-cy="notification-enable-push-section"
+            className="px-4 py-3 border-b border-gray-100 bg-gray-50/50"
+          >
             <p className="text-xs text-gray-600 mb-2">
               Stay in the loop. Get notified about important updates even when
               you&apos;re not in the app.
@@ -309,6 +339,8 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
               loading={pushEnabling}
               onClick={handleEnablePush}
               className="w-full"
+              id="notification-allow-notifications-btn"
+              data-cy="notification-allow-notifications-btn"
             >
               Allow notifications
             </Button>
@@ -317,15 +349,23 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
 
         {/* List */}
         <div
+          id="notification-list"
+          data-cy="notification-list"
           className="overflow-y-auto"
           style={{ maxHeight: MAX_HEIGHT - 140 }}
         >
           {isLoading ? (
-            <div className="flex justify-center py-8">
+            <div
+              className="flex justify-center py-8"
+              data-cy="notification-list-loading"
+            >
               <Spin size="small" />
             </div>
           ) : filtered.length === 0 ? (
-            <div className="py-10 text-center text-gray-500 text-sm">
+            <div
+              className="py-10 text-center text-gray-500 text-sm"
+              data-cy="notification-list-empty"
+            >
               {filter === 'all'
                 ? 'No notifications'
                 : filter === 'unread'

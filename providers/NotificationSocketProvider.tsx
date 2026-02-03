@@ -122,16 +122,28 @@ export function NotificationSocketProvider({
   return (
     <>
       {children}
-      <Modal
-        open={showPushPrompt}
-        title="Enable notifications"
-        onCancel={handlePushPromptDismiss}
-        footer={[
-          <Button key="later" onClick={handlePushPromptDismiss}>
+      <div
+        id="notification-enable-push-modal"
+        data-cy="notification-enable-push-modal"
+        aria-hidden={!showPushPrompt}
+      >
+        <Modal
+          open={showPushPrompt}
+          title="Enable notifications"
+          onCancel={handlePushPromptDismiss}
+          footer={[
+          <Button
+            key="later"
+            id="notification-prompt-maybe-later"
+            data-cy="notification-prompt-maybe-later"
+            onClick={handlePushPromptDismiss}
+          >
             Maybe later
           </Button>,
           <Button
             key="allow"
+            id="notification-prompt-allow"
+            data-cy="notification-prompt-allow"
             type="primary"
             icon={<BellOutlined />}
             loading={pushPromptLoading}
@@ -141,10 +153,15 @@ export function NotificationSocketProvider({
           </Button>,
         ]}
       >
-        <p className="text-gray-600">
+        <p
+          id="notification-enable-push-modal-content"
+          data-cy="notification-enable-push-modal-content"
+          className="text-gray-600"
+        >
           Get notified about important updates and reminders even when you’re not in the app.
         </p>
-      </Modal>
+        </Modal>
+      </div>
     </>
   );
 }
