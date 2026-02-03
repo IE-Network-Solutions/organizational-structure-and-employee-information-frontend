@@ -112,7 +112,7 @@ function withTimeout<T>(
 ): Promise<T> {
   return Promise.race([
     promise,
-    new Promise<never>((_resolve, reject) =>
+    new Promise<never>((resolve, reject) =>
       setTimeout(() => reject(new Error(message)), ms),
     ),
   ]);

@@ -41,7 +41,7 @@ export const useMarkAsRead = () => {
   return useMutation(
     ({ id, userId }: { id: string; userId: string }) => markAsRead(id, userId),
     {
-      onSuccess: (_data, { userId }) => {
+      onSuccess: (data, { userId }) => {
         queryClient.invalidateQueries(['notifications', userId]);
         queryClient.invalidateQueries(['notifications-unread-count', userId]);
       },
@@ -52,7 +52,7 @@ export const useMarkAsRead = () => {
 export const useMarkAllAsRead = () => {
   const queryClient = useQueryClient();
   return useMutation((userId: string) => markAllAsRead(userId), {
-    onSuccess: (_data, userId) => {
+    onSuccess: (data, userId) => {
       queryClient.invalidateQueries(['notifications', userId]);
       queryClient.invalidateQueries(['notifications-unread-count', userId]);
     },
