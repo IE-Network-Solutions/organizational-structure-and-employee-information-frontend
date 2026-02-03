@@ -20,14 +20,12 @@ function NotificationBar() {
   } = useNotificationDetailStore();
 
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
-  const { data, isLoading } = useGetNotifications(userId);
+  const { data, isLoading } = useGetNotifications(userId ?? '');
 
-  // const unReadNotification = data?.filter(
-  //   (item: NotificationType) => item.status == 'ACTIVE',
-  // );
-  const unReadNotification = Array.isArray(data)
-    ? data.filter((item: NotificationType) => item.status === 'ACTIVE')
-    : [];
+  const list = Array.isArray(data) ? data : (data as any)?.data ?? [];
+  const unReadNotification = list.filter(
+    (item: NotificationType) => item.isRead === false,
+  );
 
   const updateNotification = (id: string) => {
     updateNotificationStatus(id);

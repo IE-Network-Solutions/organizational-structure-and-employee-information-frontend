@@ -83,7 +83,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const pathName = usePathname();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -1203,9 +1208,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         <div className="relative">
           <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
-          {isLoading ? (
+          {!isMounted || isLoading ? (
             <div className="px-5 w-full h-full flex justify-center items-center my-5">
-              <Skeleton active />{' '}
+              <Skeleton active />
             </div>
           ) : (
             <Tree
@@ -1280,7 +1285,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             transition: 'padding-left 0.3s ease',
           }}
         >
-          {isCheckingPermissions ? (
+          {isMounted && isCheckingPermissions ? (
             <div className="flex justify-center items-center h-screen">
               <Skeleton active />
             </div>

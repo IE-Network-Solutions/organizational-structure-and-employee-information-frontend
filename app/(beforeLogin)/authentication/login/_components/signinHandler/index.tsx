@@ -291,6 +291,10 @@ export const useHandleSignIn = () => {
       message.success('Welcome!');
       message.loading({ content: 'Redirecting...', key: 'redirect' });
 
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('showPushPromptAfterLogin', '1');
+      }
+
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
       sessionStorage.removeItem('redirectAfterLogin');
 
