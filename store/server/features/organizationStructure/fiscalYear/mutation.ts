@@ -130,3 +130,47 @@ export const useUpdateClosedDate = () => {
     },
   );
 };
+
+
+
+const activateMonth = async (
+  id: string,
+): Promise<void> => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  await crudRequest({
+    url: `${ORG_AND_EMP_URL}/month/${id}/activate`,
+    method: 'PATCH',
+    headers,
+  });
+};
+
+
+
+export const useActivateMonth = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (id: string) =>
+      activateMonth(id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('fiscalYears');
+        queryClient.invalidateQueries('fiscalActiveYear');
+        NotificationMessage.success({
+          message: 'Month activation updated',
+          description: 'Month status has been updated successfully',
+        });
+      },
+      onError: () => {
+        NotificationMessage.error({
+          message: 'Failed to update month',
+          description: 'Could not update month activation status. Please try again.',
+        });
+      },
+    },
+  );
+};
