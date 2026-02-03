@@ -4,17 +4,24 @@ import { MoreOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 const CommentActionMenu = ({
   onEdit,
   onDelete,
+  showEdit = true,
 }: {
   onEdit: () => void;
   onDelete: () => void;
+  /** Report comments have no backend PATCH endpoint; hide Edit when false */
+  showEdit?: boolean;
 }) => {
   const items: MenuProps['items'] = [
-    {
-      key: 'edit',
-      label: 'Edit',
-      icon: <EditOutlined />,
-      onClick: onEdit,
-    },
+    ...(showEdit
+      ? [
+          {
+            key: 'edit',
+            label: 'Edit',
+            icon: <EditOutlined />,
+            onClick: onEdit,
+          },
+        ]
+      : []),
     {
       key: 'delete',
       label: (

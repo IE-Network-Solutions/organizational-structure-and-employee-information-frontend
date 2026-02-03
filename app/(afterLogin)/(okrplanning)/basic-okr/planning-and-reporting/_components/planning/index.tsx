@@ -23,7 +23,8 @@ import {
 import {
     useDeletePlanById,
     useCreateBasicReport,
-    useApprovalPlanningPeriods
+    useApprovalPlanningPeriods,
+    useUpdateStatus
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useCreatePlanTasks, useUpdatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
@@ -77,6 +78,7 @@ export default function BasicPlanning() {
     // mutations
     const { mutate: createPlanTasks, isLoading: isCreating } = useCreatePlanTasks();
     const { mutate: updatePlanTasks, isLoading: isUpdating } = useUpdatePlanTasks();
+    const { mutate: updateTaskStatus } = useUpdateStatus();
     const { mutate: deletePlan } = useDeletePlanById();
     const { mutate: createReport, isLoading: isReporting } = useCreateBasicReport();
     const { mutate: approvePlan } = useApprovalPlanningPeriods();
@@ -318,41 +320,51 @@ export default function BasicPlanning() {
                 employeeData
             );
 
-            // Enrich tasks with status if missing (for reported plans)
+            // Enrich tasks with status (backend: pre_pending | pre_failed | pre_achieved | completed | in-progress)
             if (summary.tasks && rawItem?.tasks) {
                 summary.tasks = summary.tasks.map((t: any) => {
                     const rawTask = rawItem.tasks.find((rt: any) => rt.id === t.id);
-                    return {
-                        ...t,
-                        status: rawTask?.isAchieved === true ? 'completed' :
-                            rawTask?.isAchieved === false ? 'failed' :
-                                rawTask?.status || t.status
+                    const rawStatus = rawTask?.status;
+                    // Map backend enum to frontend: pre_achieved/completed → completed, pre_failed → failed, else → pending
+                    const toFrontend = (s: string) => {
+                        if (!s) return 'pending';
+                        const x = String(s).toLowerCase();
+                        if (x === 'pre_achieved' || x === 'completed') return 'completed';
+                        if (x === 'pre_failed') return 'failed';
+                        return 'pending';
                     };
+                    const status = rawStatus !== undefined && rawStatus !== null && rawStatus !== ''
+                        ? toFrontend(rawStatus)
+                        : (rawTask?.isAchieved === true ? 'completed' : rawTask?.isAchieved === false ? 'failed' : t.status || 'pending');
+                    return { ...t, status };
                 });
             }
+
+            // For reported cards, show report comments (not plan comments) so add/display match
+            const comments = isReported && report ? (report.comments || []) : (summary.comments || []);
+            const commentCount = isReported && report ? (report.comments?.length ?? 0) : (summary.commentCount ?? 0);
 
             return {
                 ...summary,
                 isReported,
-                reportedDate: rawItem?.reportedDate || rawItem?.report?.createdAt || report?.createdAt
+                reportId: report?.id || rawItem?.report?.id,
+                reportedDate: rawItem?.reportedDate || rawItem?.report?.createdAt || report?.createdAt,
+                comments,
+                commentCount,
             };
         }) || [];
     }, [transformedData, employeeData, combinedPlanningData, combinedReportingData]);
 
     const handleTaskStatusChange = (taskId: string, newStatus: string) => {
         const plan = combinedPlanningData.find(p => p.tasks?.some((t: any) => t.id === taskId));
-        const task = plan?.tasks?.find((t: any) => t.id === taskId);
-        if (task) {
-            updatePlanTasks({
-                id: taskId,
-                status: newStatus,
-                title: task.task || task.title || task.name,
-                priority: task.priority,
-                weight: task.weight,
-                targetValue: task.targetValue,
-                planningPeriodId: plan.planningPeriod?.id || plan.planPeriod?.id
-            });
-        }
+        if (!plan) return;
+        // Backend PlanTaskStatus enum: pre_pending | pre_failed | pre_achieved | (deprecated: in-progress | completed)
+        const backendStatus = newStatus === 'completed' ? 'pre_achieved' : newStatus === 'failed' ? 'pre_failed' : 'pre_pending';
+        updateTaskStatus({
+            id: taskId,
+            status: backendStatus,
+            planningPeriodId: plan.planningPeriod?.id || plan.planPeriod?.id
+        });
     };
 
     const handleDelete = (id: string) => {
@@ -552,9 +564,13 @@ export default function BasicPlanning() {
 
     const handleSaveReport = (values: any) => {
         const tasksPayload: Record<string, any> = {};
+        let achievedCount = 0;
+        let totalCount = 0;
 
         values.tasks.forEach((formTask: any) => {
             if (formTask.isAchieved !== null) {
+                totalCount += 1;
+                if (formTask.isAchieved) achievedCount += 1;
                 const originalTask = reportingPlan?.tasks?.find((t: any) => t.id === formTask.id);
                 const targetValue = originalTask?.target || originalTask?.targetValue || 100;
 
@@ -578,8 +594,17 @@ export default function BasicPlanning() {
                 ? allSessionsOfYear[0] 
                 : undefined;
 
-        // Prepare report data for the new endpoint (without OKR calculations)
+        const cadenceLabel = reportingPlan.cadence ? String(reportingPlan.cadence).charAt(0).toUpperCase() + String(reportingPlan.cadence).slice(1) : 'Report';
+        const reportTitle = `${reportingPlan?.title ?? 'Plan'} - ${cadenceLabel} Report`;
+        const reportScore = totalCount > 0 ? String(Math.round((achievedCount / totalCount) * 100)) : '0';
+
+        // Prepare report data for CreateReportDTO (all required fields as strings)
         const reportData = {
+            reportTitle,
+            userId: String(userId ?? ''),
+            status: 'Submitted',
+            reportScore,
+            tenantId: '', // mutation will set from store
             planId: reportingPlan.id,
             planningPeriodId: planPeriodId ?? '',
             tasks: tasksPayload
@@ -633,7 +658,9 @@ export default function BasicPlanning() {
                             isReported={plan.isReported}
                             tasks={plan.tasks || []}
                             isExpanded={true}
-                            commentCount={plan.commentCount}
+                            commentCount={plan.commentCount ?? 0}
+                            comments={plan.comments ?? []}
+                            reportId={plan.reportId}
                             onTaskStatusChange={handleTaskStatusChange}
                             onDelete={() => handleDelete(plan.id)}
                             onReport={() => handleReport(plan)}

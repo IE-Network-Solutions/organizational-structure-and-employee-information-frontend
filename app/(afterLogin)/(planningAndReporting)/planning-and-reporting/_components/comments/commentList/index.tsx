@@ -218,6 +218,7 @@ const CommentList = ({
               <CommentActionMenu
                 onEdit={() => handleEdit(commentData)}
                 onDelete={() => handleDelete(commentData.id)}
+                showEdit={isPlanCard}
               />
             )}
           </div>

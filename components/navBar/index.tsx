@@ -1,5 +1,5 @@
 'use client';
-import React, { ReactNode, useState, useEffect, useRef } from 'react';
+import React, { ReactNode, useState, useEffect, useRef, useMemo } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
 import {
@@ -31,6 +31,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
@@ -84,6 +85,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const isAdminPage = pathname.startsWith('/admin');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const pathName = usePathname();
+  const { data: okrSetting } = useGetOkrSetting();
+  const okrMode = okrSetting?.name ?? 'Advanced'; // Basic | Advanced; default Advanced for nav
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -173,6 +176,43 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       permissions: ['view_feedback_conversation'], // Same permission as conversation page
     },
   ];
+
+  // Single "Planning and Reporting" nav item: route depends on OKR type (Basic vs Advanced)
+  const okrMenuChildren = useMemo(
+    (): CustomMenuItem[] => [
+      {
+        title: <span>Dashboard</span>,
+        key: '/okr/dashboard',
+        className: 'font-bold',
+        permissions: ['view_okr_dashboard'],
+      },
+      {
+        title: <span>OKR</span>,
+        key: '/okr',
+        className: 'font-bold',
+        permissions: ['view_okr_overview'],
+      },
+      {
+        title: <span>Planning and Reporting</span>,
+        key: okrMode === 'Basic' ? '/basic-okr/planning-and-reporting' : '/planning-and-reporting',
+        className: 'font-bold',
+        permissions: ['manage_planning_reporting'],
+      },
+      {
+        title: <span>Weekly Priority</span>,
+        key: '/weekly-priority',
+        className: 'font-bold h-8',
+        permissions: ['view_weekly_priority'],
+      },
+      {
+        title: <span>Settings</span>,
+        key: '/okr/settings',
+        className: 'font-bold',
+        permissions: ['manage_okr_settings'],
+      },
+    ],
+    [okrMode],
+  );
 
   const getRoutesAndPermissions = (
     menuItems: CustomMenuItem[],
@@ -349,44 +389,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       className: 'font-bold',
       permissions: ['view_okr'],
       disabled: hasEndedFiscalYear,
-      children: [
-        {
-          title: <span>Dashboard</span>,
-          key: '/okr/dashboard',
-          className: 'font-bold',
-          permissions: ['view_okr_dashboard'],
-        },
-        {
-          title: <span>OKR</span>,
-          key: '/okr',
-          className: 'font-bold',
-          permissions: ['view_okr_overview'],
-        },
-        {
-          title: <span>Planning and Reporting</span>,
-          key: '/planning-and-reporting',
-          className: 'font-bold',
-          permissions: ['manage_planning_reporting'],
-        },
-        {
-          title: <span>Basic planning</span>,
-          key: '/basic-okr/planning-and-reporting',
-          className: 'font-bold',
-          permissions: ['manage_planning_reporting'],
-        },
-        {
-          title: <span>Weekly Priority</span>,
-          key: '/weekly-priority',
-          className: 'font-bold h-8',
-          permissions: ['view_weekly_priority'],
-        },
-        {
-          title: <span>Settings</span>,
-          key: '/okr/settings',
-          className: 'font-bold',
-          permissions: ['manage_okr_settings'],
-        },
-      ],
+      children: okrMenuChildren,
     },
     {
       title: (

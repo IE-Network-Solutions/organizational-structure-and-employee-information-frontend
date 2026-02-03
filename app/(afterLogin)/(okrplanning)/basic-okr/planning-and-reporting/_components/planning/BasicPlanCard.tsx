@@ -41,6 +41,7 @@ interface BasicPlanCardProps {
     commentCount?: number;
     commentAvatars?: string[];
     comments?: CommentsData[];
+    reportId?: string; // When isReported, use for report comments
     onEdit?: () => void;
     onDelete?: () => void;
     onTaskStatusChange?: (taskId: string, newStatus: string) => void;
@@ -66,6 +67,7 @@ export default function BasicPlanCard({
     commentCount = 0,
     commentAvatars = [],
     comments = [],
+    reportId,
     onEdit,
     onDelete,
     onTaskStatusChange,
@@ -207,10 +209,10 @@ export default function BasicPlanCard({
                 ))}
             </div>
 
-            {/* Footer - Integrated real comments section */}
-            <div className="border-t border-gray-200 mt-2">
+            {/* Footer - Comments section (same as /planning-and-reporting: commenter profile, add/edit/delete) */}
+            <div className="mt-4">
                 <CommentsSection
-                    planId={id}
+                    planId={isReported && reportId ? reportId : id}
                     commentCount={commentCount}
                     commentAvatars={commentAvatars}
                     comments={comments}

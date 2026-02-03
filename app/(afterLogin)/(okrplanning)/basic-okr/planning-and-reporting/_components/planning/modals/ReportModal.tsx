@@ -8,7 +8,7 @@ const { TextArea } = Input;
 interface Task {
     id: string;
     title: string;
-    status?: string;
+    status?: string; // Frontend: 'completed' | 'failed' | 'pending'
 }
 
 interface ReportModalProps {
@@ -39,16 +39,23 @@ export default function ReportModal({
             form.resetFields();
             const initialResults: { [key: string]: 'achieve' | 'fail' | null } = {};
             plan.tasks.forEach(task => {
-                initialResults[task.id] = null;
+                // Pre-select from task status: achieved → achieve, failed → fail, pending → nothing
+                if (task.status === 'completed') {
+                    initialResults[task.id] = 'achieve';
+                } else if (task.status === 'failed') {
+                    initialResults[task.id] = 'fail';
+                } else {
+                    initialResults[task.id] = null;
+                }
             });
             setTaskResults(initialResults);
 
-            // Initialize form with tasks
+            // Initialize form with tasks (isAchieved from status: achieved=true, failed=false, pending=null)
             form.setFieldsValue({
                 tasks: plan.tasks.map(task => ({
                     id: task.id,
                     title: task.title,
-                    isAchieved: null,
+                    isAchieved: task.status === 'completed' ? true : task.status === 'failed' ? false : null,
                     comment: ''
                 }))
             });
