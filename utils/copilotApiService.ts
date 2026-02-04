@@ -3,6 +3,7 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 // Azure App Service URL for copilot (used by server-side proxy)
+// Use dev for local/testing; set NEXT_PUBLIC_AZURE_APP_SERVICE to prod for production
 const AZURE_APP_SERVICE_URL =
   process.env.NEXT_PUBLIC_AZURE_APP_SERVICE ||
   'https://selamnew-copilot-dev-dbdcc9ahe7eqgbez.eastus-01.azurewebsites.net';
