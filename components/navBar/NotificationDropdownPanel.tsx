@@ -20,7 +20,6 @@ import {
   BellOutlined,
   DollarOutlined,
   UserAddOutlined,
-  MessageOutlined,
   ClockCircleOutlined,
   BarChartOutlined,
   StarOutlined,
@@ -252,7 +251,10 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
   const { mutate: markAsRead } = useUpdateNotificationStatus();
   const { mutate: markAllAsRead } = useMarkAllAsRead();
 
-  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
+  const list = useMemo(
+    () => (Array.isArray(data) ? data : ((data as any)?.data ?? [])),
+    [data],
+  );
   const unreadList = useMemo(() => list.filter(isUnread), [list]);
   const readList = useMemo(
     () => list.filter((i: NotificationType) => !isUnread(i)),
