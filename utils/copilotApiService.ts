@@ -26,10 +26,12 @@ interface CopilotChatResponse {
       columns: Array<{ key: string; title: string; dataIndex: string }>;
       rows: Array<Record<string, any>>;
     };
+    objectiveTitles?: string[];
     [key: string]: any;
   };
   intent?: string;
   error?: string;
+  backend_errors?: string[];
 }
 
 /**
@@ -100,9 +102,10 @@ export const sendCopilotChatRequest = async (
     return JSON.stringify({
       success: response.data.success !== false, // Default to true if not explicitly false
       answer: response.data.answer || 'No response received',
-      data: response.data.data,
+      data: response.data.data, // Includes data.table for table-capable intents
       intent: response.data.intent,
       error: response.data.error || null,
+      backend_errors: response.data.backend_errors || null,
     });
   } catch (error) {
     // Handle different error types
