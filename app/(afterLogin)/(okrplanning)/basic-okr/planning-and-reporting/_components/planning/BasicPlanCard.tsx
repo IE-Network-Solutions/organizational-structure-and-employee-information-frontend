@@ -139,8 +139,9 @@ export default function BasicPlanCard({
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-start mb-4 gap-4">
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-6 text-[11px]">
+                <div className="flex flex-col gap-2 w-full md:w-auto">
+                    {/* Planned / Reported: vertical on small screens, horizontal on md+ */}
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-[11px]">
                         <div className="flex items-center gap-1.5">
                             <span className="text-gray-400 font-normal">Planned</span>
                             <span className="font-bold text-[#161A2C]">{date}</span>
@@ -155,28 +156,29 @@ export default function BasicPlanCard({
                 </div>
             </div>
 
-            {/* Owner and Status Section */}
+            {/* Owner and Status Section - single line on small screen with truncated name */}
             {(owner || planStatus) && (
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 pt-0">
+                <div className="flex flex-row justify-between items-center gap-2 md:gap-4 mb-4 pt-0 min-w-0">
                     {owner && (
-                        <div className="flex items-center gap-3">
-                            <Avatar size={40} src={owner.avatar} icon={!owner.avatar && (owner.initials || owner.name?.[0])} />
-                            <div>
-                                <h4 className="text-gray-900 font-bold text-sm">{owner.name}</h4>
-                                <p className="text-gray-400 text-xs">{owner.team}</p>
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <Avatar size={40} className="flex-shrink-0" src={owner.avatar} icon={!owner.avatar && (owner.initials || owner.name?.[0])} />
+                            <div className="min-w-0 flex-1">
+                                <h4 className="text-gray-900 font-bold text-sm truncate" title={owner.name}>{owner.name}</h4>
+                                <p className="text-gray-400 text-xs truncate hidden md:block" title={owner.team}>{owner.team}</p>
                             </div>
                         </div>
                     )}
 
                     {planStatus && (
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                             <div className="flex items-center gap-3 bg-white">
                                 <div
-                                    className={`w-9 h-9 rounded-full flex items-center justify-center text-white ${planStatus.status === 'success' ? 'bg-[#00BA88]' : 'bg-[#FFA500]'}`}
+                                    className={`w-9 h-9 rounded-full flex items-center justify-center text-white flex-shrink-0 ${planStatus.status === 'success' ? 'bg-[#00BA88]' : 'bg-[#FFA500]'}`}
                                 >
                                     {planStatus.status === 'success' ? <IoCheckmarkSharp className="text-xl" /> : <BsThreeDots className="text-xl" />}
                                 </div>
-                                <div className="flex flex-col min-w-0">
+                                {/* Label and date hidden on small screen; only icon shown */}
+                                <div className="hidden md:flex flex-col min-w-0">
                                     <p className="text-[#161A2C] font-bold text-[15px] leading-tight">
                                         {planStatus.label}
                                     </p>

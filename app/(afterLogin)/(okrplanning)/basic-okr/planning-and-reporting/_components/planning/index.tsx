@@ -6,7 +6,9 @@ import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 dayjs.extend(advancedFormat);
 import { BsChevronDown } from "react-icons/bs";
+import { IoMdSwitch } from 'react-icons/io';
 import PlanFilters from './PlanFilters';
+import MobileFilterModal from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/filters/MobileFilterModal';
 import BasicPlanCard from './BasicPlanCard';
 import CustomPagination from '@/components/customPagination';
 import PlanCardSkeleton from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/cards/PlanCardSkeleton';
@@ -61,6 +63,7 @@ export default function BasicPlanning() {
     const [reportingPlan, setReportingPlan] = useState<any>(null);
     const [isEdit, setIsEdit] = useState(false);
     const [editingData, setEditingData] = useState<any>(null);
+    const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
     // Filter states
     const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
@@ -610,12 +613,13 @@ export default function BasicPlanning() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="space-y-6 bg-gray-100 min-h-screen px-4 md:px-6 py-4 md:py-6">
+            <div className="flex flex-row justify-between items-center gap-4 w-full">
                 <h1 className="text-2xl font-bold text-gray-900">Planning</h1>
                 <Dropdown menu={{ items: planMenuItems }} trigger={['click']}>
-                    <Button type="primary" icon={<FaPlus className="text-sm" />} className="bg-blue-600 hover:bg-blue-700 h-10 px-6 rounded-lg font-medium flex items-center gap-2" disabled={(objective?.items?.length ?? 0) === 0}>
-                        Add Plan <BsChevronDown className="ml-2 text-xs" />
+                    <Button type="primary" icon={<FaPlus className="text-sm" />} className="bg-blue-600 hover:bg-blue-700 h-10 px-4 sm:px-6 rounded-lg font-medium flex items-center gap-2 flex-shrink-0" disabled={(objective?.items?.length ?? 0) === 0}>
+                        <span className="hidden sm:inline">Add Plan</span>
+                        <BsChevronDown className="text-xs sm:ml-2" />
                     </Button>
                 </Dropdown>
             </div>
@@ -631,6 +635,24 @@ export default function BasicPlanning() {
                 selectedDepartment={selectedDepartment || 'all'}
                 handleDepartmentChange={handleDepartmentChange}
                 loadingEmployees={loadingEmployees}
+            >
+                <Button
+                    className="md:hidden w-12 h-12 flex items-center justify-center border-[#E5E7EB] rounded-lg bg-white"
+                    icon={<IoMdSwitch size={20} />}
+                    onClick={() => setIsFilterModalOpen(true)}
+                />
+            </PlanFilters>
+
+            <MobileFilterModal
+                open={isFilterModalOpen}
+                onClose={() => setIsFilterModalOpen(false)}
+                onApply={() => setIsFilterModalOpen(false)}
+                planTypeOptions={planTypeOptions}
+                selectedPlanType={selectedPlanType}
+                onPlanTypeChange={handlePlanTypeChange}
+                departmentOptions={departmentOptions}
+                selectedDepartment={selectedDepartment || 'all'}
+                onDepartmentChange={handleDepartmentChange}
             />
 
             <div className="space-y-4 mt-6">

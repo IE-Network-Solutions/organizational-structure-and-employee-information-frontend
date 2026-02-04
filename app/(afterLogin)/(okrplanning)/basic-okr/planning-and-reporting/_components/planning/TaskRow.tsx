@@ -154,12 +154,14 @@ export default function TaskRow({
                 <div className="flex justify-center min-w-[80px]">
                     <PriorityBadge priority={task.priority} />
                 </div>
-                <div className="flex justify-start min-w-[120px]">
+                {/* Hide weight on small screens */}
+                <div className="hidden md:flex justify-start min-w-[120px]">
                     {task.weight !== undefined && <WeightBadge weight={task.weight} />}
                 </div>
             </div>
 
-            <div className="col-span-6 md:col-span-3 flex items-center justify-end mt-3 md:mt-0">
+            {/* Hide task status (Pending/Achieved/Failed) on small screen for reported plans */}
+            <div className={`col-span-6 md:col-span-3 flex items-center justify-end mt-3 md:mt-0 ${isReported ? 'hidden md:flex' : ''}`}>
                 {showStatus && (
                     <StatusBadge
                         status={task.status}

@@ -69,7 +69,7 @@ export default function DailyPlanModal({
             className="basic-okr-modal"
             closeIcon={null}
         >
-            <div className="p-2">
+            <div className="p-1 sm:p-2">
                 <h2 className="text-2xl font-bold text-center text-[#161A2C] mb-8">
                     {isEdit ? 'Edit Plan' : 'Create Plan'}
                 </h2>
@@ -163,14 +163,14 @@ export default function DailyPlanModal({
                                             <span className={weightTotal > 100 ? 'text-red-500' : 'text-gray-900'}>{weightTotal}%</span>
                                         </div>
 
-                                        <div className="w-full flex justify-center">
+                                        <div className="w-full flex justify-end sm:justify-center">
                                             <Button
                                                 type="primary"
                                                 icon={<FaPlus className="text-xs" />}
                                                 onClick={() => add()}
-                                                className="bg-[#4F46E5] hover:bg-[#4338CA] h-12 px-8 rounded-xl font-bold flex items-center gap-2"
+                                                className="bg-[#4F46E5] hover:bg-[#4338CA] h-12 px-4 sm:px-8 rounded-xl font-bold flex items-center gap-2"
                                             >
-                                                Add Plan
+                                                <span className="hidden sm:inline">Add Plan</span>
                                             </Button>
                                         </div>
                                     </div>
@@ -214,6 +214,11 @@ export default function DailyPlanModal({
                 .basic-okr-modal .ant-modal-content {
                     border-radius: 24px;
                     padding: 32px;
+                }
+                @media (max-width: 767px) {
+                    .basic-okr-modal .ant-modal-content {
+                        padding: 12px;
+                    }
                 }
                 .basic-okr-modal .ant-select-selector {
                     border-radius: 12px !important;
