@@ -30,7 +30,7 @@ interface PlanCardProps {
 export default function PlanCard({
   plan,
   viewMode,
-  activeCadence: _activeCadence,
+  activeCadence,
   onApprove,
   onOpen,
   onEdit,
@@ -143,7 +143,10 @@ export default function PlanCard({
   }, [plan, viewMode]);
 
   return (
-    <article className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4">
+    <article
+      className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4"
+      data-active-cadence={activeCadence}
+    >
       {/* Header with Title and Reprimand/Appreciation Badges */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs md:text-base font-bold text-[#8F94A3]">
