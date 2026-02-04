@@ -34,9 +34,6 @@ import { VAPID_PUBLIC_KEY } from '@/utils/constants';
 
 /**
  * Maps notification source_service to an icon.
- * Comparison is case-insensitive; value must include the phrase.
- *
- * Store exactly one of these in DB (source_service):
  * payroll | recruitment | time-and-attendance | planning-and-reporting | cfr |
  * learning-and-growth | employee-management | compensation-and-benefits | global-system-event
  */
