@@ -71,6 +71,11 @@ function formatTime(dateStr: string): string {
   return `${h}:${mins.toString().padStart(2, '0')}${am ? 'AM' : 'PM'}`;
 }
 
+function isIncentiveContext(item: NotificationType): boolean {
+  const text = `${item.title ?? ''} ${item.body ?? ''}`.toLowerCase();
+  return text.includes('incentive');
+}
+
 function NotificationItem({
   item,
   unread,
@@ -85,18 +90,27 @@ function NotificationItem({
   formatTime: (dateStr: string) => string;
 }) {
   const IconComponent = getNotificationIcon(item.source_service);
+  const isSuccess = isIncentiveContext(item);
   return (
     <div
       id={`notification-item-${item.id}`}
       data-cy={`notification-item-${item.id}`}
       onClick={() => onClick(item)}
-      className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 border-l-2 border-transparent ${
-        unread ? 'opacity-100' : 'opacity-70'
-      }`}
+      className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors border-l-2 ${
+        isSuccess
+          ? 'border-green-500 hover:bg-green-50/50'
+          : 'border-transparent hover:bg-gray-50'
+      } ${unread ? 'opacity-100' : 'opacity-70'}`}
     >
       <div className="flex-shrink-0 relative mt-0.5">
-        <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-          <IconComponent className="text-gray-500 text-sm" />
+        <div
+          className={`w-9 h-9 rounded-full flex items-center justify-center ${
+            isSuccess ? 'bg-green-100' : 'bg-gray-100'
+          }`}
+        >
+          <IconComponent
+            className={`text-sm ${isSuccess ? 'text-green-600' : 'text-gray-500'}`}
+          />
         </div>
         {unread && (
           <span
