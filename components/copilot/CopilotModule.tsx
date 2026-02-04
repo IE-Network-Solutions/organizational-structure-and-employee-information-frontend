@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { Typography, Button } from 'antd';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Typography, Button, Dropdown, Tooltip } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   MessageOutlined,
   CloseOutlined,
   MenuUnfoldOutlined,
-  MenuFoldOutlined,
+  PlusOutlined,
+  HistoryOutlined,
 } from '@ant-design/icons';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -16,6 +18,16 @@ import CopilotIntentPanel from './CopilotIntentPanel';
 import { sendCopilotChatRequest } from '@/utils/copilotApiService';
 
 const { Title, Text } = Typography;
+
+const COPILOT_HISTORY_KEY = 'selamnew-copilot-chat-history';
+const MAX_HISTORY_ITEMS = 50;
+
+interface ChatSession {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: string;
+}
 
 interface CopilotModuleProps {
   onClose: () => void;
@@ -246,6 +258,62 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isIntentPanelVisible, setIsIntentPanelVisible] = useState(true);
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
+
+  // Load chat history from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(COPILOT_HISTORY_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as ChatSession[];
+        const revived = (parsed || []).map((s) => ({
+          ...s,
+          messages: (s.messages || []).map((m) => ({
+            ...m,
+            timestamp: new Date(m.timestamp),
+          })),
+        }));
+        setChatHistory(revived.slice(0, MAX_HISTORY_ITEMS));
+      }
+    } catch {
+      setChatHistory([]);
+    }
+  }, []);
+
+  const saveToHistory = useCallback((msgs: Message[]) => {
+    if (msgs.length === 0) return;
+    const firstUser = msgs.find((m) => m.sender === 'user');
+    const title =
+      firstUser?.text && typeof firstUser.text === 'string'
+        ? firstUser.text.slice(0, 50) + (firstUser.text.length > 50 ? '...' : '')
+        : 'Chat';
+    const session: ChatSession = {
+      id: `session_${Date.now()}`,
+      title,
+      messages: msgs,
+      createdAt: new Date().toISOString(),
+    };
+    setChatHistory((prev) => {
+      const next = [session, ...prev].slice(0, MAX_HISTORY_ITEMS);
+      localStorage.setItem(COPILOT_HISTORY_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const handleNewChat = useCallback(() => {
+    if (messages.length > 0) saveToHistory(messages);
+    setMessages([]);
+    setInputValue('');
+  }, [messages, saveToHistory]);
+
+  const handleLoadChat = useCallback((session: ChatSession) => {
+    const revivedMessages = session.messages.map((m) => ({
+      ...m,
+      timestamp: typeof m.timestamp === 'string' ? new Date(m.timestamp) : m.timestamp,
+    })) as Message[];
+    setMessages(revivedMessages);
+  }, []);
+
   const userInitials =
     employeeData?.firstName?.[0]?.toUpperCase() ||
     employeeData?.lastName?.[0]?.toUpperCase() ||
@@ -362,7 +430,7 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
       className="flex flex-col h-[calc(100vh-130px)] overflow-hidden bg-gray-50 p-4"
       data-cy="copilot-module"
     >
-      {/* Header with close */}
+      {/* Header with New Chat, History, Close */}
       <div className="flex-shrink-0 flex items-start justify-between pb-3">
         <div>
           <Title level={4} className="!mb-0 !text-gray-900">
@@ -372,14 +440,49 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
             Ask questions and generate insights from your HR data
           </Text>
         </div>
-        <Button
-          type="text"
-          icon={<CloseOutlined />}
-          onClick={onClose}
-          className="text-gray-500 hover:text-gray-700"
-          data-cy="copilot-close-button"
-          aria-label="Close Copilot"
-        />
+        <div className="flex items-center gap-1">
+          <Tooltip title="New Chat">
+            <Button
+              type="text"
+              size="small"
+              icon={<PlusOutlined />}
+              onClick={handleNewChat}
+              className="text-gray-500 hover:text-blue-600"
+              data-cy="copilot-new-chat-button"
+            />
+          </Tooltip>
+          {chatHistory.length > 0 && (
+            <Dropdown
+              menu={{
+                items: chatHistory.slice(0, 20).map((s) => ({
+                  key: s.id,
+                  label: s.title,
+                  onClick: () => handleLoadChat(s),
+                })) as MenuProps['items'],
+              }}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <Tooltip title="History">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<HistoryOutlined />}
+                  className="text-gray-500 hover:text-blue-600"
+                  data-cy="copilot-history-button"
+                />
+              </Tooltip>
+            </Dropdown>
+          )}
+          <Button
+            type="text"
+            icon={<CloseOutlined />}
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+            data-cy="copilot-close-button"
+            aria-label="Close Copilot"
+          />
+        </div>
       </div>
 
       {/* Body: fills all remaining space; both panels scroll independently */}

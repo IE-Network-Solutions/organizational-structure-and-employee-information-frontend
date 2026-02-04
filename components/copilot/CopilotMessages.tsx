@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
-import { Avatar, Typography, Spin, Tag, Table } from 'antd';
-import { UserOutlined, RobotOutlined } from '@ant-design/icons';
+import React, { useRef, useEffect, useState } from 'react';
+import { Avatar, Typography, Spin, Tag, Table, Button, Modal } from 'antd';
+import { UserOutlined, RobotOutlined, ExpandOutlined, CompressOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -50,6 +50,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
   userInitials = 'U',
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [fullScreenTableMessageId, setFullScreenTableMessageId] = useState<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -67,76 +68,59 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
     });
   };
 
-  const renderMessageContent = (message: Message) => {
-    const text = message.text;
-    const tableData = message.tableData;
-    
-    return (
-      <div>
-        {text && (
-          <Text className="text-sm leading-relaxed whitespace-pre-wrap block mb-3">
-            {text}
-          </Text>
-        )}
-        
-        {/* Render table if table data is available */}
-        {tableData && tableData.type === 'table' && tableData.columns && tableData.rows && (
-          <div className="mt-4 mb-3">
-            {tableData.title && (
-              <Text strong className="text-base block mb-3" style={{ color: '#262626' }}>
-                {tableData.title}
-              </Text>
-            )}
-            <div 
-              style={{
-                overflowX: 'auto',
-                borderRadius: '8px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-                background: '#fff',
-                minWidth: '100%',
-              }}
-            >
-              <Table
-                dataSource={tableData.rows}
-              columns={tableData.columns.map((col) => ({
-                title: col.dataIndex === 'order' ? '' : col.title, // Remove header for order number column
-                dataIndex: col.dataIndex,
-                key: col.key,
-                render: (text: any) => {
-                  if (col.dataIndex === 'order') {
-                    return <span style={{ fontWeight: 600, color: '#1890ff', display: 'inline-block', minWidth: '30px' }}>{text}</span>;
-                  }
-                  // Handle both 'supervisor' and 'user' columns
-                  return <span style={{ display: 'inline-block', minWidth: '200px' }}>{text ?? '-'}</span>;
-                },
-                // Fixed width for order column - wider to accommodate 2-digit numbers
-                ...(col.dataIndex === 'order' ? {
-                  width: 80,
-                  align: 'center' as const,
-                  fixed: 'left' as const,
-                } : {
-                  width: 'auto',
-                  ellipsis: false,
-                }),
-              }))}
-                pagination={tableData.rows.length > 10 ? { 
-                  pageSize: 10,
-                  showSizeChanger: false,
-                  showQuickJumper: false,
-                  style: { marginTop: '16px', textAlign: 'center' },
-                } : false}
-                size="middle"
-                className="copilot-table"
-                rowKey={(record, index) => `row-${index}`}
-                bordered={false}
-                style={{
-                  backgroundColor: '#fff',
-                  tableLayout: 'fixed',
-                  width: '100%',
-                }}
-              />
-            </div>
-            <style dangerouslySetInnerHTML={{ __html: `
+  const renderTable = (
+    tableData: NonNullable<Message['tableData']>,
+    isFullScreen: boolean
+  ) => (
+    <>
+      <div
+        style={{
+          overflowX: 'auto',
+          borderRadius: '8px',
+          boxShadow: isFullScreen ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.08)',
+          background: '#fff',
+          minWidth: '100%',
+        }}
+      >
+        <Table
+          dataSource={tableData.rows}
+          columns={tableData.columns.map((col) => ({
+            title: col.dataIndex === 'order' ? '' : col.title,
+            dataIndex: col.dataIndex,
+            key: col.key,
+            render: (text: any) => {
+              if (col.dataIndex === 'order') {
+                return <span style={{ fontWeight: 600, color: '#1890ff', display: 'inline-block', minWidth: '30px' }}>{text}</span>;
+              }
+              return <span style={{ display: 'inline-block', minWidth: '200px' }}>{text ?? '-'}</span>;
+            },
+            ...(col.dataIndex === 'order' ? {
+              width: 80,
+              align: 'center' as const,
+              fixed: 'left' as const,
+            } : {
+              width: 'auto',
+              ellipsis: false,
+            }),
+          }))}
+          pagination={tableData.rows.length > 10 ? {
+            pageSize: 10,
+            showSizeChanger: false,
+            showQuickJumper: false,
+            style: { marginTop: '16px', textAlign: 'center' },
+          } : false}
+          size="middle"
+          className="copilot-table"
+          rowKey={(record, index) => `row-${index}`}
+          bordered={false}
+          style={{
+            backgroundColor: '#fff',
+            tableLayout: 'fixed',
+            width: '100%',
+          }}
+        />
+      </div>
+      <style dangerouslySetInnerHTML={{ __html: `
               .copilot-table .ant-table {
                 table-layout: fixed !important;
                 width: 100% !important;
@@ -202,6 +186,40 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                 color: #fff !important;
               }
             `}} />
+    </>
+  );
+
+  const renderMessageContent = (message: Message) => {
+    const text = message.text;
+    const tableData = message.tableData;
+
+    return (
+      <div>
+        {text && (
+          <Text className="text-sm leading-relaxed whitespace-pre-wrap block mb-3">
+            {text}
+          </Text>
+        )}
+
+        {/* Render table if table data is available */}
+        {tableData && tableData.type === 'table' && tableData.columns && tableData.rows && (
+          <div className="mt-4 mb-3">
+            {tableData.title && (
+              <Text strong className="text-base block mb-3" style={{ color: '#262626' }}>
+                {tableData.title}
+              </Text>
+            )}
+            {renderTable(tableData, false)}
+            <Button
+              type="link"
+              size="small"
+              icon={<ExpandOutlined />}
+              onClick={() => setFullScreenTableMessageId(message.id)}
+              className="p-0 h-auto mt-2 text-gray-500 hover:text-blue-600"
+              data-cy="copilot-table-maximize"
+            >
+              Maximize
+            </Button>
           </div>
         )}
         
@@ -279,6 +297,37 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
         </div>
       )}
       <div ref={messagesEndRef} />
+
+      {/* Full screen table modal */}
+      <Modal
+        open={!!fullScreenTableMessageId}
+        onCancel={() => setFullScreenTableMessageId(null)}
+        footer={
+          <Button
+            icon={<CompressOutlined />}
+            onClick={() => setFullScreenTableMessageId(null)}
+            data-cy="copilot-table-minimize"
+          >
+            Minimize
+          </Button>
+        }
+        width="95vw"
+        styles={{ body: { maxHeight: '85vh', overflow: 'auto' } }}
+        title={
+          (() => {
+            const msg = messages.find((m) => m.id === fullScreenTableMessageId);
+            return msg?.tableData?.title || 'Table';
+          })()
+        }
+        destroyOnClose
+      >
+        {fullScreenTableMessageId && (() => {
+          const msg = messages.find((m) => m.id === fullScreenTableMessageId);
+          const tableData = msg?.tableData;
+          if (!tableData || tableData.type !== 'table' || !tableData.columns || !tableData.rows) return null;
+          return renderTable(tableData, true);
+        })()}
+      </Modal>
     </div>
   );
 };
