@@ -9,6 +9,10 @@ export interface NotificationType {
   user?: string;
   userId?: string;
   source_service?: string;
+  /** Optional route to open when the notification is clicked (e.g. /incentive, /payroll/...) */
+  route?: string;
+  /** Optional URL to open when the notification is clicked (alias / fallback) */
+  url?: string;
 }
 
 export interface NotificationListResponse {

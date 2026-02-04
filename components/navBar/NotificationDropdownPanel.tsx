@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Spin, Button, message } from 'antd';
 import { useQueryClient } from 'react-query';
 import {
@@ -12,12 +13,48 @@ import {
   useUpdateNotificationStatus,
   useMarkAllAsRead,
 } from '@/store/server/features/notification/mutation';
-import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { EyeOutlined, FileTextOutlined, BellOutlined } from '@ant-design/icons';
-import { NotificationDetailVisible } from '@/app/(afterLogin)/(employeeInformation)/employees/notification/_component/notificationDetail';
+import {
+  EyeOutlined,
+  FileTextOutlined,
+  BellOutlined,
+  DollarOutlined,
+  UserAddOutlined,
+  MessageOutlined,
+  ClockCircleOutlined,
+  BarChartOutlined,
+  StarOutlined,
+  ReadOutlined,
+  TeamOutlined,
+  GiftOutlined,
+  GlobalOutlined,
+} from '@ant-design/icons';
 import { requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription';
 import { VAPID_PUBLIC_KEY } from '@/utils/constants';
+
+/**
+ * Maps notification source_service to an icon.
+ * Comparison is case-insensitive; value must include the phrase.
+ *
+ * Store exactly one of these in DB (source_service):
+ * payroll | recruitment | time-and-attendance | planning-and-reporting | cfr |
+ * learning-and-growth | employee-management | compensation-and-benefits | global-system-event
+ */
+function getNotificationIcon(
+  sourceService?: string | null,
+): React.ComponentType<{ className?: string }> {
+  const source = (sourceService ?? '').toLowerCase();
+  if (source.includes('global-system-event')) return GlobalOutlined;
+  if (source.includes('time-and-attendance')) return ClockCircleOutlined;
+  if (source.includes('planning-and-reporting')) return BarChartOutlined;
+  if (source.includes('cfr')) return StarOutlined;
+  if (source.includes('learning-and-growth')) return ReadOutlined;
+  if (source.includes('employee-management')) return TeamOutlined;
+  if (source.includes('compensation-and-benefits')) return GiftOutlined;
+  if (source.includes('payroll')) return DollarOutlined;
+  if (source.includes('recruitment')) return UserAddOutlined;
+  return FileTextOutlined;
+}
 
 const PANEL_WIDTH = 400;
 const MAX_HEIGHT = 520;
@@ -47,21 +84,22 @@ function NotificationItem({
   item: NotificationType;
   unread: boolean;
   onMarkAsRead: (e: React.MouseEvent, id: string) => void;
-  onClick: (id: string) => void;
+  onClick: (item: NotificationType) => void;
   formatTime: (dateStr: string) => string;
 }) {
+  const IconComponent = getNotificationIcon(item.source_service);
   return (
     <div
       id={`notification-item-${item.id}`}
       data-cy={`notification-item-${item.id}`}
-      onClick={() => onClick(item.id)}
+      onClick={() => onClick(item)}
       className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 border-l-2 border-transparent ${
         unread ? 'opacity-100' : 'opacity-70'
       }`}
     >
       <div className="flex-shrink-0 relative mt-0.5">
         <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-          <FileTextOutlined className="text-gray-500 text-sm" />
+          <IconComponent className="text-gray-500 text-sm" />
         </div>
         {unread && (
           <span
@@ -111,6 +149,7 @@ function NotificationItem({
 }
 
 export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } = {}) {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const userId = useAuthenticationStore.getState().userId ?? '';
   const tenantId = useAuthenticationStore.getState().tenantId ?? undefined;
@@ -195,11 +234,6 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
 
   const showPushNotConfigured = !!userId && !VAPID_PUBLIC_KEY;
 
-  const {
-    setSelectedNotificationId,
-    setIsNotificationDetailVisible,
-    selectedNotificationId,
-  } = useNotificationDetailStore();
   const { data, isLoading } = useGetNotifications(userId, {
     page: 1,
     limit: LIST_LIMIT,
@@ -228,9 +262,14 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
     markAllAsRead(userId);
   };
 
-  const handleItemClick = (id: string) => {
-    setSelectedNotificationId(id);
-    setIsNotificationDetailVisible(true);
+  const handleItemClick = (item: NotificationType) => {
+    const path =
+      item.route?.trim() || item.url?.trim() || `/employees/notification?id=${item.id}`;
+    const url = path.startsWith('/') ? path : `/${path}`;
+    if (isUnread(item)) {
+      markAsRead(item.id);
+    }
+    router.push(url);
   };
 
   return (
@@ -432,9 +471,6 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
           )}
         </div>
       </div>
-      {selectedNotificationId && (
-        <NotificationDetailVisible id={selectedNotificationId} />
-      )}
     </>
   );
 }
