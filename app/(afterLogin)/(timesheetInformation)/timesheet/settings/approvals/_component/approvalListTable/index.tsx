@@ -94,24 +94,23 @@ const ApprovalListTable = () => {
 
   const [form] = Form.useForm(); // Form instance
   const onFinish = (values: any) => {
-      deleteWorkflow(values.currentWorkFlow, {
-        onSuccess: () => {
-          // Fix: Pass the correct structure for updateWorkflow
-          updateWorkflow(
-            {
-              currentapprovalWorkflowId: values.currentWorkFlow,
-              approvalWorkflowId: values.workflow,
+    deleteWorkflow(values.currentWorkFlow, {
+      onSuccess: () => {
+        // Fix: Pass the correct structure for updateWorkflow
+        updateWorkflow(
+          {
+            currentapprovalWorkflowId: values.currentWorkFlow,
+            approvalWorkflowId: values.workflow,
+          },
+          {
+            onSuccess: () => {
+              setTransferModal(false);
             },
-            {
-              onSuccess: () => {
-                setTransferModal(false);
-              },
-            },
-          );
-        },
-      });
-    }
-  
+          },
+        );
+      },
+    });
+  };
 
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;

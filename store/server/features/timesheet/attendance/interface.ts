@@ -53,3 +53,14 @@ export interface EditAttendance {
   isAbsent: boolean;
   isOnGoing: boolean;
 }
+
+export interface ZKTAttendanceRequestBody {
+  passUrl: string;
+  ZKTToken: string;
+  filter: {
+    date: {
+      from: string;
+      to: string;
+    };
+  };
+}
