@@ -70,9 +70,37 @@ function formatTime(dateStr: string): string {
   return `${h}:${mins.toString().padStart(2, '0')}${am ? 'AM' : 'PM'}`;
 }
 
-function isIncentiveContext(item: NotificationType): boolean {
+/** Parse pathname and query from a route string (e.g. /benefits?notificationType=benefit&theme=green) */
+function parseRoute(routeOrUrl: string): { pathname: string; theme: string | null; notificationType: string | null } {
+  const s = (routeOrUrl ?? '').trim();
+  if (!s) return { pathname: '/', theme: null, notificationType: null };
+  const [pathPart, searchPart] = s.startsWith('/') ? s.split('?') : [`/${s}`, ''];
+  const pathname = pathPart || '/';
+  const params = new URLSearchParams(searchPart || '');
+  const theme = params.get('theme');
+  const notificationType = params.get('notificationType');
+  return { pathname, theme: theme || null, notificationType: notificationType || null };
+}
+
+/** Theme-based border/background/icon classes for notification items */
+const NOTIFICATION_THEME_CLASSES: Record<string, { border: string; hover: string; bg: string; icon: string }> = {
+  green: { border: 'border-green-500', hover: 'hover:bg-green-50/50', bg: 'bg-green-100', icon: 'text-green-600' },
+  blue: { border: 'border-blue-500', hover: 'hover:bg-blue-50/50', bg: 'bg-blue-100', icon: 'text-blue-600' },
+  purple: { border: 'border-purple-500', hover: 'hover:bg-purple-50/50', bg: 'bg-purple-100', icon: 'text-purple-600' },
+  orange: { border: 'border-orange-500', hover: 'hover:bg-orange-50/50', bg: 'bg-orange-100', icon: 'text-orange-600' },
+  red: { border: 'border-red-500', hover: 'hover:bg-red-50/50', bg: 'bg-red-100', icon: 'text-red-600' },
+  teal: { border: 'border-teal-500', hover: 'hover:bg-teal-50/50', bg: 'bg-teal-100', icon: 'text-teal-600' },
+  indigo: { border: 'border-indigo-500', hover: 'hover:bg-indigo-50/50', bg: 'bg-indigo-100', icon: 'text-indigo-600' },
+};
+
+function getThemeClasses(item: NotificationType): { border: string; hover: string; bg: string; icon: string } {
+  const routeStr = item.route?.trim() || item.url?.trim() || '';
+  const { theme } = parseRoute(routeStr);
+  const key = (theme ?? '').toLowerCase();
+  if (key && NOTIFICATION_THEME_CLASSES[key]) return NOTIFICATION_THEME_CLASSES[key];
   const text = `${item.title ?? ''} ${item.body ?? ''}`.toLowerCase();
-  return text.includes('incentive');
+  if (text.includes('incentive')) return NOTIFICATION_THEME_CLASSES.green;
+  return { border: 'border-transparent', hover: 'hover:bg-gray-50', bg: 'bg-gray-100', icon: 'text-gray-500' };
 }
 
 function NotificationItem({
@@ -89,26 +117,20 @@ function NotificationItem({
   formatTime: (dateStr: string) => string;
 }) {
   const IconComponent = getNotificationIcon(item.source_service);
-  const isSuccess = isIncentiveContext(item);
+  const themeClasses = getThemeClasses(item);
   return (
     <div
       id={`notification-item-${item.id}`}
       data-cy={`notification-item-${item.id}`}
       onClick={() => onClick(item)}
-      className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors border-l-2 ${
-        isSuccess
-          ? 'border-green-500 hover:bg-green-50/50'
-          : 'border-transparent hover:bg-gray-50'
-      } ${unread ? 'opacity-100' : 'opacity-70'}`}
+      className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors border-l-2 ${themeClasses.border} ${themeClasses.hover} ${unread ? 'opacity-100' : 'opacity-70'}`}
     >
       <div className="flex-shrink-0 relative mt-0.5">
         <div
-          className={`w-9 h-9 rounded-full flex items-center justify-center ${
-            isSuccess ? 'bg-green-100' : 'bg-gray-100'
-          }`}
+          className={`w-9 h-9 rounded-full flex items-center justify-center ${themeClasses.bg}`}
         >
           <IconComponent
-            className={`text-sm ${isSuccess ? 'text-green-600' : 'text-gray-500'}`}
+            className={`text-sm ${themeClasses.icon}`}
           />
         </div>
         {unread && (
@@ -276,13 +298,14 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
   };
 
   const handleItemClick = (item: NotificationType) => {
-    const path =
+    const routeStr =
       item.route?.trim() || item.url?.trim() || `/employees/notification?id=${item.id}`;
-    const url = path.startsWith('/') ? path : `/${path}`;
+    const { pathname } = parseRoute(routeStr);
+    const path = pathname.startsWith('/') ? pathname : `/${pathname}`;
     if (isUnread(item)) {
       markAsRead(item.id);
     }
-    router.push(url);
+    router.push(path);
   };
 
   return (
