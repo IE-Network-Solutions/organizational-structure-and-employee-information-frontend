@@ -38,6 +38,8 @@ import { useCreateEmployee } from '@/store/server/features/employees/employeeDet
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
+import { useOkrSetting } from '@/hooks/useOkrSetting';
+import OkrModeSelectionModal from '@/app/(afterLogin)/(okrplanning)/okr/_components/okrModeSelectionModal';
 
 interface CustomMenuItem {
   key: string;
@@ -83,8 +85,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showOkrModeModal, setShowOkrModeModal] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const pathName = usePathname();
+
+  const {
+    showModal: okrShowModal,
+    saveOkrMode,
+    refetch: refetchOkrSetting,
+  } = useOkrSetting();
 
   useEffect(() => {
     setIsMounted(true);
@@ -930,6 +939,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       info.node.children.length > 0;
 
     if (hasChildren) {
+      if (String(selectedKey) === '/okr-menu' && okrShowModal) {
+        setShowOkrModeModal(true);
+        return;
+      }
       setExpandedKeys((prev) =>
         prev.includes(selectedKey) ? [] : [selectedKey],
       );
@@ -1076,23 +1089,35 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ...item,
         title: collapsed ? (
           item.children && item.children.length > 0 ? (
-            <Dropdown
-              overlay={renderSubMenu(item.children)}
-              trigger={['click']}
-              placement="bottomRight"
-            >
+            item.key === '/okr-menu' && okrShowModal ? (
               <div
                 className="flex items-center justify-center w-full cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setExpandedKeys((prev) =>
-                    prev.includes(item.key) ? [] : [item.key],
-                  );
+                  setShowOkrModeModal(true);
                 }}
               >
                 {renderTitle()}
               </div>
-            </Dropdown>
+            ) : (
+              <Dropdown
+                overlay={renderSubMenu(item.children)}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <div
+                  className="flex items-center justify-center w-full cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedKeys((prev) =>
+                      prev.includes(item.key) ? [] : [item.key],
+                    );
+                  }}
+                >
+                  {renderTitle()}
+                </div>
+              </Dropdown>
+            )
           ) : (
             <div
               className="flex items-center justify-center w-full cursor-pointer"
@@ -1311,6 +1336,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             open={isModalOpen}
             onClose={handleCancel}
             onConfirm={handleOk}
+          />
+          <OkrModeSelectionModal
+            open={showOkrModeModal}
+            onSuccess={async () => {
+              setShowOkrModeModal(false);
+              await refetchOkrSetting();
+              setExpandedKeys(['/okr-menu']);
+            }}
+            saveOkrMode={saveOkrMode}
           />
         </Content>
       </Layout>
