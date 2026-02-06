@@ -31,6 +31,7 @@ import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence } from '../types';
+import { formatPlanningReportDate } from '../utils';
 
 function Reporting() {
   const {
@@ -327,31 +328,8 @@ function Reporting() {
     return !!activeSession;
   };
 
-  // utils/dateHelpers.ts
-  const getDateLabel = (createdAt: string, activeTabName: string): string => {
-    const planDate = dayjs(createdAt);
-    const today = dayjs();
-
-    if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
-      return activeTabName === 'Daily' ? "Today's Plan" : "Today's Report";
-    }
-
-    if (activeTabName === 'Weekly') {
-      const thisFriday = dayjs().day(5);
-      const adjustedThisFriday =
-        today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
-      const lastFriday = adjustedThisFriday.subtract(7, 'day');
-
-      if (
-        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
-        (planDate.isSame(adjustedThisFriday, 'day') ||
-          planDate.isBefore(adjustedThisFriday))
-      ) {
-        return 'This Week Plan';
-      }
-    }
-
-    return '';
+  const getDateLabel = (createdAt: string): string => {
+    return formatPlanningReportDate(createdAt);
   };
 
   return (
@@ -510,7 +488,7 @@ function Reporting() {
                       isDataFromActiveSession(dataItem?.createdAt)
                     }
                     isApprovalLoading={isApprovalLoading}
-                    dateLabel={getDateLabel(dataItem?.createdAt, activeTabName)}
+                    dateLabel={getDateLabel(dataItem?.createdAt ?? '')}
                   />
                 );
               })}
