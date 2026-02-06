@@ -37,9 +37,22 @@ const RequestVerification: FC = () => {
             <Logo type="selamnew" />
           </div>
 
-          <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-semibold">Forgot Password</h2>
-            <p className="text-center text-sm">Recover your account password</p>
+          <div
+            className="flex flex-col items-center"
+            data-cy="forget-password-header"
+          >
+            <h2
+              className="text-2xl font-semibold"
+              data-cy="forget-password-title"
+            >
+              Forgot Password
+            </h2>
+            <p
+              className="text-center text-sm"
+              data-cy="forget-password-subtitle"
+            >
+              Recover your account password
+            </p>
           </div>
 
           <Form

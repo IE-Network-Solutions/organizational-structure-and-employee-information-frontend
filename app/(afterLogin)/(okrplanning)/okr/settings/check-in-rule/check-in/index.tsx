@@ -1797,7 +1797,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           </div>
         </Form>
       </div>
-      <style jsx>{`
+      <style jsx data-cy="okr-checkin-rule-checkin-style">{`
         .no-border-dropdown .ant-select-dropdown-menu-item {
           border: none !important;
           background: transparent !important;

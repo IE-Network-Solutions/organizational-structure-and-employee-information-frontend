@@ -53,7 +53,12 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
   const menu = (
     <Menu>
       <Menu.Item>
-        <a onClick={handleProfileRoute}>Profile</a>
+        <a
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-a-56"
+          onClick={handleProfileRoute}
+        >
+          Profile
+        </a>
       </Menu.Item>
       <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
@@ -66,8 +71,13 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
         padding: '0 20px',
       }}
     >
-      <p>{page}</p>
-      <div className="flex items-center gap-5">
+      <p data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-p-69">
+        {page}
+      </p>
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-div-70"
+        className="flex items-center gap-5"
+      >
         {/* PWA Install Button - Show when installable and not installed */}
         {isInstallable && !isInstalled && !isStandalone && (
           <Button
@@ -100,9 +110,18 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           onOpenChange={setNotificationDropdownOpen}
           trigger={['click']}
           placement="bottomRight"
-          overlay={mounted ? <NotificationDropdownPanel open={notificationDropdownOpen} /> : <div />}
+          overlay={
+            mounted ? (
+              <NotificationDropdownPanel open={notificationDropdownOpen} />
+            ) : (
+              <div data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-div-107" />
+            )
+          }
         >
-          <div className="relative inline-block">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-div-111"
+            className="relative inline-block"
+          >
             <Badge count={notificationCount} size="small" offset={[-2, 2]}>
               <Button type="text" icon={<BellOutlined />} />
             </Badge>

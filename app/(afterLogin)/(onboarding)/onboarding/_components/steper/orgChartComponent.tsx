@@ -70,9 +70,15 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
           justifyContent: 'center',
           alignItems: 'start',
         }}
+        data-cy={`org-chart-component-name-wrapper-${data.name}`}
       >
         <Tooltip title={`${data.name}`} placement="top">
-          <span style={{ fontWeight: 'bold' }}>{data.name}</span>
+          <span
+            style={{ fontWeight: 'bold' }}
+            data-cy={`org-chart-component-name-${data.name}`}
+          >
+            {data.name}
+          </span>
         </Tooltip>
       </div>
 
@@ -227,8 +233,14 @@ const OrgChartComponent: React.FC = () => {
   };
 
   return (
-    <div className="w-full py-7 overflow-x-auto lg:overflow-x-visible">
-      <div className="p-4 sm:p-2 md:p-6 lg:p-8">
+    <div
+      data-cy="onboarding-components-steper-orgchartcomponent-tsx-orgchartcomponent-div-236"
+      className="w-full py-7 overflow-x-auto lg:overflow-x-visible"
+    >
+      <div
+        data-cy="onboarding-components-steper-orgchartcomponent-tsx-orgchartcomponent-div-237"
+        className="p-4 sm:p-2 md:p-6 lg:p-8"
+      >
         <Tree
           label={
             <DepartmentNode
@@ -271,7 +283,9 @@ const OrgChartComponent: React.FC = () => {
         onOk={handleDeleteConfirm}
         onCancel={() => setIsDeleteConfirmVisible(false)}
       >
-        <p>Are you sure you want to delete this department?</p>
+        <p data-cy="onboarding-components-steper-orgchartcomponent-tsx-orgchartcomponent-p-280">
+          Are you sure you want to delete this department?
+        </p>
       </Modal>
     </div>
   );

@@ -80,9 +80,16 @@ const Page = () => {
     : [
         {
           key: '1',
-          label: <span className="font-semibold text-md p-3">All</span>,
+          label: (
+            <span
+              className="font-semibold text-md p-3"
+              data-cy="incentives-page-all-label"
+            >
+              All
+            </span>
+          ),
           children: (
-            <div className="mx-3">
+            <div className="mx-3" data-cy="incentives-page-all-children">
               {isPayrollView ? (
                 <PayRoleView operationSlot={''} />
               ) : (
@@ -94,10 +101,18 @@ const Page = () => {
         ...(parentRecognition ?? []).map((item: any) => ({
           key: item?.id,
           label: (
-            <span className="font-semibold text-md p-3">{item?.name}</span>
+            <span
+              className="font-semibold text-md p-3"
+              data-cy={`incentives-page-label-${item?.id}`}
+            >
+              {item?.name}
+            </span>
           ),
           children: (
-            <div className="mx-3">
+            <div
+              className="mx-3"
+              data-cy={`incentives-page-children-${item?.id}`}
+            >
               <DynamicIncentive parentRecognitionId={item?.id} />
             </div>
           ),

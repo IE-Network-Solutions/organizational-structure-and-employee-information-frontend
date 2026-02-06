@@ -57,6 +57,7 @@ function DefaultCardForm({
         marginTop: 0,
         paddingTop: 0,
       }}
+      data-cy="planningandreporting-planning-and-reporting-components-planforms-defaultform-tsx-div-52"
     >
       <Form.List name={name}>
         {(fields, { remove }, { errors }) => (
@@ -148,6 +149,7 @@ function DefaultCardForm({
                     width: '100%',
                     marginBottom: '0',
                   }}
+                  data-cy="planningandreporting-planning-and-reporting-components-planforms-defaultform-tsx-div-143"
                 >
                   <Form.Item
                     {...field}
@@ -192,13 +194,23 @@ function DefaultCardForm({
                     }}
                   />
                 </div>
-                <div className="mt-2" style={{ marginTop: '8px' }}>
+                <div
+                  data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-195"
+                  className="mt-2"
+                  style={{ marginTop: '8px' }}
+                >
                   <Row gutter={[12, 12]} align="bottom">
                     <Col flex="none">
                       <Row align="middle" gutter={8} wrap={false}>
                         <Col flex="none">
-                          <div className="text-xs flex items-center gap-1.5 text-gray-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                          <div
+                            data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-200"
+                            className="text-xs flex items-center gap-1.5 text-gray-500"
+                          >
+                            <span
+                              data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-span-201"
+                              className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                            ></span>
                             Priority
                           </div>
                         </Col>
@@ -241,7 +253,12 @@ function DefaultCardForm({
                                     id={`default-form-priority-select-${name}-${field.name}`}
                                     data-cy={`default-form-priority-select-${name}-${field.name}`}
                                     placeholder={
-                                      <div className="text-xs">Priority</div>
+                                      <div
+                                        data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-244"
+                                        className="text-xs"
+                                      >
+                                        Priority
+                                      </div>
                                     }
                                     className="w-full h-10 priority-select [&_.ant-select-selector]:!bg-transparent [&_.ant-select-selector]:!border-[#D9D9D9]"
                                     dropdownStyle={{ borderRadius: '8px' }}
@@ -254,7 +271,10 @@ function DefaultCardForm({
                                     options={[
                                       {
                                         label: (
-                                          <div className="text-error text-xs font-medium">
+                                          <div
+                                            data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-257"
+                                            className="text-error text-xs font-medium"
+                                          >
                                             High
                                           </div>
                                         ),
@@ -262,7 +282,10 @@ function DefaultCardForm({
                                       },
                                       {
                                         label: (
-                                          <div className="text-warning text-xs font-medium">
+                                          <div
+                                            data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-265"
+                                            className="text-warning text-xs font-medium"
+                                          >
                                             Medium
                                           </div>
                                         ),
@@ -270,7 +293,10 @@ function DefaultCardForm({
                                       },
                                       {
                                         label: (
-                                          <div className="text-success text-xs font-medium">
+                                          <div
+                                            data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-273"
+                                            className="text-success text-xs font-medium"
+                                          >
                                             Low
                                           </div>
                                         ),
@@ -290,8 +316,14 @@ function DefaultCardForm({
                     <Col flex="none">
                       <Row align="middle" gutter={8} wrap={false}>
                         <Col flex="none">
-                          <div className="text-xs flex items-center gap-1.5 text-gray-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                          <div
+                            data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-293"
+                            className="text-xs flex items-center gap-1.5 text-gray-500"
+                          >
+                            <span
+                              data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-span-294"
+                              className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                            ></span>
                             Weight
                           </div>
                         </Col>
@@ -349,8 +381,14 @@ function DefaultCardForm({
                         <Col flex="none">
                           <Row align="middle" gutter={8} wrap={false}>
                             <Col flex="none">
-                              <div className="text-xs flex items-center gap-1.5 text-gray-500">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"></span>
+                              <div
+                                data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-352"
+                                className="text-xs flex items-center gap-1.5 text-gray-500"
+                              >
+                                <span
+                                  data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-span-353"
+                                  className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                                ></span>
                                 Target
                               </div>
                             </Col>

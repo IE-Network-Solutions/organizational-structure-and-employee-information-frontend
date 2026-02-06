@@ -104,7 +104,10 @@ export default function FiscalYearForm({ form }: { form: FormInstance }) {
             <Input className="h-10" placeholder="Enter name" />
           </Form.Item>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            data-cy="onboarding-components-steper-onboardingfy-tsx-onboardingfy-div-107"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
             <Form.Item
               label="Fiscal Year Starting Date"
               name="startDate"

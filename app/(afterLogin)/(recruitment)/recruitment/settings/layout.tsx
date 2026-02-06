@@ -43,11 +43,17 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/recruitment/settings/talentPoolCategory/talentPoolCategoryTab') ? 'lg:ml-4' : ''}`}
+            data-cy="recruitment-recruitment-settings-layout-tsx-div-44"
           >
             <TbNotes
               className={`hidden lg:block ${pathname.includes('/recruitment/settings/talentPoolCategory/talentPoolCategoryTab') ? 'text-[#1677FF]' : ''}`}
             />
-            <p className="menu-item-label">Talent Pool Category</p>
+            <p
+              data-cy="-recruitment-recruitment-settings-layout-tsx-layout-p-50"
+              className="menu-item-label"
+            >
+              Talent Pool Category
+            </p>
           </div>
         ),
       },

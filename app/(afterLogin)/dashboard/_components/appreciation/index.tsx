@@ -35,7 +35,10 @@ const Appreciation = () => {
         </div>
 
         {/* Right Column */}
-        <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
+        <div
+          className="col-span-1 lg:col-span-6 flex flex-col gap-4"
+          data-cy="appreciation-right-column"
+        >
           <IssuedAppreciation
             kpi={
               getPersonalRecognition?.feedbackIssued?.KPI?.appreciations || 0

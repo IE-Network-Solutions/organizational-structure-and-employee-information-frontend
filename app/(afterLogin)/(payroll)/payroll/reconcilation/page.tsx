@@ -119,8 +119,13 @@ const PayrollReconcilation = () => {
       key: 'types',
       minWidth: 200,
       render: (notused: any, record: any) => (
-        <div className="flex items-center gap-2">
-          <span>{record.types}</span>
+        <div
+          data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-122"
+          className="flex items-center gap-2"
+        >
+          <span data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-123">
+            {record.types}
+          </span>
         </div>
       ),
     },
@@ -131,7 +136,11 @@ const PayrollReconcilation = () => {
       minWidth: 150,
       render: (notused: any, record: any) => {
         const previous = record.previous || '--';
-        return <span>{previous}</span>;
+        return (
+          <span data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-134">
+            {previous}
+          </span>
+        );
       },
     },
     {
@@ -141,7 +150,11 @@ const PayrollReconcilation = () => {
       minWidth: 150,
       render: (nonused: any, record: any) => {
         const current = record.current || '--';
-        return <span>{current}</span>;
+        return (
+          <span data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-144">
+            {current}
+          </span>
+        );
       },
     },
 
@@ -164,7 +177,14 @@ const PayrollReconcilation = () => {
             : varianceValue === 0
               ? 'text-gray-500'
               : 'text-red-500';
-        return <span className={className}>{key}</span>;
+        return (
+          <span
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-167"
+            className={className}
+          >
+            {key}
+          </span>
+        );
       },
     },
     {
@@ -188,7 +208,14 @@ const PayrollReconcilation = () => {
             : varianceValue === 0
               ? 'text-gray-500'
               : 'text-red-500';
-        return <span className={className}>{key}</span>;
+        return (
+          <span
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-191"
+            className={className}
+          >
+            {key}
+          </span>
+        );
       },
     },
     {
@@ -204,8 +231,13 @@ const PayrollReconcilation = () => {
       key: 'action',
       minWidth: 150,
       render: (notused: any, record: any) => (
-        <div className="flex items-center gap-2">
-          <span>{record.action}</span>
+        <div
+          data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-207"
+          className="flex items-center gap-2"
+        >
+          <span data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-208">
+            {record.action}
+          </span>
         </div>
       ),
     },
@@ -275,20 +307,28 @@ const PayrollReconcilation = () => {
             subtitle="Employee Payroll Reconciliation"
           />
 
-          <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
+          <div
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
+            className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
+          >
             <Button
               type="primary"
               size="large"
               className="h-10 w-10 sm:w-auto"
               icon={<PiExportLight />}
             >
-              <span className="hidden sm:inline">Export</span>
+              <span
+                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285"
+                className="hidden sm:inline"
+              >
+                Export
+              </span>
             </Button>
           </div>
         </div>
         <Row gutter={[16, 16]} align="middle" className="mb-6">
           <Col xs={24} sm={24} md={4} lg={4} xl={4}>
-            <div>
+            <div data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-291">
               <Select
                 placeholder="Previous Pay Period"
                 allowClear
@@ -323,21 +363,36 @@ const PayrollReconcilation = () => {
           </Col>
         </Row>
 
-        <div className="grid grid-cols-1 lg:grid lg:grid-cols-3 xl:grid-cols-3 md:grid-cols-1 gap-12">
+        <div
+          data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-326"
+          className="grid grid-cols-1 lg:grid lg:grid-cols-3 xl:grid-cols-3 md:grid-cols-1 gap-12"
+        >
           {/* Total Payroll Cost */}
           <Card className="rounded-xl shadow-sm border" loading={isLoading}>
-            <p className="text-black text-sm mb-2 font-semibold">
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-329"
+              className="text-black text-sm mb-2 font-semibold"
+            >
               Total Payroll Cost
             </p>
-            <p className="text-2xl font-bold text-black">
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-332"
+              className="text-2xl font-bold text-black"
+            >
               {data?.summary?.totalPayrollCost
                 ? Number(data?.summary?.totalPayrollCost).toLocaleString()
                 : 0}
             </p>
 
-            <p className="text-sm text-black mt-3 font-semibold">
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-338"
+              className="text-sm text-black mt-3 font-semibold"
+            >
               Previous:{' '}
-              <span className="font-semibold">
+              <span
+                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-340"
+                className="font-semibold"
+              >
                 {data?.summary?.previousPayrollCost
                   ? Number(data?.summary?.previousPayrollCost).toLocaleString()
                   : 0}
@@ -346,10 +401,16 @@ const PayrollReconcilation = () => {
           </Card>
           {/* Net Variance */}
           <Card className="rounded-xl shadow-sm border" loading={isLoading}>
-            <p className="text-black text-sm mb-2 font-semibold">
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-349"
+              className="text-black text-sm mb-2 font-semibold"
+            >
               Net Variance
             </p>
-            <p className="text-2xl font-bold text-black">
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-352"
+              className="text-2xl font-bold text-black"
+            >
               {data?.summary?.netVariance
                 ? Number(data?.summary?.netVariance).toLocaleString()
                 : 0}
@@ -364,6 +425,7 @@ const PayrollReconcilation = () => {
                 if (varianceValue < 0) return 'text-green-500';
                 return '';
               })()}`}
+              data-cy="payroll-payroll-reconcilation-page-tsx-p-419"
             >
               {(() => {
                 const varianceValue = Number(
@@ -378,23 +440,38 @@ const PayrollReconcilation = () => {
           </Card>
           {/* Headcount Impact */}
           <Card className="rounded-xl shadow-sm border" loading={isLoading}>
-            <p className="text-black text-sm mb-2 font-semibold">
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-381"
+              className="text-black text-sm mb-2 font-semibold"
+            >
               Headcount Impact
             </p>
-            <p className="text-2xl font-bold text-black">
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-384"
+              className="text-2xl font-bold text-black"
+            >
               {data?.summary?.headcount} Employees
             </p>
 
-            <div className="flex gap-4 text-sm mt-3 text-black">
-              <p>
+            <div
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-388"
+              className="flex gap-4 text-sm mt-3 text-black"
+            >
+              <p data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-389">
                 Previous:{' '}
-                <span className="font-semibold">
+                <span
+                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-391"
+                  className="font-semibold"
+                >
                   {data?.summary?.previousHeadcount}
                 </span>
               </p>
-              <p>
+              <p data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-395">
                 Terminations:{' '}
-                <span className="font-semibold">
+                <span
+                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-397"
+                  className="font-semibold"
+                >
                   {data?.summary?.terminations}
                 </span>
               </p>
@@ -402,7 +479,10 @@ const PayrollReconcilation = () => {
           </Card>
         </div>
 
-        <div className="w-full mt-6 overflow-x-auto">
+        <div
+          data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-405"
+          className="w-full mt-6 overflow-x-auto"
+        >
           <Table
             loading={isLoading}
             dataSource={payrollVarianceData}

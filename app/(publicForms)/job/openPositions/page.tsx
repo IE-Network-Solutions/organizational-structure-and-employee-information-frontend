@@ -54,41 +54,71 @@ const OpenPositions: React.FC = () => {
 
   if (responseLoading)
     return (
-      <div className="flex items-center justify-center h-full">
+      <div
+        data-cy="-publicforms-job-openpositions-page-tsx-page-div-57"
+        className="flex items-center justify-center h-full"
+      >
         <Spin />
       </div>
     );
   return (
-    <div>
+    <div data-cy="-publicforms-job-openpositions-page-tsx-page-div-62">
       <CustomBreadcrumb title="Open Positions" subtitle="Here's all job list" />
       <Row gutter={16}>
         {publicJobs?.items?.map((job: any, index: string) => (
           <Col key={index} xs={24} sm={24} lg={12} md={12} xl={12}>
             <Card className="mb-4 rounded-lg shadow-sm">
-              <div className="flex justify-between items-start">
-                <div>
+              <div
+                data-cy="-publicforms-job-openpositions-page-tsx-page-div-68"
+                className="flex justify-between items-start"
+              >
+                <div data-cy="-publicforms-job-openpositions-page-tsx-page-div-69">
                   <>
-                    <h3 className="font-medium text-sm flex justify-center items-center gap-4 mb-3">
-                      <div className="w-full text-left">
-                        <span className="font-bold text-xl">
+                    <h3
+                      data-cy="-publicforms-job-openpositions-page-tsx-page-h3-71"
+                      className="font-medium text-sm flex justify-center items-center gap-4 mb-3"
+                    >
+                      <div
+                        data-cy="-publicforms-job-openpositions-page-tsx-page-div-72"
+                        className="w-full text-left"
+                      >
+                        <span
+                          data-cy="-publicforms-job-openpositions-page-tsx-page-span-73"
+                          className="font-bold text-xl"
+                        >
                           {job?.jobTitle}
                         </span>
                       </div>
                       {job?.jobStatus == 'Closed' ? (
                         <div
                           className={`mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border`}
+                          data-cy="publicforms-job-openpositions-page-tsx-div-93"
                         >
                           {job?.jobStatus}
                         </div>
                       ) : (
-                        <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0] ">
+                        <div
+                          data-cy="-publicforms-job-openpositions-page-tsx-page-div-84"
+                          className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0] "
+                        >
                           Active
                         </div>
                       )}
                     </h3>
-                    <p className="text-sm text-gray-500">{job?.jobLocation}</p>
-                    <div className="my-2">
-                      <p className="text-sm text-gray-500">
+                    <p
+                      data-cy="-publicforms-job-openpositions-page-tsx-page-p-89"
+                      className="text-sm text-gray-500"
+                    >
+                      {job?.jobLocation}
+                    </p>
+                    <div
+                      data-cy="-publicforms-job-openpositions-page-tsx-page-div-90"
+                      className="my-2"
+                    >
+                      <p
+                        data-cy="-publicforms-job-openpositions-page-tsx-page-p-91"
+                        className="text-sm text-gray-500"
+                      >
                         {job?.jobCandidate.length > 0
                           ? job?.jobCandidate + ' '
                           : '0' + ' '}
@@ -98,7 +128,10 @@ const OpenPositions: React.FC = () => {
                   </>
                 </div>
 
-                <div className="">
+                <div
+                  data-cy="-publicforms-job-openpositions-page-tsx-page-div-101"
+                  className=""
+                >
                   <Dropdown
                     menu={{
                       items: [
@@ -128,8 +161,14 @@ const OpenPositions: React.FC = () => {
                   </Dropdown>
                 </div>
               </div>
-              <div className="flex w-full items-center justify-between">
-                <div className="text-sm text-gray-500">
+              <div
+                data-cy="-publicforms-job-openpositions-page-tsx-page-div-131"
+                className="flex w-full items-center justify-between"
+              >
+                <div
+                  data-cy="-publicforms-job-openpositions-page-tsx-page-div-132"
+                  className="text-sm text-gray-500"
+                >
                   Created {dayjs(job?.createdAt).fromNow()}
                 </div>
 

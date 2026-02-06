@@ -51,12 +51,28 @@ const MyAttendanceReport: React.FC = () => {
   ];
 
   const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+    <div
+      className="flex flex-col gap-4"
+      data-cy="time-attendance-personal-attendance-report-mobile-filter-content-div"
+    >
+      <h3
+        className="text-lg font-medium mb-2"
+        data-cy="time-attendance-personal-attendance-report-mobile-filter-title-h3"
+      >
+        Filter
+      </h3>
 
       {/* Status Filter */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Status</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-personal-attendance-report-mobile-filter-status-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-personal-attendance-report-mobile-filter-status-label"
+        >
+          Status
+        </label>
         <Select
           placeholder="Select Status"
           allowClear
@@ -64,12 +80,21 @@ const MyAttendanceReport: React.FC = () => {
           className="w-full h-12"
           onChange={(value) => setStatusOnAttendance(value)}
           options={statusOptions}
+          data-cy="time-attendance-personal-attendance-report-mobile-filter-status-select"
         />
       </div>
 
       {/* Date Range */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Date Range</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-personal-attendance-report-mobile-filter-date-range-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-personal-attendance-report-mobile-filter-date-range-label"
+        >
+          Date Range
+        </label>
         <RangePicker
           allowClear
           className="w-full h-12"
@@ -82,13 +107,17 @@ const MyAttendanceReport: React.FC = () => {
               setEndDateOnAttendance('');
             }
           }}
+          data-cy="time-attendance-personal-attendance-report-mobile-filter-date-range-picker"
         />
       </div>
     </div>
   );
 
   return (
-    <div className="px-3 sm:px-0">
+    <div
+      data-cy="dashboard-components-personal-myattendancereport-tsx-myattendancereport-div-117"
+      className="px-3 sm:px-0"
+    >
       <Card
         bodyStyle={{ padding: '10px 16px' }}
         className="shadow"
@@ -230,12 +259,16 @@ const MyAttendanceReport: React.FC = () => {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={
-          <div className="flex gap-2 justify-center mt-4">
+          <div
+            className="flex gap-2 justify-center mt-4"
+            data-cy="time-attendance-personal-attendance-report-mobile-filter-modal-footer-div"
+          >
             <CustomButton
               onClick={() => setIsModalOpen(false)}
               className="px-6 py-2 border rounded-lg text-sm text-gray-900"
               title="Cancel"
               type="default"
+              data-cy="time-attendance-personal-attendance-report-mobile-filter-modal-cancel-button"
             />
             <CustomButton
               title="Apply Filter"
@@ -244,6 +277,7 @@ const MyAttendanceReport: React.FC = () => {
                 setIsModalOpen(false);
               }}
               className="px-6 py-2 text-white rounded-lg text-sm"
+              data-cy="time-attendance-personal-attendance-report-mobile-filter-modal-apply-button"
             />
           </div>
         }
@@ -256,6 +290,7 @@ const MyAttendanceReport: React.FC = () => {
         }}
         width="90%"
         centered
+        data-cy="time-attendance-personal-attendance-report-mobile-filter-modal"
       >
         <MobileFilterContent />
       </Modal>

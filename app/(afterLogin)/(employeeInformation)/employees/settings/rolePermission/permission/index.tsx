@@ -139,7 +139,10 @@ const Permission: React.FC<any> = () => {
                     .indexOf(input.toLowerCase()) >= 0
                 }
                 suffixIcon={
-                  <div className="flex items-center justify-center w-full h-full text-black">
+                  <div
+                    className="flex items-center justify-center w-full h-full text-black"
+                    data-cy="settings-permission-group-select-mobile-icon"
+                  >
                     <LuSettings2 size={20} />
                   </div>
                 }

@@ -93,13 +93,20 @@ const MeetingList = () => {
       '-';
     const profileImage = userDetails?.profileImage;
     return (
-      <div className="flex gap-2 items-center">
+      <div
+        className="flex gap-2 items-center"
+        data-cy="meeting-list-user-container"
+      >
         <Tooltip title={type == 'all' ? '' : userName}>
           <Avatar size={24} src={profileImage} icon={<UserOutlined />} />
         </Tooltip>
 
         {type == 'all' && (
-          <div title={userName} className="font-bold">
+          <div
+            title={userName}
+            className="font-bold"
+            data-cy="meeting-list-user-name"
+          >
             {userName?.length >= 24 ? userName?.slice(0, 24) + '...' : userName}
           </div>
         )}

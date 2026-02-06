@@ -50,7 +50,8 @@ export function usePushSubscription(): void {
 
     let cancelled = false;
 
-    void unsubscribeMainSwPush().then(() => getActivePushRegistration())
+    void unsubscribeMainSwPush()
+      .then(() => getActivePushRegistration())
       .then((registration) => {
         if (cancelled || !registration?.pushManager || !VAPID_PUBLIC_KEY)
           return;

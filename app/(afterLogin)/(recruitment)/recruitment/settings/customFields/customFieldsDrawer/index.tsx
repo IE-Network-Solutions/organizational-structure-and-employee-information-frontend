@@ -128,7 +128,10 @@ const CustomFieldsDrawer: React.FC<{
       <Form.Item
         name="title"
         label={
-          <span className="text-md font-semibold text-gray-700">
+          <span
+            data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-span-131"
+            className="text-md font-semibold text-gray-700"
+          >
             Template Title
           </span>
         }
@@ -148,7 +151,10 @@ const CustomFieldsDrawer: React.FC<{
         <Col lg={8} md={10} xs={12}>
           <Form.Item
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-span-151"
+                className="text-md font-semibold text-gray-700"
+              >
                 Field Type
               </span>
             }
@@ -196,7 +202,10 @@ const CustomFieldsDrawer: React.FC<{
         <Col lg={16} md={10} xs={12}>
           <Form.Item
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-span-199"
+                className="text-md font-semibold text-gray-700"
+              >
                 Question
               </span>
             }
@@ -258,10 +267,16 @@ const CustomFieldsDrawer: React.FC<{
         {(fields, { add, remove }) => {
           const questionType = form.getFieldValue('fieldType');
           return (
-            <div className="mx-8">
+            <div
+              data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-261"
+              className="mx-8"
+            >
               {fields.map((field) => (
                 <Form.Item key={field.key} required={false}>
-                  <div className="flex items-center gap-3">
+                  <div
+                    data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-264"
+                    className="flex items-center gap-3"
+                  >
                     {renderOptionInput(questionType)}
                     <Form.Item
                       {...field}
@@ -294,7 +309,10 @@ const CustomFieldsDrawer: React.FC<{
               {(questionType === 'multiple_choice' ||
                 questionType === 'checkbox') && (
                 <Form.Item>
-                  <div className="flex flex-col items-center justify-center">
+                  <div
+                    data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-297"
+                    className="flex flex-col items-center justify-center"
+                  >
                     <div
                       id="talent-acquisition-custom-fields-button-add-option"
                       data-cy="talent-acquisition-custom-fields-button-add-option"
@@ -303,7 +321,10 @@ const CustomFieldsDrawer: React.FC<{
                     >
                       <PlusOutlined size={30} className="text-white" />
                     </div>
-                    <p className="text-xs font-light text-gray-400">
+                    <p
+                      data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-p-306"
+                      className="text-xs font-light text-gray-400"
+                    >
                       Add Option
                     </p>
                   </div>
@@ -319,7 +340,10 @@ const CustomFieldsDrawer: React.FC<{
   );
 
   const customFieldsDrawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 px-4 py-2">
+    <div
+      data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-322"
+      className="flex justify-center text-xl font-extrabold text-gray-800 px-4 py-2"
+    >
       {isEdit ? 'Edit Question' : 'Create New Field'}
     </div>
   );
@@ -333,7 +357,10 @@ const CustomFieldsDrawer: React.FC<{
         open={true}
         onCancel={onClose}
         footer={
-          <div className="flex justify-center w-full space-x-5 p-4">
+          <div
+            data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-336"
+            className="flex justify-center w-full space-x-5 p-4"
+          >
             <Button
               className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
               onClick={onClose}
@@ -363,7 +390,10 @@ const CustomFieldsDrawer: React.FC<{
         onClose={onClose}
         width="40%"
         footer={
-          <div className="flex justify-center w-full bg-[#fff] space-x-5 p-4">
+          <div
+            data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-366"
+            className="flex justify-center w-full bg-[#fff] space-x-5 p-4"
+          >
             <Button
               id="talent-acquisition-custom-fields-button-cancel"
               data-cy="talent-acquisition-custom-fields-button-cancel"
@@ -391,7 +421,12 @@ const CustomFieldsDrawer: React.FC<{
           </div>
         }
       >
-        <div className="pb-[60px]">{renderFormContent()}</div>
+        <div
+          data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-394"
+          className="pb-[60px]"
+        >
+          {renderFormContent()}
+        </div>
       </CustomDrawerLayout>
     )
   );

@@ -44,7 +44,13 @@ const Page = () => {
               setIsShowBreakTypeSidebar(true);
             }}
           >
-            <span className="hidden md:inline"> New Break Type</span>
+            <span
+              data-cy="timesheet-settings-break-type-page-tsx-page-span-47"
+              className="hidden md:inline"
+            >
+              {' '}
+              New Break Type
+            </span>
           </Button>
         </AccessGuard>
       </div>

@@ -355,8 +355,14 @@ function Reporting() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pb-4">
+    <div
+      data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-358"
+      className="min-h-screen bg-gray-100"
+    >
+      <div
+        data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-359"
+        className="flex flex-wrap items-center justify-center md:justify-start gap-3 pb-4"
+      >
         {hasPermission && (
           <>
             <Select
@@ -379,7 +385,10 @@ function Reporting() {
                 !employeeData ? 'Loading...' : 'No employees found'
               }
             />
-            <div className="hidden md:contents">
+            <div
+              data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-382"
+              className="hidden md:contents"
+            >
               <Select
                 id="reporting-plan-type-select"
                 data-cy="reporting-plan-type-select"
@@ -411,7 +420,10 @@ function Reporting() {
             </div>
           </>
         )}
-        <div className="hidden md:contents">
+        <div
+          data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-414"
+          className="hidden md:contents"
+        >
           <SessionFilter />
         </div>
         <Button
@@ -428,11 +440,17 @@ function Reporting() {
               : ''
           }
         >
-          <div style={{ display: 'inline-block' }}>
+          <div
+            data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-431"
+            style={{ display: 'inline-block' }}
+          >
             <CustomButton
               disabled={!allUserPlanning || allUserPlanning.length === 0}
               title={
-                <span className="hidden sm:block">
+                <span
+                  data-cy="planning-and-reporting-components-reporting-index-tsx-index-span-435"
+                  className="hidden sm:block"
+                >
                   {`Create ${activeTabName} Report`}
                 </span>
               }
@@ -446,8 +464,14 @@ function Reporting() {
         </Tooltip>
       </div>
 
-      <section className="mt-8">
-        <div className="space-y-6">
+      <section
+        data-cy="planning-and-reporting-components-reporting-index-tsx-index-section-449"
+        className="mt-8"
+      >
+        <div
+          data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-450"
+          className="space-y-6"
+        >
           {getReportLoading
             ? Array.from({ length: 3 }).map((unusedItem, i) => (
                 <PlanCardSkeleton key={i} />
@@ -523,9 +547,15 @@ function Reporting() {
         />
       )}
       {!getReportLoading && (allReporting?.items?.length ?? 0) <= 0 && (
-        <div className="flex justify-center">
-          <div>
-            <p className="flex justify-center items-center h-[200px]">
+        <div
+          data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-526"
+          className="flex justify-center"
+        >
+          <div data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-527">
+            <p
+              data-cy="planning-and-reporting-components-reporting-index-tsx-index-p-528"
+              className="flex justify-center items-center h-[200px]"
+            >
               <Image
                 src="/image/undraw_empty_re_opql 1.svg"
                 width={300}
@@ -533,7 +563,10 @@ function Reporting() {
                 alt="Picture of the author"
               />
             </p>
-            <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+            <p
+              data-cy="planning-and-reporting-components-reporting-index-tsx-index-p-536"
+              className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
+            >
               There is no Reported data !!
             </p>
           </div>

@@ -20,7 +20,7 @@ export const NotificationDetailVisible = ({ id }: NotificationDetailProps) => {
   const userId = useAuthenticationStore.getState().userId;
 
   const { data } = useGetNotifications(userId ?? '');
-  const list = Array.isArray(data) ? data : (data as any)?.data ?? [];
+  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
   const newData = list.filter((item: NotificationType) => item.id === id);
   const { isNotificationDetailVisible, setIsNotificationDetailVisible } =
     useNotificationDetailStore();

@@ -45,7 +45,10 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           });
         // Register minimal push-only SW (activates quickly so "Allow notifications" does not time out)
         navigator.serviceWorker
-          .register('/sw-push.js', { scope: '/push/', updateViaCache: 'imports' })
+          .register('/sw-push.js', {
+            scope: '/push/',
+            updateViaCache: 'imports',
+          })
           .catch(() => {});
       }
 
@@ -219,6 +222,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
 
       {/* Main App Content */}
       <div
+        data-cy="pwa-provider-main-content"
         style={{
           opacity: showMainContent ? 1 : 0,
           transition: showMainContent ? 'opacity 0.3s ease-in' : 'none',

@@ -146,7 +146,10 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
       open={open}
       onCancel={handleClose}
       footer={
-        <div className="flex justify-center gap-4">
+        <div
+          data-cy="-weeklypriority-weekly-priority-components-weeklyprioritymodal-tsx-weeklyprioritymodal-div-149"
+          className="flex justify-center gap-4"
+        >
           <Button loading={isLoadings} onClick={handleClose}>
             Cancel
           </Button>
@@ -175,9 +178,16 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
       {isLoading ? (
         <Spin />
       ) : priorities?.length > 0 ? (
-        <div style={{ marginBottom: 24 }}>
+        <div
+          data-cy="-weeklypriority-weekly-priority-components-weeklyprioritymodal-tsx-weeklyprioritymodal-div-178"
+          style={{ marginBottom: 24 }}
+        >
           {priorities?.map((priority) => (
-            <div key={priority.id} style={{ marginBottom: 16 }}>
+            <div
+              data-cy="-weeklypriority-weekly-priority-components-weeklyprioritymodal-tsx-weeklyprioritymodal-div-180"
+              key={priority.id}
+              style={{ marginBottom: 16 }}
+            >
               <Checkbox
                 checked={checkedList.some((i) => i.taskId === priority.id)}
                 onChange={(e) =>
