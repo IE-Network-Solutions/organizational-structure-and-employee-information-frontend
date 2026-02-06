@@ -32,6 +32,7 @@ import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import { transformToPlanSummary } from '../dataTransformer/vamp';
 import { ViewMode, Cadence } from '../types';
+import { formatPlanningReportDate } from '../utils';
 
 function Planning() {
   const {
@@ -358,30 +359,8 @@ function Planning() {
     return !!activeSession;
   };
 
-  const getDateLabel = (createdAt: string, activeTabName: string): string => {
-    const planDate = dayjs(createdAt);
-    const today = dayjs();
-
-    if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
-      return "Today's Plan";
-    }
-
-    if (activeTabName === 'Weekly') {
-      const thisFriday = dayjs().day(5);
-      const adjustedThisFriday =
-        today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
-      const lastFriday = adjustedThisFriday.subtract(7, 'day');
-
-      if (
-        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
-        (planDate.isSame(adjustedThisFriday, 'day') ||
-          planDate.isBefore(adjustedThisFriday))
-      ) {
-        return 'This Week Plan';
-      }
-    }
-
-    return '';
+  const getDateLabel = (createdAt: string): string => {
+    return formatPlanningReportDate(createdAt);
   };
 
   return (
@@ -550,8 +529,7 @@ function Planning() {
                     }
                     isApprovalLoading={isApprovalLoading}
                     dateLabel={getDateLabel(
-                      originalDataItem?.createdAt,
-                      activeTabName,
+                      originalDataItem?.createdAt ?? '',
                     )}
                   />
                 );
