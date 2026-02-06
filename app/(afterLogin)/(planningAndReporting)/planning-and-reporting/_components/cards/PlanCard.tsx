@@ -5,8 +5,8 @@ import { BsKey } from 'react-icons/bs';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
-import dayjs from 'dayjs';
 import { PlanSummary, ViewMode, Cadence } from '../types';
+import { formatPlanningReportDate } from '../utils';
 import UserInfo from '../UserInfo';
 import StatusBadge from '../StatusBadge';
 import KRSummaryBar from '../KRSummaryBar';
@@ -93,23 +93,9 @@ export default function PlanCard({
     </Menu>
   );
 
-  const getDateLabel = () => {
+  const getDateLabel = (): string => {
     if (dateLabel) return dateLabel;
-
-    const planDate = dayjs(plan.createdAt);
-    const today = dayjs();
-    const yesterday = dayjs().subtract(1, 'day');
-    const cadenceType =
-      activeCadence.charAt(0).toUpperCase() + activeCadence.slice(1);
-    const type = viewMode === 'planning' ? 'Plan' : 'Report';
-
-    if (planDate.isSame(today, 'day')) {
-      return `Today's ${cadenceType} ${type}`;
-    }
-    if (planDate.isSame(yesterday, 'day')) {
-      return `Yesterday's ${cadenceType} ${type}`;
-    }
-    return `${planDate.format('MMM D')} ${cadenceType} ${type}`;
+    return formatPlanningReportDate(plan.createdAt ?? '');
   };
 
   // Calculate total achieved points for the plan (sum of weights of completed tasks)
@@ -157,7 +143,10 @@ export default function PlanCard({
   }, [plan, viewMode]);
 
   return (
-    <article className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4">
+    <article
+      className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4"
+      data-active-cadence={activeCadence}
+    >
       {/* Header with Title and Reprimand/Appreciation Badges */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs md:text-base font-bold text-[#8F94A3]">
