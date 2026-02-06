@@ -146,7 +146,7 @@ export default function PlanCard({
 
   return (
     <article
-      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
+       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
       className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4"
       data-active-cadence={activeCadence}
     >
