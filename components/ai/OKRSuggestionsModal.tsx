@@ -189,9 +189,15 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
       </Button>
       <Modal
         title={
-          <div className="flex items-center gap-2">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-192"
+            className="flex items-center gap-2"
+          >
             <ThunderboltFilled className="text-indigo-600 text-lg" />
-            <span className="text-base font-semibold">
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-span-194"
+              className="text-base font-semibold"
+            >
               AI Key Result Suggestions
             </span>
           </div>
@@ -201,11 +207,30 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
         footer={null}
         width={800}
       >
-        <div className="mb-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="flex-1">
-              <div className="text-sm text-gray-600 mb-1">Objective:</div>
-              <div className="text-base font-medium">{objectiveTitle}</div>
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-204"
+          className="mb-4"
+        >
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-205"
+            className="flex items-center gap-3 mb-3"
+          >
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-206"
+              className="flex-1"
+            >
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-207"
+                className="text-sm text-gray-600 mb-1"
+              >
+                Objective:
+              </div>
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-208"
+                className="text-base font-medium"
+              >
+                {objectiveTitle}
+              </div>
             </div>
             <Button
               loading={loading}
@@ -216,7 +241,10 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
               {suggestions.length > 0 ? 'Regenerate' : 'Generate'}
             </Button>
           </div>
-          <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-219"
+            className="text-xs text-gray-500 bg-blue-50 p-2 rounded"
+          >
             💡 AI will suggest key results with weights that sum to 100%
           </div>
         </div>
@@ -227,7 +255,10 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
           data-cy="okr-ai-suggestions-modal-wrapper-view-space"
         >
           {loading && (
-            <div className="flex justify-center items-center py-8">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-230"
+              className="flex justify-center items-center py-8"
+            >
               <Spin size="large" />
             </div>
           )}
@@ -235,7 +266,10 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
           {!loading && suggestions.length === 0 && (
             <Empty
               description={
-                <span className="text-xs">
+                <span
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-span-238"
+                  className="text-xs"
+                >
                   {objectiveTitle && objectiveTitle.trim() !== ''
                     ? 'Click "Generate" to get AI suggestions'
                     : 'Please enter an objective title first'}
@@ -257,15 +291,22 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
                   key={idx}
                   header={
                     <div
+                      data-cy={`components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-293-${idx}`}
                       className="flex items-center justify-between w-full"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-center gap-2">
+                      <div
+                        data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-263"
+                        className="flex items-center gap-2"
+                      >
                         <ThunderboltFilled
                           className="text-[#6366f1]"
                           style={{ fontSize: '16px' }}
                         />
-                        <span className="text-sm font-medium text-gray-700">
+                        <span
+                          data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-span-268"
+                          className="text-sm font-medium text-gray-700"
+                        >
                           AI Key Result Suggestion
                         </span>
                       </div>
@@ -291,11 +332,17 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
                     backgroundColor: '#ffffff',
                   }}
                 >
-                  <div className="bg-white px-4 pb-4 -mt-3">
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-294"
+                    className="bg-white px-4 pb-4 -mt-3"
+                  >
                     <Typography.Text className="text-sm block mb-3 text-gray-700 leading-relaxed">
                       {suggestion.title}
                     </Typography.Text>
-                    <div className="flex gap-2 flex-wrap">
+                    <div
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-298"
+                      className="flex gap-2 flex-wrap"
+                    >
                       <Tag
                         className="rounded-full text-xs font-medium border-0"
                         style={{
@@ -374,14 +421,26 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
         </div>
 
         {suggestions.length > 0 && (
-          <div className="mt-4 pt-3 border-t">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-377"
+            className="mt-4 pt-3 border-t"
+          >
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-div-378"
+              className="flex justify-between items-center text-sm"
+            >
+              <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-span-379"
+                className="text-gray-600"
+              >
                 Suggested Key Results: {suggestions.length}
               </span>
-              <span className="text-gray-600">
+              <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-span-382"
+                className="text-gray-600"
+              >
                 Total Weight:{' '}
-                <strong>
+                <strong data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrsuggestionsmodal-tsx-okrsuggestionsmodal-strong-384">
                   {suggestions.reduce((sum, s) => sum + s.weight, 0)}%
                 </strong>
               </span>

@@ -136,7 +136,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
               data-cy={`okr-objective-card-title-section-${objective?.id}`}
               className={`flex justify-between items-start ${isMobile ? 'mb-1' : 'mb-4'}`}
             >
-              <div className="flex flex-col">
+              <div
+                className="flex flex-col"
+                data-cy={`okr-objective-title-container-${objective?.id}`}
+              >
                 <h2
                   id={`objective-title-${objective?.id}`}
                   data-cy={`okr-objective-title-${objective?.id}`}
@@ -248,7 +251,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   data-cy={`okr-objective-user-info-${objective?.id}`}
                   className={`flex items-center gap-1 ${isMobile ? 'mt-2' : 'mt-4 sm:mt-0'}`}
                 >
-                  <div className="flex flex-col gap-0">
+                  <div
+                    className="flex flex-col gap-0"
+                    data-cy={`okr-objective-user-details-${objective?.id}`}
+                  >
                     <span
                       id={`objective-user-name-${objective?.id}`}
                       data-cy={`okr-objective-user-name-${objective?.id}`}

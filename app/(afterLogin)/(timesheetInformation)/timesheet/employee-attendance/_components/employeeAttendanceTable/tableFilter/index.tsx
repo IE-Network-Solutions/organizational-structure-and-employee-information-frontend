@@ -112,8 +112,13 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           />
         </Form.Item>
       </div>
-      <div>
-        <p className="text-sm text-gray-600 mb-2">Break Type</p>
+      <div data-cy="-components-employeeattendancetable-tablefilter-index-tsx-index-div-115">
+        <p
+          data-cy="-components-employeeattendancetable-tablefilter-index-tsx-index-p-116"
+          className="text-sm text-gray-600 mb-2"
+        >
+          Break Type
+        </p>
         <Form.Item
           data-cy="time-attendance-employee-attendance-mobile-filter-break-type-select-form-item"
           name="breakTypeId"

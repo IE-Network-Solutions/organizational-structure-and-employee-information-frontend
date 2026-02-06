@@ -189,12 +189,28 @@ const LeaveRequest = () => {
   }));
 
   const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+    <div
+      className="flex flex-col gap-4"
+      data-cy="time-attendance-leave-request-mobile-filter-content-div"
+    >
+      <h3
+        className="text-lg font-medium mb-2"
+        data-cy="time-attendance-leave-request-mobile-filter-title-h3"
+      >
+        Filter
+      </h3>
 
       {/* Leave Type */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Leave Type</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-leave-request-mobile-filter-leave-type-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-leave-request-mobile-filter-leave-type-label"
+        >
+          Leave Type
+        </label>
         <Select
           showSearch
           placeholder="Select Leave Type"
@@ -206,12 +222,21 @@ const LeaveRequest = () => {
             (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
           }
           options={leaveTypeOption}
+          data-cy="time-attendance-leave-request-mobile-filter-leave-type-select"
         />
       </div>
 
       {/* Department */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Department</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-leave-request-mobile-filter-department-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-leave-request-mobile-filter-department-label"
+        >
+          Department
+        </label>
         <Select
           showSearch
           placeholder="Select Department"
@@ -223,12 +248,21 @@ const LeaveRequest = () => {
             (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
           }
           options={departmentOptions}
+          data-cy="time-attendance-leave-request-mobile-filter-department-select"
         />
       </div>
 
       {/* Date Range */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Date Range</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-leave-request-mobile-filter-date-range-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-leave-request-mobile-filter-date-range-label"
+        >
+          Date Range
+        </label>
         <DatePicker.RangePicker
           allowClear
           className="w-full h-12"
@@ -241,6 +275,7 @@ const LeaveRequest = () => {
               setEndDateOnLeaveRequest('');
             }
           }}
+          data-cy="time-attendance-leave-request-mobile-filter-date-range-picker"
         />
       </div>
     </div>
@@ -305,9 +340,18 @@ const LeaveRequest = () => {
               />
             </div>
             {/* Mobile Filters */}
-            <div className="md:hidden block">
-              <div className="flex justify-between gap-4 w-full mb-4">
-                <div className="flex-1">
+            <div
+              className="md:hidden block"
+              data-cy="time-attendance-leave-request-mobile-filters-div"
+            >
+              <div
+                className="flex justify-between gap-4 w-full mb-4"
+                data-cy="time-attendance-leave-request-mobile-filters-row-div"
+              >
+                <div
+                  className="flex-1"
+                  data-cy="time-attendance-leave-request-mobile-filters-employee-select-div"
+                >
                   <Select
                     showSearch
                     placeholder="Search Employee"
@@ -320,9 +364,10 @@ const LeaveRequest = () => {
                         .includes(input.toLowerCase())
                     }
                     options={employeeOptions}
+                    data-cy="time-attendance-leave-request-mobile-filters-employee-select"
                   />
                 </div>
-                <div>
+                <div data-cy="time-attendance-leave-request-mobile-filters-settings-button-div">
                   <CustomButton
                     type="default"
                     size="small"
@@ -330,6 +375,7 @@ const LeaveRequest = () => {
                     className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
                     title=""
                     icon={<LuSettings2 size={20} />}
+                    data-cy="time-attendance-leave-request-mobile-filters-settings-button"
                   />
                 </div>
               </div>
@@ -528,12 +574,16 @@ const LeaveRequest = () => {
           open={isModalOpen}
           onCancel={() => setIsModalOpen(false)}
           footer={
-            <div className="flex gap-2 justify-center mt-4">
+            <div
+              className="flex gap-2 justify-center mt-4"
+              data-cy="time-attendance-leave-request-mobile-filter-modal-footer-div"
+            >
               <CustomButton
                 onClick={() => setIsModalOpen(false)}
                 className="px-6 py-2 border rounded-lg text-sm text-gray-900"
                 title="Cancel"
                 type="default"
+                data-cy="time-attendance-leave-request-mobile-filter-modal-cancel-button"
               />
               <CustomButton
                 title="Apply Filter"
@@ -542,6 +592,7 @@ const LeaveRequest = () => {
                   setIsModalOpen(false);
                 }}
                 className="px-6 py-2 text-white rounded-lg text-sm"
+                data-cy="time-attendance-leave-request-mobile-filter-modal-apply-button"
               />
             </div>
           }
@@ -554,6 +605,7 @@ const LeaveRequest = () => {
           }}
           width="90%"
           centered
+          data-cy="time-attendance-leave-request-mobile-filter-modal"
         >
           <MobileFilterContent />
         </Modal>

@@ -5,7 +5,7 @@ import { useCreatePensionRule } from '@/store/server/features/payroll/payroll/mu
 import useDrawerStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-<style jsx global>{`
+<style data-cy="pension-components-drawer-index-tsx-index-style-8" jsx global>{`
   @media (max-width: 767px) {
     .input-number-mobile .ant-input-number,
     .input-number-mobile .ant-input-number-input {
@@ -70,14 +70,23 @@ const Drawer: React.FC = () => {
       open={isDrawerVisible}
       onClose={closeDrawer}
       modalHeader={
-        <span className=" flex justify-center text-xl font-semibold">
+        <span
+          data-cy="pension-components-drawer-index-tsx-index-span-73"
+          className=" flex justify-center text-xl font-semibold"
+        >
           Define New Pension Rule
         </span>
       }
       width="700px"
       footer={
-        <div className="flex justify-center items-center w-full h-full">
-          <div className="flex justify-between items-center gap-4 p-4">
+        <div
+          data-cy="pension-components-drawer-index-tsx-index-div-79"
+          className="flex justify-center items-center w-full h-full"
+        >
+          <div
+            data-cy="pension-components-drawer-index-tsx-index-div-80"
+            className="flex justify-between items-center gap-4 p-4"
+          >
             <Button
               type="default"
               className="h-10 px-10"
@@ -155,7 +164,12 @@ const Drawer: React.FC = () => {
             step={0.01}
             controls={true}
             addonAfter={
-              <span style={{ color: '#bdbdbd', fontWeight: 600 }}>%</span>
+              <span
+                data-cy="pension-components-drawer-index-tsx-index-span-158"
+                style={{ color: '#bdbdbd', fontWeight: 600 }}
+              >
+                %
+              </span>
             }
           />
         </Form.Item>
@@ -191,7 +205,12 @@ const Drawer: React.FC = () => {
             step={0.01}
             controls={true}
             addonAfter={
-              <span style={{ color: '#bdbdbd', fontWeight: 600 }}>%</span>
+              <span
+                data-cy="pension-components-drawer-index-tsx-index-span-194"
+                style={{ color: '#bdbdbd', fontWeight: 600 }}
+              >
+                %
+              </span>
             }
           />
         </Form.Item>

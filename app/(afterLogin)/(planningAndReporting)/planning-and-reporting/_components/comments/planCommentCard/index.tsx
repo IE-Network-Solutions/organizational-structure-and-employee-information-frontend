@@ -48,9 +48,15 @@ const CommentCard: React.FC<Props> = ({
       //   )
       // }
     >
-      <div className="flex items-center  gap-1 text-sm cursor-pointer mb-2">
+      <div
+        data-cy="-components-comments-plancommentcard-index-tsx-index-div-51"
+        className="flex items-center  gap-1 text-sm cursor-pointer mb-2"
+      >
         {CommentAuthorsAvatars(data)}
-        <span onClick={() => setViewComment(!viewComment)}>
+        <span
+          data-cy="-components-comments-plancommentcard-index-tsx-index-span-53"
+          onClick={() => setViewComment(!viewComment)}
+        >
           {data?.length} Comments
         </span>
       </div>

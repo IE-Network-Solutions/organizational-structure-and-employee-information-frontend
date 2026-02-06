@@ -53,7 +53,11 @@ const DynamicQuestionField = ({
         return <Input.TextArea rows={4} />;
 
       default:
-        return <span>Custom Field</span>; // Replace with your TextEditor or another component
+        return (
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-dynamicquestionfield-index-tsx-index-span-56">
+            Custom Field
+          </span>
+        ); // Replace with your TextEditor or another component
     }
   };
 

@@ -36,9 +36,19 @@ const DetailPageTabs: React.FC = () => {
     : [
         {
           key: '1',
-          label: <span className="font-semibold text-md p-3">All</span>,
+          label: (
+            <span
+              className="font-semibold text-md p-3"
+              data-cy="dynamic-recognition-tab-all-label"
+            >
+              All
+            </span>
+          ),
           children: (
-            <div className="mx-3">
+            <div
+              className="mx-3"
+              data-cy="dynamic-recognition-tab-all-children"
+            >
               {isPayrollView ? (
                 <PayRoleView operationSlot={''} />
               ) : (
@@ -50,10 +60,18 @@ const DetailPageTabs: React.FC = () => {
         ...(parentRecognition ?? []).map((item: any) => ({
           key: item?.id,
           label: (
-            <span className="font-semibold text-md p-3">{item?.name}</span>
+            <span
+              className="font-semibold text-md p-3"
+              data-cy={`dynamic-recognition-tab-label-${item?.id}`}
+            >
+              {item?.name}
+            </span>
           ),
           children: (
-            <div className="mx-3">
+            <div
+              className="mx-3"
+              data-cy={`dynamic-recognition-tab-children-${item?.id}`}
+            >
               <DynamicIncentive parentRecognitionId={item?.id} />
             </div>
           ),

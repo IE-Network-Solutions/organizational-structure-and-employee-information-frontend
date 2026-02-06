@@ -65,7 +65,14 @@ const formatDate = (dateString?: string) => {
 
 const renderObjectFields = (obj: any) => {
   if (!obj || typeof obj !== 'object') {
-    return <span className="text-gray-500">--</span>;
+    return (
+      <span
+        data-cy="-afterlogin-audit-log-id-page-tsx-page-span-68"
+        className="text-gray-500"
+      >
+        --
+      </span>
+    );
   }
 
   const filteredEntries = Object.entries(obj).filter(([key]) => {
@@ -78,7 +85,14 @@ const renderObjectFields = (obj: any) => {
   });
 
   if (filteredEntries.length === 0) {
-    return <span className="text-gray-500">--</span>;
+    return (
+      <span
+        data-cy="-afterlogin-audit-log-id-page-tsx-page-span-81"
+        className="text-gray-500"
+      >
+        --
+      </span>
+    );
   }
 
   return (
@@ -211,9 +225,14 @@ const AuditLogDetailPage = () => {
     icon: React.ReactNode;
     children: React.ReactNode;
   }) => (
-    <div className="flex items-center gap-2">
+    <div
+      data-cy="-afterlogin-audit-log-id-page-tsx-page-div-214"
+      className="flex items-center gap-2"
+    >
       {icon}
-      <span>{children}</span>
+      <span data-cy="-afterlogin-audit-log-id-page-tsx-page-span-216">
+        {children}
+      </span>
     </div>
   );
 
@@ -433,7 +452,12 @@ const AuditLogDetailPage = () => {
                 {auditLog?.previousValue ? (
                   renderObjectFields(auditLog.previousValue)
                 ) : (
-                  <span className="text-gray-500">--</span>
+                  <span
+                    data-cy="-afterlogin-audit-log-id-page-tsx-page-span-436"
+                    className="text-gray-500"
+                  >
+                    --
+                  </span>
                 )}
               </div>
             </Card>
@@ -455,7 +479,12 @@ const AuditLogDetailPage = () => {
                 {auditLog?.newValue ? (
                   renderObjectFields(auditLog.newValue)
                 ) : (
-                  <span className="text-gray-500">--</span>
+                  <span
+                    data-cy="-afterlogin-audit-log-id-page-tsx-page-span-458"
+                    className="text-gray-500"
+                  >
+                    --
+                  </span>
                 )}
               </div>
             </Card>

@@ -52,7 +52,10 @@ const TalentPoolPage = () => {
               icon={<FaPlus />}
               onClick={handleAdd}
             >
-              <span className="hidden sm:inline">
+              <span
+                data-cy="talent-resource-talent-pool-components-talentpoolpage-tsx-talentpoolpage-span-55"
+                className="hidden sm:inline"
+              >
                 Add Candidate to Talent Pool
               </span>
             </Button>

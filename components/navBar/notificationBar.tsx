@@ -22,7 +22,7 @@ function NotificationBar() {
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
   const { data, isLoading } = useGetNotifications(userId ?? '');
 
-  const list = Array.isArray(data) ? data : (data as any)?.data ?? [];
+  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
   const unReadNotification = list.filter(
     (item: NotificationType) => item.isRead === false,
   );
@@ -55,7 +55,12 @@ function NotificationBar() {
   };
   const notificationMenu = (
     <Menu className="font-lexend max-w-[400px] max-h-96 overflow-y-auto">
-      <p className="m-2 border-b border-black">Notifications</p>
+      <p
+        data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-p-58"
+        className="m-2 border-b border-black"
+      >
+        Notifications
+      </p>
 
       {isLoading ? (
         <Spin tip="Loading" size="small" />
@@ -64,28 +69,50 @@ function NotificationBar() {
           {unReadNotification
             ?.slice(0, 6)
             ?.map((notification: NotificationType) => (
-              <div className="flex justify-between gap-4" key={notification.id}>
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-67"
+                className="flex justify-between gap-4"
+                key={notification.id}
+              >
                 <Menu.Item>
                   <div
+                    data-cy={`components-navbar-notificationbar-tsx-notificationbar-div-78-${notification.id}`}
                     className="flex items-center p-2 cursor-pointer"
                     onClick={() => {
                       handleShowNotificationDetails(notification?.id);
                     }}
                   >
                     <Avatar icon={<AiFillNotification />} />
-                    <div className="ml-2">
-                      <div className="font-semibold">{notification?.title}</div>
-                      <div className="text-xs text-gray-500">
+                    <div
+                      data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-76"
+                      className="ml-2"
+                    >
+                      <div
+                        data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-77"
+                        className="font-semibold"
+                      >
+                        {notification?.title}
+                      </div>
+                      <div
+                        data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-78"
+                        className="text-xs text-gray-500"
+                      >
                         {formatDateDifference(notification?.updatedAt)}
                       </div>
-                      <div className="text-xs text-gray-400">
+                      <div
+                        data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-81"
+                        className="text-xs text-gray-400"
+                      >
                         {notification?.body?.slice(0, 15)}
                         {notification?.body?.length > 15 && '...'}
                       </div>
                     </div>
                   </div>
                 </Menu.Item>
-                <div className="flex items-center">
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-88"
+                  className="flex items-center"
+                >
                   <Tooltip title="Mark as read">
                     <CgCloseO
                       className="text-sm "
@@ -101,12 +128,20 @@ function NotificationBar() {
 
           <Menu.Item key="view-more" className="text-center">
             <Link href="/employees/notification">
-              <div className="text-blue-500">View More</div>
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-104"
+                className="text-blue-500"
+              >
+                View More
+              </div>
             </Link>
           </Menu.Item>
         </>
       ) : (
-        <div className="mx-10 my-5 text-center text-gray-500">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-109"
+          className="mx-10 my-5 text-center text-gray-500"
+        >
           No notifications available
         </div>
       )}
@@ -116,7 +151,7 @@ function NotificationBar() {
     <>
       <Dropdown
         className="border-[#ececee] border-[1px] rounded-md"
-        overlay={notificationMenu}
+        dropdownRender={() => notificationMenu}
         trigger={['click']}
       >
         <Badge

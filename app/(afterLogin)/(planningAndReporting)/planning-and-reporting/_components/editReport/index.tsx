@@ -65,7 +65,10 @@ function EditReport() {
   const { data: allReportedPlanning } = useGetReportedPlanning(selectedPlanId);
 
   const modalHeader = (
-    <div className="text-center text-xl font-bold text-[#161A2C]">
+    <div
+      data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-68"
+      className="text-center text-xl font-bold text-[#161A2C]"
+    >
       Update {planningPeriodName} Report
     </div>
   );
@@ -155,9 +158,18 @@ function EditReport() {
   }, 0);
 
   const footer = (
-    <div className="flex items-center justify-between w-full">
-      <div className="flex-1"></div>
-      <div className="flex justify-center gap-4 flex-1">
+    <div
+      data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-158"
+      className="flex items-center justify-between w-full"
+    >
+      <div
+        data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-159"
+        className="flex-1"
+      ></div>
+      <div
+        data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-160"
+        className="flex justify-center gap-4 flex-1"
+      >
         <Button
           id="update-report-button-for-planning-and-reporting"
           type="primary"
@@ -176,9 +188,18 @@ function EditReport() {
         </Button>
       </div>
 
-      <div className="flex-1 flex justify-end pr-5">
-        <div className="my-2 font-bold">
-          <span className="text-sm font-medium text-[#161A2C]">
+      <div
+        data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-179"
+        className="flex-1 flex justify-end pr-5"
+      >
+        <div
+          data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-180"
+          className="my-2 font-bold"
+        >
+          <span
+            data-cy="planning-and-reporting-components-editreport-index-tsx-index-span-181"
+            className="text-sm font-medium text-[#161A2C]"
+          >
             Total Point:{' '}
             <span
               className={
@@ -188,6 +209,7 @@ function EditReport() {
                     ? 'text-orange-500'
                     : 'text-red-500'
               }
+              data-cy="planningandreporting-planning-and-reporting-components-editreport-index-tsx-span-204"
             >
               {totalWeight}%
             </span>
@@ -208,7 +230,11 @@ function EditReport() {
       keyresult?.metricType?.name !== NAME.MILESTONE;
 
     return (
-      <div key={task.taskId} className="mb-5 last:mb-0">
+      <div
+        data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-211"
+        key={task.taskId}
+        className="mb-5 last:mb-0"
+      >
         <Row gutter={[16, 16]} align="middle">
           <Col
             xs={24}
@@ -218,6 +244,7 @@ function EditReport() {
             <p
               className="text-gray-800 text-sm font-medium leading-relaxed m-0 truncate"
               title={task.taskName}
+              data-cy="planningandreporting-planning-and-reporting-components-editreport-index-tsx-p-243"
             >
               {task.taskName}
             </p>
@@ -228,7 +255,10 @@ function EditReport() {
             sm={showActualValue ? 16 : 10}
             md={showActualValue ? 14 : 8}
           >
-            <div className="flex items-center justify-between sm:justify-end gap-4 overflow-x-auto no-scrollbar">
+            <div
+              data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-231"
+              className="flex items-center justify-between sm:justify-end gap-4 overflow-x-auto no-scrollbar"
+            >
               {/* Actual Value Input */}
               {showActualValue && (
                 <Form.Item
@@ -284,7 +314,12 @@ function EditReport() {
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                     }
                     addonAfter={
-                      <span className="text-[10px]">{metricSymbol}</span>
+                      <span
+                        data-cy="planning-and-reporting-components-editreport-index-tsx-index-span-287"
+                        className="text-[10px]"
+                      >
+                        {metricSymbol}
+                      </span>
                     }
                     controls={false}
                   />
@@ -297,7 +332,10 @@ function EditReport() {
                 className="mb-0"
                 rules={[{ required: true, message: '' }]}
               >
-                <div className="flex items-center gap-4 bg-gray-50 p-1.5 rounded-lg border border-gray-100">
+                <div
+                  data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-300"
+                  className="flex items-center gap-4 bg-gray-50 p-1.5 rounded-lg border border-gray-100"
+                >
                   {/* Done Option */}
                   <div
                     id={`edit-report-status-done-${task.taskId}`}
@@ -320,6 +358,7 @@ function EditReport() {
                     )}
                     <span
                       className={`text-[13px] ${isDone ? 'text-[#52C41A] font-semibold' : 'text-gray-500'}`}
+                      data-cy="planningandreporting-planning-and-reporting-components-editreport-index-tsx-span-357"
                     >
                       Done
                     </span>
@@ -347,6 +386,7 @@ function EditReport() {
                     )}
                     <span
                       className={`text-[13px] ${isNot ? 'text-[#FF4D4F] font-semibold' : 'text-gray-500'}`}
+                      data-cy="planningandreporting-planning-and-reporting-components-editreport-index-tsx-span-384"
                     >
                       Not
                     </span>
@@ -359,7 +399,10 @@ function EditReport() {
 
         {/* Reason Box */}
         {isNot && (
-          <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div
+            data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-362"
+            className="mt-4 animate-in fade-in slide-in-from-top-2 duration-200"
+          >
             <Form.Item
               name={[task.taskId, 'customReason']}
               className="mb-0"
@@ -419,18 +462,30 @@ function EditReport() {
                           id={`edit-report-panel-${objective.id || ''}-${index}`}
                           data-cy={`edit-report-panel-${objective.id || ''}-${index}`}
                           header={
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-gray-900 whitespace-nowrap">
+                            <div
+                              data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-422"
+                              className="flex items-center gap-2"
+                            >
+                              <span
+                                data-cy="planning-and-reporting-components-editreport-index-tsx-index-span-423"
+                                className="font-bold text-gray-900 whitespace-nowrap"
+                              >
                                 {planningPeriodName}-task :
                               </span>
-                              <span className="text-gray-700 font-normal">
+                              <span
+                                data-cy="planning-and-reporting-components-editreport-index-tsx-index-span-426"
+                                className="text-gray-700 font-normal"
+                              >
                                 {keyresult?.title}
                               </span>
                             </div>
                           }
                           key={`kr-${objective.id || ''}-${index}`}
                         >
-                          <div className="py-2">
+                          <div
+                            data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-433"
+                            className="py-2"
+                          >
                             {/* Milestone Tasks */}
                             {keyresult?.milestones?.map((milestone: any) =>
                               milestone?.tasks?.map((task: any) =>
@@ -451,7 +506,10 @@ function EditReport() {
               </div>
             </Form>
           ) : (
-            <div className="flex justify-center items-center h-64">
+            <div
+              data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-454"
+              className="flex justify-center items-center h-64"
+            >
               <CustomizeRenderEmpty />
             </div>
           )}

@@ -196,7 +196,9 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
               className="text-sm text-gray-500"
             >
               Total Key Results Weight:{' '}
-              <strong>{keyResultValue.weight || 0} %</strong>
+              <strong data-cy="okr-edit-key-result-total-weight-value">
+                {keyResultValue.weight || 0} %
+              </strong>
             </span>
           </div>
         )}

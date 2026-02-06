@@ -100,13 +100,14 @@ export const useHandleSignIn = () => {
           Modal.confirm({
             title: 'Link accounts',
             content: (
-              <div>
-                <p>
+              <div data-cy="link-account-modal-content">
+                <p data-cy="link-account-modal-message">
                   An account already exists with {emailAddress}. Please enter
                   your password to link your {providerLabel} account:
                 </p>
                 <Input.Password
                   placeholder="Password"
+                  data-cy="link-account-password-input"
                   onChange={(e) => {
                     passwordValue = e.target.value;
                   }}

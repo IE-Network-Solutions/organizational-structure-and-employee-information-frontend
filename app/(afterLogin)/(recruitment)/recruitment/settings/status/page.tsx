@@ -104,7 +104,10 @@ const Status: React.FC = () => {
         </AccessGuard>
       </div>
 
-      <div className="space-y-4 w-full">
+      <div
+        data-cy="recruitment-settings-status-page-tsx-page-div-107"
+        className="space-y-4 w-full"
+      >
         {fetchLoading ? (
           <>
             <SkeletonLoading
@@ -119,9 +122,18 @@ const Status: React.FC = () => {
             <div
               key={index}
               className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
+              data-cy="recruitment-recruitment-settings-status-page-tsx-div-122"
             >
-              <div className="text-medium font-medium">{status?.title}</div>
-              <div className="flex items-center justify-center gap-2">
+              <div
+                data-cy="recruitment-settings-status-page-tsx-page-div-123"
+                className="text-medium font-medium"
+              >
+                {status?.title}
+              </div>
+              <div
+                data-cy="recruitment-settings-status-page-tsx-page-div-124"
+                className="flex items-center justify-center gap-2"
+              >
                 <AccessGuard permissions={[Permissions.UpdateApplicationStage]}>
                   <div
                     id={`talent-acquisition-status-button-edit-${status?.id}`}

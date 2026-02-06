@@ -203,7 +203,10 @@ const LeaveRequestDetail = () => {
               id="time-attendance-leave-request-detail-info-row"
               data-cy="time-attendance-leave-request-detail-info-row"
             >
-              <Col span={8}>
+              <Col
+                span={8}
+                data-cy="time-attendance-leave-request-detail-leave-type-column"
+              >
                 <div
                   className={labelClass}
                   id="time-attendance-leave-request-detail-leave-type-label"
@@ -226,7 +229,10 @@ const LeaveRequestDetail = () => {
                     : ''}
                 </div>
               </Col>
-              <Col span={8}>
+              <Col
+                span={8}
+                data-cy="time-attendance-leave-request-detail-date-column"
+              >
                 <div
                   className={labelClass}
                   id="time-attendance-leave-request-detail-date-label"

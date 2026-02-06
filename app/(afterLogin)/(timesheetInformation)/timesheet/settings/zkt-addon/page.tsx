@@ -75,18 +75,33 @@ const ZKTAddonPage = () => {
   return (
     <>
       {contextHolder}
-      <div className="p-5 rounded-2xl bg-white">
+      <div
+        data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-78"
+        className="p-5 rounded-2xl bg-white"
+      >
         {/* Logos Section */}
-        <div className="flex items-center mb-4">
-          <div className="flex items-center">
+        <div
+          data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-80"
+          className="flex items-center mb-4"
+        >
+          <div
+            data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-81"
+            className="flex items-center"
+          >
             <Logo type="selamnew" width={140} height={48} />
           </div>
           <IoIosLink size={32} className="-ml-4 flex items-end" />
-          <div className="flex items-end">
+          <div
+            data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-85"
+            className="flex items-end"
+          >
             <Image src={ZKTeco} alt="zkt" width={140} height={48} />
           </div>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4 ">
+        <div
+          data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-89"
+          className="bg-white rounded-lg border border-gray-200 p-4 "
+        >
           {!isZktConfigured ? (
             /* Form Section */
             <Form
@@ -99,8 +114,17 @@ const ZKTAddonPage = () => {
                 name="url"
                 required={false}
                 label={
-                  <span className="text-sm font-medium text-gray-700 pb-2">
-                    Enter URL <span className="text-red-500">*</span>
+                  <span
+                    data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-102"
+                    className="text-sm font-medium text-gray-700 pb-2"
+                  >
+                    Enter URL{' '}
+                    <span
+                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-103"
+                      className="text-red-500"
+                    >
+                      *
+                    </span>
                   </span>
                 }
                 rules={[
@@ -119,8 +143,17 @@ const ZKTAddonPage = () => {
                 name="username"
                 required={false}
                 label={
-                  <span className="text-sm font-medium text-gray-700 pb-2">
-                    Enter Username <span className="text-red-500">*</span>
+                  <span
+                    data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-122"
+                    className="text-sm font-medium text-gray-700 pb-2"
+                  >
+                    Enter Username{' '}
+                    <span
+                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-123"
+                      className="text-red-500"
+                    >
+                      *
+                    </span>
                   </span>
                 }
                 rules={[{ required: true, message: 'Please enter username!' }]}
@@ -132,8 +165,17 @@ const ZKTAddonPage = () => {
                 name="password"
                 required={false}
                 label={
-                  <span className="text-sm font-medium text-gray-700 pb-2">
-                    Enter Password <span className="text-red-500">*</span>
+                  <span
+                    data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-135"
+                    className="text-sm font-medium text-gray-700 pb-2"
+                  >
+                    Enter Password{' '}
+                    <span
+                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-136"
+                      className="text-red-500"
+                    >
+                      *
+                    </span>
                   </span>
                 }
                 rules={[{ required: true, message: 'Please enter password!' }]}
@@ -143,7 +185,10 @@ const ZKTAddonPage = () => {
 
               {/* Buttons */}
               <Form.Item className="mt-6 mb-0">
-                <div className="flex justify-center gap-3">
+                <div
+                  data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-146"
+                  className="flex justify-center gap-3"
+                >
                   <Button
                     onClick={handleCancel}
                     className="h-10 px-6 border-gray-300 text-gray-700 hover:border-gray-400"
@@ -164,10 +209,19 @@ const ZKTAddonPage = () => {
             </Form>
           ) : (
             /* Configured State */
-            <div className="w-full">
+            <div
+              data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-167"
+              className="w-full"
+            >
               {/* User Card */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+              <div
+                data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-169"
+                className="flex items-center justify-between"
+              >
+                <div
+                  data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-170"
+                  className="flex items-center gap-4"
+                >
                   {/* Avatar */}
                   <Avatar
                     size={40}
@@ -178,17 +232,27 @@ const ZKTAddonPage = () => {
                   </Avatar>
 
                   {/* Name and Link */}
-                  <div className="flex-1">
-                    <div className="font-bold text-gray-900 text-sm ">
+                  <div
+                    data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-181"
+                    className="flex-1"
+                  >
+                    <div
+                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-182"
+                      className="font-bold text-gray-900 text-sm "
+                    >
                       {zktSavedData?.username || 'User'}
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div
+                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-185"
+                      className="flex items-center gap-1"
+                    >
                       <IoIosLink className="text-blue font-bold" size={16} />
                       <a
                         href={zktSavedData?.url || 'https://example.com'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 text-sm font-semibold"
+                        data-cy="timesheetinformation-timesheet-settings-zkt-addon-page-tsx-a-250"
                       >
                         {zktSavedData?.url || 'https://example.com'}
                       </a>

@@ -221,7 +221,10 @@ const CreateRuleSidebar = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col span={24}>
+              <Col
+                span={24}
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-column"
+              >
                 <Form.Item
                   label="Description"
                   id="createRuleDescriptionFieldId"

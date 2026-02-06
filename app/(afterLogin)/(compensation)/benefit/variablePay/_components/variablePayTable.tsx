@@ -75,7 +75,14 @@ const VariablePayTable = () => {
       ),
     },
     {
-      title: <span className="truncate">VP in %</span>,
+      title: (
+        <span
+          className="truncate"
+          data-cy="variable-pay-table-vp-percent-header"
+        >
+          VP in %
+        </span>
+      ),
       className: 'text-center',
       dataIndex: 'VpInPercentile',
       key: 'VpInPercentile',
@@ -92,7 +99,11 @@ const VariablePayTable = () => {
     },
 
     {
-      title: <span className="truncate">VP Score</span>,
+      title: (
+        <span className="truncate" data-cy="variable-pay-table-vp-score-header">
+          VP Score
+        </span>
+      ),
       dataIndex: 'VpScore',
       key: 'VpScore',
       sorter: (a, b) => (a.VpScore || 0) - (b.VpScore || 0),

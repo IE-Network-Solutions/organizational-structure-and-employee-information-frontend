@@ -82,7 +82,10 @@ const InternPage = () => {
           title="Intern"
           subtitle={
             <>
-              <span className="text-xs sm:text-sm">
+              <span
+                data-cy="recruitment-talent-resource-intern-page-tsx-page-span-85"
+                className="text-xs sm:text-sm"
+              >
                 Manage and review intern applicants.
               </span>
             </>
@@ -101,7 +104,12 @@ const InternPage = () => {
             icon={<FaPlus />}
             onClick={handleCreate}
           >
-            <span className="hidden sm:inline">New</span>
+            <span
+              data-cy="recruitment-talent-resource-intern-page-tsx-page-span-104"
+              className="hidden sm:inline"
+            >
+              New
+            </span>
           </Button>
           <Button
             type="primary"
@@ -112,7 +120,12 @@ const InternPage = () => {
             onClick={handleCopyLink}
             title="Copy public application link"
           >
-            <span className="hidden sm:inline">Copy Link</span>
+            <span
+              data-cy="recruitment-talent-resource-intern-page-tsx-page-span-115"
+              className="hidden sm:inline"
+            >
+              Copy Link
+            </span>
           </Button>
         </div>
       </div>

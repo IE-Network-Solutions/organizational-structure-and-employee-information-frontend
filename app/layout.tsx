@@ -339,10 +339,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <RouteTopLoader />
-        <div
-          className="status-bar-safe"
-          data-cy="root-layout-status-bar-safe"
-        >
+        <div className="status-bar-safe" data-cy="root-layout-status-bar-safe">
           <PWAProvider>
             {/* <AuthProvider> */}
             <ReactQueryWrapper>

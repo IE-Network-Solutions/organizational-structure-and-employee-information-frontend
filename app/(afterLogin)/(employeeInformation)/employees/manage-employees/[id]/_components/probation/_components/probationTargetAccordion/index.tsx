@@ -937,7 +937,10 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
       {/* Delete Confirmation Modal */}
       <Modal
         title={
-          <div className="flex items-center">
+          <div
+            className="flex items-center"
+            data-cy="probation-task-delete-modal-title"
+          >
             <ExclamationCircleOutlined
               className="text-red-500 mr-2"
               id="probation-task-delete-modal-title-icon"

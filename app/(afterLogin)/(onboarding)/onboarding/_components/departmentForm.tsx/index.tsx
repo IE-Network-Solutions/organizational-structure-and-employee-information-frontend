@@ -59,9 +59,13 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
       onCancel={handleCancel}
       open={open}
       footer={
-        <div style={{ textAlign: 'right' }}>
-          <Space>
-            <Button id="cancelDepartmentButton" onClick={handleCancel}>
+        <div style={{ textAlign: 'right' }} data-cy="department-form-footer">
+          <Space data-cy="department-form-footer-space">
+            <Button
+              id="cancelDepartmentButton"
+              onClick={handleCancel}
+              data-cy="department-form-cancel-button"
+            >
               Cancel
             </Button>
             <Button

@@ -60,7 +60,12 @@ const MyLeaveRequest: React.FC = () => {
           id="time-attendance-personal-leave-request-action-button"
           data-cy="time-attendance-personal-leave-request-action-button"
         >
-          <span className="hidden md:block">Request</span>
+          <span
+            data-cy="dashboard-components-personal-myleaverequest-tsx-myleaverequest-span-63"
+            className="hidden md:block"
+          >
+            Request
+          </span>
         </Button>
       </div>
       <div

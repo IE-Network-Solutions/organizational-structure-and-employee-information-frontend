@@ -26,7 +26,10 @@ const AddFormResult: React.FC = () => {
       >
         <Result
           icon={
-            <div className="flex items-center justify-center">
+            <div
+              data-cy="-components-modals-result-index-tsx-index-div-29"
+              className="flex items-center justify-center"
+            >
               <Image
                 src={SuccessResult}
                 alt="Success result Image"
@@ -35,9 +38,19 @@ const AddFormResult: React.FC = () => {
               />
             </div>
           }
-          title={<div className="font-bold">Job Added Successfully!</div>}
+          title={
+            <div
+              data-cy="-components-modals-result-index-tsx-index-div-38"
+              className="font-bold"
+            >
+              Job Added Successfully!
+            </div>
+          }
           subTitle={
-            <div className="text-gray-600">
+            <div
+              data-cy="-components-modals-result-index-tsx-index-div-40"
+              className="text-gray-600"
+            >
               New Job have been successfully added, stay tuned!
             </div>
           }

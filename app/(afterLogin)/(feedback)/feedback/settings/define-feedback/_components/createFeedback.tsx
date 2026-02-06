@@ -151,7 +151,14 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
         {/* Appreciation Type Name */}
         <Form.Item
           className={commonClass}
-          label={<div className={commonClass}>Objective</div>}
+          label={
+            <div
+              className={commonClass}
+              data-cy="create-feedback-form-objective-label"
+            >
+              Objective
+            </div>
+          }
           name="name"
           rules={[
             {
@@ -173,7 +180,14 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
 
         {/* Description */}
         <Form.Item
-          label={<div className={commonClass}>Description</div>}
+          label={
+            <div
+              className={commonClass}
+              data-cy="create-feedback-form-description-label"
+            >
+              Description
+            </div>
+          }
           name="description"
           rules={[
             { required: true, message: 'Please enter a description!' },
@@ -226,7 +240,14 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
         {/* Weight */}
         <Form.Item
           className={commonClass}
-          label={<div className={commonClass}>Weight</div>}
+          label={
+            <div
+              className={commonClass}
+              data-cy="create-feedback-form-weight-label"
+            >
+              Weight
+            </div>
+          }
           name="points"
           rules={[
             { required: true, message: 'Please enter a weight!' },

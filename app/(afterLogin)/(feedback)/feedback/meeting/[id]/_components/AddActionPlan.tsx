@@ -127,7 +127,10 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
       open={visible}
       onClose={handleClose}
       modalHeader={
-        <div className="text-center">
+        <div
+          className="text-center"
+          data-cy="feedback-meeting-components-addactionplan-header"
+        >
           {actionPlanData ? 'Edit Action Plan' : 'Add New Action Plan'}
         </div>
       }

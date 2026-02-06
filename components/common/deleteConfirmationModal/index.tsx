@@ -66,7 +66,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
         </div>
       )}
     >
-      <p className="flex justify-center items-center h-[200px]">
+      <p
+        data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-69"
+        className="flex justify-center items-center h-[200px]"
+      >
         <Image
           src="/deleteSvg.svg"
           width={300}
@@ -75,10 +78,20 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
         />
       </p>
 
-      <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+      <p
+        data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
+        className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
+      >
         {deleteMessage ?? 'you sure to Delete ? '}
       </p>
-      {customMessage && <div className="mt-4 text-center">{customMessage}</div>}
+      {customMessage && (
+        <div
+          data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
+          className="mt-4 text-center"
+        >
+          {customMessage}
+        </div>
+      )}
     </Modal>
   );
 };

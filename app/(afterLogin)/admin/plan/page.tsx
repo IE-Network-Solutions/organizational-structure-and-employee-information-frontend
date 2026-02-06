@@ -1185,7 +1185,7 @@ const PlanPage = () => {
                         id="step-2-info-message-icon"
                         data-cy="step-2-info-message-icon"
                       />
-                      <span>
+                      <span data-cy="-afterlogin-admin-plan-page-tsx-page-span-1188">
                         Changes will take effect after payment is completed and
                         processed.
                       </span>

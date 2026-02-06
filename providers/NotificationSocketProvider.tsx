@@ -6,9 +6,16 @@ import { useQueryClient } from 'react-query';
 import { App, Button, Modal } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { NOTIFICATION_WS_URL, NOTIFICATION_WS_PATH, VAPID_PUBLIC_KEY } from '@/utils/constants';
+import {
+  NOTIFICATION_WS_URL,
+  NOTIFICATION_WS_PATH,
+  VAPID_PUBLIC_KEY,
+} from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import { usePushSubscription, requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription';
+import {
+  usePushSubscription,
+  requestAndRegisterPushSubscription,
+} from '@/hooks/usePushSubscription';
 import { useGetPushSubscriptionStatus } from '@/store/server/features/notification/queries';
 
 const NOTIFICATION_CREATED = 'notification:created';
@@ -30,10 +37,8 @@ export function NotificationSocketProvider({
 
   usePushSubscription();
 
-  const { data: subscriptionStatus, isLoading: statusLoading } = useGetPushSubscriptionStatus(
-    userId ?? '',
-    !!userId,
-  );
+  const { data: subscriptionStatus, isLoading: statusLoading } =
+    useGetPushSubscriptionStatus(userId ?? '', !!userId);
   const isSubscribed =
     subscriptionStatus?.subscribed === true ||
     subscriptionStatus?.hasSubscription === true;
@@ -51,17 +56,27 @@ export function NotificationSocketProvider({
     if (!userId) return;
     setPushPromptLoading(true);
     try {
-      const ok = await requestAndRegisterPushSubscription(userId, tenantId ?? undefined);
+      const ok = await requestAndRegisterPushSubscription(
+        userId,
+        tenantId ?? undefined,
+      );
       if (ok) {
         sessionStorage.removeItem(PUSH_PROMPT_STORAGE_KEY);
         setPushPromptDismissed(true);
         queryClient.invalidateQueries(['push-subscription-status', userId]);
-        notification.success({ message: 'Notifications enabled. You’ll receive important updates.' });
+        notification.success({
+          message: 'Notifications enabled. You’ll receive important updates.',
+        });
       } else {
-        notification.warning({ message: 'Please click “Allow” in your browser to enable notifications.' });
+        notification.warning({
+          message:
+            'Please click “Allow” in your browser to enable notifications.',
+        });
       }
     } catch {
-      notification.error({ message: 'We couldn’t enable notifications. Please try again.' });
+      notification.error({
+        message: 'We couldn’t enable notifications. Please try again.',
+      });
     } finally {
       setPushPromptLoading(false);
     }
@@ -93,16 +108,19 @@ export function NotificationSocketProvider({
         // Connection failed; WS will retry or user can reload
       });
 
-      socket.on(NOTIFICATION_CREATED, (payload?: { title?: string; body?: string }) => {
-        queryClient.invalidateQueries(['notifications', userId]);
-        queryClient.invalidateQueries(['notifications-unread-count', userId]);
-        notification.info({
-          message: payload?.title ?? 'New notification',
-          description: payload?.body ?? 'You have a new notification.',
-          placement: 'topRight',
-          duration: 4,
-        });
-      });
+      socket.on(
+        NOTIFICATION_CREATED,
+        (payload?: { title?: string; body?: string }) => {
+          queryClient.invalidateQueries(['notifications', userId]);
+          queryClient.invalidateQueries(['notifications-unread-count', userId]);
+          notification.info({
+            message: payload?.title ?? 'New notification',
+            description: payload?.body ?? 'You have a new notification.',
+            placement: 'topRight',
+            duration: 4,
+          });
+        },
+      );
 
       socket.on(NOTIFICATION_READ, () => {
         queryClient.invalidateQueries(['notifications', userId]);
@@ -132,34 +150,35 @@ export function NotificationSocketProvider({
           title="Enable notifications"
           onCancel={handlePushPromptDismiss}
           footer={[
-          <Button
-            key="later"
-            id="notification-prompt-maybe-later"
-            data-cy="notification-prompt-maybe-later"
-            onClick={handlePushPromptDismiss}
-          >
-            Maybe later
-          </Button>,
-          <Button
-            key="allow"
-            id="notification-prompt-allow"
-            data-cy="notification-prompt-allow"
-            type="primary"
-            icon={<BellOutlined />}
-            loading={pushPromptLoading}
-            onClick={handlePushPromptAllow}
-          >
-            Allow notifications
-          </Button>,
-        ]}
-      >
-        <p
-          id="notification-enable-push-modal-content"
-          data-cy="notification-enable-push-modal-content"
-          className="text-gray-600"
+            <Button
+              key="later"
+              id="notification-prompt-maybe-later"
+              data-cy="notification-prompt-maybe-later"
+              onClick={handlePushPromptDismiss}
+            >
+              Maybe later
+            </Button>,
+            <Button
+              key="allow"
+              id="notification-prompt-allow"
+              data-cy="notification-prompt-allow"
+              type="primary"
+              icon={<BellOutlined />}
+              loading={pushPromptLoading}
+              onClick={handlePushPromptAllow}
+            >
+              Allow notifications
+            </Button>,
+          ]}
         >
-          Get notified about important updates and reminders even when you’re not in the app.
-        </p>
+          <p
+            id="notification-enable-push-modal-content"
+            data-cy="notification-enable-push-modal-content"
+            className="text-gray-600"
+          >
+            Get notified about important updates and reminders even when you’re
+            not in the app.
+          </p>
         </Modal>
       </div>
     </>

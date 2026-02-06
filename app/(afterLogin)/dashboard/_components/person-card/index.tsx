@@ -10,7 +10,10 @@ interface PersonCardProps {
 
 const PersonCard: FC<PersonCardProps> = ({ name, imgSrc }) => {
   return (
-    <div className="flex flex-col items-center gap-2 mb-3">
+    <div
+      className="flex flex-col items-center gap-2 mb-3"
+      data-cy="person-card"
+    >
       {imgSrc ? (
         <Avatar src={imgSrc} alt={name} className="w-10 h-10 rounded-full" />
       ) : (
@@ -19,7 +22,12 @@ const PersonCard: FC<PersonCardProps> = ({ name, imgSrc }) => {
           className="w-10 h-10 rounded-full"
         />
       )}
-      <p className="font-normal text-center text-sm   ">{name}</p>
+      <p
+        className="font-normal text-center text-sm   "
+        data-cy="person-card-name"
+      >
+        {name}
+      </p>
     </div>
   );
 };

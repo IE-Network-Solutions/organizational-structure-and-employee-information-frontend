@@ -97,7 +97,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
           data-cy={`${viewPrefix}-desktop-row`}
         >
           {/* Title Input */}
-          <div className="flex-1">
+          <div
+            className="flex-1"
+            data-cy={`${viewPrefix}-desktop-title-container`}
+          >
             <Form.Item
               className="w-full font-bold mb-0"
               rules={[
@@ -122,7 +125,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                 data-cy={`${viewPrefix}-desktop-title-input`}
               />
               {!keyValue.title && (
-                <div className="text-red-500 font-semibold absolute top-[30px]">
+                <div
+                  className="text-red-500 font-semibold absolute top-[30px]"
+                  data-cy={`${viewPrefix}-desktop-title-error`}
+                >
                   Achieve title is required
                 </div>
               )}
@@ -130,7 +136,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
           </div>
 
           {/* Metric Type Dropdown */}
-          <div className={`w-48 ml-6 ${isBasicOkr ? 'hidden' : ''}`}>
+          <div
+            className={`w-48 ml-6 ${isBasicOkr ? 'hidden' : ''}`}
+            data-cy={`${viewPrefix}-desktop-metric-container`}
+          >
             <Form.Item
               id={`${viewPrefix}-desktop-metric-select-item`}
               data-cy={`${viewPrefix}-desktop-metric-select-item`}
@@ -183,7 +192,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
           </div>
 
           {/* Weight/Percentage */}
-          <div className="w-24 ml-2">
+          <div
+            className="w-24 ml-2"
+            data-cy={`${viewPrefix}-desktop-weight-container`}
+          >
             <Form.Item
               id={`${viewPrefix}-desktop-weight-input-item`}
               data-cy={`${viewPrefix}-desktop-weight-input-item`}
@@ -215,7 +227,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
           </div>
 
           {/* Deadline */}
-          <div className="w-48 ml-2">
+          <div
+            className="w-48 ml-2"
+            data-cy={`${viewPrefix}-desktop-deadline-container`}
+          >
             <Form.Item
               id={`${viewPrefix}-desktop-deadline-input-item`}
               data-cy={`${viewPrefix}-desktop-deadline-input-item`}
@@ -241,7 +256,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                 data-cy={`${viewPrefix}-desktop-deadline-picker`}
               />
               {!keyValue.deadline && (
-                <div className="text-red-500 font-semibold absolute top-[30px]">
+                <div
+                  className="text-red-500 font-semibold absolute top-[30px]"
+                  data-cy={`${viewPrefix}-desktop-deadline-error`}
+                >
                   Deadline is required
                 </div>
               )}
@@ -282,14 +300,20 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
               data-cy={`${viewPrefix}-mobile-title-input`}
             />
             {!keyValue.title && (
-              <div className="text-red-500 font-semibold absolute top-[30px]">
+              <div
+                className="text-red-500 font-semibold absolute top-[30px]"
+                data-cy={`${viewPrefix}-mobile-title-error`}
+              >
                 Achieve title is required
               </div>
             )}
           </Form.Item>
 
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-2">
+          <div
+            className="flex gap-2"
+            data-cy={`${viewPrefix}-mobile-form-row-2`}
+          >
             <Form.Item
               id={`${viewPrefix}-mobile-metric-select-item`}
               data-cy={`${viewPrefix}-mobile-metric-select-item`}
@@ -394,7 +418,10 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                 data-cy={`${viewPrefix}-mobile-deadline-picker`}
               />
               {!keyValue.deadline && (
-                <div className="text-red-500 font-semibold absolute top-[30px]">
+                <div
+                  className="text-red-500 font-semibold absolute top-[30px]"
+                  data-cy={`${viewPrefix}-mobile-deadline-error`}
+                >
                   Deadline is required
                 </div>
               )}

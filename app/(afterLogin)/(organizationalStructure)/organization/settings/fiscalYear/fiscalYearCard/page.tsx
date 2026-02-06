@@ -11,9 +11,7 @@ import {
 } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import {
-  useActivateMonth,
-} from '@/store/server/features/organizationStructure/fiscalYear/mutation';
+import { useActivateMonth } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import {
   FiscalYear,
   Session,
@@ -174,11 +172,14 @@ const FiscalYearListCard: React.FC = () => {
             (m: Month) => m.active,
           );
           const nextMonthStartDateStr = activeMonthForYear
-            ? dayjs(activeMonthForYear.endDate).add(1, 'day').format('YYYY-MM-DD')
+            ? dayjs(activeMonthForYear.endDate)
+                .add(1, 'day')
+                .format('YYYY-MM-DD')
             : null;
           const isNextMonthAfterActive = (month: Month) =>
             nextMonthStartDateStr != null &&
-            dayjs(month.startDate).format('YYYY-MM-DD') === nextMonthStartDateStr;
+            dayjs(month.startDate).format('YYYY-MM-DD') ===
+              nextMonthStartDateStr;
           return (
             <Card
               key={fYear?.id}
