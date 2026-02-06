@@ -118,12 +118,11 @@ const TakePicture: FC<TakePictureProps> = ({ className = '', onChange }) => {
         style={{ top: 20, padding: 0 }}
         closeIcon={<IoCloseCircleOutline size={24} className="text-white" />}
         styles={{
-          content: {
+          body: {
             height: 'calc(100dvh - 40px)',
             padding: 0,
             overflow: 'hidden',
           },
-          body: { height: '100%' },
         }}
         width="100vw"
       >

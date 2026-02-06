@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Avatar, Menu, Dropdown, Layout, Button, Badge } from 'antd';
+import { Avatar, Dropdown, Layout, Button, Badge } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useNotificationStore } from '@/store/uistate/features/notification';
@@ -50,19 +50,24 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
     }
   };
 
-  const menu = (
-    <Menu>
-      <Menu.Item>
+  const menuItems = [
+    {
+      key: 'profile',
+      label: (
         <a
           data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-a-56"
           onClick={handleProfileRoute}
         >
           Profile
         </a>
-      </Menu.Item>
-      <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
-    </Menu>
-  );
+      ),
+    },
+    {
+      key: 'logout',
+      label: 'Logout',
+      onClick: handleLogout,
+    },
+  ];
 
   return (
     <Header
@@ -110,7 +115,7 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           onOpenChange={setNotificationDropdownOpen}
           trigger={['click']}
           placement="bottomRight"
-          overlay={
+          dropdownRender={() =>
             mounted ? (
               <NotificationDropdownPanel open={notificationDropdownOpen} />
             ) : (
@@ -128,7 +133,7 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           </div>
         </Dropdown>
 
-        <Dropdown overlay={menu} placement="bottomRight">
+        <Dropdown menu={{ items: menuItems }} placement="bottomRight">
           <Avatar
             src={
               employeeData?.profileImage ||
