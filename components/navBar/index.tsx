@@ -84,9 +84,13 @@ const NavMenuItem: React.FC<{
     isDirectlyActive || isChildActive || (hasChildren && isPopoverOpen);
 
   const popoverContent = (
-    <div className="flex flex-col min-w-[220px] p-1 bg-white">
+    <div
+      data-cy="nav-popover-content"
+      className="flex flex-col min-w-[220px] p-1 bg-white"
+    >
       {item.children?.map((child: any) => (
         <button
+          data-cy="nav-popover-item"
           key={child.key}
           onClick={() => {
             const path = String(child.key);
@@ -117,6 +121,7 @@ const NavMenuItem: React.FC<{
       rootClassName="nav-popover-root"
     >
       <div
+        data-cy="nav-menu-item"
         onClick={() => {
           if (!hasChildren) {
             const path = String(item.key);
@@ -138,10 +143,14 @@ const NavMenuItem: React.FC<{
         `}
       >
         {isActive && (
-          <div className="absolute top-1/2 -translate-y-1/2 w-[8px] h-[26px] bg-[#3636F0] rounded-r-full left-0" />
+          <div
+            data-cy="nav-menu-item-indicator"
+            className="absolute top-1/2 -translate-y-1/2 w-[8px] h-[26px] bg-[#3636F0] rounded-r-full left-0"
+          />
         )}
 
         <div
+          data-cy="nav-menu-item-icon"
           className={`text-[19px] transition-colors ${
             isActive
               ? 'text-[#3636F0]'
@@ -154,6 +163,7 @@ const NavMenuItem: React.FC<{
         {!collapsed && (
           <>
             <span
+              data-cy="nav-menu-item-label"
               className={`flex-1 text-[13.5px] tracking-tight transition-colors ${
                 isActive
                   ? 'text-[#3636F0] font-semibold'
@@ -359,14 +369,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'ORGANIZATION',
       children: [
         {
-          title: <span>Org Structure</span>,
+          title: <span data-cy="nav-tree-org-structure">Org Structure</span>,
           key: '/organization/chart',
           className: 'font-bold',
           permissions: ['view_organization_chart'],
           disabled: hasEndedFiscalYear,
         },
         {
-          title: <span>Settings</span>,
+          title: <span data-cy="nav-tree-org-settings">Settings</span>,
           key: '/organization/settings',
           className: 'font-bold',
           permissions: ['view_organization_settings'],
@@ -383,7 +393,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'EMPLOYEES',
       children: [
         {
-          title: <span>Manage Employees</span>,
+          title: (
+            <span data-cy="nav-tree-manage-employees">Manage Employees</span>
+          ),
           key: '/employees/manage-employees',
           className: 'font-bold',
           permissions: ['manage_employees'],
@@ -395,7 +407,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         //   permissions: ['manage_department_requests'],
         // },
         {
-          title: <span>Settings</span>,
+          title: <span data-cy="nav-tree-employees-settings">Settings</span>,
           key: '/employees/settings',
           className: 'font-bold',
           permissions: ['manage_employee_settings'],
@@ -412,19 +424,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'RECRUITMENT',
       children: [
         {
-          title: <span>Dashboard</span>,
+          title: (
+            <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
+          ),
           key: '/recruitment/dashboard',
           className: 'font-bold',
           permissions: ['view_recruitment_dashboard'],
         },
         {
-          title: <span>Jobs</span>,
+          title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
           key: '/recruitment/jobs',
           className: 'font-bold',
           permissions: ['manage_recruitment_jobs'],
         },
         {
-          title: <span>AI Job Matching</span>,
+          title: (
+            <span data-cy="nav-tree-ai-job-matching">AI Job Matching</span>
+          ),
           key: '/recruitment/ai-job-matching',
           className: 'font-bold',
           permissions: ['manage_recruitment_jobs'],
@@ -432,19 +448,25 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           //  || isSubscriptionExpired,
         },
         {
-          title: <span>Candidates</span>,
+          title: <span data-cy="nav-tree-candidates">Candidates</span>,
           key: '/recruitment/candidate',
           className: 'font-bold',
           permissions: ['manage_recruitment_candidates'],
         },
         {
-          title: <span>Talent Resource</span>,
+          title: (
+            <span data-cy="nav-tree-talent-resource">Talent Resource</span>
+          ),
           key: '/recruitment/talent-resource',
           className: 'font-bold',
           permissions: ['manage_recruitment_talent_pool'],
         },
         {
-          title: <span className="font-bold">Settings</span>,
+          title: (
+            <span data-cy="nav-tree-recruitment-settings" className="font-bold">
+              Settings
+            </span>
+          ),
           key: '/recruitment/settings',
           className: 'font-bold',
           permissions: ['manage_recruitment_settings'],
@@ -461,31 +483,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'OKR',
       children: [
         {
-          title: <span>Dashboard</span>,
+          title: <span data-cy="nav-tree-okr-dashboard">Dashboard</span>,
           key: '/okr/dashboard',
           className: 'font-bold',
           permissions: ['view_okr_dashboard'],
         },
         {
-          title: <span>OKR</span>,
+          title: <span data-cy="nav-tree-okr">OKR</span>,
           key: '/okr',
           className: 'font-bold',
           permissions: ['view_okr_overview'],
         },
         {
-          title: <span>Planning and Reporting</span>,
+          title: (
+            <span data-cy="nav-tree-planning-reporting">
+              Planning and Reporting
+            </span>
+          ),
           key: '/planning-and-reporting',
           className: 'font-bold',
           permissions: ['manage_planning_reporting'],
         },
         {
-          title: <span>Weekly Priority</span>,
+          title: (
+            <span data-cy="nav-tree-weekly-priority">Weekly Priority</span>
+          ),
           key: '/weekly-priority',
           className: 'font-bold h-8',
           permissions: ['view_weekly_priority'],
         },
         {
-          title: <span>Settings</span>,
+          title: <span data-cy="nav-tree-okr-settings">Settings</span>,
           key: '/okr/settings',
           className: 'font-bold',
           permissions: ['manage_okr_settings'],
@@ -502,19 +530,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'CFR',
       children: [
         {
-          title: <span>Conversation</span>,
+          title: <span data-cy="nav-tree-conversation">Conversation</span>,
           key: '/feedback/conversation',
           className: 'font-bold',
           permissions: ['view_feedback_conversation'],
         },
         {
-          title: <span>Feedback</span>,
+          title: <span data-cy="nav-tree-feedback">Feedback</span>,
           key: '/feedback/feedback',
           className: 'font-bold',
           permissions: ['view_feedback_list'],
         },
         {
-          title: <span>Recognition</span>,
+          title: <span data-cy="nav-tree-recognition">Recognition</span>,
           key: '/feedback/recognition',
           className: 'font-bold',
           permissions: ['view_feedback_recognition'],
@@ -546,7 +574,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         // },
         {
-          title: <span>Training Management</span>,
+          title: (
+            <span data-cy="nav-tree-training-management">
+              Training Management
+            </span>
+          ),
           key: '/tna/management',
           className: 'font-bold',
           permissions: ['manage_training'],
@@ -561,7 +593,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         // },
         {
-          title: <span>Settings</span>,
+          title: <span data-cy="nav-tree-tna-settings">Settings</span>,
           key: '/tna/settings/course-category',
           className: 'font-bold',
           permissions: ['manage_tna_settings'],
@@ -578,25 +610,29 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'PAYROLL',
       children: [
         {
-          title: <span>Employee Information</span>,
+          title: (
+            <span data-cy="nav-tree-employee-information">
+              Employee Information
+            </span>
+          ),
           key: '/employee-information',
           className: 'font-bold',
           permissions: ['view_employee_information'],
         },
         {
-          title: <span>Payroll</span>,
+          title: <span data-cy="nav-tree-payroll">Payroll</span>,
           key: '/payroll',
           className: 'font-bold',
           permissions: ['view_payroll_overview'],
         },
         {
-          title: <span>My Payroll</span>,
+          title: <span data-cy="nav-tree-my-payroll">My Payroll</span>,
           key: '/myPayroll',
           className: 'font-bold',
           permissions: ['view_my_payroll'],
         },
         {
-          title: <span>Settings</span>,
+          title: <span data-cy="nav-tree-payroll-settings">Settings</span>,
           key: '/settings',
           className: 'font-bold',
           permissions: ['manage_payroll_settings'],
@@ -613,31 +649,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'TIMESHEET',
       children: [
         {
-          title: <span>Dashboard</span>,
+          title: <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>,
           key: '/timesheet/dashboard',
           className: 'font-bold',
           permissions: ['view_timesheet_dashboard'],
         },
         {
-          title: <span>My Timesheet</span>,
+          title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
           key: '/timesheet/my-timesheet',
           className: 'font-bold',
           permissions: ['view_my_timesheet'],
         },
         {
-          title: <span>Employee Attendance</span>,
+          title: (
+            <span data-cy="nav-tree-employee-attendance">
+              Employee Attendance
+            </span>
+          ),
           key: '/timesheet/employee-attendance',
           className: 'font-bold',
           permissions: ['view_employee_attendance'],
         },
         {
-          title: <span>Leave Management</span>,
+          title: (
+            <span data-cy="nav-tree-leave-management">Leave Management</span>
+          ),
           key: '/timesheet/leave-management/leaves',
           className: 'font-bold',
           permissions: ['manage_leave_management'],
         },
         {
-          title: <span>Settings</span>,
+          title: <span data-cy="nav-tree-timesheet-settings">Settings</span>,
           key: '/timesheet/settings/closed-date',
           className: 'font-bold',
           permissions: ['manage_timesheet_settings'],
@@ -654,25 +696,25 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'COMPENSATION',
       children: [
         {
-          title: <span>Allowance</span>,
+          title: <span data-cy="nav-tree-allowance">Allowance</span>,
           key: '/allowance',
           className: 'font-bold',
           permissions: ['view_allowance'],
         },
         {
-          title: <span>Benefit</span>,
+          title: <span data-cy="nav-tree-benefit">Benefit</span>,
           key: '/benefit',
           className: 'font-bold',
           permissions: ['view_benefit'],
         },
         {
-          title: <span>Deduction</span>,
+          title: <span data-cy="nav-tree-deduction">Deduction</span>,
           key: '/deduction',
           className: 'font-bold',
           permissions: ['view_deduction'],
         },
         {
-          title: <span>Settings</span>,
+          title: <span data-cy="nav-tree-compensation-settings">Settings</span>,
           key: '/compensationSetting',
           className: 'font-bold',
           permissions: ['manage_compensation_settings'],
@@ -689,19 +731,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'INCENTIVE',
       children: [
         {
-          title: <span>Incentive</span>,
+          title: <span data-cy="nav-tree-incentive">Incentive</span>,
           key: '/incentives',
           className: 'font-bold',
           permissions: ['view_incentive_page'],
         },
         {
-          title: <span>Variable Pay</span>,
+          title: <span data-cy="nav-tree-variable-pay">Variable Pay</span>,
           key: '/variable-pay',
           className: 'font-bold',
           permissions: ['view_variable_pay'],
         },
         {
-          title: <span>Settings</span>,
+          title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
           key: '/incentives/settings',
           className: 'font-bold',
           permissions: ['manage_incentive_settings'],
@@ -727,19 +769,21 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'ADMIN',
       children: [
         {
-          title: <span>Dashboard</span>,
+          title: <span data-cy="nav-tree-admin-dashboard">Dashboard</span>,
           key: '/admin/dashboard',
           className: 'font-bold',
           permissions: ['view_admin_dashboard'],
         },
         {
-          title: <span>Billing and Invoice</span>,
+          title: (
+            <span data-cy="nav-tree-admin-billing">Billing and Invoice</span>
+          ),
           key: '/admin/billing',
           className: 'font-bold',
           permissions: ['view_admin_billing'],
         },
         {
-          title: <span>Update Profile</span>,
+          title: <span data-cy="nav-tree-admin-profile">Update Profile</span>,
           key: '/admin/profile',
           className: 'font-bold',
           permissions: ['view_admin_profile'],
@@ -1143,7 +1187,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         type: 'group',
         key: parent.id,
         label: (
-          <span className="text-xs font-semibold text-gray-500 px-4">
+          <span
+            data-cy="nav-group-label"
+            className="text-xs font-semibold text-gray-500 px-4"
+          >
             {parent.name}
           </span>
         ),
@@ -1222,15 +1269,21 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }}
         collapsedWidth={80}
       >
-        <div className="my-2">{collapsed && <SimpleLogo />}</div>
+        <div data-cy="nav-sider-logo-collapsed" className="my-2">
+          {collapsed && <SimpleLogo />}
+        </div>
 
-        <div className="flex items-center justify-between px-4 pt-6 pb-0">
-          <div className="flex items-center gap-2">
+        <div
+          data-cy="nav-sider-logo-wrap"
+          className="flex items-center justify-between px-4 pt-6 pb-0"
+        >
+          <div data-cy="nav-sider-logo" className="flex items-center gap-2">
             {!collapsed && <Logo type="selamnew" />}
           </div>
         </div>
 
         <button
+          data-cy="nav-sider-toggle"
           onClick={toggleCollapsed}
           className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-[#1D4ED8] text-white shadow-md hover:bg-[#1e40af] transition-all"
           style={{ zIndex: 10001 }}
@@ -1241,23 +1294,38 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             <AiOutlineRight size={12} className="rotate-180" />
           )}
         </button>
-        <div className="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar">
+        <div
+          data-cy="nav-sider-menu-scroll"
+          className="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar"
+        >
           <div
+            data-cy="nav-sider-menu-inner"
             className={`${collapsed ? 'mt-1' : 'mt-2'} pb-20 ${collapsed ? 'px-0' : 'px-3'}`}
           >
             {!isMounted || isLoading ? (
-              <div className="px-5 w-full h-full flex justify-center items-center my-5">
+              <div
+                data-cy="nav-sider-loading"
+                className="px-5 w-full h-full flex justify-center items-center my-5"
+              >
                 <Skeleton active />
               </div>
             ) : (
-              <div className="space-y-6">
+              <div data-cy="nav-sider-groups" className="space-y-6">
                 {groupedMenuItems.map((group: any) => {
                   const isExpanded = expandedGroups[group.key] ?? true;
 
                   return (
-                    <div key={group.key} className="space-y-1">
-                      <div className="px-2 mb-1">
+                    <div
+                      data-cy="nav-sider-group"
+                      key={group.key}
+                      className="space-y-1"
+                    >
+                      <div
+                        data-cy="nav-sider-group-header"
+                        className="px-2 mb-1"
+                      >
                         <button
+                          data-cy="nav-sider-group-toggle"
                           type="button"
                           onClick={() =>
                             setExpandedGroups((prev) => ({
@@ -1271,8 +1339,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         >
                           {!collapsed && (
                             <>
-                              <span>{group.label}</span>
+                              <span data-cy="nav-sider-group-label">
+                                {group.label}
+                              </span>
                               <span
+                                data-cy="nav-sider-group-chevron"
                                 className={`transition-transform duration-200 text-[#94A3B8] ${
                                   isExpanded ? 'rotate-180' : ''
                                 }`}
@@ -1286,11 +1357,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                           )}
                         </button>
                         <div
+                          data-cy="nav-sider-group-divider"
                           className={`h-[1px] bg-[#E2E8F0] my-3 ${collapsed ? 'w-[50px] mx-auto' : 'w-full'}`}
                         />
                       </div>
 
                       <div
+                        data-cy="nav-sider-group-children"
                         className={`space-y-1 transition-all duration-300 ${
                           isExpanded ? 'opacity-100' : 'hidden opacity-0'
                         }`}
@@ -1317,9 +1390,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         </div>
 
         <div
+          data-cy="nav-sider-admin-wrap"
           className={`absolute bottom-6 ${collapsed ? 'left-1/2 -translate-x-1/2' : 'left-4 right-4'}`}
         >
           <Button
+            data-cy="nav-sider-admin-btn"
             type="primary"
             size="large"
             icon={<PiUserGearLight size={22} />}
@@ -1365,8 +1440,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           {isMobile && (
-            <div className="p-[10px] flex justify-center items-center">
+            <div
+              data-cy="nav-header-mobile-toggle-wrap"
+              className="p-[10px] flex justify-center items-center"
+            >
               <Button
+                data-cy="nav-header-mobile-toggle"
                 className="w-full h-full"
                 onClick={toggleMobileCollapsed}
                 icon={
@@ -1397,11 +1476,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           {isMounted && isCheckingPermissions ? (
-            <div className="flex justify-center items-center h-screen">
+            <div
+              data-cy="nav-content-loading"
+              className="flex justify-center items-center h-screen"
+            >
               <Skeleton active />
             </div>
           ) : (
             <div
+              data-cy="nav-content-inner"
               className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
               style={{
                 borderRadius: borderRadiusLG,

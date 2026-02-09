@@ -54,6 +54,7 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
       key: 'profile',
       label: (
         <div
+          data-cy="top-nav-profile-label"
           onClick={handleProfileRoute}
           className="text-gray-600 font-medium px-1"
         >
@@ -67,27 +68,50 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
     },
     {
       key: 'logout',
-      label: <div className="text-red-500 font-medium px-1">Logout</div>,
+      label: (
+        <div
+          data-cy="top-nav-logout-label"
+          className="text-red-500 font-medium px-1"
+        >
+          Logout
+        </div>
+      ),
       onClick: handleLogout,
       className: 'rounded-lg',
     },
   ];
 
   return (
-    <div className="flex justify-between items-center bg-white w-full h-full px-6">
+    <div
+      data-cy="top-nav-bar"
+      className="flex justify-between items-center bg-white w-full h-full px-6"
+    >
       {/* Left side: Search Bar */}
-      <div className="flex-1 max-w-[420px] flex items-center pr-4">
-        <div className="relative w-full group">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+      <div
+        data-cy="top-nav-search-wrap"
+        className="flex-1 max-w-[420px] flex items-center pr-4"
+      >
+        <div data-cy="top-nav-search-inner" className="relative w-full group">
+          <div
+            data-cy="top-nav-search-icon-wrap"
+            className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
+          >
             <FiSearch className="h-4.5 w-4.5 text-gray-400 group-focus-within:text-[#3636F0] transition-colors" />
           </div>
           <input
+            data-cy="top-nav-search-input"
             type="text"
             className="block w-full h-[44px] pl-11 pr-12 bg-[#F9FBFF] border border-gray-200 rounded-xl text-[14.5px] placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#3636F0]/20 focus:border-[#3636F0] transition-all"
             placeholder="Search"
           />
-          <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-            <div className="flex items-center justify-center w-6 h-6 border border-gray-200 rounded-md text-[11px] font-bold text-gray-400 bg-white">
+          <div
+            data-cy="top-nav-search-shortcut-wrap"
+            className="absolute inset-y-0 right-3 flex items-center pointer-events-none"
+          >
+            <div
+              data-cy="top-nav-search-shortcut"
+              className="flex items-center justify-center w-6 h-6 border border-gray-200 rounded-md text-[11px] font-bold text-gray-400 bg-white"
+            >
               S
             </div>
           </div>
@@ -95,10 +119,11 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
       </div>
 
       {/* Right side: Actions & User Profile */}
-      <div className="flex items-center gap-5">
+      <div data-cy="top-nav-actions" className="flex items-center gap-5">
         {/* PWA Install Button */}
         {isInstallable && !isInstalled && !isStandalone && (
           <Button
+            data-cy="top-nav-install-app-btn"
             type="primary"
             icon={<DownloadOutlined />}
             onClick={handleInstallClick}
@@ -119,11 +144,14 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
             mounted ? (
               <NotificationDropdownPanel open={notificationDropdownOpen} />
             ) : (
-              <div />
+              <div data-cy="top-nav-notification-placeholder" />
             )
           }
         >
-          <div className="relative flex items-center justify-center cursor-pointer hover:bg-gray-50 p-2.5 rounded-full transition-all active:scale-95 group">
+          <div
+            data-cy="top-nav-notification-trigger"
+            className="relative flex items-center justify-center cursor-pointer hover:bg-gray-50 p-2.5 rounded-full transition-all active:scale-95 group"
+          >
             <Badge count={notificationCount} size="small" offset={[-2, 2]}>
               <FiBell
                 size={23}
@@ -140,7 +168,10 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
           placement="bottomRight"
           overlayClassName="profile-dropdown"
         >
-          <div className="flex items-center gap-3 px-3.5 py-2 bg-[#F0F7FF] rounded-xl cursor-pointer hover:bg-[#E1EFFF] transition-all border border-transparent hover:border-[#D0E6FF] group h-[52px]">
+          <div
+            data-cy="top-nav-profile-trigger"
+            className="flex items-center gap-3 px-3.5 py-2 bg-[#F0F7FF] rounded-xl cursor-pointer hover:bg-[#E1EFFF] transition-all border border-transparent hover:border-[#D0E6FF] group h-[52px]"
+          >
             <Avatar
               size={36}
               src={
@@ -150,14 +181,23 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
               }
               className="border-2 border-white shadow-sm transition-transform group-hover:scale-105"
             />
-            <div className="hidden lg:flex flex-col text-left leading-tight">
-              <span className="text-[13.5px] font-bold text-[#1E293B] mb-0.5">
+            <div
+              data-cy="top-nav-profile-info"
+              className="hidden lg:flex flex-col text-left leading-tight"
+            >
+              <span
+                data-cy="top-nav-profile-name"
+                className="text-[13.5px] font-bold text-[#1E293B] mb-0.5"
+              >
                 {employeeData?.fullName ||
                   (employeeData?.firstName
                     ? `${employeeData.firstName} ${employeeData.lastName}`
                     : 'Selam Belete')}
               </span>
-              <span className="text-[10.5px] text-[#64748B] font-semibold uppercase tracking-wide opacity-80">
+              <span
+                data-cy="top-nav-profile-title"
+                className="text-[10.5px] text-[#64748B] font-semibold uppercase tracking-wide opacity-80"
+              >
                 {employeeData?.jobInformation?.jobTitle?.name ||
                   'Software Developer'}
               </span>
