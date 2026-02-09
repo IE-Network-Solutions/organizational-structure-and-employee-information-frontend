@@ -1238,7 +1238,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // Render the component with the layout and navigation on the left
 
   return (
-    <Layout>
+    <Layout style={{ background: '#fff' }}>
       <Sider
         theme="light"
         width={280}
@@ -1414,8 +1414,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       </Sider>
       <Layout
         style={{
-          marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
+          marginLeft: 0,
           transition: 'margin-left 0.3s ease',
+          background: '#fff',
         }}
       >
         <Header
@@ -1470,9 +1471,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <Content
           className="overflow-y-hidden min-h-screen"
           style={{
-            paddingInline: isMobile ? 8 : 24,
+            paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
+            paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
+            background: '#fff',
           }}
         >
           {isMounted && isCheckingPermissions ? (
@@ -1488,8 +1491,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
               style={{
                 borderRadius: borderRadiusLG,
-                marginTop: `${isMobile ? '85px' : '94px'}`,
-                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+                marginTop: 0,
+                marginRight: 0,
               }}
             >
               {children}
