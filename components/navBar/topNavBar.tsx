@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Avatar, Menu, Dropdown, Layout, Button, Badge } from 'antd';
+import { Avatar, Dropdown, Button, Badge } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useNotificationStore } from '@/store/uistate/features/notification';
@@ -12,8 +12,6 @@ import { FiSearch, FiBell } from 'react-icons/fi';
 import { AiOutlineDown } from 'react-icons/ai';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
 import { NotificationDropdownPanel } from './NotificationDropdownPanel';
-
-const { Header } = Layout;
 
 interface NavBarProps {
   handleLogout: () => void;
@@ -55,31 +53,28 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
     {
       key: 'profile',
       label: (
-        <div onClick={handleProfileRoute} className="text-gray-600 font-medium px-1">
+        <div
+          onClick={handleProfileRoute}
+          className="text-gray-600 font-medium px-1"
+        >
           Profile
         </div>
       ),
-      className: "rounded-lg"
+      className: 'rounded-lg',
     },
     {
       type: 'divider' as const,
     },
     {
       key: 'logout',
-      label: (
-        <div className="text-red-500 font-medium px-1">
-          Logout
-        </div>
-      ),
+      label: <div className="text-red-500 font-medium px-1">Logout</div>,
       onClick: handleLogout,
-      className: "rounded-lg"
+      className: 'rounded-lg',
     },
   ];
 
   return (
-    <div
-      className="flex justify-between items-center bg-white w-full h-full px-6"
-    >
+    <div className="flex justify-between items-center bg-white w-full h-full px-6">
       {/* Left side: Search Bar */}
       <div className="flex-1 max-w-[420px] flex items-center pr-4">
         <div className="relative w-full group">
@@ -92,7 +87,9 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
             placeholder="Search"
           />
           <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-            <div className="flex items-center justify-center w-6 h-6 border border-gray-200 rounded-md text-[11px] font-bold text-gray-400 bg-white">S</div>
+            <div className="flex items-center justify-center w-6 h-6 border border-gray-200 rounded-md text-[11px] font-bold text-gray-400 bg-white">
+              S
+            </div>
           </div>
         </div>
       </div>
@@ -118,32 +115,57 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
           onOpenChange={setNotificationDropdownOpen}
           trigger={['click']}
           placement="bottomRight"
-          dropdownRender={() => (mounted ? <NotificationDropdownPanel open={notificationDropdownOpen} /> : <div />)}
+          dropdownRender={() =>
+            mounted ? (
+              <NotificationDropdownPanel open={notificationDropdownOpen} />
+            ) : (
+              <div />
+            )
+          }
         >
           <div className="relative flex items-center justify-center cursor-pointer hover:bg-gray-50 p-2.5 rounded-full transition-all active:scale-95 group">
             <Badge count={notificationCount} size="small" offset={[-2, 2]}>
-              <FiBell size={23} className="text-[#475569] group-hover:text-[#3636F0] transition-colors" />
+              <FiBell
+                size={23}
+                className="text-[#475569] group-hover:text-[#3636F0] transition-colors"
+              />
             </Badge>
           </div>
         </Dropdown>
 
         {/* User Profile */}
-        <Dropdown menu={{ items: profileMenuItems }} trigger={['click']} placement="bottomRight" overlayClassName="profile-dropdown">
+        <Dropdown
+          menu={{ items: profileMenuItems }}
+          trigger={['click']}
+          placement="bottomRight"
+          overlayClassName="profile-dropdown"
+        >
           <div className="flex items-center gap-3 px-3.5 py-2 bg-[#F0F7FF] rounded-xl cursor-pointer hover:bg-[#E1EFFF] transition-all border border-transparent hover:border-[#D0E6FF] group h-[52px]">
             <Avatar
               size={36}
-              src={employeeData?.profileImage || (DefaultAvatar as any).src || (DefaultAvatar as unknown as string)}
+              src={
+                employeeData?.profileImage ||
+                (DefaultAvatar as any).src ||
+                (DefaultAvatar as unknown as string)
+              }
               className="border-2 border-white shadow-sm transition-transform group-hover:scale-105"
             />
             <div className="hidden lg:flex flex-col text-left leading-tight">
               <span className="text-[13.5px] font-bold text-[#1E293B] mb-0.5">
-                {employeeData?.fullName || (employeeData?.firstName ? `${employeeData.firstName} ${employeeData.lastName}` : 'Selam Belete')}
+                {employeeData?.fullName ||
+                  (employeeData?.firstName
+                    ? `${employeeData.firstName} ${employeeData.lastName}`
+                    : 'Selam Belete')}
               </span>
               <span className="text-[10.5px] text-[#64748B] font-semibold uppercase tracking-wide opacity-80">
-                {employeeData?.jobInformation?.jobTitle?.name || 'Software Developer'}
+                {employeeData?.jobInformation?.jobTitle?.name ||
+                  'Software Developer'}
               </span>
             </div>
-            <AiOutlineDown size={14} className="text-[#94A3B8] ml-1 transition-transform group-hover:translate-y-0.5" />
+            <AiOutlineDown
+              size={14}
+              className="text-[#94A3B8] ml-1 transition-transform group-hover:translate-y-0.5"
+            />
           </div>
         </Dropdown>
       </div>

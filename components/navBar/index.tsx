@@ -7,12 +7,8 @@ import {
   MenuOutlined,
   FileTextOutlined,
 } from '@ant-design/icons';
-import {
-  MdOutlineKeyboardDoubleArrowLeft,
-  MdOutlineKeyboardDoubleArrowRight,
-} from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
-import { Layout, Button, theme, Skeleton, message, Menu, Popover } from 'antd';
+import { Layout, Button, theme, Skeleton, message, Popover } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
@@ -51,7 +47,7 @@ interface CustomMenuItem {
 }
 
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
-import { ModuleGroup, Module } from '@/types/tenant-management';
+import { Module } from '@/types/tenant-management';
 
 interface MyComponentProps {
   children: ReactNode;
@@ -61,18 +57,31 @@ const NavMenuItem: React.FC<{
   item: any;
   collapsed: boolean;
   selectedKeys: (string | number | bigint)[];
-  setSelectedKeys: React.Dispatch<React.SetStateAction<(string | number | bigint)[]>>;
+  setSelectedKeys: React.Dispatch<
+    React.SetStateAction<(string | number | bigint)[]>
+  >;
   router: any;
   pathname: string;
   triggerRouteLoaderStart: () => void;
-}> = ({ item, collapsed, selectedKeys, setSelectedKeys, router, pathname, triggerRouteLoaderStart }) => {
+}> = ({
+  item,
+  collapsed,
+  selectedKeys,
+  setSelectedKeys,
+  router,
+  pathname,
+  triggerRouteLoaderStart,
+}) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
 
   // Check if this item or any of its children matches the current specific active path
   const isDirectlyActive = selectedKeys.includes(item.key);
-  const isChildActive = hasChildren && item.children.some((child: any) => selectedKeys.includes(child.key));
-  const isActive = isDirectlyActive || isChildActive || (hasChildren && isPopoverOpen);
+  const isChildActive =
+    hasChildren &&
+    item.children.some((child: any) => selectedKeys.includes(child.key));
+  const isActive =
+    isDirectlyActive || isChildActive || (hasChildren && isPopoverOpen);
 
   const popoverContent = (
     <div className="flex flex-col min-w-[220px] p-1 bg-white">
@@ -120,9 +129,10 @@ const NavMenuItem: React.FC<{
         }}
         className={`
           group relative flex items-center gap-3 px-3 py-[9px] cursor-pointer transition-all duration-200
-          ${isActive
-            ? 'bg-white border border-[#3636F0] rounded-xl shadow-sm'
-            : 'hover:bg-[#EBF5FF] rounded-xl'
+          ${
+            isActive
+              ? 'bg-white border border-[#3636F0] rounded-xl shadow-sm'
+              : 'hover:bg-[#EBF5FF] rounded-xl'
           }
           ${collapsed ? 'justify-center px-0 mx-[10px]' : 'ml-[-1px]'}
         `}
@@ -132,8 +142,11 @@ const NavMenuItem: React.FC<{
         )}
 
         <div
-          className={`text-[19px] transition-colors ${isActive ? 'text-[#3636F0]' : 'text-[#475569] group-hover:text-[#3636F0]'
-            } ${isActive && !collapsed ? 'ml-3' : ''}`}
+          className={`text-[19px] transition-colors ${
+            isActive
+              ? 'text-[#3636F0]'
+              : 'text-[#475569] group-hover:text-[#3636F0]'
+          } ${isActive && !collapsed ? 'ml-3' : ''}`}
         >
           {item.icon}
         </div>
@@ -141,16 +154,22 @@ const NavMenuItem: React.FC<{
         {!collapsed && (
           <>
             <span
-              className={`flex-1 text-[13.5px] tracking-tight transition-colors ${isActive ? 'text-[#3636F0] font-semibold' : 'text-[#475569] font-medium group-hover:text-gray-900'
-                }`}
+              className={`flex-1 text-[13.5px] tracking-tight transition-colors ${
+                isActive
+                  ? 'text-[#3636F0] font-semibold'
+                  : 'text-[#475569] font-medium group-hover:text-gray-900'
+              }`}
             >
               {item.label}
             </span>
             {hasChildren && (
               <AiOutlineRight
                 size={12}
-                className={`transition-colors ${isActive ? 'text-[#3636F0]' : 'text-[#94A3B8] group-hover:text-gray-600'
-                  }`}
+                className={`transition-colors ${
+                  isActive
+                    ? 'text-[#3636F0]'
+                    : 'text-[#94A3B8] group-hover:text-gray-600'
+                }`}
               />
             )}
           </>
@@ -162,7 +181,7 @@ const NavMenuItem: React.FC<{
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { borderRadiusLG },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -827,7 +846,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     );
     return hasAllPermissions;
   };
-  const { data: modulesData, isLoading: modulesLoading } = useGetModules({ filter: { isActive: true } });
+  const { data: modulesData, isLoading: modulesLoading } = useGetModules({
+    filter: { isActive: true },
+  });
   const { data: departments, isLoading: departmentsLoading } =
     useGetDepartments();
   const { data: employeeData, isLoading: employeeDataLoading } =
@@ -835,7 +856,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
 
   const isLoadingData =
-    departmentsLoading || employeeDataLoading || modulesLoading || !departments || !employeeData;
+    departmentsLoading ||
+    employeeDataLoading ||
+    modulesLoading ||
+    !departments ||
+    !employeeData;
 
   useEffect(() => {
     if (isLoadingData) return;
@@ -952,47 +977,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
   }, []);
 
-  const handleSelect = (keys: (string | number | bigint)[], info: any) => {
-    const selectedKey = info?.node?.key;
-    if (!selectedKey) return;
-
-    // Check if node has children - handle both undefined and empty arrays
-    const hasChildren =
-      info.node.children &&
-      Array.isArray(info.node.children) &&
-      info.node.children.length > 0;
-
-    if (hasChildren) {
-      setExpandedKeys((prev) =>
-        prev.includes(selectedKey) ? [] : [selectedKey],
-      );
-      return;
-    }
-
-    const path = String(selectedKey);
-    if (pathname !== path) {
-      triggerRouteLoaderStart();
-      router.push(path);
-      setSelectedKeys([selectedKey]);
-    }
-  };
-
-  const handleExpand = (expandedKeys: (string | number | bigint)[]) => {
-    if (expandedKeys.length > 0) {
-      setExpandedKeys([expandedKeys[expandedKeys.length - 1]]);
-    } else {
-      setExpandedKeys([]);
-    }
-  };
-
-  const handleDoubleClick = (event: React.MouseEvent, node: any) => {
-    const key = node?.key;
-    if (!node.children && key) {
-      triggerRouteLoaderStart();
-      router.push(String(key));
-    }
-  };
-
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -1037,10 +1021,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) { }
+    } catch (error) {}
   };
-
-
 
   const groupedMenuItems = React.useMemo(() => {
     // 1. Filter treeData items by user permissions
@@ -1054,10 +1036,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ...item,
           children: item.children
             ? item.children.filter((child) =>
-              AccessGuard.checkAccess({
-                permissions: child.permissions,
-              }),
-            )
+                AccessGuard.checkAccess({
+                  permissions: child.permissions,
+                }),
+              )
             : [],
         };
       })
@@ -1145,9 +1127,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           children:
             treeItem.children && treeItem.children.length > 0
               ? treeItem.children.map((child) => ({
-                key: child.key,
-                label: child.title,
-              }))
+                  key: child.key,
+                  label: child.title,
+                }))
               : undefined,
         });
       });
@@ -1260,7 +1242,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           )}
         </button>
         <div className="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar">
-          <div className={`${collapsed ? 'mt-1' : 'mt-2'} pb-20 ${collapsed ? 'px-0' : 'px-3'}`}>
+          <div
+            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-20 ${collapsed ? 'px-0' : 'px-3'}`}
+          >
             {!isMounted || isLoading ? (
               <div className="px-5 w-full h-full flex justify-center items-center my-5">
                 <Skeleton active />
@@ -1281,27 +1265,35 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                               [group.key]: !isExpanded,
                             }))
                           }
-                          className={`w-full flex items-center justify-between text-[13px] font-medium text-[#94A3B8] hover:text-gray-600 transition-colors ${collapsed ? 'h-4' : ''
-                            }`}
+                          className={`w-full flex items-center justify-between text-[13px] font-medium text-[#94A3B8] hover:text-gray-600 transition-colors ${
+                            collapsed ? 'h-4' : ''
+                          }`}
                         >
                           {!collapsed && (
                             <>
                               <span>{group.label}</span>
                               <span
-                                className={`transition-transform duration-200 text-[#94A3B8] ${isExpanded ? 'rotate-180' : ''
-                                  }`}
+                                className={`transition-transform duration-200 text-[#94A3B8] ${
+                                  isExpanded ? 'rotate-180' : ''
+                                }`}
                               >
-                                <AiOutlineRight size={10} className="-rotate-90" />
+                                <AiOutlineRight
+                                  size={10}
+                                  className="-rotate-90"
+                                />
                               </span>
                             </>
                           )}
                         </button>
-                        <div className={`h-[1px] bg-[#E2E8F0] my-3 ${collapsed ? 'w-[50px] mx-auto' : 'w-full'}`} />
+                        <div
+                          className={`h-[1px] bg-[#E2E8F0] my-3 ${collapsed ? 'w-[50px] mx-auto' : 'w-full'}`}
+                        />
                       </div>
 
                       <div
-                        className={`space-y-1 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'hidden opacity-0'
-                          }`}
+                        className={`space-y-1 transition-all duration-300 ${
+                          isExpanded ? 'opacity-100' : 'hidden opacity-0'
+                        }`}
                       >
                         {group.children?.map((item: any) => (
                           <NavMenuItem
@@ -1324,21 +1316,24 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </div>
         </div>
 
-        <div className={`absolute bottom-6 ${collapsed ? 'left-1/2 -translate-x-1/2' : 'left-4 right-4'}`}>
+        <div
+          className={`absolute bottom-6 ${collapsed ? 'left-1/2 -translate-x-1/2' : 'left-4 right-4'}`}
+        >
           <Button
             type="primary"
             size="large"
             icon={<PiUserGearLight size={22} />}
             className={`
               flex items-center justify-center bg-[#1D4ED8] hover:bg-[#1e40af] border-none shadow-lg shadow-blue-200/50 transition-all duration-300
-              ${collapsed
-                ? 'w-[52px] h-[52px] rounded-xl'
-                : 'w-full h-12 rounded-xl text-[14px] font-semibold gap-2'
+              ${
+                collapsed
+                  ? 'w-[52px] h-[52px] rounded-xl'
+                  : 'w-full h-12 rounded-xl text-[14px] font-semibold gap-2'
               }
             `}
             onClick={() => router.push('/admin/dashboard')}
           >
-            {!collapsed && "Admin Console"}
+            {!collapsed && 'Admin Console'}
           </Button>
         </div>
       </Sider>

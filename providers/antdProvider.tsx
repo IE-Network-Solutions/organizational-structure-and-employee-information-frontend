@@ -6,7 +6,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
     token: {
       // Font Family - SF Pro Text with fallbacks
       fontFamily: `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`,
-      
+
       // Typography - Base Text Styles
       fontSize: 14, // Base font size
       fontSizeSM: 12, // Small font size
@@ -17,7 +17,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       fontSizeHeading3: 24, // H3
       fontSizeHeading4: 20, // H4
       fontSizeHeading5: 16, // H5
-      
+
       // Line Heights
       lineHeight: 1.5714, // Base line height (22px / 14px)
       lineHeightSM: 1.6667, // Small line height (20px / 12px)
@@ -27,7 +27,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       lineHeightHeading3: 1.3333, // H3 line height (32px / 24px)
       lineHeightHeading4: 1.4, // H4 line height (28px / 20px)
       lineHeightHeading5: 1.5, // H5 line height (24px / 16px)
-      
+
       // Brand Colors - Primary (Blue Palette)
       colorPrimary: '#1890FF', // Primary-7: Main primary color
       colorPrimaryBg: '#E6F7FF', // Primary-3: Default state background
@@ -39,7 +39,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       colorPrimaryTextHover: '#40A9FF', // Primary-6: Text hover
       colorPrimaryText: '#1890FF', // Primary-7: Text color
       colorPrimaryTextActive: '#096DD9', // Primary-8: Text active
-      
+
       // Brand Colors - Success (Green Palette)
       colorSuccess: '#52C41A', // Success-7: Main success color
       colorSuccessBg: '#F6FFED', // Success-3: Default background
@@ -51,7 +51,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       colorSuccessTextHover: '#73D13D', // Success-6: Text hover
       colorSuccessText: '#52C41A', // Success-7: Text color
       colorSuccessTextActive: '#389E08', // Success-8: Text active
-      
+
       // Brand Colors - Warning (Orange/Yellow Palette)
       colorWarning: '#FAAD14', // Warning-6: Main warning color
       colorWarningBg: '#FFFBE6', // Warning-3: Default background
@@ -63,7 +63,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       colorWarningTextHover: '#FFC53D', // Warning-7: Text hover
       colorWarningText: '#FAAD14', // Warning-6: Text color
       colorWarningTextActive: '#D46B08', // Warning-8: Text active
-      
+
       // Brand Colors - Info (Cyan Palette)
       colorInfo: '#13C2C2', // Info-6: Main info color
       colorInfoBg: '#E6FFFB', // Info-3: Default background
@@ -75,7 +75,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       colorInfoTextHover: '#36CFC9', // Info text hover
       colorInfoText: '#13C2C2', // Info-6: Text color
       colorInfoTextActive: '#08979C', // Info-7: Text active
-      
+
       // Brand Colors - Error (Red Palette)
       colorError: '#FF4D4F', // Error-6: Main error color
       colorErrorBg: '#FFF1F0', // Error-3: Default background
@@ -87,12 +87,12 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       colorErrorTextHover: '#FF7875', // Error text hover
       colorErrorText: '#FF4D4F', // Error-6: Text color
       colorErrorTextActive: '#CF1322', // Error-8: Text active
-      
+
       // Link Colors
       colorLink: '#1890FF', // Default link color
       colorLinkHover: '#40A9FF', // Link hover state
       colorLinkActive: '#096DD9', // Link active state
-      
+
       // Neutral Colors - Text
       colorText: '#000000', // Primary text color (light theme)
       colorTextSecondary: 'rgba(0, 0, 0, 0.65)', // Secondary text (light theme)
@@ -101,31 +101,31 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       colorTextHeading: '#000000', // Heading text color
       colorTextPlaceholder: 'rgba(0, 0, 0, 0.25)', // Placeholder text
       colorTextDisabled: 'rgba(0, 0, 0, 0.25)', // Disabled text
-      
+
       // Neutral Colors - Icon
       colorIcon: '#000000', // Default icon color
       colorIconHover: '#000000', // Icon hover color
-      
+
       // Neutral Colors - Background
       colorBgContainer: '#FFFFFF', // Container background (light theme)
       colorBgLayout: '#F0F2F5', // Layout background (light theme)
       colorBgElevated: '#FFFFFF', // Elevated/floating components background
       colorBgMask: 'rgba(0, 0, 0, 0.45)', // Mask background (modal/drawer)
-      
+
       // Neutral Colors - Border
       colorBorder: '#D9D9D9', // Default border color
-      
+
       // Neutral Colors - Fill
       colorFill: 'rgba(0, 0, 0, 0.06)', // Default fill color
       colorFillSecondary: 'rgba(0, 0, 0, 0.06)', // Secondary fill (subtle)
       colorFillTertiary: 'rgba(0, 0, 0, 0.06)', // Tertiary fill (most subtle)
-      
+
       // Border Radius
       borderRadius: 6, // Default border radius
       borderRadiusSM: 4, // Small border radius
       borderRadiusLG: 8, // Large border radius
       borderRadiusXS: 2, // Extra small border radius
-      
+
       // Spacing
       padding: 16, // Default padding
       paddingXS: 8, // Extra small padding
@@ -137,19 +137,20 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       marginSM: 12, // Small margin
       marginLG: 24, // Large margin
       marginXL: 32, // Extra large margin
-      
+
       // Control Colors (Grey/Neutral Palette)
       controlItemBgHover: '#F5F5F5', // Control-1: Hover background
       controlItemBgActive: '#E0E0E0', // Control-2: Active background
       controlItemBgActiveHover: '#C0C0C0', // Control-3: Active hover
-      
+
       // Animation
       motionDurationFast: '0.1s',
       motionDurationMid: '0.2s',
       motionDurationSlow: '0.3s',
-      
+
       // Shadow
-      boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
+      boxShadow:
+        '0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
     },
     components: {
       Menu: {
@@ -186,10 +187,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <ConfigProvider
-      renderEmpty={CustomizeRenderEmpty}
-      theme={theme}
-    >
+    <ConfigProvider renderEmpty={CustomizeRenderEmpty} theme={theme}>
       {children}
     </ConfigProvider>
   );
