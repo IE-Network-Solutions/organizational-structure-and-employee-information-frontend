@@ -229,6 +229,20 @@ export interface Module extends BaseEntity {
   name: string;
   description: string;
   isActive: boolean;
+  moduleGroup: ModuleGroup;
+  orderIndex?: number;
+}
+
+/**
+ * Module groups
+ */
+export enum ModuleGroup {
+  OVERVIEW = 'Overview',
+  PEOPLE = 'People',
+  PERFORMANCE = 'Performance',
+  FINANCE = 'Finance',
+  ADMINISTRATION = 'Administration',
+  ORGANIZATION = 'Organization',
 }
 
 /**
