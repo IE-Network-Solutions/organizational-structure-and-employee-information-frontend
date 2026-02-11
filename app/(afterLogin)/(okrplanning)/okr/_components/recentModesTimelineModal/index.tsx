@@ -54,8 +54,8 @@ const RecentModesTimelineModal: React.FC<RecentModesTimelineModalProps> = ({
   return (
     <Modal
       title={
-        <span className="flex items-center gap-2">
-          <ClockCircleOutlined />
+        <span className="flex items-center gap-2" data-cy="recent-modes-timeline-modal-title">
+          <ClockCircleOutlined data-cy="recent-modes-timeline-modal-title-icon" />
           Recent Modes Timeline
         </span>
       }
@@ -67,23 +67,23 @@ const RecentModesTimelineModal: React.FC<RecentModesTimelineModalProps> = ({
       data-cy="recent-modes-timeline-modal"
       destroyOnClose
     >
-      <div className="py-2">
-        <div className="relative flex flex-col gap-4">
+      <div className="py-2" data-cy="recent-modes-timeline-content">
+        <div className="relative flex flex-col gap-4" data-cy="recent-modes-timeline-container">
           {/* BASIC / current entry */}
-          <div className="flex gap-3">
-            <div className="flex flex-col items-center">
+          <div className="flex gap-3" data-cy="recent-modes-timeline-basic-entry">
+            <div className="flex flex-col items-center" data-cy="recent-modes-timeline-basic-indicator-wrapper">
               <div
                 className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0 mt-1.5"
                 data-cy="timeline-dot-basic"
               />
-              <div className="w-0.5 flex-1 min-h-[24px] bg-gray-200" />
+              <div className="w-0.5 flex-1 min-h-[24px] bg-gray-200" data-cy="recent-modes-timeline-connector-line" />
             </div>
-            <div className="flex-1 pb-4">
-              <div className="bg-gray-100 rounded-lg p-3">
-                <span className="font-semibold text-green-700">
+            <div className="flex-1 pb-4" data-cy="recent-modes-timeline-basic-content">
+              <div className="bg-gray-100 rounded-lg p-3" data-cy="recent-modes-timeline-basic-card">
+                <span className="font-semibold text-green-700" data-cy="recent-modes-timeline-basic-label">
                   BASIC {currentMetricName}
                 </span>
-                <div className="text-sm text-gray-600 mt-1">
+                <div className="text-sm text-gray-600 mt-1" data-cy="recent-modes-timeline-basic-details">
                   Target: {currentTarget} Current: {currentValue} Status: {currentStatus}
                 </div>
               </div>
@@ -91,20 +91,20 @@ const RecentModesTimelineModal: React.FC<RecentModesTimelineModalProps> = ({
           </div>
 
           {/* ADVANCED / previous entry */}
-          <div className="flex gap-3">
-            <div className="flex flex-col items-center">
+          <div className="flex gap-3" data-cy="recent-modes-timeline-advanced-entry">
+            <div className="flex flex-col items-center" data-cy="recent-modes-timeline-advanced-indicator-wrapper">
               <div
                 className="w-3 h-3 rounded-full bg-blue-500 flex-shrink-0 mt-1.5"
                 data-cy="timeline-dot-advanced"
               />
             </div>
-            <div className="flex-1 pb-2">
-              <div className="bg-gray-100 rounded-lg p-3 flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <span className="font-semibold text-blue-700">
+            <div className="flex-1 pb-2" data-cy="recent-modes-timeline-advanced-content">
+              <div className="bg-gray-100 rounded-lg p-3 flex flex-wrap items-center justify-between gap-2" data-cy="recent-modes-timeline-advanced-card">
+                <div data-cy="recent-modes-timeline-advanced-info">
+                  <span className="font-semibold text-blue-700" data-cy="recent-modes-timeline-advanced-label">
                     ADVANCED {loadingPrevious ? '...' : previousMetric?.previousMetricTypeName ?? 'Milestone'}
                   </span>
-                  <div className="text-sm text-gray-600 mt-1">
+                  <div className="text-sm text-gray-600 mt-1" data-cy="recent-modes-timeline-advanced-details">
                     Target: {previousMetric?.targetValue ?? '-'} Current:{' '}
                     {previousMetric?.currentValue ?? '-'} Status:{' '}
                     {(previousMetric?.progress ?? 0) >= 100 ? 'Done' : 'In Progress'}
@@ -113,7 +113,7 @@ const RecentModesTimelineModal: React.FC<RecentModesTimelineModalProps> = ({
                 <Button
                   type="primary"
                   size="small"
-                  icon={<ReloadOutlined />}
+                  icon={<ReloadOutlined data-cy="recent-modes-timeline-restore-icon" />}
                   loading={restoring}
                   onClick={handleRestore}
                   data-cy="recent-modes-timeline-restore-btn"
@@ -125,7 +125,7 @@ const RecentModesTimelineModal: React.FC<RecentModesTimelineModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-center mt-4 pt-2 border-t">
+        <div className="flex justify-center mt-4 pt-2 border-t" data-cy="recent-modes-timeline-footer">
           <Button onClick={onClose} data-cy="recent-modes-timeline-close-btn">
             Close
           </Button>
