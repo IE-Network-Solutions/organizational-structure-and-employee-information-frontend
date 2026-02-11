@@ -325,21 +325,37 @@ const OnboardingSteper: React.FC = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   return (
-    <div className="flex flex-col items-center p-4 mobile-sm:p-2 mobile-md:p-4 mobile-lg:p-6 tablet-md:p-8 lg:p-12">
-      <div className="bg-white w-full rounded-lg flex flex-col p-4 lg:flex-row-reverse items-center gap-10">
+    <div
+      data-cy="onboarding-components-steper-index-tsx-index-div-328"
+      className="flex flex-col items-center p-4 mobile-sm:p-2 mobile-md:p-4 mobile-lg:p-6 tablet-md:p-8 lg:p-12"
+    >
+      <div
+        data-cy="onboarding-components-steper-index-tsx-index-div-329"
+        className="bg-white w-full rounded-lg flex flex-col p-4 lg:flex-row-reverse items-center gap-10"
+      >
         {/* Left section: copy, progress & buttons */}
-        <div className="mx-auto pr-0 w-full">
+        <div
+          data-cy="onboarding-components-steper-index-tsx-index-div-331"
+          className="mx-auto pr-0 w-full"
+        >
           {/* progress dots */}
-          <div className="flex items-center mb-8">
+          <div
+            className="flex items-center mb-8"
+            data-cy="onboarding-stepper-progress-dots"
+          >
             {steps.map((notused, index) => (
               <div
                 key={index}
                 className={`w-6 h-5 rounded mr-2 ${currentStep >= index ? 'bg-blue' : 'bg-gray-300'}`}
+                data-cy={`onboarding-stepper-progress-dot-${index}`}
               />
             ))}
           </div>
 
-          <div className="text-xl font-bold text-gray-600 mb-8">
+          <div
+            className="text-xl font-bold text-gray-600 mb-8"
+            data-cy="onboarding-stepper-step-indicator"
+          >
             STEP {currentStep + 1} OF {steps.length}
           </div>
 
@@ -349,10 +365,16 @@ const OnboardingSteper: React.FC = () => {
               case 0:
                 return (
                   <>
-                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+                    <h2
+                      className="text-2xl md:text-4xl font-bold text-gray-900 mb-4"
+                      data-cy="onboarding-stepper-step-0-heading"
+                    >
                       Personalize your experience and ensure smooth setup
                     </h2>
-                    <p className="text-gray-600 mb-10">
+                    <p
+                      className="text-gray-600 mb-10"
+                      data-cy="onboarding-stepper-step-0-description"
+                    >
                       This will help us configure the system to better align
                       with your organizations operation.
                     </p>
@@ -361,10 +383,16 @@ const OnboardingSteper: React.FC = () => {
               case 1:
                 return (
                   <>
-                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+                    <h2
+                      className="text-2xl md:text-4xl font-bold text-gray-900 mb-4"
+                      data-cy="onboarding-stepper-step-1-heading"
+                    >
                       Define fiscal year for your organisation
                     </h2>
-                    <p className="text-gray-600 mb-10">
+                    <p
+                      className="text-gray-600 mb-10"
+                      data-cy="onboarding-stepper-step-1-description"
+                    >
                       This will help us ensure accurate reporting and data
                       alignment.
                     </p>
@@ -373,10 +401,16 @@ const OnboardingSteper: React.FC = () => {
               case 2:
                 return (
                   <>
-                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+                    <h2
+                      className="text-2xl md:text-4xl font-bold text-gray-900 mb-4"
+                      data-cy="onboarding-stepper-step-2-heading"
+                    >
                       Define the work schedule for your organisation
                     </h2>
-                    <p className="text-gray-600 mb-10">
+                    <p
+                      className="text-gray-600 mb-10"
+                      data-cy="onboarding-stepper-step-2-description"
+                    >
                       Specify working days and hours to ensure proper planning
                       and resource management.
                     </p>
@@ -385,10 +419,16 @@ const OnboardingSteper: React.FC = () => {
               case 3:
                 return (
                   <>
-                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+                    <h2
+                      className="text-2xl md:text-4xl font-bold text-gray-900 mb-4"
+                      data-cy="onboarding-stepper-step-3-heading"
+                    >
                       Create and define your organizational structure
                     </h2>
-                    <p className="text-gray-600 mb-10">
+                    <p
+                      className="text-gray-600 mb-10"
+                      data-cy="onboarding-stepper-step-3-description"
+                    >
                       Add departments, roles, and reporting hierarchies to
                       ensure clear communication and streamlined workflows.
                     </p>
@@ -400,8 +440,14 @@ const OnboardingSteper: React.FC = () => {
           })()}
 
           {/* buttons (desktop) */}
-          <div className="hidden tablet-md:flex flex-col space-y-4 items-center">
-            <div className="flex space-x-4">
+          <div
+            data-cy="onboarding-components-steper-index-tsx-index-div-434"
+            className="hidden tablet-md:flex flex-col space-y-4 items-center"
+          >
+            <div
+              data-cy="onboarding-components-steper-index-tsx-index-div-435"
+              className="flex space-x-4"
+            >
               {currentStep > 0 && (
                 <Button
                   onClick={prevStep}
@@ -441,7 +487,10 @@ const OnboardingSteper: React.FC = () => {
             </div>
 
             {currentStep === 0 && (
-              <div className="mt-4">
+              <div
+                data-cy="onboarding-components-steper-index-tsx-index-div-475"
+                className="mt-4"
+              >
                 <Checkbox
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
@@ -453,6 +502,7 @@ const OnboardingSteper: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600"
+                    data-cy="onboarding-stepper-terms-link"
                   >
                     Terms & Conditions
                   </a>
@@ -463,11 +513,15 @@ const OnboardingSteper: React.FC = () => {
         </div>
 
         {/* Right section: actual step content (desktop) */}
-        <div className="w-full mt-8 md:mt-0 tablet-md:block hidden">
+        <div
+          data-cy="onboarding-components-steper-index-tsx-index-div-498"
+          className="w-full mt-8 md:mt-0 tablet-md:block hidden"
+        >
           {steps.map((step, idx) => (
             <div
               key={idx}
               style={{ display: idx === currentStep ? 'block' : 'none' }}
+              data-cy={`onboarding-components-steper-index-tsx-div-521-${idx}`}
             >
               {step.content}
             </div>
@@ -476,18 +530,28 @@ const OnboardingSteper: React.FC = () => {
       </div>
 
       {/* buttons + step content for mobile */}
-      <div className="tablet-md:hidden w-full mt-8">
+      <div
+        data-cy="onboarding-components-steper-index-tsx-index-div-511"
+        className="tablet-md:hidden w-full mt-8"
+      >
         {steps.map((step, idx) => (
           <div
             key={idx}
             style={{ display: idx === currentStep ? 'block' : 'none' }}
+            data-cy={`onboarding-components-steper-index-tsx-div-537-${idx}`}
           >
             {step.content}
           </div>
         ))}
 
-        <div className="flex flex-col space-y-4 mt-6 items-center">
-          <div className="flex space-x-4">
+        <div
+          data-cy="onboarding-components-steper-index-tsx-index-div-521"
+          className="flex flex-col space-y-4 mt-6 items-center"
+        >
+          <div
+            data-cy="onboarding-components-steper-index-tsx-index-div-522"
+            className="flex space-x-4"
+          >
             {currentStep > 0 && (
               <Button
                 onClick={prevStep}
@@ -527,7 +591,10 @@ const OnboardingSteper: React.FC = () => {
           </div>
 
           {currentStep === 0 && (
-            <div className="mt-4">
+            <div
+              data-cy="onboarding-components-steper-index-tsx-index-div-562"
+              className="mt-4"
+            >
               <Checkbox
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
@@ -539,6 +606,7 @@ const OnboardingSteper: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600"
+                  data-cy="onboarding-stepper-terms-link-mobile"
                 >
                   Terms of Service
                 </a>

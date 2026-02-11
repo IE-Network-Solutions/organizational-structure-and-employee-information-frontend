@@ -182,7 +182,12 @@ const GroupPermission = () => {
             <Form.Item
               name="permissions"
               label={
-                <p className="text-xs font-bold text-gray-600">Permission</p>
+                <p
+                  className="text-xs font-bold text-gray-600"
+                  data-cy="group-permission-form-permission-label"
+                >
+                  Permission
+                </p>
               }
               rules={[
                 { required: true, message: 'Select the Permission List!' },

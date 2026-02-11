@@ -255,10 +255,22 @@ const ApprovalTable = () => {
                 <Tooltip
                   key={empIndex}
                   title={
-                    <div>
-                      {fullName}
-                      <br />
-                      {userInfo.email}
+                    <div
+                      data-cy={`settings-approvals-row-assignee-tooltip-content-${rowSlug}-${empIndex}`}
+                    >
+                      <span
+                        data-cy={`settings-approvals-row-assignee-tooltip-name-${rowSlug}-${empIndex}`}
+                      >
+                        {fullName}
+                      </span>
+                      <br
+                        data-cy={`settings-approvals-row-assignee-tooltip-break-${rowSlug}-${empIndex}`}
+                      />
+                      <span
+                        data-cy={`settings-approvals-row-assignee-tooltip-email-${rowSlug}-${empIndex}`}
+                      >
+                        {userInfo.email}
+                      </span>
                     </div>
                   }
                   id={`settings-approvals-row-assignee-tooltip-${rowSlug}-${empIndex}`}

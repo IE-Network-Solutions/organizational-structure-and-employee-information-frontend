@@ -620,7 +620,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           >
             Key Result
           </h2>
-          <div className="flex gap-2">
+          <div
+            data-cy="okr-components-okrdrawer-index-tsx-index-div-623"
+            className="flex gap-2"
+          >
             <Button
               type="primary"
               id="okr-ai-inline-suggestions-toggle-button"
@@ -638,10 +641,19 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 xmlns="http://www.w3.org/2000/svg"
+                data-cy="okr-drawer-ai-suggestions-icon"
               >
-                <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
+                <path
+                  data-cy="okr-components-okrdrawer-index-tsx-index-path-643"
+                  d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"
+                />
               </svg>
-              <span className="hidden sm:inline">AI Suggestions</span>
+              <span
+                className="hidden sm:inline"
+                data-cy="okr-drawer-ai-suggestions-text"
+              >
+                AI Suggestions
+              </span>
             </Button>
             {isBasic ? (
               <Button
@@ -659,6 +671,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   className="text-white"
+                  data-cy="okr-components-okrdrawer-index-tsx-svg-667"
                 >
                   <path
                     d="M12 5V19M5 12H19"
@@ -666,14 +679,20 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    data-cy="okr-components-okrdrawer-index-tsx-path-675"
                   />
                 </svg>
-                <span className="hidden sm:inline">Key Result</span>
+                <span
+                  data-cy="okr-components-okrdrawer-index-tsx-index-span-677"
+                  className="hidden sm:inline"
+                >
+                  Key Result
+                </span>
               </Button>
             ) : (
               <Dropdown
                 data-cy="okr-drawer-desktop-add-keyresult-button-dropdown"
-                overlay={keyResultMenu}
+                dropdownRender={() => keyResultMenu}
                 trigger={['click']}
               >
                 <Button
@@ -690,6 +709,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                     className="text-white"
+                    data-cy="okr-drawer-add-keyresult-icon-plus"
                   >
                     <path
                       d="M12 5V19M5 12H19"
@@ -697,9 +717,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      data-cy="okr-components-okrdrawer-index-tsx-path-712"
                     />
                   </svg>
-                  Key Result
+                  <span data-cy="okr-drawer-add-keyresult-text">
+                    Key Result
+                  </span>
                   <svg
                     width="12"
                     height="12"
@@ -707,6 +730,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                     className="text-white"
+                    data-cy="okr-drawer-add-keyresult-icon-chevron"
                   >
                     <path
                       d="M6 9L12 15L18 9"
@@ -714,6 +738,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      data-cy="okr-components-okrdrawer-index-tsx-path-732"
                     />
                   </svg>
                 </Button>

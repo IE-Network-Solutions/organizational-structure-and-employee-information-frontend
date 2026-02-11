@@ -163,7 +163,9 @@ const ApprovalTable = () => {
             title="Reject Request"
             description={
               <>
-                <p>Are you sure you want to reject this leave request?</p>
+                <p data-cy="my-timesheet-components-approvaltable-index-tsx-index-p-166">
+                  Are you sure you want to reject this leave request?
+                </p>
                 <Input
                   placeholder="Add a comment"
                   value={rejectComment}
@@ -221,7 +223,12 @@ const ApprovalTable = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
+    if (isLoading)
+      return (
+        <div data-cy="my-timesheet-components-approvaltable-index-tsx-index-div-224">
+          ...
+        </div>
+      );
     if (isError) return <>-</>;
 
     return employeeData ? (

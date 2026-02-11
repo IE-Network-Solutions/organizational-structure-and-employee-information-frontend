@@ -93,7 +93,10 @@ const Reprimand = () => {
           />
         </AccessGuard>
       </div>
-      <div className="flex  justify-between items-center mb-4 gap-5">
+      <div
+        className="flex  justify-between items-center mb-4 gap-5"
+        data-cy="reprimand-filters-container"
+      >
         <Select
           showSearch
           placeholder="Select a person"

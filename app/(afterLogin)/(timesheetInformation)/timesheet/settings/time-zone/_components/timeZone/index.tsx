@@ -121,7 +121,7 @@ const TimezoneComponent = ({
           </Button>
         </Form.Item>
       </Form>
-      <hr />
+      <hr data-cy="time-zone-components-timezone-index-tsx-index-hr-124" />
       <div
         className="text-xl"
         id="time-attendance-settings-time-zone-component-current"

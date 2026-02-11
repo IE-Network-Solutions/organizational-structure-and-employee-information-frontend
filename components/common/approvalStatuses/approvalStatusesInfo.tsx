@@ -28,7 +28,10 @@ const ApprovalStatusesInfo = () => {
           data-cy="approval-status-item"
         >
           <Image width={24} height={24} src={status.img} alt="" />
-          <span className="text-xs font-medium text-gray-900">
+          <span
+            data-cy="components-common-approvalstatuses-approvalstatusesinfo-tsx-approvalstatusesinfo-span-31"
+            className="text-xs font-medium text-gray-900"
+          >
             {status.text}
           </span>
         </div>

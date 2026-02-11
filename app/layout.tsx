@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import { Manrope } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import './globals.css';
+import { App as AntdApp } from 'antd';
 import AntdConfigProvider from '@/providers/antdProvider';
 import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
 import RecaptchaProvider from '@/components/recaptcha';
 import { PWAProvider } from '@/providers/PWAProvider';
+import { NotificationSocketProvider } from '@/providers/NotificationSocketProvider';
 import ChatBotButton from '@/components/ai/ChatBotButton';
 import RouteTopLoader from '@/components/RouteTopLoader';
 const manrope = Manrope({ subsets: ['latin'] });
@@ -148,7 +150,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-test="layout" data-cy="root-layout-html">
+    <html
+      lang="en"
+      data-test="layout"
+      data-cy="root-layout-html"
+      suppressHydrationWarning
+    >
       <head data-cy="root-layout-head">
         {/* PWA Meta Tags - FORCE FULLSCREEN */}
         <meta
@@ -329,6 +336,7 @@ export default function RootLayout({
       <body
         className={`${manrope.className} pwa-viewport`}
         data-cy="root-layout-body"
+        suppressHydrationWarning
       >
         <RouteTopLoader />
         <div className="status-bar-safe" data-cy="root-layout-status-bar-safe">
@@ -337,10 +345,14 @@ export default function RootLayout({
             <ReactQueryWrapper>
               <AntdRegistry>
                 <AntdConfigProvider>
-                  <RecaptchaProvider>
-                    <ConditionalNav>{children}</ConditionalNav>
-                    <ChatBotButton />
-                  </RecaptchaProvider>
+                  <AntdApp>
+                    <NotificationSocketProvider>
+                      <RecaptchaProvider>
+                        <ConditionalNav>{children}</ConditionalNav>
+                        <ChatBotButton />
+                      </RecaptchaProvider>
+                    </NotificationSocketProvider>
+                  </AntdApp>
                 </AntdConfigProvider>
               </AntdRegistry>
             </ReactQueryWrapper>

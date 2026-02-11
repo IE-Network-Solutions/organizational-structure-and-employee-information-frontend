@@ -49,7 +49,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       onCancel={onCancel}
       footer={deleteModalFooter}
     >
-      <p className="flex justify-center items-center h-[200px]">
+      <p
+        data-cy="components-common-deletemodal-index-tsx-index-p-52"
+        className="flex justify-center items-center h-[200px]"
+      >
         <Image
           src="/deleteSvg.svg"
           width={300}
@@ -57,7 +60,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           alt="Picture of the author"
         />
       </p>
-      <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+      <p
+        data-cy="components-common-deletemodal-index-tsx-index-p-60"
+        className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
+      >
         Are you sure to Delete?
       </p>
     </Modal>

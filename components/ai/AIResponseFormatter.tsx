@@ -124,17 +124,29 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
   // If it's structured OKR instructions, render with enhanced formatting
   if (isOKRInstructions && hasStructuredSteps && steps.length > 0) {
     return (
-      <div className="ai-response-formatted">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-127"
+        className="ai-response-formatted"
+      >
         {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-129"
+          className="flex items-center gap-3 mb-4"
+        >
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-130"
+            className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center"
+          >
             <BulbOutlined className="text-white text-sm" />
           </div>
-          <div>
+          <div data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-133">
             <Text strong className="text-gray-800 text-sm">
               How to Create OKR
             </Text>
-            <div className="flex gap-1 mt-1">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-137"
+              className="flex gap-1 mt-1"
+            >
               <Tag
                 color="blue"
                 className="text-xs px-2 py-0 rounded-full border-0"
@@ -154,17 +166,32 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
         </div>
 
         {/* Steps */}
-        <div className="mb-4">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-157"
+          className="mb-4"
+        >
           {compact ? (
             // Compact view for chat
-            <div className="space-y-3">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-160"
+              className="space-y-3"
+            >
               {steps.map((step, index) => (
                 <div
                   key={index}
                   className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-180"
                 >
-                  <div className="flex-shrink-0 mt-0.5">{step.icon}</div>
-                  <div className="flex-1">
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-180"
+                    className="flex-shrink-0 mt-0.5"
+                  >
+                    {step.icon}
+                  </div>
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-167"
+                    className="flex-1"
+                  >
                     <Text strong className="text-sm text-gray-800 block mb-1">
                       {index + 1}. {step.title}
                     </Text>
@@ -185,15 +212,24 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
               className="okr-instruction-steps"
               items={steps.map((step) => ({
                 title: (
-                  <div className="flex items-center gap-2">
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-188"
+                    className="flex items-center gap-2"
+                  >
                     {step.icon}
-                    <span className="font-medium text-gray-800 text-sm">
+                    <span
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-span-190"
+                      className="font-medium text-gray-800 text-sm"
+                    >
                       {step.title}
                     </span>
                   </div>
                 ),
                 description: step.description ? (
-                  <div className="mt-2 ml-6">
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-196"
+                    className="mt-2 ml-6"
+                  >
                     <Paragraph className="text-gray-600 text-xs mb-0 leading-relaxed">
                       {step.description}
                     </Paragraph>
@@ -209,7 +245,10 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
         {!compact && (
           <>
             <Divider className="my-4" style={{ margin: '16px 0' }} />
-            <div className="flex flex-wrap gap-2 justify-center">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-212"
+              className="flex flex-wrap gap-2 justify-center"
+            >
               <Button
                 type="primary"
                 size="small"
@@ -235,7 +274,10 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
 
         {/* Quick Action for compact view */}
         {compact && (
-          <div className="mt-3 pt-3 border-t border-gray-200">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-238"
+            className="mt-3 pt-3 border-t border-gray-200"
+          >
             <Button
               type="link"
               size="small"
@@ -249,10 +291,16 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
         )}
 
         {/* Pro Tip */}
-        <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
-          <div className="flex items-start gap-2">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-252"
+          className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100"
+        >
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-253"
+            className="flex items-start gap-2"
+          >
             <BulbOutlined className="text-blue-600 text-sm mt-0.5" />
-            <div>
+            <div data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-255">
               <Text strong className="text-blue-800 text-xs block mb-1">
                 💡 Pro Tip
               </Text>
@@ -269,8 +317,14 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
 
   // For non-structured responses, return formatted text
   return (
-    <div className="ai-response-text">
-      <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+    <div
+      data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-272"
+      className="ai-response-text"
+    >
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-273"
+        className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700"
+      >
         {response.split('\n').map((line, index) => {
           // Format bold text
           const formattedLine = line.replace(
@@ -279,8 +333,15 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
           );
 
           return (
-            <div key={index} className={line.trim() ? 'mb-2' : 'mb-1'}>
-              <span dangerouslySetInnerHTML={{ __html: formattedLine }} />
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-div-282"
+              key={index}
+              className={line.trim() ? 'mb-2' : 'mb-1'}
+            >
+              <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-airesponseformatter-tsx-airesponseformatter-span-283"
+                dangerouslySetInnerHTML={{ __html: formattedLine }}
+              />
             </div>
           );
         })}

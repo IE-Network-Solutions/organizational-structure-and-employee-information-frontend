@@ -214,7 +214,7 @@ const ApprovalListTable = () => {
                             data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-tooltip`}
                           >
                             {fullName}
-                            <br />
+                            <br data-cy="approvals-component-approvallisttable-index-tsx-index-br-217" />
                             {email}
                           </div>
                         }
@@ -508,7 +508,14 @@ const ApprovalListTable = () => {
             data-cy="time-attendance-settings-approvals-table-transfer-modal-form-fields"
           >
             <Form.Item
-              label={<span className={`${commonClass}`}>Current Workflow</span>}
+              label={
+                <span
+                  data-cy="approvals-component-approvallisttable-index-tsx-index-span-511"
+                  className={`${commonClass}`}
+                >
+                  Current Workflow
+                </span>
+              }
               name="currentWorkFlow"
               rules={[{ required: true, message: 'Please enter a value!' }]}
               id="time-attendance-settings-approvals-table-transfer-modal-current-workflow"
@@ -541,7 +548,14 @@ const ApprovalListTable = () => {
             </div>
 
             <Form.Item
-              label={<span className={`${commonClass}`}>Select Workflow</span>}
+              label={
+                <span
+                  data-cy="approvals-component-approvallisttable-index-tsx-index-span-544"
+                  className={`${commonClass}`}
+                >
+                  Select Workflow
+                </span>
+              }
               name="workflow"
               rules={[{ required: true, message: 'Please select a workflow!' }]}
               id="time-attendance-settings-approvals-table-transfer-modal-workflow"
@@ -592,7 +606,10 @@ const ApprovalListTable = () => {
                   Create New
                 </Button>
               </div>
-              <div className="sm:space-x-8 space-x-2">
+              <div
+                data-cy="approvals-component-approvallisttable-index-tsx-index-div-595"
+                className="sm:space-x-8 space-x-2"
+              >
                 <Button
                   className={`${commonClass} px-10 h-10`}
                   type="default"

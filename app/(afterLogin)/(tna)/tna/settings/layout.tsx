@@ -26,7 +26,12 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
             <CiCalendarDate
               className={`hidden lg:block ${pathname.includes('/tna/settings/course-category') ? 'text-[#1677FF]' : ''}`}
             />
-            <p className="menu-item-label">Course Category</p>
+            <p
+              data-cy="-tna-tna-settings-layout-tsx-layout-p-29"
+              className="menu-item-label"
+            >
+              Course Category
+            </p>
           </div>
         ),
         className: 'px-1',
@@ -39,11 +44,17 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/tna/settings/tna-category') ? 'lg:ml-4' : ''}`}
+            data-cy="tna-tna-settings-layout-tsx-div-45"
           >
             <CiCalendarDate
               className={`hidden lg:block ${pathname.includes('/tna/settings/tna-category') ? 'text-[#1677FF]' : ''}`}
             />
-            <p className="menu-item-label">TNA Category</p>
+            <p
+              data-cy="-tna-tna-settings-layout-tsx-layout-p-46"
+              className="menu-item-label"
+            >
+              TNA Category
+            </p>
           </div>
         ),
         className: 'px-1',
@@ -56,11 +67,17 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/tna/settings/commitment-rule') ? 'lg:ml-4' : ''}`}
+            data-cy="tna-tna-settings-layout-tsx-div-67"
           >
             <CiCalendarDate
               className={`hidden lg:block ${pathname.includes('/tna/settings/commitment-rule') ? 'text-[#1677FF]' : ''}`}
             />
-            <p className="menu-item-label">Commitment Rule</p>
+            <p
+              data-cy="-tna-tna-settings-layout-tsx-layout-p-63"
+              className="menu-item-label"
+            >
+              Commitment Rule
+            </p>
           </div>
         ),
         className: 'px-1',
@@ -73,11 +90,17 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/tna/settings/approvals') ? 'lg:ml-4' : ''}`}
+            data-cy="tna-tna-settings-layout-tsx-div-89"
           >
             <TbLayoutList
               className={`hidden lg:block ${pathname.includes('/tna/settings/approvals') ? 'text-[#1677FF]' : ''}`}
             />
-            <p className="menu-item-label">Approval Workflow</p>
+            <p
+              data-cy="-tna-tna-settings-layout-tsx-layout-p-80"
+              className="menu-item-label"
+            >
+              Approval Workflow
+            </p>
           </div>
         ),
         className: 'px-1',

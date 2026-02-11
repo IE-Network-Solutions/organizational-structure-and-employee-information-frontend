@@ -45,7 +45,13 @@ const Page = () => {
             className="h-10 w-10 sm:w-auto"
             onClick={() => setIsShowCarryOverRuleSidebar(true)}
           >
-            <span className="hidden md:inline"> New Carry-over Rule</span>
+            <span
+              data-cy="timesheet-settings-carry-over-rule-page-tsx-page-span-48"
+              className="hidden md:inline"
+            >
+              {' '}
+              New Carry-over Rule
+            </span>
           </Button>
         </AccessGuard>
       </div>

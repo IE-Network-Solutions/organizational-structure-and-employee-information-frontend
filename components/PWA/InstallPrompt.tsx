@@ -135,11 +135,14 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
   const getInstallInstructions = () => {
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
       return (
-        <div className="ios-install-instructions">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-138"
+          className="ios-install-instructions"
+        >
           <Alert
             message="Install on iOS"
             description={
-              <div>
+              <div data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-142">
                 <Paragraph>
                   1. Tap the <ShareAltOutlined /> share button in your browser
                 </Paragraph>
@@ -158,7 +161,10 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
 
     if (/Android/.test(navigator.userAgent)) {
       return (
-        <div className="android-install-instructions">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-161"
+          className="android-install-instructions"
+        >
           <Alert
             message="Install on Android"
             description="Tap 'Install' below or look for the install banner in your browser to add this app to your home screen."
@@ -170,7 +176,10 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
     }
 
     return (
-      <div className="desktop-install-instructions">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-173"
+        className="desktop-install-instructions"
+      >
         <Alert
           message="Install on Desktop"
           description="Click 'Install' below or look for the install icon in your browser's address bar to install this app."
@@ -230,9 +239,14 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
       {/* Install Modal */}
       <Modal
         title={
-          <div className="flex items-center gap-2">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-233"
+            className="flex items-center gap-2"
+          >
             {getDeviceIcon()}
-            <span>Install Selamnew Workspace</span>
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-span-235">
+              Install Selamnew Workspace
+            </span>
           </div>
         }
         open={isVisible}
@@ -242,13 +256,20 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
         className="install-modal"
         closeIcon={<CloseOutlined />}
       >
-        <div className="install-prompt-content">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-245"
+          className="install-prompt-content"
+        >
           <Card className="mb-4">
-            <div className="text-center mb-4">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-247"
+              className="text-center mb-4"
+            >
               <img
                 src="/icons/android/android-launchericon-96-96.png"
                 alt="Selamnew Workspace"
                 className="w-16 h-16 mx-auto mb-3"
+                data-cy="components-pwa-installprompt-tsx-img-268"
               />
               <Title level={4} className="mb-2">
                 Install Selamnew Workspace
@@ -259,26 +280,62 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
               </Text>
             </div>
 
-            <div className="features-list mb-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-262"
+              className="features-list mb-4"
+            >
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-263"
+                className="space-y-2"
+              >
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-264"
+                  className="flex items-center gap-2"
+                >
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-265"
+                    className="w-2 h-2 bg-green-500 rounded-full"
+                  ></div>
                   <Text>Works offline</Text>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-268"
+                  className="flex items-center gap-2"
+                >
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-269"
+                    className="w-2 h-2 bg-green-500 rounded-full"
+                  ></div>
                   <Text>Fast loading</Text>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-272"
+                  className="flex items-center gap-2"
+                >
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-273"
+                    className="w-2 h-2 bg-green-500 rounded-full"
+                  ></div>
                   <Text>Native app experience</Text>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-276"
+                  className="flex items-center gap-2"
+                >
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-277"
+                    className="w-2 h-2 bg-green-500 rounded-full"
+                  ></div>
                   <Text>Push notifications</Text>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-280"
+                  className="flex items-center gap-2"
+                >
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-281"
+                    className="w-2 h-2 bg-green-500 rounded-full"
+                  ></div>
                   <Text>Auto-refresh when reopened</Text>
                 </div>
               </div>
@@ -286,7 +343,10 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
 
             {getInstallInstructions()}
 
-            <div className="mt-4">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-pwa-installprompt-tsx-installprompt-div-289"
+              className="mt-4"
+            >
               <Space className="w-full justify-end">
                 <Button onClick={handleDismiss}>Remind me later</Button>
                 {!/iPad|iPhone|iPod/.test(navigator.userAgent) && (

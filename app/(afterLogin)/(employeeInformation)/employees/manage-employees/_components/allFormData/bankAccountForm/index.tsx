@@ -30,7 +30,12 @@ const BankInformationForm = () => {
             id="bankInformationBankName"
             data-cy="bankInformationBankName"
             label={
-              <span className="mb-1 font-semibold text-xs">Bank Name</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="bank-account-form-bank-name-label"
+              >
+                Bank Name
+              </span>
             }
             rules={[
               {
@@ -61,7 +66,14 @@ const BankInformationForm = () => {
             name={['bankInformation', 'branch']}
             id="bankInformationBranch"
             data-cy="bankInformationBranch"
-            label={<span className="mb-1 font-semibold text-xs">Branch</span>}
+            label={
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="bank-account-form-branch-label"
+              >
+                Branch
+              </span>
+            }
             rules={[
               {
                 required: false,
@@ -96,7 +108,12 @@ const BankInformationForm = () => {
             className="font-semibold text-xs w-full"
             name={['bankInformation', 'accountName']}
             label={
-              <span className="mb-1 font-semibold text-xs">Account Name</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="bank-account-form-account-name-label"
+              >
+                Account Name
+              </span>
             }
             id="bankInformationAccountName"
             data-cy="bankInformationAccountName"

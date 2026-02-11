@@ -68,7 +68,11 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
           </button>,
         );
         pageNumbers.push(
-          <span key="leftEllipsis" className="px-2">
+          <span
+            data-cy="-recruitment-recruitment-components-index-tsx-index-span-71"
+            key="leftEllipsis"
+            className="px-2"
+          >
             ...
           </span>,
         );
@@ -94,7 +98,11 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
 
       if (rightSide < totalPages - 1) {
         pageNumbers.push(
-          <span key="rightEllipsis" className="px-2">
+          <span
+            data-cy="-recruitment-recruitment-components-index-tsx-index-span-97"
+            key="rightEllipsis"
+            className="px-2"
+          >
             ...
           </span>,
         );

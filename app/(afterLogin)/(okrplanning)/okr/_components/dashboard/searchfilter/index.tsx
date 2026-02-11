@@ -385,7 +385,10 @@ const OkrSearch: React.FC = () => {
           )}
 
           {/* Fiscal Year */}
-          <div className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}>
+          <div
+            className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}
+            data-cy="okr-desktop-fiscal-year-container"
+          >
             <Select
               loading={fyLoading}
               value={fiscalYearId}
@@ -416,7 +419,10 @@ const OkrSearch: React.FC = () => {
           </div>
 
           {/* Session */}
-          <div className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}>
+          <div
+            className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}
+            data-cy="okr-desktop-session-container"
+          >
             <Select
               loading={fyLoading}
               value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
@@ -458,7 +464,10 @@ const OkrSearch: React.FC = () => {
 
           {/* Department */}
           {okrTab != 1 && (
-            <div className={`${okrTab == 4 ? 'col-span-2' : 'col-span-2'}`}>
+            <div
+              className={`${okrTab == 4 ? 'col-span-2' : 'col-span-2'}`}
+              data-cy="okr-desktop-department-container"
+            >
               <Select
                 id="desktop-department-select"
                 data-cy="okr-desktop-department-select"
@@ -488,7 +497,10 @@ const OkrSearch: React.FC = () => {
 
           {/* Metric Type */}
           {okrTab != 4 && (
-            <div className="col-span-12 lg:col-span-2">
+            <div
+              className="col-span-12 lg:col-span-2"
+              data-cy="okr-desktop-metric-type-container"
+            >
               <Select
                 id="desktop-metric-type-select"
                 data-cy="okr-desktop-metric-type-select"
@@ -530,7 +542,7 @@ const OkrSearch: React.FC = () => {
           className="flex justify-between gap-4 w-full"
         >
           {okrTab != 1 && (
-            <div className="flex-1">
+            <div className="flex-1" data-cy="okr-mobile-user-select-container">
               <Select
                 id="mobile-user-select"
                 data-cy="okr-mobile-user-select"
@@ -557,7 +569,10 @@ const OkrSearch: React.FC = () => {
               />
             </div>
           )}
-          <div className={`${okrTab == 1 ? 'ml-auto' : ''}`}>
+          <div
+            className={`${okrTab == 1 ? 'ml-auto' : ''}`}
+            data-cy="okr-mobile-filter-button-container"
+          >
             <CustomButton
               id="mobile-filter-button"
               data-cy="okr-mobile-filter-button"

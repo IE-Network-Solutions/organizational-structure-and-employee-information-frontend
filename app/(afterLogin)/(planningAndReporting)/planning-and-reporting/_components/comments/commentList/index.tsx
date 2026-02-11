@@ -176,7 +176,10 @@ const CommentList = ({
   }, [data]);
 
   return (
-    <div className="w-full">
+    <div
+      data-cy="-components-comments-commentlist-index-tsx-index-div-179"
+      className="w-full"
+    >
       {sortedComments.map((commentData) => {
         const { fullName, profileImage } = getUserDetail(
           commentData.commentedBy,
@@ -187,6 +190,7 @@ const CommentList = ({
           <div
             key={commentData.id}
             className={`w-full mb-3 flex items-start gap-2 ${isOwnComment ? 'justify-end' : 'justify-start'}`}
+            data-cy="planningandreporting-planning-and-reporting-components-comments-commentlist-index-tsx-div-190"
           >
             <div
               className={`inline-block rounded-2xl px-4 py-3 shadow-sm ${
@@ -194,10 +198,14 @@ const CommentList = ({
                   ? 'border border-[#574CFF] bg-white'
                   : 'bg-[#F5F5F7] border border-[#E5E7EB]'
               }`}
+              data-cy="planningandreporting-planning-and-reporting-components-comments-commentlist-index-tsx-div-194"
               style={{ maxWidth: '70%' }}
             >
               {/* Avatar and Name on top - Avatar first (left), then name - all inside bubble */}
-              <div className="flex items-center gap-2 mb-2">
+              <div
+                data-cy="-components-comments-commentlist-index-tsx-index-div-200"
+                className="flex items-center gap-2 mb-2"
+              >
                 <Avatar
                   src={profileImage || undefined}
                   icon={!profileImage ? <FaUser /> : undefined}
@@ -205,12 +213,18 @@ const CommentList = ({
                   size="small"
                   className="flex-shrink-0"
                 />
-                <span className="text-sm font-semibold text-[#161A2C]">
+                <span
+                  data-cy="-components-comments-commentlist-index-tsx-index-span-208"
+                  className="text-sm font-semibold text-[#161A2C]"
+                >
                   {fullName}
                 </span>
               </div>
               {/* Comment text below - aligned left - inside bubble */}
-              <div className="text-sm text-[#4B5563] break-words">
+              <div
+                data-cy="-components-comments-commentlist-index-tsx-index-div-213"
+                className="text-sm text-[#4B5563] break-words"
+              >
                 {commentData.comment}
               </div>
             </div>
@@ -247,7 +261,10 @@ const CommentList = ({
             rules={[{ required: true, message: 'Please enter a comment' }]}
             className="w-full mt-2 mb-0"
           >
-            <div className="relative">
+            <div
+              data-cy="-components-comments-commentlist-index-tsx-index-div-249"
+              className="relative"
+            >
               <Input.TextArea
                 id={`planning-comment-textarea-${planId || 'new'}`}
                 data-cy={`planning-comment-textarea-${planId || 'new'}`}
@@ -263,7 +280,10 @@ const CommentList = ({
                   form.setFieldsValue({ comment: newValue });
                 }}
               />
-              <div className="absolute right-2 top-2 flex flex-col gap-1">
+              <div
+                data-cy="-components-comments-commentlist-index-tsx-index-div-265"
+                className="absolute right-2 top-2 flex flex-col gap-1"
+              >
                 <Button
                   id={`planning-comment-submit-button-${planId || 'new'}`}
                   data-cy={`planning-comment-submit-button-${planId || 'new'}`}

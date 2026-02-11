@@ -59,6 +59,9 @@ const BreakImportSidebar = () => {
       className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => setIsShowBreakAttendanceImportSidebar(false),
+      id: 'time-attendance-employee-attendance-break-import-sidebar-cancel-button',
+      'data-cy':
+        'time-attendance-employee-attendance-break-import-sidebar-cancel-button',
     },
     {
       label: 'Import',
@@ -69,6 +72,9 @@ const BreakImportSidebar = () => {
       onClick: () => form.submit(),
       disabled: isLoading || filePath === null,
       loading: isLoadingImport,
+      id: 'time-attendance-employee-attendance-break-import-sidebar-import-button',
+      'data-cy':
+        'time-attendance-employee-attendance-break-import-sidebar-import-button',
     },
   ];
 
@@ -79,7 +85,12 @@ const BreakImportSidebar = () => {
     const { value } = props;
     const option = options.find((item) => item.value === value);
     return option ? (
-      <div className="font-bold text-gray-900">{option.label}</div>
+      <div
+        className="font-bold text-gray-900"
+        data-cy={`time-attendance-employee-attendance-break-import-type-select-label-${value}`}
+      >
+        {option.label}
+      </div>
     ) : (
       ''
     );

@@ -47,7 +47,10 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
             className="bg-gray-50 p-4 rounded-lg border"
             data-cy="okr-instructions-demo-raw-response"
           >
-            <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
+            <pre
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-pre-50"
+              className="text-xs text-gray-700 whitespace-pre-wrap font-mono"
+            >
               {sampleResponse}
             </pre>
           </div>
@@ -74,7 +77,10 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
                 />
               </div>
             </div>
-            <div className="mt-4">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-77"
+              className="mt-4"
+            >
               <Button
                 type="primary"
                 icon={<MessageOutlined />}
@@ -88,7 +94,10 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
 
           {/* Full Display Preview */}
           <Card title="Full Display Format" className="h-fit">
-            <div className="mb-4">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-91"
+              className="mb-4"
+            >
               <Button
                 type="primary"
                 icon={<PlayCircleOutlined />}
@@ -104,21 +113,52 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
       {/* Chat Context Demo */}
       {showChatFormat && (
         <Card title="Chat Bot Context Demo" className="mt-6">
-          <div className="bg-gradient-to-b from-gray-50 to-white p-6 rounded-lg border">
-            <div className="max-w-md mx-auto">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-107"
+            className="bg-gradient-to-b from-gray-50 to-white p-6 rounded-lg border"
+          >
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-108"
+              className="max-w-md mx-auto"
+            >
               {/* Simulated chat messages */}
-              <div className="space-y-4">
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-110"
+                className="space-y-4"
+              >
                 {/* User message */}
-                <div className="flex justify-end">
-                  <div className="bg-transparent border border-gray-200 rounded-2xl rounded-br-sm px-4 py-2 max-w-xs">
-                    <p className="text-sm text-gray-700">How to create OKR</p>
-                    <p className="text-xs text-gray-500 mt-1">03:41 PM</p>
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-112"
+                  className="flex justify-end"
+                >
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-113"
+                    className="bg-transparent border border-gray-200 rounded-2xl rounded-br-sm px-4 py-2 max-w-xs"
+                  >
+                    <p
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-p-114"
+                      className="text-sm text-gray-700"
+                    >
+                      How to create OKR
+                    </p>
+                    <p
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-p-115"
+                      className="text-xs text-gray-500 mt-1"
+                    >
+                      03:41 PM
+                    </p>
                   </div>
                 </div>
 
                 {/* Bot response */}
-                <div className="flex justify-start">
-                  <div className="bg-white rounded-2xl rounded-bl-sm px-4 py-4 max-w-xs shadow-sm border">
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-120"
+                  className="flex justify-start"
+                >
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-121"
+                    className="bg-white rounded-2xl rounded-bl-sm px-4 py-4 max-w-xs shadow-sm border"
+                  >
                     <AIResponseFormatter
                       response={sampleResponse}
                       compact={true}
@@ -126,7 +166,12 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
                         // console.log('Demo action clicked');
                       }}
                     />
-                    <p className="text-xs text-gray-500 mt-2">03:41 PM</p>
+                    <p
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-p-129"
+                      className="text-xs text-gray-500 mt-2"
+                    >
+                      03:41 PM
+                    </p>
                   </div>
                 </div>
               </div>
@@ -137,12 +182,18 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
 
       {/* Full Display Demo */}
       {showFullDisplay && (
-        <div className="mt-6">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-140"
+          className="mt-6"
+        >
           <Divider />
           <Title level={3} className="text-center mb-6">
             Full Display Format
           </Title>
-          <div className="max-w-4xl mx-auto">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-145"
+            className="max-w-4xl mx-auto"
+          >
             <OKRInstructionsDisplay
               instructionText={sampleResponse}
               onActionClick={() => {
@@ -155,27 +206,39 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
 
       {/* Usage Instructions */}
       <Card title="Implementation Guide" className="mt-6">
-        <div className="space-y-4">
-          <div>
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-158"
+          className="space-y-4"
+        >
+          <div data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-159">
             <Title level={4}>For Chat Bot Integration:</Title>
             <Paragraph>
-              Use <code>AIResponseFormatter</code> with{' '}
-              <code>compact=true</code> to display AI responses in the chat
-              interface. This provides a clean, structured view that fits well
-              within chat bubbles.
+              Use{' '}
+              <code data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-code-162">
+                AIResponseFormatter
+              </code>{' '}
+              with{' '}
+              <code data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-code-163">
+                compact=true
+              </code>{' '}
+              to display AI responses in the chat interface. This provides a
+              clean, structured view that fits well within chat bubbles.
             </Paragraph>
           </div>
 
-          <div>
+          <div data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-169">
             <Title level={4}>For Full Page Display:</Title>
             <Paragraph>
-              Use <code>OKRInstructionsDisplay</code> for dedicated pages or
-              modals where you want to show comprehensive OKR creation
-              instructions with full formatting and action buttons.
+              Use{' '}
+              <code data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-code-172">
+                OKRInstructionsDisplay
+              </code>{' '}
+              for dedicated pages or modals where you want to show comprehensive
+              OKR creation instructions with full formatting and action buttons.
             </Paragraph>
           </div>
 
-          <div>
+          <div data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdemo-tsx-okrinstructionsdemo-div-178">
             <Title level={4}>Backend Integration:</Title>
             <Paragraph>
               Both components automatically parse structured text from your

@@ -71,7 +71,11 @@ const ChatBotButton: React.FC = () => {
       </Tooltip>
       <ChatBot open={isOpen} onClose={() => setIsOpen(false)} />
 
-      <style jsx global>{`
+      <style
+        data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbotbutton-tsx-chatbotbutton-style-74"
+        jsx
+        global
+      >{`
         @media (max-width: 768px) {
           .ant-btn-circle[style*='position: fixed'] {
             bottom: 20px !important;

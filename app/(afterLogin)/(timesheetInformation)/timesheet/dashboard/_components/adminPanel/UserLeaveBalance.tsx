@@ -73,12 +73,28 @@ const UserLeaveBalance: React.FC = () => {
   }));
 
   const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+    <div
+      className="flex flex-col gap-4"
+      data-cy="time-attendance-user-leave-balance-mobile-filter-content-div"
+    >
+      <h3
+        className="text-lg font-medium mb-2"
+        data-cy="time-attendance-user-leave-balance-mobile-filter-title-h3"
+      >
+        Filter
+      </h3>
 
       {/* Leave Type */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Leave Type</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-user-leave-balance-mobile-filter-leave-type-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-user-leave-balance-mobile-filter-leave-type-label"
+        >
+          Leave Type
+        </label>
         <Select
           showSearch
           placeholder="Select Leave Type"
@@ -90,12 +106,21 @@ const UserLeaveBalance: React.FC = () => {
             (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
           }
           options={leaveOptions}
+          data-cy="time-attendance-user-leave-balance-mobile-filter-leave-type-select"
         />
       </div>
 
       {/* Date Range */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Date Range</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-user-leave-balance-mobile-filter-date-range-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-user-leave-balance-mobile-filter-date-range-label"
+        >
+          Date Range
+        </label>
         <DatePicker.RangePicker
           allowClear
           className="w-full h-12"
@@ -108,6 +133,7 @@ const UserLeaveBalance: React.FC = () => {
               setEndDate('');
             }
           }}
+          data-cy="time-attendance-user-leave-balance-mobile-filter-date-range-picker"
         />
       </div>
     </div>
@@ -484,7 +510,10 @@ const UserLeaveBalance: React.FC = () => {
           bodyStyle={{ padding: '16px 24px' }}
           className="shadow-sm col-span-9 mb-5"
           title={
-            <span className="text-[12px] font-bold text-black">
+            <span
+              className="text-[12px] font-bold text-black"
+              data-cy="time-attendance-user-leave-balance-utilization-title-text"
+            >
               Utilization
             </span>
           }
@@ -601,12 +630,16 @@ const UserLeaveBalance: React.FC = () => {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={
-          <div className="flex gap-2 justify-center mt-4">
+          <div
+            className="flex gap-2 justify-center mt-4"
+            data-cy="time-attendance-user-leave-balance-mobile-filter-modal-footer-div"
+          >
             <CustomButton
               onClick={() => setIsModalOpen(false)}
               className="px-6 py-2 border rounded-lg text-sm text-gray-900"
               title="Cancel"
               type="default"
+              data-cy="time-attendance-user-leave-balance-mobile-filter-modal-cancel-button"
             />
             <CustomButton
               title="Apply Filter"
@@ -615,6 +648,7 @@ const UserLeaveBalance: React.FC = () => {
                 setIsModalOpen(false);
               }}
               className="px-6 py-2 text-white rounded-lg text-sm"
+              data-cy="time-attendance-user-leave-balance-mobile-filter-modal-apply-button"
             />
           </div>
         }
@@ -627,6 +661,7 @@ const UserLeaveBalance: React.FC = () => {
         }}
         width="90%"
         centered
+        data-cy="time-attendance-user-leave-balance-mobile-filter-modal"
       >
         <MobileFilterContent />
       </Modal>

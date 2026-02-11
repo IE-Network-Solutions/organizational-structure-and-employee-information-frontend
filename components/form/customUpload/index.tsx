@@ -147,7 +147,10 @@ const CustomUpload: FC<CustomUploadProps> = ({
   switch (mode) {
     case 'draggable':
       return (
-        <div className={classNames(className)}>
+        <div
+          data-cy="components-form-customupload-index-tsx-index-div-150"
+          className={classNames(className)}
+        >
           <Upload.Dragger
             id={`draggableFieldId-${targetState}`}
             customRequest={handleUpload}
@@ -156,10 +159,26 @@ const CustomUpload: FC<CustomUploadProps> = ({
             maxCount={maxCount} // Enforce single file
             {...otherProps}
           >
-            <div className="flex flex-col items-center p-3 gap-1">
-              <div className="text-primary">{icon}</div>
-              <div className="text-xs text-gray-900 font-semibold">{title}</div>
-              <div className="text-xs text-gray-500">
+            <div
+              data-cy="components-form-customupload-index-tsx-index-div-159"
+              className="flex flex-col items-center p-3 gap-1"
+            >
+              <div
+                data-cy="components-form-customupload-index-tsx-index-div-160"
+                className="text-primary"
+              >
+                {icon}
+              </div>
+              <div
+                data-cy="components-form-customupload-index-tsx-index-div-161"
+                className="text-xs text-gray-900 font-semibold"
+              >
+                {title}
+              </div>
+              <div
+                data-cy="components-form-customupload-index-tsx-index-div-162"
+                className="text-xs text-gray-500"
+              >
                 or drag and drop it here
               </div>
             </div>
@@ -168,7 +187,10 @@ const CustomUpload: FC<CustomUploadProps> = ({
       );
     case 'dragWithLink':
       return (
-        <div className={classNames(className)}>
+        <div
+          data-cy="components-form-customupload-index-tsx-index-div-171"
+          className={classNames(className)}
+        >
           <Upload.Dragger
             id={`draggableWithLinkFieldId-${targetState}`}
             customRequest={handleUpload}
@@ -187,10 +209,26 @@ const CustomUpload: FC<CustomUploadProps> = ({
             }}
             {...otherProps}
           >
-            <div className="flex flex-col items-center p-3 gap-1 h-max">
-              <div className="text-primary">{icon}</div>
-              <div className="text-xs text-gray-900 font-semibold">{title}</div>
-              <div className="text-xs text-gray-500">
+            <div
+              data-cy="components-form-customupload-index-tsx-index-div-190"
+              className="flex flex-col items-center p-3 gap-1 h-max"
+            >
+              <div
+                data-cy="components-form-customupload-index-tsx-index-div-191"
+                className="text-primary"
+              >
+                {icon}
+              </div>
+              <div
+                data-cy="components-form-customupload-index-tsx-index-div-192"
+                className="text-xs text-gray-900 font-semibold"
+              >
+                {title}
+              </div>
+              <div
+                data-cy="components-form-customupload-index-tsx-index-div-193"
+                className="text-xs text-gray-500"
+              >
                 or drag and drop it here
               </div>
               <Form
@@ -237,7 +275,10 @@ const CustomUpload: FC<CustomUploadProps> = ({
                 </Flex>
               </Form>
 
-              <div className="flex flex-wrap gap-2 mt-6">
+              <div
+                data-cy="components-form-customupload-index-tsx-index-div-240"
+                className="flex flex-wrap gap-2 mt-6"
+              >
                 {effectiveFileList.map((file) => (
                   <FileButton
                     fileName={formatFileNameToShort(file.name)}
@@ -257,7 +298,10 @@ const CustomUpload: FC<CustomUploadProps> = ({
 
     case 'default':
       return (
-        <div className={classNames(className)}>
+        <div
+          data-cy="components-form-customupload-index-tsx-index-div-260"
+          className={classNames(className)}
+        >
           <Upload
             customRequest={handleUpload}
             className={classNames(className)}
@@ -272,6 +316,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
               <button
                 type="button"
                 id={`tnaFileUploadAttachmentButtonId-${targetState}`}
+                data-cy="components-form-customupload-index-tsx-index-button-316"
                 className="mt-2.5 font-semibold text-sm text-gray-900 h-[40px] rounded-lg border border-gray-200 flex items-center justify-between transition-colors duration-150 px-[11px] hover:border-primary cursor-pointer w-full"
               >
                 Upload attachment

@@ -78,7 +78,12 @@ const InternalApplicantForm: React.FC<InternalApplicantFormProps> = ({
         id="documentNameId"
         name="resumeUrl"
         label={
-          <span className="text-md font-semibold text-gray-700">Upload CV</span>
+          <span
+            data-cy="-jobid-components-internalapplicant-index-tsx-index-span-81"
+            className="text-md font-semibold text-gray-700"
+          >
+            Upload CV
+          </span>
         }
         rules={[{ required: true, message: 'Please choose the document type' }]}
       >
@@ -91,7 +96,10 @@ const InternalApplicantForm: React.FC<InternalApplicantFormProps> = ({
           listType="picture"
           accept="*/*"
         >
-          <div className="flex items-center justify-center">
+          <div
+            data-cy="-jobid-components-internalapplicant-index-tsx-index-div-94"
+            className="flex items-center justify-center"
+          >
             <Image
               className="flex items-center justify-center"
               src={cvUpload.src}
@@ -100,15 +108,26 @@ const InternalApplicantForm: React.FC<InternalApplicantFormProps> = ({
               height={30}
             />
           </div>
-          <div className="flex flex-col justify-center items-center text-md font-semibold text-gray-950">
-            <p>Upload your CV</p>
-            <p className="text-gray-400 text-sm font-normal">
+          <div
+            data-cy="-jobid-components-internalapplicant-index-tsx-index-div-103"
+            className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
+          >
+            <p data-cy="-jobid-components-internalapplicant-index-tsx-index-p-104">
+              Upload your CV
+            </p>
+            <p
+              data-cy="-jobid-components-internalapplicant-index-tsx-index-p-105"
+              className="text-gray-400 text-sm font-normal"
+            >
               or drag and drop it here
             </p>
           </div>
         </Dragger>
       </Form.Item>
-      <div className="text-xs font-sm mb-5 ">
+      <div
+        data-cy="-jobid-components-internalapplicant-index-tsx-index-div-111"
+        className="text-xs font-sm mb-5 "
+      >
         Max file size : 5MB. File format : .pdf
       </div>
       <Form.Item
@@ -123,7 +142,10 @@ const InternalApplicantForm: React.FC<InternalApplicantFormProps> = ({
         id="coverLetterId"
         name="coverLetter"
         label={
-          <span className="text-md font-semibold text-gray-700">
+          <span
+            data-cy="-jobid-components-internalapplicant-index-tsx-index-span-126"
+            className="text-md font-semibold text-gray-700"
+          >
             Cover Letter
           </span>
         }
@@ -137,7 +159,10 @@ const InternalApplicantForm: React.FC<InternalApplicantFormProps> = ({
       </Form.Item>
 
       <Form.Item>
-        <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+        <div
+          data-cy="-jobid-components-internalapplicant-index-tsx-index-div-140"
+          className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+        >
           <Button
             type="primary"
             className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"

@@ -213,7 +213,10 @@ const JobCard: React.FC = () => {
                           className="flex-1 pr-8 sm:pr-0"
                         >
                           <Tooltip title={job?.jobTitle}>
-                            <span className="font-bold text-lg sm:text-xl text-gray-700 block truncate">
+                            <span
+                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-216"
+                              className="font-bold text-lg sm:text-xl text-gray-700 block truncate"
+                            >
                               {job?.jobTitle}
                             </span>
                           </Tooltip>
@@ -224,11 +227,17 @@ const JobCard: React.FC = () => {
                           className="sm:mr-10"
                         >
                           {jobStatus == 'Closed' ? (
-                            <div className="inline-flex items-center text-xs font-normal rounded-lg px-3 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border">
+                            <div
+                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-227"
+                              className="inline-flex items-center text-xs font-normal rounded-lg px-3 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border"
+                            >
                               Closed
                             </div>
                           ) : (
-                            <div className="inline-flex items-center text-xs font-normal rounded-lg px-3 py-1 bg-[#B2B2FF] text-[#3636F0]">
+                            <div
+                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-231"
+                              className="inline-flex items-center text-xs font-normal rounded-lg px-3 py-1 bg-[#B2B2FF] text-[#3636F0]"
+                            >
                               Active
                             </div>
                           )}
@@ -255,7 +264,12 @@ const JobCard: React.FC = () => {
                           </p>
                           {getDepartmentName(job?.departmentId) &&
                             job?.jobLocation && (
-                              <span className="text-gray-300">•</span>
+                              <span
+                                data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-258"
+                                className="text-gray-300"
+                              >
+                                •
+                              </span>
                             )}
                           <p
                             id={`talent-acquisition-job-jobLocation-${index}`}
@@ -270,15 +284,26 @@ const JobCard: React.FC = () => {
                           data-cy={`talent-acquisition-job-card-div-closing-date-desktop-${index}`}
                           className="hidden sm:block"
                         >
-                          <span className="text-gray-700 font-medium">
+                          <span
+                            data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-273"
+                            className="text-gray-700 font-medium"
+                          >
                             Closing Date:{' '}
                           </span>
                           {job?.jobDeadline ? (
-                            <span className="text-gray-500">
+                            <span
+                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-277"
+                              className="text-gray-500"
+                            >
                               {dayjs(job.jobDeadline).format(DATE_FORMAT)}
                             </span>
                           ) : (
-                            <span className="text-gray-500">Not set</span>
+                            <span
+                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-281"
+                              className="text-gray-500"
+                            >
+                              Not set
+                            </span>
                           )}
                         </div>
                       </div>
@@ -289,16 +314,30 @@ const JobCard: React.FC = () => {
                         data-cy={`talent-acquisition-job-card-div-closing-date-mobile-${index}`}
                         className="block sm:hidden mb-3"
                       >
-                        <div className="text-sm">
-                          <span className="text-gray-700 font-medium">
+                        <div
+                          data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-292"
+                          className="text-sm"
+                        >
+                          <span
+                            data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-293"
+                            className="text-gray-700 font-medium"
+                          >
                             Closing Date:{' '}
                           </span>
                           {job?.jobDeadline ? (
-                            <span className="text-gray-500">
+                            <span
+                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-297"
+                              className="text-gray-500"
+                            >
                               {dayjs(job.jobDeadline).format(DATE_FORMAT)}
                             </span>
                           ) : (
-                            <span className="text-gray-500">Not set</span>
+                            <span
+                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-301"
+                              className="text-gray-500"
+                            >
+                              Not set
+                            </span>
                           )}
                         </div>
                       </div>
@@ -328,7 +367,10 @@ const JobCard: React.FC = () => {
                                 .map((member: any) => (
                                   <Tooltip
                                     title={
-                                      <div className="flex justify-start items-center gap-4">
+                                      <div
+                                        data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-331"
+                                        className="flex justify-start items-center gap-4"
+                                      >
                                         {member?.name ?? '-'}
                                       </div>
                                     }
@@ -353,7 +395,10 @@ const JobCard: React.FC = () => {
                               className="rounded-full object-cover"
                             />
                           )}
-                          <p className="text-sm text-gray-500">
+                          <p
+                            data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-p-356"
+                            className="text-sm text-gray-500"
+                          >
                             {job?.jobCandidate.length > 0
                               ? job?.jobCandidate?.length + ' '
                               : '0 '}
@@ -366,7 +411,10 @@ const JobCard: React.FC = () => {
                           data-cy={`talent-acquisition-job-card-div-created-desktop-${index}`}
                           className="hidden sm:block"
                         >
-                          <div className="text-sm text-gray-500">
+                          <div
+                            data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-369"
+                            className="text-sm text-gray-500"
+                          >
                             Created{' '}
                             {job?.createdAt
                               ? dayjs(job.createdAt).fromNow()
@@ -381,7 +429,10 @@ const JobCard: React.FC = () => {
                         data-cy={`talent-acquisition-job-card-div-created-mobile-${index}`}
                         className="block sm:hidden mt-3"
                       >
-                        <div className="text-sm text-gray-500">
+                        <div
+                          data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-384"
+                          className="text-sm text-gray-500"
+                        >
                           Created{' '}
                           {job?.createdAt
                             ? dayjs(job.createdAt).fromNow()

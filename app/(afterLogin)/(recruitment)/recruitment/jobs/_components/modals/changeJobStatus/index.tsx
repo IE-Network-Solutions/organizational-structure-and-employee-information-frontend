@@ -94,7 +94,10 @@ const ChangeStatusModal: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <div className="flex space-x-3 justify-end">
+            <div
+              data-cy="-components-modals-changejobstatus-index-tsx-index-div-97"
+              className="flex space-x-3 justify-end"
+            >
               <Button
                 id="talent-acquisition-change-job-status-button-cancel"
                 data-cy="talent-acquisition-change-job-status-button-cancel"

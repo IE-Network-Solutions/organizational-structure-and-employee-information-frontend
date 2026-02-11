@@ -37,8 +37,8 @@ const BreakTypeTable = () => {
       sorter: true,
       render: (text: string) => (
         <div
-          id="time-attendance-settings-break-type-table-row-name"
-          data-cy="time-attendance-settings-break-type-table-row-name"
+          id="time-attendance-settings-break-type-table-row-description"
+          data-cy="time-attendance-settings-break-type-table-row-description"
         >
           {text || '-'}
         </div>

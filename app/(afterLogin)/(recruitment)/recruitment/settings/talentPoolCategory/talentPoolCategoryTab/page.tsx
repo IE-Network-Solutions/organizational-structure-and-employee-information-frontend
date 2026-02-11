@@ -91,7 +91,10 @@ function TalentPoolCategoryTab() {
           </Button>
         </AccessGuard>
       </div>
-      <div className="space-y-4 w-full">
+      <div
+        data-cy="settings-talentpoolcategory-talentpoolcategorytab-page-tsx-page-div-94"
+        className="space-y-4 w-full"
+      >
         {fetchLoading ? (
           <>
             <SkeletonLoading
@@ -106,14 +109,26 @@ function TalentPoolCategoryTab() {
             <div
               key={index}
               className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
+              data-cy="recruitment-recruitment-settings-talentpoolcategory-talentpoolcategorytab-page-tsx-div-109"
             >
-              <div className="text-medium font-medium">{talentPool?.title}</div>
+              <div
+                data-cy="settings-talentpoolcategory-talentpoolcategorytab-page-tsx-page-div-110"
+                className="text-medium font-medium"
+              >
+                {talentPool?.title}
+              </div>
 
-              <div className="flex items-center justify-center gap-2">
+              <div
+                data-cy="settings-talentpoolcategory-talentpoolcategorytab-page-tsx-page-div-112"
+                className="flex items-center justify-center gap-2"
+              >
                 <AccessGuard
                   permissions={[Permissions.UpdateTalentPoolCategory]}
                 >
-                  <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+                  <div
+                    data-cy="settings-talentpoolcategory-talentpoolcategorytab-page-tsx-page-div-116"
+                    className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center"
+                  >
                     <Pencil
                       id={`talent-acquisition-talent-pool-category-button-edit-${talentPool?.id}`}
                       data-cy={`talent-acquisition-talent-pool-category-button-edit-${talentPool?.id}`}
@@ -126,7 +141,10 @@ function TalentPoolCategoryTab() {
                 <AccessGuard
                   permissions={[Permissions.DeleteTalentPoolCategory]}
                 >
-                  <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+                  <div
+                    data-cy="settings-talentpoolcategory-talentpoolcategorytab-page-tsx-page-div-129"
+                    className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center"
+                  >
                     <Trash2
                       id={`talent-acquisition-talent-pool-category-button-delete-${talentPool?.id}`}
                       data-cy={`talent-acquisition-talent-pool-category-button-delete-${talentPool?.id}`}

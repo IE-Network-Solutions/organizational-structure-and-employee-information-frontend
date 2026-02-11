@@ -113,7 +113,10 @@ const BenefitEntitlemetPage = () => {
               </div>
 
               {/* Select and Button layout */}
-              <div className="flex flex-row w-full sm:w-auto gap-2">
+              <div
+                className="flex flex-row w-full sm:w-auto gap-2"
+                data-cy="benefit-page-actions-container"
+              >
                 {/* Select - takes 75% on mobile, fixed width on desktop */}
                 <div
                   className="w-10/12 mr-2 sm:hidden"

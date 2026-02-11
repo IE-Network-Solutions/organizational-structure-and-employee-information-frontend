@@ -94,7 +94,7 @@ const Incentive = () => {
   };
   const MobileFilters = () => (
     <Menu className="p-4 w-[280px]">
-      <div className="mb-4">
+      <div className="mb-4" data-cy="incentive-mobile-filter-recognition-type">
         <Select
           bordered={false}
           value={recognitionType} // use `value` here
@@ -108,7 +108,7 @@ const Incentive = () => {
           ))}
         </Select>
       </div>
-      <div>
+      <div data-cy="incentive-mobile-filter-status">
         <Select
           bordered={false}
           value={status === null ? 'Status' : status.toString()} // handle null, true, false
@@ -138,8 +138,13 @@ const Incentive = () => {
       }
       className="w-full mx-auto lg:h-[316px] overflow-hidden  flex flex-col shadow-lg "
     >
-      <div className="flex justify-between items-center mb-2 h-10 mx-5 lg:mx-0 mt-2 lg:mt-0">
-        <h3 className="font-bold text-lg">Incentives</h3>
+      <div
+        className="flex justify-between items-center mb-2 h-10 mx-5 lg:mx-0 mt-2 lg:mt-0"
+        data-cy="incentive-header"
+      >
+        <h3 className="font-bold text-lg" data-cy="incentive-title">
+          Incentives
+        </h3>
         {isMobile || isTablet ? (
           <Dropdown
             overlay={<MobileFilters />}
@@ -152,12 +157,13 @@ const Incentive = () => {
                   ? 'bg-blue-50 border-blue-500'
                   : 'border-gray-300'
               }`}
+              data-cy="incentive-mobile-filter-button"
             >
               <LuSettings2 />
             </button>
           </Dropdown>
         ) : (
-          <div>
+          <div data-cy="incentive-desktop-filters">
             <Select
               bordered={false}
               defaultValue="Incentive Type"
@@ -196,46 +202,82 @@ const Incentive = () => {
               lg={8}
               xs={24}
               className="relative flex items-center justify-center w-[200px] h-[200px]  px-4 overflow-visible z-10 "
+              data-cy="incentive-chart-container"
             >
               <Doughnut data={data} options={options} className="z-20" />
               <div
                 className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0"
                 style={{ transform: 'translate(-50%, -50%)' }}
+                data-cy="incentive-chart-center"
               >
                 <div
                   className="bg-white border border-gray-200 shadow-xl rounded-full flex flex-col items-center justify-center"
                   style={{ width: 120, height: 120 }}
+                  data-cy="incentive-total-badge"
                 >
-                  <span className="font-bold text-2xl text-gray-900">
+                  <span
+                    className="font-bold text-2xl text-gray-900"
+                    data-cy="incentive-total-count"
+                  >
                     {totalCount.toLocaleString()}
                   </span>
-                  <span className="text-sm text-gray-400">Total</span>
+                  <span
+                    className="text-sm text-gray-400"
+                    data-cy="incentive-total-label"
+                  >
+                    Total
+                  </span>
                 </div>
               </div>
             </Col>
-            <Col lg={16} xs={24} className="">
-              <div className=" lg:ml-5 overflow-y-auto h-[200px]">
+            <Col
+              lg={16}
+              xs={24}
+              className=""
+              data-cy="incentive-details-container"
+            >
+              <div
+                className=" lg:ml-5 overflow-y-auto h-[200px]"
+                data-cy="incentive-details-list"
+              >
                 {IncentiveData?.details?.map((item: any, index: any) => {
                   const key = index;
                   return (
                     <div
                       key={key}
                       className="mb-2 border-b-2 pb-2 flex justify-between items-center gap-8 "
+                      data-cy={`incentive-detail-item-${index}`}
                     >
-                      <div className="space-y-1">
-                        <div className="text-sm font-semibold">
+                      <div
+                        className="space-y-1"
+                        data-cy={`incentive-detail-info-${index}`}
+                      >
+                        <div
+                          className="text-sm font-semibold"
+                          data-cy={`incentive-detail-name-${index}`}
+                        >
                           {item?.recognitionType?.name}
                         </div>
-                        <div className="text-xs font-normal">
+                        <div
+                          className="text-xs font-normal"
+                          data-cy={`incentive-detail-description-${index}`}
+                        >
                           {item?.recognitionType?.description}
                         </div>{' '}
                       </div>
-                      <div className="">
-                        <div className="flex items-center justify-center">
+                      <div
+                        className=""
+                        data-cy={`incentive-detail-amount-${index}`}
+                      >
+                        <div
+                          className="flex items-center justify-center"
+                          data-cy={`incentive-detail-total-${index}`}
+                        >
                           {item?.totalAmount.toLocaleString()}
                         </div>
                         <div
                           className={`min-w-24 px-3 py-1 ${item?.status === true ? 'bg-light_purple text-primary' : 'bg-red-100 text-error'} flex items-center justify-center text-xs font-bold rounded-lg`}
+                          data-cy={`incentive-detail-status-${index}`}
                         >
                           {item?.status === true ? 'Paid' : 'Not Paid'}
                         </div>
@@ -248,8 +290,13 @@ const Incentive = () => {
           </Row>
         </Card>
       ) : (
-        <div className="text-lg font-light flex h-full justify-center items-center min-h-40">
-          No Incentive For this Month
+        <div
+          className="text-lg font-light flex h-full justify-center items-center min-h-40"
+          data-cy="incentive-empty"
+        >
+          <div data-cy="incentive-empty-message">
+            No Incentive For this Month
+          </div>
         </div>
       )}{' '}
     </Card>

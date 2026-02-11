@@ -21,7 +21,14 @@ const CoursePage = () => {
     {
       key: 'lesson',
       id: 'tabLessonId',
-      label: <div className="font-semibold">Lesson</div>,
+      label: (
+        <div
+          data-cy="tna-management-id-page-tsx-page-div-24"
+          className="font-semibold"
+        >
+          Lesson
+        </div>
+      ),
       children: <CourseLesson />,
     },
   ];

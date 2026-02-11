@@ -293,11 +293,20 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/zkt-addon') ? 'lg:ml-4' : ''}`}
+            id="time-attendance-settings-menu-zkt-addon-item"
+            data-cy="time-attendance-settings-menu-zkt-addon-item"
           >
             <TbCode
               className={`hidden lg:block ${pathname.includes('/timesheet/settings/zkt-addon') ? 'text-[#1677FF]' : ''}`}
+              data-cy="time-attendance-settings-menu-zkt-addon-icon"
             />
-            <p className="menu-item-label ">ZKT addon</p>
+            <p
+              className="menu-item-label "
+              id="time-attendance-settings-menu-zkt-addon-label"
+              data-cy="time-attendance-settings-menu-zkt-addon-label"
+            >
+              ZKT addon
+            </p>
           </div>
         ),
         className: 'px-1',

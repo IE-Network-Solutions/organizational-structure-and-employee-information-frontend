@@ -202,12 +202,23 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
             className="text-indigo-600"
             style={{ fontSize: '18px' }}
           />
-          <span className="text-base font-semibold text-indigo-900">
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-span-205"
+            className="text-base font-semibold text-indigo-900"
+          >
             AI Key Result Suggestion
           </span>
-          <span className="text-sm text-indigo-600">{objectiveTitle}</span>
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-span-208"
+            className="text-sm text-indigo-600"
+          >
+            {objectiveTitle}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-div-210"
+          className="flex items-center gap-2"
+        >
           <Button
             size="small"
             onClick={handleGenerate}
@@ -228,9 +239,15 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-lg p-3">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-div-231"
+        className="bg-white rounded-lg p-3"
+      >
         {loading && (
-          <div className="flex justify-center items-center py-8">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-div-233"
+            className="flex justify-center items-center py-8"
+          >
             <Spin size="large" />
           </div>
         )}
@@ -238,7 +255,10 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
         {!loading && suggestions.length === 0 && (
           <Empty
             description={
-              <span className="text-sm text-gray-600">
+              <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-span-241"
+                className="text-sm text-gray-600"
+              >
                 {objectiveTitle && objectiveTitle.trim() !== ''
                   ? 'No suggestions available. Click "Regenerate" to try again.'
                   : 'Please enter an objective title first'}
@@ -249,19 +269,35 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
         )}
 
         {!loading && suggestions.length > 0 && (
-          <div className="space-y-3">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-div-252"
+            className="space-y-3"
+          >
             {suggestions.map((suggestion, idx) => (
               <div
                 key={idx}
+                data-cy={`components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-div-277-${idx}`}
                 className="border border-gray-200 rounded-lg bg-white hover:border-indigo-300 transition-colors"
               >
                 {/* Suggestion Header */}
-                <div className="flex items-start justify-between p-3 border-b border-gray-100">
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-700 leading-relaxed mb-2">
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-div-259"
+                  className="flex items-start justify-between p-3 border-b border-gray-100"
+                >
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-div-260"
+                    className="flex-1"
+                  >
+                    <p
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-p-261"
+                      className="text-sm text-gray-700 leading-relaxed mb-2"
+                    >
                       {suggestion.title}
                     </p>
-                    <div className="flex gap-2 flex-wrap">
+                    <div
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-div-264"
+                      className="flex gap-2 flex-wrap"
+                    >
                       <Tag
                         className="rounded-full text-xs font-medium border-0 m-0"
                         style={{
@@ -320,11 +356,19 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
 
         {/* Footer */}
         {suggestions.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center text-sm text-gray-600">
-            <span>Suggested Key Results: {suggestions.length}</span>
-            <span>
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-div-323"
+            className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center text-sm text-gray-600"
+          >
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-span-324">
+              Suggested Key Results: {suggestions.length}
+            </span>
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-span-325">
               Total Weight:{' '}
-              <strong className="text-gray-900">
+              <strong
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinlinesuggestions-tsx-okrinlinesuggestions-strong-327"
+                className="text-gray-900"
+              >
                 {suggestions.reduce((sum, s) => sum + s.weight, 0)}%
               </strong>
             </span>

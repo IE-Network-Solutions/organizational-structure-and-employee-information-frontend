@@ -128,14 +128,26 @@ const OKRInstructionsDisplay: React.FC<OKRInstructionsDisplayProps> = ({
   };
 
   const content = (
-    <div className="okr-instructions-content">
+    <div
+      data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-131"
+      className="okr-instructions-content"
+    >
       {/* Header Section */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-133"
+        className="mb-6"
+      >
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-134"
+          className="flex items-center gap-3 mb-3"
+        >
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-135"
+            className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center"
+          >
             <BulbOutlined className="text-white text-xl" />
           </div>
-          <div>
+          <div data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-138">
             <Title level={4} className="mb-1 text-gray-800">
               {title}
             </Title>
@@ -146,7 +158,10 @@ const OKRInstructionsDisplay: React.FC<OKRInstructionsDisplayProps> = ({
         </div>
 
         {/* Quick Stats */}
-        <div className="flex gap-2 mb-4">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-149"
+          className="flex gap-2 mb-4"
+        >
           <Tag color="blue" className="rounded-full px-3 py-1">
             {steps.length} Steps
           </Tag>
@@ -160,20 +175,34 @@ const OKRInstructionsDisplay: React.FC<OKRInstructionsDisplayProps> = ({
       </div>
 
       {/* Steps Section */}
-      <div className="mb-6">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-163"
+        className="mb-6"
+      >
         <Steps
           direction="vertical"
           size="small"
           className="okr-instruction-steps"
           items={steps.map((step) => ({
             title: (
-              <div className="flex items-center gap-2">
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-170"
+                className="flex items-center gap-2"
+              >
                 {step.icon}
-                <span className="font-medium text-gray-800">{step.title}</span>
+                <span
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-span-172"
+                  className="font-medium text-gray-800"
+                >
+                  {step.title}
+                </span>
               </div>
             ),
             description: (
-              <div className="mt-2 ml-6">
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-176"
+                className="mt-2 ml-6"
+              >
                 <Paragraph className="text-gray-600 text-sm mb-0 leading-relaxed">
                   {step.description}
                 </Paragraph>
@@ -187,7 +216,10 @@ const OKRInstructionsDisplay: React.FC<OKRInstructionsDisplayProps> = ({
       <Divider className="my-6" />
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 justify-center">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-190"
+        className="flex flex-wrap gap-3 justify-center"
+      >
         <Button
           type="primary"
           size="large"
@@ -216,10 +248,16 @@ const OKRInstructionsDisplay: React.FC<OKRInstructionsDisplayProps> = ({
       </div>
 
       {/* Footer Tip */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
-        <div className="flex items-start gap-3">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-219"
+        className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100"
+      >
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-220"
+          className="flex items-start gap-3"
+        >
           <BulbOutlined className="text-blue-600 mt-1" />
-          <div>
+          <div data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-222">
             <Text strong className="text-blue-800 block mb-1">
               💡 Pro Tip
             </Text>
@@ -251,7 +289,10 @@ const OKRInstructionsDisplay: React.FC<OKRInstructionsDisplayProps> = ({
   }
 
   return (
-    <div className="okr-instructions-wrapper p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+    <div
+      data-cy="organizational-structure-and-employee-information-frontend-components-ai-okrinstructionsdisplay-tsx-okrinstructionsdisplay-div-254"
+      className="okr-instructions-wrapper p-6 bg-white rounded-lg shadow-sm border border-gray-200"
+    >
       {content}
     </div>
   );
