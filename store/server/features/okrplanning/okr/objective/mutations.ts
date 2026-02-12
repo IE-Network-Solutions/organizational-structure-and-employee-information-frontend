@@ -71,7 +71,33 @@ const deleteObjective = async (deletedId: string) => {
     });
 
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    // Extract error message from backend response
+    let errorMessage = 'Failed to delete objective';
+    let errorDescription = 'An unexpected error occurred';
+
+    if (error?.response?.data) {
+      const errorData = error.response.data;
+
+      // Handle different error response formats
+      if (typeof errorData === 'string') {
+        errorMessage = errorData;
+      } else if (errorData.message) {
+        errorMessage = errorData.message;
+        errorDescription = errorData.details || errorData.error || '';
+      } else if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } else if (error?.message) {
+      errorMessage = error.message;
+    }
+
+    // Show error notification
+    NotificationMessage.error({
+      message: errorMessage,
+      description: errorDescription,
+    });
+
     throw error;
   }
 };
@@ -115,7 +141,33 @@ const deleteKeyResult = async (deletedId: string) => {
     });
 
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    // Extract error message from backend response
+    let errorMessage = 'Failed to delete key result';
+    let errorDescription = 'An unexpected error occurred';
+
+    if (error?.response?.data) {
+      const errorData = error.response.data;
+
+      // Handle different error response formats
+      if (typeof errorData === 'string') {
+        errorMessage = errorData;
+      } else if (errorData.message) {
+        errorMessage = errorData.message;
+        errorDescription = errorData.details || errorData.error || '';
+      } else if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } else if (error?.message) {
+      errorMessage = error.message;
+    }
+
+    // Show error notification
+    NotificationMessage.error({
+      message: errorMessage,
+      description: errorDescription,
+    });
+
     throw error;
   }
 };
@@ -210,6 +262,10 @@ export const useDeleteObjective = () => {
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },
+    onError: () => {
+      // Error handling is done in deleteObjective function
+      // This prevents double error notifications
+    },
   });
 };
 export const useCreateObjective = () => {
@@ -250,6 +306,10 @@ export const useDeleteKeyResult = () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
+    },
+    onError: () => {
+      // Error handling is done in deleteKeyResult function
+      // This prevents double error notifications
     },
   });
 };

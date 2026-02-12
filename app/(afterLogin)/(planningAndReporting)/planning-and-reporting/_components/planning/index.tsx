@@ -550,7 +550,7 @@ function Planning() {
           pageSizeOptions={['10', '20', '50', '100']}
         /> */}
 
-      {transformedData?.length <= 0 && (
+      {!getPlanningLoading && transformedData?.length <= 0 && (
         <div className="flex justify-center">
           <div>
             <p className="flex justify-center items-center h-[200px]">

@@ -266,12 +266,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className: 'font-bold',
           permissions: ['manage_employees'],
         },
-        {
-          title: <span>Department Request</span>,
-          key: '/employees/departmentRequest',
-          className: 'font-bold',
-          permissions: ['manage_department_requests'],
-        },
+        // {
+        //   title: <span>Department Request</span>,
+        //   key: '/employees/departmentRequest',
+        //   className: 'font-bold',
+        //   permissions: ['manage_department_requests'],
+        // },
         {
           title: <span>Settings</span>,
           key: '/employees/settings',

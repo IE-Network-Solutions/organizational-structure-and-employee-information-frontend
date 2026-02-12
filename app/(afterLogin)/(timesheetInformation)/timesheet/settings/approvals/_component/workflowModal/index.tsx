@@ -422,6 +422,11 @@ const WorkflowModal = ({
           id="approval-workflow-applies-id"
         >
           <Select
+            disabled={
+              workflowApplies === 'Department' ||
+              workflowApplies === 'Hierarchy' ||
+              workflowApplies === 'User'
+            }
             data-cy="approval-workflow-applies-id-select"
             id="approval-workflow-applies-id-select"
             className="w-full h-10 mb-1"

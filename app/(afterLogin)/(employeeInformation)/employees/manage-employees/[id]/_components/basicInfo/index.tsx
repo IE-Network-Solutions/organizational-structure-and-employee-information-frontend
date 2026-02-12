@@ -1,21 +1,10 @@
 'use client';
 
-import {
-  Avatar,
-  Card,
-  Divider,
-  List,
-  message,
-  Popover,
-  Tag,
-  Modal,
-  Button,
-} from 'antd';
+import { Avatar, Card, Divider, List, message, Tag, Modal, Button } from 'antd';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { HiOutlineMail } from 'react-icons/hi';
 import { FiTrash2 } from 'react-icons/fi';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import BranchTransferRequest from '../branchTransferRequest';
 import { Upload } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -416,21 +405,21 @@ function BasicInfo({ id }: { id: string }) {
         <List.Item
           key={'office'}
           actions={[
-            <Popover
-              content={<BranchTransferRequest employeeData={employeeData} />}
-              title="Branch Transfer Request"
-              placement="bottomRight"
-              trigger="click"
-              key="popover"
-              id="basic-info-office-popover"
-              data-cy="basic-info-office-popover"
-            >
-              <MdKeyboardArrowRight
-                key="arrow"
-                id="basic-info-office-arrow"
-                data-cy="basic-info-office-arrow"
-              />
-            </Popover>,
+            // <Popover
+            //   content={<BranchTransferRequest employeeData={employeeData} />}
+            //   title="Branch Transfer Request"
+            //   placement="bottomRight"
+            //   trigger="click"
+            //   key="popover"
+            //   id="basic-info-office-popover"
+            //   data-cy="basic-info-office-popover"
+            // >
+            <MdKeyboardArrowRight
+              key="arrow"
+              id="basic-info-office-arrow"
+              data-cy="basic-info-office-arrow"
+            />,
+            // </Popover>,
           ]}
           id="basic-info-office-item"
           data-cy="basic-info-office-item"
