@@ -8,7 +8,7 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import SidebarMenu from '@/components/sidebarMenu';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import { useMediaQuery } from 'react-responsive';
-import { TbTarget, TbAward, TbShieldCheck, TbEdit } from 'react-icons/tb';
+import { TbTarget, TbAward, TbShieldCheck, TbEdit, TbCalendar } from 'react-icons/tb';
 import { HiOutlineBriefcase } from 'react-icons/hi';
 
 interface OkrSettingsLayoutProps {
@@ -291,6 +291,31 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'check-in-rule' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/check-in-rule',
+    },
+    {
+      item: {
+        key: 'google-calendar',
+        icon: !isMobile ? (
+          <TbCalendar
+            data-cy="okr-settings-layout-google-calendar-icon-display-icon"
+            className={
+              currentItem === 'google-calendar'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-google-calendar-label-display-label"
+          >
+            Google Calendar
+          </p>
+        ),
+        className: currentItem === 'google-calendar' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/google-calendar',
     },
   ]);
 
