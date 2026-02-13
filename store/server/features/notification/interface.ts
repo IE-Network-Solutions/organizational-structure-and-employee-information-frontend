@@ -13,6 +13,8 @@ export interface NotificationType {
   route?: string;
   /** Optional URL to open when the notification is clicked (alias / fallback) */
   url?: string;
+  /** Optional theme for display (e.g. green, blue, purple). Can also be parsed from route ?theme= */
+  theme?: string;
 }
 
 export interface NotificationListResponse {

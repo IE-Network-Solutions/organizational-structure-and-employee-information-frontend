@@ -1,5 +1,4 @@
 import { Avatar, Menu, Dropdown, Badge, Spin, Tooltip } from 'antd';
-import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
 import { NotificationType } from '@/store/server/features/notification/interface';
 import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
@@ -7,33 +6,40 @@ import { IoIosNotificationsOutline } from 'react-icons/io';
 import { AiFillNotification } from 'react-icons/ai';
 import { CgCloseO } from 'react-icons/cg';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { NotificationDetailVisible } from '@/app/(afterLogin)/(employeeInformation)/employees/notification/_component/notificationDetail';
+import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
+
+const toSlug = (v: string | number | null | undefined) =>
+  String(v ?? 'na').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+function getNotificationRoute(n: NotificationType): string | null {
+  const r = n?.route?.trim();
+  return r || null;
+}
 
 function NotificationBar() {
   const userId = useAuthenticationStore.getState().userId;
-
-  const {
-    setIsNotificationDetailVisible,
-    selectedNotificationId,
-    setSelectedNotificationId,
-  } = useNotificationDetailStore();
+  const router = useRouter();
 
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
   const { data, isLoading } = useGetNotifications(userId ?? '');
 
   const list = Array.isArray(data) ? data : (data as any)?.data ?? [];
   const unReadNotification = list.filter(
-    (item: NotificationType) => item.isRead === false,
+    (item: NotificationType) => item.isRead !== true,
   );
 
   const updateNotification = (id: string) => {
     updateNotificationStatus(id);
   };
-  const handleShowNotificationDetails = (id: string) => {
-    setSelectedNotificationId(id);
-    setIsNotificationDetailVisible(true);
+
+  const handleNotificationClick = (notification: NotificationType) => {
+    updateNotification(notification.id);
+    const route = getNotificationRoute(notification);
+    if (route) router.push(route);
   };
+
   const formatDateDifference = (updatedAt: string) => {
     const currentDate = new Date();
     const updatedDate = new Date(updatedAt);
@@ -54,8 +60,8 @@ function NotificationBar() {
     }
   };
   const notificationMenu = (
-    <Menu className="font-lexend max-w-[400px] max-h-96 overflow-y-auto">
-      <p className="m-2 border-b border-black">Notifications</p>
+    <Menu className="font-lexend max-w-[400px] max-h-96 overflow-y-auto" id="notification-bar-menu" data-cy="notification-bar-menu">
+      <p className="m-2 border-b border-black" id="notification-bar-title" data-cy="notification-bar-title">Notifications</p>
 
       {isLoading ? (
         <Spin tip="Loading" size="small" />
@@ -63,16 +69,25 @@ function NotificationBar() {
         <>
           {unReadNotification
             ?.slice(0, 6)
-            ?.map((notification: NotificationType) => (
-              <div className="flex justify-between gap-4" key={notification.id}>
+            ?.map((notification: NotificationType) => {
+              const theme = getNotificationThemeClasses(notification);
+              const slug = toSlug(notification.id);
+              return (
+              <div
+                key={notification.id}
+                id={`notification-bar-item-${slug}`}
+                data-cy={`notification-bar-item-${slug}`}
+                className={`flex justify-between gap-4 border-l-4 ${theme.border} ${theme.hover}`}
+              >
                 <Menu.Item>
                   <div
                     className="flex items-center p-2 cursor-pointer"
-                    onClick={() => {
-                      handleShowNotificationDetails(notification?.id);
-                    }}
+                    onClick={() => handleNotificationClick(notification)}
                   >
-                    <Avatar icon={<AiFillNotification />} />
+                    <Avatar
+                      className={theme.bg}
+                      icon={<AiFillNotification className={theme.icon} />}
+                    />
                     <div className="ml-2">
                       <div className="font-semibold">{notification?.title}</div>
                       <div className="text-xs text-gray-500">
@@ -91,13 +106,14 @@ function NotificationBar() {
                       className="text-sm "
                       onClick={(e) => {
                         e.stopPropagation();
-                        updateNotification(notification?.id);
+                        updateNotification(notification.id);
                       }}
                     />
                   </Tooltip>
                 </div>
               </div>
-            ))}
+            );
+            })}
 
           <Menu.Item key="view-more" className="text-center">
             <Link href="/employees/notification">
@@ -113,13 +129,15 @@ function NotificationBar() {
     </Menu>
   );
   return (
-    <>
+    <div id="notification-bar-dropdown" data-cy="notification-bar-dropdown">
       <Dropdown
         className="border-[#ececee] border-[1px] rounded-md"
         overlay={notificationMenu}
         trigger={['click']}
       >
         <Badge
+          id="notification-bar-badge"
+          data-cy="notification-bar-badge"
           count={
             unReadNotification?.length > 0 ? unReadNotification?.length : 0
           }
@@ -128,10 +146,7 @@ function NotificationBar() {
           <IoIosNotificationsOutline size={20} />
         </Badge>
       </Dropdown>
-      {selectedNotificationId && (
-        <NotificationDetailVisible id={selectedNotificationId} />
-      )}
-    </>
+    </div>
   );
 }
 

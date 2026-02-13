@@ -14,6 +14,7 @@ import {
   useMarkAllAsRead,
 } from '@/store/server/features/notification/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
 import {
   EyeOutlined,
   FileTextOutlined,
@@ -22,43 +23,36 @@ import {
   UserAddOutlined,
   ClockCircleOutlined,
   BarChartOutlined,
-  StarOutlined,
   ReadOutlined,
-  TeamOutlined,
   GiftOutlined,
   GlobalOutlined,
 } from '@ant-design/icons';
 import { requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription';
 import { VAPID_PUBLIC_KEY } from '@/utils/constants';
 
-/**
- * Maps notification source_service to an icon.
- * payroll | recruitment | time-and-attendance | planning-and-reporting | cfr |
- * learning-and-growth | employee-management | compensation-and-benefits | global-system-event
- */
-function getNotificationIcon(
-  sourceService?: string | null,
-): React.ComponentType<{ className?: string }> {
-  const source = (sourceService ?? '').toLowerCase();
-  if (source.includes('global-system-event')) return GlobalOutlined;
-  if (source.includes('time-and-attendance')) return ClockCircleOutlined;
-  if (source.includes('planning-and-reporting')) return BarChartOutlined;
-  if (source.includes('cfr')) return StarOutlined;
-  if (source.includes('learning-and-growth')) return ReadOutlined;
-  if (source.includes('employee-management')) return TeamOutlined;
-  if (source.includes('compensation-and-benefits')) return GiftOutlined;
-  if (source.includes('payroll')) return DollarOutlined;
-  if (source.includes('recruitment')) return UserAddOutlined;
+const toSlug = (v: string | number | null | undefined) =>
+  String(v ?? 'na').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+function getNotificationIcon(item: NotificationType): React.ComponentType<{ className?: string }> {
+  const s = (item.source_service ?? '').toLowerCase().replace(/_/g, '-');
+  const r = (item.route ?? '').toLowerCase();
+  if (s.includes('org-structure') || r.includes('quarter_completion')) return GlobalOutlined;
+  if (s.includes('planning-and-reporting')) return BarChartOutlined;
+  if (s.includes('time-and-attendance')) return ClockCircleOutlined;
+  if (s.includes('training-and-learning')) return ReadOutlined;
+  if (s.includes('recruitment')) return UserAddOutlined;
+  if (s.includes('compensation-and-benefits') || (r.includes('compensationsetting') && r.includes('allowance'))) return GiftOutlined;
+  if (s.includes('payroll')) return DollarOutlined;
   return FileTextOutlined;
 }
 
 const PANEL_WIDTH = 400;
 const MAX_HEIGHT = 520;
-const LIST_LIMIT = 50;
+const LIST_LIMIT = 100;
 type FilterType = 'all' | 'unread' | 'seen';
 
 function isUnread(item: NotificationType): boolean {
-  return item.isRead === false;
+  return item.isRead !== true;
 }
 
 function formatTime(dateStr: string): string {
@@ -68,39 +62,6 @@ function formatTime(dateStr: string): string {
   const am = hours < 12;
   const h = hours % 12 || 12;
   return `${h}:${mins.toString().padStart(2, '0')}${am ? 'AM' : 'PM'}`;
-}
-
-/** Parse pathname and query from a route string (e.g. /benefits?notificationType=benefit&theme=green) */
-function parseRoute(routeOrUrl: string): { pathname: string; theme: string | null; notificationType: string | null } {
-  const s = (routeOrUrl ?? '').trim();
-  if (!s) return { pathname: '/', theme: null, notificationType: null };
-  const [pathPart, searchPart] = s.startsWith('/') ? s.split('?') : [`/${s}`, ''];
-  const pathname = pathPart || '/';
-  const params = new URLSearchParams(searchPart || '');
-  const theme = params.get('theme');
-  const notificationType = params.get('notificationType');
-  return { pathname, theme: theme || null, notificationType: notificationType || null };
-}
-
-/** Theme-based border/background/icon classes for notification items */
-const NOTIFICATION_THEME_CLASSES: Record<string, { border: string; hover: string; bg: string; icon: string }> = {
-  green: { border: 'border-green-500', hover: 'hover:bg-green-50/50', bg: 'bg-green-100', icon: 'text-green-600' },
-  blue: { border: 'border-blue-500', hover: 'hover:bg-blue-50/50', bg: 'bg-blue-100', icon: 'text-blue-600' },
-  purple: { border: 'border-purple-500', hover: 'hover:bg-purple-50/50', bg: 'bg-purple-100', icon: 'text-purple-600' },
-  orange: { border: 'border-orange-500', hover: 'hover:bg-orange-50/50', bg: 'bg-orange-100', icon: 'text-orange-600' },
-  red: { border: 'border-red-500', hover: 'hover:bg-red-50/50', bg: 'bg-red-100', icon: 'text-red-600' },
-  teal: { border: 'border-teal-500', hover: 'hover:bg-teal-50/50', bg: 'bg-teal-100', icon: 'text-teal-600' },
-  indigo: { border: 'border-indigo-500', hover: 'hover:bg-indigo-50/50', bg: 'bg-indigo-100', icon: 'text-indigo-600' },
-};
-
-function getThemeClasses(item: NotificationType): { border: string; hover: string; bg: string; icon: string } {
-  const routeStr = item.route?.trim() || item.url?.trim() || '';
-  const { theme } = parseRoute(routeStr);
-  const key = (theme ?? '').toLowerCase();
-  if (key && NOTIFICATION_THEME_CLASSES[key]) return NOTIFICATION_THEME_CLASSES[key];
-  const text = `${item.title ?? ''} ${item.body ?? ''}`.toLowerCase();
-  if (text.includes('incentive')) return NOTIFICATION_THEME_CLASSES.green;
-  return { border: 'border-transparent', hover: 'hover:bg-gray-50', bg: 'bg-gray-100', icon: 'text-gray-500' };
 }
 
 function NotificationItem({
@@ -116,12 +77,12 @@ function NotificationItem({
   onClick: (item: NotificationType) => void;
   formatTime: (dateStr: string) => string;
 }) {
-  const IconComponent = getNotificationIcon(item.source_service);
-  const themeClasses = getThemeClasses(item);
+  const IconComponent = getNotificationIcon(item);
+  const themeClasses = getNotificationThemeClasses(item);
   return (
-    <div
-      id={`notification-item-${item.id}`}
-      data-cy={`notification-item-${item.id}`}
+      <div
+        id={`notification-item-${toSlug(item.id)}`}
+        data-cy={`notification-item-${toSlug(item.id)}`}
       onClick={() => onClick(item)}
       className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors border-l-2 ${themeClasses.border} ${themeClasses.hover} ${unread ? 'opacity-100' : 'opacity-70'}`}
     >
@@ -160,8 +121,8 @@ function NotificationItem({
       </div>
       <button
         type="button"
-        id={`notification-item-mark-read-${item.id}`}
-        data-cy={`notification-item-mark-read-${item.id}`}
+        id={`notification-item-mark-read-${toSlug(item.id)}`}
+        data-cy={`notification-item-mark-read-${toSlug(item.id)}`}
         onClick={(e) => {
           e.stopPropagation();
           if (unread) onMarkAsRead(e, item.id);
@@ -258,7 +219,6 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
     }
   };
 
-
   const showEnablePush =
     !!VAPID_PUBLIC_KEY &&
     !!userId &&
@@ -299,12 +259,9 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
 
   const handleItemClick = (item: NotificationType) => {
     const routeStr =
-      item.route?.trim() || item.url?.trim() || `/employees/notification?id=${item.id}`;
-    const { pathname } = parseRoute(routeStr);
-    const path = pathname.startsWith('/') ? pathname : `/${pathname}`;
-    if (isUnread(item)) {
-      markAsRead(item.id);
-    }
+      item.route?.trim() || `/employees/notification?id=${item.id}`;
+    const path = routeStr.startsWith('/') ? routeStr : `/${routeStr}`;
+    if (isUnread(item)) markAsRead(item.id);
     router.push(path);
   };
 
@@ -451,13 +408,13 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
             </div>
           ) : filter === 'all' &&
             (unreadList.length > 0 || readList.length > 0) ? (
-            <div className="p-2 space-y-4">
+            <div className="p-2 space-y-4" id="notification-all-sections" data-cy="notification-all-sections">
               {unreadList.length > 0 && (
-                <div>
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2">
+                <div id="notification-unread-section" data-cy="notification-unread-section">
+                  <h3 id="notification-unread-heading" data-cy="notification-unread-heading" className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2">
                     Unread
                   </h3>
-                  <div className="space-y-0">
+                  <div className="space-y-3" id="notification-unread-list" data-cy="notification-unread-list">
                     {unreadList.map((item: NotificationType) => (
                       <NotificationItem
                         key={item.id}
@@ -472,11 +429,11 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
                 </div>
               )}
               {readList.length > 0 && (
-                <div>
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2">
+                <div id="notification-previous-section" data-cy="notification-previous-section">
+                  <h3 id="notification-previous-heading" data-cy="notification-previous-heading" className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2 border-t border-gray-200 pt-3 mt-1">
                     Previous notifications
                   </h3>
-                  <div className="space-y-0">
+                  <div className="space-y-3" id="notification-previous-list" data-cy="notification-previous-list">
                     {readList.map((item: NotificationType) => (
                       <NotificationItem
                         key={item.id}
@@ -492,7 +449,7 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
               )}
             </div>
           ) : (
-            <div className="p-2 space-y-0">
+            <div className="p-2 space-y-3" id="notification-filtered-list" data-cy="notification-filtered-list">
               {filtered.map((item: NotificationType) => (
                 <NotificationItem
                   key={item.id}
