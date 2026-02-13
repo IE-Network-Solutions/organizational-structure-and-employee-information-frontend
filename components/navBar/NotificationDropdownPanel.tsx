@@ -86,9 +86,10 @@ function NotificationItem({
       onClick={() => onClick(item)}
       className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors border-l-2 ${themeClasses.border} ${themeClasses.hover} ${unread ? 'opacity-100' : 'opacity-70'}`}
     >
-      <div className="flex-shrink-0 relative mt-0.5">
+      <div className="flex-shrink-0 relative mt-0.5" data-cy={`notification-item-avatar-wrapper-${toSlug(item.id)}`}>
         <div
           className={`w-9 h-9 rounded-full flex items-center justify-center ${themeClasses.bg}`}
+          data-cy={`notification-item-icon-${toSlug(item.id)}`}
         >
           <IconComponent
             className={`text-sm ${themeClasses.icon}`}

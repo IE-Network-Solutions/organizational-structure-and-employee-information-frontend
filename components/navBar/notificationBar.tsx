@@ -89,14 +89,14 @@ function NotificationBar() {
                       className={theme.bg}
                       icon={<AiFillNotification className={theme.icon} />}
                     />
-                    <div className="ml-2">
-                      <div className="font-semibold">{notification?.title}</div>
-                      <div className="text-xs text-gray-500">
+                    <div className="ml-2" data-cy={`notification-bar-content-${slug}`}>
+                      <div className="font-semibold" data-cy={`notification-bar-title-${slug}`}>{notification?.title}</div>
+                      <div className="text-xs text-gray-500" data-cy={`notification-bar-date-${slug}`}>
                         {formatDateDifference(notification?.updatedAt)}
                       </div>
                       <div
-                        data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-81"
                         className="text-xs text-gray-400"
+                        data-cy={`notification-bar-body-${slug}`}
                       >
                         {notification?.body?.slice(0, 15)}
                         {notification?.body?.length > 15 && '...'}
@@ -110,7 +110,8 @@ function NotificationBar() {
                 >
                   <Tooltip title="Mark as read">
                     <CgCloseO
-                      className="text-sm "
+                      className="text-sm"
+                      data-cy={`notification-bar-mark-read-${slug}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         updateNotification(notification.id);
