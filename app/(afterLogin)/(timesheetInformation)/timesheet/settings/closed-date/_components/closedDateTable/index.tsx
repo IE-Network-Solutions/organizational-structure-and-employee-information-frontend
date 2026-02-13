@@ -64,8 +64,8 @@ const ClosedDateTable = () => {
       sorter: true,
       render: (text: string) => (
         <div
-          id="time-attendance-settings-closed-date-table-row-name"
-          data-cy="time-attendance-settings-closed-date-table-row-name"
+          id="time-attendance-settings-closed-date-table-row-description"
+          data-cy="time-attendance-settings-closed-date-table-row-description"
         >
           {text || '-'}
         </div>
@@ -78,8 +78,8 @@ const ClosedDateTable = () => {
       sorter: true,
       render: (text: string) => (
         <div
-          id="time-attendance-settings-closed-date-table-row-name"
-          data-cy="time-attendance-settings-closed-date-table-row-name"
+          id="time-attendance-settings-closed-date-table-row-type"
+          data-cy="time-attendance-settings-closed-date-table-row-type"
         >
           {text || '-'}
         </div>
@@ -92,8 +92,8 @@ const ClosedDateTable = () => {
       sorter: true,
       render: (text: string) => (
         <div
-          id="time-attendance-settings-closed-date-table-row-name"
-          data-cy="time-attendance-settings-closed-date-table-row-name"
+          id="time-attendance-settings-closed-date-table-row-date"
+          data-cy="time-attendance-settings-closed-date-table-row-date"
         >
           {text || '-'}
         </div>

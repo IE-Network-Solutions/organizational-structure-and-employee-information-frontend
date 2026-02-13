@@ -115,7 +115,10 @@ const LeaveManagement = () => {
                 data-cy="time-attendance-leave-management-email-notification-button-tooltip"
                 color="white"
                 title={
-                  <span className="text-black font-Manrope text-sm">
+                  <span
+                    data-cy="timesheet-leave-management-leaves-page-tsx-page-span-118"
+                    className="text-black font-Manrope text-sm"
+                  >
                     Send an email for leave approvers who have not taken action
                     on pending leave requests
                   </span>

@@ -96,14 +96,20 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
           valuePropName="checked"
           noStyle
         >
-          <div className="flex gap-2 md:gap-4 justify-start items-center">
+          <div
+            className="flex gap-2 md:gap-4 justify-start items-center"
+            data-cy={`work-schedule-day-switch-wrapper-${record.day}`}
+          >
             <Switch
               checked={record.workDay}
               onChange={(checked) => {
                 setDetail(record.day, { workDay: checked });
               }}
+              data-cy={`work-schedule-day-switch-${record.day}`}
             />
-            <p>{record.day}</p>
+            <p data-cy={`work-schedule-day-label-${record.day}`}>
+              {record.day}
+            </p>
           </div>
         </Form.Item>
       ),
@@ -189,7 +195,7 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
             const duration =
               start && end ? dayjs(end).diff(dayjs(start), 'hour', true) : 0;
             return (
-              <span>
+              <span data-cy={`work-schedule-duration-${record.day}`}>
                 {record.workDay && duration
                   ? duration.toFixed(1)
                   : record.duration.toFixed(1)}
@@ -203,9 +209,18 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
   ];
 
   return (
-    <div className="flex flex-col bg-gray-50 p-4 md:p-6 lg:p-8 rounded-lg my-4 md:my-6 lg:my-8 w-full h-full">
-      <div className="bg-white p-4 md:p-6 lg:p-8 rounded-lg w-full h-full">
-        <div className="flex flex-col md:flex-row justify-start items-center gap-2 md:gap-4 font-bold text-xl md:text-2xl text-black mt-4 md:mt-8">
+    <div
+      data-cy="onboarding-components-steper-workschedule-tsx-workschedule-div-212"
+      className="flex flex-col bg-gray-50 p-4 md:p-6 lg:p-8 rounded-lg my-4 md:my-6 lg:my-8 w-full h-full"
+    >
+      <div
+        data-cy="onboarding-components-steper-workschedule-tsx-workschedule-div-213"
+        className="bg-white p-4 md:p-6 lg:p-8 rounded-lg w-full h-full"
+      >
+        <div
+          data-cy="onboarding-components-steper-workschedule-tsx-workschedule-div-214"
+          className="flex flex-col md:flex-row justify-start items-center gap-2 md:gap-4 font-bold text-xl md:text-2xl text-black mt-4 md:mt-8"
+        >
           Set up your Work Schedule
         </div>
         <Form
@@ -216,7 +231,14 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
         >
           <Form.Item
             name="scheduleName"
-            label={<span className="text-sm font-semibold">Schedule Name</span>}
+            label={
+              <span
+                data-cy="onboarding-components-steper-workschedule-tsx-workschedule-span-225"
+                className="text-sm font-semibold"
+              >
+                Schedule Name
+              </span>
+            }
             className="w-full font-normal text-lg md:text-xl mt-4 md:mt-8"
             rules={[{ required: true, message: 'Please input schedule name!' }]}
           >
@@ -227,7 +249,10 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
             />
           </Form.Item>
 
-          <div className="overflow-x-auto">
+          <div
+            data-cy="onboarding-components-steper-workschedule-tsx-workschedule-div-236"
+            className="overflow-x-auto"
+          >
             <Table
               columns={columns}
               dataSource={detail}

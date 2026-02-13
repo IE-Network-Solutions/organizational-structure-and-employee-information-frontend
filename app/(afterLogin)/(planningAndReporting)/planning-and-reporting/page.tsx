@@ -107,7 +107,10 @@ function Page() {
     return processedPlanningPeriods.map(
       (item: PlanningPeriod, index: number) => ({
         label: (
-          <span className="font-semibold text-sm">
+          <span
+            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-110"
+            className="font-semibold text-sm"
+          >
             {item.planningPeriod.name || 'No name available'}
           </span>
         ),
@@ -127,11 +130,26 @@ function Page() {
   }, [selectedTab?.id, setActivePlanPeriodId]);
 
   return (
-    <div className="min-h-screen w-full bg-gray-100 px-4 md:px-6">
-      <div className="h-full w-auto">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="w-full md:w-auto flex justify-start">
+    <div
+      data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-130"
+      className="min-h-screen w-full bg-gray-100 px-4 md:px-6"
+    >
+      <div
+        data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-131"
+        className="h-full w-auto"
+      >
+        <div
+          data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-132"
+          className="flex flex-col gap-4"
+        >
+          <div
+            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-133"
+            className="flex flex-col md:flex-row items-center justify-between gap-4"
+          >
+            <div
+              data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-134"
+              className="w-full md:w-auto flex justify-start"
+            >
               <CustomBreadcrumb
                 className="text-xs md:text-sm scale-90 md:scale-100 origin-left"
                 title="Planning & Reporting"
@@ -150,7 +168,10 @@ function Page() {
             />
           </div>
         </div>
-        <div className="w-full h-auto mt-4">
+        <div
+          data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-153"
+          className="w-full h-auto mt-4"
+        >
           <Tabs
             tabBarGutter={50}
             defaultActiveKey={selectedTab?.id}
@@ -164,7 +185,10 @@ function Page() {
           <EditReport />
 
           {planningPeriodForUserId?.length === 0 && (
-            <div className="w-full h-auto space-y-4 flex justify-center font-semibold">
+            <div
+              data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-167"
+              className="w-full h-auto space-y-4 flex justify-center font-semibold"
+            >
               There is no Assigned Plan, please assign a Plan for a User first
             </div>
           )}

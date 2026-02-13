@@ -96,7 +96,10 @@ const getPushSubscriptionStatus = async (
   return (res ?? {}) as PushSubscriptionStatusResponse;
 };
 
-export const useGetPushSubscriptionStatus = (userId: string, enabled: boolean) =>
+export const useGetPushSubscriptionStatus = (
+  userId: string,
+  enabled: boolean,
+) =>
   useQuery(
     ['push-subscription-status', userId],
     () => getPushSubscriptionStatus(userId),

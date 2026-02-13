@@ -124,14 +124,27 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
 
   return (
     <Form form={form} layout="vertical">
-      <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
-        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
+      <div
+        data-cy="onboarding-components-steper-fiscalyear-tsx-fiscalyear-div-127"
+        className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full"
+      >
+        <div
+          data-cy="onboarding-components-steper-fiscalyear-tsx-fiscalyear-div-128"
+          className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4"
+        >
           Set up Fiscal Year
         </div>
         <Form.Item
           id="fiscalNameId"
           name="fiscalYearName"
-          label={<span className="font-medium">Fiscal Year Name</span>}
+          label={
+            <span
+              data-cy="onboarding-components-steper-fiscalyear-tsx-fiscalyear-span-134"
+              className="font-medium"
+            >
+              Fiscal Year Name
+            </span>
+          }
           rules={[
             { required: true, message: 'Please input the session name!' },
           ]}
@@ -149,7 +162,13 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
               id="fiscalYearStartDateId"
               name="fiscalYearStartDate"
               label={
-                <span className="font-medium"> Fiscal Year Start Date</span>
+                <span
+                  data-cy="onboarding-components-steper-fiscalyear-tsx-fiscalyear-span-152"
+                  className="font-medium"
+                >
+                  {' '}
+                  Fiscal Year Start Date
+                </span>
               }
               rules={[{ validator: validateStartDate }]}
             >
@@ -159,23 +178,36 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
               />
             </Form.Item>
             {!isEditMode ? (
-              <span className="text-xs font-normal mt-0 flex items-start mb-4 ml-1">
+              <span
+                className="text-xs font-normal mt-0 flex items-start mb-4 ml-1"
+                data-cy="fiscal-year-active-calendar-end-date"
+              >
                 Active Calendar End date:
-                <span className="font-semibold">
+                <span
+                  className="font-semibold"
+                  data-cy="fiscal-year-active-calendar-end-date-value"
+                >
                   {activeCalendar?.endDate
                     ? dayjs(activeCalendar.endDate).format('YYYY-MM-DD')
                     : 'N/A'}
                 </span>
               </span>
             ) : (
-              ''
+              <span data-cy="fiscal-year-edit-mode-placeholder"></span>
             )}
           </Col>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Form.Item
               id="fiscalYearEndDateId"
               name="fiscalYearEndDate"
-              label={<span className="font-medium">Fiscal Year End Date</span>}
+              label={
+                <span
+                  data-cy="onboarding-components-steper-fiscalyear-tsx-fiscalyear-span-184"
+                  className="font-medium"
+                >
+                  Fiscal Year End Date
+                </span>
+              }
               rules={[{ validator: validateEndDate }]}
             >
               <DatePicker
@@ -188,7 +220,14 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         <Form.Item
           id="fiscalYearCalenderId"
           name="fiscalYearCalenderId"
-          label={<span className="font-medium">Fiscal Year Calender</span>}
+          label={
+            <span
+              data-cy="onboarding-components-steper-fiscalyear-tsx-fiscalyear-span-197"
+              className="font-medium"
+            >
+              Fiscal Year Calender
+            </span>
+          }
           initialValue={
             isEditMode
               ? selectedFiscalYear?.sessions?.length >= 4
@@ -225,7 +264,15 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         <Form.Item
           id="fiscalYearDescriptionId"
           name="fiscalYearDescription"
-          label={<span className="font-medium"> Description</span>}
+          label={
+            <span
+              data-cy="onboarding-components-steper-fiscalyear-tsx-fiscalyear-span-234"
+              className="font-medium"
+            >
+              {' '}
+              Description
+            </span>
+          }
           rules={[
             {
               required: false,
@@ -242,7 +289,10 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         </Form.Item>
 
         <Form.Item className="">
-          <div className="flex justify-center w-full p-6 sm:p-0">
+          <div
+            data-cy="onboarding-components-steper-fiscalyear-tsx-fiscalyear-div-251"
+            className="flex justify-center w-full p-6 sm:p-0"
+          >
             {departments?.length > 0 ? (
               <Button
                 type="default"

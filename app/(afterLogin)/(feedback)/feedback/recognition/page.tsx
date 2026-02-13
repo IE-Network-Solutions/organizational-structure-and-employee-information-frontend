@@ -664,7 +664,7 @@ function Page() {
               </AccessGuard>
             </div>
           )}
-          <div className="px-6">
+          <div className="px-6" data-cy="recognition-table-container">
             <Table<any>
               rowSelection={{ type: 'checkbox', ...rowSelection }}
               rowKey="id"

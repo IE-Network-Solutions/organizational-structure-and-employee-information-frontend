@@ -64,9 +64,18 @@ const TaskRow = ({ task, keyResult }: any) => (
   <Row align="middle" justify="space-between" className={`w-full sm:px-10 `}>
     <Col>
       <Text className="text-xs flex items-center gap-1 px-4">
-        <div className="flex items-center gap-1 max-w-full">
-          <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF]">
-            <span className="rounded-full bg-blue w-1 h-1"></span>
+        <div
+          data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-div-67"
+          className="flex items-center gap-1 max-w-full"
+        >
+          <div
+            data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-div-68"
+            className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF]"
+          >
+            <span
+              data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-span-69"
+              className="rounded-full bg-blue w-1 h-1"
+            ></span>
           </div>
           <TruncateWithTooltip text={task?.task} />
         </div>
@@ -86,7 +95,13 @@ const TaskRow = ({ task, keyResult }: any) => (
     <Col className="items-center gap-2 px-6 hidden sm:flex" xs={24} sm={12}>
       {/* Priority Section */}
       <Text type="secondary" className="text-[10px] px-4">
-        <span className="text-xl text-blue">&bull;</span> Priority
+        <span
+          data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-span-89"
+          className="text-xl text-blue"
+        >
+          &bull;
+        </span>{' '}
+        Priority
       </Text>
       <Tag
         className="font-bold border-none w-16 text-center capitalize text-[10px]"
@@ -97,7 +112,13 @@ const TaskRow = ({ task, keyResult }: any) => (
 
       {/* Weight Section */}
       <Text type="secondary" className="text-[10px]">
-        <span className="text-xl text-blue">&bull;</span> Weight:
+        <span
+          data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-span-100"
+          className="text-xl text-blue"
+        >
+          &bull;
+        </span>{' '}
+        Weight:
       </Text>
       <Tag
         className="font-bold border-none w-16 text-center text-blue text-[10px] ml-2"
@@ -111,7 +132,13 @@ const TaskRow = ({ task, keyResult }: any) => (
         keyResult?.metricType?.name !== 'Achieve' && (
           <>
             <Text type="secondary" className="text-[10px">
-              <span className="text-xl text-blue">&bull;</span> Target:
+              <span
+                data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-span-114"
+                className="text-xl text-blue"
+              >
+                &bull;
+              </span>{' '}
+              Target:
             </Text>
             <Tag
               className="font-bold border-none w-16 text-center text-blue text-[10px]"
@@ -125,7 +152,10 @@ const TaskRow = ({ task, keyResult }: any) => (
     {/* Mobile View */}
     <Col className="flex gap-2 px-6 sm:hidden" xs={24} sm={12}>
       {/* Priority Section */}
-      <div className="flex justify-between gap-2 w-[100%] sm:w-full py-2">
+      <div
+        data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-div-128"
+        className="flex justify-between gap-2 w-[100%] sm:w-full py-2"
+      >
         <Tag
           className="font-bold border-none w-16 text-center capitalize text-[10px]"
           color={getPriorityColor(task?.priority)}
@@ -134,9 +164,21 @@ const TaskRow = ({ task, keyResult }: any) => (
         </Tag>
 
         {/* Weight Section */}
-        <div className="flex gap-2">
-          <span className="text-xs text-gray-500">
-            <span className="text-blue mr-1">&bull;</span>Weight
+        <div
+          data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-div-137"
+          className="flex gap-2"
+        >
+          <span
+            data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-span-138"
+            className="text-xs text-gray-500"
+          >
+            <span
+              data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-span-139"
+              className="text-blue mr-1"
+            >
+              &bull;
+            </span>
+            Weight
           </span>
           <Tag
             className="font-semibold border-none text-blue px-1.5 py-0 h-4 text-xs"
@@ -181,7 +223,11 @@ const Milestone = ({ milestone, milestoneIndex, keyResult }: any) => (
         ))
       : // Parent Tasks
         milestone?.parentTask?.map((task: any) => (
-          <div key={task.id} className="w-full">
+          <div
+            data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-div-184"
+            key={task.id}
+            className="w-full"
+          >
             <ParentTask
               keyResult={keyResult}
               parent={true}

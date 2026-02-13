@@ -45,15 +45,26 @@ const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
   return (
     <>
       {type === 'user' ? (
-        <div className="flex gap-2">
+        <div
+          className="flex gap-2"
+          data-cy="employee-survey-table-user-container"
+        >
           <Avatar src={profileImage} icon={<UserOutlined />} />
-          <div>
-            {userName}
-            <div className="text-xs text-gray-500">{email}</div>
+          <div data-cy="employee-survey-table-user-details">
+            <span data-cy="employee-survey-table-user-name">{userName}</span>
+            <div
+              className="text-xs text-gray-500"
+              data-cy="employee-survey-table-user-email"
+            >
+              {email}
+            </div>
           </div>
         </div>
       ) : (
-        <span className="text-xs text-gray-500">
+        <span
+          className="text-xs text-gray-500"
+          data-cy="employee-survey-table-type-info"
+        >
           {type == 'job' ? jobPosition : department}
         </span>
       )}
@@ -63,18 +74,27 @@ const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
 const getScoreTag = (score: number): JSX.Element => {
   if (score >= 10)
     return (
-      <span className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold">
+      <span
+        className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold"
+        data-cy={`employee-survey-table-score-tag-green-${score}`}
+      >
         {score?.toLocaleString()}%
       </span>
     );
   if (score >= 7.5)
     return (
-      <span className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+      <span
+        className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold"
+        data-cy={`employee-survey-table-score-tag-yellow-${score}`}
+      >
         {score?.toLocaleString()}%
       </span>
     );
   return (
-    <span className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">
+    <span
+      className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold"
+      data-cy={`employee-survey-table-score-tag-red-${score}`}
+    >
       {score?.toLocaleString()}%
     </span>
   );
@@ -299,7 +319,11 @@ const EmployeeSurveyTable: React.FC = () => {
           id="employeeSurveyTableDepartmentFilter"
         >
           {departmentData?.map((dept: any) => (
-            <Option key={dept.id} value={dept.id}>
+            <Option
+              key={dept.id}
+              value={dept.id}
+              data-cy={`employee-survey-table-department-option-${dept.id}`}
+            >
               {dept.name}
             </Option>
           ))}
@@ -322,7 +346,11 @@ const EmployeeSurveyTable: React.FC = () => {
           {months?.items
             ?.sort((a: any, b: any) => a.createdAt - b.createdAt)
             ?.map((month: any) => (
-              <Option key={month.id} value={month.id}>
+              <Option
+                key={month.id}
+                value={month.id}
+                data-cy={`employee-survey-table-month-option-${month.id}`}
+              >
                 {month?.session?.name}-{month.name}
               </Option>
             ))}

@@ -72,7 +72,11 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
   };
   return (
     <Modal
-      title={<div className="text-lg">{meetingAgenda?.agenda} </div>}
+      title={
+        <div className="text-lg" data-cy="meeting-agenda-modal-title">
+          {meetingAgenda?.agenda}{' '}
+        </div>
+      }
       open={visible}
       onCancel={handleClose}
       footer={null}

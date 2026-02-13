@@ -83,7 +83,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
           <Form.Item
             name="employmentType"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-createjobs-createnewjob-index-tsx-index-span-86"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Employment Type
               </span>
             }
@@ -118,7 +121,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
           <Form.Item
             name="department"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-createjobs-createnewjob-index-tsx-index-span-121"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Department
               </span>
             }
@@ -136,7 +142,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
               className="text-sm w-full h-10"
             >
               {isDepartmentLoading && (
-                <div className="flex items-center justify-center h-30">
+                <div
+                  data-cy="-components-createjobs-createnewjob-index-tsx-index-div-139"
+                  className="flex items-center justify-center h-30"
+                >
                   <Spin size="small" />
                 </div>
               )}
@@ -158,7 +167,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
           <Form.Item
             name="jobLocation"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-createjobs-createnewjob-index-tsx-index-span-161"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Location
               </span>
             }
@@ -192,7 +204,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
       <Form.Item
         name="yearOfExperience"
         label={
-          <span className="text-md my-2 font-semibold text-gray-700">
+          <span
+            data-cy="-components-createjobs-createnewjob-index-tsx-index-span-195"
+            className="text-md my-2 font-semibold text-gray-700"
+          >
             Years of Experience
           </span>
         }
@@ -218,7 +233,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
           <Form.Item
             name="jobStatus"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-createjobs-createnewjob-index-tsx-index-span-221"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Job Status
               </span>
             }
@@ -256,7 +274,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
           <Form.Item
             name="compensation"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-createjobs-createnewjob-index-tsx-index-span-259"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Compensation
               </span>
             }
@@ -293,7 +314,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
           <Form.Item
             name="quantity"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-createjobs-createnewjob-index-tsx-index-span-296"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Quantity
               </span>
             }
@@ -317,7 +341,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
           <Form.Item
             name="jobDeadline"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-createjobs-createnewjob-index-tsx-index-span-320"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Expected Closing Date
               </span>
             }
@@ -351,7 +378,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
       <Form.Item
         name="description"
         label={
-          <span className="text-md my-2 font-semibold text-gray-700">
+          <span
+            data-cy="-components-createjobs-createnewjob-index-tsx-index-span-354"
+            className="text-md my-2 font-semibold text-gray-700"
+          >
             Description
           </span>
         }
@@ -365,7 +395,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
         <TextEditor placeholder="Description" />
       </Form.Item>
       <Form.Item>
-        <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+        <div
+          data-cy="-components-createjobs-createnewjob-index-tsx-index-div-368"
+          className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+        >
           <Button
             id="cancelButton"
             data-cy="talent-acquisition-create-job-button-cancel"

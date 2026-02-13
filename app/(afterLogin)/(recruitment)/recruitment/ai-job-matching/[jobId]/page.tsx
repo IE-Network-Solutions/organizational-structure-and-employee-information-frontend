@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Card, Empty, Spin, Tag, Button, Avatar } from 'antd';
@@ -206,7 +206,10 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
         className="bg-white px-6 py-4 border-b border-gray-200"
         data-cy="ai-job-detail-header"
       >
-        <div className="flex items-center gap-4">
+        <div
+          data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-209"
+          className="flex items-center gap-4"
+        >
           <Button
             id="ai-job-detail-back-button"
             data-cy="ai-job-detail-back-button"
@@ -216,7 +219,11 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
           >
             ← Back
           </Button>
-          <div id="ai-job-detail-header-content" className="flex-1">
+          <div
+            data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-219"
+            id="ai-job-detail-header-content"
+            className="flex-1"
+          >
             <h1
               id="ai-job-detail-title"
               data-cy="ai-job-detail-title"
@@ -247,7 +254,10 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
             className="rounded-2xl border border-gray-200 shadow-sm"
             data-cy="ai-job-detail-summary-card"
           >
-            <div className="flex items-start justify-between mb-4">
+            <div
+              data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-250"
+              className="flex items-start justify-between mb-4"
+            >
               <div
                 id="ai-job-detail-summary-left"
                 data-cy="ai-job-detail-summary-left"
@@ -392,8 +402,14 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                     bodyStyle={{ padding: 0 }}
                     onClick={() => handleOpenDetails(candidate)}
                   >
-                    <div className="rounded-2xl bg-white p-5 transition-colors group-hover:bg-gray-50">
-                      <div className="flex items-start gap-4">
+                    <div
+                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-395"
+                      className="rounded-2xl bg-white p-5 transition-colors group-hover:bg-gray-50"
+                    >
+                      <div
+                        data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-396"
+                        className="flex items-start gap-4"
+                      >
                         {/* Avatar with initials */}
                         <div
                           id={`ai-candidate-avatar-${candidate.candidateId}`}
@@ -414,7 +430,10 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           data-cy={`ai-candidate-info-${candidate.candidateId}`}
                           className="flex-1 min-w-0"
                         >
-                          <div className="flex items-start justify-between mb-3 gap-4">
+                          <div
+                            data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-417"
+                            className="flex items-start justify-between mb-3 gap-4"
+                          >
                             <div
                               id={`ai-candidate-basic-info-${candidate.candidateId}`}
                               data-cy={`ai-candidate-basic-info-${candidate.candidateId}`}
@@ -711,7 +730,10 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                       data-cy="ai-candidate-detail-header"
                       className="pb-4 border-b border-gray-200"
                     >
-                      <div className="flex items-start justify-between gap-3">
+                      <div
+                        data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-714"
+                        className="flex items-start justify-between gap-3"
+                      >
                         <div
                           id="ai-candidate-detail-header-left"
                           data-cy="ai-candidate-detail-header-left"
@@ -751,7 +773,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               data-cy="ai-candidate-detail-overall-match"
                               className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 mt-1"
                             >
-                              <span>
+                              <span data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-span-754">
                                 {selectedCandidate.matchScore}% Overall Match
                               </span>
                             </div>
@@ -788,8 +810,16 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           data-cy="ai-candidate-detail-email"
                           className="flex items-center gap-2"
                         >
-                          <span className="text-gray-400">@</span>
-                          <span className="truncate">
+                          <span
+                            data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-span-791"
+                            className="text-gray-400"
+                          >
+                            @
+                          </span>
+                          <span
+                            data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-span-792"
+                            className="truncate"
+                          >
                             {selectedCandidate.candidate.email ||
                               'Email not provided'}
                           </span>
@@ -799,8 +829,13 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           data-cy="ai-candidate-detail-phone"
                           className="flex items-center gap-2"
                         >
-                          <span className="text-gray-400">📞</span>
-                          <span>
+                          <span
+                            data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-span-802"
+                            className="text-gray-400"
+                          >
+                            📞
+                          </span>
+                          <span data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-span-803">
                             {selectedCandidate.candidate.phone ||
                               'Phone number not provided'}
                           </span>
@@ -921,8 +956,14 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                         id="ai-candidate-detail-experience"
                         data-cy="ai-candidate-detail-experience"
                       >
-                        <div className="border-t border-gray-200" />
-                        <div className="pt-4">
+                        <div
+                          data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-924"
+                          className="border-t border-gray-200"
+                        />
+                        <div
+                          data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-925"
+                          className="pt-4"
+                        >
                           <div
                             id="ai-candidate-detail-experience-header"
                             data-cy="ai-candidate-detail-experience-header"
@@ -965,6 +1006,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               <p
                                 id="ai-candidate-detail-experience-empty"
                                 className="text-xs text-gray-500"
+                                data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1006"
                               >
                                 No experience information provided.
                               </p>
@@ -1006,15 +1048,20 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     data-cy={`ai-candidate-experience-item-${idx}`}
                                     className="flex items-start justify-between gap-2"
                                   >
-                                    <div className="flex-1">
+                                    <div
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-1009"
+                                      className="flex-1"
+                                    >
                                       <p
                                         id={`ai-candidate-experience-role-${idx}`}
+                                        data-cy={`recruitment-ai-job-matching-jobid-page-tsx-page-p-1055`}
                                         className="font-medium text-gray-900"
                                       >
                                         {exp.role || 'Role not specified'}
                                       </p>
                                       <p
                                         id={`ai-candidate-experience-company-${idx}`}
+                                        data-cy={`recruitment-ai-job-matching-jobid-page-tsx-page-p-1061`}
                                         className="text-gray-600"
                                       >
                                         {exp.company || 'Company not specified'}
@@ -1022,6 +1069,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     </div>
                                     <span
                                       id={`ai-candidate-experience-dates-${idx}`}
+                                      data-cy={`recruitment-ai-job-matching-jobid-page-tsx-page-span-1068`}
                                       className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0"
                                     >
                                       {dateRange}
@@ -1039,8 +1087,14 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                         id="ai-candidate-detail-education"
                         data-cy="ai-candidate-detail-education"
                       >
-                        <div className="border-t border-gray-200" />
-                        <div className="pt-4">
+                        <div
+                          data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-1042"
+                          className="border-t border-gray-200"
+                        />
+                        <div
+                          data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-1043"
+                          className="pt-4"
+                        >
                           <div
                             id="ai-candidate-detail-education-header"
                             data-cy="ai-candidate-detail-education-header"
@@ -1083,6 +1137,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               <p
                                 id="ai-candidate-detail-education-empty"
                                 className="text-xs text-gray-500"
+                                data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1133"
                               >
                                 No education information provided.
                               </p>
@@ -1112,16 +1167,21 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     data-cy={`ai-candidate-education-item-${idx}`}
                                     className="flex items-start justify-between gap-2"
                                   >
-                                    <div className="flex-1">
+                                    <div
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-1115"
+                                      className="flex-1"
+                                    >
                                       <p
                                         id={`ai-candidate-education-degree-${idx}`}
                                         className="font-medium text-gray-900"
+                                        data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1169"
                                       >
                                         {edu.degree || 'Education'}
                                       </p>
                                       <p
                                         id={`ai-candidate-education-institution-${idx}`}
                                         className="text-gray-600"
+                                        data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1175"
                                       >
                                         {edu.institution ||
                                           'Institution not specified'}
@@ -1130,6 +1190,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                         <p
                                           id={`ai-candidate-education-cgpa-${idx}`}
                                           className="text-xs text-gray-500 mt-1"
+                                          data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1183"
                                         >
                                           CGPA: {edu.cgpa}
                                         </p>
@@ -1138,6 +1199,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     <span
                                       id={`ai-candidate-education-years-${idx}`}
                                       className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0"
+                                      data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-span-1191"
                                     >
                                       {yearRange}
                                     </span>
@@ -1149,7 +1211,10 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="border-t border-gray-200" />
+                      <div
+                        data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-1152"
+                        className="border-t border-gray-200"
+                      />
 
                       {/* Skill Analysis Section */}
                       <div
@@ -1199,10 +1264,16 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1"
                                     data-cy="ai-skill-matched"
                                   >
-                                    <span className="text-green-600 text-xs">
+                                    <span
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-span-1202"
+                                      className="text-green-600 text-xs"
+                                    >
                                       ✓
                                     </span>
-                                    <span className="text-gray-800 text-xs">
+                                    <span
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-span-1205"
+                                      className="text-gray-800 text-xs"
+                                    >
                                       {skill}
                                     </span>
                                   </div>
@@ -1264,10 +1335,16 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1"
                                     data-cy="ai-skill-missing"
                                   >
-                                    <span className="text-red-600 text-xs">
+                                    <span
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-span-1267"
+                                      className="text-red-600 text-xs"
+                                    >
                                       !
                                     </span>
-                                    <span className="text-gray-800 text-xs">
+                                    <span
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-span-1270"
+                                      className="text-gray-800 text-xs"
+                                    >
                                       {skill}
                                     </span>
                                   </div>
@@ -1330,8 +1407,14 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     className="flex items-start gap-2"
                                     data-cy="ai-strength"
                                   >
-                                    <div className="mt-1 h-1.5 w-1.5 rounded-full bg-green-500" />
-                                    <p className="text-xs text-gray-800">
+                                    <div
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-1333"
+                                      className="mt-1 h-1.5 w-1.5 rounded-full bg-green-500"
+                                    />
+                                    <p
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-p-1334"
+                                      className="text-xs text-gray-800"
+                                    >
                                       {item}
                                     </p>
                                   </div>
@@ -1389,8 +1472,14 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     className="flex items-start gap-2"
                                     data-cy="ai-concern"
                                   >
-                                    <div className="mt-1 h-1.5 w-1.5 rounded-full bg-red-500" />
-                                    <p className="text-xs text-gray-800">
+                                    <div
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-1392"
+                                      className="mt-1 h-1.5 w-1.5 rounded-full bg-red-500"
+                                    />
+                                    <p
+                                      data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-p-1393"
+                                      className="text-xs text-gray-800"
+                                    >
                                       {item}
                                     </p>
                                   </div>

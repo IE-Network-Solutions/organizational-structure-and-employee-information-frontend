@@ -162,7 +162,12 @@ const TnaApprovalTable = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
+    if (isLoading)
+      return (
+        <div data-cy="review-components-approvaltabel-index-tsx-index-div-165">
+          ...
+        </div>
+      );
     if (isError) return <>-</>;
 
     return employeeData ? (
@@ -342,7 +347,9 @@ const TnaApprovalTable = () => {
               title="Reject Request"
               description={
                 <>
-                  <p>Are you sure you want to reject this leave request?</p>
+                  <p data-cy="review-components-approvaltabel-index-tsx-index-p-345">
+                    Are you sure you want to reject this leave request?
+                  </p>
                   <Input
                     placeholder="Add a comment"
                     value={rejectComment}

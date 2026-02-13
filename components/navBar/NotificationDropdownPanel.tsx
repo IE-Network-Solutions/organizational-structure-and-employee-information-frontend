@@ -96,16 +96,24 @@ function NotificationItem({
         </div>
         {unread && (
           <span
+            data-cy="components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-span-73"
             className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500"
             aria-hidden
           />
         )}
       </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-gray-600 truncate">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-73"
+        className="flex-1 min-w-0"
+      >
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-74"
+          className="text-sm font-medium text-gray-600 truncate"
+        >
           {item.title}
         </div>
         <div
+          data-cy="components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-89"
           className="text-xs text-gray-500 mt-0.5 line-clamp-2"
           title={item.body}
         >
@@ -115,7 +123,10 @@ function NotificationItem({
               : item.body
             : '—'}
         </div>
-        <div className="text-xs text-gray-400 mt-1">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-87"
+          className="text-xs text-gray-400 mt-1"
+        >
           {formatTime(item.createdAt ?? item.updatedAt ?? '')}
         </div>
       </div>
@@ -185,12 +196,18 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
     }
     navigator.serviceWorker.getRegistration('/').then((existing) => {
       if (!existing || !existing.active) {
-        navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'imports' });
+        navigator.serviceWorker.register('/sw.js', {
+          scope: '/',
+          updateViaCache: 'imports',
+        });
       }
     });
     navigator.serviceWorker.getRegistration('/push/').then((existing) => {
       if (!existing || !existing.active) {
-        navigator.serviceWorker.register('/sw-push.js', { scope: '/push/', updateViaCache: 'imports' });
+        navigator.serviceWorker.register('/sw-push.js', {
+          scope: '/push/',
+          updateViaCache: 'imports',
+        });
       }
     });
   }, [userId, pushPermission]);
@@ -203,9 +220,13 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
       if (ok) {
         setPushPermission('granted');
         queryClient.invalidateQueries(['push-subscription-status', userId]);
-        message.success('Notifications enabled. You’ll receive important updates.');
+        message.success(
+          'Notifications enabled. You’ll receive important updates.',
+        );
       } else {
-        message.warning('Please click “Allow” in your browser to enable notifications.');
+        message.warning(
+          'Please click “Allow” in your browser to enable notifications.',
+        );
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -279,7 +300,10 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
           data-cy="notification-panel-header"
           className="flex items-center justify-between px-4 py-3 border-b border-gray-100"
         >
-          <span className="font-semibold text-gray-900 text-base">
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-span-261"
+            className="font-semibold text-gray-900 text-base"
+          >
             Notifications
           </span>
           <button
@@ -347,7 +371,10 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
             data-cy="notification-push-not-available"
             className="px-4 py-2 border-b border-gray-100 bg-gray-50/50"
           >
-            <p className="text-xs text-gray-600">
+            <p
+              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-p-329"
+              className="text-xs text-gray-600"
+            >
               Push notifications are not available right now.
             </p>
           </div>
@@ -360,7 +387,10 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
             data-cy="notification-enable-push-section"
             className="px-4 py-3 border-b border-gray-100 bg-gray-50/50"
           >
-            <p className="text-xs text-gray-600 mb-2">
+            <p
+              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-p-342"
+              className="text-xs text-gray-600 mb-2"
+            >
               Stay in the loop. Get notified about important updates even when
               you&apos;re not in the app.
             </p>

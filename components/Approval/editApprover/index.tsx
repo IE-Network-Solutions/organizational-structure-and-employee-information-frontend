@@ -86,7 +86,10 @@ const EditApproverComponent = ({
       width="40%"
       footer={null}
     >
-      <div className="pb-[60px]">
+      <div
+        data-cy="components-approval-editapprover-index-tsx-index-div-89"
+        className="pb-[60px]"
+      >
         <Form form={form} onFinish={handleSubmit} layout="vertical">
           <Form.Item
             className="text-lg font-bold mt-3 mb-1"
@@ -139,9 +142,18 @@ const EditApproverComponent = ({
             {(fields, {}) => (
               <>
                 {fields.map(({ key, name, ...restField }) => (
-                  <div key={key} className="px-10 my-1">
-                    <div>Level: {name + 1}</div>
-                    <div className="flex justify-between items-center">
+                  <div
+                    data-cy="components-approval-editapprover-index-tsx-index-div-142"
+                    key={key}
+                    className="px-10 my-1"
+                  >
+                    <div data-cy="components-approval-editapprover-index-tsx-index-div-143">
+                      Level: {name + 1}
+                    </div>
+                    <div
+                      data-cy="components-approval-editapprover-index-tsx-index-div-144"
+                      className="flex justify-between items-center"
+                    >
                       <Form.Item
                         {...restField}
                         className="font-semibold text-xs"

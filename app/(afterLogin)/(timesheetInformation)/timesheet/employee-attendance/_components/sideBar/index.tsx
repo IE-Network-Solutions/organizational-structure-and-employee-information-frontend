@@ -185,7 +185,10 @@ const EmployeeAttendanceSideBar = () => {
             </CustomDrawerHeader>
           }
           footer={
-            <div className="p-6 sm:p-0">
+            <div
+              data-cy="employee-attendance-components-sidebar-index-tsx-index-div-188"
+              className="p-6 sm:p-0"
+            >
               <div
                 id="time-attendance-employee-attendance-sidebar-footer-buttons"
                 data-cy="time-attendance-employee-attendance-sidebar-footer-buttons"

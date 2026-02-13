@@ -3,15 +3,18 @@ import React from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import SummaryCardsRow from './_components/SummaryCardsRow';
 import OKRDonutChart from './_components/OKRDonutChart';
+import BasicOKRProgressChart from './_components/BasicOKRProgressChart';
 import MetricsProgressOverview from './_components/MetricsProgressOverview';
 import DueSoonKeyResultList from './_components/DueSoonKeyResultList';
 import AwaitingApprovalsList from './_components/AwaitingApprovalsList';
 import Performance from './_components/Performance';
 import { Button } from 'antd';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useIsBasicOkr } from '@/app/(afterLogin)/(okrplanning)/okr/_utils/okrMode';
 
 const Dashboard: React.FC = () => {
   const { selectedCard, setSelectedCard } = useOKRStore();
+  const isBasicOkr = useIsBasicOkr();
 
   return (
     <>
@@ -64,24 +67,30 @@ const Dashboard: React.FC = () => {
           </div>
           {/* OKR Metrics and Metrics Progress Overview (right, stacked, equal height) */}
           <div
-            className="col-span-1 xl:col-span-2 flex flex-col h-full min-h-[200px] gap-6 justify-between"
+            className={`col-span-1 xl:col-span-2 flex flex-col h-full min-h-[200px] ${isBasicOkr ? '' : 'gap-6 justify-between'}`}
             id="okr-dashboard-metrics-wrapper"
             data-cy="okr-dashboard-metrics-wrapper"
           >
             <div
-              className="flex-1 min-h-0 flex flex-col"
+              className={`${isBasicOkr ? 'h-full' : 'flex-1'} min-h-0 flex flex-col`}
               id="okr-dashboard-donut-section"
               data-cy="okr-dashboard-donut-section"
             >
-              <OKRDonutChart data-cy="okr-dashboard-donut-chart" />
+              {isBasicOkr ? (
+                <BasicOKRProgressChart data-cy="okr-dashboard-basic-progress-chart" />
+              ) : (
+                <OKRDonutChart data-cy="okr-dashboard-donut-chart" />
+              )}
             </div>
-            <div
-              className="flex-1 min-h-0 flex flex-col"
-              id="okr-dashboard-metrics-progress-section"
-              data-cy="okr-dashboard-metrics-progress-section"
-            >
-              <MetricsProgressOverview data-cy="okr-dashboard-metrics-progress-overview" />
-            </div>
+            {!isBasicOkr && (
+              <div
+                className="flex-1 min-h-0 flex flex-col"
+                id="okr-dashboard-metrics-progress-section"
+                data-cy="okr-dashboard-metrics-progress-section"
+              >
+                <MetricsProgressOverview data-cy="okr-dashboard-metrics-progress-overview" />
+              </div>
+            )}
           </div>
         </div>
         {/* Bottom section: Due Soon Key Result and Awaiting Approvals */}

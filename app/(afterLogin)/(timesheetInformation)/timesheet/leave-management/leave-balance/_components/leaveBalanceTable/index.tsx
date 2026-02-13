@@ -161,7 +161,11 @@ const LeaveBalanceTable: React.FC = () => {
           dataSource={dataSource}
           loading={leaveBalanceIsLoading}
           locale={{
-            emptyText: selectedUserId ? undefined : <h3>Please Select User</h3>,
+            emptyText: selectedUserId ? undefined : (
+              <h3 data-cy="leave-balance-components-leavebalancetable-index-tsx-index-h3-164">
+                Please Select User
+              </h3>
+            ),
           }}
         />
       </div>

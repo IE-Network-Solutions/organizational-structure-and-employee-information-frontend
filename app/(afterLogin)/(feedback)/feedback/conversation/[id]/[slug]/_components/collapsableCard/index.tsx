@@ -48,6 +48,7 @@ const CollapsibleCardList: React.FC<PropsData> = ({
                 <div
                   onClick={() => handleCollapseChange(index)}
                   style={{ cursor: 'pointer' }}
+                  data-cy={`collapsable-card-toggle-${index}`}
                 >
                   {collapseStates[index] ? (
                     <MdKeyboardArrowDown />
@@ -60,19 +61,29 @@ const CollapsibleCardList: React.FC<PropsData> = ({
             >
               {!collapseStates[index] && (
                 <List.Item>
-                  <div className="flex w-full">
-                    <div className="w-1/2 flex items-center">
+                  <div
+                    className="flex w-full"
+                    data-cy={`collapsable-card-content-${index}`}
+                  >
+                    <div
+                      className="w-1/2 flex items-center"
+                      data-cy={`collapsable-card-employee-${index}`}
+                    >
                       {question?.responseData?.employeeDetail && (
                         <Avatar src={question?.profileImage} />
                       )}
                       <span
                         className="ml-2 font-semibold overflow-hidden text-ellipsis whitespace-nowrap"
                         style={{ maxWidth: '150px' }} // Adjust maxWidth as needed
+                        data-cy={`collapsable-card-employee-name-${index}`}
                       >
                         {question?.responseData?.employeeDetail ?? ''}
                       </span>
                     </div>
-                    <div className="w-1/2">
+                    <div
+                      className="w-1/2"
+                      data-cy={`collapsable-card-responses-${index}`}
+                    >
                       {question?.responseData?.response?.map(
                         (response: any, idx: number) => (
                           <Tag key={idx} color="blue">

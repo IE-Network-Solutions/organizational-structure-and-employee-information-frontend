@@ -27,6 +27,7 @@ function SubTaskComponent({
             display: 'flex',
             flexDirection: 'column',
           }}
+          data-cy="planningandreporting-planning-and-reporting-components-planforms-createsubtaskform-tsx-div-25"
         >
           {subFields.map((subField) => (
             <>
@@ -85,7 +86,14 @@ function SubTaskComponent({
                       },
                     ]}
                     key={`task-${subField.key}`}
-                    label={<div className="text-xs">Task</div>}
+                    label={
+                      <div
+                        data-cy="planning-and-reporting-components-planforms-createsubtaskform-tsx-createsubtaskform-div-88"
+                        className="text-xs"
+                      >
+                        Task
+                      </div>
+                    }
                     className="mb-0"
                   >
                     <Input
@@ -112,7 +120,10 @@ function SubTaskComponent({
                   >
                     <Row align="middle" gutter={8} wrap={false}>
                       <Col flex="none">
-                        <div className="text-xs whitespace-nowrap">
+                        <div
+                          data-cy="planning-and-reporting-components-planforms-createsubtaskform-tsx-createsubtaskform-div-115"
+                          className="text-xs whitespace-nowrap"
+                        >
                           Priority
                         </div>
                       </Col>
@@ -124,13 +135,21 @@ function SubTaskComponent({
                           options={[
                             {
                               label: (
-                                <span className="text-error text-xs">High</span>
+                                <span
+                                  data-cy="planning-and-reporting-components-planforms-createsubtaskform-tsx-createsubtaskform-span-127"
+                                  className="text-error text-xs"
+                                >
+                                  High
+                                </span>
                               ),
                               value: 'high',
                             },
                             {
                               label: (
-                                <span className="text-warning text-xs">
+                                <span
+                                  data-cy="planning-and-reporting-components-planforms-createsubtaskform-tsx-createsubtaskform-span-133"
+                                  className="text-warning text-xs"
+                                >
                                   Medium
                                 </span>
                               ),
@@ -138,7 +157,10 @@ function SubTaskComponent({
                             },
                             {
                               label: (
-                                <span className="text-success text-xs">
+                                <span
+                                  data-cy="planning-and-reporting-components-planforms-createsubtaskform-tsx-createsubtaskform-span-141"
+                                  className="text-success text-xs"
+                                >
                                   Low
                                 </span>
                               ),
@@ -160,7 +182,12 @@ function SubTaskComponent({
                   >
                     <Row align="middle" gutter={8} wrap={false}>
                       <Col flex="none">
-                        <div className="text-xs whitespace-nowrap">Target</div>
+                        <div
+                          data-cy="planning-and-reporting-components-planforms-createsubtaskform-tsx-createsubtaskform-div-163"
+                          className="text-xs whitespace-nowrap"
+                        >
+                          Target
+                        </div>
                       </Col>
                       <Col flex="auto">
                         <InputNumber

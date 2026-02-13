@@ -53,8 +53,8 @@ const Page = () => {
       key: 'period',
       render: (text: string) => (
         <div
-          id="time-attendance-settings-accrual-rule-table-row-title"
-          data-cy="time-attendance-settings-accrual-rule-table-row-title"
+          id="time-attendance-settings-accrual-rule-table-row-period"
+          data-cy="time-attendance-settings-accrual-rule-table-row-period"
         >
           {text}
         </div>

@@ -107,7 +107,10 @@ const TnaApprovalTable = () => {
   const CurrencyName = ({ currencyId }: { currencyId: string }) => {
     const { data: tnaSingleCurrency } = useSingleCurrency(currencyId);
     return (
-      <div className="mx-1 text-sm">
+      <div
+        data-cy="my-training-components-approvaltabel-index-tsx-index-div-110"
+        className="mx-1 text-sm"
+      >
         {tnaSingleCurrency ? tnaSingleCurrency?.code : '-'}
       </div>
     );
@@ -115,7 +118,14 @@ const TnaApprovalTable = () => {
   const TnaName = ({ tnaId }: { tnaId: string }) => {
     const { data: tnaCategoryData } = useGetTnaCategory({});
     const tna = tnaCategoryData?.items?.find((tnas: any) => tnas.id === tnaId);
-    return <div className="mx-1 text-sm">{tnaId ? tna?.name : '-'}</div>;
+    return (
+      <div
+        data-cy="my-training-components-approvaltabel-index-tsx-index-div-118"
+        className="mx-1 text-sm"
+      >
+        {tnaId ? tna?.name : '-'}
+      </div>
+    );
   };
 
   const EmpRender = ({ userId }: any) => {
@@ -125,21 +135,41 @@ const TnaApprovalTable = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
+    if (isLoading)
+      return (
+        <div data-cy="my-training-components-approvaltabel-index-tsx-index-div-128">
+          ...
+        </div>
+      );
     if (isError) return <>-</>;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="mx-1 text-sm">
+      <div
+        data-cy="my-training-components-approvaltabel-index-tsx-index-div-132"
+        className="flex items-center gap-1.5"
+      >
+        <div
+          data-cy="my-training-components-approvaltabel-index-tsx-index-div-133"
+          className="mx-1 text-sm"
+        >
           {employeeData?.employeeInformation?.employeeAttendanceId}
         </div>
         <Avatar size={24} icon={<UserOutlined />} />
-        <div className="flex-1">
-          <div className="text-xs text-gray-900">
+        <div
+          data-cy="my-training-components-approvaltabel-index-tsx-index-div-137"
+          className="flex-1"
+        >
+          <div
+            data-cy="my-training-components-approvaltabel-index-tsx-index-div-138"
+            className="text-xs text-gray-900"
+          >
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
-          <div className="text-[10px] leading-4 text-gray-600">
+          <div
+            data-cy="my-training-components-approvaltabel-index-tsx-index-div-142"
+            className="text-[10px] leading-4 text-gray-600"
+          >
             {employeeData?.email}
           </div>
         </div>
@@ -242,7 +272,10 @@ const TnaApprovalTable = () => {
         type: item?.trainingNeedCategoryId,
         status: item?.status,
         action: (
-          <div className="flex gap-4 ">
+          <div
+            data-cy="my-training-components-approvaltabel-index-tsx-index-div-245"
+            className="flex gap-4 "
+          >
             <Popconfirm
               title="Approve Request"
               description="Are you sure to approve this leave request?"
@@ -267,7 +300,9 @@ const TnaApprovalTable = () => {
               title="Reject Request"
               description={
                 <>
-                  <p>Are you sure you want to reject this leave request?</p>
+                  <p data-cy="my-training-components-approvaltabel-index-tsx-index-p-270">
+                    Are you sure you want to reject this leave request?
+                  </p>
                   <Input
                     placeholder="Add a comment"
                     value={rejectComment}

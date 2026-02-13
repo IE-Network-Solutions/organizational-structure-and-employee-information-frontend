@@ -168,7 +168,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       data-cy={dataCy}
       className={`flex justify-between items-center py-6 ${grayBackground ? 'bg-gray-100' : ''}`}
     >
-      <div className="flex items-center space-x-2">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-div-171"
+        className="flex items-center space-x-2"
+      >
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
@@ -201,9 +204,13 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         className={`flex items-center ${
           isMobile ? 'justify-between order-2' : 'justify-end'
         }`}
+        data-cy="components-custompagination-index-tsx-index-div-203"
       >
         {!isMobile && (
-          <span className="mr-2 text-xs text-[#718096]">
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
+            className="mr-2 text-xs text-[#718096]"
+          >
             Showing {Math.min(total, (current - 1) * pageSize + 1) || 0} -{' '}
             {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
             entries
@@ -212,7 +219,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
         {/* Mobile info - more compact */}
         {isMobile && (
-          <span className="text-xs text-[#718096] mr-2">
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-215"
+            className="text-xs text-[#718096] mr-2"
+          >
             {Math.min(total, (current - 1) * pageSize + 1) || 0}-
             {Math.min(total, current * pageSize) || 0} of {total || 0}
           </span>
@@ -225,32 +235,50 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onChange={(value) => handleSizeChange(value)}
         >
           <Option value={5}>
-            <span className="text-xs text-[#111827]">
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-228"
+              className="text-xs text-[#111827]"
+            >
               {isMobile ? '5' : 'Show 5'}
             </span>
           </Option>
           <Option value={10}>
-            <span className="text-xs text-[#111827]">
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-233"
+              className="text-xs text-[#111827]"
+            >
               {isMobile ? '10' : 'Show 10'}
             </span>
           </Option>
           <Option value={25}>
-            <span className="text-xs text-[#111827]">
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-238"
+              className="text-xs text-[#111827]"
+            >
               {isMobile ? '25' : 'Show 25'}
             </span>
           </Option>
           <Option value={50}>
-            <span className="text-xs text-[#111827]">
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-243"
+              className="text-xs text-[#111827]"
+            >
               {isMobile ? '50' : 'Show 50'}
             </span>
           </Option>
           <Option value={75}>
-            <span className="text-xs text-[#111827]">
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-248"
+              className="text-xs text-[#111827]"
+            >
               {isMobile ? '75' : 'Show 75'}
             </span>
           </Option>
           <Option value={100}>
-            <span className="text-xs text-[#111827]">
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-253"
+              className="text-xs text-[#111827]"
+            >
               {isMobile ? '100' : 'Show 100'}
             </span>
           </Option>

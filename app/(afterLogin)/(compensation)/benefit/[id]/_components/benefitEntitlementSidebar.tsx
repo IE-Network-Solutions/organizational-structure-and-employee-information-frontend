@@ -455,9 +455,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                     name="settlementPeriod"
                     label={
                       benefitDatas?.mode === 'CREDIT' ? (
-                        <span>Settlement Period </span>
+                        <span data-cy="benefit-sidebar-settlement-period-label">
+                          Settlement Period{' '}
+                        </span>
                       ) : (
-                        <span>Payout Period</span>
+                        <span data-cy="benefit-sidebar-payout-period-label">
+                          Payout Period
+                        </span>
                       )
                     }
                     data-cy="compensation-benefit-sidebar-settlement-period-item"

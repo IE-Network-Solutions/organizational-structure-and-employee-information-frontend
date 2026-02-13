@@ -143,7 +143,10 @@ const MoveToTalentPool: React.FC = () => {
               data-cy="talent-acquisition-move-talent-pool-form-item-candidates"
               name="jobCandidateInformationId"
               label={
-                <span className="text-md font-semibold text-gray-700 py-1">
+                <span
+                  data-cy="-components-modals-movetotalentpool-index-tsx-index-span-146"
+                  className="text-md font-semibold text-gray-700 py-1"
+                >
                   Candidates
                 </span>
               }
@@ -185,8 +188,13 @@ const MoveToTalentPool: React.FC = () => {
                         data-cy="talent-acquisition-move-talent-pool-div-candidate-info"
                         className="flex flex-col"
                       >
-                        <span>{label}</span>
-                        <span className="text-gray-500 text-xs">
+                        <span data-cy="-components-modals-movetotalentpool-index-tsx-index-span-188">
+                          {label}
+                        </span>
+                        <span
+                          data-cy="-components-modals-movetotalentpool-index-tsx-index-span-189"
+                          className="text-gray-500 text-xs"
+                        >
                           ({candidate?.phone})
                         </span>{' '}
                       </div>
@@ -208,7 +216,12 @@ const MoveToTalentPool: React.FC = () => {
                       className="flex items-center cursor-pointer"
                     >
                       <Checkbox checked={isChecked} />
-                      <span className="ml-2">{option.label}</span>
+                      <span
+                        data-cy="-components-modals-movetotalentpool-index-tsx-index-span-211"
+                        className="ml-2"
+                      >
+                        {option.label}
+                      </span>
                     </div>
                   );
                 }}
@@ -234,7 +247,10 @@ const MoveToTalentPool: React.FC = () => {
               data-cy="talent-acquisition-move-talent-pool-form-item-category"
               name="talentPoolCategoryId"
               label={
-                <span className="text-md font-semibold text-gray-700 py-1">
+                <span
+                  data-cy="-components-modals-movetotalentpool-index-tsx-index-span-237"
+                  className="text-md font-semibold text-gray-700 py-1"
+                >
                   Talent Pool Category
                 </span>
               }
@@ -268,7 +284,10 @@ const MoveToTalentPool: React.FC = () => {
               data-cy="talent-acquisition-move-talent-pool-form-item-reason"
               name="reason"
               label={
-                <span className="text-md font-semibold text-gray-700 py-1">
+                <span
+                  data-cy="-components-modals-movetotalentpool-index-tsx-index-span-271"
+                  className="text-md font-semibold text-gray-700 py-1"
+                >
                   Reason
                 </span>
               }
