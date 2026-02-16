@@ -155,10 +155,10 @@ function transformResponseDataToTable(
       ],
     },
     headcount_by_location: {
-      title: 'Headcount by Location',
+      title: 'Headcount by Office',
       columns: [
         { key: 'order', title: '', dataIndex: 'order' },
-        { key: 'name', title: 'Location', dataIndex: 'name' },
+        { key: 'name', title: 'Office', dataIndex: 'name' },
         { key: 'count', title: 'Count', dataIndex: 'count' },
       ],
     },
