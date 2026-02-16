@@ -21,7 +21,7 @@ export const COPILOT_INTENTS: IntentCategory[] = [
     intents: [
       'Active employee list',
       'Employees under probation',
-      // 'Employee resignation report',
+      'Employee resignation report',
       'Employee performance score summary',
       'Headcount by department',
       'Headcount by role',
