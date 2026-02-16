@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 function getCopilotEndpoint(): string {
   const base =
     process.env.NEXT_PUBLIC_AZURE_APP_SERVICE ||
-    // 'https://selamnew-copilot-dev-dbdcc9ahe7eqgbez.eastus-01.azurewebsites.net';
-    'https://selamnew-copilot-prod-fwbef9g7ehhacbg7.canadacentral-01.azurewebsites.net';
+    'https://selamnew-copilot-dev-dbdcc9ahe7eqgbez.eastus-01.azurewebsites.net';
+    // 'https://selamnew-copilot-prod-fwbef9g7ehhacbg7.canadacentral-01.azurewebsites.net';
   const path = (process.env.NEXT_PUBLIC_AZURE_COPILOT_PATH || 'copilot').replace(
     /^\/+/,
     ''
