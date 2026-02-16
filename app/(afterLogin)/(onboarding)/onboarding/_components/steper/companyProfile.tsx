@@ -129,7 +129,6 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
           <Form.Item
             name="companyProfileImage"
             label="Upload Company Logo"
-            rules={[{ required: true, message: 'Please Upload company logo!' }]}
           >
             <Upload.Dragger
               name="files"

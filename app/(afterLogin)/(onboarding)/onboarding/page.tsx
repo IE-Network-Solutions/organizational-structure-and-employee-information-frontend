@@ -5,7 +5,7 @@ const Onboarding = dynamic(() => import('./_components/steper/index'), {
 });
 function OnboardingPage() {
   return (
-    <div data-cy="onboarding-page-container">
+    <div data-cy="onboarding-page-container" className="h-screen overflow-hidden">
       <Onboarding />
     </div>
   );
