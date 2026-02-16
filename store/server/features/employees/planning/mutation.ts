@@ -42,11 +42,11 @@ export const useCreatePlanTasks = () => {
       });
     },
     onError: (error: any) => {
-      const backendMessage =
+      const descriptiveMessage =
         error?.response?.data?.message || 'Creating Failed';
       NotificationMessage.error({
         message: 'Creating Failed',
-        description: backendMessage,
+        description: descriptiveMessage,
       });
     },
   });
@@ -79,11 +79,11 @@ export const useUpdatePlanTasks = () => {
       });
     },
     onError: (error: any) => {
-      const backendMessage =
+      const descriptiveMessage =
         error?.response?.data?.message || 'Updating Failed';
       NotificationMessage.error({
         message: 'Updating Failed',
-        description: backendMessage,
+        description: descriptiveMessage,
       });
     },
   });
