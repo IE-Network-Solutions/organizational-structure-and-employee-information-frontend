@@ -90,6 +90,98 @@ function transformResponseDataToTable(
     users_weekly_reports: 'Weekly Report',
   };
 
+  // Employee report intents (backend sends data.items or data.table)
+  const employeeIntentConfig: Record<
+    string,
+    { title: string; columns: Array<{ key: string; title: string; dataIndex: string }> }
+  > = {
+    active_employee_list: {
+      title: 'Active Employee List',
+      columns: [
+        { key: 'order', title: '', dataIndex: 'order' },
+        { key: 'firstName', title: 'First Name', dataIndex: 'firstName' },
+        { key: 'lastName', title: 'Last Name', dataIndex: 'lastName' },
+        { key: 'email', title: 'Email', dataIndex: 'email' },
+        { key: 'departmentName', title: 'Department', dataIndex: 'departmentName' },
+        { key: 'positionName', title: 'Position', dataIndex: 'positionName' },
+      ],
+    },
+    employees_under_probation: {
+      title: 'Employees Under Probation',
+      columns: [
+        { key: 'order', title: '', dataIndex: 'order' },
+        { key: 'firstName', title: 'First Name', dataIndex: 'firstName' },
+        { key: 'lastName', title: 'Last Name', dataIndex: 'lastName' },
+        { key: 'email', title: 'Email', dataIndex: 'email' },
+        { key: 'departmentName', title: 'Department', dataIndex: 'departmentName' },
+        { key: 'employmentTypeName', title: 'Employment Type', dataIndex: 'employmentTypeName' },
+      ],
+    },
+    employee_resignation_report: {
+      title: 'Employee Resignation Report',
+      columns: [
+        { key: 'order', title: '', dataIndex: 'order' },
+        { key: 'firstName', title: 'First Name', dataIndex: 'firstName' },
+        { key: 'lastName', title: 'Last Name', dataIndex: 'lastName' },
+        { key: 'terminationType', title: 'Type', dataIndex: 'terminationType' },
+        { key: 'reason', title: 'Reason', dataIndex: 'reason' },
+        { key: 'effectiveDate', title: 'Effective Date', dataIndex: 'effectiveDate' },
+      ],
+    },
+    employee_performance_score_summary: {
+      title: 'Performance Score Summary',
+      columns: [
+        { key: 'order', title: '', dataIndex: 'order' },
+        { key: 'firstName', title: 'First Name', dataIndex: 'firstName' },
+        { key: 'lastName', title: 'Last Name', dataIndex: 'lastName' },
+        { key: 'score', title: 'Score', dataIndex: 'score' },
+        { key: 'rating', title: 'Rating', dataIndex: 'rating' },
+      ],
+    },
+    headcount_by_department: {
+      title: 'Headcount by Department',
+      columns: [
+        { key: 'order', title: '', dataIndex: 'order' },
+        { key: 'name', title: 'Department', dataIndex: 'name' },
+        { key: 'count', title: 'Count', dataIndex: 'count' },
+      ],
+    },
+    headcount_by_role: {
+      title: 'Headcount by Role',
+      columns: [
+        { key: 'order', title: '', dataIndex: 'order' },
+        { key: 'name', title: 'Role', dataIndex: 'name' },
+        { key: 'count', title: 'Count', dataIndex: 'count' },
+      ],
+    },
+    headcount_by_location: {
+      title: 'Headcount by Location',
+      columns: [
+        { key: 'order', title: '', dataIndex: 'order' },
+        { key: 'name', title: 'Location', dataIndex: 'name' },
+        { key: 'count', title: 'Count', dataIndex: 'count' },
+      ],
+    },
+  };
+
+  // Check employee intents first (data.items from backend)
+  const employeeConfig = intent ? employeeIntentConfig[intent] : null;
+  if (employeeConfig && data?.items && Array.isArray(data.items)) {
+    const rows = data.items.map((item: any, index: number) =>
+      typeof item === 'object' && item !== null
+        ? { order: index + 1, ...item }
+        : { order: index + 1, value: String(item) }
+    );
+    if (rows.length > 0) {
+      return {
+        type: 'table',
+        title: employeeConfig.title,
+        columns: employeeConfig.columns,
+        rows,
+      };
+    }
+  }
+
   // Check for supervisor data first
   const supervisorDataKey = supervisorDataKeys[intent];
   if (supervisorDataKey && data[supervisorDataKey] && Array.isArray(data[supervisorDataKey])) {
