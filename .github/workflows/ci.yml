@@ -6,6 +6,7 @@ on:
       - develop
       - main
       -develop-redesign-branch
+
   pull_request:
     branches:
       - develop
