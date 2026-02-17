@@ -487,7 +487,10 @@ export default function BasicPlanning() {
   const handleDelete = (id: string) => {
     Modal.confirm({
       title: (
-        <div className="text-[#101828] text-lg font-medium pt-2" data-cy="delete-plan-confirmation-title">
+        <div
+          className="text-[#101828] text-lg font-medium pt-2"
+          data-cy="delete-plan-confirmation-title"
+        >
           Are you sure you want to delete this plan
         </div>
       ),
@@ -871,10 +874,25 @@ export default function BasicPlanning() {
   };
 
   return (
-    <div className="space-y-6 bg-gray-100 min-h-screen px-4 md:px-6 py-4 md:py-6" data-cy="planning-container">
-      <div className="flex flex-row justify-between items-center gap-4 w-full" data-cy="planning-header">
-        <h1 className="text-2xl font-bold text-gray-900" data-cy="planning-title">Planning</h1>
-        <Dropdown menu={{ items: planMenuItems }} trigger={['click']} data-cy="add-plan-dropdown">
+    <div
+      className="space-y-6 bg-gray-100 min-h-screen px-4 md:px-6 py-4 md:py-6"
+      data-cy="planning-container"
+    >
+      <div
+        className="flex flex-row justify-between items-center gap-4 w-full"
+        data-cy="planning-header"
+      >
+        <h1
+          className="text-2xl font-bold text-gray-900"
+          data-cy="planning-title"
+        >
+          Planning
+        </h1>
+        <Dropdown
+          menu={{ items: planMenuItems }}
+          trigger={['click']}
+          data-cy="add-plan-dropdown"
+        >
           <Button
             type="primary"
             icon={<FaPlus className="text-sm" data-cy="add-plan-icon" />}
@@ -882,8 +900,13 @@ export default function BasicPlanning() {
             disabled={(objective?.items?.length ?? 0) === 0}
             data-cy="add-plan-button"
           >
-            <span className="hidden sm:inline">Add Plan</span>
-            <BsChevronDown className="text-xs sm:ml-2" data-cy="add-plan-chevron" />
+            <span className="hidden sm:inline" data-cy="add-plan-text">
+              Add Plan
+            </span>
+            <BsChevronDown
+              className="text-xs sm:ml-2"
+              data-cy="add-plan-chevron"
+            />
           </Button>
         </Dropdown>
       </div>

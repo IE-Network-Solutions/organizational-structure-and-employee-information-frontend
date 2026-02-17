@@ -92,7 +92,9 @@ export default function BasicPlanCard({
           </span>
         ),
         onClick: onApprove,
-        icon: <IoCheckmarkSharp className="text-green-600" data-cy="approve-icon" />,
+        icon: (
+          <IoCheckmarkSharp className="text-green-600" data-cy="approve-icon" />
+        ),
       });
     }
   }
@@ -167,7 +169,10 @@ export default function BasicPlanCard({
         className="flex flex-col md:flex-row justify-between items-start mb-4 gap-4"
         data-cy="basic-plan-card-dates"
       >
-        <div className="flex flex-col gap-2 w-full md:w-auto" data-cy="dates-container">
+        <div
+          className="flex flex-col gap-2 w-full md:w-auto"
+          data-cy="dates-container"
+        >
           <div
             className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-[11px]"
             data-cy="dates-row"
@@ -216,7 +221,10 @@ export default function BasicPlanCard({
           data-cy="owner-status-section"
         >
           {owner && (
-            <div className="flex items-center gap-3 min-w-0 flex-1" data-cy="owner-section">
+            <div
+              className="flex items-center gap-3 min-w-0 flex-1"
+              data-cy="owner-section"
+            >
               <Avatar
                 size={40}
                 className="flex-shrink-0"
@@ -231,7 +239,11 @@ export default function BasicPlanCard({
                 >
                   {owner.name}
                 </h4>
-                <p className="text-gray-400 text-xs truncate hidden md:block" title={owner.team} data-cy="owner-team">
+                <p
+                  className="text-gray-400 text-xs truncate hidden md:block"
+                  title={owner.team}
+                  data-cy="owner-team"
+                >
                   {owner.team}
                 </p>
               </div>
@@ -252,13 +264,22 @@ export default function BasicPlanCard({
                   data-cy="status-icon"
                 >
                   {planStatus.status === 'success' ? (
-                    <IoCheckmarkSharp className="text-xl" data-cy="status-success-icon" />
+                    <IoCheckmarkSharp
+                      className="text-xl"
+                      data-cy="status-success-icon"
+                    />
                   ) : (
-                    <BsThreeDots className="text-xl" data-cy="status-pending-icon" />
+                    <BsThreeDots
+                      className="text-xl"
+                      data-cy="status-pending-icon"
+                    />
                   )}
                 </div>
                 {/* Label and date hidden on small screen; only icon shown */}
-                <div className="hidden md:flex flex-col min-w-0" data-cy="status-info">
+                <div
+                  className="hidden md:flex flex-col min-w-0"
+                  data-cy="status-info"
+                >
                   <p
                     className="text-[#161A2C] font-bold text-[15px] leading-tight"
                     data-cy="status-label"
@@ -283,7 +304,10 @@ export default function BasicPlanCard({
                   <Button
                     type="text"
                     icon={
-                      <IoEllipsisVertical className="text-gray-400 text-lg" data-cy="status-menu-icon" />
+                      <IoEllipsisVertical
+                        className="text-gray-400 text-lg"
+                        data-cy="status-menu-icon"
+                      />
                     }
                     data-cy="status-menu-button"
                   />

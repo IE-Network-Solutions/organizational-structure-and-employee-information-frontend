@@ -183,13 +183,22 @@ export default function TaskRow({
       >
         <div className="mt-1 flex-shrink-0" data-cy="task-status-icon">
           {task.status === 'completed' && (
-            <IoCheckmarkCircleOutline className="text-2xl text-[#52C41A]" data-cy="task-completed-icon" />
+            <IoCheckmarkCircleOutline
+              className="text-2xl text-[#52C41A]"
+              data-cy="task-completed-icon"
+            />
           )}
           {task.status === 'failed' && (
-            <IoCloseCircleOutline className="text-2xl text-[#FF4D4F]" data-cy="task-failed-icon" />
+            <IoCloseCircleOutline
+              className="text-2xl text-[#FF4D4F]"
+              data-cy="task-failed-icon"
+            />
           )}
           {(task.status === 'pending' || !task.status) && (
-            <IoTimeOutline className="text-2xl text-[#FAAD14]" data-cy="task-pending-icon" />
+            <IoTimeOutline
+              className="text-2xl text-[#FAAD14]"
+              data-cy="task-pending-icon"
+            />
           )}
         </div>
         <div className="min-w-0 flex-1" data-cy="task-details">
