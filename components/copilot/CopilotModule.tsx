@@ -184,14 +184,13 @@ function transformResponseDataToTable(
         { key: 'firstName', title: 'First Name', dataIndex: 'firstName' },
         { key: 'middleName', title: 'Middle Name', dataIndex: 'middleName' },
         { key: 'lastName', title: 'Last Name', dataIndex: 'lastName' },
+        { key: 'email', title: 'Email', dataIndex: 'email' },
         {
           key: 'departmentName',
           title: 'Department',
           dataIndex: 'departmentName',
         },
-        { key: 'positionName', title: 'Position', dataIndex: 'positionName' },
-        { key: 'score', title: 'Score', dataIndex: 'score' },
-        { key: 'rating', title: 'Rating', dataIndex: 'rating' },
+        { key: 'okrAverageScore', title: 'OKR Average Score', dataIndex: 'okrAverageScore' },
       ],
     },
     headcount_by_department: {
@@ -207,6 +206,14 @@ function transformResponseDataToTable(
       columns: [
         { key: 'order', title: '', dataIndex: 'order' },
         { key: 'name', title: 'Role', dataIndex: 'name' },
+        { key: 'count', title: 'Count', dataIndex: 'count' },
+      ],
+    },
+    headcount_by_office: {
+      title: 'Headcount by Office',
+      columns: [
+        { key: 'order', title: '', dataIndex: 'order' },
+        { key: 'name', title: 'Office', dataIndex: 'name' },
         { key: 'count', title: 'Count', dataIndex: 'count' },
       ],
     },
