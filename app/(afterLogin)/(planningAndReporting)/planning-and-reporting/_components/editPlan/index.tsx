@@ -251,42 +251,78 @@ function EditPlan() {
         return;
       }
 
-      const uniqueTaskIds = new Set();
+      // Group tasks by their key (namesKey) to prevent duplication
+      const tasksByKey: Record<string, any[]> = {};
+      const uniqueTaskIds = new Set<string>();
 
       tasks.forEach((e: any) => {
         if (!e?.id) return; // Skip invalid tasks
+
+        // Skip if we've already processed this task ID
+        if (uniqueTaskIds.has(e?.id)) {
+          return;
+        }
 
         const hasMilestone = e?.milestone !== null;
         const name = hasMilestone
           ? `${e?.keyResult?.id + e?.milestone?.id + (e?.parentTaskId || '')}`
           : `${e?.keyResult?.id + (e?.parentTaskId || '')}`;
+        const namesKey = `names-${name}`;
 
-        // Ensure no duplicates
-        if (!uniqueTaskIds.has(e?.id)) {
-          uniqueTaskIds.add(e?.id);
-
-          handleAddName(
-            {
-              id: e?.id,
-              milestoneId: e?.milestone?.id || null,
-              keyResultId: e?.keyResult?.id || null,
-              planningPeriodId,
-              planningUserId,
-              userId: userId || '',
-              task: e?.task || '',
-              priority: e?.priority || '',
-              weight: parseInt(e?.weight, 10) || 0,
-              targetValue: e?.targetValue || 0,
-              achieveMK: e?.achieveMK || null,
-              planId,
-            },
-            name,
-          );
+        // Initialize array if it doesn't exist
+        if (!tasksByKey[namesKey]) {
+          tasksByKey[namesKey] = [];
         }
+
+        // Add task to the group
+        tasksByKey[namesKey].push({
+          id: e?.id,
+          milestoneId: e?.milestone?.id || null,
+          keyResultId: e?.keyResult?.id || null,
+          planningPeriodId,
+          planningUserId,
+          userId: userId || '',
+          task: e?.task || '',
+          priority: e?.priority || '',
+          weight: parseInt(e?.weight, 10) || 0,
+          targetValue: e?.targetValue || 0,
+          achieveMK: e?.achieveMK || null,
+          planId: planId,
+        });
+
+        uniqueTaskIds.add(e?.id);
       });
+
+      // Clear existing form fields for all keys that will be set
+      const formValues: Record<string, any> = {};
+      Object.keys(tasksByKey).forEach((key) => {
+        formValues[key] = [];
+      });
+
+      // Set all tasks at once, grouped by their key
+      Object.entries(tasksByKey).forEach(([namesKey, taskArray]) => {
+        // Add planId to each task
+        const tasksWithPlanId = taskArray.map((task) => ({
+          ...task,
+          planId: planId,
+        }));
+        formValues[namesKey] = tasksWithPlanId;
+
+        // Calculate and set weight for this key
+        const totalWeight = tasksWithPlanId.reduce(
+          (sum: number, field: { weight?: number }) => {
+            return Number(sum) + Number(field?.weight ?? 0);
+          },
+          0,
+        );
+        setWeight(namesKey, totalWeight);
+      });
+
+      // Set all form values at once to prevent duplication
+      form.setFieldsValue(formValues);
     };
 
-    if (!planGroupData) return;
+    if (!planGroupData || !isEditing || !open) return;
 
     const planningUserId = planGroupData?.planningUser?.id;
     const userId = planGroupData?.planningUser?.userId;
@@ -310,7 +346,7 @@ function EditPlan() {
       planningPeriodId,
       planGroupData?.id,
     );
-  }, [planningPeriodHierarchy, selectedPlanId, planGroupData, selectParentId]); // Ensure proper re-execution
+  }, [planningPeriodHierarchy, selectedPlanId, planGroupData, selectParentId, isEditing, open, form, setWeight]); // Ensure proper re-execution
 
   const footer = (
     <div className="flex items-center justify-between w-full">
