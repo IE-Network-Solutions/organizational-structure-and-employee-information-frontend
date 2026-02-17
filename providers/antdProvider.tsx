@@ -28,17 +28,17 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       lineHeightHeading4: 1.4, // H4 line height (28px / 20px)
       lineHeightHeading5: 1.5, // H5 line height (24px / 16px)
 
-      // Brand Colors - Primary (Blue Palette)
-      colorPrimary: '#1890FF', // Primary-7: Main primary color
-      colorPrimaryBg: '#E6F7FF', // Primary-3: Default state background
-      colorPrimaryBgHover: '#BAE7FF', // Primary-4: Hover background
-      colorPrimaryBorder: '#91D5FF', // Primary-5: Border color
-      colorPrimaryBorderHover: '#40A9FF', // Primary-6: Hover border
-      colorPrimaryHover: '#40A9FF', // Primary-6: Hover color
-      colorPrimaryActive: '#096DD9', // Primary-8: Active color
-      colorPrimaryTextHover: '#40A9FF', // Primary-6: Text hover
-      colorPrimaryText: '#1890FF', // Primary-7: Text color
-      colorPrimaryTextActive: '#096DD9', // Primary-8: Text active
+      // Brand Colors - Primary (Blue Palette) - #1E40AF
+      colorPrimary: '#1E40AF', // Main primary color
+      colorPrimaryBg: '#EFF6FF', // Default state background
+      colorPrimaryBgHover: '#DBEAFE', // Hover background
+      colorPrimaryBorder: '#93C5FD', // Border color
+      colorPrimaryBorderHover: '#60A5FA', // Hover border
+      colorPrimaryHover: '#2563EB', // Hover color
+      colorPrimaryActive: '#1D4ED8', // Active color
+      colorPrimaryTextHover: '#2563EB', // Text hover
+      colorPrimaryText: '#1E40AF', // Text color
+      colorPrimaryTextActive: '#1D4ED8', // Text active
 
       // Brand Colors - Success (Green Palette)
       colorSuccess: '#52C41A', // Success-7: Main success color
@@ -89,9 +89,9 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       colorErrorTextActive: '#CF1322', // Error-8: Text active
 
       // Link Colors
-      colorLink: '#1890FF', // Default link color
-      colorLinkHover: '#40A9FF', // Link hover state
-      colorLinkActive: '#096DD9', // Link active state
+      colorLink: '#1E40AF', // Default link color
+      colorLinkHover: '#2563EB', // Link hover state
+      colorLinkActive: '#1D4ED8', // Link active state
 
       // Neutral Colors - Text
       colorText: '#000000', // Primary text color (light theme)

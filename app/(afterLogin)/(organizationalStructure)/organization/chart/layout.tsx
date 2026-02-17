@@ -1,10 +1,9 @@
 'use client';
 import { Card, Dropdown, Button } from 'antd';
-import { FaDownload } from 'react-icons/fa';
-import { BsThreeDotsVertical } from 'react-icons/bs';
+import { DownloadOutlined } from '@ant-design/icons';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
-import { useRouter } from 'next/navigation';
 import React, { RefObject, useRef, createContext, useContext } from 'react';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 
 // Create context for chart ref
 const ChartRefContext = createContext<RefObject<HTMLDivElement> | null>(null);
@@ -19,10 +18,7 @@ export const useChartRef = () => {
 
 // import { exportOrgStrucutreMenu, orgComposeAndMergeMenues } from '../menues/inex';
 
-import {
-  exportOrgStrucutreMenu,
-  orgComposeAndMergeMenues,
-} from './org-structure/_components/menues/inex';
+import { exportOrgStrucutreMenu } from './org-structure/_components/menues';
 import CustomDrawer from './org-structure/_components/customDrawer';
 import {
   useMergingDepartment,
@@ -42,7 +38,6 @@ export default function ChartLayout({
   children: React.ReactNode;
   params: any;
 }) {
-  const router = useRouter();
   const [form] = Form.useForm();
 
   const chartRef = useRef<HTMLDivElement>(null);
@@ -60,8 +55,6 @@ export default function ChartLayout({
     drawTitle,
     setDrawerVisible,
     setDepartmentTobeDeletedId,
-    selectedKey,
-    setSelectedKey,
   } = useOrganizationStore.getState();
 
   const { reset } = useDepartmentStore();
@@ -70,21 +63,6 @@ export default function ChartLayout({
     setDrawerVisible(false);
     form.resetFields();
     reset();
-  };
-
-  // Handling menu click and navigation
-  const onMenuClick = (key: string) => {
-    setSelectedKey(key);
-    switch (key) {
-      case 'structure':
-        router.push('/organization/chart/org-structure');
-        break;
-      case 'chart':
-        router.push('/organization/chart/org-chart');
-        break;
-      default:
-        break;
-    }
   };
 
   return (
@@ -99,7 +77,7 @@ export default function ChartLayout({
       >
         {/* ORG Structure Section */}
         <div
-          className="w-full overflow-x-auto"
+          className="w-full overflow-visible"
           data-cy="org-structure-card-container"
           id="org-structure-card-container"
         >
@@ -108,13 +86,11 @@ export default function ChartLayout({
             id="org-structure-card"
             className="w-full border-none"
             title={
-              <div
-                className="text-2xl font-bold"
-                data-cy="org-structure-title"
-                id="org-structure-title"
-              >
-                ORG Structure
-              </div>
+              <CustomBreadcrumb
+                title="Organization structure"
+                subtitle="Organization / Org Structure"
+                data-cy="org-structure-breadcrumb"
+              />
             }
             extra={
               <div
@@ -137,19 +113,19 @@ export default function ChartLayout({
                   <Button
                     title="Download"
                     icon={
-                      <FaDownload
-                        size={16}
+                      <DownloadOutlined
+                        style={{ fontSize: 16 }}
                         data-cy="org-structure-download-btn-icon"
                         id="org-structure-download-btn-icon"
                       />
                     }
                     type="default"
-                    className="h-10 sm:h-14 w-10 sm:w-auto"
+                    className="h-10 w-[104px] rounded-lg border border-gray-300 text-gray-700 font-normal"
                     data-cy="org-structure-download-btn"
                     id="org-structure-download-btn"
                   >
                     <span
-                      className="hidden sm:inline"
+                      className="font-normal"
                       data-cy="org-structure-download-btn-span"
                       id="org-structure-download-btn-span"
                     >
@@ -158,72 +134,9 @@ export default function ChartLayout({
                   </Button>
                   {/* </AccessGuard> */}
                 </Dropdown>
-                {selectedKey !== 'chart' && (
-                  <AccessGuard
-                    permissions={[Permissions.MergeDepartment]}
-                    data-cy="org-structure-actions-guard"
-                    id="org-structure-actions-guard"
-                  >
-                    <Dropdown
-                      overlay={orgComposeAndMergeMenues}
-                      trigger={['click']}
-                      placement="bottomRight"
-                      data-cy="org-structure-actions-dropdown"
-                    >
-                      <Button
-                        type="primary"
-                        className="w-10 sm:w-[68px] h-10 sm:h-14  rounded-lg flex items-center justify-center gap-2"
-                        data-cy="org-structure-actions-btn"
-                        id="org-structure-actions-btn"
-                      >
-                        <BsThreeDotsVertical
-                          size={24}
-                          data-cy="org-structure-actions-btn-icon"
-                          id="org-structure-actions-btn-icon"
-                        />
-                      </Button>
-                    </Dropdown>
-                  </AccessGuard>
-                )}
               </div>
             }
           >
-            <div
-              className="flex justify-end"
-              data-cy="org-structure-tabs-menu-container"
-              id="org-structure-tabs-menu-container"
-            >
-              <div
-                data-cy="org-structure-tabs-menu-container"
-                id="org-structure-tabs-menu-container"
-                className="flex justify-end bg-[#f5f5f5] shadow-md rounded-lg w-fit h-10 sm:h-12 py-[5px] px-[6px] gap-[14px] border-1"
-              >
-                <button
-                  data-cy="org-structure-tabs-menu-button"
-                  id="org-structure-tabs-menu-button"
-                  onClick={() => onMenuClick('structure')}
-                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
-                    selectedKey === 'structure'
-                      ? 'bg-white rounded-md shadow-sm border-1'
-                      : 'bg-transparent'
-                  }`}
-                >
-                  Org Chart
-                </button>
-                <button
-                  data-cy="org-structure-tabs-menu-button"
-                  id="org-structure-tabs-menu-button"
-                  onClick={() => onMenuClick('chart')}
-                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
-                    selectedKey === 'chart'
-                      ? 'bg-white rounded-md shadow-sm border-1'
-                      : 'bg-transparent'
-                  }`}
-                >
-                  Team View
-                </button>
-              </div>
-            </div>
             <CustomDrawer
               data-cy="org-structure-custom-drawer"
               loading={transferDepartment ? isTransferLoading : isLoading}
@@ -264,9 +177,9 @@ export default function ChartLayout({
           {/* <OrgChartComponent /> */}
         </div>
 
-        {/* Page Content */}
+        {/* Page Content - minimal top padding so chart sits close to header */}
         <main
-          className="p-4"
+          className="pt-0 px-4 pb-4 overflow-visible"
           data-cy="org-structure-main-content"
           id="org-structure-main-content"
         >

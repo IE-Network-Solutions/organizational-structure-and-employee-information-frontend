@@ -39,7 +39,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
       <Card
         hoverable
         className={classNames(
-          'relative min-h-[350px] max-h-[350px] overflow-hidden',
+          'relative min-h-[180px] max-h-[180px] overflow-hidden',
           { 'opacity-70': item?.isDraft },
           [className],
         )}
@@ -50,8 +50,8 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             alt="example"
             src={item?.thumbnail ?? ''}
             width={300}
-            height={250}
-            className="w-full h-[250px] object-cover object-top"
+            height={120}
+            className="w-full h-[120px] object-cover object-top"
             id={`tnaCourseCardThumbnail${item?.id}Id`}
             data-cy={`tna-course-card-thumbnail-${item?.id}`}
           />
