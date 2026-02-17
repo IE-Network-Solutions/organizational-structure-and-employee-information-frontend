@@ -4,8 +4,7 @@ import React, {
   useState,
   useEffect,
   useRef,
-  useCallback,
-  useMemo
+  useCallback
 } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
@@ -38,7 +37,6 @@ import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
@@ -93,8 +91,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const pathName = usePathname();
-  const { data: okrSetting } = useGetOkrSetting();
-  const okrMode = okrSetting?.name ?? 'Advanced'; // Basic | Advanced; default Advanced for nav
 
   useEffect(() => {
     setIsMounted(true);
@@ -189,49 +185,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
-  // Single "Planning and Reporting" nav item: route depends on OKR type (Basic vs Advanced)
-  const okrMenuChildren = useMemo(
-    (): CustomMenuItem[] => [
-      {
-        title: <span>Dashboard</span>,
-        key: '/okr/dashboard',
-        className: 'font-bold',
-        permissions: ['view_okr_dashboard'],
-      },
-      {
-        title: <span data-cy="okr-menu-item">OKR</span>,
-        key: '/okr',
-        className: 'font-bold',
-        permissions: ['view_okr_overview'],
-      },
-      {
-        title: (
-          <span data-cy="planning-reporting-menu-item">
-            Planning and Reporting
-          </span>
-        ),
-        key:
-          okrMode === 'Basic'
-            ? '/basic-okr/planning-and-reporting'
-            : '/planning-and-reporting',
-        className: 'font-bold',
-        permissions: ['manage_planning_reporting'],
-      },
-      {
-        title: <span data-cy="weekly-priority-menu-item">Weekly Priority</span>,
-        key: '/weekly-priority',
-        className: 'font-bold h-8',
-        permissions: ['view_weekly_priority'],
-      },
-      {
-        title: <span data-cy="okr-settings-menu-item">Settings</span>,
-        key: '/okr/settings',
-        className: 'font-bold',
-        permissions: ['manage_okr_settings'],
-      },
-    ],
-    [okrMode],
-  );
 
   const getRoutesAndPermissions = (
     menuItems: CustomMenuItem[],

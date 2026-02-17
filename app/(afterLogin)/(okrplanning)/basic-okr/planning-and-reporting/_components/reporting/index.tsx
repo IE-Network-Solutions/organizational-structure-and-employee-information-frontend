@@ -97,7 +97,7 @@ export default function BasicReporting() {
         </Tooltip>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4" data-cy="reports-list-container">
         {isLoading ? (
           Array.from({ length: 3 }).map(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars -- map uses index only
