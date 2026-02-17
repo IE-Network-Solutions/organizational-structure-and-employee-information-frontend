@@ -29,8 +29,6 @@ import { useTransferStore } from '@/store/uistate/features/organizationStructure
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form } from 'antd';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 // Layout component definition
 export default function ChartLayout({
   children,
