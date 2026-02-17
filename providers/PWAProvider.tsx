@@ -28,23 +28,29 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
   // const router = useRouter();
 
   useEffect(() => {
-    // Register service worker (enable in both dev and production for PWA testing)
+    // Register main service worker (PWA + push)
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/sw.js', {
-          scope: '/',
-          updateViaCache: 'imports', // Allow caching for imported scripts to reduce update checks
-        })
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .then((registration) => {
-          // console.log('Service Worker registered successfully:', _registration);
-          // Let service worker update naturally without forcing immediate activation
-          // This prevents unexpected page reloads during active usage
-        })
-        .catch((e) => {
-          alert(e);
-          // console.log('Service Worker registration failed:', error);
-        });
+      const isDev = process.env.NODE_ENV === 'development';
+      const skipRegister = isDev && navigator.serviceWorker.controller;
+      if (!skipRegister) {
+        navigator.serviceWorker
+          .register('/sw.js', {
+            scope: '/',
+            updateViaCache: 'imports',
+          })
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          .then((registration) => {})
+          .catch((e) => {
+            alert(e);
+          });
+        // Register minimal push-only SW (activates quickly so "Allow notifications" does not time out)
+        navigator.serviceWorker
+          .register('/sw-push.js', {
+            scope: '/push/',
+            updateViaCache: 'imports',
+          })
+          .catch(() => {});
+      }
 
       // Handle service worker messages for better app state management
       navigator.serviceWorker.addEventListener('message', (event) => {
@@ -216,6 +222,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
 
       {/* Main App Content */}
       <div
+        data-cy="pwa-provider-main-content"
         style={{
           opacity: showMainContent ? 1 : 0,
           transition: showMainContent ? 'opacity 0.3s ease-in' : 'none',

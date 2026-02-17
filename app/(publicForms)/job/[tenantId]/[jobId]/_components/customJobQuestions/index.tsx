@@ -39,7 +39,7 @@ const CustomJobQuestionsDisplay: React.FC<JobDisplayParams> = ({
   const onValuesChange = useDebounce(handleSelection, 1500);
 
   return (
-    <div>
+    <div data-cy="-jobid-components-customjobquestions-index-tsx-index-div-42">
       {isLoading ?? <Spin className="flex justify-center align-middle" />}
 
       {JobPublicForm?.jobApplicationQuestionsForm?.form?.map((q: any) => (
@@ -47,7 +47,14 @@ const CustomJobQuestionsDisplay: React.FC<JobDisplayParams> = ({
           <Col xs={24} sm={24}>
             <Form.Item
               key={q.id}
-              label={<div className="my-2 font-semibold">{q.question}</div>}
+              label={
+                <div
+                  data-cy="-jobid-components-customjobquestions-index-tsx-index-div-50"
+                  className="my-2 font-semibold"
+                >
+                  {q.question}
+                </div>
+              }
               name={`question_${q.id}`}
               required={q.required}
               labelCol={{ span: 24 }}
@@ -63,7 +70,10 @@ const CustomJobQuestionsDisplay: React.FC<JobDisplayParams> = ({
                 },
               ]}
             >
-              <div key={q.id}>
+              <div
+                data-cy="-jobid-components-customjobquestions-index-tsx-index-div-66"
+                key={q.id}
+              >
                 {q?.fieldType === 'multiple_choice' && (
                   <Row key={q.id} gutter={16} className="ml-1 mt-2">
                     {q.field?.map((choice: any, index: string) => {

@@ -106,8 +106,16 @@ const AttendanceReport: React.FC = () => {
   }));
 
   const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+    <div
+      className="flex flex-col gap-4"
+      data-cy="time-attendance-attendance-report-mobile-filter-content-div"
+    >
+      <h3
+        className="text-lg font-medium mb-2"
+        data-cy="time-attendance-attendance-report-mobile-filter-title-h3"
+      >
+        Filter
+      </h3>
 
       <Select
         showSearch
@@ -120,6 +128,7 @@ const AttendanceReport: React.FC = () => {
         maxTagCount={1}
         className="w-40 h-14"
         onChange={(value) => setDepartmentOnAttendanceReport(value)}
+        data-cy="time-attendance-attendance-report-mobile-filter-department-select"
       />
 
       <RangePicker
@@ -133,6 +142,7 @@ const AttendanceReport: React.FC = () => {
             setEndDateAttendanceReport('');
           }
         }}
+        data-cy="time-attendance-attendance-report-mobile-filter-date-range-picker"
       />
     </div>
   );
@@ -219,9 +229,18 @@ const AttendanceReport: React.FC = () => {
         </div>
 
         {/* Mobile Filters */}
-        <div className="md:hidden">
-          <div className="flex justify-between gap-4 w-full mb-4 ">
-            <div className="flex-1">
+        <div
+          className="md:hidden"
+          data-cy="time-attendance-attendance-report-mobile-filters-div"
+        >
+          <div
+            className="flex justify-between gap-4 w-full mb-4 "
+            data-cy="time-attendance-attendance-report-mobile-filters-row-div"
+          >
+            <div
+              className="flex-1"
+              data-cy="time-attendance-attendance-report-mobile-filters-employee-select-div"
+            >
               <Select
                 showSearch
                 placeholder="Search Employee"
@@ -234,9 +253,10 @@ const AttendanceReport: React.FC = () => {
                     .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
+                data-cy="time-attendance-attendance-report-mobile-filters-employee-select"
               />
             </div>
-            <div>
+            <div data-cy="time-attendance-attendance-report-mobile-filters-settings-button-div">
               <CustomButton
                 type="default"
                 size="small"
@@ -244,6 +264,7 @@ const AttendanceReport: React.FC = () => {
                 className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
                 title=""
                 icon={<LuSettings2 size={20} />}
+                data-cy="time-attendance-attendance-report-mobile-filters-settings-button"
               />
             </div>
           </div>
@@ -271,20 +292,40 @@ const AttendanceReport: React.FC = () => {
                 data-cy="time-attendance-attendance-report-chart-wrapper-div"
               >
                 {attendanceStats?.users?.length === 0 ? (
-                  <div className="flex justify-center items-center h-64">
-                    <p className="text-gray-500 text-[14px] font-semibold">
+                  <div
+                    className="flex justify-center items-center h-64"
+                    data-cy="time-attendance-attendance-report-chart-empty-div"
+                  >
+                    <p
+                      className="text-gray-500 text-[14px] font-semibold"
+                      data-cy="time-attendance-attendance-report-chart-empty-text"
+                    >
                       No Record Found
                     </p>
                   </div>
                 ) : (
-                  <div className=" md:w-[340px] md:h-[340px] w-80 h-80 flex md:flex-row flex-col justify-center items-center md:mt-0 mt-4">
+                  <div
+                    className=" md:w-[340px] md:h-[340px] w-80 h-80 flex md:flex-row flex-col justify-center items-center md:mt-0 mt-4"
+                    data-cy="time-attendance-attendance-report-chart-content-div"
+                  >
                     {/* <div className="w-72 h-72 sm:w-80 sm:h-80 relative flex items-center justify-center"> */}
 
-                    <Doughnut data={doughnutChartData} options={options} />
-                    <div className="flex md:flex-col md:ml-16 ml-0 md:gap-0 gap-4 md:mt-0 mt-4">
+                    <Doughnut
+                      data={doughnutChartData}
+                      options={options}
+                      data-cy="time-attendance-attendance-report-chart-doughnut"
+                    />
+                    <div
+                      className="flex md:flex-col md:ml-16 ml-0 md:gap-0 gap-4 md:mt-0 mt-4"
+                      data-cy="time-attendance-attendance-report-chart-legend-div"
+                    >
                       {doughnutChartData.labels.map(
                         (label: string, i: number) => (
-                          <div key={i} className="flex items-center mb-1 gap-2">
+                          <div
+                            key={i}
+                            className="flex items-center mb-1 gap-2"
+                            data-cy={`time-attendance-attendance-report-chart-legend-item-${i}-div`}
+                          >
                             <div
                               style={{
                                 backgroundColor:
@@ -293,8 +334,12 @@ const AttendanceReport: React.FC = () => {
                                   ],
                               }}
                               className="w-2 h-2 rounded-full mr-2"
+                              data-cy={`time-attendance-attendance-report-chart-legend-item-${i}-color-dot`}
                             />
-                            <span className="text-xs font-medium text-gray-500">
+                            <span
+                              className="text-xs font-medium text-gray-500"
+                              data-cy={`time-attendance-attendance-report-chart-legend-item-${i}-label`}
+                            >
                               {label}
                             </span>
                           </div>
@@ -433,12 +478,16 @@ const AttendanceReport: React.FC = () => {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={
-          <div className="flex gap-2 justify-center mt-4">
+          <div
+            className="flex gap-2 justify-center mt-4"
+            data-cy="time-attendance-attendance-report-mobile-filter-modal-footer-div"
+          >
             <CustomButton
               onClick={() => setIsModalOpen(false)}
               className="px-6 py-2 border rounded-lg text-sm text-gray-900"
               title="Cancel"
               type="default"
+              data-cy="time-attendance-attendance-report-mobile-filter-modal-cancel-button"
             />
             <CustomButton
               title="Apply Filter"
@@ -447,6 +496,7 @@ const AttendanceReport: React.FC = () => {
                 setIsModalOpen(false);
               }}
               className="px-6 py-2 text-white rounded-lg text-sm"
+              data-cy="time-attendance-attendance-report-mobile-filter-modal-apply-button"
             />
           </div>
         }
@@ -459,6 +509,7 @@ const AttendanceReport: React.FC = () => {
         }}
         width="90%"
         centered
+        data-cy="time-attendance-attendance-report-mobile-filter-modal"
       >
         <MobileFilterContent />
       </Modal>

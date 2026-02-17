@@ -38,9 +38,14 @@ const Plan = () => {
       loading={plannedTaskForReportLoading}
       className="bg-white shadow-lg rounded-lg p-1 lg:p-5 "
     >
-      <div className="flex justify-between p-2 items-center ">
-        <div className="text-lg  font-bold ">My Plans</div>
-        <div className="pl-2 ">
+      <div
+        className="flex justify-between p-2 items-center "
+        data-cy="plan-header"
+      >
+        <div className="text-lg  font-bold " data-cy="plan-title">
+          My Plans
+        </div>
+        <div className="pl-2 " data-cy="plan-selector">
           <Select
             defaultValue={planType}
             className="w-32 text-gray-400 text-sm"

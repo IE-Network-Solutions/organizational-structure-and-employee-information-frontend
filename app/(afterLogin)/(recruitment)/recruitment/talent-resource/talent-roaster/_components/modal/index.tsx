@@ -80,7 +80,13 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
               data-cy="talent-acquisition-talent-roaster-modal-label-selected-applicants"
               className="block text-sm font-medium text-gray-700 mb-3"
             >
-              Selected Applicants <span className="text-red-500">*</span>
+              Selected Applicants{' '}
+              <span
+                data-cy="talent-roaster-components-modal-index-tsx-index-span-83"
+                className="text-red-500"
+              >
+                *
+              </span>
             </label>
             <div
               id="talent-acquisition-talent-roaster-modal-div-applicant-tags"
@@ -107,8 +113,17 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
           <Form.Item
             name="jobId"
             label={
-              <span className="text-sm font-medium text-gray-700">
-                Select Job <span className="text-red-500">*</span>
+              <span
+                data-cy="talent-roaster-components-modal-index-tsx-index-span-110"
+                className="text-sm font-medium text-gray-700"
+              >
+                Select Job{' '}
+                <span
+                  data-cy="talent-roaster-components-modal-index-tsx-index-span-111"
+                  className="text-red-500"
+                >
+                  *
+                </span>
               </span>
             }
             rules={[
@@ -142,8 +157,17 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
           <Form.Item
             name="reason"
             label={
-              <span className="text-sm font-medium text-gray-700">
-                Reason <span className="text-red-500">*</span>
+              <span
+                data-cy="talent-roaster-components-modal-index-tsx-index-span-145"
+                className="text-sm font-medium text-gray-700"
+              >
+                Reason{' '}
+                <span
+                  data-cy="talent-roaster-components-modal-index-tsx-index-span-146"
+                  className="text-red-500"
+                >
+                  *
+                </span>
               </span>
             }
             rules={[

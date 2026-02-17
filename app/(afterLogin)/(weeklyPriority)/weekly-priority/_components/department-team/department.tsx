@@ -108,12 +108,20 @@ const Department: React.FC = () => {
           type="primary"
           icon={<HiPlus />}
         >
-          <span className="text-xs">Add one thing</span>
+          <span
+            data-cy="weekly-priority-components-department-team-department-tsx-department-span-111"
+            className="text-xs"
+          >
+            Add one thing
+          </span>
         </Button>
       </div>
       <>
         {weeklyLoading ? (
-          <div className="flex justify-center items-center h-96">
+          <div
+            data-cy="weekly-priority-components-department-team-department-tsx-department-div-116"
+            className="flex justify-center items-center h-96"
+          >
             <Spin size="large" tip="Loading..." />
           </div>
         ) : data?.length ? (

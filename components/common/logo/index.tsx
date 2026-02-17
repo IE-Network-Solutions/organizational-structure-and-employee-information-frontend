@@ -2,15 +2,17 @@ import React from 'react';
 
 interface LogoProps {
   type: string;
+  width?: string | number;
+  height?: string | number;
 }
 
-const Logo: React.FC<LogoProps> = ({ type }) => {
+const Logo: React.FC<LogoProps> = ({ type, width, height }) => {
   switch (type) {
     case 'selamnew':
       return (
         <svg
-          width="168"
-          height="58"
+          width={width || '168'}
+          height={height || '58'}
           viewBox="0 0 168 58"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -93,6 +95,53 @@ const Logo: React.FC<LogoProps> = ({ type }) => {
             fill="#111827"
             data-cy="logo-path-10"
           />
+        </svg>
+      );
+    case 'zkt':
+      return (
+        <svg
+          width={width || '145'}
+          height={height || '28'}
+          viewBox="0 0 145 28"
+          fill="none"
+          data-cy="components-common-logo-index-tsx-index-svg-102"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <text
+            x="0"
+            y="22"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fontSize="26"
+            fontWeight="700"
+            fill="#374151"
+            transform="skewX(12)"
+            data-cy="components-common-logo-index-tsx-index-text-109"
+          >
+            ZK
+          </text>
+          <text
+            x="50"
+            y="22"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fontSize="24"
+            fontWeight="700"
+            fill="#22C55E"
+            transform="skewX(12)"
+            data-cy="components-common-logo-index-tsx-index-text-120"
+          >
+            Teco
+          </text>
+          <text
+            x="108"
+            y="8"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fontSize="8"
+            fontWeight="400"
+            fill="#22C55E"
+            data-cy="components-common-logo-index-tsx-index-text-131"
+          >
+            ®
+          </text>
         </svg>
       );
 

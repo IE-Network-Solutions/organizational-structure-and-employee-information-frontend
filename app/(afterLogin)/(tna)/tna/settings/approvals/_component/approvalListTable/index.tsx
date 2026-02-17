@@ -119,9 +119,9 @@ const ApprovalListTable = () => {
               <Tooltip
                 key={empIndex}
                 title={
-                  <div>
+                  <div data-cy="approvals-component-approvallisttable-index-tsx-index-div-122">
                     {fullName}
-                    <br />
+                    <br data-cy="approvals-component-approvallisttable-index-tsx-index-br-124" />
                     {getEmployeeInformation(employee?.userId)?.email}
                   </div>
                 }

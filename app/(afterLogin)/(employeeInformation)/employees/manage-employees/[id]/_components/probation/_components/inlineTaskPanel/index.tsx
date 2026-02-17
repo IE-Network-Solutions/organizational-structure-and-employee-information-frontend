@@ -441,7 +441,10 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
               {/* Add Another Task Button */}
               {!editMode && (
-                <div className="mt-3 sm:mt-4">
+                <div
+                  className="mt-3 sm:mt-4"
+                  data-cy="probation-inline-task-add-button-container"
+                >
                   <Button
                     type="dashed"
                     icon={<PlusOutlined />}

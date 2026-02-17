@@ -78,7 +78,12 @@ const CheckOutSidebar = () => {
     const { value } = props;
     const option = options.find((item) => item.value === value);
     return option ? (
-      <div className="font-bold text-gray-900">{option.label}</div>
+      <div
+        data-cy="my-timesheet-components-checkoutsidebar-index-tsx-index-div-81"
+        className="font-bold text-gray-900"
+      >
+        {option.label}
+      </div>
     ) : (
       ''
     );

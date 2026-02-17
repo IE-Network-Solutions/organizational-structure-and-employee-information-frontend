@@ -1,15 +1,16 @@
 'use client';
-import React, { useState } from 'react';
-import { Avatar, Menu, Dropdown, Layout, Button, Badge, Drawer } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Menu, Dropdown, Layout, Button, Badge } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useNotificationStore } from '@/store/uistate/features/notification';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { useGetUnreadCount } from '@/store/server/features/notification/queries';
 import { usePWA } from '@/hooks/usePWA';
 import { BellOutlined, DownloadOutlined } from '@ant-design/icons';
-import NotificationBar from './notificationBar';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
 import Copilot from '@/components/copilot';
+import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 const { Header } = Layout;
 
@@ -22,9 +23,21 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
   const router = useRouter();
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetEmployee(userId);
-  const { notificationCount } = useNotificationStore();
+  const { notificationCount, setNotificationCount } = useNotificationStore();
+  const [mounted, setMounted] = useState(false);
+  const { data: unreadCount } = useGetUnreadCount(userId ?? '', mounted);
   const { isInstallable, isInstalled, isStandalone, installApp } = usePWA();
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] =
+    useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && typeof unreadCount === 'number')
+      setNotificationCount(unreadCount);
+  }, [mounted, unreadCount, setNotificationCount]);
 
   const handleProfileRoute = () => {
     router.push(`/employees/manage-employees/${userId}`);
@@ -41,7 +54,12 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
   const menu = (
     <Menu>
       <Menu.Item>
-        <a onClick={handleProfileRoute}>Profile</a>
+        <a
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-a-56"
+          onClick={handleProfileRoute}
+        >
+          Profile
+        </a>
       </Menu.Item>
       <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
@@ -54,8 +72,13 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
         padding: '0 20px',
       }}
     >
-      <p>{page}</p>
-      <div className="flex items-center gap-5">
+      <p data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-p-69">
+        {page}
+      </p>
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-div-70"
+        className="flex items-center gap-5"
+      >
         {/* PWA Install Button - Show when installable and not installed */}
         {isInstallable && !isInstalled && !isStandalone && (
           <Button
@@ -86,15 +109,28 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
         <Copilot />
 
         {/* Notification Bell */}
-        <div className="relative">
-          <Badge count={notificationCount} size="small">
-            <Button
-              type="text"
-              icon={<BellOutlined />}
-              onClick={() => setIsNotificationOpen(true)}
-            />
-          </Badge>
-        </div>
+        <Dropdown
+          open={notificationDropdownOpen}
+          onOpenChange={setNotificationDropdownOpen}
+          trigger={['click']}
+          placement="bottomRight"
+          overlay={
+            mounted ? (
+              <NotificationDropdownPanel open={notificationDropdownOpen} />
+            ) : (
+              <div data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-div-107" />
+            )
+          }
+        >
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-navbar-topnavbar-tsx-topnavbar-div-111"
+            className="relative inline-block"
+          >
+            <Badge count={notificationCount} size="small" offset={[-2, 2]}>
+              <Button type="text" icon={<BellOutlined />} />
+            </Badge>
+          </div>
+        </Dropdown>
 
         <Dropdown overlay={menu} placement="bottomRight">
           <Avatar
@@ -107,17 +143,6 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           />
         </Dropdown>
       </div>
-
-      {/* Notification Drawer */}
-      <Drawer
-        title="Notifications"
-        placement="right"
-        onClose={() => setIsNotificationOpen(false)}
-        open={isNotificationOpen}
-        width={400}
-      >
-        <NotificationBar />
-      </Drawer>
     </Header>
   );
 };

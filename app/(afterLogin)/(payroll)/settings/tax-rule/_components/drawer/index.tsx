@@ -267,7 +267,12 @@ const Drawer: React.FC = () => {
             placeholder="Input Tax Rate"
             controls={true}
             addonAfter={
-              <span style={{ color: '#bdbdbd', fontWeight: 600 }}>%</span>
+              <span
+                data-cy="tax-rule-components-drawer-index-tsx-index-span-270"
+                style={{ color: '#bdbdbd', fontWeight: 600 }}
+              >
+                %
+              </span>
             }
           />
         </Form.Item>

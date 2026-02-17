@@ -132,12 +132,13 @@ const Page = () => {
       label: (
         <div
           style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}
+          data-cy="settings-define-feedback-perspective-list-label"
         >
           Perspective List
         </div>
       ),
       children: (
-        <div>
+        <div data-cy="settings-define-feedback-perspective-list-children">
           <div
             className="flex justify-end"
             data-cy="settings-define-feedback-perspective-actions"
@@ -151,7 +152,13 @@ const Page = () => {
               data-cy="settings-define-feedback-add-perspective-button"
               id="settingsDefineFeedbackAddPerspectiveButton"
             >
-              <span className="hidden md:inline"> Add Perspective</span>
+              <span
+                className="hidden md:inline"
+                data-cy="settings-define-feedback-add-perspective-text"
+              >
+                {' '}
+                Add Perspective
+              </span>
             </Button>
           </div>
           {paginatedData?.map((item: any) => (

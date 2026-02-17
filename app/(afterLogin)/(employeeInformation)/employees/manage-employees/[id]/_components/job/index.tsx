@@ -474,7 +474,12 @@ function Job({ id }: { id: string }) {
                 id="job-edit-position-form-item"
                 data-cy="job-edit-position-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">Position *</span>
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-position-label"
+                  >
+                    Position *
+                  </span>
                 }
                 rules={[
                   { required: true, message: 'Please select a position' },
@@ -505,7 +510,10 @@ function Job({ id }: { id: string }) {
                 id="job-edit-employment-type-form-item"
                 data-cy="job-edit-employment-type-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-employment-type-label"
+                  >
                     Employment Type *
                   </span>
                 }
@@ -549,7 +557,10 @@ function Job({ id }: { id: string }) {
                 id="job-edit-department-form-item"
                 data-cy="job-edit-department-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-department-label"
+                  >
                     Department *
                   </span>
                 }
@@ -585,7 +596,10 @@ function Job({ id }: { id: string }) {
                 id="job-edit-branch-form-item"
                 data-cy="job-edit-branch-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-branch-label"
+                  >
                     Branch Office *
                   </span>
                 }
@@ -675,7 +689,10 @@ function Job({ id }: { id: string }) {
                 id="workScheduleId"
                 data-cy="job-edit-work-schedule-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-work-schedule-label"
+                  >
                     Work Schedule Category *
                   </span>
                 }

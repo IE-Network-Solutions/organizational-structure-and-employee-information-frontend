@@ -21,9 +21,13 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
       value={value}
       onChange={onChange}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 justify-start items-center bg-transparent">
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 justify-start items-center bg-transparent"
+        data-cy="radio-group-container"
+      >
         {options.map((option) => (
           <Radio.Button
+            data-cy={`radio-group-option-${option.value}`}
             key={option.value}
             value={option.value}
             className="w-full h-12 rounded-lg text-center flex justify-center items-center custom-radio-button bg-transparent sm:text-xs"

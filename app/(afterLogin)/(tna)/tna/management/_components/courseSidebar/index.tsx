@@ -499,7 +499,15 @@ const CourseCategorySidebar = () => {
             className="flex justify-start font-extrabold text-xl px-2"
             data-cy="tna-course-sidebar-header"
           >
-            {courseId ? <span>Edit Course</span> : <span>Add course </span>}
+            {courseId ? (
+              <span data-cy="management-components-coursesidebar-index-tsx-index-span-503">
+                Edit Course
+              </span>
+            ) : (
+              <span data-cy="management-components-coursesidebar-index-tsx-index-span-502">
+                Add course{' '}
+              </span>
+            )}
           </CustomDrawerHeader>
         }
         footer={
@@ -616,12 +624,25 @@ const CourseCategorySidebar = () => {
             </Spin>
           </Form.Item>
           <Divider className="my-4" />
-          <div className="space-y-3" id="tnaCourseSidebarAssignmentSectionId">
-            <div className="flex items-center justify-between">
-              <div className="text-base font-semibold text-gray-900">
+          <div
+            data-cy="management-components-coursesidebar-index-tsx-index-div-619"
+            className="space-y-3"
+            id="tnaCourseSidebarAssignmentSectionId"
+          >
+            <div
+              data-cy="management-components-coursesidebar-index-tsx-index-div-620"
+              className="flex items-center justify-between"
+            >
+              <div
+                data-cy="management-components-coursesidebar-index-tsx-index-div-621"
+                className="text-base font-semibold text-gray-900"
+              >
                 Assign Employees
               </div>
-              <div className="flex gap-2">
+              <div
+                data-cy="management-components-coursesidebar-index-tsx-index-div-624"
+                className="flex gap-2"
+              >
                 <Button
                   type="link"
                   size="small"
@@ -640,7 +661,10 @@ const CourseCategorySidebar = () => {
                 </Button>
               </div>
             </div>
-            <div className="text-sm text-gray-600">
+            <div
+              data-cy="management-components-coursesidebar-index-tsx-index-div-643"
+              className="text-sm text-gray-600"
+            >
               {availableUsers.length
                 ? `Selected ${selectedUserIds.length} of ${availableUsers.length} employees`
                 : `Selected ${selectedUserIds.length} employees`}
@@ -659,7 +683,10 @@ const CourseCategorySidebar = () => {
                   className="my-6"
                 />
               ) : (
-                <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto space-y-2">
+                <div
+                  data-cy="management-components-coursesidebar-index-tsx-index-div-662"
+                  className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto space-y-2"
+                >
                   <Checkbox.Group
                     value={selectedUserIds}
                     onChange={handleUserSelectionChange}
@@ -667,12 +694,21 @@ const CourseCategorySidebar = () => {
                   >
                     {availableUsers.map((user) => (
                       <Checkbox key={user.id} value={String(user.id)}>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-gray-900">
+                        <div
+                          data-cy="management-components-coursesidebar-index-tsx-index-div-670"
+                          className="flex flex-col"
+                        >
+                          <span
+                            data-cy="management-components-coursesidebar-index-tsx-index-span-671"
+                            className="font-medium text-gray-900"
+                          >
                             {getEmployeeName(user)}
                           </span>
                           {user?.email && (
-                            <span className="text-xs text-gray-500">
+                            <span
+                              data-cy="management-components-coursesidebar-index-tsx-index-span-675"
+                              className="text-xs text-gray-500"
+                            >
                               {user.email}
                             </span>
                           )}

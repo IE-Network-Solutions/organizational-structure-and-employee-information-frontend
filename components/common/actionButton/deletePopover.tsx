@@ -30,10 +30,18 @@ const DeletePopover: FC<DeletePopoverProps> = ({
       trigger="click"
       placement="bottomRight"
       title={
-        <div className="text-base text-gray-900 font-bold">{titleText}</div>
+        <div
+          data-cy="components-common-actionbutton-deletepopover-tsx-deletepopover-div-33"
+          className="text-base text-gray-900 font-bold"
+        >
+          {titleText}
+        </div>
       }
       content={
-        <div className="pt-4">
+        <div
+          data-cy="components-common-actionbutton-deletepopover-tsx-deletepopover-div-36"
+          className="pt-4"
+        >
           <Row gutter={20}>
             {onCancel && (
               <Col span={12}>
@@ -41,7 +49,10 @@ const DeletePopover: FC<DeletePopoverProps> = ({
                   id={`buttonPopOverActionFor${titleText}Id`}
                   size="small"
                   className={buttonClass}
-                  onClick={onCancel}
+                  onClick={() => {
+                    setOpen(false);
+                    onCancel();
+                  }}
                 >
                   Cancel
                 </Button>
@@ -54,7 +65,10 @@ const DeletePopover: FC<DeletePopoverProps> = ({
                   className={buttonClass}
                   type="primary"
                   id={`buttonPopOverActionDeleteFor${titleText}Id`}
-                  onClick={onDelete}
+                  onClick={(e) => {
+                    setOpen(false);
+                    onDelete(e);
+                  }}
                 >
                   Delete
                 </Button>
@@ -64,7 +78,12 @@ const DeletePopover: FC<DeletePopoverProps> = ({
         </div>
       }
     >
-      <div onClick={() => setOpen(true)}>{children}</div>
+      <div
+        data-cy="components-common-actionbutton-deletepopover-tsx-deletepopover-div-73"
+        onClick={() => setOpen(true)}
+      >
+        {children}
+      </div>
     </Popover>
   );
 };

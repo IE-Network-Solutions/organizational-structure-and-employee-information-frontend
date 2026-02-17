@@ -221,12 +221,18 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
           onClick={() => handleChatSelect(chat.id)}
           data-cy={`chatbot-history-item-${chat.id}`}
         >
-          <div className="flex justify-between items-center">
-            <div className="flex-1 mr-2">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-224"
+            className="flex justify-between items-center"
+          >
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-225"
+              className="flex-1 mr-2"
+            >
               <Text ellipsis className="text-xs">
                 {chat.title}
               </Text>
-              <br />
+              <br data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-br-229" />
               <Text type="secondary" className="text-[10px]">
                 {chat.messages.length} messages
               </Text>
@@ -279,23 +285,41 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
         style={{ width: panelWidth }}
         data-cy="chatbot-modal"
       >
-        <div className="flex flex-col h-full min-h-0">
-          <div className="px-5 py-4 bg-gradient-to-b from-[#F8F7FF] to-white border-b border-[rgba(229,231,235,0.8)]">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-282"
+          className="flex flex-col h-full min-h-0"
+        >
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-283"
+            className="px-5 py-4 bg-gradient-to-b from-[#F8F7FF] to-white border-b border-[rgba(229,231,235,0.8)]"
+          >
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-284"
+              className="flex items-center justify-between gap-3"
+            >
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-285"
+                className="flex items-center gap-3"
+              >
                 <Avatar
                   size={40}
                   src="/icons/512.png"
                   className="bg-white border border-[rgba(91,79,255,0.15)] shadow-[0_4px_12px_rgba(91,79,255,0.2)] p-[6px]"
                   data-cy="chatbot-header-avatar"
                 />
-                <div>
-                  <div className="text-[#2C2F36] text-base font-semibold leading-tight">
+                <div data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-292">
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-293"
+                    className="text-[#2C2F36] text-base font-semibold leading-tight"
+                  >
                     SelamNew AI
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-298"
+                className="flex gap-2"
+              >
                 <Tooltip title="New Chat">
                   <Button
                     type="text"
@@ -308,7 +332,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                 </Tooltip>
                 {chats.length > 0 && (
                   <Dropdown
-                    overlay={chatHistoryMenu}
+                    dropdownRender={() => chatHistoryMenu}
                     trigger={['click']}
                     placement="bottomRight"
                   >
@@ -335,13 +359,19 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-4 min-h-0">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-338"
+            className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-4 min-h-0"
+          >
             {messages.length === 0 ? (
               <div
                 className="bg-gradient-to-b from-white to-[#F7F6FF] rounded-[20px] p-8 flex flex-col items-center justify-center text-center gap-[18px] shadow-[0_12px_30px_rgba(91,79,255,0.08)] border border-[rgba(91,79,255,0.08)]"
                 data-cy="chatbot-empty-state"
               >
-                <div className="w-[68px] h-[68px] rounded-[20px] flex items-center justify-center relative shadow-[0_18px_45px_rgba(102,126,234,0.25)]">
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-344"
+                  className="w-[68px] h-[68px] rounded-[20px] flex items-center justify-center relative shadow-[0_18px_45px_rgba(102,126,234,0.25)]"
+                >
                   <Image
                     src="/icons/256.png"
                     alt="SelamNew"
@@ -350,8 +380,11 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                     priority
                   />
                 </div>
-                <div>
-                  <div className="text-lg font-semibold text-[#2C2F36] mb-2">
+                <div data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-353">
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-354"
+                    className="text-lg font-semibold text-[#2C2F36] mb-2"
+                  >
                     Welcome to SelamNew AI
                   </div>
                   <Text
@@ -363,7 +396,10 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                     question.
                   </Text>
                 </div>
-                <div className="flex flex-wrap gap-[10px] justify-center">
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-366"
+                  className="flex flex-wrap gap-[10px] justify-center"
+                >
                   {suggestedPrompts.map((suggestion) => (
                     <Button
                       key={suggestion}
@@ -393,6 +429,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                       data-cy={`chatbot-message-${message.id}`}
                     >
                       <div
+                        data-cy={`components-ai-chatbot-tsx-chatbot-div-431-${message.id}`}
                         className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-end gap-3 w-full ${isUser ? 'justify-end' : 'justify-start'}`}
                       >
                         <Avatar
@@ -442,18 +479,33 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                       icon={<RobotOutlined />}
                       data-cy="chatbot-loading-avatar"
                     />
-                    <div className="p-3 rounded-[18px_18px_18px_4px] bg-white border border-[rgba(91,79,255,0.1)] shadow-[0_15px_36px_rgba(102,126,234,0.12)]">
+                    <div
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-445"
+                      className="p-3 rounded-[18px_18px_18px_4px] bg-white border border-[rgba(91,79,255,0.1)] shadow-[0_15px_36px_rgba(102,126,234,0.12)]"
+                    >
                       <Spin size="small" data-cy="chatbot-loading-spinner" />
                     </div>
                   </div>
                 )}
-                <div ref={messagesEndRef} />
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-450"
+                  ref={messagesEndRef}
+                />
               </>
             )}
           </div>
-          <div className="px-5 pb-5 pt-4 border-t border-[rgba(91,79,255,0.08)] bg-white shadow-[0_-8px_30px_rgba(91,79,255,0.05)]">
-            <div className="flex gap-3 items-end flex-wrap">
-              <div className="flex-1 rounded-[18px] px-[6px] py-[1px] flex flex-col gap-[10px]">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-454"
+            className="px-5 pb-5 pt-4 border-t border-[rgba(91,79,255,0.08)] bg-white shadow-[0_-8px_30px_rgba(91,79,255,0.05)]"
+          >
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-455"
+              className="flex gap-3 items-end flex-wrap"
+            >
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-chatbot-tsx-chatbot-div-456"
+                className="flex-1 rounded-[18px] px-[6px] py-[1px] flex flex-col gap-[10px]"
+              >
                 <Input.TextArea
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}

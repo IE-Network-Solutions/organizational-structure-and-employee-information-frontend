@@ -161,12 +161,28 @@ const RecruitmentPipeline = () => {
   const averageDaysToHire = calculateAverageDaysToHire();
 
   const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+    <div
+      data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-164"
+      className="flex flex-col gap-4"
+    >
+      <h3
+        data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-h3-165"
+        className="text-lg font-medium mb-2"
+      >
+        Filter
+      </h3>
 
       {/* Department */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Department</label>
+      <div
+        data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-168"
+        className="flex flex-col gap-2"
+      >
+        <label
+          data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-label-169"
+          className="text-sm text-gray-600"
+        >
+          Department
+        </label>
         <Select
           id="talent-acquisition-recruitment-pipeline-select-department"
           data-cy="talent-acquisition-recruitment-pipeline-select-department"
@@ -188,8 +204,16 @@ const RecruitmentPipeline = () => {
       </div>
 
       {/* Stage */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Stage</label>
+      <div
+        data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-191"
+        className="flex flex-col gap-2"
+      >
+        <label
+          data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-label-192"
+          className="text-sm text-gray-600"
+        >
+          Stage
+        </label>
         <Select
           id="talent-acquisition-recruitment-pipeline-select-stage"
           data-cy="talent-acquisition-recruitment-pipeline-select-stage"
@@ -211,8 +235,16 @@ const RecruitmentPipeline = () => {
       </div>
 
       {/* Job */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Job</label>
+      <div
+        data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-214"
+        className="flex flex-col gap-2"
+      >
+        <label
+          data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-label-215"
+          className="text-sm text-gray-600"
+        >
+          Job
+        </label>
         <Select
           id="talent-acquisition-recruitment-pipeline-select-job"
           data-cy="talent-acquisition-recruitment-pipeline-select-job"
@@ -241,12 +273,32 @@ const RecruitmentPipeline = () => {
         bodyStyle={{ padding: '0px' }}
         className="bg-white p-6 rounded-xl shadow-lg mx-1"
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-[16px] font-bold">Recruitment Pipeline</h2>
-          <div className="flex items-center gap-4">
+        <div
+          data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-244"
+          className="flex justify-between items-center mb-6"
+        >
+          <h2
+            data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-h2-245"
+            className="text-[16px] font-bold"
+          >
+            Recruitment Pipeline
+          </h2>
+          <div
+            data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-246"
+            className="flex items-center gap-4"
+          >
             {jobId && (
-              <div className="text-[18px] text-[#4E4EF1] font-bold">
-                <span className="">Days to Hire:</span> {averageDaysToHire}
+              <div
+                data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-248"
+                className="text-[18px] text-[#4E4EF1] font-bold"
+              >
+                <span
+                  data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-span-249"
+                  className=""
+                >
+                  Days to Hire:
+                </span>{' '}
+                {averageDaysToHire}
               </div>
             )}
 
@@ -263,7 +315,10 @@ const RecruitmentPipeline = () => {
         </div>
 
         {/* Desktop Filters */}
-        <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div
+          data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-266"
+          className="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6"
+        >
           <Input
             placeholder="Search candidate"
             value={search}
@@ -318,9 +373,18 @@ const RecruitmentPipeline = () => {
         </div>
 
         {/* Mobile Filters */}
-        <div className="md:hidden">
-          <div className="flex justify-between gap-4 w-full mb-6">
-            <div className="flex-1">
+        <div
+          data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-321"
+          className="md:hidden"
+        >
+          <div
+            data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-322"
+            className="flex justify-between gap-4 w-full mb-6"
+          >
+            <div
+              data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-323"
+              className="flex-1"
+            >
               <Input
                 placeholder="Search candidate"
                 value={search}
@@ -328,7 +392,7 @@ const RecruitmentPipeline = () => {
                 className="w-full h-12"
               />
             </div>
-            <div>
+            <div data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-331">
               <CustomButton
                 type="default"
                 size="small"
@@ -353,7 +417,10 @@ const RecruitmentPipeline = () => {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={
-          <div className="flex gap-2 justify-center mt-4">
+          <div
+            data-cy="dashboard-components-adminpanel-recruitmentpipeline-tsx-recruitmentpipeline-div-356"
+            className="flex gap-2 justify-center mt-4"
+          >
             <CustomButton
               onClick={() => setIsModalOpen(false)}
               className="px-6 py-2 border rounded-lg text-sm text-gray-900"

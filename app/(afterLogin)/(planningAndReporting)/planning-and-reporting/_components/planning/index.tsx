@@ -32,6 +32,7 @@ import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import { transformToPlanSummary } from '../dataTransformer/vamp';
 import { ViewMode, Cadence } from '../types';
+import { formatPlanningReportDate } from '../utils';
 
 function Planning() {
   const {
@@ -358,35 +359,19 @@ function Planning() {
     return !!activeSession;
   };
 
-  const getDateLabel = (createdAt: string, activeTabName: string): string => {
-    const planDate = dayjs(createdAt);
-    const today = dayjs();
-
-    if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
-      return "Today's Plan";
-    }
-
-    if (activeTabName === 'Weekly') {
-      const thisFriday = dayjs().day(5);
-      const adjustedThisFriday =
-        today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
-      const lastFriday = adjustedThisFriday.subtract(7, 'day');
-
-      if (
-        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
-        (planDate.isSame(adjustedThisFriday, 'day') ||
-          planDate.isBefore(adjustedThisFriday))
-      ) {
-        return 'This Week Plan';
-      }
-    }
-
-    return '';
+  const getDateLabel = (createdAt: string): string => {
+    return formatPlanningReportDate(createdAt);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pb-4">
+    <div
+      data-cy="planning-and-reporting-components-planning-index-tsx-index-div-388"
+      className="min-h-screen bg-gray-100"
+    >
+      <div
+        data-cy="planning-and-reporting-components-planning-index-tsx-index-div-389"
+        className="flex flex-wrap items-center justify-center md:justify-start gap-3 pb-4"
+      >
         <Select
           className="w-full min-w-[180px] flex-1 md:w-auto [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!py-2.5 [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&_.ant-select-selection-placeholder]:!leading-7 [&_.ant-select-selection-placeholder]:!pt-0 [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-item]:!leading-7 [&_.ant-select-selection-item]:!pt-0 [&.ant-select]:!h-12 [&.ant-select-focused_.ant-select-selector]:!border-[#574CFF] [&.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(87,76,255,0.1)] [&.ant-select-focused_.ant-select-selector]:!bg-[#F5F5F7] [&.ant-select-open_.ant-select-selector]:!bg-[#F5F5F7]"
           placeholder="Select employee"
@@ -405,7 +390,10 @@ function Planning() {
           }
           notFoundContent={!employeeData ? 'Loading...' : 'No employees found'}
         />
-        <div className="hidden md:contents">
+        <div
+          data-cy="planning-and-reporting-components-planning-index-tsx-index-div-408"
+          className="hidden md:contents"
+        >
           <Select
             id="planning-plan-type-select"
             data-cy="planning-plan-type-select"
@@ -457,7 +445,10 @@ function Planning() {
                   : ''
           }
         >
-          <div style={{ display: 'inline-block' }}>
+          <div
+            data-cy="planning-and-reporting-components-planning-index-tsx-index-div-460"
+            style={{ display: 'inline-block' }}
+          >
             {userPlanningPeriodId && (
               <CustomButton
                 disabled={
@@ -467,7 +458,10 @@ function Planning() {
                 }
                 loading={isLoading}
                 title={
-                  <span className="hidden sm:block">
+                  <span
+                    data-cy="planning-and-reporting-components-planning-index-tsx-index-span-470"
+                    className="hidden sm:block"
+                  >
                     {`Create ${activeTabName} Plan`}
                   </span>
                 }
@@ -481,8 +475,14 @@ function Planning() {
         </Tooltip>
       </div>
 
-      <section className="mt-8">
-        <div className="space-y-6">
+      <section
+        data-cy="planning-and-reporting-components-planning-index-tsx-index-section-484"
+        className="mt-8"
+      >
+        <div
+          data-cy="planning-and-reporting-components-planning-index-tsx-index-div-485"
+          className="space-y-6"
+        >
           {getPlanningLoading
             ? Array.from({ length: 3 }).map((unusedItem, i) => (
                 <PlanCardSkeleton key={i} />
@@ -529,8 +529,7 @@ function Planning() {
                     }
                     isApprovalLoading={isApprovalLoading}
                     dateLabel={getDateLabel(
-                      originalDataItem?.createdAt,
-                      activeTabName,
+                      originalDataItem?.createdAt ?? '',
                     )}
                   />
                 );
@@ -580,10 +579,16 @@ function Planning() {
           pageSizeOptions={['10', '20', '50', '100']}
         /> */}
 
-      {transformedData?.length <= 0 && (
-        <div className="flex justify-center">
-          <div>
-            <p className="flex justify-center items-center h-[200px]">
+      {!getPlanningLoading && transformedData?.length <= 0 && (
+        <div
+          data-cy="planning-and-reporting-components-planning-index-tsx-index-div-584"
+          className="flex justify-center"
+        >
+          <div data-cy="planning-and-reporting-components-planning-index-tsx-index-div-585">
+            <p
+              data-cy="planning-and-reporting-components-planning-index-tsx-index-p-586"
+              className="flex justify-center items-center h-[200px]"
+            >
               <Image
                 src="/image/undraw_empty_re_opql 1.svg"
                 width={300}
@@ -591,7 +596,10 @@ function Planning() {
                 alt="Picture of the author"
               />
             </p>
-            <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+            <p
+              data-cy="planning-and-reporting-components-planning-index-tsx-index-p-594"
+              className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
+            >
               There is no Planned data !!
             </p>
           </div>

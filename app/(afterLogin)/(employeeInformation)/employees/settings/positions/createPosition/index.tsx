@@ -93,7 +93,10 @@ const CreatePosition: React.FC = () => {
             id="positionTitle"
             name="name"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                className="text-md my-2 font-semibold text-gray-700"
+                data-cy="create-position-name-label"
+              >
                 Position Name
               </span>
             }

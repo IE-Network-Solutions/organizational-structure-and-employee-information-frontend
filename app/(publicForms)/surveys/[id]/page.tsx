@@ -65,7 +65,7 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
   }
 
   return (
-    <div>
+    <div data-cy="-publicforms-surveys-id-page-tsx-page-div-68">
       {isLoading ?? <Spin className="flex justify-center align-middle" />}
       <Form
         labelCol={{ span: 4 }}
@@ -90,15 +90,23 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
         }}
         form={form}
       >
-        <h2>{publicForm?.name}</h2>
+        <h2 data-cy="-publicforms-surveys-id-page-tsx-page-h2-93">
+          {publicForm?.name}
+        </h2>
         {publicForm?.questions?.map((q: any, index: number) => (
           <Row gutter={16} key={q.id}>
             <Col xs={24} sm={24}>
               <Form.Item
                 key={q.id}
                 label={
-                  <div className="my-2 font-semibold">
-                    <span>{index + 1}.</span> {q.question}
+                  <div
+                    data-cy="-publicforms-surveys-id-page-tsx-page-div-100"
+                    className="my-2 font-semibold"
+                  >
+                    <span data-cy="-publicforms-surveys-id-page-tsx-page-span-101">
+                      {index + 1}.
+                    </span>{' '}
+                    {q.question}
                   </div>
                 }
                 name={`question_${q.id}`}

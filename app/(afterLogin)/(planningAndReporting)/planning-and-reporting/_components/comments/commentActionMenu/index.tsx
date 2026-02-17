@@ -24,7 +24,12 @@ const CommentActionMenu = ({
           okText="Yes"
           cancelText="No"
         >
-          <span className="w-full inline-block">Delete</span>
+          <span
+            data-cy="-components-comments-commentactionmenu-index-tsx-index-span-27"
+            className="w-full inline-block"
+          >
+            Delete
+          </span>
         </Popconfirm>
       ),
       icon: <DeleteOutlined />,

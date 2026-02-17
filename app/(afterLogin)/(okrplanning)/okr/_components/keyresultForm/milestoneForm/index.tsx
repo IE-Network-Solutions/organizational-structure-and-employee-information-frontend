@@ -107,7 +107,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
           <div
             id={`okr-milestone-mobile-wrapper-${index}`}
             data-cy={`okr-milestone-mobile-wrapper-${index}`}
-            className="flex flex-col gap-2 mt-4 mx-4"
+            className="flex flex-col gap-2 mt-4"
           >
             {/* Row 1: Key Result Name */}
             <div
@@ -255,7 +255,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             <div
               id={`okr-milestone-mobile-list-${index}`}
               data-cy={`okr-milestone-mobile-list-${index}`}
-              className="flex flex-col gap-2 pl-4"
+              className="flex flex-col gap-2"
             >
               {/* First milestone row (always present) */}
               <div
@@ -318,12 +318,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     viewBox="0 0 20 20"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
+                    data-cy={`okr-milestone-mobile-remove-icon-${index}`}
                   >
                     <path
                       d="M6 6L14 14M6 14L14 6"
                       stroke="white"
                       strokeWidth="2"
                       strokeLinecap="round"
+                      data-cy={`okr-milestone-mobile-remove-path-${index}`}
                     />
                   </svg>
                 </button>
@@ -403,6 +405,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       viewBox="0 0 20 20"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
+                      data-cy={`okr-milestone-desktop-remove-svg-${mIndex + 1}-${index}`}
                     >
                       <path
                         d="M6 6L14 14M6 14L14 6"
@@ -634,6 +637,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       viewBox="0 0 20 20"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
+                      data-cy={`okr-milestone-desktop-remove-svg-0-${index}`}
                     >
                       <path
                         d="M6 6L14 14M6 14L14 6"
@@ -727,12 +731,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         viewBox="0 0 20 20"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
+                        data-cy={`okr-milestone-desktop-remove-icon-${mIndex + 1}-${index}`}
                       >
                         <path
                           d="M6 6L14 14M6 14L14 6"
                           stroke="white"
                           strokeWidth="2"
                           strokeLinecap="round"
+                          data-cy={`okr-milestone-desktop-remove-icon-path-${mIndex + 1}-${index}`}
                         />
                       </svg>
                     </button>

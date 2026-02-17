@@ -166,7 +166,10 @@ const EditCandidate: React.FC = () => {
             data-cy="talent-acquisition-edit-candidate-form-item-full-name"
             name="fullName"
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editcandidate-index-tsx-index-span-169"
+                className="text-md font-semibold text-gray-700"
+              >
                 Full-Name
               </span>
             }
@@ -186,7 +189,10 @@ const EditCandidate: React.FC = () => {
                 data-cy="talent-acquisition-edit-candidate-form-item-email"
                 name="email"
                 label={
-                  <span className="text-md font-semibold text-gray-700">
+                  <span
+                    data-cy="-components-modals-editcandidate-index-tsx-index-span-189"
+                    className="text-md font-semibold text-gray-700"
+                  >
                     Email Address
                   </span>
                 }
@@ -216,7 +222,10 @@ const EditCandidate: React.FC = () => {
                 data-cy="talent-acquisition-edit-candidate-form-item-phone"
                 name="phone"
                 label={
-                  <span className="text-md font-semibold text-gray-700">
+                  <span
+                    data-cy="-components-modals-editcandidate-index-tsx-index-span-219"
+                    className="text-md font-semibold text-gray-700"
+                  >
                     Phone Number
                   </span>
                 }
@@ -245,7 +254,10 @@ const EditCandidate: React.FC = () => {
                 id="jobId"
                 name="jobInformationId"
                 label={
-                  <span className="text-md font-semibold text-gray-700">
+                  <span
+                    data-cy="-components-modals-editcandidate-index-tsx-index-span-248"
+                    className="text-md font-semibold text-gray-700"
+                  >
                     Job
                   </span>
                 }
@@ -276,7 +288,10 @@ const EditCandidate: React.FC = () => {
                 id="cgpaId"
                 name="CGPA"
                 label={
-                  <span className="text-md font-semibold text-gray-700">
+                  <span
+                    data-cy="-components-modals-editcandidate-index-tsx-index-span-279"
+                    className="text-md font-semibold text-gray-700"
+                  >
                     CGPA
                   </span>
                 }
@@ -313,7 +328,10 @@ const EditCandidate: React.FC = () => {
             id="coverLetterId"
             name="coverLetter"
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editcandidate-index-tsx-index-span-316"
+                className="text-md font-semibold text-gray-700"
+              >
                 Cover Letter
               </span>
             }
@@ -332,7 +350,10 @@ const EditCandidate: React.FC = () => {
             data-cy="talent-acquisition-edit-candidate-form-item-upload-cv"
             name="resumeUrl"
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editcandidate-index-tsx-index-span-335"
+                className="text-md font-semibold text-gray-700"
+              >
                 Upload CV
               </span>
             }
@@ -351,7 +372,10 @@ const EditCandidate: React.FC = () => {
               listType="picture"
               accept="application/pdf"
             >
-              <p className="flex items-center justify-center">
+              <p
+                data-cy="-components-modals-editcandidate-index-tsx-index-p-354"
+                className="flex items-center justify-center"
+              >
                 <Image
                   src={cvUpload.src}
                   alt="Loading"
@@ -364,8 +388,13 @@ const EditCandidate: React.FC = () => {
                 data-cy="talent-acquisition-edit-candidate-div-upload-cv-info"
                 className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
               >
-                <p>Upload your CV</p>
-                <p className="text-gray-400 text-sm font-normal">
+                <p data-cy="-components-modals-editcandidate-index-tsx-index-p-367">
+                  Upload your CV
+                </p>
+                <p
+                  data-cy="-components-modals-editcandidate-index-tsx-index-p-368"
+                  className="text-gray-400 text-sm font-normal"
+                >
                   or drag and drop it here
                 </p>
               </div>
@@ -382,7 +411,10 @@ const EditCandidate: React.FC = () => {
             id="resumeUrlId"
             name="resumeUrl"
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editcandidate-index-tsx-index-span-385"
+                className="text-md font-semibold text-gray-700"
+              >
                 Resume
               </span>
             }
@@ -402,7 +434,12 @@ const EditCandidate: React.FC = () => {
                 Download Resume
               </a>
             ) : (
-              <span className="text-gray-500">No resume uploaded</span>
+              <span
+                data-cy="-components-modals-editcandidate-index-tsx-index-span-405"
+                className="text-gray-500"
+              >
+                No resume uploaded
+              </span>
             )}
           </Form.Item>
 

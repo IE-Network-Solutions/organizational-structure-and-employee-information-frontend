@@ -107,11 +107,15 @@ const UserTable = () => {
       employee_name: (
         <Tooltip
           title={
-            <>
-              {fullName}
-              <br />
-              {shortEmail}
-            </>
+            <div data-cy={`user-table-employee-tooltip-content-${item?.id}`}>
+              <span data-cy={`user-table-employee-tooltip-name-${item?.id}`}>
+                {fullName}
+              </span>
+              <br data-cy={`user-table-employee-tooltip-break-${item?.id}`} />
+              <span data-cy={`user-table-employee-tooltip-email-${item?.id}`}>
+                {shortEmail}
+              </span>
+            </div>
           }
           id={`user-table-employee-tooltip-${item?.id}`}
           data-cy={`user-table-employee-tooltip-${item?.id}`}

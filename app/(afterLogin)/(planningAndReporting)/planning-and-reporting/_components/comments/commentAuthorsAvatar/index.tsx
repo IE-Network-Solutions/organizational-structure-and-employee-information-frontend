@@ -72,6 +72,7 @@ const CommentAuthorsAvatars = (data: CommentsData[]) => {
             background: '#f0f0f0',
             borderRadius: '50%',
           }}
+          data-cy="planningandreporting-planning-and-reporting-components-comments-commentauthorsavatar-index-tsx-div-67"
         >
           +{extraCount}
         </div>

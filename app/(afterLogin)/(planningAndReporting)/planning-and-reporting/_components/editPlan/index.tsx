@@ -113,11 +113,17 @@ function EditPlan() {
   };
 
   const modalHeader = (
-    <div className="relative flex items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <div>
+    <div
+      data-cy="planning-and-reporting-components-editplan-index-tsx-index-div-116"
+      className="relative flex items-center justify-center text-xl font-extrabold text-gray-800 p-4"
+    >
+      <div data-cy="planning-and-reporting-components-editplan-index-tsx-index-div-117">
         Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
       </div>
-      <div className="absolute right-4 top-1/2 -translate-y-1/2">
+      <div
+        data-cy="planning-and-reporting-components-editplan-index-tsx-index-div-120"
+        className="absolute right-4 top-1/2 -translate-y-1/2"
+      >
         {/* AI Suggestions for all plan types */}
         <AISuggestionsModal
           getKeyResults={() => {
@@ -251,42 +257,78 @@ function EditPlan() {
         return;
       }
 
-      const uniqueTaskIds = new Set();
+      // Group tasks by their key (namesKey) to prevent duplication
+      const tasksByKey: Record<string, any[]> = {};
+      const uniqueTaskIds = new Set<string>();
 
       tasks.forEach((e: any) => {
         if (!e?.id) return; // Skip invalid tasks
+
+        // Skip if we've already processed this task ID
+        if (uniqueTaskIds.has(e?.id)) {
+          return;
+        }
 
         const hasMilestone = e?.milestone !== null;
         const name = hasMilestone
           ? `${e?.keyResult?.id + e?.milestone?.id + (e?.parentTaskId || '')}`
           : `${e?.keyResult?.id + (e?.parentTaskId || '')}`;
+        const namesKey = `names-${name}`;
 
-        // Ensure no duplicates
-        if (!uniqueTaskIds.has(e?.id)) {
-          uniqueTaskIds.add(e?.id);
-
-          handleAddName(
-            {
-              id: e?.id,
-              milestoneId: e?.milestone?.id || null,
-              keyResultId: e?.keyResult?.id || null,
-              planningPeriodId,
-              planningUserId,
-              userId: userId || '',
-              task: e?.task || '',
-              priority: e?.priority || '',
-              weight: parseInt(e?.weight, 10) || 0,
-              targetValue: e?.targetValue || 0,
-              achieveMK: e?.achieveMK || null,
-              planId,
-            },
-            name,
-          );
+        // Initialize array if it doesn't exist
+        if (!tasksByKey[namesKey]) {
+          tasksByKey[namesKey] = [];
         }
+
+        // Add task to the group
+        tasksByKey[namesKey].push({
+          id: e?.id,
+          milestoneId: e?.milestone?.id || null,
+          keyResultId: e?.keyResult?.id || null,
+          planningPeriodId,
+          planningUserId,
+          userId: userId || '',
+          task: e?.task || '',
+          priority: e?.priority || '',
+          weight: parseInt(e?.weight, 10) || 0,
+          targetValue: e?.targetValue || 0,
+          achieveMK: e?.achieveMK || null,
+          planId: planId,
+        });
+
+        uniqueTaskIds.add(e?.id);
       });
+
+      // Clear existing form fields for all keys that will be set
+      const formValues: Record<string, any> = {};
+      Object.keys(tasksByKey).forEach((key) => {
+        formValues[key] = [];
+      });
+
+      // Set all tasks at once, grouped by their key
+      Object.entries(tasksByKey).forEach(([namesKey, taskArray]) => {
+        // Add planId to each task
+        const tasksWithPlanId = taskArray.map((task) => ({
+          ...task,
+          planId: planId,
+        }));
+        formValues[namesKey] = tasksWithPlanId;
+
+        // Calculate and set weight for this key
+        const totalWeight = tasksWithPlanId.reduce(
+          (sum: number, field: { weight?: number }) => {
+            return Number(sum) + Number(field?.weight ?? 0);
+          },
+          0,
+        );
+        setWeight(namesKey, totalWeight);
+      });
+
+      // Set all form values at once to prevent duplication
+      form.setFieldsValue(formValues);
     };
 
-    if (!planGroupData) return;
+    if (!planGroupData || !isEditing || !open) return;
 
     const planningUserId = planGroupData?.planningUser?.id;
     const userId = planGroupData?.planningUser?.userId;
@@ -310,12 +352,21 @@ function EditPlan() {
       planningPeriodId,
       planGroupData?.id,
     );
-  }, [planningPeriodHierarchy, selectedPlanId, planGroupData, selectParentId]); // Ensure proper re-execution
+  }, [planningPeriodHierarchy, selectedPlanId, planGroupData, selectParentId, isEditing, open, form, setWeight]); // Ensure proper re-execution
 
   const footer = (
-    <div className="flex items-center justify-between w-full">
-      <div className="flex-1"></div>
-      <div className="flex justify-center gap-4 flex-1">
+    <div
+      data-cy="planning-and-reporting-components-editplan-index-tsx-index-div-316"
+      className="flex items-center justify-between w-full"
+    >
+      <div
+        data-cy="planning-and-reporting-components-editplan-index-tsx-index-div-317"
+        className="flex-1"
+      ></div>
+      <div
+        data-cy="planning-and-reporting-components-editplan-index-tsx-index-div-318"
+        className="flex justify-center gap-4 flex-1"
+      >
         <Tooltip
           title={
             totalWeight !== 100
@@ -346,10 +397,26 @@ function EditPlan() {
           Cancel
         </Button>
       </div>
-      <div className="flex-1 flex justify-end pr-5">
-        <div className="my-2 font-bold mx-0 whitespace-nowrap">
-          <span className="hidden md:inline">Weight Point: </span>
-          <span className="md:hidden">WP: </span>
+      <div
+        data-cy="planning-and-reporting-components-editplan-index-tsx-index-div-349"
+        className="flex-1 flex justify-end pr-5"
+      >
+        <div
+          data-cy="planning-and-reporting-components-editplan-index-tsx-index-div-350"
+          className="my-2 font-bold mx-0 whitespace-nowrap"
+        >
+          <span
+            data-cy="planning-and-reporting-components-editplan-index-tsx-index-span-351"
+            className="hidden md:inline"
+          >
+            Weight Point:{' '}
+          </span>
+          <span
+            data-cy="planning-and-reporting-components-editplan-index-tsx-index-span-352"
+            className="md:hidden"
+          >
+            WP:{' '}
+          </span>
           {Math.round(Number(totalWeight) || 0)}%
         </div>
       </div>
@@ -367,7 +434,10 @@ function EditPlan() {
         footer={footer}
       >
         {loadingPlanningPeriodHierarchy || loadingPlanGroupData ? (
-          <div className="flex items-center justify-center min-h-screen">
+          <div
+            data-cy="planning-and-reporting-components-editplan-index-tsx-index-div-370"
+            className="flex items-center justify-center min-h-screen"
+          >
             <Spin size="large" tip="Loading...." />
           </div>
         ) : (

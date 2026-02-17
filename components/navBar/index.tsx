@@ -1,5 +1,11 @@
 'use client';
-import React, { ReactNode, useState, useEffect, useRef } from 'react';
+import React, {
+  ReactNode,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
 import {
@@ -87,7 +93,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
     useCopilotStore();
+  const [isMounted, setIsMounted] = useState(false);
   const pathName = usePathname();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -137,7 +148,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   useEffect(() => {
     refetch();
-  }, [token]);
+  }, [token, refetch]);
 
   const hasEndedFiscalYear =
     !!activeFiscalYear?.isActive &&
@@ -226,7 +237,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               expandedKeys.includes('/organization') ? 'text-blue' : ''
             }
           />
-          <span>Organization</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-230">
+            Organization
+          </span>
         </span>
       ),
       key: '/organization',
@@ -235,14 +248,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Org Structure</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-239">
+              Org Structure
+            </span>
+          ),
           key: '/organization/chart',
           className: 'font-bold',
           permissions: ['view_organization_chart'],
           disabled: hasEndedFiscalYear,
         },
         {
-          title: <span>Settings</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-246">
+              Settings
+            </span>
+          ),
           key: '/organization/settings',
           className: 'font-bold',
           permissions: ['view_organization_settings'],
@@ -251,12 +272,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-255"
+          className="flex items-center gap-2 h-12"
+        >
           <LuUsers
             size={18}
             className={expandedKeys.includes('/employees') ? 'text-blue' : ''}
           />
-          <span>Employees</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-260">
+            Employees
+          </span>
         </span>
       ),
       key: '/employees',
@@ -265,7 +291,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Manage Employees</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-269">
+              Manage Employees
+            </span>
+          ),
           key: '/employees/manage-employees',
           className: 'font-bold',
           permissions: ['manage_employees'],
@@ -277,7 +307,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         //   permissions: ['manage_department_requests'],
         // },
         {
-          title: <span>Settings</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-281">
+              Settings
+            </span>
+          ),
           key: '/employees/settings',
           className: 'font-bold',
           permissions: ['manage_employee_settings'],
@@ -286,12 +320,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-290"
+          className="flex items-center gap-2 h-12"
+        >
           <PiSuitcaseSimpleThin
             size={18}
             className={expandedKeys.includes('/recruitment') ? 'text-blue' : ''}
           />
-          <span>Talent Acquisition</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-295">
+            Talent Acquisition
+          </span>
         </span>
       ),
       key: '/recruitment',
@@ -300,19 +339,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Dashboard</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-304">
+              Dashboard
+            </span>
+          ),
           key: '/recruitment/dashboard',
           className: 'font-bold',
           permissions: ['view_recruitment_dashboard'],
         },
         {
-          title: <span>Jobs</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-310">
+              Jobs
+            </span>
+          ),
           key: '/recruitment/jobs',
           className: 'font-bold',
           permissions: ['manage_recruitment_jobs'],
         },
         {
-          title: <span>AI Job Matching</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-316">
+              AI Job Matching
+            </span>
+          ),
           key: '/recruitment/ai-job-matching',
           className: 'font-bold',
           permissions: ['manage_recruitment_jobs'],
@@ -320,19 +371,34 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           //  || isSubscriptionExpired,
         },
         {
-          title: <span>Candidates</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-324">
+              Candidates
+            </span>
+          ),
           key: '/recruitment/candidate',
           className: 'font-bold',
           permissions: ['manage_recruitment_candidates'],
         },
         {
-          title: <span>Talent Resource</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-330">
+              Talent Resource
+            </span>
+          ),
           key: '/recruitment/talent-resource',
           className: 'font-bold',
           permissions: ['manage_recruitment_talent_pool'],
         },
         {
-          title: <span className="font-bold">Settings</span>,
+          title: (
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-336"
+              className="font-bold"
+            >
+              Settings
+            </span>
+          ),
           key: '/recruitment/settings',
           className: 'font-bold',
           permissions: ['manage_recruitment_settings'],
@@ -341,12 +407,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-345"
+          className="flex items-center gap-2 h-12"
+        >
           <CiStar
             size={18}
             className={expandedKeys.includes('/okr-menu') ? 'text-blue' : ''}
           />
-          <span>OKR</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-350">
+            OKR
+          </span>
         </span>
       ),
       key: '/okr-menu',
@@ -355,31 +426,51 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Dashboard</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-359">
+              Dashboard
+            </span>
+          ),
           key: '/okr/dashboard',
           className: 'font-bold',
           permissions: ['view_okr_dashboard'],
         },
         {
-          title: <span>OKR</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-365">
+              OKR
+            </span>
+          ),
           key: '/okr',
           className: 'font-bold',
           permissions: ['view_okr_overview'],
         },
         {
-          title: <span>Planning and Reporting</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-371">
+              Planning and Reporting
+            </span>
+          ),
           key: '/planning-and-reporting',
           className: 'font-bold',
           permissions: ['manage_planning_reporting'],
         },
         {
-          title: <span>Weekly Priority</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-377">
+              Weekly Priority
+            </span>
+          ),
           key: '/weekly-priority',
           className: 'font-bold h-8',
           permissions: ['view_weekly_priority'],
         },
         {
-          title: <span>Settings</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-383">
+              Settings
+            </span>
+          ),
           key: '/okr/settings',
           className: 'font-bold',
           permissions: ['manage_okr_settings'],
@@ -388,14 +479,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-392"
+          className="flex items-center gap-2 h-12"
+        >
           <TbMessage2
             size={18}
             className={
               expandedKeys.includes('feedback-menu') ? 'text-blue' : ''
             }
           />
-          <span>CFR</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-399">
+            CFR
+          </span>
         </span>
       ),
       key: 'feedback-menu',
@@ -404,19 +500,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Conversation</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-408">
+              Conversation
+            </span>
+          ),
           key: '/feedback/conversation',
           className: 'font-bold',
           permissions: ['view_feedback_conversation'],
         },
         {
-          title: <span>Feedback</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-414">
+              Feedback
+            </span>
+          ),
           key: '/feedback/feedback',
           className: 'font-bold',
           permissions: ['view_feedback_list'],
         },
         {
-          title: <span>Recognition</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-420">
+              Recognition
+            </span>
+          ),
           key: '/feedback/recognition',
           className: 'font-bold',
           permissions: ['view_feedback_recognition'],
@@ -431,12 +539,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-435"
+          className="flex items-center gap-2 h-12"
+        >
           <CiBookmark
             size={18}
             className={expandedKeys.includes('tna-menu') ? 'text-blue' : ''}
           />
-          <span>Learning & Growth</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-440">
+            Learning & Growth
+          </span>
         </span>
       ),
       key: 'tna-menu',
@@ -454,7 +567,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         // },
         {
-          title: <span>Training Management</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-458">
+              Training Management
+            </span>
+          ),
           key: '/tna/management',
           className: 'font-bold',
           permissions: ['manage_training'],
@@ -469,7 +586,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         // },
         {
-          title: <span>Settings</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-473">
+              Settings
+            </span>
+          ),
           key: '/tna/settings/course-category',
           className: 'font-bold',
           permissions: ['manage_tna_settings'],
@@ -478,14 +599,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-482"
+          className="flex items-center gap-2 h-12"
+        >
           <AiOutlineDollarCircle
             size={18}
             className={
               expandedKeys.includes('/payroll-menu') ? 'text-blue' : ''
             }
           />
-          <span>Payroll</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-489">
+            Payroll
+          </span>
         </span>
       ),
       key: '/payroll-menu',
@@ -494,25 +620,41 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Employee Information</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-498">
+              Employee Information
+            </span>
+          ),
           key: '/employee-information',
           className: 'font-bold',
           permissions: ['view_employee_information'],
         },
         {
-          title: <span>Payroll</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-504">
+              Payroll
+            </span>
+          ),
           key: '/payroll',
           className: 'font-bold',
           permissions: ['view_payroll_overview'],
         },
         {
-          title: <span>My Payroll</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-510">
+              My Payroll
+            </span>
+          ),
           key: '/myPayroll',
           className: 'font-bold',
           permissions: ['view_my_payroll'],
         },
         {
-          title: <span>Settings</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-516">
+              Settings
+            </span>
+          ),
           key: '/settings',
           className: 'font-bold',
           permissions: ['manage_payroll_settings'],
@@ -521,14 +663,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-525"
+          className="flex items-center gap-2 h-12"
+        >
           <CiCalendar
             size={18}
             className={
               expandedKeys.includes('timesheet-menu') ? 'text-blue' : ''
             }
           />
-          <span>Time & Attendance</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-532">
+            Time & Attendance
+          </span>
         </span>
       ),
       key: 'timesheet-menu',
@@ -537,31 +684,51 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Dashboard</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-541">
+              Dashboard
+            </span>
+          ),
           key: '/timesheet/dashboard',
           className: 'font-bold',
           permissions: ['view_timesheet_dashboard'],
         },
         {
-          title: <span>My Timesheet</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-547">
+              My Timesheet
+            </span>
+          ),
           key: '/timesheet/my-timesheet',
           className: 'font-bold',
           permissions: ['view_my_timesheet'],
         },
         {
-          title: <span>Employee Attendance</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-553">
+              Employee Attendance
+            </span>
+          ),
           key: '/timesheet/employee-attendance',
           className: 'font-bold',
           permissions: ['view_employee_attendance'],
         },
         {
-          title: <span>Leave Management</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-559">
+              Leave Management
+            </span>
+          ),
           key: '/timesheet/leave-management/leaves',
           className: 'font-bold',
           permissions: ['manage_leave_management'],
         },
         {
-          title: <span>Settings</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-565">
+              Settings
+            </span>
+          ),
           key: '/timesheet/settings/closed-date',
           className: 'font-bold',
           permissions: ['manage_timesheet_settings'],
@@ -570,14 +737,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-574"
+          className="flex items-center gap-2 h-12"
+        >
           <PiMoneyLight
             size={18}
             className={
               expandedKeys.includes('compensation-menu') ? 'text-blue' : ''
             }
           />
-          <span>Compensation & Benefit</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-581">
+            Compensation & Benefit
+          </span>
         </span>
       ),
       key: 'compensation-menu',
@@ -586,25 +758,41 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Allowance</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-590">
+              Allowance
+            </span>
+          ),
           key: '/allowance',
           className: 'font-bold',
           permissions: ['view_allowance'],
         },
         {
-          title: <span>Benefit</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-596">
+              Benefit
+            </span>
+          ),
           key: '/benefit',
           className: 'font-bold',
           permissions: ['view_benefit'],
         },
         {
-          title: <span>Deduction</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-602">
+              Deduction
+            </span>
+          ),
           key: '/deduction',
           className: 'font-bold',
           permissions: ['view_deduction'],
         },
         {
-          title: <span>Settings</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-608">
+              Settings
+            </span>
+          ),
           key: '/compensationSetting',
           className: 'font-bold',
           permissions: ['manage_compensation_settings'],
@@ -613,14 +801,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-617"
+          className="flex items-center gap-2 h-12"
+        >
           <LuCircleDollarSign
             size={18}
             className={
               expandedKeys.includes('incentive-menu') ? 'text-blue' : ''
             }
           />
-          <span>Incentives</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-624">
+            Incentives
+          </span>
         </span>
       ),
       key: 'incentive-menu',
@@ -629,19 +822,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Incentive</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-633">
+              Incentive
+            </span>
+          ),
           key: '/incentives',
           className: 'font-bold',
           permissions: ['view_incentive_page'],
         },
         {
-          title: <span>Variable Pay</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-639">
+              Variable Pay
+            </span>
+          ),
           key: '/variable-pay',
           className: 'font-bold',
           permissions: ['view_variable_pay'],
         },
         {
-          title: <span>Settings</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-645">
+              Settings
+            </span>
+          ),
           key: '/incentives/settings',
           className: 'font-bold',
           permissions: ['manage_incentive_settings'],
@@ -650,12 +855,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-654"
+          className="flex items-center gap-2 h-12"
+        >
           <FileTextOutlined
             style={{ fontSize: 18 }}
             className={expandedKeys.includes('/audit-log') ? 'text-blue' : ''}
           />
-          <span>Audit Log</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-659">
+            Audit Log
+          </span>
         </span>
       ),
       key: '/audit-log',
@@ -665,12 +875,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       title: (
-        <span className="flex items-center gap-2 h-12">
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-669"
+          className="flex items-center gap-2 h-12"
+        >
           <CiSettings
             size={18}
             className={expandedKeys.includes('admin-menu') ? 'text-blue' : ''}
           />
-          <span>Admin</span>
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-674">
+            Admin
+          </span>
         </span>
       ),
       key: 'admin-menu',
@@ -679,19 +894,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
-          title: <span>Dashboard</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-683">
+              Dashboard
+            </span>
+          ),
           key: '/admin/dashboard',
           className: 'font-bold',
           permissions: ['view_admin_dashboard'],
         },
         {
-          title: <span>Billing and Invoice</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-689">
+              Billing and Invoice
+            </span>
+          ),
           key: '/admin/billing',
           className: 'font-bold',
           permissions: ['view_admin_billing'],
         },
         {
-          title: <span>Update Profile</span>,
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-695">
+              Update Profile
+            </span>
+          ),
           key: '/admin/profile',
           className: 'font-bold',
           permissions: ['view_admin_profile'],
@@ -823,7 +1050,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
     }
-  }, [departments, employeeData, router, isLoadingData, pathName, userId]);
+  }, [
+    departments,
+    employeeData,
+    router,
+    isLoadingData,
+    pathName,
+    userId,
+    setIsAddEmployeeJobInfoModalVisible,
+  ]);
 
   const handleOk = () => {
     router.push(`/employees/manage-employees/${userId}`);
@@ -849,36 +1084,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     };
 
     checkPermissions();
-  }, [pathname, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, router, setIsCheckingPermissions]);
 
-  const findParentMenuKey = (
-    pathname: string,
-    menuItems: CustomMenuItem[],
-  ): string | null => {
-    for (const item of menuItems) {
-      if (item.children) {
-        const matchesChild = item.children.some((child) => {
-          const childKey = String(child.key);
-          return (
-            pathname === childKey ||
-            pathname.startsWith(childKey + '/') ||
-            (childKey.includes('[id]') &&
-              pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
-          );
-        });
+  const findParentMenuKey = useCallback(
+    (pathname: string, menuItems: CustomMenuItem[]): string | null => {
+      for (const item of menuItems) {
+        if (item.children) {
+          const matchesChild = item.children.some((child) => {
+            const childKey = String(child.key);
+            return (
+              pathname === childKey ||
+              pathname.startsWith(childKey + '/') ||
+              (childKey.includes('[id]') &&
+                pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
+            );
+          });
 
-        if (matchesChild) {
-          return String(item.key);
-        }
+          if (matchesChild) {
+            return String(item.key);
+          }
 
-        const nestedParent = findParentMenuKey(pathname, item.children);
-        if (nestedParent) {
-          return String(item.key);
+          const nestedParent = findParentMenuKey(pathname, item.children);
+          if (nestedParent) {
+            return String(item.key);
+          }
         }
       }
-    }
-    return null;
-  };
+      return null;
+    },
+    [],
+  );
 
   useEffect(() => {
     saveExpandedKeysToStorage(expandedKeys);
@@ -898,7 +1134,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return prev;
       });
     }
-  }, [pathname]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, findParentMenuKey]);
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -1034,13 +1271,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return data.map((item) => {
       const renderSubMenu = (children: CustomMenuItem[]) => {
         return (
-          <div className="bg-white rounded-lg shadow-lg p-2 min-w-[200px] ml-12">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1038"
+            className="bg-white rounded-lg shadow-lg p-2 min-w-[200px] ml-12"
+          >
             {children.map((child) => (
               <div
                 key={child.key}
                 className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${
                   selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
                 }`}
+                data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1259"
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = String(child.key);
@@ -1063,7 +1304,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           const icon = (item.title.props as { children?: React.ReactNode[] })
             ?.children?.[0];
           return (
-            <div className="flex items-center justify-center w-full">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1067"
+              className="flex items-center justify-center w-full"
+            >
               {icon}
             </div>
           );
@@ -1076,11 +1320,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         title: collapsed ? (
           item.children && item.children.length > 0 ? (
             <Dropdown
-              overlay={renderSubMenu(item.children)}
+              dropdownRender={() =>
+                item.children ? renderSubMenu(item.children) : null
+              }
               trigger={['click']}
               placement="bottomRight"
             >
               <div
+                data-cy={`components-navbar-index-tsx-index-div-1306-${item.key}`}
                 className="flex items-center justify-center w-full cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1094,6 +1341,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </Dropdown>
           ) : (
             <div
+              data-cy={`components-navbar-index-tsx-index-div-1319-${item.key}`}
               className="flex items-center justify-center w-full cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
@@ -1178,14 +1426,29 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }}
         collapsedWidth={isMobile ? 80 : 80}
       >
-        <div className="my-2">{collapsed && <SimpleLogo />}</div>
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1182"
+          className="my-2"
+        >
+          {collapsed && <SimpleLogo />}
+        </div>
 
-        <div className="flex justify-between px-4 my-4">
-          <div className=" flex items-center gap-2">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1184"
+          className="flex justify-between px-4 my-4"
+        >
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1185"
+            className=" flex items-center gap-2"
+          >
             {!collapsed && <Logo type="selamnew" />}
           </div>
 
-          <div onClick={toggleCollapsed} className="text-black text-xl">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1189"
+            onClick={toggleCollapsed}
+            className="text-black text-xl"
+          >
             {collapsed ? (
               <MdOutlineKeyboardDoubleArrowRight />
             ) : (
@@ -1198,18 +1461,30 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             href="/dashboard"
             className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-5 mx-4 rounded-lg "
           >
-            <div className="text-black font-bold font-['Manrope'] leading-normal">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1202"
+              className="text-black font-bold font-['Manrope'] leading-normal"
+            >
               Dashboard
             </div>
             <AppstoreOutlined size={24} className="text-black" />
           </Button>
         )}
 
-        <div className="relative">
-          <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
-          {isLoading ? (
-            <div className="px-5 w-full h-full flex justify-center items-center my-5">
-              <Skeleton active />{' '}
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1209"
+          className="relative"
+        >
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1210"
+            className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"
+          ></div>
+          {!isMounted || isLoading ? (
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1212"
+              className="px-5 w-full h-full flex justify-center items-center my-5"
+            >
+              <Skeleton active />
             </div>
           ) : (
             <Tree
@@ -1253,7 +1528,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }}
         >
           {isMobile && (
-            <div className="w-full h-full p-[10px] flex justify-center items-center">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1257"
+              className="w-full h-full p-[10px] flex justify-center items-center"
+            >
               <Button
                 className="w-full h-full"
                 onClick={toggleMobileCollapsed}
@@ -1284,12 +1562,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             transition: 'padding-left 0.3s ease',
           }}
         >
-          {isCheckingPermissions ? (
-            <div className="flex justify-center items-center h-screen">
+          {isMounted && isCheckingPermissions ? (
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-div-1289"
+              className="flex justify-center items-center h-screen"
+            >
               <Skeleton active />
             </div>
           ) : (
             <div
+              data-cy="components-navbar-index-tsx-index-div-1548"
               className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
               style={{
                 borderRadius: borderRadiusLG,

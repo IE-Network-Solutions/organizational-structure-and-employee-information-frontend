@@ -29,7 +29,10 @@ const JobDescription = ({ params: { id } }: CategoryForms) => {
 
   if (ResponseLoading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white/50">
+      <div
+        data-cy="job-openpositions-id-page-tsx-page-div-32"
+        className="fixed inset-0 flex items-center justify-center bg-white/50"
+      >
         <Spin size="large" />
       </div>
     );
@@ -41,22 +44,34 @@ const JobDescription = ({ params: { id } }: CategoryForms) => {
       className="flex items-center justify-start gap-2 text-gray-800 "
     >
       <IoArrowBack />
-      <div>3D Designer</div>
+      <div data-cy="job-openpositions-id-page-tsx-page-div-44">3D Designer</div>
     </Link>
   );
   return (
-    <div>
+    <div data-cy="job-openpositions-id-page-tsx-page-div-48">
       <CustomBreadcrumb
         title={CustomBreadcrumbTitle}
         subtitle="Read the Job Description to apply"
       />
-      <div className="w-full rounded-lg p-4 bg-white px-32 flex flex-col gap-4">
-        <div className="text-2xl text-primary font-bold py-4 text-center">
+      <div
+        data-cy="job-openpositions-id-page-tsx-page-div-53"
+        className="w-full rounded-lg p-4 bg-white px-32 flex flex-col gap-4"
+      >
+        <div
+          data-cy="job-openpositions-id-page-tsx-page-div-54"
+          className="text-2xl text-primary font-bold py-4 text-center"
+        >
           Job Description
         </div>
-        <div className="flex flex-col justify-center gap-1">
-          <div>
-            <span className="text-md font-semibold text-gray-700">
+        <div
+          data-cy="job-openpositions-id-page-tsx-page-div-57"
+          className="flex flex-col justify-center gap-1"
+        >
+          <div data-cy="job-openpositions-id-page-tsx-page-div-58">
+            <span
+              data-cy="job-openpositions-id-page-tsx-page-span-59"
+              className="text-md font-semibold text-gray-700"
+            >
               Job Title
             </span>
           </div>
@@ -70,9 +85,15 @@ const JobDescription = ({ params: { id } }: CategoryForms) => {
 
         <Row gutter={16}>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-            <div className="flex flex-col justify-center gap-1">
-              <div>
-                <span className="text-md font-semibold text-gray-700">
+            <div
+              data-cy="job-openpositions-id-page-tsx-page-div-73"
+              className="flex flex-col justify-center gap-1"
+            >
+              <div data-cy="job-openpositions-id-page-tsx-page-div-74">
+                <span
+                  data-cy="job-openpositions-id-page-tsx-page-span-75"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Department
                 </span>
               </div>
@@ -85,9 +106,15 @@ const JobDescription = ({ params: { id } }: CategoryForms) => {
             </div>
           </Col>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-            <div className="flex flex-col justify-center gap-1">
-              <div>
-                <span className="text-md font-semibold text-gray-700">
+            <div
+              data-cy="job-openpositions-id-page-tsx-page-div-88"
+              className="flex flex-col justify-center gap-1"
+            >
+              <div data-cy="job-openpositions-id-page-tsx-page-div-89">
+                <span
+                  data-cy="job-openpositions-id-page-tsx-page-span-90"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Employment Type
                 </span>
               </div>
@@ -102,9 +129,15 @@ const JobDescription = ({ params: { id } }: CategoryForms) => {
         </Row>
         <Row gutter={16}>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-            <div className="flex flex-col justify-center gap-1">
-              <div>
-                <span className="text-md font-semibold text-gray-700">
+            <div
+              data-cy="job-openpositions-id-page-tsx-page-div-105"
+              className="flex flex-col justify-center gap-1"
+            >
+              <div data-cy="job-openpositions-id-page-tsx-page-div-106">
+                <span
+                  data-cy="job-openpositions-id-page-tsx-page-span-107"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Compensation
                 </span>
               </div>
@@ -117,9 +150,15 @@ const JobDescription = ({ params: { id } }: CategoryForms) => {
             </div>
           </Col>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-            <div className="flex flex-col justify-center gap-1">
-              <div>
-                <span className="text-md font-semibold text-gray-700">
+            <div
+              data-cy="job-openpositions-id-page-tsx-page-div-120"
+              className="flex flex-col justify-center gap-1"
+            >
+              <div data-cy="job-openpositions-id-page-tsx-page-div-121">
+                <span
+                  data-cy="job-openpositions-id-page-tsx-page-span-122"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Years of Experience
                 </span>
               </div>
@@ -143,7 +182,10 @@ const JobDescription = ({ params: { id } }: CategoryForms) => {
           autoSize={{ minRows: 10, maxRows: 10 }}
         />
       </div>
-      <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+      <div
+        data-cy="job-openpositions-id-page-tsx-page-div-146"
+        className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+      >
         <Button
           type="primary"
           className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"

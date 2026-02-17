@@ -135,7 +135,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900">Target Assignment</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-target-assignment-label"
+          >
+            Target Assignment
+          </p>
         ),
         className: currentItem === 'target-assignment' ? 'px-4' : 'px-1',
       },
@@ -238,6 +243,29 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'edit-access' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/edit-access',
+    },
+    {
+      item: {
+        key: 'okr-type',
+        icon: !isMobile ? (
+          <TbTarget
+            data-cy="okr-settings-layout-okr-type-icon-display-icon"
+            className={
+              currentItem === 'okr-type' ? 'text-[#4DAEF0]' : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-okr-type-label-display-label"
+          >
+            OKR Type
+          </p>
+        ),
+        className: currentItem === 'okr-type' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/okr-type',
     },
     {
       item: {

@@ -36,7 +36,12 @@ const EmergencyContactForm = () => {
             className="font-semibold text-xs"
             name={['emergencyContact', 'firstName']}
             label={
-              <span className="mb-1 font-semibold text-xs">First Name</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="emergency-contact-first-name-label"
+              >
+                First Name
+              </span>
             }
             id="emergencyContactFirstName"
             data-cy="emergencyContactFirstName"
@@ -68,7 +73,12 @@ const EmergencyContactForm = () => {
             className="font-semibold text-xs"
             name={['emergencyContact', 'middleName']}
             label={
-              <span className="mb-1 font-semibold text-xs">Middle Name</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="emergency-contact-middle-name-label"
+              >
+                Middle Name
+              </span>
             }
             id="emergencyContactMiddleName"
             data-cy="emergencyContactMiddleName"
@@ -99,7 +109,12 @@ const EmergencyContactForm = () => {
             className="font-semibold text-xs"
             name={['emergencyContact', 'lastName']}
             label={
-              <span className="mb-1 font-semibold text-xs">Last Name</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="emergency-contact-last-name-label"
+              >
+                Last Name
+              </span>
             }
             id="emergencyContactLastName"
             data-cy="emergencyContactLastName"
@@ -137,7 +152,12 @@ const EmergencyContactForm = () => {
             className="font-semibold text-xs"
             name={['emergencyContact', 'phoneNumber']}
             label={
-              <span className="mb-1 font-semibold text-xs">Phone Number</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="emergency-contact-phone-label"
+              >
+                Phone Number
+              </span>
             }
             id="phoneNumber"
             data-cy="phoneNumber"
@@ -167,7 +187,14 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'gender']}
-            label={<span className="mb-1 font-semibold text-xs">Gender</span>}
+            label={
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="emergency-contact-gender-label"
+              >
+                Gender
+              </span>
+            }
             id="emergencyContactGender"
             data-cy="emergencyContactGender"
             rules={[{ required: true }]}
@@ -211,7 +238,12 @@ const EmergencyContactForm = () => {
             className="font-semibold text-xs"
             name={['emergencyContact', 'nationality']}
             label={
-              <span className="mb-1 font-semibold text-xs">Nationality</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="emergency-contact-nationality-label"
+              >
+                Nationality
+              </span>
             }
             id="emergencyContactNationality"
             data-cy="emergencyContactNationality"

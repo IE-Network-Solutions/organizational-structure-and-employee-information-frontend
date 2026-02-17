@@ -151,7 +151,10 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
         </div>
 
         {/* Use Current Location button positioned at bottom left of map */}
-        <div className="absolute bottom-4 left-4 z-10">
+        <div
+          data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-154"
+          className="absolute bottom-4 left-4 z-10"
+        >
           <Button
             className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-sm rounded-md px-4 py-2 h-auto text-sm"
             onClick={handleUseCurrentLocation}
@@ -175,10 +178,24 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
       </div>
 
       {/* Radius Control */}
-      <div className="mt-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-900">Radius</span>
-          <div className="flex items-center gap-2">
+      <div
+        data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-178"
+        className="mt-4"
+      >
+        <div
+          data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-179"
+          className="flex items-center justify-between mb-2"
+        >
+          <span
+            data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-span-180"
+            className="text-sm text-gray-900"
+          >
+            Radius
+          </span>
+          <div
+            data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-181"
+            className="flex items-center gap-2"
+          >
             <InputNumber
               value={currentRadius}
               onChange={(value) => {
@@ -193,7 +210,12 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
               className="text-sm border border-gray-300 rounded-lg"
               placeholder="Radius"
             />
-            <span className="text-xs text-gray-900">km</span>
+            <span
+              data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-span-196"
+              className="text-xs text-gray-900"
+            >
+              km
+            </span>
           </div>
         </div>
         <Slider
@@ -227,10 +249,18 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
       </div>
 
       {/* Coordinates Display - after radius */}
-      <div className="mt-4">
-        <div className="text-sm text-gray-600 mb-2">Use Coordinates</div>
+      <div
+        data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-230"
+        className="mt-4"
+      >
+        <div
+          data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-231"
+          className="text-sm text-gray-600 mb-2"
+        >
+          Use Coordinates
+        </div>
         <Space size="large">
-          <div>
+          <div data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-233">
             <Text strong>Latitude:</Text>
             <InputNumber
               value={currentLat}
@@ -244,7 +274,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
               style={{ width: 150 }}
             />
           </div>
-          <div>
+          <div data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-247">
             <Text strong>Longitude:</Text>
             <InputNumber
               value={currentLng}

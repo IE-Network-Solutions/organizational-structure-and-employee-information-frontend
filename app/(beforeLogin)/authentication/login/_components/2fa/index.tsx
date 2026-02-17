@@ -130,11 +130,13 @@ const TwoFactorAuth = () => {
             <Input.OTP length={6} size="large" autoFocus />
           </Form.Item>
           {/* 5 minutes countdown */}
-          <p className="text-center text-xs mb-6">
+          <p className="text-center text-xs mb-6" data-cy="2fa-countdown">
             {countdown > 0 ? (
-              <span className="font-bold text-sm">{formatted}</span>
+              <span className="font-bold text-sm" data-cy="2fa-countdown-time">
+                {formatted}
+              </span>
             ) : (
-              'Code expired'
+              <span data-cy="2fa-countdown-expired">Code expired</span>
             )}
           </p>
           <Form.Item>
@@ -149,13 +151,14 @@ const TwoFactorAuth = () => {
             </Button>
           </Form.Item>
         </Form>
-        <p className="text-center text-xs mb-6">
-          Didn&apos;t receive the code?
+        <p className="text-center text-xs mb-6" data-cy="2fa-resend-container">
+          <span data-cy="2fa-resend-text">Didn&apos;t receive the code?</span>
           <Button
             type="link"
             className="text-blue cursor-pointer"
             onClick={handleResendCode}
             loading={isGet2FACodeLoading}
+            data-cy="2fa-resend-button"
           >
             {' '}
             Resend Code
@@ -164,9 +167,11 @@ const TwoFactorAuth = () => {
       </div>
       {/* resend otp */}
 
-      <div className="text-xs font-thin text-center">
-        © {new Date().getFullYear().toString()} Selamnew Workspace . All-rights
-        reserved.
+      <div className="text-xs font-thin text-center" data-cy="2fa-footer">
+        <span data-cy="2fa-copyright">
+          © {new Date().getFullYear().toString()} Selamnew Workspace .
+          All-rights reserved.
+        </span>
         {/* <span className="font-semibold ml-1 cursor-pointer">
         Terms & Conditions
       </span>

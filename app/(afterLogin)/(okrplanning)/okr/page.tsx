@@ -14,12 +14,30 @@ import { LiaFileDownloadSolid } from 'react-icons/lia';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useDownloadEmployeeOkrScore } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useOkrSetting } from '@/hooks/useOkrSetting';
+import OkrModeSelectionModal from './_components/okrModeSelectionModal';
+import { Spin } from 'antd';
 
 const OKR: React.FC<any> = () => {
   const { userId } = useAuthenticationStore();
   const [open, setOpen] = useState(false);
   const { pageSize, currentPage, searchObjParams, okrTab, sessionIds } =
     useOKRStore();
+
+  // OKR Mode Selection Integration
+  const {
+    isLoading: isOkrLoading,
+    showModal,
+    saveOkrMode,
+    refetch,
+  } = useOkrSetting();
+
+  const handleOkrModeSuccess = async () => {
+    // The saveOkrMode function already handles closing the modal and updating state
+    // This callback is called after the modal's internal save completes
+    // Refetch to ensure everything is in sync
+    await refetch();
+  };
   const showDrawer = () => {
     setOpen(true);
   };
@@ -72,6 +90,31 @@ const OKR: React.FC<any> = () => {
       );
     }
   }
+  // Show loading state while checking OKR setting
+  if (isOkrLoading) {
+    return (
+      <div
+        className="flex items-center justify-center min-h-screen"
+        data-cy="okr-page-loading"
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  // Show modal if setting doesn't exist
+  if (showModal) {
+    return (
+      <>
+        <OkrModeSelectionModal
+          open={showModal}
+          onSuccess={handleOkrModeSuccess}
+          saveOkrMode={saveOkrMode}
+        />
+      </>
+    );
+  }
+
   return (
     <div
       id="okr-page-div-container"
@@ -161,6 +204,12 @@ const OKR: React.FC<any> = () => {
           )}
         </div>
       </div>
+      {/* Future: Conditional Rendering Based on OKR Mode
+          When implementing conditional rendering:
+          - Use okrMode from store to show/hide features
+          - Example: {okrMode === 'Advanced' && <AdvancedFeature />}
+          - Example: {okrMode === 'Basic' && <BasicFeature />}
+      */}
       <Dashboard data-cy="okr-page-dashboard" />
       <OkrDrawer data-cy="okr-page-drawer" open={open} onClose={onClose} />
     </div>

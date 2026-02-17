@@ -48,8 +48,8 @@ const AttendanceImportErrorModal: React.FC = () => {
             Line {msg.line}: {msg.error}
           </p>
         ))}
-      <br />
-      <hr />
+      <br data-cy="time-attendance-employee-attendance-import-error-modal-br" />
+      <hr data-cy="time-attendance-employee-attendance-import-error-modal-hr" />
 
       <div
         id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-div"
@@ -69,7 +69,12 @@ const AttendanceImportErrorModal: React.FC = () => {
           data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul"
           style={{ fontSize: '14px', lineHeight: '1.4', paddingLeft: '20px' }}
         >
-          <li>-Please set your headers in the third line of the Excel file</li>
+          <li
+            id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-1"
+            data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-1"
+          >
+            -Please set your headers in the third line of the Excel file
+          </li>
           <li
             id="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-2"
             data-cy="time-attendance-employee-attendance-import-error-modal-suggested-solutions-ul-li-2"

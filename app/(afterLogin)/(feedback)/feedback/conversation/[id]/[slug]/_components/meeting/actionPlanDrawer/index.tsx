@@ -81,6 +81,7 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                     form.setFieldsValue(updatedValues);
                     setNumberOfActionPlan(numberOfActionPlan - 1);
                   }}
+                  data-cy={`action-plan-drawer-delete-${index}`}
                 >
                   <TiDeleteOutline />
                 </div>
@@ -137,7 +138,10 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                     >
                       {allUserData?.items?.map((item: any) => (
                         <Option key={item.id} value={item.id}>
-                          <div className="flex space-x-3 p-1 rounded">
+                          <div
+                            className="flex space-x-3 p-1 rounded"
+                            data-cy={`action-plan-drawer-assignee-option-${item.id}`}
+                          >
                             <Image
                               src={item?.profileImage ?? '/default-avatar.png'}
                               alt="profile"
@@ -145,7 +149,10 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                               width={15}
                               height={15}
                             />
-                            <span className="flex justify-center items-center">
+                            <span
+                              className="flex justify-center items-center"
+                              data-cy={`action-plan-drawer-assignee-name-${item.id}`}
+                            >
                               {item?.firstName + ' ' + (item?.middleName ?? '')}
                             </span>
                           </div>

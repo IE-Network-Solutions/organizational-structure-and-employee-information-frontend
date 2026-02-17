@@ -348,7 +348,13 @@ export default function ParticipantsList({
               data-cy={`feedback-meeting-components-participantslist-text-absent-${id}`}
               id={`feedback-meeting-components-participantslist-text-absent-${id}`}
             >
-              Absent reason: <strong> {absentismReason}</strong>
+              Absent reason:{' '}
+              <strong
+                data-cy={`feedback-meeting-components-participantslist-text-absent-strong-${id}`}
+              >
+                {' '}
+                {absentismReason}
+              </strong>
             </div>
           ) : attendanceStatus == 'late' ? (
             <div
@@ -458,7 +464,11 @@ export default function ParticipantsList({
         id={`feedback-meeting-components-participantslist-confirm-content-p-${id}`}
         data-cy={`feedback-meeting-components-participantslist-confirm-content-p-${id}`}
       >
-        Are you sure you want to <br /> confirm MoM?
+        Are you sure you want to{' '}
+        <br
+          data-cy={`feedback-meeting-components-participantslist-confirm-content-br-${id}`}
+        />{' '}
+        confirm MoM?
       </p>
       <div
         className="flex justify-center gap-4"
@@ -496,7 +506,10 @@ export default function ParticipantsList({
         id={`feedback-meeting-components-participantslist-revert-content-p-${id}`}
         data-cy={`feedback-meeting-components-participantslist-revert-content-p-${id}`}
       >
-        Are you sure you want to <br />
+        Are you sure you want to{' '}
+        <br
+          data-cy={`feedback-meeting-components-participantslist-revert-content-br-${id}`}
+        />
         revert MoM?
       </p>
       <div

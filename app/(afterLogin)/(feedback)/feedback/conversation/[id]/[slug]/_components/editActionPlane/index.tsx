@@ -106,8 +106,14 @@ const EditActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
               >
                 {allUserData?.items?.map((item: any) => (
                   <Option key="active" value={item.id}>
-                    <div className="flex space-x-3 p-1 rounded">
-                      <span className="flex justify-center items-center">
+                    <div
+                      className="flex space-x-3 p-1 rounded"
+                      data-cy={`edit-action-plan-assignee-option-${item.id}`}
+                    >
+                      <span
+                        className="flex justify-center items-center"
+                        data-cy={`edit-action-plan-assignee-name-${item.id}`}
+                      >
                         {item?.firstName + ' ' + item?.middleName}
                       </span>
                     </div>

@@ -304,7 +304,7 @@ const CheckInRulePage: React.FC = () => {
         data-cy="okr-checkin-rule-drawer-display-drawer"
       />
 
-      <style jsx>{`
+      <style jsx data-cy="okr-checkin-rule-page-style">{`
         .custom-table .ant-table-thead > tr > th {
           background-color: #f9fafb;
           border-bottom: 1px solid #e5e7eb;
