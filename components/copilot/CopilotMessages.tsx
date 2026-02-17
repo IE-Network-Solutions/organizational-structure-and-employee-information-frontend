@@ -98,6 +98,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             dataIndex: col.dataIndex,
             key: col.key,
             render: (text: any) => {
+              // Special styling for the order column
               if (col.dataIndex === 'order') {
                 return (
                   <span
@@ -113,12 +114,45 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                   </span>
                 );
               }
+
+              // Normalize complex cell values (e.g. nested objects) to readable text
+              let display: any = text;
+
+              // If the cell is a user object, render full name
+              if (display && typeof display === 'object') {
+                const userLike =
+                  'firstName' in display ||
+                  'middleName' in display ||
+                  'lastName' in display;
+
+                if (userLike) {
+                  const first = (display as any).firstName ?? '';
+                  const middle = (display as any).middleName ?? '';
+                  const last = (display as any).lastName ?? '';
+                  display = [first, middle, last]
+                    .map((v) => String(v || '').trim())
+                    .filter(Boolean)
+                    .join(' ');
+                } else {
+                  // Fallback: stringify generic objects
+                  try {
+                    display = JSON.stringify(display);
+                  } catch {
+                    display = String(display);
+                  }
+                }
+              }
+
+              if (display == null || display === '') {
+                display = '-';
+              }
+
               return (
                 <span
                   style={{ display: 'inline-block', minWidth: '200px' }}
                   data-cy="copilot-table-data-cell"
                 >
-                  {text ?? '-'}
+                  {display}
                 </span>
               );
             },
