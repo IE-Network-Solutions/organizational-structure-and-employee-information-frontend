@@ -15,48 +15,49 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 const columns: TableColumnsType<EmployeeData> = [
   {
-    title: 'Id',
+    title: 'ID',
     dataIndex: 'employee_attendance_id',
-    sorter: (a, b) => {
-      const idA = a.employee_attendance_id ?? 0;
-      const idB = b.employee_attendance_id ?? 0;
-      return idA - idB;
-    },
+    // sorter: (a, b) => {
+    //   const idA = a.employee_attendance_id ?? 0;
+    //   const idB = b.employee_attendance_id ?? 0;
+    //   return idA - idB;
+    // },
     width: 70,
   },
   {
     title: 'Employee Name',
     dataIndex: 'employee_name',
     ellipsis: true,
-    width: 150,
+    width: 200,
   },
   {
-    title: 'Job Position',
+    title: 'Position',
     dataIndex: 'job_title',
-    sorter: (a, b) => a.job_title.localeCompare(b.job_title),
+    width: 260,
+    // sorter: (a, b) => a.job_title.localeCompare(b.job_title),
   },
   {
     title: 'Department',
     dataIndex: 'department',
-    sorter: (a, b) => a.department.localeCompare(b.department),
+    width: 250,
+    // sorter: (a, b) => a.department.localeCompare(b.department),
   },
+
   {
-    title: 'Office',
-    dataIndex: 'office',
-    sorter: (a, b) => a.office.localeCompare(b.office),
-  },
-  {
-    title: 'Employee Status',
+    title: 'Type',
     dataIndex: 'employee_status',
+    width: 120,
   },
   {
-    title: 'Account',
+    title: 'Status',
     dataIndex: 'account',
+    width: 120,
   },
   {
     title: 'Role',
     dataIndex: 'role',
-    sorter: (a, b) => a.role.localeCompare(b.role),
+    width: 120,
+    // sorter: (a, b) => a.role.localeCompare(b.role),
   },
 ];
 
@@ -83,24 +84,17 @@ const UserTable = () => {
     permissions: [Permissions.ViewEmployeeDetail],
   });
 
-  const MAX_NAME_LENGTH = 10;
-  const MAX_EMAIL_LENGTH = 5;
+  const MAX_NAME_LENGTH = 20;
   const data = allFilterData?.items?.map((item: any) => {
     const fullName =
       item?.firstName +
       ' ' +
-      (item?.middleName ? item?.middleName : '') +
-      ' ' +
-      item?.lastName;
+      (item?.middleName ? item?.middleName : '')
     const shortEmail = item?.email;
     const displayName =
       fullName.length > MAX_NAME_LENGTH
         ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
         : fullName;
-    const displayEmail =
-      shortEmail.length > MAX_EMAIL_LENGTH
-        ? shortEmail.slice(0, MAX_EMAIL_LENGTH) + '...'
-        : shortEmail;
     return {
       key: item?.id,
       employee_attendance_id: item?.employeeInformation?.employeeAttendanceId,
@@ -134,17 +128,17 @@ const UserTable = () => {
                 src={
                   item?.profileImage && typeof item?.profileImage === 'string'
                     ? (() => {
-                        try {
-                          const parsed = JSON.parse(item.profileImage);
-                          return parsed.url && parsed.url.startsWith('http')
-                            ? parsed.url
-                            : Avatar;
-                        } catch {
-                          return item.profileImage.startsWith('http')
-                            ? item.profileImage
-                            : Avatar;
-                        }
-                      })()
+                      try {
+                        const parsed = JSON.parse(item.profileImage);
+                        return parsed.url && parsed.url.startsWith('http')
+                          ? parsed.url
+                          : Avatar;
+                      } catch {
+                        return item.profileImage.startsWith('http')
+                          ? item.profileImage
+                          : Avatar;
+                      }
+                    })()
                     : Avatar
                 }
                 alt="Description of image"
@@ -155,7 +149,7 @@ const UserTable = () => {
               />
             </div>
             <div
-              className="flex flex-wrap flex-col justify-center"
+              className="flex flex-col justify-center"
               id={`user-table-employee-info-${item?.id}`}
               data-cy={`user-table-employee-info-${item?.id}`}
             >
@@ -165,41 +159,35 @@ const UserTable = () => {
               >
                 {displayName}
               </p>
-              <p
-                className="font-extralight text-[12px]"
-                id={`user-table-employee-display-email-${item?.id}`}
-                data-cy={`user-table-employee-display-email-${item?.id}`}
-              >
-                {displayEmail}
-              </p>
             </div>
           </div>
         </Tooltip>
       ),
-      job_title: item?.employeeJobInformation[0]?.position?.name
+      job_title: <span className='text-black text-xs font-medium'> {item?.employeeJobInformation[0]?.position?.name
         ? item?.employeeJobInformation[0]?.position?.name
-        : '-',
-      department: item?.employeeJobInformation[0]?.department?.name
+        : '-'}</span>,
+      department: <span className='text-black text-xs font-medium'> {item?.employeeJobInformation[0]?.department?.name
         ? item?.employeeJobInformation[0]?.department?.name
-        : '-',
-      office: item?.employeeJobInformation[0]?.branch?.name
-        ? item?.employeeJobInformation[0]?.branch?.name
-        : '-',
-      employee_status: userTypeButton(
-        item?.employeeJobInformation[0]?.employementType?.name,
+        : '-'}</span>,
+      employee_status: (
+        <div className="pr-2">
+          {userTypeButton(
+            item?.employeeJobInformation[0]?.employementType?.name,
+          )}
+        </div>
       ),
       account: (
-        <span
-          className="text-sm text-gray-900"
-          id={`user-table-employee-account-${item?.id}`}
-          data-cy={`user-table-employee-account-${item?.id}`}
-        >
-          {!item?.deletedAt ? 'Active' : 'InActive'}
-        </span>
+        <div className="pr-2">
+          {userTypeButton(!item?.deletedAt ? 'Active' : 'InActive')}
+        </div>
       ),
-      role: item?.role?.name ? item?.role?.name : ' - ',
+      role: (
+        <div className="pr-2">
+          <span className="text-black text-xs font-medium">{item?.role?.name ? item?.role?.name : ' - '}</span>
+        </div>
+      ),
     };
-  });
+  })
 
   const onPageChange = (page: number, pageSize?: number) => {
     setUserCurrentPage(page);
@@ -214,7 +202,7 @@ const UserTable = () => {
       id="user-table-container"
       data-cy="user-table-container"
     >
-      <div id="user-table-wrapper" data-cy="user-table-wrapper">
+      <div id="user-table-wrapper" data-cy="user-table-wrapper" className="user-table-wrapper">
         <Table
           className="w-full cursor-pointer"
           columns={columns}
@@ -226,10 +214,10 @@ const UserTable = () => {
           onRow={
             hasAccess
               ? (record) => ({
-                  onClick: () => {
-                    router.push(`manage-employees/${record?.key}`);
-                  },
-                })
+                onClick: () => {
+                  router.push(`manage-employees/${record?.key}`);
+                },
+              })
               : undefined
           }
         />

@@ -1,8 +1,6 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
-import UserSidebar from './_components/userSidebar';
-import { FaPlus } from 'react-icons/fa';
 import UserTable from './_components/userTable';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import EmployeeSearch from './_components/userSearch';
@@ -10,28 +8,45 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
-import { Button, Popover, Input, Tag, Tooltip } from 'antd';
-import { IoMdSwitch } from 'react-icons/io';
-import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
+import { Button, Popover, Input, Tag, Tooltip, Breadcrumb, Divider } from 'antd';
 import {
   useEmployeeBranches,
   useEmployeeDepartments,
+  useGetEmployeeStatus,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
-import { BsFileEarmarkArrowDownFill } from 'react-icons/bs';
 import { CiBookmark } from 'react-icons/ci';
 import { TbLayoutList } from 'react-icons/tb';
 import { useDownloadEmployeeDataByFilter } from '@/store/server/features/employees/employeeManagment/mutations';
+import AddEmployeeModal from './_components/add-employee-modal';
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import Link from 'next/link';
+import StatsCard from './_components/statsCard';
+import GroupsIcon from '@mui/icons-material/Groups';
+import BusinessIcon from '@mui/icons-material/Business';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import SearchIcon from '@mui/icons-material/Search';
+
+
+
+
+
 const ManageEmployees: React.FC<any> = () => {
-  const { setOpen, setSearchParams, setIsMobileFilterVisible } =
-    useEmployeeManagementStore();
+  const {
+    setOpen,
+    setSearchParams,
+    setIsMobileFilterVisible,
+    isMobileFilterVisible,
+  } = useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { mutate: downloadAllFilterData } = useDownloadEmployeeDataByFilter();
-  useGetEmployeeStatus('');
   const { data: EmployeeBranches } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: EmploymentTypes } = useGetEmployementTypes();
-
+  const { data: EmployeeStatus } = useGetEmployeeStatus();
   const showDrawer = () => {
     setOpen(true);
   };
@@ -164,23 +179,33 @@ const ManageEmployees: React.FC<any> = () => {
 
   return (
     <div
-      className="h-auto w-full px-3 sm:px-6"
+      className="h-auto w-full"
       id="manage-employees-page"
       data-cy="manage-employees-page"
     >
       <BlockWrapper className="h-auto w-full bg-white">
         <div
-          className="flex flex-wrap justify-between items-center"
+          className="flex flex-wrap justify-between items-center px-3 sm:px-6"
           id="manage-employees-header"
           data-cy="manage-employees-header"
         >
           <CustomBreadcrumb
-            title="Employees"
-            subtitle="Manage your Employees"
+            title="Employee Management"
+            subtitle={<Breadcrumb
+              items={[
+                {
+                  title: <span className="text-xs sm:text-sm">Employee</span>,
+                },
+                {
+                  title: <Link className="text-xs sm:text-sm" href="/employees/manage-employees">Employee Management</Link>,
+                },
+
+              ]}
+            />}
             data-cy="manage-employees-breadcrumb"
           />
           <div
-            className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
+            className="flex flex-wrap justify-start items-center my-2 gap-4 md:gap-8"
             id="manage-employees-actions"
             data-cy="manage-employees-actions"
           >
@@ -248,7 +273,9 @@ const ManageEmployees: React.FC<any> = () => {
                   id="downloadUserButton"
                   data-cy="manage-employees-download-trigger-btn"
                   className="h-10 w-10 sm:w-auto"
-                  icon={<BsFileEarmarkArrowDownFill />}
+                  icon={
+                    <SaveAltIcon />
+                  }
                 >
                   <span
                     className="hidden sm:inline"
@@ -279,12 +306,13 @@ const ManageEmployees: React.FC<any> = () => {
                   size="large"
                   id="createUserButton"
                   data-cy="manage-employees-create-btn"
-                  className="h-10 w-10 sm:w-auto"
+                  className="hover:bg-[#1D4ED8] bg-[#1e40af] h-10 w-10 sm:w-auto"
                   icon={
-                    <FaPlus
+                    <PersonAddOutlinedIcon
                       id="manage-employees-create-icon"
                       data-cy="manage-employees-create-icon"
                     />
+
                   }
                   onClick={showDrawer}
                   loading={isLoading || subscriptionLoading}
@@ -295,84 +323,136 @@ const ManageEmployees: React.FC<any> = () => {
                     id="manage-employees-create-btn-text"
                     data-cy="manage-employees-create-btn-text"
                   >
-                    Create user
+                    Add Employee
                   </span>
                 </Button>
               </Tooltip>
             </AccessGuard>
-            <UserSidebar
-              onClose={onClose}
-              data-cy="manage-employees-user-sidebar"
+            <AddEmployeeModal onClose={onClose} />
+          </div>
+        </div>
+        <Divider size="large" />
+        <div className="px-3 sm:px-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatsCard
+              icon={<GroupsIcon />}
+              title="Total Employees"
+              value={EmployeeStatus?.totalEmployees?.value || 0}
+              change={EmployeeStatus?.totalEmployees?.changeSinceLastMonth || 0}
+              id="stats-total-employees"
+              data-cy="stats-total-employees"
+            />
+            <StatsCard
+              icon={<GroupAddIcon />}
+              title="New Hires This Month"
+              value={EmployeeStatus?.newHires?.value || 0}
+              change={EmployeeStatus?.newHires?.changeSinceLastMonth || 0}
+              id="stats-new-hires"
+              data-cy="stats-new-hires"
+            />
+            <StatsCard
+              icon={<BusinessIcon />}
+              title="Active Departments"
+              value={EmployeeStatus?.activeDepartments?.value || 0}
+              change={EmployeeStatus?.activeDepartments?.changeSinceLastMonth || 0}
+              id="stats-active-departments"
+              data-cy="stats-active-departments"
+            />
+            <StatsCard
+              icon={<AirplanemodeActiveIcon />}
+              title="Active Accounts"
+              value={100}
+              change={3}
+              id="stats-active-accounts"
+              data-cy="stats-active-accounts"
             />
           </div>
         </div>
-        <div
-          className="w-full h-auto"
-          id="manage-employees-content"
-          data-cy="manage-employees-content"
-        >
+        <div className="border border-gray-200 rounded-lg mx-6 ">
           <div
-            className="flex items-center gap-4 mb-6"
-            id="manage-employees-filter-row"
-            data-cy="manage-employees-filter-row"
+            className="w-full h-auto"
+            id="manage-employees-content"
+            data-cy="manage-employees-content"
           >
-            <Input
-              placeholder="Search employee"
-              className="flex-1 h-12 rounded-lg border-gray-200"
-              allowClear
-              onChange={(e) => setSearchParams('employee_name', e.target.value)}
-              value={searchParams.employee_name}
-              id="manage-employees-search-input"
-              data-cy="manage-employees-search-input"
-            />
-
             <div
-              className="flex items-center gap-2 flex-wrap bg-blue-600"
-              id="manage-employees-active-filters"
-              data-cy="manage-employees-active-filters"
+              className="flex justify-between gap-4 mb-6 p-3"
+              id="manage-employees-filter-row"
+              data-cy="manage-employees-filter-row"
             >
-              {getActiveFilters().map((filter) => (
-                <Tag
-                  key={filter.key}
-                  closable
-                  onClose={() => removeFilter(filter.key)}
-                  className="bg-white text-blue border-blue  rounded-lg px-3 py-1 flex items-center text-sm font-medium"
-                  id={`manage-employees-filter-tag-${filter.key}`}
-                  data-cy={`manage-employees-filter-tag-${filter.key}`}
-                  closeIcon={
-                    <span
-                      className="text-blue hover:!text-[#FF8787] ml-2 text-base"
-                      id={`manage-employees-filter-tag-close-icon-${filter.key}`}
-                      data-cy={`manage-employees-filter-tag-close-icon-${filter.key}`}
-                    >
-                      ×
-                    </span>
-                  }
-                >
-                  {filter.label}
-                </Tag>
-              ))}
-            </div>
-
-            <Button
-              type="primary"
-              size="large"
-              className="h-12 px-6 rounded-lg bg-blue-600 border-blue-600 flex items-center gap-2"
-              onClick={() => setIsMobileFilterVisible(true)}
-              id="manage-employees-filter-toggle-btn"
-              data-cy="manage-employees-filter-toggle-btn"
-            >
-              <IoMdSwitch
-                id="manage-employees-filter-toggle-icon"
-                data-cy="manage-employees-filter-toggle-icon"
+              <Input
+                placeholder="Search employee"
+                className="h-8 rounded-lg border border-gray-400"
+                style={{ width: 300 }}
+                suffix={<SearchIcon className="text-gray-400" fontSize="small" />}
+                allowClear
+                onChange={(e) => setSearchParams('employee_name', e.target.value)}
+                value={searchParams.employee_name}
+                id="manage-employees-search-input"
+                data-cy="manage-employees-search-input"
               />
-              Filter
-            </Button>
+
+
+              <div
+                className="flex items-center gap-2 flex-wrap bg-blue-600"
+                id="manage-employees-active-filters"
+                data-cy="manage-employees-active-filters"
+              >
+                {getActiveFilters().map((filter) => (
+                  <Tag
+                    key={filter.key}
+                    closable
+                    onClose={() => removeFilter(filter.key)}
+                    className="bg-white text-blue border-blue  rounded-lg px-3 py-1 flex items-center text-sm font-medium"
+                    id={`manage-employees-filter-tag-${filter.key}`}
+                    data-cy={`manage-employees-filter-tag-${filter.key}`}
+                    closeIcon={
+                      <span
+                        className="text-blue hover:!text-[#FF8787] ml-2 text-base"
+                        id={`manage-employees-filter-tag-close-icon-${filter.key}`}
+                        data-cy={`manage-employees-filter-tag-close-icon-${filter.key}`}
+                      >
+                        ×
+                      </span>
+                    }
+                  >
+                    {filter.label}
+                  </Tag>
+                ))}
+              </div>
+
+              <Popover
+                placement="bottomRight"
+                trigger="click"
+                open={isMobileFilterVisible}
+                onOpenChange={(visible) => setIsMobileFilterVisible(visible)}
+                content={<EmployeeSearch />}
+              >
+                <Button
+                  type="default"
+                  size="large"
+                  className="h-8 px-6 rounded-lg bg-blue-600 border-gray-300 flex items-center gap-2"
+                  id="manage-employees-filter-toggle-btn"
+                  data-cy="manage-employees-filter-toggle-btn"
+                  icon={<FilterAltOutlinedIcon className="text-gray-600" fontSize='small' />}
+                >
+                  <span
+                    id="manage-employees-filter-toggle-btn-text"
+                    data-cy="manage-employees-filter-toggle-btn-text"
+                    className='text-gray-600 text-sm'
+                  >
+                    Filter
+                  </span>
+                </Button>
+              </Popover>
+
+            </div>
+            <div className="overflow-x-auto">
+              <UserTable />
+            </div>
           </div>
-          <UserTable />
         </div>
-        <EmployeeSearch />
       </BlockWrapper>
+
     </div>
   );
 };

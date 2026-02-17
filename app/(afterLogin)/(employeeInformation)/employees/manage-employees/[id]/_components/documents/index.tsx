@@ -1,9 +1,7 @@
 'use client';
 import React from 'react';
-import { Button, Col, Form, Row, Upload, Image, Space, Table } from 'antd';
-import { MdOutlineUploadFile } from 'react-icons/md';
+import { Button, Col, Form, Row, Upload, Card, Space } from 'antd';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { AiOutlineDelete, AiOutlineDownload } from 'react-icons/ai';
 import {
   useAddEmployeeDocument,
   useDeleteEmployeeDocument,
@@ -13,6 +11,9 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { FaPlus } from 'react-icons/fa';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import dayjs from 'dayjs';
+import { Inbox } from 'lucide-react';
 
 const { Dragger } = Upload;
 
@@ -43,94 +44,106 @@ const Documents = ({ id }: { id: string }) => {
       onSuccess('ok');
     }, 0);
   };
-  const EmployeeDocumentTable = ({ employeeDocument, onDelete }: any) => {
-    const columns = [
-      {
-        title: 'Document Name',
-        dataIndex: 'documentName',
-        key: 'documentName',
-        render: (text: any, record: any) => (
-          <a
-            href={record.documentLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            id={`documents-table-document-link-${record.id}`}
-            data-cy={`documents-table-document-link-${record.id}`}
-          >
-            {text.split('/').pop()} {/* Extract the file name from the URL */}
-          </a>
-        ),
-      },
-      {
-        title: 'Uploaded At',
-        dataIndex: 'createdAt',
-        key: 'createdAt',
-        render: (text: any) => new Date(text).toLocaleDateString(), // Format date as needed
-      },
-      {
-        title: 'Actions',
-        key: 'actions',
-        render: (text: any, record: any) => (
-          <Space
-            id={`documents-table-actions-${record.id}`}
-            data-cy={`documents-table-actions-${record.id}`}
-          >
-            <AccessGuard
-              permissions={[Permissions.DownloadEmployeeDocument]}
-              selfShouldAccess
-              id={id}
-              data-cy="documents-table-download-guard"
-            >
-              <Button
-                type="link"
-                icon={
-                  <AiOutlineDownload
-                    id="documents-table-download-icon"
-                    data-cy="documents-table-download-icon"
-                  />
-                }
-                href={record.documentLink}
-                target="_blank"
-                id={`documents-table-download-btn-${record.id}`}
-                data-cy={`documents-table-download-btn-${record.id}`}
-              />
-            </AccessGuard>
-            <AccessGuard
-              permissions={[Permissions.DeleteEmployeeDocument]}
-              id="documents-table-delete-guard"
-              data-cy="documents-table-delete-guard"
-            >
-              <Button
-                type="link"
-                className="text-xl font-bold text-red-600"
-                icon={
-                  <AiOutlineDelete
-                    id="documents-table-delete-icon"
-                    data-cy="documents-table-delete-icon"
-                  />
-                }
-                onClick={() => onDelete(record.id)}
-                id={`documents-table-delete-btn-${record.id}`}
-                data-cy={`documents-table-delete-btn-${record.id}`}
-              />
-            </AccessGuard>
-          </Space>
-        ),
-      },
-    ];
+  const EmployeeDocumentList = ({ employeeDocument, onDelete, id }: any) => {
+    if (!employeeDocument || employeeDocument.length === 0) {
+      return (
+        <div
+          className="text-center text-gray-500 py-8"
+          id="documents-empty"
+          data-cy="documents-empty"
+        >
+          No documents uploaded yet
+        </div>
+      );
+    }
 
     return (
-      <Table
-        className="w-full"
-        columns={columns}
-        dataSource={employeeDocument?.map((doc: any, index: any) => ({
-          ...doc,
-          key: index,
-        }))}
-        pagination={false}
-        id="documents-table"
-        data-cy="documents-table"
-      />
+      <div className="space-y-3" id="documents-list" data-cy="documents-list">
+        {employeeDocument.map((doc: any) => {
+          const documentName = doc.documentName?.split('/').pop() || 'Document';
+          const formattedDate = doc.createdAt
+            ? dayjs(doc.createdAt).format('DD MMM YYYY')
+            : '-';
+
+          return (
+            <Card
+              key={doc.id}
+              className="rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
+              id={`documents-card-${doc.id}`}
+              data-cy={`documents-card-${doc.id}`}
+              bodyStyle={{ padding: '16px' }}
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex-1">
+                  <p
+                    className="text-base font-semibold text-gray-900 m-0 mb-1"
+                    id={`documents-card-name-${doc.id}`}
+                    data-cy={`documents-card-name-${doc.id}`}
+                  >
+                    {documentName}
+                  </p>
+                  <p
+                    className="text-xs text-gray-500 m-0"
+                    id={`documents-card-date-${doc.id}`}
+                    data-cy={`documents-card-date-${doc.id}`}
+                  >
+                    {formattedDate}
+                  </p>
+                </div>
+                <Space size="small">
+                  <AccessGuard
+                    permissions={[Permissions.DownloadEmployeeDocument]}
+                    selfShouldAccess
+                    id={id}
+                    data-cy="documents-download-guard"
+                  >
+                    <Button
+                      type="default"
+                      size="small"
+                      icon={
+                        <SaveAltIcon
+                            className="text-gray-600"
+                            style={{ fontSize: '16px' }}
+                          id={`documents-download-icon-${doc.id}`}
+                          data-cy={`documents-download-icon-${doc.id}`}
+                        />
+                      }
+                      href={doc.documentLink}
+                      target="_blank"
+                      className="border-gray-300 bg-gray-50 hover:bg-gray-100"
+                      id={`documents-download-btn-${doc.id}`}
+                      data-cy={`documents-download-btn-${doc.id}`}
+                    />
+                  </AccessGuard>
+                  <AccessGuard
+                    permissions={[Permissions.DeleteEmployeeDocument]}
+                    id="documents-delete-guard"
+                    data-cy="documents-delete-guard"
+                  >
+                    <Button
+                      type="default"
+                      size="small"
+                      danger
+                      icon={
+                        <DeleteOutlineIcon
+                          className="text-[#ff8384]"
+                          style={{ fontSize: '16px' }}
+                          id={`documents-delete-icon-${doc.id}`}
+                          data-cy={`documents-delete-icon-${doc.id}`}
+                        />
+                      }
+                      onClick={() => onDelete(doc.id)}
+                      className="border-red-300 bg-red-50 hover:bg-red-100"
+                      id={`documents-delete-btn-${doc.id}`}
+                      data-cy={`documents-delete-btn-${doc.id}`}
+                    />
+                  </AccessGuard>
+                </Space>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     );
   };
 
@@ -154,165 +167,143 @@ const Documents = ({ id }: { id: string }) => {
 
   return (
     <div
-      className="p-4 sm:p-6 lg:p-8"
       id="documents-container"
       data-cy="documents-container"
     >
-      <Row
-        justify="center"
-        style={{ width: '100%' }}
-        id="documents-upload-row"
-        data-cy="documents-upload-row"
-      >
-        <AccessGuard
-          permissions={[Permissions.UploadEmployeeDocuments]}
-          id="documents-upload-guard"
-          data-cy="documents-upload-guard"
+      <Row gutter={[24, 24]} id="documents-main-row" data-cy="documents-main-row">
+        {/* Left Column - Upload Document */}
+        <Col
+          xs={24}
+          lg={12}
+          id="documents-upload-col"
+          data-cy="documents-upload-col"
         >
-          <Col
-            span={24}
-            id="documents-upload-col"
-            data-cy="documents-upload-col"
+          <AccessGuard
+            permissions={[Permissions.UploadEmployeeDocuments]}
+            id="documents-upload-guard"
+            data-cy="documents-upload-guard"
           >
-            <Form
-              form={form}
-              name="dependencies"
-              autoComplete="off"
-              style={{ maxWidth: '100%' }}
-              layout="vertical"
-              onFinishFailed={() =>
-                NotificationMessage.error({
-                  message: 'Something went wrong or unfilled',
-                  description: 'Please check the form again.',
-                })
+            <Card
+              title={
+                <span className="text-base font-bold text-gray-900">
+                  Upload Document
+                </span>
               }
-              onFinish={handleCreateUser}
-              id="documents-upload-form"
-              data-cy="documents-upload-form"
+              className="rounded-lg border border-gray-200"
+              id="documents-upload-card"
+              data-cy="documents-upload-card"
+              headStyle={{ borderBottom: 'none', paddingBottom: '10px', paddingTop: '10px' }}
             >
-              <Form.Item
-                className="font-semibold text-xs"
-                style={{ textAlign: 'center' }}
-                name="documentName"
-                id="documentNameId"
-                data-cy="documents-upload-form-item"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please choose the document type',
-                  },
-                ]}
+              <Form
+                form={form}
+                name="dependencies"
+                autoComplete="off"
+                layout="vertical"
+                onFinishFailed={() =>
+                  NotificationMessage.error({
+                    message: 'Something went wrong or unfilled',
+                    description: 'Please check the form again.',
+                  })
+                }
+                onFinish={handleCreateUser}
+                id="documents-upload-form"
+                data-cy="documents-upload-form"
               >
-                <Dragger
+                <Form.Item
                   name="documentName"
-                  fileList={documentFileList}
-                  onChange={handleDocumentChange}
-                  onRemove={handleDocumentRemove}
-                  customRequest={customRequest}
-                  multiple={false}
-                  listType="picture"
-                  accept="*/*"
-                  id="documents-upload-dragger"
-                  data-cy="documents-upload-dragger"
+                  id="documentNameId"
+                  data-cy="documents-upload-form-item"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please choose the document type',
+                    },
+                  ]}
                 >
-                  <div
-                    className="flex justify-between items-center text-xl font-semibold text-gray-950"
-                    id="documents-upload-header"
-                    data-cy="documents-upload-header"
+                  <Dragger
+                    name="documentName"
+                    fileList={documentFileList}
+                    onChange={handleDocumentChange}
+                    onRemove={handleDocumentRemove}
+                    customRequest={customRequest}
+                    multiple={false}
+                    accept="*/*"
+                    id="documents-upload-dragger"
+                    data-cy="documents-upload-dragger"
+                    className="rounded-lg bg-[#fcfcfc]"
                   >
                     <p
-                      id="documents-upload-title"
-                      data-cy="documents-upload-title"
+                      className="ant-upload-drag-icon mb-4 flex justify-center items-center"
+                      id="documents-upload-icon"
+                      data-cy="documents-upload-icon"
                     >
-                      Document Uploads
+                      <Inbox
+                        className="text-gray-400 w-10 h-10"
+                      />
                     </p>
-                    {/* <div className="flex py-3 px-6 my-4 items-center">
-                      <Button
-                        className="ant-upload-text font-semibold text-white  text-sm  bg-blue-500 hover:bg-blue-600"
-                        type="primary"
-                      >
-                        <MdOutlineUploadFile className="text-white text-xl mr-2" />
-                        Request Documents
-                      </Button>
-                    </div> */}
-                  </div>
-                  <p
-                    className="ant-upload-drag-icon"
-                    id="documents-upload-icon"
-                    data-cy="documents-upload-icon"
-                  >
-                    <Image
-                      preview={false}
-                      className="w-full max-w-xs"
-                      src="/Uploading.png"
-                      alt="Loading"
-                      id="documents-upload-image"
-                      data-cy="documents-upload-image"
-                    />
-                  </p>
-                  <p
-                    className="ant-upload-hint text-xl font-bold text-gray-950 my-4"
-                    id="documents-upload-drag-hint"
-                    data-cy="documents-upload-drag-hint"
-                  >
-                    Drag & drop here to Upload
-                  </p>
-                  <p
-                    className="ant-upload-hint text-xs text-gray-950"
-                    id="documents-upload-select-hint"
-                    data-cy="documents-upload-select-hint"
-                  >
-                    or select a file from your computer
-                  </p>
+                    <p
+                      className="ant-upload-text text-base font-medium text-gray-700 mb-2"
+                      id="documents-upload-drag-hint"
+                      data-cy="documents-upload-drag-hint"
+                    >
+                      Click or drag file to this area to upload
+                    </p>
+                    <p
+                      className="ant-upload-hint text-xs text-gray-500"
+                      id="documents-upload-select-hint"
+                      data-cy="documents-upload-select-hint"
+                    >
+                      Support for a single or bulk upload.
+                    </p>
+                  </Dragger>
+                </Form.Item>
+                <div
+                  className="flex justify-end mt-4"
+                  id="documents-upload-footer"
+                  data-cy="documents-upload-footer"
+                >
                   <Button
-                    className="ant-upload-text font-semibold text-white py-3 px-6 text-sm my-4 bg-blue-500 hover:bg-blue-600"
+                    disabled={documentFileList?.length === 0}
+                    loading={addEmployee}
                     type="primary"
-                    id="documents-upload-btn"
-                    data-cy="documents-upload-btn"
+                    htmlType="submit"
+                    icon={<FaPlus />}
+                    id="documents-upload-submit-btn"
+                    data-cy="documents-upload-submit-btn"
                   >
-                    <MdOutlineUploadFile
-                      className="text-white text-xl mr-2"
-                      id="documents-upload-btn-icon"
-                      data-cy="documents-upload-btn-icon"
-                    />
-                    Upload File
+                    Upload
                   </Button>
-                </Dragger>
-              </Form.Item>
-              <div
-                className="flex justify-between px-2 items-center"
-                id="documents-upload-footer"
-                data-cy="documents-upload-footer"
-              >
-                <p
-                  className="font-bold"
-                  id="documents-upload-footer-title"
-                  data-cy="documents-upload-footer-title"
-                >
-                  Uploaded Documents
-                </p>
-                <Button
-                  disabled={documentFileList?.length === 0}
-                  loading={addEmployee}
-                  id={`sidebarActionCreateSubmit`}
-                  data-cy="documents-upload-submit-btn"
-                  className="px-6 py-3 mb-3 flex justify-end border-none bg-white "
-                  htmlType="submit"
-                >
-                  <FaPlus />
-                </Button>
-              </div>
-            </Form>
-          </Col>
-        </AccessGuard>
-      </Row>
-      <Row id="documents-table-row" data-cy="documents-table-row">
-        <EmployeeDocumentTable
-          employeeDocument={employeeData?.employeeDocument}
-          onDelete={handleDelete}
-          id={id}
-          data-cy={`documents-table-${id}`}
-        />
+                </div>
+              </Form>
+            </Card>
+          </AccessGuard>
+        </Col>
+
+        {/* Right Column - Documents List */}
+        <Col
+          xs={24}
+          lg={12}
+          id="documents-list-col"
+          data-cy="documents-list-col"
+        >
+          <Card
+            title={
+              <span className="text-base font-bold text-gray-900">
+                Documents
+              </span>
+            }
+            className="rounded-lg border border-gray-200"
+            id="documents-list-card"
+            data-cy="documents-list-card"
+            headStyle={{ borderBottom: 'none', paddingBottom: '16px' }}
+          >
+            <EmployeeDocumentList
+              employeeDocument={employeeData?.employeeDocument}
+              onDelete={handleDelete}
+              id={id}
+            />
+          </Card>
+        </Col>
       </Row>
     </div>
   );

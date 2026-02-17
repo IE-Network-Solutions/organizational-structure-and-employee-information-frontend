@@ -20,13 +20,13 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
     data-cy="custom-breadcrumb"
   >
     <div
-      className="self-stretch text-gray-900 text-2xl font-bold font-['Manrope'] leading-[31.20px]"
+      className="self-stretch text-gray-900 text-lg sm:text-2xl font-bold font-['Manrope'] leading-[31.20px]"
       data-cy="breadcrumb-title"
     >
       {title}
     </div>
     <div
-      className="self-stretch text-slate-500 text-sm font-medium font-['Manrope'] leading-snug"
+      className="self-stretch text-slate-500 text-xs sm:text-sm font-medium font-['Manrope'] leading-snug"
       data-cy="breadcrumb-subtitle"
     >
       {subtitle}

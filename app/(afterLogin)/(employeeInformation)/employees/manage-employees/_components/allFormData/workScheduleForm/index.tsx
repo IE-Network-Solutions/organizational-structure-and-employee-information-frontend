@@ -15,10 +15,12 @@ interface DataType {
 
 interface WorkScheduleFormProps {
   selectedWorkScheduleDetails?: any[];
+  form?: any;
 }
 
 const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
   selectedWorkScheduleDetails,
+  form,
 }) => {
   const { data: workSchedules } = useGetWorkSchedules();
   const {
@@ -35,6 +37,12 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
     setSelectedWorkSchedule(selectedValue || null);
     setWorkSchedule(value);
   };
+
+  React.useEffect(() => {
+    if (form && workSchedule) {
+      form.setFieldsValue({ workScheduleId: workSchedule });
+    }
+  }, [workSchedule, form]);
 
   const columns: TableProps<DataType>['columns'] = [
     {
@@ -92,13 +100,6 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
 
   return (
     <div id="work-schedule-form" data-cy="work-schedule-form">
-      <div
-        className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
-        id="work-schedule-title"
-        data-cy="work-schedule-title"
-      >
-        Work Schedule
-      </div>
       <Row
         gutter={16}
         id="work-schedule-select-row"
@@ -150,7 +151,7 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
           </Form.Item>
         </Col>
       </Row>
-      <Row
+      {/* <Row
         gutter={16}
         id="work-schedule-table-row"
         data-cy="work-schedule-table-row"
@@ -169,7 +170,7 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
             data-cy="work-schedule-table"
           />
         </Col>
-      </Row>
+      </Row> */}
     </div>
   );
 };

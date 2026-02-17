@@ -29,7 +29,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       lineHeightHeading5: 1.5, // H5 line height (24px / 16px)
 
       // Brand Colors - Primary (Blue Palette)
-      colorPrimary: '#1890FF', // Primary-7: Main primary color
+      colorPrimary: '#1976d2', // Primary-7: Main primary color
       colorPrimaryBg: '#E6F7FF', // Primary-3: Default state background
       colorPrimaryBgHover: '#BAE7FF', // Primary-4: Hover background
       colorPrimaryBorder: '#91D5FF', // Primary-5: Border color

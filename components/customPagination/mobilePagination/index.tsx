@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { usePaginationStore } from '@/store/uistate/features/pagination';
 
@@ -52,40 +51,95 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
     }
   };
 
+  const handlePageClick = (page: number) => {
+    if (page !== activeCurrentPage && page >= 1 && page <= totalPages) {
+      if (currentPage === undefined) {
+        setCurrentPage(page);
+      }
+      onChange?.(page, pageSize);
+      onShowSizeChange?.(page, pageSize);
+    }
+  };
+
+  // Calculate which pages to show (show up to 5 pages)
+  const getVisiblePages = () => {
+    const pages: number[] = [];
+    const maxVisible = Math.min(5, totalPages);
+    
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is 5 or less
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show first 5 pages
+      for (let i = 1; i <= maxVisible; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  };
+
+  const visiblePages = getVisiblePages();
+
   return (
     <div
       id={id}
       data-cy={dataCy}
-      className="flex items-center justify-between w-full px-4 py-2 bg-gray-100"
+      className="flex w-full px-2 py-2 rounded-lg"
     >
       <div
         data-cy="components-custompagination-mobilepagination-index-tsx-index-div-61"
-        className="flex items-center gap-6"
+        className="flex items-center justify-between gap-2 w-full"
       >
-        <Button
-          icon={<LeftOutlined />}
+        <button
           onClick={handlePrevious}
           disabled={activeCurrentPage === 1}
-          className="border-gray-200"
-        />
-        <div
-          data-cy="components-custompagination-mobilepagination-index-tsx-index-div-68"
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 font-medium"
+          className={`flex items-center justify-center ${
+            activeCurrentPage === 1
+              ? 'text-gray-300 cursor-not-allowed'
+              : 'text-gray-500 hover:text-gray-700 cursor-pointer'
+          }`}
+          aria-label="Previous page"
         >
-          {activeCurrentPage}
+          <LeftOutlined />
+        </button>
+        
+        <div className="flex items-center gap-4">
+          {visiblePages.map((page) => {
+            const isActive = page === activeCurrentPage;
+            return (
+              <button
+                key={page}
+                onClick={() => handlePageClick(page)}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg font-medium transition-colors ${
+                  isActive
+                    ? 'text-[#1e40af] border border-[#1e40af] bg-white'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+                data-cy={`mobile-pagination-page-${page}`}
+                aria-label={`Go to page ${page}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {page}
+              </button>
+            );
+          })}
         </div>
-        <Button
-          icon={<RightOutlined className="text-gray-800" />}
+        
+        <button
           onClick={handleNext}
           disabled={activeCurrentPage === totalPages}
-          className="border-gray-200"
-        />
-      </div>
-      <div
-        data-cy="components-custompagination-mobilepagination-index-tsx-index-div-78"
-        className="text-sm text-gray-600"
-      >
-        {totalResults} Result{totalResults !== 1 && 's'}
+          className={`flex items-center justify-center ${
+            activeCurrentPage === totalPages
+              ? 'text-gray-300 cursor-not-allowed'
+              : 'text-gray-500 hover:text-gray-700 cursor-pointer'
+          }`}
+          aria-label="Next page"
+        >
+          <RightOutlined />
+        </button>
       </div>
     </div>
   );

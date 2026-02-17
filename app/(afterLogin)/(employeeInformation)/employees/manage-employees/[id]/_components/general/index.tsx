@@ -1,4 +1,4 @@
-import { Form } from 'antd';
+import { Col, Form, Row } from 'antd';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
@@ -86,35 +86,45 @@ function General({ id }: { id: string }) {
 
   return (
     <>
-      <PersonalDataComponent
-        id={id}
-        handleSaveChanges={handleSaveChanges}
-        data-cy="general-personal-data-component"
-      />
-      <EmergencyContact
-        mergedFields={mergedFields}
-        id={id}
-        handleSaveChanges={handleSaveChanges}
-        data-cy="general-emergency-contact-component"
-      />
-      <AddressComponent
+    <Row gutter={16} >
+      <Col lg={12} sm={24} xs={24}>
+        <PersonalDataComponent
+          id={id}
+          data-cy="general-personal-data-component"
+        />
+        <AddressComponent
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
         data-cy="general-address-component"
       />
-      <BankInformationComponent
-        mergedFields={mergedFields}
-        id={id}
-        handleSaveChanges={handleSaveChanges}
-        data-cy="general-bank-information-component"
-      />
-      <AdditionalInformation
+       <AdditionalInformation
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
         data-cy="general-additional-information-component"
       />
+
+      </Col>
+      <Col lg={12} sm={24} xs={24}>
+        <EmergencyContact
+          mergedFields={mergedFields}
+          id={id}
+          handleSaveChanges={handleSaveChanges}
+          data-cy="general-emergency-contact-component"
+        />
+         <BankInformationComponent
+        mergedFields={mergedFields}
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+        data-cy="general-bank-information-component"
+      />
+      </Col>
+    </Row>
+    
+      
+     
+     
     </>
   );
 }
