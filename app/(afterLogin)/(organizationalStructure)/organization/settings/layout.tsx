@@ -1,14 +1,17 @@
 'use client';
 import { FC, ReactNode, useEffect } from 'react';
-import { TbNotes } from 'react-icons/tb';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { SidebarMenuItem } from '@/types/sidebarMenu';
-import SidebarMenu from '@/components/sidebarMenu';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { Skeleton } from 'antd';
-import { usePathname } from 'next/navigation';
+import { Skeleton, Tabs, Breadcrumb, Button } from 'antd';
+import { usePathname, useRouter } from 'next/navigation';
+import type { TabsProps } from 'antd';
+import { FaPlus } from 'react-icons/fa';
+import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
+import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface SettingsLayoutProps {
   children: ReactNode;
@@ -17,12 +20,18 @@ interface SettingsLayoutProps {
 const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   const { token } = useAuthenticationStore();
   const pathname = usePathname();
+  const router = useRouter();
+  const { isMobile } = useIsMobile();
 
   const {
     data: activeFiscalYear,
     refetch,
     isLoading: isResponseLoading,
   } = useGetActiveFiscalYearsData();
+
+  const { setFormOpen, setEditingBranch } = useBranchStore();
+  const { setOpenFiscalYearDrawer, setEditMode, setSelectedFiscalYear } =
+    useFiscalYearDrawerStore();
 
   useEffect(() => {
     refetch();
@@ -33,92 +42,67 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     !!activeFiscalYear?.endDate &&
     new Date(activeFiscalYear?.endDate) <= new Date();
 
-  const menuItems = new SidebarMenuItem([
+  const getActiveKey = () => {
+    if (pathname.includes('/branches')) return 'branches';
+    if (pathname.includes('/fiscalYear')) return 'fiscalYear';
+    if (pathname.includes('/transfer')) return 'transfer';
+    if (pathname.includes('/merge')) return 'merge';
+    return 'branches';
+  };
+
+  const handleBranchAdd = () => {
+    setEditingBranch(null);
+    setFormOpen(true);
+  };
+
+  const handleFiscalYearAdd = () => {
+    setEditMode(false);
+    setSelectedFiscalYear(null);
+    setOpenFiscalYearDrawer(true);
+  };
+
+  const handleTabChange = (key: string) => {
+    switch (key) {
+      case 'branches':
+        router.push('/organization/settings/branches');
+        break;
+      case 'fiscalYear':
+        router.push('/organization/settings/fiscalYear/fiscalYearCard');
+        break;
+      case 'transfer':
+        router.push('/organization/settings/transfer');
+        break;
+      case 'merge':
+        router.push('/organization/settings/merge');
+        break;
+      default:
+        router.push('/organization/settings/branches');
+    }
+  };
+
+  const items: TabsProps['items'] = [
     {
-      item: {
-        key: 'branches',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/organization/settings/branches') ? 'lg:ml-4' : ''}`}
-            data-cy="org-settings-branches-icon"
-            id="org-settings-branches-icon"
-          >
-            <TbNotes
-              className={`hidden lg:block ${pathname.includes('/organization/settings/branches') ? 'text-[#1677FF]' : ''}`}
-              data-cy="org-settings-branches-icon-svg"
-              id="org-settings-branches-icon-svg"
-            />
-            <p
-              className="menu-item-label"
-              data-cy="org-settings-branches-label"
-              id="org-settings-branches-label"
-            >
-              Branches
-            </p>
-          </div>
-        ),
-      },
-      link: '/organization/settings/branches',
+      key: 'branches',
+      label: 'Branches',
       disabled: hasEndedFiscalYear,
     },
     {
-      item: {
-        key: 'fiscalYearCard',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/organization/settings/fiscalYear') ? 'lg:ml-4' : ''}`}
-            data-cy="org-settings-fiscal-year-icon"
-            id="org-settings-fiscal-year-icon"
-          >
-            <TbNotes
-              className={`hidden lg:block ${pathname.includes('/organization/settings/fiscalYear') ? 'text-[#1677FF]' : ''}`}
-              data-cy="org-settings-fiscal-year-icon-svg"
-              id="org-settings-fiscal-year-icon-svg"
-            />
-            <p
-              className="menu-item-label"
-              data-cy="org-settings-fiscal-year-label"
-              id="org-settings-fiscal-year-label"
-            >
-              Fiscal Year
-            </p>
-          </div>
-        ),
-      },
-      link: '/organization/settings/fiscalYear/fiscalYearCard',
+      key: 'fiscalYear',
+      label: 'Fiscal Year',
     },
     {
-      item: {
-        key: 'workSchedule',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/organization/settings/workSchedule') ? 'lg:ml-4' : ''}`}
-            data-cy="org-settings-work-schedule-icon"
-            id="org-settings-work-schedule-icon"
-          >
-            <TbNotes
-              className={`hidden lg:block ${pathname.includes('/organization/settings/workSchedule') ? 'text-[#1677FF]' : ''}`}
-              data-cy="org-settings-work-schedule-icon-svg"
-              id="org-settings-work-schedule-icon-svg"
-            />
-            <p
-              className="menu-item-label"
-              data-cy="org-settings-work-schedule-label"
-              id="org-settings-work-schedule-label"
-            >
-              Work Schedule
-            </p>
-          </div>
-        ),
-      },
-      link: '/organization/settings/workSchedule',
-      disabled: hasEndedFiscalYear,
+      key: 'transfer',
+      label: 'Transfer',
     },
-  ]);
+    {
+      key: 'merge',
+      label: 'Merge',
+    },
+  ];
 
   return (
     <div
-      className="min-h-screen "
+      className="min-h-screen"
       data-cy="org-settings-layout"
       id="org-settings-layout"
     >
@@ -131,7 +115,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       )}
       {hasEndedFiscalYear && (
         <div
-          className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none "
+          className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none"
           data-cy="org-settings-fiscal-year-warning"
           id="org-settings-fiscal-year-warning"
         >
@@ -151,32 +135,117 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           </span>
         </div>
       )}
-      <div
-        className="min-h-screen bg-[#f5f5f5]"
-        data-cy="org-settings-layout-div"
-        id="org-settings-layout-div"
-      >
-        <PageHeader
-          title="Settings"
-          description="Manage your settings here"
-          data-cy="org-settings-page-header"
-        />
-        <div
-          className="flex  flex-col lg:flex-row gap-6 m-4"
-          data-cy="org-organization-settings-layout-div-1"
-          id="org-organization-settings-layout-div-1"
-        >
-          <SidebarMenu
-            menuItems={menuItems}
-            data-cy="org-settings-sidebar-menu"
-          />
-          <BlockWrapper
-            padding="0px"
-            className="flex-1 h-max overflow-x-auto bg-[#fafafa] "
-            data-cy="org-settings-content-wrapper"
+          <div
+            className="min-h-screen bg-white mr-6"
+            data-cy="org-settings-layout-div"
+            id="org-settings-layout-div"
           >
-            {children}
-          </BlockWrapper>
+        <div className="px-4 pt-4">
+          <h2
+            className="text-gray-900 text-2xl font-bold mb-0"
+            data-cy="org-settings-page-header-title"
+            id="org-settings-page-header-title"
+          >
+            Setting
+          </h2>
+          <Breadcrumb
+            className="mt-2 mb-4"
+            items={[
+              {
+                title: (
+                  <a
+                    href="/organization/chart"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push('/organization/chart');
+                    }}
+                  >
+                    Organization
+                  </a>
+                ),
+              },
+              {
+                title: 'Setting',
+              },
+            ]}
+            data-cy="org-settings-breadcrumb"
+          />
+        </div>
+        <div
+          className="bg-white mb-4"
+          data-cy="org-settings-tabs-container"
+          id="org-settings-tabs-container"
+        >
+          <div className="px-4 pr-6">
+            <Tabs
+              activeKey={getActiveKey()}
+              onChange={handleTabChange}
+              items={items}
+              tabBarStyle={{
+                marginBottom: 0,
+                marginLeft: 0,
+                paddingLeft: 0,
+                paddingRight: 0,
+              }}
+              tabBarExtraContent={
+              getActiveKey() === 'branches' ? (
+                <AccessGuard
+                  permissions={[Permissions.CreateBranch]}
+                  data-cy="org-settings-branches-add-btn-guard"
+                  id="org-settings-branches-add-btn-guard"
+                >
+                  <Button
+                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                    icon={
+                      <FaPlus
+                        data-cy="org-settings-branches-add-btn-icon"
+                        id="org-settings-branches-add-btn-icon"
+                      />
+                    }
+                    type="primary"
+                    onClick={handleBranchAdd}
+                    data-cy="org-settings-branches-add-btn"
+                    id="org-settings-branches-add-btn"
+                  >
+                    {!isMobile && 'Branch'}
+                  </Button>
+                </AccessGuard>
+              ) : getActiveKey() === 'fiscalYear' ? (
+                <AccessGuard
+                  permissions={[Permissions.CreateCalendar]}
+                  data-cy="org-settings-fiscal-year-create-btn-guard"
+                  id="org-settings-fiscal-year-create-btn-guard"
+                >
+                  <Button
+                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                    icon={
+                      <FaPlus
+                        data-cy="org-settings-fiscal-year-create-btn-icon"
+                        id="org-settings-fiscal-year-create-btn-icon"
+                      />
+                    }
+                    type="primary"
+                    onClick={handleFiscalYearAdd}
+                    data-cy="org-settings-fiscal-year-create-btn"
+                    id="org-settings-fiscal-year-create-btn"
+                  >
+                    {!isMobile && 'Fiscal Year'}
+                  </Button>
+                </AccessGuard>
+              ) : null
+            }
+              className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+              data-cy="org-settings-tabs"
+              id="org-settings-tabs"
+            />
+          </div>
+        </div>
+            <div
+              className="px-4 pr-6 mb-4"
+              data-cy="org-settings-content-wrapper"
+              id="org-settings-content-wrapper"
+            >
+          {children}
         </div>
       </div>
     </div>
