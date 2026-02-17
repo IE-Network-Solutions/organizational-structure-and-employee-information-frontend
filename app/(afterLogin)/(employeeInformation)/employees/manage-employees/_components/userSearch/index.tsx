@@ -67,8 +67,16 @@ const EmployeeSearch: React.FC = () => {
     onSelectChange(value, 'employmentType');
   };
 
-  const handleJoinedDateChange = (date: any, dateString: string | string[]) => {
-    const dateValue = Array.isArray(dateString) ? dateString[0] : dateString;
+  const handleJoinedDateChange = (
+    date: dayjs.Dayjs | null,
+    dateString: string | string[] | null,
+  ) => {
+    const dateValue =
+      dateString == null
+        ? ''
+        : Array.isArray(dateString)
+          ? dateString[0]
+          : dateString;
     onSelectChange(dateValue, 'joinedDate');
   };
 

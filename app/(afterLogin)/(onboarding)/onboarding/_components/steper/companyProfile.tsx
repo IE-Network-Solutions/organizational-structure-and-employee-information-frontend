@@ -126,10 +126,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
         data-cy="onboarding-company-profile-content"
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="companyProfileImage"
-            label="Upload Company Logo"
-          >
+          <Form.Item name="companyProfileImage" label="Upload Company Logo">
             <Upload.Dragger
               name="files"
               className="mt-2"

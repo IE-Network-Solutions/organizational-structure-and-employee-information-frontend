@@ -7,7 +7,9 @@ import React from 'react';
  * Left sidebar (dark grey + skeleton list), top header, main area with
  * four image placeholder boxes and two large content blocks with folder icon.
  */
-const OnboardingModalBackground: React.FC<{ className?: string }> = ({ className = '' }) => {
+const OnboardingModalBackground: React.FC<{ className?: string }> = ({
+  className = '',
+}) => {
   return (
     <div
       className={`absolute inset-0 z-0 overflow-hidden flex bg-[#e5e7eb] ${className}`}
@@ -22,13 +24,15 @@ const OnboardingModalBackground: React.FC<{ className?: string }> = ({ className
         <div className="h-9 bg-[#d1d5db] rounded-md mb-2 w-3/5" />
         <div className="border-t border-[#d1d5db] my-3" />
         {/* Skeleton list - varying length bars */}
-        {[0.95, 0.7, 0.85, 0.6, 0.9, 0.75, 0.65, 0.8, 0.7, 0.55, 0.9, 0.6].map((w, i) => (
-          <div
-            key={i}
-            className="h-4 bg-[#d1d5db] rounded mb-2"
-            style={{ width: `${w * 100}%` }}
-          />
-        ))}
+        {[0.95, 0.7, 0.85, 0.6, 0.9, 0.75, 0.65, 0.8, 0.7, 0.55, 0.9, 0.6].map(
+          (w, i) => (
+            <div
+              key={i}
+              className="h-4 bg-[#d1d5db] rounded mb-2"
+              style={{ width: `${w * 100}%` }}
+            />
+          ),
+        )}
       </aside>
 
       {/* Right side: top bar + main content */}

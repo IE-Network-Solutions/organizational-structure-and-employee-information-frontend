@@ -20,7 +20,8 @@ import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
 
-const { Step } = Steps;
+const Step = (Steps as React.ComponentType & { Step: React.ComponentType<any> })
+  .Step;
 
 const UserSidebar = (props: any) => {
   const [form] = Form.useForm();

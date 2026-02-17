@@ -15,7 +15,7 @@ const createFiscalYear = async (fiscalYear: any) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-  
+
   // Helper function to convert Dayjs or date objects to ISO string format
   const formatDate = (date: any): string => {
     if (!date) return '';
@@ -41,24 +41,24 @@ const createFiscalYear = async (fiscalYear: any) => {
     startDate: formatDate(fiscalYear.startDate),
     endDate: formatDate(fiscalYear.endDate),
     isActive: fiscalYear.isActive ?? false,
-    sessions: fiscalYear.sessions?.map((session: any) => ({
-      name: session.name,
-      description: session.description || '',
-      startDate: formatDate(session.startDate),
-      endDate: formatDate(session.endDate),
-      active: session.active ?? false,
-      months: session.months?.map((month: any) => ({
-        name: month.name,
-        description: month.description || '',
-        startDate: formatDate(month.startDate),
-        endDate: formatDate(month.endDate),
-        active: month.active ?? false,
+    sessions:
+      fiscalYear.sessions?.map((session: any) => ({
+        name: session.name,
+        description: session.description || '',
+        startDate: formatDate(session.startDate),
+        endDate: formatDate(session.endDate),
+        active: session.active ?? false,
+        months:
+          session.months?.map((month: any) => ({
+            name: month.name,
+            description: month.description || '',
+            startDate: formatDate(month.startDate),
+            endDate: formatDate(month.endDate),
+            active: month.active ?? false,
+          })) || [],
       })) || [],
-    })) || [],
   };
-  
-  console.log('Creating fiscal year with payload:', JSON.stringify(cleanedPayload, null, 2));
-  
+
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'POST',
@@ -110,8 +110,10 @@ export const useCreateFiscalYear = () => {
       });
     },
     onError: (error: any) => {
-      console.error('Fiscal year creation error:', error);
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to create fiscal year';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to create fiscal year';
       NotificationMessage.error({
         message: 'Error creating fiscal year',
         description: errorMessage,
@@ -183,11 +185,7 @@ export const useUpdateClosedDate = () => {
   );
 };
 
-
-
-const activateMonth = async (
-  id: string,
-): Promise<void> => {
+const activateMonth = async (id: string): Promise<void> => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -201,28 +199,23 @@ const activateMonth = async (
   });
 };
 
-
-
 export const useActivateMonth = () => {
   const queryClient = useQueryClient();
-  return useMutation(
-    (id: string) =>
-      activateMonth(id),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('fiscalYears');
-        queryClient.invalidateQueries('fiscalActiveYear');
-        NotificationMessage.success({
-          message: 'Month activation updated',
-          description: 'Month status has been updated successfully',
-        });
-      },
-      onError: () => {
-        NotificationMessage.error({
-          message: 'Failed to update month',
-          description: 'Could not update month activation status. Please try again.',
-        });
-      },
+  return useMutation((id: string) => activateMonth(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries('fiscalYears');
+      queryClient.invalidateQueries('fiscalActiveYear');
+      NotificationMessage.success({
+        message: 'Month activation updated',
+        description: 'Month status has been updated successfully',
+      });
     },
-  );
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Failed to update month',
+        description:
+          'Could not update month activation status. Please try again.',
+      });
+    },
+  });
 };

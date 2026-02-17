@@ -102,9 +102,27 @@ const Login: FC = () => {
   };
 
   // Adjusted position definitions for rotation
-  const pos1 = { transform: 'translate(0, 0) rotate(-4deg) scale(0.85)', zIndex: 10, opacity: 0.7, top: '5%', left: '0%' };
-  const pos2 = { transform: 'translate(60px, -15px) rotate(5deg) scale(0.9)', zIndex: 20, opacity: 0.85, top: '2%', left: '12%' };
-  const pos3 = { transform: 'translate(30px, 80px) rotate(-6deg) scale(1)', zIndex: 30, opacity: 1, top: '12%', left: '5%' };
+  const pos1 = {
+    transform: 'translate(0, 0) rotate(-4deg) scale(0.85)',
+    zIndex: 10,
+    opacity: 0.7,
+    top: '5%',
+    left: '0%',
+  };
+  const pos2 = {
+    transform: 'translate(60px, -15px) rotate(5deg) scale(0.9)',
+    zIndex: 20,
+    opacity: 0.85,
+    top: '2%',
+    left: '12%',
+  };
+  const pos3 = {
+    transform: 'translate(30px, 80px) rotate(-6deg) scale(1)',
+    zIndex: 30,
+    opacity: 1,
+    top: '12%',
+    left: '5%',
+  };
 
   return is2FA ? (
     <TwoFactorAuth />
@@ -114,7 +132,8 @@ const Login: FC = () => {
       data-cy="login-background"
       className="h-screen w-full flex flex-col relative overflow-hidden font-['Manrope']"
       style={{
-        background: 'radial-gradient(circle at 70% 50%, #fdfdfe 0%, #f7f9fc 40%, #eff3f9 100%)',
+        background:
+          'radial-gradient(circle at 70% 50%, #fdfdfe 0%, #f7f9fc 40%, #eff3f9 100%)',
         margin: 0,
       }}
     >
@@ -146,17 +165,23 @@ const Login: FC = () => {
       <main className="flex-1 flex items-center justify-center p-4 lg:p-0 z-10 w-full h-full relative">
         {/* Adjusted grid layout to bring sections closer */}
         <div className="grid lg:grid-cols-[1fr,400px] gap-4 lg:gap-8 w-full max-w-[1200px] items-start relative px-4 lg:px-6">
-
           {/* Left Section - Branding and Animated Images */}
           <div className="hidden lg:flex flex-col h-full pt-4 pl-4">
             {/* Logo Branding - Top Aligned with Login Card */}
-            <div className="flex items-center gap-2 mb-6" style={{ transform: 'translateY(10px)' }}>
+            <div
+              className="flex items-center gap-2 mb-6"
+              style={{ transform: 'translateY(10px)' }}
+            >
               <div className="scale-[0.8] origin-left">
                 <SimpleLogo />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-[20px] font-extrabold text-[#3636F0]">SelamNew</span>
-                <span className="text-[16px] text-[#3636F0] font-medium opacity-80 font-['Manrope']">Workspace</span>
+                <span className="text-[20px] font-extrabold text-[#3636F0]">
+                  SelamNew
+                </span>
+                <span className="text-[16px] text-[#3636F0] font-medium opacity-80 font-['Manrope']">
+                  Workspace
+                </span>
               </div>
             </div>
 
@@ -168,24 +193,45 @@ const Login: FC = () => {
             </div>
 
             {/* Image Rotation Container */}
-            <div className="relative flex-1 mt-2" style={{ minHeight: '380px' }}>
+            <div
+              className="relative flex-1 mt-2"
+              style={{ minHeight: '380px' }}
+            >
               <div
                 className="absolute image-transition"
-                style={positionCycle === 0 ? pos1 : positionCycle === 1 ? pos2 : pos3}
+                style={
+                  positionCycle === 0 ? pos1 : positionCycle === 1 ? pos2 : pos3
+                }
               >
-                <img src={IMG.card1} alt="UI 1" className="w-[340px] h-auto pointer-events-none" />
+                <img
+                  src={IMG.card1}
+                  alt="UI 1"
+                  className="w-[340px] h-auto pointer-events-none"
+                />
               </div>
               <div
                 className="absolute image-transition"
-                style={positionCycle === 0 ? pos2 : positionCycle === 1 ? pos3 : pos1}
+                style={
+                  positionCycle === 0 ? pos2 : positionCycle === 1 ? pos3 : pos1
+                }
               >
-                <img src={IMG.card2} alt="UI 2" className="w-[340px] h-auto pointer-events-none" />
+                <img
+                  src={IMG.card2}
+                  alt="UI 2"
+                  className="w-[340px] h-auto pointer-events-none"
+                />
               </div>
               <div
                 className="absolute image-transition"
-                style={positionCycle === 0 ? pos3 : positionCycle === 1 ? pos1 : pos2}
+                style={
+                  positionCycle === 0 ? pos3 : positionCycle === 1 ? pos1 : pos2
+                }
               >
-                <img src={IMG.card3} alt="UI 3" className="w-[340px] h-auto pointer-events-none" />
+                <img
+                  src={IMG.card3}
+                  alt="UI 3"
+                  className="w-[340px] h-auto pointer-events-none"
+                />
               </div>
             </div>
           </div>
@@ -218,7 +264,11 @@ const Login: FC = () => {
                 <Form.Item
                   id="login-email"
                   data-cy="login-email"
-                  label={<span className="text-gray-700 text-[13px] font-semibold">Email</span>}
+                  label={
+                    <span className="text-gray-700 text-[13px] font-semibold">
+                      Email
+                    </span>
+                  }
                   name="email"
                   className="mb-5"
                   rules={[
@@ -241,10 +291,16 @@ const Login: FC = () => {
                 <Form.Item
                   id="login-password"
                   data-cy="login-password"
-                  label={<span className="text-gray-700 text-[13px] font-semibold">Password</span>}
+                  label={
+                    <span className="text-gray-700 text-[13px] font-semibold">
+                      Password
+                    </span>
+                  }
                   name="password"
                   className="mb-1"
-                  rules={[{ required: true, message: 'Please input your password!' }]}
+                  rules={[
+                    { required: true, message: 'Please input your password!' },
+                  ]}
                 >
                   <Input.Password
                     id="login-password-input"
@@ -257,7 +313,9 @@ const Login: FC = () => {
 
                 <div className="flex justify-between items-center mb-6 mt-2">
                   <Form.Item name="remember" valuePropName="checked" noStyle>
-                    <Checkbox className="text-gray-600 text-[13px]">Remember me</Checkbox>
+                    <Checkbox className="text-gray-600 text-[13px]">
+                      Remember me
+                    </Checkbox>
                   </Form.Item>
                   <Link
                     href="/authentication/forget-password"
@@ -313,10 +371,22 @@ const Login: FC = () => {
       {/* Footer */}
       <footer className="w-full pb-6 z-20 absolute bottom-0">
         <div className="text-center text-[12px] text-gray-500 font-normal">
-          <p className="mb-2">© {new Date().getFullYear()} Selamnew. All rights reserved.</p>
+          <p className="mb-2">
+            © {new Date().getFullYear()} Selamnew. All rights reserved.
+          </p>
           <div className="flex justify-center gap-6">
-            <Link href="/terms" className="hover:text-[#3636F0] transition-colors font-medium">Terms and conditions</Link>
-            <Link href="/privacy" className="hover:text-[#3636F0] transition-colors font-medium">Privacy Policy</Link>
+            <Link
+              href="/terms"
+              className="hover:text-[#3636F0] transition-colors font-medium"
+            >
+              Terms and conditions
+            </Link>
+            <Link
+              href="/privacy"
+              className="hover:text-[#3636F0] transition-colors font-medium"
+            >
+              Privacy Policy
+            </Link>
           </div>
         </div>
       </footer>

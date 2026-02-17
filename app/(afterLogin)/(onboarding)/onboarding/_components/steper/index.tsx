@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Spin, Form } from 'antd';
+import { Form } from 'antd';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -23,9 +23,7 @@ import {
   useCreateFiscalYear,
   useDeleteFiscalYear,
 } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
-import {
-  FiscalYear,
-} from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import {
   useCreateSchedule,
   useDeleteSchedule,
@@ -78,7 +76,6 @@ const OnboardingSteper: React.FC = () => {
   const [formCompany] = Form.useForm();
   const [formFiscal] = Form.useForm();
   const [formSchedule] = Form.useForm();
-  const forms = [formCompany, formFiscal, formSchedule];
 
   /* -------------------------------------------------------------------------- */
   /*                               external data                                */
@@ -91,17 +88,14 @@ const OnboardingSteper: React.FC = () => {
     }
   }, [departments?.length, router]);
 
-  const {
-    loading,
-    toggleLoading,
-    isModalVisible,
-    togleIsModalVisible,
-  } = useStepStore();
+  const { loading, toggleLoading, isModalVisible, togleIsModalVisible } =
+    useStepStore();
 
   const { createWorkSchedule, detail } = useScheduleStore();
   const { orgData } = useOrganizationStore();
   const { fiscalYearPayLoad } = useFiscalYearDrawerStore();
-  const { companyName, companyProfileImage, companyStamp } = useCompanyProfile();
+  const { companyName, companyProfileImage, companyStamp } =
+    useCompanyProfile();
 
   const { data: timeZoneRow } = useGetTimeZone();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -117,7 +111,9 @@ const OnboardingSteper: React.FC = () => {
     const totalMinutes = -offsetMinutes;
     const sign = totalMinutes >= 0 ? '+' : '-';
     const absMinutes = Math.abs(totalMinutes);
-    const hours = Math.floor(absMinutes / 60).toString().padStart(2, '0');
+    const hours = Math.floor(absMinutes / 60)
+      .toString()
+      .padStart(2, '0');
     const minutes = (absMinutes % 60).toString().padStart(2, '0');
     setDetectedTimeZone(`${sign}${hours}:${minutes}`);
   }, []);
@@ -126,7 +122,10 @@ const OnboardingSteper: React.FC = () => {
   /*                              static payloads                              */
   /* -------------------------------------------------------------------------- */
   const schedulePayload = { name: 'Full‑time Schedule', detail };
-  const timeZonePayload = { timezone: detectedTimeZone, id: timeZoneRow ? timeZoneRow.id : '' };
+  const timeZonePayload = {
+    timezone: detectedTimeZone,
+    id: timeZoneRow ? timeZoneRow.id : '',
+  };
   const branchPayload = {
     name: 'HQ',
     description: 'HQ',
@@ -170,10 +169,26 @@ const OnboardingSteper: React.FC = () => {
     branch: any,
     applicantStatus: any,
   ) {
-    yield { createFn: createFiscalYear.mutateAsync, deleteFn: deleteFiscalYear.mutateAsync, data: fiscalYear };
-    yield { createFn: createSchedule.mutateAsync, deleteFn: deleteSchedule.mutateAsync, data: schedule };
-    yield { createFn: createOrgChart.mutateAsync, deleteFn: deleteOrgChart.mutateAsync, data: orgData };
-    yield { createFn: createCompanyInfo.mutateAsync, deleteFn: deleteCompanyInfo.mutateAsync, data: companyInfo };
+    yield {
+      createFn: createFiscalYear.mutateAsync,
+      deleteFn: deleteFiscalYear.mutateAsync,
+      data: fiscalYear,
+    };
+    yield {
+      createFn: createSchedule.mutateAsync,
+      deleteFn: deleteSchedule.mutateAsync,
+      data: schedule,
+    };
+    yield {
+      createFn: createOrgChart.mutateAsync,
+      deleteFn: deleteOrgChart.mutateAsync,
+      data: orgData,
+    };
+    yield {
+      createFn: createCompanyInfo.mutateAsync,
+      deleteFn: deleteCompanyInfo.mutateAsync,
+      data: companyInfo,
+    };
     yield {
       createFn: updateCompanyImageWithStamp.mutateAsync,
       data: {
@@ -184,8 +199,16 @@ const OnboardingSteper: React.FC = () => {
       },
     };
     yield { createFn: updateTimeZone.mutateAsync, data: timeZone };
-    yield { createFn: createBranch.mutateAsync, deleteFn: deleteBranch.mutateAsync, data: branch };
-    yield { createFn: createApplicantStatus.mutateAsync, deleteFn: deleteApplicantStatus.mutateAsync, data: applicantStatus };
+    yield {
+      createFn: createBranch.mutateAsync,
+      deleteFn: deleteBranch.mutateAsync,
+      data: branch,
+    };
+    yield {
+      createFn: createApplicantStatus.mutateAsync,
+      deleteFn: deleteApplicantStatus.mutateAsync,
+      data: applicantStatus,
+    };
   }
 
   /* -------------------------------------------------------------------------- */
@@ -197,12 +220,14 @@ const OnboardingSteper: React.FC = () => {
       // Validate the fiscal form first (Step 2)
       await formFiscal.validateFields();
 
-      // For Steps 1 and 3, skip validation if fields aren't fully interactable, 
+      // For Steps 1 and 3, skip validation if fields aren't fully interactable,
       // OR ensure they are populated via their background components.
       // We'll try to validate all just in case.
-      await Promise.all([formCompany.validateFields(), formSchedule.validateFields()]);
+      await Promise.all([
+        formCompany.validateFields(),
+        formSchedule.validateFields(),
+      ]);
     } catch (error: any) {
-      console.error("Validation failed", error);
       showValidationErrors(error?.errorFields);
       toggleLoading();
       return;
@@ -211,17 +236,27 @@ const OnboardingSteper: React.FC = () => {
     const companyInfoPayload = formCompany.getFieldsValue();
     createWorkSchedule();
 
-    const successfulRequests: { deletePayload: any; deleteFn: (payload: any) => Promise<any> }[] = [];
-    
+    const successfulRequests: {
+      deletePayload: any;
+      deleteFn: (payload: any) => Promise<any>;
+    }[] = [];
+
     // Construct payload exactly like organization settings drawer does
-    if (!fiscalYearPayLoad || !fiscalYearPayLoad.sessions || fiscalYearPayLoad.sessions.length === 0) {
-      NotificationMessage.error({ message: 'Error', description: 'Missing required fiscal year data.' });
+    if (
+      !fiscalYearPayLoad ||
+      !fiscalYearPayLoad.sessions ||
+      fiscalYearPayLoad.sessions.length === 0
+    ) {
+      NotificationMessage.error({
+        message: 'Error',
+        description: 'Missing required fiscal year data.',
+      });
       toggleLoading();
       return;
     }
 
     const now = dayjs();
-    
+
     // Build payload matching organization settings structure exactly
     // Format dates: startDate as Dayjs object, endDate as formatted string (same as organization settings)
     const payload: FiscalYear = {
@@ -234,12 +269,13 @@ const OnboardingSteper: React.FC = () => {
         startDate: dayjs(session.startDate).format('YYYY-MM-DD'),
         endDate: dayjs(session.endDate).format('YYYY-MM-DD'),
         description: session.description || '',
-        months: session.months?.map((month: any) => ({
-          name: month.name,
-          startDate: dayjs(month.startDate).format('YYYY-MM-DD'),
-          endDate: dayjs(month.endDate).format('YYYY-MM-DD'),
-          description: month.description || '',
-        })) || [],
+        months:
+          session.months?.map((month: any) => ({
+            name: month.name,
+            startDate: dayjs(month.startDate).format('YYYY-MM-DD'),
+            endDate: dayjs(month.endDate).format('YYYY-MM-DD'),
+            description: month.description || '',
+          })) || [],
       })),
     };
 
@@ -250,23 +286,25 @@ const OnboardingSteper: React.FC = () => {
     const activeFiscalYearPayload = {
       ...payload,
       isActive: now.isBetween(fyStart, fyEnd, null, '[]'),
-      sessions: payload.sessions?.map((session: any) => {
-        const sStart = dayjs(session.startDate);
-        const sEnd = dayjs(session.endDate);
-        return {
-          ...session,
-          active: now.isBetween(sStart, sEnd, null, '[]'),
-          months: session.months?.map((month: any) => ({
-            ...month,
-            active: now.isBetween(
-              dayjs(month.startDate),
-              dayjs(month.endDate),
-              null,
-              '[]',
-            ),
-          })) || [],
-        };
-      }) || [],
+      sessions:
+        payload.sessions?.map((session: any) => {
+          const sStart = dayjs(session.startDate);
+          const sEnd = dayjs(session.endDate);
+          return {
+            ...session,
+            active: now.isBetween(sStart, sEnd, null, '[]'),
+            months:
+              session.months?.map((month: any) => ({
+                ...month,
+                active: now.isBetween(
+                  dayjs(month.startDate),
+                  dayjs(month.endDate),
+                  null,
+                  '[]',
+                ),
+              })) || [],
+          };
+        }) || [],
     };
 
     const generator = createResourcesGenerator(
@@ -283,14 +321,27 @@ const OnboardingSteper: React.FC = () => {
       for (const { createFn, deleteFn, data } of generator) {
         const response = await createFn(data);
         if (deleteFn && response) {
-          successfulRequests.push({ deletePayload: response?.id ?? data, deleteFn });
+          successfulRequests.push({
+            deletePayload: response?.id ?? data,
+            deleteFn,
+          });
         }
       }
-      NotificationMessage.success({ message: 'Success', description: 'Onboarding Successfully Completed' });
+      NotificationMessage.success({
+        message: 'Success',
+        description: 'Onboarding Successfully Completed',
+      });
       togleIsModalVisible();
     } catch (err) {
-      await Promise.all(successfulRequests.map(({ deletePayload, deleteFn }) => deleteFn(deletePayload)));
-      NotificationMessage.error({ message: 'Error', description: 'An error occurred. Rolled back changes.' });
+      await Promise.all(
+        successfulRequests.map(({ deletePayload, deleteFn }) =>
+          deleteFn(deletePayload),
+        ),
+      );
+      NotificationMessage.error({
+        message: 'Error',
+        description: 'An error occurred. Rolled back changes.',
+      });
     }
     toggleLoading();
   };
@@ -308,7 +359,11 @@ const OnboardingSteper: React.FC = () => {
         {/* Main View: Fiscal Year modal stays visible; loading shown on its button */}
         {!showWelcome && (
           <div className="z-10 w-full flex justify-center overflow-hidden">
-            <FiscalYearForm form={formFiscal} onNext={onSubmitOnboarding} isLoading={loading} />
+            <FiscalYearForm
+              form={formFiscal}
+              onNext={onSubmitOnboarding}
+              isLoading={loading}
+            />
           </div>
         )}
 

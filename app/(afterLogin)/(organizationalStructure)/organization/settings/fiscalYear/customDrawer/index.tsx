@@ -7,11 +7,7 @@ import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations
 import React, { useEffect } from 'react';
 import { FormInstance } from 'antd/lib';
 import { Form } from 'antd';
-import {
-  Month,
-  Session,
-  FiscalYear,
-} from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import FiscalYearForm from './steps/fiscalYearDrawer';
 import SessionDrawer from './steps/sessionDrawer';
 import MonthDrawer from './steps/monthDrawer';
@@ -24,7 +20,6 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 dayjs.extend(isSameOrBefore);
 import { message } from 'antd'; // for error feedback
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 interface FiscalYearDrawerProps {
   form?: FormInstance;
@@ -39,28 +34,17 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     current,
     isEditMode,
     selectedFiscalYear,
-    calendarType,
     setEditMode,
     setSelectedFiscalYear,
-    fiscalYearFormValues,
-    sessionFormValues,
-    monthRangeValues,
     setCurrent,
     setMonthRangeFormValues,
-    setFiscalYearFormValues,
-    setSessionFormValues,
     openfiscalYearDrawer,
     setOpenFiscalYearDrawer,
     resetFormState,
-    setCalendarType,
-    setFiscalYearStart,
-    setFiscalYearEnd,
-    setSessionData,
-    fiscalYearPayLoad,
     setFiscalYearPayLoad,
   } = useFiscalYearDrawerStore();
 
-  const { data: fiscalYears } = useGetAllFiscalYears();
+  useGetAllFiscalYears();
 
   useEffect(() => {
     const formValues = form3?.getFieldsValue();
@@ -229,6 +213,5 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     </CustomDrawerLayout>
   );
 };
-
 
 export default CustomWorFiscalYearDrawer;
