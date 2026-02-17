@@ -5,13 +5,12 @@ on:
     branches:
       - develop
       - main
-      - develop-redesign-branch
+      -develop-redesign-branch
   pull_request:
     branches:
       - develop
       - main
-      - develop-redesign-branch
-
+      -develop-redesign-branch
 
 
 jobs:
