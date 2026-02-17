@@ -27,6 +27,7 @@
     "@tiptap/starter-kit": "^2.12.0",
     "@types/leaflet": "^1.9.20",
     "@types/react-pdf": "^7.0.0",
+    "@xyflow/react": "^12.10.0",
     "antd": "^5.20.5",
     "axios": "^1.7.2",
     "chart.js": "^4.4.4",
