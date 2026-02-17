@@ -86,7 +86,7 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
           data-cy="recognition-detail-print-button"
         >
           <div
-            className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight"
+            className="text-center text-base font-bold leading-normal tracking-tight"
             data-cy="recognition-detail-print-button-text"
             id="recognitionDetailPrintButtonText"
           >
