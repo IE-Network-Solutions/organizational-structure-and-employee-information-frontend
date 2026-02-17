@@ -61,12 +61,28 @@ const LeaveSection: React.FC = () => {
   }));
 
   const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+    <div
+      className="flex flex-col gap-4"
+      data-cy="time-attendance-leave-section-mobile-filter-content-div"
+    >
+      <h3
+        className="text-lg font-medium mb-2"
+        data-cy="time-attendance-leave-section-mobile-filter-title-h3"
+      >
+        Filter
+      </h3>
 
       {/* Leave Type */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Leave Type</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-leave-section-mobile-filter-leave-type-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-leave-section-mobile-filter-leave-type-label"
+        >
+          Leave Type
+        </label>
         <Select
           showSearch
           placeholder="Select Leave Type"
@@ -78,12 +94,21 @@ const LeaveSection: React.FC = () => {
             (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
           }
           options={leaveTypeOption}
+          data-cy="time-attendance-leave-section-mobile-filter-leave-type-select"
         />
       </div>
 
       {/* Department */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Department</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-leave-section-mobile-filter-department-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-leave-section-mobile-filter-department-label"
+        >
+          Department
+        </label>
         <Select
           showSearch
           placeholder="Select Department"
@@ -95,12 +120,21 @@ const LeaveSection: React.FC = () => {
             (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
           }
           options={departmentOptions}
+          data-cy="time-attendance-leave-section-mobile-filter-department-select"
         />
       </div>
 
       {/* Date Range */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Date Range</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-leave-section-mobile-filter-date-range-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-leave-section-mobile-filter-date-range-label"
+        >
+          Date Range
+        </label>
         <RangePicker
           allowClear
           className="w-full h-12"
@@ -113,6 +147,7 @@ const LeaveSection: React.FC = () => {
               setEndDate('');
             }
           }}
+          data-cy="time-attendance-leave-section-mobile-filter-date-range-picker"
         />
       </div>
     </div>
@@ -125,11 +160,25 @@ const LeaveSection: React.FC = () => {
       id="time-attendance-leave-section-layout-card"
       data-cy="time-attendance-leave-section-layout-card"
     >
-      <div className="flex flex-col gap-4">
+      <div
+        data-cy="dashboard-components-adminpanel-leavesection-tsx-leavesection-div-163"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 w-full">
-          <div className="font-bold text-lg mb-4">Leave</div>
-          <div className="space-x-3 items-center hidden md:flex">
+        <div
+          className="flex flex-col sm:flex-row justify-between items-start gap-4 w-full"
+          data-cy="time-attendance-leave-section-header-div"
+        >
+          <div
+            className="font-bold text-lg mb-4"
+            data-cy="time-attendance-leave-section-title-div"
+          >
+            Leave
+          </div>
+          <div
+            className="space-x-3 items-center hidden md:flex"
+            data-cy="time-attendance-leave-section-desktop-filters-div"
+          >
             <Select
               showSearch
               placeholder="Department"
@@ -165,9 +214,18 @@ const LeaveSection: React.FC = () => {
         </div>
 
         {/* Mobile Filters */}
-        <div className="md:hidden">
-          <div className="flex justify-between items-center gap-4 w-full">
-            <div className="flex-1">
+        <div
+          className="md:hidden"
+          data-cy="time-attendance-leave-section-mobile-filters-div"
+        >
+          <div
+            className="flex justify-between items-center gap-4 w-full"
+            data-cy="time-attendance-leave-section-mobile-filters-row-div"
+          >
+            <div
+              className="flex-1"
+              data-cy="time-attendance-leave-section-mobile-filters-employee-select-div"
+            >
               <Select
                 showSearch
                 placeholder="Search Employee"
@@ -180,9 +238,10 @@ const LeaveSection: React.FC = () => {
                     .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
+                data-cy="time-attendance-leave-section-mobile-filters-employee-select"
               />
             </div>
-            <div>
+            <div data-cy="time-attendance-leave-section-mobile-filters-settings-button-div">
               <CustomButton
                 type="default"
                 size="small"
@@ -190,15 +249,25 @@ const LeaveSection: React.FC = () => {
                 className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
                 title=""
                 icon={<LuSettings2 size={20} />}
+                data-cy="time-attendance-leave-section-mobile-filters-settings-button"
               />
             </div>
           </div>
         </div>
 
         {/* Content Layout */}
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 md:relative top-[-18px]">
-          <div className="space-y-3 mb-4 col-span-5">
-            <div className="flex-col sm:flex-row gap-2 w-full sm:w-auto mb-4 hidden md:flex">
+        <div
+          data-cy="dashboard-components-adminpanel-leavesection-tsx-leavesection-div-256"
+          className="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 md:relative top-[-18px]"
+        >
+          <div
+            data-cy="dashboard-components-adminpanel-leavesection-tsx-leavesection-div-257"
+            className="space-y-3 mb-4 col-span-5"
+          >
+            <div
+              data-cy="dashboard-components-adminpanel-leavesection-tsx-leavesection-div-258"
+              className="flex-col sm:flex-row gap-2 w-full sm:w-auto mb-4 hidden md:flex"
+            >
               <Select
                 showSearch
                 placeholder="search employee"
@@ -320,7 +389,9 @@ const LeaveSection: React.FC = () => {
                           id={`time-attendance-leave-section-record-${index}-type-tag`}
                           data-cy={`time-attendance-leave-section-record-${index}-type-tag`}
                         >
-                          <strong>{leave.leaveType}</strong>
+                          <strong data-cy="dashboard-components-adminpanel-leavesection-tsx-leavesection-strong-380">
+                            {leave.leaveType}
+                          </strong>
                         </Tag>
                       </div>
                     </div>
@@ -340,12 +411,16 @@ const LeaveSection: React.FC = () => {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={
-          <div className="flex gap-2 justify-center mt-4">
+          <div
+            className="flex gap-2 justify-center mt-4"
+            data-cy="time-attendance-leave-section-mobile-filter-modal-footer-div"
+          >
             <CustomButton
               onClick={() => setIsModalOpen(false)}
               className="px-6 py-2 border rounded-lg text-sm text-gray-900"
               title="Cancel"
               type="default"
+              data-cy="time-attendance-leave-section-mobile-filter-modal-cancel-button"
             />
             <CustomButton
               title="Apply Filter"
@@ -354,6 +429,7 @@ const LeaveSection: React.FC = () => {
                 setIsModalOpen(false);
               }}
               className="px-6 py-2 text-white rounded-lg text-sm"
+              data-cy="time-attendance-leave-section-mobile-filter-modal-apply-button"
             />
           </div>
         }
@@ -366,6 +442,7 @@ const LeaveSection: React.FC = () => {
         }}
         width="90%"
         centered
+        data-cy="time-attendance-leave-section-mobile-filter-modal"
       >
         <MobileFilterContent />
       </Modal>

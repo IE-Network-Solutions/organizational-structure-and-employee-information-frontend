@@ -36,11 +36,12 @@ const Notifications = () => {
     updateNotificationStatus(id);
   };
   const { data, isLoading } = useGetNotifications(userId);
-  const unReadNotification = data?.filter(
-    (item: NotificationType) => item.status == 'ACTIVE',
+  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
+  const unReadNotification = list.filter(
+    (item: NotificationType) => item.isRead === false,
   );
-  const readNotification = data?.filter(
-    (item: NotificationType) => item.status == 'INACTIVE',
+  const readNotification = list.filter(
+    (item: NotificationType) => item.isRead !== false,
   );
 
   const formatDateDifference = (updatedAt: string) => {

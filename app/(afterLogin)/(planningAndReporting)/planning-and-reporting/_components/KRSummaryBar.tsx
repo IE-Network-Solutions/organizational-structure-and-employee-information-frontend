@@ -139,7 +139,10 @@ export default function KRSummaryBar({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-8">
+    <div
+      data-cy="-planningandreporting-planning-and-reporting-components-krsummarybar-tsx-krsummarybar-div-142"
+      className="flex flex-wrap items-center gap-8"
+    >
       <StatPill
         label="metric"
         value={toSentenceCase(metricType)}

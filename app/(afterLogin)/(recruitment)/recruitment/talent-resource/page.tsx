@@ -44,7 +44,10 @@ const TalentResourcePage = () => {
                   : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
               }
             >
-              <span className="text-xs sm:text-sm text-nowrap">
+              <span
+                data-cy="-recruitment-recruitment-talent-resource-page-tsx-page-span-47"
+                className="text-xs sm:text-sm text-nowrap"
+              >
                 Talent Pool
               </span>
             </button>

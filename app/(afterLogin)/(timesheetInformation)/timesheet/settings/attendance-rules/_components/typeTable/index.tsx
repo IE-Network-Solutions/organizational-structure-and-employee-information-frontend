@@ -56,8 +56,8 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
       key: 'daysSet',
       render: (text: string) => (
         <div
-          id="time-attendance-settings-attendance-rules-type-table-row-title"
-          data-cy="time-attendance-settings-attendance-rules-type-table-row-title"
+          id="time-attendance-settings-attendance-rules-type-table-row-days-set"
+          data-cy="time-attendance-settings-attendance-rules-type-table-row-days-set"
         >
           {text}
         </div>
@@ -69,8 +69,8 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
       key: 'description',
       render: (text: string) => (
         <div
-          id="time-attendance-settings-attendance-rules-type-table-row-title"
-          data-cy="time-attendance-settings-attendance-rules-type-table-row-title"
+          id="time-attendance-settings-attendance-rules-type-table-row-description"
+          data-cy="time-attendance-settings-attendance-rules-type-table-row-description"
         >
           {text}
         </div>

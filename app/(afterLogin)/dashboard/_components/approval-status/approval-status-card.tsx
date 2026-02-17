@@ -170,31 +170,47 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             className="object-cover"
           />
         </div>
-        <div className="flex flex-col">
-          <p className="font-semibold text-xs">
+        <div className="flex flex-col" data-cy="approval-status-card-info">
+          <p
+            className="font-semibold text-xs"
+            data-cy="approval-status-card-leave-type"
+          >
             {leaveType?.length >= 15
               ? leaveType?.slice(0, 15) + '...'
               : leaveType}
           </p>
-          <p className="font-normal text-gray-500 text-[10px]">
+          <p
+            className="font-normal text-gray-500 text-[10px]"
+            data-cy="approval-status-card-employee-name"
+          >
             {employeeData?.firstName} {employeeData?.middleName}
           </p>
           {requestType === 'BranchTransfer' ? (
             <>
-              <p className="font-normal text-gray-500 text-[10px]">
+              <p
+                className="font-normal text-gray-500 text-[10px]"
+                data-cy="approval-status-card-branch-transfer-dates"
+              >
                 {startAt || '-'} to {endAt || '-'}
               </p>
             </>
           ) : requestType === 'Leave' ? (
-            <div className="flex justify-between items-center gap-5 font-normal text-gray-500 text-[10px]">
-              <p className="">
+            <div
+              className="flex justify-between items-center gap-5 font-normal text-gray-500 text-[10px]"
+              data-cy="approval-status-card-leave-dates"
+            >
+              <p className="" data-cy="approval-status-card-date-range">
                 {isMobile || isTablet
                   ? `${dayjs(startAt).format('MMM DD') || '-'} to ${dayjs(endAt).format('MMM DD') || '-'}`
                   : `${dayjs(startAt).format('MMM DD, YYYY') || '-'} to ${dayjs(endAt).format('MMM DD, YYYY') || '-'}`}
               </p>
 
               {fileAttachment && (
-                <a href={fileAttachment} target="_blank">
+                <a
+                  href={fileAttachment}
+                  target="_blank"
+                  data-cy="approval-status-card-file-attachment"
+                >
                   <LuFileDown className="text-[#2F78EE] text-base " />
                 </a>
               )}
@@ -202,15 +218,25 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           ) : (
             ''
           )}
-          <p className="text-[10px] text-gray-500">{name}</p>
+          <p
+            className="text-[10px] text-gray-500"
+            data-cy="approval-status-card-approver-name"
+          >
+            {name}
+          </p>
         </div>
       </div>
-      <div className="space-x-1 space-y-1 ">
+      <div
+        className="space-x-1 space-y-1 "
+        data-cy="approval-status-card-actions"
+      >
         <Popconfirm
           title="Reject Request"
           description={
             <>
-              <p>Are you sure you want to reject this leave request?</p>
+              <p data-cy="approval-status-card-reject-confirmation">
+                Are you sure you want to reject this leave request?
+              </p>
               <Input
                 placeholder="Add a comment"
                 value={rejectComment}

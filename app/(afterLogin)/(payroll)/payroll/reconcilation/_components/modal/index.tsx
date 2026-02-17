@@ -127,7 +127,14 @@ const PayrollReconcilationModal = ({
             : differenceValue === 0
               ? 'text-gray-500'
               : 'text-red-500';
-        return <span className={className}>{key}</span>;
+        return (
+          <span
+            data-cy="reconcilation-components-modal-index-tsx-index-span-130"
+            className={className}
+          >
+            {key}
+          </span>
+        );
       },
     },
 
@@ -173,17 +180,32 @@ const PayrollReconcilationModal = ({
       width={1130}
       centered
     >
-      <div className="pt-2 px-1 flex flex-col h-full max-h-[80vh]">
-        <div className="mb-6 flex-shrink-0">
-          <h2 className="text-[28px] font-semibold text-[#1A1C1E] leading-none mb-2">
+      <div
+        data-cy="reconcilation-components-modal-index-tsx-index-div-176"
+        className="pt-2 px-1 flex flex-col h-full max-h-[80vh]"
+      >
+        <div
+          data-cy="reconcilation-components-modal-index-tsx-index-div-177"
+          className="mb-6 flex-shrink-0"
+        >
+          <h2
+            data-cy="reconcilation-components-modal-index-tsx-index-h2-178"
+            className="text-[28px] font-semibold text-[#1A1C1E] leading-none mb-2"
+          >
             Salary
           </h2>
-          <p className="text-[#74777F] text-[15px]">
+          <p
+            data-cy="reconcilation-components-modal-index-tsx-index-p-181"
+            className="text-[#74777F] text-[15px]"
+          >
             Employee Salary Variances
           </p>
         </div>
 
-        <div className="mb-6 flex-shrink-0">
+        <div
+          data-cy="reconcilation-components-modal-index-tsx-index-div-186"
+          className="mb-6 flex-shrink-0"
+        >
           <Select
             showSearch
             allowClear
@@ -202,7 +224,10 @@ const PayrollReconcilationModal = ({
           />
         </div>
 
-        <div className="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0 max-h-full">
+        <div
+          data-cy="reconcilation-components-modal-index-tsx-index-div-205"
+          className="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0 max-h-full"
+        >
           <Table
             loading={isLoadingReconciliationDetails}
             dataSource={payrollVarianceData}

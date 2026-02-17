@@ -80,7 +80,10 @@ const AllCandidates: React.FC = () => {
               <CustomButton
                 title={
                   !(isMobile || isTablet) && (
-                    <span className="hidden sm:inline">
+                    <span
+                      data-cy="-recruitment-recruitment-candidate-page-tsx-page-span-83"
+                      className="hidden sm:inline"
+                    >
                       Move to Talent Pool
                     </span>
                   )
@@ -97,7 +100,12 @@ const AllCandidates: React.FC = () => {
             <CustomButton
               title={
                 !(isMobile || isTablet) && (
-                  <span className="hidden sm:inline">Add candidate</span>
+                  <span
+                    data-cy="-recruitment-recruitment-candidate-page-tsx-page-span-100"
+                    className="hidden sm:inline"
+                  >
+                    Add candidate
+                  </span>
                 )
               }
               id="createUserButton"

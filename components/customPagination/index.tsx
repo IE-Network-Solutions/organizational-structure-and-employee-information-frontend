@@ -2,7 +2,7 @@ import React from 'react';
 import { Select } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { BsChevronDown } from "react-icons/bs";
+import { BsChevronDown } from 'react-icons/bs';
 
 const { Option } = Select;
 
@@ -49,11 +49,13 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'
-              } flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${current === i
+            className={`${
+              isMobile ? 'w-10 h-10' : 'w-8 h-8'
+            } flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+              current === i
                 ? 'bg-[#F3F4F6] text-[#111827]'
                 : 'bg-white text-[#111827] hover:bg-gray-50'
-              }`}
+            }`}
             data-cy="pagination-page-button"
           >
             {i}
@@ -67,11 +69,13 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           key={1}
           onClick={() => handlePageChange(1)}
-          className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'
-            } flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${current === 1
+          className={`${
+            isMobile ? 'w-10 h-10' : 'w-8 h-8'
+          } flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+            current === 1
               ? 'bg-[#F3F4F6] text-[#111827]'
               : 'bg-white text-[#111827] hover:bg-gray-50'
-            }`}
+          }`}
           data-cy="pagination-page-button"
         >
           1
@@ -105,11 +109,13 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'
-              } flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${current === i
+            className={`${
+              isMobile ? 'w-10 h-10' : 'w-8 h-8'
+            } flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+              current === i
                 ? 'bg-[#F3F4F6] text-[#111827]'
                 : 'bg-white text-[#111827] hover:bg-gray-50'
-              }`}
+            }`}
             data-cy="pagination-page-button"
           >
             {i}
@@ -133,10 +139,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
-          className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${current === totalPages
-            ? 'bg-[#F3F4F6] text-[#111827]'
-            : 'bg-white text-[#111827] hover:bg-gray-50'
-            }`}
+          className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+            current === totalPages
+              ? 'bg-[#F3F4F6] text-[#111827]'
+              : 'bg-white text-[#111827] hover:bg-gray-50'
+          }`}
           data-cy="pagination-page-button"
         >
           {totalPages}
@@ -153,44 +160,62 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       data-cy={dataCy}
       className={`flex justify-between items-center py-6 w-full ${grayBackground ? 'bg-gray-100' : ''}`}
     >
-      <div className="flex items-center gap-2">
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-div-171"
+        className="flex items-center space-x-2"
+      >
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
           data-cy="pagination-prev-button"
-          className={`w-8 h-8 flex items-center justify-center border rounded-lg transition-all ${current === 1
-            ? 'text-gray-300 border-gray-100 cursor-not-allowed'
-            : 'text-[#111827] border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-            }`}
+          className={`w-8 h-8 flex items-center justify-center border rounded-lg transition-all ${
+            current === 1
+              ? 'text-gray-300 border-gray-100 cursor-not-allowed'
+              : 'text-[#111827] border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+          }`}
         >
           <LeftOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
-        <div className="flex items-center">
-          {renderPageNumbers()}
-        </div>
+        <div className="flex items-center" data-cy="pagination-numbers-container">{renderPageNumbers()}</div>
         <button
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
           data-cy="pagination-next-button"
-          className={`w-8 h-8 flex items-center justify-center border rounded-lg transition-all ${current === totalPages
-            ? 'text-gray-300 border-gray-100 cursor-not-allowed'
-            : 'text-[#111827] border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-            }`}
+          className={`w-8 h-8 flex items-center justify-center border rounded-lg transition-all ${
+            current === totalPages
+              ? 'text-gray-300 border-gray-100 cursor-not-allowed'
+              : 'text-[#111827] border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+          }`}
         >
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
       </div>
 
-      <div className={`flex items-center ${isMobile ? 'order-2' : ''}`}>
+      {/* Info and Page Size Selector */}
+      <div
+        className={`flex items-center ${
+          isMobile ? 'justify-between order-2' : 'justify-end'
+        }`}
+        data-cy="components-custompagination-index-tsx-index-div-203"
+      >
         {!isMobile && (
-          <span className="mr-6 text-xs text-[#718096] font-medium">
-            Showing {Math.min(total, (current - 1) * pageSize + 1) || 0} to {Math.min(total, current * pageSize) || 0} of {total || 0} entries
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
+            className="mr-2 text-xs text-[#718096]"
+          >
+            Showing {Math.min(total, (current - 1) * pageSize + 1) || 0} -{' '}
+            {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
+            entries
           </span>
         )}
 
         {isMobile && (
-          <span className="text-xs text-[#718096] mr-4 font-medium">
-            {Math.min(total, (current - 1) * pageSize + 1) || 0}-{Math.min(total, current * pageSize) || 0} of {total || 0}
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-215"
+            className="text-xs text-[#718096] mr-2"
+          >
+            {Math.min(total, (current - 1) * pageSize + 1) || 0}-
+            {Math.min(total, current * pageSize) || 0} of {total || 0}
           </span>
         )}
 
@@ -203,13 +228,54 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           suffixIcon={<BsChevronDown className="text-[10px] text-gray-500" />}
           dropdownStyle={{ borderRadius: '8px' }}
         >
-          {[5, 8, 10, 25, 50, 75, 100].map(val => (
-            <Option key={val} value={val}>
-              <span className="text-xs text-[#111827]">
-                {isMobile ? val : `Show ${val}`}
-              </span>
-            </Option>
-          ))}
+          <Option value={5}>
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-228"
+              className="text-xs text-[#111827]"
+            >
+              {isMobile ? '5' : 'Show 5'}
+            </span>
+          </Option>
+          <Option value={10}>
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-233"
+              className="text-xs text-[#111827]"
+            >
+              {isMobile ? '10' : 'Show 10'}
+            </span>
+          </Option>
+          <Option value={25}>
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-238"
+              className="text-xs text-[#111827]"
+            >
+              {isMobile ? '25' : 'Show 25'}
+            </span>
+          </Option>
+          <Option value={50}>
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-243"
+              className="text-xs text-[#111827]"
+            >
+              {isMobile ? '50' : 'Show 50'}
+            </span>
+          </Option>
+          <Option value={75}>
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-248"
+              className="text-xs text-[#111827]"
+            >
+              {isMobile ? '75' : 'Show 75'}
+            </span>
+          </Option>
+          <Option value={100}>
+            <span
+              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-253"
+              className="text-xs text-[#111827]"
+            >
+              {isMobile ? '100' : 'Show 100'}
+            </span>
+          </Option>
         </Select>
       </div>
     </div>

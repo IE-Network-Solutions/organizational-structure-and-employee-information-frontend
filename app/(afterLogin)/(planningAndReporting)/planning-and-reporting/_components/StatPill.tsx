@@ -32,14 +32,28 @@ export default function StatPill({
   const styles = variantStyles[variant] || variantStyles.default;
 
   return (
-    <span className="inline-flex items-center gap-3">
+    <span
+      data-cy="-planningandreporting-planning-and-reporting-components-statpill-tsx-statpill-span-35"
+      className="inline-flex items-center gap-3"
+    >
       {label && (
         <span
           className="text-xs font-normal flex items-center"
           style={{ color: labelTextColor }}
+          data-cy="planningandreporting-planning-and-reporting-components-statpill-tsx-span-40"
         >
-          <span style={{ color: styles.text }}>•</span>
-          <span className="ml-0.5">{label}</span>
+          <span
+            data-cy="-planningandreporting-planning-and-reporting-components-statpill-tsx-statpill-span-41"
+            style={{ color: styles.text }}
+          >
+            •
+          </span>
+          <span
+            data-cy="-planningandreporting-planning-and-reporting-components-statpill-tsx-statpill-span-42"
+            className="ml-0.5"
+          >
+            {label}
+          </span>
         </span>
       )}
       <span
@@ -48,6 +62,7 @@ export default function StatPill({
           backgroundColor: styles.bg,
           color: styles.text,
         }}
+        data-cy="planningandreporting-planning-and-reporting-components-statpill-tsx-span-58"
       >
         {value}
       </span>

@@ -49,7 +49,14 @@ const RecruitmentPage: React.FC = () => {
             permissions={[Permissions.CreateJobDescription]}
           >
             <CustomButton
-              title={<span className="hidden sm:inline sm:mr-2">Add New</span>}
+              title={
+                <span
+                  data-cy="-recruitment-recruitment-jobs-page-tsx-page-span-52"
+                  className="hidden sm:inline sm:mr-2"
+                >
+                  Add New
+                </span>
+              }
               id="createJobButton"
               data-cy="talent-acquisition-jobs-button-add-new"
               icon={<FaPlus className="md:mr-0 ml-2" />}

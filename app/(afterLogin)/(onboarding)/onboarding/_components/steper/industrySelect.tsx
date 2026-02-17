@@ -17,7 +17,9 @@ const IndustrySelect: React.FC<IndustrySelectProps> = ({ form }) => {
 
   const domainNameSuffix = (
     <Form.Item name="suffix" noStyle>
-      <p style={{ width: 'auto' }}>.selamnew.com</p>
+      <p style={{ width: 'auto' }} data-cy="industry-select-domain-suffix">
+        .selamnew.com
+      </p>
     </Form.Item>
   );
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -127,9 +129,13 @@ const IndustrySelect: React.FC<IndustrySelectProps> = ({ form }) => {
             </Form.Item>
           )}
 
-          <div className="text-center">
+          <div
+            className="text-center"
+            data-cy="industry-select-continue-button-wrapper"
+          >
             <Button
               onClick={() => nextStep()}
+              data-cy="industry-select-continue-button"
               name="skipButton"
               type="link"
               htmlType="button"

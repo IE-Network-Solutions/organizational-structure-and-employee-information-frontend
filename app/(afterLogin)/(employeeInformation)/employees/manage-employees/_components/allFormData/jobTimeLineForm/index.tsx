@@ -627,7 +627,14 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             className="w-full font-semibold text-xs"
             name="jobAction"
             id="jobAction"
-            label={<span className="mb-1 font-semibold text-xs">Status</span>}
+            label={
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="job-timeline-status-label"
+              >
+                Status
+              </span>
+            }
             rules={[{ required: true, message: 'Please select Status' }]}
           >
             <Select
@@ -980,21 +987,36 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             {department?.length > 0 ? (
               <Popconfirm
                 title={
-                  <div className="text-sm sm:text-base">
-                    <div className="font-semibold mb-2">
+                  <div
+                    className="text-sm sm:text-base"
+                    data-cy="job-timeline-team-lead-confirmation-title"
+                  >
+                    <div
+                      className="font-semibold mb-2"
+                      data-cy="job-timeline-team-lead-confirmation-title-text"
+                    >
                       Team Lead Confirmation
                     </div>
                   </div>
                 }
                 description={
-                  <div className="text-xs sm:text-sm leading-relaxed">
-                    <div className="mb-2">
+                  <div
+                    className="text-xs sm:text-sm leading-relaxed"
+                    data-cy="job-timeline-team-lead-confirmation-description"
+                  >
+                    <div
+                      className="mb-2"
+                      data-cy="job-timeline-team-lead-confirmation-message"
+                    >
                       This department already has a team lead:
                     </div>
-                    <div className="font-medium text-blue-600 mb-2">
+                    <div
+                      className="font-medium text-blue-600 mb-2"
+                      data-cy="job-timeline-team-lead-confirmation-current-lead"
+                    >
                       {department[0]?.firstName} {department[0]?.lastName}
                     </div>
-                    <div>
+                    <div data-cy="job-timeline-team-lead-confirmation-question">
                       Do you want to update the team lead to the current
                       employee?
                     </div>

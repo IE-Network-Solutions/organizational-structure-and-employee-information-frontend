@@ -59,47 +59,89 @@ const JobResponse: React.FC<JobResponseParams> = ({ selectedCandidate }) => {
                 <List.Item
                   data-cy={`talent-acquisition-candidate-tab-response-personal-${jobInfo?.id ?? index}`}
                 >
-                  <div>
+                  <div data-cy="-components-tabs-response-index-tsx-index-div-62">
                     <div
                       className="flex justify-between gap-5"
                       data-cy="talent-acquisition-candidate-tab-response-row-full-name"
                     >
-                      <span className="text-md font-normal text-gray-500">
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-67"
+                        className="text-md font-normal text-gray-500"
+                      >
                         Full Name: {''}
                       </span>
-                      <span className="text-md font-normal">
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-70"
+                        className="text-md font-normal"
+                      >
                         {JobResponse?.fullName || '---'}
                       </span>
                     </div>
-                    <div className="flex justify-between gap-5">
-                      <span className="text-md font-normal text-gray-500">
+                    <div
+                      data-cy="-components-tabs-response-index-tsx-index-div-74"
+                      className="flex justify-between gap-5"
+                    >
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-75"
+                        className="text-md font-normal text-gray-500"
+                      >
                         Phone Number: {''}
                       </span>
-                      <span className="text-md font-normal">
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-78"
+                        className="text-md font-normal"
+                      >
                         {' ' + JobResponse?.phone || '---'}
                       </span>
                     </div>
-                    <div className="flex justify-between gap-5">
-                      <span className="text-md font-normal text-gray-500">
+                    <div
+                      data-cy="-components-tabs-response-index-tsx-index-div-82"
+                      className="flex justify-between gap-5"
+                    >
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-83"
+                        className="text-md font-normal text-gray-500"
+                      >
                         Email Address: {''}
                       </span>
-                      <span className="text-md font-normal">
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-86"
+                        className="text-md font-normal"
+                      >
                         {JobResponse?.email || '---'}
                       </span>
                     </div>
-                    <div className="flex justify-between gap-5">
-                      <span className="text-md font-normal text-gray-500">
+                    <div
+                      data-cy="-components-tabs-response-index-tsx-index-div-90"
+                      className="flex justify-between gap-5"
+                    >
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-91"
+                        className="text-md font-normal text-gray-500"
+                      >
                         CGPA:
                       </span>
-                      <span className="text-md font-normal">
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-94"
+                        className="text-md font-normal"
+                      >
                         {JobResponse?.CGPA || '---'}
                       </span>
                     </div>
-                    <div className="flex justify-between gap-5">
-                      <span className="text-md font-normal text-gray-500">
+                    <div
+                      data-cy="-components-tabs-response-index-tsx-index-div-98"
+                      className="flex justify-between gap-5"
+                    >
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-99"
+                        className="text-md font-normal text-gray-500"
+                      >
                         Application Date:
                       </span>
-                      <span className="text-md font-normal">
+                      <span
+                        data-cy="-components-tabs-response-index-tsx-index-span-102"
+                        className="text-md font-normal"
+                      >
                         {dayjs(JobResponse?.createdAt).format('DD MMMM YYYY') ??
                           '--'}
                       </span>
@@ -109,7 +151,10 @@ const JobResponse: React.FC<JobResponseParams> = ({ selectedCandidate }) => {
                 <List.Item
                   data-cy={`talent-acquisition-candidate-tab-response-questions-${jobInfo?.id ?? index}`}
                 >
-                  <div className="flex flex-col gap-4">
+                  <div
+                    data-cy="-components-tabs-response-index-tsx-index-div-112"
+                    className="flex flex-col gap-4"
+                  >
                     {Array.isArray(jobInfo?.additionalInformation) &&
                       jobInfo.additionalInformation.map(
                         (addInfo: any, index: number) => (
@@ -118,11 +163,20 @@ const JobResponse: React.FC<JobResponseParams> = ({ selectedCandidate }) => {
                             className="flex flex-col mt-2 "
                             data-cy={`talent-acquisition-candidate-tab-response-question-${jobInfo?.id ?? index}-${addInfo?.question ?? index}`}
                           >
-                            <div className="flex justify-between gap-5">
-                              <span className="text-md font-normal text-gray-500">
+                            <div
+                              data-cy="-components-tabs-response-index-tsx-index-div-121"
+                              className="flex justify-between gap-5"
+                            >
+                              <span
+                                data-cy="-components-tabs-response-index-tsx-index-span-122"
+                                className="text-md font-normal text-gray-500"
+                              >
                                 Question No {index + 1}:
                               </span>
-                              <span className="text-md font-normal">
+                              <span
+                                data-cy="-components-tabs-response-index-tsx-index-span-125"
+                                className="text-md font-normal"
+                              >
                                 {getJobQuestionNames(addInfo?.question)
                                   ?.question || ''}
                               </span>
@@ -132,10 +186,16 @@ const JobResponse: React.FC<JobResponseParams> = ({ selectedCandidate }) => {
                               className="flex justify-between gap-5"
                               data-cy={`talent-acquisition-candidate-tab-response-answer-${jobInfo?.id ?? index}-${addInfo?.question ?? index}`}
                             >
-                              <span className="text-md font-normal text-gray-500">
+                              <span
+                                data-cy="-components-tabs-response-index-tsx-index-span-135"
+                                className="text-md font-normal text-gray-500"
+                              >
                                 Response:
                               </span>
-                              <span className="text-md font-normal">
+                              <span
+                                data-cy="-components-tabs-response-index-tsx-index-span-138"
+                                className="text-md font-normal"
+                              >
                                 {addInfo?.answer}
                               </span>
                             </div>

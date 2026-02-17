@@ -135,7 +135,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900">Target Assignment</p>
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-target-assignment-label"
+          >
+            Target Assignment
+          </p>
         ),
         className: currentItem === 'target-assignment' ? 'px-4' : 'px-1',
       },

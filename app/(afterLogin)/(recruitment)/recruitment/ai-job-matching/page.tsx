@@ -42,7 +42,10 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
       onClick={onClick}
       className="rounded-[28px] border border-blue-100 bg-white shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer p-6"
     >
-      <div className="space-y-4">
+      <div
+        data-cy="-recruitment-recruitment-ai-job-matching-page-tsx-page-div-45"
+        className="space-y-4"
+      >
         {/* Job Title */}
         <h3
           id={`ai-job-card-${job.jobId}-title`}
@@ -102,7 +105,10 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
           data-cy={`ai-job-card-${job.jobId}-matches`}
           className="pt-4 border-t border-blue-50"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <div
+            data-cy="-recruitment-recruitment-ai-job-matching-page-tsx-page-div-105"
+            className="flex flex-wrap items-center justify-between gap-3 text-sm"
+          >
             <span
               id={`ai-job-card-${job.jobId}-matches-label`}
               data-cy={`ai-job-card-${job.jobId}-matches-label`}

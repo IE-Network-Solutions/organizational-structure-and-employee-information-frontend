@@ -89,10 +89,7 @@ const createReportForUnReportedtasks = async (
 };
 
 // Create report without OKR calculations (for basic-okr)
-const createBasicReport = async (
-  reportData: any,
-  sessionId?: string,
-) => {
+const createBasicReport = async (reportData: any, sessionId?: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -204,13 +201,8 @@ export const useCreateBasicReport = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({
-      reportData,
-      sessionId,
-    }: {
-      reportData: any;
-      sessionId?: string;
-    }) => createBasicReport(reportData, sessionId),
+    ({ reportData, sessionId }: { reportData: any; sessionId?: string }) =>
+      createBasicReport(reportData, sessionId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('okrReports');
@@ -293,7 +285,9 @@ export const useApprovalReporting = () => {
 };
 
 // Backend PlanTaskStatus: pre_pending | pre_failed | pre_achieved | in-progress (deprecated) | completed (deprecated)
-function backendStatusToFrontend(backendStatus: string): 'completed' | 'failed' | 'pending' {
+function backendStatusToFrontend(
+  backendStatus: string,
+): 'completed' | 'failed' | 'pending' {
   if (!backendStatus) return 'pending';
   const s = backendStatus.toLowerCase();
   if (s === 'pre_achieved' || s === 'completed') return 'completed';
@@ -319,14 +313,14 @@ function updateOkrPlansTaskStatus(
       // Update task status in plan.tasks array
       const updatedTasks = plan.tasks.map((task: any) =>
         String(task.id) === String(taskId)
-          ? { 
-              ...task, 
+          ? {
+              ...task,
               status: frontendStatus, // Frontend status: 'completed' | 'failed' | 'pending'
               isAchieved, // Backend field for achieved status - MUST be set correctly
               isFailed: isFailed, // Also set isFailed for consistency
               // Ensure status field is set to frontend value so enrichment logic uses it
             }
-          : task
+          : task,
       );
       return { ...plan, tasks: updatedTasks };
     });
@@ -364,18 +358,18 @@ export const useUpdateStatus = () => {
         const actualStatus = apiResponse?.status || status;
         // Update cache again with confirmed status from backend (optimistic update already done in onMutate)
         updateOkrPlansTaskStatus(queryClient, variables.id, actualStatus);
-        
+
         // Only invalidate queries that don't affect the current plan list view
         // Don't invalidate okrPlans/okrUserPlans immediately to prevent race condition
         // where refetch returns stale data and overwrites our optimistic update
         queryClient.invalidateQueries('defaultPlanningPeriods');
         queryClient.invalidateQueries('okrPlan');
         queryClient.invalidateQueries(['okrPlannedData', planningPeriodId]);
-        
+
         // Note: We intentionally don't invalidate 'okrPlans' and 'okrUserPlans' here
         // The optimistic update will persist, and the next natural refetch (user action, filter change, etc.)
         // will get the correct data from backend
-        
+
         NotificationMessage.success({
           message: 'Successfully Updated',
           description: 'Task status updated successfully',

@@ -89,8 +89,14 @@ const TalentPoolDrawer: React.FC = () => {
       open={isOpen}
       width="40%"
       footer={
-        <div className="flex justify-center items-center w-full space-x-5 p-4">
-          <div className="flex justify-between items-center gap-4">
+        <div
+          data-cy="settings-talentpoolcategory-customdrawer-index-tsx-index-div-92"
+          className="flex justify-center items-center w-full space-x-5 p-4"
+        >
+          <div
+            data-cy="settings-talentpoolcategory-customdrawer-index-tsx-index-div-93"
+            className="flex justify-between items-center gap-4"
+          >
             <CustomButton
               id="talent-acquisition-talent-pool-category-button-cancel"
               data-cy="talent-acquisition-talent-pool-category-button-cancel"

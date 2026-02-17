@@ -141,8 +141,8 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const achievedValue =
     viewMode === 'reporting'
       ? allTasks
-        .filter((t) => t.status === 'completed' || t.isAchieved === true)
-        .reduce((sum, t) => sum + (Number(t.weight) || 0), 0)
+          .filter((t) => t.status === 'completed' || t.isAchieved === true)
+          .reduce((sum, t) => sum + (Number(t.weight) || 0), 0)
       : 0;
 
   return {
@@ -552,8 +552,8 @@ export const transformToPlanSummary = (
   const achieved =
     viewMode === 'reporting'
       ? allTasks
-        .filter((t) => t.status === 'completed')
-        .reduce((sum, t) => sum + (t.weight || 0), 0)
+          .filter((t) => t.status === 'completed')
+          .reduce((sum, t) => sum + (t.weight || 0), 0)
       : 0;
 
   // Get summary from first keyResult

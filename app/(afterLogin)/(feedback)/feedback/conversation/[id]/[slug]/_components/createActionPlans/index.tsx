@@ -99,7 +99,10 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
             >
               {allUserData?.items?.map((item: any) => (
                 <Option key="active" value={item.id}>
-                  <div className="flex space-x-3 p-1 rounded">
+                  <div
+                    className="flex space-x-3 p-1 rounded"
+                    data-cy={`create-action-plan-assignee-option-${item.id}`}
+                  >
                     <Image
                       src={item?.profileImage ?? Avatar}
                       alt="pep"
@@ -107,7 +110,10 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
                       width={15}
                       height={15}
                     />
-                    <span className="flex justify-center items-center">
+                    <span
+                      className="flex justify-center items-center"
+                      data-cy={`create-action-plan-assignee-name-${item.id}`}
+                    >
                       {item?.firstName + ' ' + ' ' + item?.middleName}
                     </span>
                   </div>

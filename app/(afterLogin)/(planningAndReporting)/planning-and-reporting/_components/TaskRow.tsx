@@ -52,40 +52,79 @@ export default function TaskRow({
         return <CloseCircleOutlined className="text-[#E11D48] text-base" />;
       }
       // Default or pending state for reporting?
-      return <div className="w-1.5 h-1.5 rounded-full bg-[#E5E7EB]" />;
+      return (
+        <div
+          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-55"
+          className="w-1.5 h-1.5 rounded-full bg-[#E5E7EB]"
+        />
+      );
     }
     // Planning mode: No icon, just the tree connector line
     return null;
   };
 
   return (
-    <div className="relative flex items-start gap-2 md:gap-3 py-2 pl-5 md:pl-8 group">
+    <div
+      data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-62"
+      className="relative flex items-start gap-2 md:gap-3 py-2 pl-5 md:pl-8 group"
+    >
       {/* Horizontal connector line */}
-      <div className="absolute left-[7px] top-[1.1rem] w-[13px] md:w-[25px] h-[1px] bg-[#E5E7EB]" />
+      <div
+        data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-64"
+        className="absolute left-[7px] top-[1.1rem] w-[13px] md:w-[25px] h-[1px] bg-[#E5E7EB]"
+      />
 
       {/* Vertical line cover for the last item */}
       {isLast && (
-        <div className="absolute left-[7px] top-[1.1rem] bottom-0 w-[1px] bg-white z-20" />
+        <div
+          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-68"
+          className="absolute left-[7px] top-[1.1rem] bottom-0 w-[1px] bg-white z-20"
+        />
       )}
 
-      <div className="mt-0.5 flex-shrink-0">{getStatusIcon()}</div>
+      <div
+        data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-71"
+        className="mt-0.5 flex-shrink-0"
+      >
+        {getStatusIcon()}
+      </div>
 
-      <div className="flex flex-1 flex-col md:flex-row items-start md:justify-between gap-x-4 gap-y-1 min-w-0">
+      <div
+        data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-73"
+        className="flex flex-1 flex-col md:flex-row items-start md:justify-between gap-x-4 gap-y-1 min-w-0"
+      >
         <p
           className="text-[10px] md:text-sm font-medium leading-relaxed text-[#5A5C80] w-full md:max-w-[60%] truncate"
           title={getTaskName()}
+          data-cy="planningandreporting-planning-and-reporting-components-taskrow-tsx-p-96"
         >
           {getTaskName()}
         </p>
 
-        <div className="w-full md:w-auto flex md:flex-wrap items-center justify-between md:justify-end gap-x-3 gap-y-1 mt-1 md:mt-0">
-          <div className="scale-90 md:scale-100 origin-left">
+        <div
+          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-81"
+          className="w-full md:w-auto flex md:flex-wrap items-center justify-between md:justify-end gap-x-3 gap-y-1 mt-1 md:mt-0"
+        >
+          <div
+            data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-82"
+            className="scale-90 md:scale-100 origin-left"
+          >
             <PriorityTag priority={task.priority} />
           </div>
 
-          <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-            <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
-              <span className="hidden md:inline" style={{ color: '#574CFF' }}>
+          <div
+            data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-86"
+            className="flex items-center gap-1 md:gap-2 whitespace-nowrap"
+          >
+            <span
+              data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-87"
+              className="text-[10px] md:text-xs font-normal text-[#8F94A3]"
+            >
+              <span
+                data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-88"
+                className="hidden md:inline"
+                style={{ color: '#574CFF' }}
+              >
                 •{' '}
               </span>
               weight
@@ -102,11 +141,18 @@ export default function TaskRow({
             task.target !== undefined &&
             task.target !== 0 &&
             metricType !== 'Milestone' && (
-              <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-                <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
+              <div
+                data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-105"
+                className="flex items-center gap-1 md:gap-2 whitespace-nowrap"
+              >
+                <span
+                  data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-106"
+                  className="text-[10px] md:text-xs font-normal text-[#8F94A3]"
+                >
                   <span
                     className="hidden md:inline"
                     style={{ color: '#574CFF' }}
+                    data-cy="planningandreporting-planning-and-reporting-components-taskrow-tsx-span-151"
                   >
                     •{' '}
                   </span>
@@ -122,9 +168,19 @@ export default function TaskRow({
             )}
 
           {viewMode === 'reporting' && task.achieved !== undefined && (
-            <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
-              <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
-                <span className="hidden md:inline" style={{ color: '#574CFF' }}>
+            <div
+              data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-125"
+              className="flex items-center gap-1 md:gap-2 whitespace-nowrap"
+            >
+              <span
+                data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-126"
+                className="text-[10px] md:text-xs font-normal text-[#8F94A3]"
+              >
+                <span
+                  data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-127"
+                  className="hidden md:inline"
+                  style={{ color: '#574CFF' }}
+                >
                   •{' '}
                 </span>
                 achieved

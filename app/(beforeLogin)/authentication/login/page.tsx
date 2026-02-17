@@ -119,7 +119,14 @@ const Login: FC = () => {
           <Form.Item
             id="login-email"
             data-cy="login-email"
-            label={<span className="text-gray-700 font-medium">Email</span>}
+            label={
+              <span
+                data-cy="-beforelogin-authentication-login-page-tsx-page-span-122"
+                className="text-gray-700 font-medium"
+              >
+                Email
+              </span>
+            }
             name="email"
             rules={[
               {
@@ -141,7 +148,14 @@ const Login: FC = () => {
           <Form.Item
             id="login-password"
             data-cy="login-password"
-            label={<span className="text-gray-700 font-medium">Password</span>}
+            label={
+              <span
+                data-cy="-beforelogin-authentication-login-page-tsx-page-span-144"
+                className="text-gray-700 font-medium"
+              >
+                Password
+              </span>
+            }
             name="password"
             rules={[{ required: true, message: 'Please input your password!' }]}
           >

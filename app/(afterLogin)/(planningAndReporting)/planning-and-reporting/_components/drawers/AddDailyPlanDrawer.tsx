@@ -263,9 +263,39 @@ export default function AddDailyPlanDrawer({
   }, [transformedWeeklyTasks, activeCadence, viewMode]);
 
   const priorityOptions = [
-    { value: 'High', label: <span className="text-[#FF4D4F]">High</span> },
-    { value: 'Medium', label: <span className="text-[#FAAD14]">Medium</span> },
-    { value: 'Low', label: <span className="text-[#52C41A]">Low</span> },
+    {
+      value: 'High',
+      label: (
+        <span
+          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-266"
+          className="text-[#FF4D4F]"
+        >
+          High
+        </span>
+      ),
+    },
+    {
+      value: 'Medium',
+      label: (
+        <span
+          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-267"
+          className="text-[#FAAD14]"
+        >
+          Medium
+        </span>
+      ),
+    },
+    {
+      value: 'Low',
+      label: (
+        <span
+          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-268"
+          className="text-[#52C41A]"
+        >
+          Low
+        </span>
+      ),
+    },
   ];
 
   // --- Planning Handlers ---
@@ -372,7 +402,10 @@ export default function AddDailyPlanDrawer({
   const renderPlanningContent = () => {
     if (isLoadingHierarchy) {
       return (
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div
+          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-375"
+          className="flex items-center justify-center min-h-[400px]"
+        >
           <Spin size="large" tip="Loading weekly plans..." />
         </div>
       );
@@ -380,12 +413,24 @@ export default function AddDailyPlanDrawer({
 
     if (activeCadence === 'daily' && planningTasks.length === 0) {
       return (
-        <div className="flex items-center justify-center min-h-[400px] text-[#8F94A3]">
-          <div className="text-center">
-            <p className="text-lg font-semibold mb-2">
+        <div
+          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-383"
+          className="flex items-center justify-center min-h-[400px] text-[#8F94A3]"
+        >
+          <div
+            data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-384"
+            className="text-center"
+          >
+            <p
+              data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-p-385"
+              className="text-lg font-semibold mb-2"
+            >
               No Weekly Plans Available
             </p>
-            <p className="text-sm">
+            <p
+              data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-p-388"
+              className="text-sm"
+            >
               Please create a weekly plan first before creating daily plans.
             </p>
           </div>
@@ -394,7 +439,10 @@ export default function AddDailyPlanDrawer({
     }
 
     return (
-      <div className="flex flex-col gap-6 p-2">
+      <div
+        data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-397"
+        className="flex flex-col gap-6 p-2"
+      >
         {planningTasks.map((group) => {
           const formFieldName = `names-${group.id}`;
           const weeklyTask = group.tasks[0]; // The weekly task
@@ -403,6 +451,7 @@ export default function AddDailyPlanDrawer({
             <div
               key={group.id}
               className="rounded-2xl border border-[#F1F2F6] bg-white p-6"
+              data-cy="planningandreporting-planning-and-reporting-components-drawers-adddailyplandrawer-tsx-div-451"
             >
               <div
                 id={`daily-plan-collapse-header-${group.id}`}
@@ -410,30 +459,57 @@ export default function AddDailyPlanDrawer({
                 className={`${group.collapsed ? 'mb-0' : 'mb-4'} flex items-center justify-between cursor-pointer`}
                 onClick={() => togglePlanningGroupCollapse(group.id)}
               >
-                <div>
-                  <span className="font-bold text-[#161A2C]">
+                <div data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-413">
+                  <span
+                    data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-414"
+                    className="font-bold text-[#161A2C]"
+                  >
                     Weekly-task :{' '}
                   </span>
-                  <span className="text-[#5A5C80]">{group.title}</span>
+                  <span
+                    data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-417"
+                    className="text-[#5A5C80]"
+                  >
+                    {group.title}
+                  </span>
                 </div>
                 {group.collapsed ? <DownOutlined /> : <UpOutlined />}
               </div>
 
               {!group.collapsed && (
-                <div className="flex flex-col gap-4">
+                <div
+                  data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-423"
+                  className="flex flex-col gap-4"
+                >
                   {/* Show the weekly task info */}
-                  <div className="p-3 bg-[#F5F5F7] rounded-lg mb-2">
-                    <p className="text-sm font-medium text-[#161A2C] mb-1">
+                  <div
+                    data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-425"
+                    className="p-3 bg-[#F5F5F7] rounded-lg mb-2"
+                  >
+                    <p
+                      data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-p-426"
+                      className="text-sm font-medium text-[#161A2C] mb-1"
+                    >
                       Weekly Task:
                     </p>
-                    <p className="text-sm text-[#5A5C80]">
+                    <p
+                      data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-p-429"
+                      className="text-sm text-[#5A5C80]"
+                    >
                       {weeklyTask.description}
                     </p>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-[#8F94A3]">
-                      <span>Priority: {weeklyTask.priority}</span>
-                      <span>Weight: {weeklyTask.weight}%</span>
+                    <div
+                      data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-432"
+                      className="flex items-center gap-4 mt-2 text-xs text-[#8F94A3]"
+                    >
+                      <span data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-433">
+                        Priority: {weeklyTask.priority}
+                      </span>
+                      <span data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-434">
+                        Weight: {weeklyTask.weight}%
+                      </span>
                       {weeklyTask.target > 0 && (
-                        <span>
+                        <span data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-436">
                           Target: {weeklyTask.target.toLocaleString()}
                         </span>
                       )}
@@ -449,6 +525,7 @@ export default function AddDailyPlanDrawer({
                             <div
                               key={field.key}
                               className="flex items-start gap-3 [&_.ant-form-item-explain-error]:text-[11px]"
+                              data-cy="planningandreporting-planning-and-reporting-components-drawers-adddailyplandrawer-tsx-div-524"
                             >
                               {/* Hidden fields for metadata */}
                               <Form.Item
@@ -613,7 +690,10 @@ export default function AddDailyPlanDrawer({
                         })}
 
                         {/* Add Task button */}
-                        <div className="flex justify-end mt-2 sm:mt-0">
+                        <div
+                          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-616"
+                          className="flex justify-end mt-2 sm:mt-0"
+                        >
                           <Button
                             id={`daily-plan-add-task-button-${group.id}`}
                             data-cy={`daily-plan-add-task-button-${group.id}`}
@@ -668,11 +748,15 @@ export default function AddDailyPlanDrawer({
   };
 
   const renderReportingContent = () => (
-    <div className="flex flex-col gap-6 p-2">
+    <div
+      data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-671"
+      className="flex flex-col gap-6 p-2"
+    >
       {reportingTasks.map((group) => (
         <div
           key={group.id}
           className="rounded-2xl border border-[#F1F2F6] bg-white p-6"
+          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-756"
         >
           <div
             id={`daily-report-collapse-header-${group.id}`}
@@ -680,40 +764,73 @@ export default function AddDailyPlanDrawer({
             className={`${group.collapsed ? 'mb-0' : 'mb-4'} flex items-center justify-between cursor-pointer`}
             onClick={() => toggleReportingGroupCollapse(group.id)}
           >
-            <div>
-              <span className="font-bold text-[#161A2C]">Weekly-task : </span>
-              <span className="text-[#5A5C80]">{group.title}</span>
+            <div data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-683">
+              <span
+                data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-684"
+                className="font-bold text-[#161A2C]"
+              >
+                Weekly-task :{' '}
+              </span>
+              <span
+                data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-685"
+                className="text-[#5A5C80]"
+              >
+                {group.title}
+              </span>
             </div>
             {group.collapsed ? <DownOutlined /> : <UpOutlined />}
           </div>
 
           {!group.collapsed && (
-            <div className="flex flex-col gap-6">
+            <div
+              data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-691"
+              className="flex flex-col gap-6"
+            >
               {group.tasks.map((task) => (
-                <div key={task.id} className="flex flex-col gap-3">
-                  <div className="flex items-start justify-between gap-4">
+                <div
+                  data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-693"
+                  key={task.id}
+                  className="flex flex-col gap-3"
+                >
+                  <div
+                    data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-694"
+                    className="flex items-start justify-between gap-4"
+                  >
                     <div
                       className="flex-1 text-[#5A5C80] text-sm pt-2 min-w-0 truncate"
                       title={task.description}
+                      data-cy="planningandreporting-planning-and-reporting-components-drawers-adddailyplandrawer-tsx-div-796"
                     >
                       {task.description}
                     </div>
-                    <div className="flex items-center gap-2 sm:gap-4">
+                    <div
+                      data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-701"
+                      className="flex items-center gap-2 sm:gap-4"
+                    >
                       {task.showValueInput && (
-                        <div className="relative w-[140px]">
+                        <div
+                          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-703"
+                          className="relative w-[140px]"
+                        >
                           <Input
                             id={`daily-report-value-input-${group.id}-${task.id}`}
                             data-cy={`daily-report-value-input-${group.id}-${task.id}`}
                             defaultValue={task.value?.toLocaleString()}
                             className="rounded-lg border-[#E5E7EB] py-1.5 pr-8 text-right"
                           />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8F94A3]">
+                          <span
+                            data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-710"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8F94A3]"
+                          >
                             $
                           </span>
                         </div>
                       )}
 
-                      <div className="flex items-center gap-3">
+                      <div
+                        data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-716"
+                        className="flex items-center gap-3"
+                      >
                         <div
                           id={`daily-report-status-done-${group.id}-${task.id}`}
                           data-cy={`daily-report-status-done-${group.id}-${task.id}`}
@@ -723,13 +840,19 @@ export default function AddDailyPlanDrawer({
                           }
                         >
                           <div
+                            data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-841"
                             className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${task.status === 'done' ? 'bg-[#00C48C] border-[#00C48C]' : 'bg-white border-[#E5E7EB]'}`}
                           >
                             {task.status === 'done' && (
                               <CheckOutlined className="text-white text-[10px]" />
                             )}
                           </div>
-                          <span className="text-sm text-[#161A2C]">Done</span>
+                          <span
+                            data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-732"
+                            className="text-sm text-[#161A2C]"
+                          >
+                            Done
+                          </span>
                         </div>
 
                         <div
@@ -742,19 +865,28 @@ export default function AddDailyPlanDrawer({
                         >
                           <div
                             className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${task.status === 'not' ? 'bg-[#FF4D4F] border-[#FF4D4F]' : 'bg-white border-[#E5E7EB]'}`}
+                            data-cy="planningandreporting-planning-and-reporting-components-drawers-adddailyplandrawer-tsx-div-861"
                           >
                             {task.status === 'not' && (
                               <CloseOutlined className="text-white text-[10px]" />
                             )}
                           </div>
-                          <span className="text-sm text-[#161A2C]">Not</span>
+                          <span
+                            data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-750"
+                            className="text-sm text-[#161A2C]"
+                          >
+                            Not
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {task.status === 'not' && (
-                    <div className="mt-2">
+                    <div
+                      data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-757"
+                      className="mt-2"
+                    >
                       <Input.TextArea
                         id={`daily-report-comment-textarea-${group.id}-${task.id}`}
                         data-cy={`daily-report-comment-textarea-${group.id}-${task.id}`}
@@ -777,7 +909,10 @@ export default function AddDailyPlanDrawer({
   return (
     <Drawer
       title={
-        <div className="text-center text-xl font-bold text-[#161A2C]">
+        <div
+          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-780"
+          className="text-center text-xl font-bold text-[#161A2C]"
+        >
           {viewMode === 'planning' ? 'Daily Plan' : 'Daily Reporting'}
         </div>
       }
@@ -788,8 +923,14 @@ export default function AddDailyPlanDrawer({
       closable={false}
       className="[&_.ant-drawer-header]:border-b-0 [&_.ant-drawer-header]:pt-6 [&_.ant-drawer-header]:pb-2"
       footer={
-        <div className="relative flex items-center justify-center px-4 my-3 sm:my-0 sm:py-2">
-          <div className="flex items-center gap-4">
+        <div
+          data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-791"
+          className="relative flex items-center justify-center px-4 my-3 sm:my-0 sm:py-2"
+        >
+          <div
+            data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-792"
+            className="flex items-center gap-4"
+          >
             <Button
               id="daily-plan-drawer-cancel-button"
               data-cy="daily-plan-drawer-cancel-button"
@@ -813,7 +954,10 @@ export default function AddDailyPlanDrawer({
             </Button>
           </div>
 
-          <div className="absolute right-4">
+          <div
+            data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-816"
+            className="absolute right-4"
+          >
             {viewMode === 'planning' ? (
               <Tooltip
                 title={
@@ -822,23 +966,55 @@ export default function AddDailyPlanDrawer({
                     : ''
                 }
               >
-                <span className="text-sm font-medium text-[#8F94A3]">
-                  <span className="md:hidden">WP:</span>{' '}
-                  <span className="hidden md:inline">Weight Point:</span>{' '}
+                <span
+                  data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-825"
+                  className="text-sm font-medium text-[#8F94A3]"
+                >
+                  <span
+                    data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-826"
+                    className="md:hidden"
+                  >
+                    WP:
+                  </span>{' '}
+                  <span
+                    data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-827"
+                    className="hidden md:inline"
+                  >
+                    Weight Point:
+                  </span>{' '}
                   <span
                     className={
                       totalWeight === 100 ? 'text-[#52C41A]' : 'text-[#161A2C]'
                     }
+                    data-cy="planningandreporting-planning-and-reporting-components-drawers-adddailyplandrawer-tsx-span-979"
                   >
                     {totalWeight}%
                   </span>
                 </span>
               </Tooltip>
             ) : (
-              <span className="text-sm font-medium text-[#161A2C]">
-                <span className="md:hidden">TP:</span>{' '}
-                <span className="hidden md:inline">Total Point:</span>{' '}
-                <span className="text-[#00C48C]">85%</span>
+              <span
+                data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-838"
+                className="text-sm font-medium text-[#161A2C]"
+              >
+                <span
+                  data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-839"
+                  className="md:hidden"
+                >
+                  TP:
+                </span>{' '}
+                <span
+                  data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-840"
+                  className="hidden md:inline"
+                >
+                  Total Point:
+                </span>{' '}
+                <span
+                  data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-841"
+                  className="text-[#00C48C]"
+                >
+                  85%
+                </span>
               </span>
             )}
           </div>

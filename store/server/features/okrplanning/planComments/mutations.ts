@@ -84,7 +84,10 @@ const deleteComment = async (commentId: string) => {
  * it invalidates the "posts" query to refetch the latest data.
  */
 /** Build comment object for cache from API response and/or form variables */
-function toCommentForCache(apiResponse: any, variables: { planId?: string; comment?: string; commentedBy?: string }) {
+function toCommentForCache(
+  apiResponse: any,
+  variables: { planId?: string; comment?: string; commentedBy?: string },
+) {
   const now = new Date().toISOString();
   return {
     id: apiResponse?.id ?? `temp-${Date.now()}`,
@@ -124,7 +127,7 @@ export const useAddPlanComment = () => {
         const updatedItems = data.items.map((plan: any) =>
           String(plan.id) === String(planId)
             ? { ...plan, comments: [...(plan.comments || []), newComment] }
-            : plan
+            : plan,
         );
         return { ...data, items: updatedItems };
       });
@@ -146,7 +149,10 @@ export const useUpdatePlanComment = () => {
     ({ id, updatedComment }: { id: string; updatedComment: CommentsData }) =>
       updateComment(id, updatedComment),
     {
-      onSuccess: (responseData: any, variables: { id: string; updatedComment: CommentsData }) => {
+      onSuccess: (
+        responseData: any,
+        variables: { id: string; updatedComment: CommentsData },
+      ) => {
         const commentId = variables.id;
         const newText = variables.updatedComment?.comment;
 
@@ -154,7 +160,9 @@ export const useUpdatePlanComment = () => {
           if (!data?.items || !Array.isArray(data.items)) return undefined;
           const updatedItems = data.items.map((plan: any) => {
             const comments = plan.comments || [];
-            const idx = comments.findIndex((c: any) => String(c.id) === String(commentId));
+            const idx = comments.findIndex(
+              (c: any) => String(c.id) === String(commentId),
+            );
             if (idx === -1) return plan;
             const updatedComments = [...comments];
             updatedComments[idx] = {
@@ -194,7 +202,9 @@ export const useDeletePlanComment = () => {
       updateOkrPlansCaches(queryClient, (data) => {
         if (!data?.items || !Array.isArray(data.items)) return undefined;
         const updatedItems = data.items.map((plan: any) => {
-          const comments = (plan.comments || []).filter((c: any) => String(c.id) !== String(commentId));
+          const comments = (plan.comments || []).filter(
+            (c: any) => String(c.id) !== String(commentId),
+          );
           return { ...plan, comments };
         });
         return { ...data, items: updatedItems };

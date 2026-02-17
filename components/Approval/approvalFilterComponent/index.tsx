@@ -118,7 +118,10 @@ const ApprovalFilterComponent = ({
           ))}
         </Select>
         {!isAppliedForSelected && (
-          <div className="sm:hidden">
+          <div
+            data-cy="components-approval-approvalfiltercomponent-index-tsx-index-div-121"
+            className="sm:hidden"
+          >
             <Button
               type="default"
               icon={<LuSettings2 size={24} className="text-gray-600" />}
@@ -146,7 +149,10 @@ const ApprovalFilterComponent = ({
                 `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`.trim(),
             }))}
           />
-          <div className="sm:hidden mb-4">
+          <div
+            data-cy="components-approval-approvalfiltercomponent-index-tsx-index-div-149"
+            className="sm:hidden mb-4"
+          >
             <Button
               type="default"
               icon={<LuSettings2 size={24} className="text-gray-600" />}
@@ -173,7 +179,10 @@ const ApprovalFilterComponent = ({
               label: dept.name,
             }))}
           />
-          <div className="sm:hidden mb-4">
+          <div
+            data-cy="components-approval-approvalfiltercomponent-index-tsx-index-div-176"
+            className="sm:hidden mb-4"
+          >
             <Button
               type="default"
               icon={<LuSettings2 size={24} className="text-gray-600" />}
@@ -192,7 +201,10 @@ const ApprovalFilterComponent = ({
         open={isMobileFilterVisible}
         width="85%"
         footer={
-          <div className="flex justify-center items-center space-x-4">
+          <div
+            data-cy="components-approval-approvalfiltercomponent-index-tsx-index-div-195"
+            className="flex justify-center items-center space-x-4"
+          >
             <Button
               type="default"
               className="px-10"
@@ -210,7 +222,10 @@ const ApprovalFilterComponent = ({
           </div>
         }
       >
-        <div className="space-y-4">
+        <div
+          data-cy="components-approval-approvalfiltercomponent-index-tsx-index-div-213"
+          className="space-y-4"
+        >
           <Input
             id={`inputEmployeeNamesMobile${searchParams.name}`}
             placeholder="Search workflow name"

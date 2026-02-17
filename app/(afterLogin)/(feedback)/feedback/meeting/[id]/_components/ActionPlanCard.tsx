@@ -85,11 +85,16 @@ export default function ActionPlanCard({
     const profileImage = userDetails?.profileImage;
 
     return (
-      <div className="flex gap-2 items-center">
+      <div
+        className="flex gap-2 items-center"
+        data-cy={`action-plan-card-user-${id}`}
+      >
         <Tooltip title={type === 'all' ? '' : userName}>
           <Avatar src={profileImage} icon={<UserOutlined />} />
         </Tooltip>
-        {type === 'all' && <div>{userName}</div>}
+        {type === 'all' && (
+          <div data-cy={`action-plan-card-user-name-${id}`}>{userName}</div>
+        )}
       </div>
     );
   };
@@ -132,6 +137,7 @@ export default function ActionPlanCard({
               <Button
                 loading={isLoading}
                 type="text"
+                data-cy={`feedback-meeting-components-actionplancard-button-more-${id}`}
                 icon={
                   <FiMoreVertical
                     className="text-gray-500 hover:text-blue-500 cursor-pointer text-lg"
@@ -139,7 +145,6 @@ export default function ActionPlanCard({
                     id={`feedback-meeting-components-actionplancard-icon-more-${id}`}
                   />
                 }
-                data-cy={`feedback-meeting-components-actionplancard-button-more-${id}`}
                 id={`feedback-meeting-components-actionplancard-button-more-${id}`}
               />
             </Tooltip>

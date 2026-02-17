@@ -126,7 +126,14 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
       ),
     },
     {
-      title: <span className="truncate">Applicable To</span>,
+      title: (
+        <span
+          className="truncate"
+          data-cy="benefit-entitlement-table-applicable-to-header"
+        >
+          Applicable To
+        </span>
+      ),
       dataIndex: 'ApplicableTo',
       key: 'ApplicableTo',
       sorter: true,

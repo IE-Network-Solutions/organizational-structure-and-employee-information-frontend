@@ -107,7 +107,10 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
     if (isError) return <>-</>;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
+      <div
+        className="flex items-center gap-1.5"
+        data-cy="employee-recognition-modal-employee-container"
+      >
         {employeeData?.profileImage ? (
           <Avatar
             src={employeeData?.profileImage}
@@ -121,8 +124,14 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
             size="small"
           />
         )}
-        <div className="flex-1">
-          <div className="text-[12pxx`] text-gray-900">
+        <div
+          className="flex-1"
+          data-cy="employee-recognition-modal-employee-name-container"
+        >
+          <div
+            className="text-[12pxx`] text-gray-900"
+            data-cy="employee-recognition-modal-employee-name"
+          >
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
@@ -148,7 +157,11 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
       key: 'criteriaScore',
       render: (criteriaScore: any[]) =>
         criteriaScore?.map((c, i) => (
-          <Tag className="bg-lightblue text-[#3297db] border-none" key={i}>
+          <Tag
+            className="bg-lightblue text-[#3297db] border-none"
+            key={i}
+            data-cy={`employee-recognition-modal-criteria-tag-${i}`}
+          >
             {c.name}
           </Tag>
         )),

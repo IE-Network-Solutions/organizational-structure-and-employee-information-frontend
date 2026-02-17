@@ -114,7 +114,10 @@ const HistoryTable = () => {
       key: 'startAt',
       sorter: true,
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4">
+        <div
+          data-cy="my-timesheet-components-historytable-index-tsx-index-div-117"
+          className="text-sm text-gray-900 py-4"
+        >
           {dayjs(date).format(DATE_FORMAT)}
         </div>
       ),
@@ -125,7 +128,10 @@ const HistoryTable = () => {
       key: 'endAt',
       sorter: true,
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4">
+        <div
+          data-cy="my-timesheet-components-historytable-index-tsx-index-div-128"
+          className="text-sm text-gray-900 py-4"
+        >
           {dayjs(date).format(DATE_FORMAT)}
         </div>
       ),
@@ -136,7 +142,12 @@ const HistoryTable = () => {
       key: 'days',
       sorter: true,
       render: (text: string) => (
-        <div className="text-sm text-gray-900 py-4">{text} Days</div>
+        <div
+          data-cy="my-timesheet-components-historytable-index-tsx-index-div-139"
+          className="text-sm text-gray-900 py-4"
+        >
+          {text} Days
+        </div>
       ),
     },
     {
@@ -146,7 +157,12 @@ const HistoryTable = () => {
       sorter: true,
       responsive: ['sm'],
       render: (text: string) => (
-        <div className="text-sm text-gray-900 py-4">{text}</div>
+        <div
+          data-cy="my-timesheet-components-historytable-index-tsx-index-div-149"
+          className="text-sm text-gray-900 py-4"
+        >
+          {text}
+        </div>
       ),
     },
     {
@@ -323,7 +339,10 @@ const HistoryTable = () => {
                 data-cy="time-attendance-history-table-mobile-filter"
               />
             </div>
-            <div className="">
+            <div
+              data-cy="my-timesheet-components-historytable-index-tsx-index-div-326"
+              className=""
+            >
               <AccessGuard
                 data-cy="time-attendance-history-table-mobile-add-button-access-guard"
                 permissions={[Permissions.SubmitLeaveRequest]}
@@ -336,7 +355,12 @@ const HistoryTable = () => {
                   id="time-attendance-history-table-mobile-add-button"
                   data-cy="time-attendance-history-table-mobile-add-button"
                 >
-                  <span className="text-xl font-medium text-white">+</span>
+                  <span
+                    data-cy="my-timesheet-components-historytable-index-tsx-index-span-339"
+                    className="text-xl font-medium text-white"
+                  >
+                    +
+                  </span>
                 </Button>
               </AccessGuard>
             </div>
@@ -361,7 +385,12 @@ const HistoryTable = () => {
                 id="time-attendance-history-table-desktop-add-button"
                 data-cy="time-attendance-history-table-desktop-add-button"
               >
-                <span className="hidden sm:inline">Add New Request</span>
+                <span
+                  data-cy="my-timesheet-components-historytable-index-tsx-index-span-364"
+                  className="hidden sm:inline"
+                >
+                  Add New Request
+                </span>
               </Button>
             </AccessGuard>
           </div>

@@ -633,7 +633,10 @@ const RecognitionForm: React.FC<PropsData> = ({
         >
           <Form.Item
             label={
-              <span className="text-black text-xs font-semibold">
+              <span
+                className="text-black text-xs font-semibold"
+                data-cy="create-recognition-form-name-label"
+              >
                 Recognition Name
               </span>
             }
@@ -655,7 +658,10 @@ const RecognitionForm: React.FC<PropsData> = ({
           <Form.Item
             className="text-xs text-gray-950"
             label={
-              <span className="text-black text-xs font-semibold">
+              <span
+                className="text-black text-xs font-semibold"
+                data-cy="create-recognition-form-description-label"
+              >
                 Description
               </span>
             }
@@ -676,7 +682,10 @@ const RecognitionForm: React.FC<PropsData> = ({
             <Form.Item
               className="text-xs text-gray-950"
               label={
-                <span className="text-black text-xs font-semibold">
+                <span
+                  className="text-black text-xs font-semibold"
+                  data-cy="create-recognition-form-criteria-label"
+                >
                   Recognition Criteria
                 </span>
               }
@@ -1029,7 +1038,10 @@ const RecognitionForm: React.FC<PropsData> = ({
               <Form.Item
                 className="text-xs text-gray-950"
                 label={
-                  <span className="text-black text-xs font-semibold">
+                  <span
+                    className="text-black text-xs font-semibold"
+                    data-cy="create-recognition-form-monetized-label"
+                  >
                     Monetized
                   </span>
                 }
@@ -1048,7 +1060,10 @@ const RecognitionForm: React.FC<PropsData> = ({
               <Form.Item
                 className="text-xs text-gray-950"
                 label={
-                  <span className="text-black text-xs font-semibold">
+                  <span
+                    className="text-black text-xs font-semibold"
+                    data-cy="create-recognition-form-requires-certification-label"
+                  >
                     Requires Certification
                   </span>
                 }
@@ -1080,7 +1095,10 @@ const RecognitionForm: React.FC<PropsData> = ({
                       <Form.Item
                         className="text-xs text-gray-950"
                         label={
-                          <span className="text-black text-xs font-semibold">
+                          <span
+                            className="text-black text-xs font-semibold"
+                            data-cy="create-recognition-form-certification-title-label"
+                          >
                             Certification Title
                           </span>
                         }
@@ -1104,7 +1122,10 @@ const RecognitionForm: React.FC<PropsData> = ({
                       <Form.Item
                         className="text-xs text-gray-950"
                         label={
-                          <span className="text-black text-xs font-semibold">
+                          <span
+                            className="text-black text-xs font-semibold"
+                            data-cy="create-recognition-form-certification-details-label"
+                          >
                             Certification Details
                           </span>
                         }
@@ -1150,7 +1171,10 @@ const RecognitionForm: React.FC<PropsData> = ({
               <Form.Item
                 className="text-xs text-gray-950"
                 label={
-                  <span className="text-black text-xs font-semibold">
+                  <span
+                    className="text-black text-xs font-semibold"
+                    data-cy="create-recognition-form-frequency-label"
+                  >
                     Frequency
                   </span>
                 }
@@ -1204,7 +1228,10 @@ const RecognitionForm: React.FC<PropsData> = ({
               className="text-xs text-gray-950"
               hidden
               label={
-                <span className="text-black text-xs font-semibold">
+                <span
+                  className="text-black text-xs font-semibold"
+                  data-cy="create-recognition-form-parent-type-label"
+                >
                   Parent Type
                 </span>
               }
@@ -1235,7 +1262,10 @@ const RecognitionForm: React.FC<PropsData> = ({
             <Form.Item
               className="text-xs text-gray-950"
               label={
-                <span className="text-black text-xs font-semibold">
+                <span
+                  className="text-black text-xs font-semibold"
+                  data-cy="create-recognition-form-department-label"
+                >
                   Department
                 </span>
               }
@@ -1346,7 +1376,10 @@ const RecognitionForm: React.FC<PropsData> = ({
             <Form.Item
               className="text-xs text-gray-950"
               label={
-                <span className="text-black text-xs font-semibold mb-1">
+                <span
+                  className="text-black text-xs font-semibold mb-1"
+                  data-cy="create-recognition-criteria-modal-description-label"
+                >
                   Description
                 </span>
               }

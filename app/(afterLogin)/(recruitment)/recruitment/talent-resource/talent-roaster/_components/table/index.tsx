@@ -224,7 +224,11 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             data-cy={`talent-acquisition-talent-roaster-table-cell-department-${id}`}
             className="flex gap-2 items-center"
           >
-            {<div>{depName}</div>}
+            {
+              <div data-cy="talent-roaster-components-table-index-tsx-index-div-227">
+                {depName}
+              </div>
+            }
           </div>
         );
       };

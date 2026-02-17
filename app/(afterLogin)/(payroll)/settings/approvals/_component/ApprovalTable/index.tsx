@@ -239,9 +239,9 @@ const ApprovalTable = () => {
                 <Tooltip
                   key={empIndex}
                   title={
-                    <div>
+                    <div data-cy="approvals-component-approvaltable-index-tsx-index-div-242">
                       {fullName}
-                      <br />
+                      <br data-cy="approvals-component-approvaltable-index-tsx-index-br-244" />
                       {userInfo.email}
                     </div>
                   }
