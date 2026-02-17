@@ -10,16 +10,15 @@ interface DraggableTeamItemProps {
   getTeamColor: (index: number) => string;
 }
 
-const DraggableTeamItem: React.FC<DraggableTeamItemProps> = ({ department, index, getTeamColor }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    isDragging,
-  } = useDraggable({
-    id: department.id,
-  });
+const DraggableTeamItem: React.FC<DraggableTeamItemProps> = ({
+  department,
+  index,
+  getTeamColor,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id: department.id,
+    });
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -32,12 +31,15 @@ const DraggableTeamItem: React.FC<DraggableTeamItemProps> = ({ department, index
       style={style}
       {...attributes}
       {...listeners}
-      className={`p-2 mb-2 rounded-lg border cursor-grab active:cursor-grabbing ${
-        getTeamColor(index)
-      } ${isDragging ? 'shadow-lg' : 'shadow-sm'}`}
+      className={`p-2 mb-2 rounded-lg border cursor-grab active:cursor-grabbing ${getTeamColor(
+        index,
+      )} ${isDragging ? 'shadow-lg' : 'shadow-sm'}`}
       data-cy={`merge-available-team-${department.id}`}
     >
-      <p className="font-medium text-xs text-gray-900 m-0 truncate">
+      <p
+        className="font-medium text-xs text-gray-900 m-0 truncate"
+        data-cy={`merge-available-team-name-${department.id}`}
+      >
         {department.name}
       </p>
     </div>

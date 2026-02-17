@@ -13,7 +13,10 @@ import {
   Col,
 } from 'antd';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { useActivateMonth, useDeleteFiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
+import {
+  useActivateMonth,
+  useDeleteFiscalYear,
+} from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import {
   FiscalYear,
   Session,
@@ -40,7 +43,6 @@ const FiscalYearListCard: React.FC = () => {
     setEditMode,
     setOpenFiscalYearDrawer,
     searchQuery,
-    setSearchQuery,
   } = useFiscalYearDrawerStore();
 
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(
@@ -65,14 +67,21 @@ const FiscalYearListCard: React.FC = () => {
     }
   };
 
-  const { data: fiscalYears, isLoading: fiscalYearsFetchLoading, refetch: refetchFiscalYears } =
-    useGetAllFiscalYears(pageSize, currentPage);
+  const {
+    data: fiscalYears,
+    isLoading: fiscalYearsFetchLoading,
+    refetch: refetchFiscalYears,
+  } = useGetAllFiscalYears(pageSize, currentPage);
   const { mutate: activateMonth, isLoading: isActivatingMonth } =
     useActivateMonth();
-  const { mutate: deleteFiscalYear, isLoading: isDeletingFiscalYear } = useDeleteFiscalYear();
-  
-  const [deletePopconfirmVisible, setDeletePopconfirmVisible] = useState<Record<string, boolean>>({});
-  const [deletingFiscalYearId, setDeletingFiscalYearId] = useState<string | null>(null);
+  const { mutate: deleteFiscalYear } = useDeleteFiscalYear();
+
+  const [deletePopconfirmVisible, setDeletePopconfirmVisible] = useState<
+    Record<string, boolean>
+  >({});
+  const [deletingFiscalYearId, setDeletingFiscalYearId] = useState<
+    string | null
+  >(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleMenuClick = (key: string, fYear: FiscalYear) => {
@@ -94,12 +103,18 @@ const FiscalYearListCard: React.FC = () => {
       deleteFiscalYear(fYear.id, {
         onSuccess: () => {
           refetchFiscalYears();
-          setDeletePopconfirmVisible((prev) => ({ ...prev, [fiscalYearId]: false }));
+          setDeletePopconfirmVisible((prev) => ({
+            ...prev,
+            [fiscalYearId]: false,
+          }));
           setDeletingFiscalYearId(null);
           setIsDeleting(false);
         },
         onError: () => {
-          setDeletePopconfirmVisible((prev) => ({ ...prev, [fiscalYearId]: false }));
+          setDeletePopconfirmVisible((prev) => ({
+            ...prev,
+            [fiscalYearId]: false,
+          }));
           setDeletingFiscalYearId(null);
           setIsDeleting(false);
         },
@@ -124,6 +139,8 @@ const FiscalYearListCard: React.FC = () => {
         className="bg-white"
         theme="light"
         mode="vertical"
+        data-cy={`org-settings-fiscal-year-menu-${fiscalYearId}`}
+        id={`org-settings-fiscal-year-menu-${fiscalYearId}`}
       >
         {fYear.isActive && (
           <AccessGuard
@@ -136,9 +153,17 @@ const FiscalYearListCard: React.FC = () => {
               data-cy={`org-settings-fiscal-year-edit-${fiscalYearId}`}
               id={`org-settings-fiscal-year-edit-${fiscalYearId}`}
               className="bg-white hover:bg-gray-100"
-              icon={<MdEdit />}
+              icon={
+                <MdEdit
+                  data-cy={`org-settings-fiscal-year-edit-icon-${fiscalYearId}`}
+                />
+              }
             >
-              Edit
+              <span
+                data-cy={`org-settings-fiscal-year-edit-text-${fiscalYearId}`}
+              >
+                Edit
+              </span>
             </Menu.Item>
           </AccessGuard>
         )}
@@ -151,46 +176,71 @@ const FiscalYearListCard: React.FC = () => {
             data-cy={`org-settings-fiscal-year-delete-${fiscalYearId}`}
             id={`org-settings-fiscal-year-delete-${fiscalYearId}`}
             className="bg-white hover:bg-gray-100"
-            icon={<MdDelete />}
+            icon={
+              <MdDelete
+                data-cy={`org-settings-fiscal-year-delete-icon-${fiscalYearId}`}
+              />
+            }
           >
             <Popconfirm
               icon={null}
               title={
-                <div className="p-2">
-                  <h3 className="text-base font-bold text-gray-800 mb-1">
+                <div
+                  className="p-2"
+                  data-cy={`org-settings-fiscal-year-delete-popconfirm-content-${fiscalYearId}`}
+                >
+                  <h3
+                    className="text-base font-bold text-gray-800 mb-1"
+                    data-cy={`org-settings-fiscal-year-delete-popconfirm-title-${fiscalYearId}`}
+                  >
                     Delete Fiscal year
                   </h3>
-                  <p className="text-sm text-gray-800 m-0 mb-1">
+                  <p
+                    className="text-sm text-gray-800 m-0 mb-1"
+                    data-cy={`org-settings-fiscal-year-delete-popconfirm-description-${fiscalYearId}`}
+                  >
                     Are you Sure you want to Delete this Fiscal year?
                   </p>
                 </div>
               }
               open={deletePopconfirmVisible[String(fYear?.id || '')]}
               onOpenChange={(visible) => {
-                setDeletePopconfirmVisible((prev) => ({ ...prev, [String(fYear?.id || '')]: visible }));
+                setDeletePopconfirmVisible((prev) => ({
+                  ...prev,
+                  [String(fYear?.id || '')]: visible,
+                }));
               }}
               onCancel={(e) => {
                 e?.stopPropagation();
-                setDeletePopconfirmVisible((prev) => ({ ...prev, [String(fYear?.id || '')]: false }));
+                setDeletePopconfirmVisible((prev) => ({
+                  ...prev,
+                  [String(fYear?.id || '')]: false,
+                }));
               }}
               onConfirm={() => handleDelete(fYear)}
               okText="Delete"
-              okButtonProps={{ 
-                danger: true, 
-                loading: isDeleting && deletingFiscalYearId === String(fYear?.id || ''),
-                size: 'middle'
+              okButtonProps={{
+                danger: true,
+                loading:
+                  isDeleting &&
+                  deletingFiscalYearId === String(fYear?.id || ''),
+                size: 'middle',
               }}
               cancelButtonProps={{ size: 'middle' }}
               cancelText="Cancel"
               overlayStyle={{ padding: '20px', minWidth: '400px' }}
               data-cy={`org-settings-fiscal-year-delete-popconfirm-${fiscalYearId}`}
             >
-              <span 
+              <span
                 className="cursor-pointer"
+                data-cy={`org-settings-fiscal-year-delete-popconfirm-trigger-${fiscalYearId}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!deletePopconfirmVisible[String(fYear?.id || '')]) {
-                    setDeletePopconfirmVisible((prev) => ({ ...prev, [String(fYear?.id || '')]: true }));
+                    setDeletePopconfirmVisible((prev) => ({
+                      ...prev,
+                      [String(fYear?.id || '')]: true,
+                    }));
                   }
                 }}
               >
@@ -202,7 +252,6 @@ const FiscalYearListCard: React.FC = () => {
       </Menu>
     );
   };
-
 
   const filteredFiscalYears = useMemo(() => {
     if (!fiscalYears?.items) return [];
@@ -238,289 +287,336 @@ const FiscalYearListCard: React.FC = () => {
           id="org-settings-fiscal-year-list"
         >
           {filteredFiscalYears.map((fYear: FiscalYear, index: number) => {
-          const fiscalYearId = fYear?.id || `fiscal-year-${index}`;
-          const allMonthsForYear =
-            fYear.sessions?.flatMap((s: Session) => s.months ?? []) ?? [];
-          const activeMonthForYear = allMonthsForYear.find(
-            (m: Month) => m.active,
-          );
-          const nextMonthStartDateStr = activeMonthForYear
-            ? dayjs(activeMonthForYear.endDate)
-                .add(1, 'day')
-                .format('YYYY-MM-DD')
-            : null;
-          const isNextMonthAfterActive = (month: Month) =>
-            nextMonthStartDateStr != null &&
-            dayjs(month.startDate).format('YYYY-MM-DD') ===
-              nextMonthStartDateStr;
-          return (
-            <Col xs={24} sm={24} md={12} lg={12} xl={12} key={fYear?.id}>
-            <Card
-              key={fYear?.id}
-              className="my-3 h-fit"
-              bodyStyle={{ padding: '12px 14px' }}
-              data-cy={`org-settings-fiscal-year-card-${fiscalYearId}`}
-              id="org-settings-fiscal-year-card"
-            >
-              <div
-                className="flex items-center justify-between mb-1"
-                data-cy="org-settings-fiscal-year-card-content"
-                id="org-settings-fiscal-year-card-content"
-              >
-                <div
-                  className="flex items-center gap-2 flex-1"
-                  onClick={() => toggleExpand(fYear?.id || '', 'year')}
-                  data-cy={`org-settings-fiscal-year-header-${fiscalYearId}`}
-                  id={`org-settings-fiscal-year-header-${fiscalYearId}`}
+            const fiscalYearId = fYear?.id || `fiscal-year-${index}`;
+            const allMonthsForYear =
+              fYear.sessions?.flatMap((s: Session) => s.months ?? []) ?? [];
+            const activeMonthForYear = allMonthsForYear.find(
+              (m: Month) => m.active,
+            );
+            const nextMonthStartDateStr = activeMonthForYear
+              ? dayjs(activeMonthForYear.endDate)
+                  .add(1, 'day')
+                  .format('YYYY-MM-DD')
+              : null;
+            const isNextMonthAfterActive = (month: Month) =>
+              nextMonthStartDateStr != null &&
+              dayjs(month.startDate).format('YYYY-MM-DD') ===
+                nextMonthStartDateStr;
+            return (
+              <Col xs={24} sm={24} md={12} lg={12} xl={12} key={fYear?.id}>
+                <Card
+                  key={fYear?.id}
+                  className="my-3 h-fit"
+                  bodyStyle={{ padding: '12px 14px' }}
+                  data-cy={`org-settings-fiscal-year-card-${fiscalYearId}`}
+                  id="org-settings-fiscal-year-card"
                 >
-                  <div className="cursor-pointer mt-3">
-                    {expandedYears[fYear?.id || ''] ? (
-                      <IoIosArrowUp
-                        size={24}
-                        data-cy="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-1"
-                        id="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-1"
-                      />
-                    ) : (
-                      <IoIosArrowDown
-                        size={24}
-                        data-cy="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-1"
-                        id="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-1"
-                      />
-                    )}
-                  </div>
-                  <h3
-                    className="text-base font-semibold text-gray-800 m-0 cursor-pointer"
-                    data-cy={`org-settings-fiscal-year-name-${fiscalYearId}`}
-                    id={`org-settings-fiscal-year-name-${fiscalYearId}`}
+                  <div
+                    className="flex items-center justify-between mb-1"
+                    data-cy="org-settings-fiscal-year-card-content"
+                    id="org-settings-fiscal-year-card-content"
                   >
-                    {fYear.name ?? 'Fiscal Year'}
-                  </h3>
-                  {fYear?.isActive && (
-                    <Tag
-                      color="success"
-                      data-cy={`org-settings-fiscal-year-active-badge-${fiscalYearId}`}
-                      id={`org-settings-fiscal-year-active-badge-${fiscalYearId}`}
+                    <div
+                      className="flex items-center gap-2 flex-1"
+                      onClick={() => toggleExpand(fYear?.id || '', 'year')}
+                      data-cy={`org-settings-fiscal-year-header-${fiscalYearId}`}
+                      id={`org-settings-fiscal-year-header-${fiscalYearId}`}
                     >
-                      Active
-                    </Tag>
-                  )}
-                </div>
-                <AccessGuard
-                  permissions={[
-                    Permissions.UpdateCalendar,
-                    Permissions.DeleteCalendar,
-                  ]}
-                  data-cy="org-settings-fiscal-year-card-dropdown"
-                  id="org-settings-fiscal-year-card-dropdown"
-                >
-                  <Dropdown
-                    overlay={menu(fYear)}
-                    trigger={['click']}
-                    data-cy={`org-settings-fiscal-year-dropdown-${fiscalYearId}`}
-                  >
-                    <button
-                      type="button"
-                      className="cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
-                      id={`org-settings-fiscal-year-actions-button-${fiscalYearId}`}
-                      data-cy={`org-settings-fiscal-year-actions-button-${fiscalYearId}`}
-                    >
-                      <BsThreeDots
-                        id={`org-settings-fiscal-year-actions-${fiscalYearId}`}
-                        data-cy={`org-settings-fiscal-year-actions-${fiscalYearId}`}
-                        className="text-lg"
-                      />
-                    </button>
-                  </Dropdown>
-                </AccessGuard>
-              </div>
-              <div
-                className="flex items-center gap-4 text-xs"
-                style={{ marginLeft: '28px' ,marginBottom: '0px !important' }}
-                data-cy={`org-settings-fiscal-year-meta-${fiscalYearId}`}
-                id={`org-settings-fiscal-year-meta-${fiscalYearId}`}
-              >
-                <div className="flex items-center gap-2">
-                  <MdCalendarToday className={fYear?.isActive ? "text-primary" : "text-gray-500"} />
-                  <span className="text-sm text-gray-700">
-                    {dayjs(fYear.startDate).format('DD MMM, YYYY')} -{' '}
-                    {dayjs(fYear.endDate).format('DD MMM, YYYY')}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MdBarChart className={fYear?.isActive ? "text-primary" : "text-gray-500"} />
-                  <span className="text-sm text-gray-700">
-                    {getCalendarFrequency(fYear.sessions)}
-                  </span>
-                </div>
-              </div>
-              <div
-                className="flex flex-col w-full"
-                data-cy="org-settings-fiscal-year-card-content-inner"
-                id="org-settings-fiscal-year-card-content-inner"
-              >
-
-                  {expandedYears[fYear?.id || ''] &&
-                    fYear.sessions?.map((session: Session, index: number) => {
-                      const sessionId = session.id || `session-${index}`;
-                      return (
-                        <div
-                          key={session.id}
-                          className="mt-3 border border-gray-200 rounded-md"
-                          style={{ marginLeft: '0px' }}
-                          data-cy={`org-settings-fiscal-year-session-${sessionId}`}
-                          id={`org-settings-fiscal-year-session-${sessionId}`}
+                      <div
+                        className="cursor-pointer mt-3"
+                        data-cy={`org-settings-fiscal-year-toggle-arrow-container-${fiscalYearId}`}
+                      >
+                        {expandedYears[fYear?.id || ''] ? (
+                          <IoIosArrowUp
+                            size={24}
+                            data-cy="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-1"
+                            id="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-1"
+                          />
+                        ) : (
+                          <IoIosArrowDown
+                            size={24}
+                            data-cy="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-1"
+                            id="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-1"
+                          />
+                        )}
+                      </div>
+                      <h3
+                        className="text-base font-semibold text-gray-800 m-0 cursor-pointer"
+                        data-cy={`org-settings-fiscal-year-name-${fiscalYearId}`}
+                        id={`org-settings-fiscal-year-name-${fiscalYearId}`}
+                      >
+                        {fYear.name ?? 'Fiscal Year'}
+                      </h3>
+                      {fYear?.isActive && (
+                        <Tag
+                          color="success"
+                          data-cy={`org-settings-fiscal-year-active-badge-${fiscalYearId}`}
+                          id={`org-settings-fiscal-year-active-badge-${fiscalYearId}`}
                         >
+                          Active
+                        </Tag>
+                      )}
+                    </div>
+                    <AccessGuard
+                      permissions={[
+                        Permissions.UpdateCalendar,
+                        Permissions.DeleteCalendar,
+                      ]}
+                      data-cy="org-settings-fiscal-year-card-dropdown"
+                      id="org-settings-fiscal-year-card-dropdown"
+                    >
+                      <Dropdown
+                        overlay={menu(fYear)}
+                        trigger={['click']}
+                        data-cy={`org-settings-fiscal-year-dropdown-${fiscalYearId}`}
+                      >
+                        <button
+                          type="button"
+                          className="cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+                          id={`org-settings-fiscal-year-actions-button-${fiscalYearId}`}
+                          data-cy={`org-settings-fiscal-year-actions-button-${fiscalYearId}`}
+                        >
+                          <BsThreeDots
+                            id={`org-settings-fiscal-year-actions-${fiscalYearId}`}
+                            data-cy={`org-settings-fiscal-year-actions-${fiscalYearId}`}
+                            className="text-lg"
+                          />
+                        </button>
+                      </Dropdown>
+                    </AccessGuard>
+                  </div>
+                  <div
+                    className="flex items-center gap-4 text-xs"
+                    style={{
+                      marginLeft: '28px',
+                      marginBottom: '0px !important',
+                    }}
+                    data-cy={`org-settings-fiscal-year-meta-${fiscalYearId}`}
+                    id={`org-settings-fiscal-year-meta-${fiscalYearId}`}
+                  >
+                    <div
+                      className="flex items-center gap-2"
+                      data-cy={`org-settings-fiscal-year-date-range-${fiscalYearId}`}
+                    >
+                      <MdCalendarToday
+                        className={
+                          fYear?.isActive ? 'text-primary' : 'text-gray-500'
+                        }
+                        data-cy={`org-settings-fiscal-year-date-range-icon-${fiscalYearId}`}
+                      />
+                      <span
+                        className="text-sm text-gray-700"
+                        data-cy={`org-settings-fiscal-year-date-range-text-${fiscalYearId}`}
+                      >
+                        {dayjs(fYear.startDate).format('DD MMM, YYYY')} -{' '}
+                        {dayjs(fYear.endDate).format('DD MMM, YYYY')}
+                      </span>
+                    </div>
+                    <div
+                      className="flex items-center gap-2"
+                      data-cy={`org-settings-fiscal-year-frequency-${fiscalYearId}`}
+                    >
+                      <MdBarChart
+                        className={
+                          fYear?.isActive ? 'text-primary' : 'text-gray-500'
+                        }
+                        data-cy={`org-settings-fiscal-year-frequency-icon-${fiscalYearId}`}
+                      />
+                      <span
+                        className="text-sm text-gray-700"
+                        data-cy={`org-settings-fiscal-year-frequency-text-${fiscalYearId}`}
+                      >
+                        {getCalendarFrequency(fYear.sessions)}
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    className="flex flex-col w-full"
+                    data-cy="org-settings-fiscal-year-card-content-inner"
+                    id="org-settings-fiscal-year-card-content-inner"
+                  >
+                    {expandedYears[fYear?.id || ''] &&
+                      fYear.sessions?.map((session: Session, index: number) => {
+                        const sessionId = session.id || `session-${index}`;
+                        return (
                           <div
-                            className="flex items-center justify-between cursor-pointer px-3 py-2"
-                            onClick={() => toggleExpand(session.id, 'session')}
-                            data-cy={`org-settings-fiscal-year-session-header-${sessionId}`}
-                            id={`org-settings-fiscal-year-session-header-${sessionId}`}
+                            key={session.id}
+                            className="mt-3 border border-gray-200 rounded-md"
+                            style={{ marginLeft: '0px' }}
+                            data-cy={`org-settings-fiscal-year-session-${sessionId}`}
+                            id={`org-settings-fiscal-year-session-${sessionId}`}
                           >
-                            <div className="flex items-center gap-12 flex-1">
-                              <p
-                                className="font-semibold text-gray-800 m-0"
-                                style={{ fontSize: '14px' }}
-                                data-cy={`org-settings-fiscal-year-session-name-${sessionId}`}
-                                id={`org-settings-fiscal-year-session-name-${sessionId}`}
-                              >
-                                {session.name ?? 'Session One'}
-                              </p>
+                            <div
+                              className="flex items-center justify-between cursor-pointer px-3 py-2"
+                              onClick={() =>
+                                toggleExpand(session.id, 'session')
+                              }
+                              data-cy={`org-settings-fiscal-year-session-header-${sessionId}`}
+                              id={`org-settings-fiscal-year-session-header-${sessionId}`}
+                            >
                               <div
-                                className="text-gray-700"
-                                style={{ fontSize: '12px' }}
-                                data-cy={`org-settings-fiscal-year-session-dates-${sessionId}`}
-                                id={`org-settings-fiscal-year-session-dates-${sessionId}`}
+                                className="flex items-center gap-12 flex-1"
+                                data-cy={`org-settings-fiscal-year-session-header-content-${sessionId}`}
                               >
-                                {dayjs(session.startDate).format(
-                                  'DD MMM, YYYY',
-                                )}{' '}
-                                -{' '}
-                                {dayjs(session.endDate).format('DD MMM, YYYY')}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 self-center">
-                              {session?.active && (
-                                <Tag
-                                  color="success"
-                                  data-cy={`org-settings-fiscal-year-session-active-badge-${sessionId}`}
-                                  id={`org-settings-fiscal-year-session-active-badge-${sessionId}`}
+                                <p
+                                  className="font-semibold text-gray-800 m-0"
+                                  style={{ fontSize: '14px' }}
+                                  data-cy={`org-settings-fiscal-year-session-name-${sessionId}`}
+                                  id={`org-settings-fiscal-year-session-name-${sessionId}`}
                                 >
-                                  Active
-                                </Tag>
-                              )}
-                              <div className="cursor-pointer flex-shrink-0 flex items-center justify-center" style={{ alignSelf: 'center' }}>
-                                {expandedSessions[session.id] ? (
-                                  <MdKeyboardArrowUp
-                                    size={14}
-                                    data-cy="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-2"
-                                    id="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-2"
-                                  />
-                                ) : (
-                                  <IoIosArrowDown
-                                    size={14}
-                                    data-cy="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-2"
-                                    id="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-2"
-                                  />
+                                  {session.name ?? 'Session One'}
+                                </p>
+                                <div
+                                  className="text-gray-700"
+                                  style={{ fontSize: '12px' }}
+                                  data-cy={`org-settings-fiscal-year-session-dates-${sessionId}`}
+                                  id={`org-settings-fiscal-year-session-dates-${sessionId}`}
+                                >
+                                  {dayjs(session.startDate).format(
+                                    'DD MMM, YYYY',
+                                  )}{' '}
+                                  -{' '}
+                                  {dayjs(session.endDate).format(
+                                    'DD MMM, YYYY',
+                                  )}
+                                </div>
+                              </div>
+                              <div
+                                className="flex items-center gap-2 self-center"
+                                data-cy={`org-settings-fiscal-year-session-actions-${sessionId}`}
+                              >
+                                {session?.active && (
+                                  <Tag
+                                    color="success"
+                                    data-cy={`org-settings-fiscal-year-session-active-badge-${sessionId}`}
+                                    id={`org-settings-fiscal-year-session-active-badge-${sessionId}`}
+                                  >
+                                    Active
+                                  </Tag>
                                 )}
+                                <div
+                                  className="cursor-pointer flex-shrink-0 flex items-center justify-center"
+                                  style={{ alignSelf: 'center' }}
+                                  data-cy={`org-settings-fiscal-year-session-toggle-arrow-container-${sessionId}`}
+                                >
+                                  {expandedSessions[session.id] ? (
+                                    <MdKeyboardArrowUp
+                                      size={14}
+                                      data-cy="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-2"
+                                      id="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-2"
+                                    />
+                                  ) : (
+                                    <IoIosArrowDown
+                                      size={14}
+                                      data-cy="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-2"
+                                      id="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-2"
+                                    />
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          {expandedSessions[session.id] &&
-                            session.months?.map(
-                              (month: Month, index: number) => {
-                                const monthId = month.id || `month-${index}`;
-                                return (
-                                  <div
-                                    key={month.id}
-                                    className="mt-1 ml-3"
-                                    data-cy={`org-settings-fiscal-year-month-${monthId}`}
-                                    id={`org-settings-fiscal-year-month-${monthId}`}
-                                  >
-                                    <div
-                                      className="flex items-center justify-between cursor-pointer px-3 py-1"
-                                      onClick={() =>
-                                        toggleExpand(month.id, 'month')
-                                      }
-                                      data-cy={`org-settings-fiscal-year-month-header-${monthId}`}
-                                      id={`org-settings-fiscal-year-month-header-${monthId}`}
-                                    >
+                            {expandedSessions[session.id] && (
+                              <div
+                                data-cy={`org-settings-fiscal-year-session-months-container-${sessionId}`}
+                              >
+                                {session.months?.map(
+                                  (month: Month, index: number) => {
+                                    const monthId =
+                                      month.id || `month-${index}`;
+                                    return (
                                       <div
-                                        className="flex-1 flex items-center gap-12"
-                                        data-cy="org-settings-fiscalyear-fiscalyearcard-page-div-1"
-                                        id="org-settings-fiscalyear-fiscalyearcard-page-div-1"
+                                        key={month.id}
+                                        className="mt-1 ml-3"
+                                        data-cy={`org-settings-fiscal-year-month-${monthId}`}
+                                        id={`org-settings-fiscal-year-month-${monthId}`}
                                       >
-                                        <p
-                                          className="font-semibold text-gray-800 m-0"
-                                          style={{ fontSize: '14px' }}
-                                          data-cy={`org-settings-fiscal-year-month-name-${monthId}`}
-                                          id={`org-settings-fiscal-year-month-name-${monthId}`}
-                                        >
-                                          {month?.name ?? 'Month'}
-                                        </p>
                                         <div
-                                          className="text-gray-700"
-                                          style={{ fontSize: '12px' }}
-                                          data-cy={`org-settings-fiscal-year-month-dates-${monthId}`}
-                                          id={`org-settings-fiscal-year-month-dates-${monthId}`}
+                                          className="flex items-center justify-between cursor-pointer px-3 py-1"
+                                          onClick={() =>
+                                            toggleExpand(month.id, 'month')
+                                          }
+                                          data-cy={`org-settings-fiscal-year-month-header-${monthId}`}
+                                          id={`org-settings-fiscal-year-month-header-${monthId}`}
                                         >
-                                          {dayjs(month.startDate).format(
-                                            'DD MMM, YYYY',
-                                          )}{' '}
-                                          -{' '}
-                                          {dayjs(month.endDate).format(
-                                            'DD MMM, YYYY',
-                                          )}
+                                          <div
+                                            className="flex-1 flex items-center gap-12"
+                                            data-cy="org-settings-fiscalyear-fiscalyearcard-page-div-1"
+                                            id="org-settings-fiscalyear-fiscalyearcard-page-div-1"
+                                          >
+                                            <p
+                                              className="font-semibold text-gray-800 m-0"
+                                              style={{ fontSize: '14px' }}
+                                              data-cy={`org-settings-fiscal-year-month-name-${monthId}`}
+                                              id={`org-settings-fiscal-year-month-name-${monthId}`}
+                                            >
+                                              {month?.name ?? 'Month'}
+                                            </p>
+                                            <div
+                                              className="text-gray-700"
+                                              style={{ fontSize: '12px' }}
+                                              data-cy={`org-settings-fiscal-year-month-dates-${monthId}`}
+                                              id={`org-settings-fiscal-year-month-dates-${monthId}`}
+                                            >
+                                              {dayjs(month.startDate).format(
+                                                'DD MMM, YYYY',
+                                              )}{' '}
+                                              -{' '}
+                                              {dayjs(month.endDate).format(
+                                                'DD MMM, YYYY',
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div
+                                            className="flex items-center gap-2"
+                                            onClick={(e) => e.stopPropagation()}
+                                            data-cy={`org-settings-fiscal-year-month-activation-${monthId}`}
+                                          >
+                                            {month?.active && (
+                                              <span
+                                                className="text-success text-xs"
+                                                data-cy={`org-settings-fiscal-year-month-active-badge-${monthId}`}
+                                                id={`org-settings-fiscal-year-month-active-badge-${monthId}`}
+                                              >
+                                                Active
+                                              </span>
+                                            )}
+                                            {isNextMonthAfterActive(month) && (
+                                              <AccessGuard
+                                                permissions={[
+                                                  Permissions.UpdateCalendar,
+                                                ]}
+                                                data-cy={`org-settings-fiscal-year-month-toggle-guard-${monthId}`}
+                                              >
+                                                <Switch
+                                                  data-cy={`org-settings-fiscal-year-month-toggle-${monthId}`}
+                                                  id={`org-settings-fiscal-year-month-toggle-${monthId}`}
+                                                  checked={!!month?.active}
+                                                  loading={isActivatingMonth}
+                                                  onChange={(checked) => {
+                                                    if (checked) {
+                                                      activateMonth(month.id);
+                                                    }
+                                                  }}
+                                                />
+                                              </AccessGuard>
+                                            )}
+                                          </div>
                                         </div>
                                       </div>
-                                      <div
-                                        className="flex items-center gap-2"
-                                        onClick={(e) => e.stopPropagation()}
-                                        data-cy={`org-settings-fiscal-year-month-activation-${monthId}`}
-                                      >
-                                        {month?.active && (
-                                          <span
-                                            className="text-success text-xs"
-                                            data-cy={`org-settings-fiscal-year-month-active-badge-${monthId}`}
-                                            id={`org-settings-fiscal-year-month-active-badge-${monthId}`}
-                                          >
-                                            Active
-                                          </span>
-                                        )}
-                                        {isNextMonthAfterActive(month) && (
-                                          <AccessGuard
-                                            permissions={[
-                                              Permissions.UpdateCalendar,
-                                            ]}
-                                            data-cy={`org-settings-fiscal-year-month-toggle-guard-${monthId}`}
-                                          >
-                                            <Switch
-                                              data-cy={`org-settings-fiscal-year-month-toggle-${monthId}`}
-                                              id={`org-settings-fiscal-year-month-toggle-${monthId}`}
-                                              checked={!!month?.active}
-                                              loading={isActivatingMonth}
-                                              onChange={(checked) => {
-                                                if (checked) {
-                                                  activateMonth(month.id);
-                                                }
-                                              }}
-                                            />
-                                          </AccessGuard>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              },
+                                    );
+                                  },
+                                )}
+                              </div>
                             )}
-                        </div>
-                      );
-                    })}
-                </div>
-            </Card>
-            </Col>
-          );
-        })}
+                          </div>
+                        );
+                      })}
+                  </div>
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
       ) : (
         <div
