@@ -6,7 +6,6 @@ import {
   UserOutlined,
   ClockCircleOutlined,
   RiseOutlined,
-  RightOutlined,
   MenuFoldOutlined,
 } from '@ant-design/icons';
 import type { IntentCategory } from './intents';
@@ -45,10 +44,17 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
   return (
     <div
       className="h-full min-h-0 flex flex-col bg-white overflow-hidden"
+      id="copilot-intent-panel"
       data-cy="copilot-intent-panel"
     >
-      <div className="px-4 py-3 border-b border-gray-200 flex-shrink-0">
-        <div className="flex items-center justify-between gap-2">
+      <div
+        className="px-4 py-3 border-b border-gray-200 flex-shrink-0"
+        data-cy="copilot-intent-panel-header"
+      >
+        <div
+          className="flex items-center justify-between gap-2"
+          data-cy="copilot-intent-panel-header-content"
+        >
           <Text strong className="text-gray-900">
             Available reports
           </Text>
@@ -68,26 +74,36 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto py-2">
+      <div
+        className="flex-1 min-h-0 overflow-y-auto py-2"
+        data-cy="copilot-intent-panel-content"
+      >
         <Collapse
           activeKey={expandedKeys}
           onChange={handleExpand}
           expandIconPosition="end"
           bordered={false}
           className="copilot-intent-collapse bg-transparent [&_.ant-collapse-item]:border-b [&_.ant-collapse-item]:border-gray-100"
+          data-cy="copilot-intent-collapse"
         >
           {COPILOT_INTENTS.map((category: IntentCategory) => (
             <Collapse.Panel
               key={category.id}
               header={
-                <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <span
+                  className="flex items-center gap-2 text-sm font-medium text-gray-700"
+                  data-cy={`copilot-intent-category-header-${category.id}`}
+                >
                   {iconMap[category.icon] || null}
                   {category.label}
                 </span>
               }
               className="!border-0"
             >
-              <div className="space-y-1 pl-6">
+              <div
+                className="space-y-1 pl-6"
+                data-cy={`copilot-intent-category-content-${category.id}`}
+              >
                 {category.intents.map((intent) => (
                   <button
                     key={intent}

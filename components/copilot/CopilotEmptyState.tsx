@@ -17,12 +17,12 @@ interface CopilotEmptyStateProps {
 
 /**
  * CopilotEmptyState - First-time experience with grouped example prompts
- * 
+ *
  * Displays example prompts organized by module:
  * - Time & Attendance
  * - Employees & Organization
  * - OKR
- * 
+ *
  * Each prompt can be clicked to auto-fill the input.
  */
 const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
@@ -33,7 +33,7 @@ const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
       'Who was late today?',
       'Show my attendance summary for this week',
       'Any pending leave approvals?',
-      'What is my team\'s attendance rate?',
+      "What is my team's attendance rate?",
     ],
     'Employees & Organization': [
       'Who reports to me?',
@@ -41,8 +41,8 @@ const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
       'What is the organizational structure?',
       'Find employees with upcoming birthdays',
     ],
-    'OKR': [
-      'Show my team\'s OKR progress',
+    OKR: [
+      "Show my team's OKR progress",
       'What are the current quarter objectives?',
       'Which OKRs are at risk?',
       'Display OKR completion status',
@@ -52,14 +52,24 @@ const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
   const iconMap = {
     'Time & Attendance': <ClockCircleOutlined className="text-blue-500" />,
     'Employees & Organization': <UserOutlined className="text-green-500" />,
-    'OKR': <CheckCircleOutlined className="text-purple-500" />,
+    OKR: <CheckCircleOutlined className="text-purple-500" />,
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-full py-8 px-4">
-      <div className="text-center mb-8 max-w-md">
-        <div className="mb-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+    <div
+      className="flex flex-col items-center justify-center min-h-full py-8 px-4"
+      id="copilot-empty-state"
+      data-cy="copilot-empty-state"
+    >
+      <div
+        className="text-center mb-8 max-w-md"
+        data-cy="copilot-empty-state-content"
+      >
+        <div className="mb-4" data-cy="copilot-empty-state-icon-wrapper">
+          <div
+            className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4"
+            data-cy="copilot-empty-state-icon-circle"
+          >
             <MessageOutlined className="text-2xl text-gray-400" />
           </div>
         </div>
@@ -72,16 +82,28 @@ const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
         </Text>
       </div>
 
-      <div className="w-full max-w-lg space-y-6">
+      <div
+        className="w-full max-w-lg space-y-6"
+        data-cy="copilot-empty-state-prompts"
+      >
         {Object.entries(examplePrompts).map(([category, prompts], index) => (
-          <div key={category}>
-            <div className="flex items-center gap-2 mb-3">
+          <div
+            key={category}
+            data-cy={`copilot-empty-state-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+          >
+            <div
+              className="flex items-center gap-2 mb-3"
+              data-cy={`copilot-empty-state-category-header-${category.toLowerCase().replace(/\s+/g, '-')}`}
+            >
               {iconMap[category as keyof typeof iconMap]}
               <Text strong className="text-sm text-gray-700">
                 {category}
               </Text>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div
+              className="flex flex-wrap gap-2"
+              data-cy={`copilot-empty-state-prompts-list-${category.toLowerCase().replace(/\s+/g, '-')}`}
+            >
               {prompts.map((prompt) => (
                 <Button
                   key={prompt}

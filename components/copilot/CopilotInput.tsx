@@ -14,7 +14,7 @@ interface CopilotInputProps {
 
 /**
  * CopilotInput - Input area for user messages
- * 
+ *
  * Features:
  * - Text input with placeholder examples
  * - Send button
@@ -39,7 +39,11 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
   };
 
   return (
-    <div className="flex gap-2 p-4 border-t border-gray-200 bg-white">
+    <div
+      className="flex gap-2 p-4 border-t border-gray-200 bg-white"
+      id="copilot-input-wrapper"
+      data-cy="copilot-input-wrapper"
+    >
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -47,6 +51,7 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
         placeholder={placeholder}
         disabled={isLoading}
         className="flex-1"
+        id="copilot-input"
         data-cy="copilot-input"
       />
       <Button
@@ -55,6 +60,7 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
         onClick={onSend}
         disabled={!value.trim() || isLoading}
         className="flex items-center justify-center"
+        id="copilot-send-button"
         data-cy="copilot-send-button"
       >
         Send

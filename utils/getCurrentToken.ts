@@ -7,7 +7,9 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
  * @param forceRefresh - If true, forces a token refresh (default: false)
  * @returns Promise<string> - The current Firebase token
  */
-export const getCurrentToken = async (forceRefresh: boolean = false): Promise<string> => {
+export const getCurrentToken = async (
+  forceRefresh: boolean = false,
+): Promise<string> => {
   try {
     if (auth.currentUser) {
       // Use getIdToken with forceRefresh to get a fresh token
@@ -18,7 +20,9 @@ export const getCurrentToken = async (forceRefresh: boolean = false): Promise<st
       useAuthenticationStore.getState().setToken(currentToken);
 
       if (forceRefresh && process.env.NODE_ENV === 'development') {
+        /* eslint-disable no-console */
         console.log('🔄 Token refreshed (forceRefresh=true)');
+        /* eslint-enable no-console */
       }
 
       return currentToken;
@@ -30,7 +34,9 @@ export const getCurrentToken = async (forceRefresh: boolean = false): Promise<st
     }
     return fallbackToken;
   } catch (error) {
+    /* eslint-disable no-console */
     console.error('Error getting token:', error);
+    /* eslint-enable no-console */
     // Fallback to store token on error
     const fallbackToken = useAuthenticationStore.getState().token;
     if (!fallbackToken) {

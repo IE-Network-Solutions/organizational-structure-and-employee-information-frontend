@@ -38,8 +38,15 @@ interface CopilotModuleProps {
  */
 function transformResponseDataToTable(
   data: any,
-  intent: string
-): { type: string; title: string; columns: Array<{ key: string; title: string; dataIndex: string }>; rows: Array<Record<string, any>> } | undefined {
+  intent: string,
+):
+  | {
+      type: string;
+      title: string;
+      columns: Array<{ key: string; title: string; dataIndex: string }>;
+      rows: Array<Record<string, any>>;
+    }
+  | undefined {
   // Handle supervisor daily/weekly plans and reports
   const supervisorDataKeys: Record<string, string> = {
     daily_plans: 'supervisor_daily_plans_subordinate_unclosed',
@@ -93,7 +100,10 @@ function transformResponseDataToTable(
   // Employee report intents (backend sends data.items or data.table)
   const employeeIntentConfig: Record<
     string,
-    { title: string; columns: Array<{ key: string; title: string; dataIndex: string }> }
+    {
+      title: string;
+      columns: Array<{ key: string; title: string; dataIndex: string }>;
+    }
   > = {
     active_employee_list: {
       title: 'Active Employee List',
@@ -103,7 +113,11 @@ function transformResponseDataToTable(
         { key: 'middleName', title: 'Middle Name', dataIndex: 'middleName' },
         { key: 'lastName', title: 'Last Name', dataIndex: 'lastName' },
         { key: 'email', title: 'Email', dataIndex: 'email' },
-        { key: 'departmentName', title: 'Department', dataIndex: 'departmentName' },
+        {
+          key: 'departmentName',
+          title: 'Department',
+          dataIndex: 'departmentName',
+        },
         { key: 'positionName', title: 'Position', dataIndex: 'positionName' },
         { key: 'officeName', title: 'Office', dataIndex: 'officeName' },
       ],
@@ -116,10 +130,18 @@ function transformResponseDataToTable(
         { key: 'middleName', title: 'Middle Name', dataIndex: 'middleName' },
         { key: 'lastName', title: 'Last Name', dataIndex: 'lastName' },
         { key: 'email', title: 'Email', dataIndex: 'email' },
-        { key: 'departmentName', title: 'Department', dataIndex: 'departmentName' },
+        {
+          key: 'departmentName',
+          title: 'Department',
+          dataIndex: 'departmentName',
+        },
         { key: 'positionName', title: 'Position', dataIndex: 'positionName' },
         { key: 'officeName', title: 'Office', dataIndex: 'officeName' },
-        { key: 'employmentTypeName', title: 'Employment Type', dataIndex: 'employmentTypeName' },
+        {
+          key: 'employmentTypeName',
+          title: 'Employment Type',
+          dataIndex: 'employmentTypeName',
+        },
       ],
     },
     employee_resignation_report: {
@@ -130,13 +152,29 @@ function transformResponseDataToTable(
         { key: 'middleName', title: 'Middle Name', dataIndex: 'middleName' },
         { key: 'lastName', title: 'Last Name', dataIndex: 'lastName' },
         { key: 'email', title: 'Email', dataIndex: 'email' },
-        { key: 'departmentName', title: 'Department', dataIndex: 'departmentName' },
+        {
+          key: 'departmentName',
+          title: 'Department',
+          dataIndex: 'departmentName',
+        },
         { key: 'positionName', title: 'Position', dataIndex: 'positionName' },
         { key: 'officeName', title: 'Office', dataIndex: 'officeName' },
-        { key: 'terminationType', title: 'Termination Type', dataIndex: 'terminationType' },
+        {
+          key: 'terminationType',
+          title: 'Termination Type',
+          dataIndex: 'terminationType',
+        },
         { key: 'reason', title: 'Reason', dataIndex: 'reason' },
-        { key: 'effectiveDate', title: 'Effective Date', dataIndex: 'effectiveDate' },
-        { key: 'resignationSubmittedDate', title: 'Resignation Submitted', dataIndex: 'resignationSubmittedDate' },
+        {
+          key: 'effectiveDate',
+          title: 'Effective Date',
+          dataIndex: 'effectiveDate',
+        },
+        {
+          key: 'resignationSubmittedDate',
+          title: 'Resignation Submitted',
+          dataIndex: 'resignationSubmittedDate',
+        },
       ],
     },
     employee_performance_score_summary: {
@@ -146,7 +184,11 @@ function transformResponseDataToTable(
         { key: 'firstName', title: 'First Name', dataIndex: 'firstName' },
         { key: 'middleName', title: 'Middle Name', dataIndex: 'middleName' },
         { key: 'lastName', title: 'Last Name', dataIndex: 'lastName' },
-        { key: 'departmentName', title: 'Department', dataIndex: 'departmentName' },
+        {
+          key: 'departmentName',
+          title: 'Department',
+          dataIndex: 'departmentName',
+        },
         { key: 'positionName', title: 'Position', dataIndex: 'positionName' },
         { key: 'score', title: 'Score', dataIndex: 'score' },
         { key: 'rating', title: 'Rating', dataIndex: 'rating' },
@@ -184,7 +226,7 @@ function transformResponseDataToTable(
     const rows = data.items.map((item: any, index: number) =>
       typeof item === 'object' && item !== null
         ? { order: index + 1, ...item }
-        : { order: index + 1, value: String(item) }
+        : { order: index + 1, value: String(item) },
     );
     if (rows.length > 0) {
       return {
@@ -198,7 +240,11 @@ function transformResponseDataToTable(
 
   // Check for supervisor data first
   const supervisorDataKey = supervisorDataKeys[intent];
-  if (supervisorDataKey && data[supervisorDataKey] && Array.isArray(data[supervisorDataKey])) {
+  if (
+    supervisorDataKey &&
+    data[supervisorDataKey] &&
+    Array.isArray(data[supervisorDataKey])
+  ) {
     const unclosedData = data[supervisorDataKey];
     const planType = supervisorIntentLabels[intent] || 'Plans';
 
@@ -215,7 +261,7 @@ function transformResponseDataToTable(
         supervisor.lastName,
       ].filter(Boolean);
       const supervisorName = parts.join(' ').trim() || 'Unknown';
-      
+
       return {
         order: index + 1,
         supervisor: supervisorName,
@@ -247,13 +293,11 @@ function transformResponseDataToTable(
 
     const rows = usersData.map((item: any, index: number) => {
       const user = item?.user || {};
-      const parts = [
-        user.firstName,
-        user.middleName,
-        user.lastName,
-      ].filter(Boolean);
+      const parts = [user.firstName, user.middleName, user.lastName].filter(
+        Boolean,
+      );
       const userName = parts.join(' ').trim() || 'Unknown';
-      
+
       return {
         order: index + 1,
         user: userName,
@@ -274,7 +318,11 @@ function transformResponseDataToTable(
 
   // Check for users who planned late
   const userPlannedLateKey = userPlannedLateKeys[intent];
-  if (userPlannedLateKey && data[userPlannedLateKey] && Array.isArray(data[userPlannedLateKey])) {
+  if (
+    userPlannedLateKey &&
+    data[userPlannedLateKey] &&
+    Array.isArray(data[userPlannedLateKey])
+  ) {
     const usersData = data[userPlannedLateKey];
     const planType = userPlannedLateLabels[intent] || 'Plan';
 
@@ -285,13 +333,11 @@ function transformResponseDataToTable(
 
     const rows = usersData.map((item: any, index: number) => {
       const user = item?.user || {};
-      const parts = [
-        user.firstName,
-        user.middleName,
-        user.lastName,
-      ].filter(Boolean);
+      const parts = [user.firstName, user.middleName, user.lastName].filter(
+        Boolean,
+      );
       const userName = parts.join(' ').trim() || 'Unknown';
-      
+
       return {
         order: index + 1,
         user: userName,
@@ -312,7 +358,11 @@ function transformResponseDataToTable(
 
   // Check for users who did not report
   const userReportsKey = userReportsKeys[intent];
-  if (userReportsKey && data[userReportsKey] && Array.isArray(data[userReportsKey])) {
+  if (
+    userReportsKey &&
+    data[userReportsKey] &&
+    Array.isArray(data[userReportsKey])
+  ) {
     const usersData = data[userReportsKey];
     const reportType = userReportsLabels[intent] || 'Report';
 
@@ -323,13 +373,11 @@ function transformResponseDataToTable(
 
     const rows = usersData.map((item: any, index: number) => {
       const user = item?.user || {};
-      const parts = [
-        user.firstName,
-        user.middleName,
-        user.lastName,
-      ].filter(Boolean);
+      const parts = [user.firstName, user.middleName, user.lastName].filter(
+        Boolean,
+      );
       const userName = parts.join(' ').trim() || 'Unknown';
-      
+
       return {
         order: index + 1,
         user: userName,
@@ -391,7 +439,8 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
     const firstUser = msgs.find((m) => m.sender === 'user');
     const title =
       firstUser?.text && typeof firstUser.text === 'string'
-        ? firstUser.text.slice(0, 50) + (firstUser.text.length > 50 ? '...' : '')
+        ? firstUser.text.slice(0, 50) +
+          (firstUser.text.length > 50 ? '...' : '')
         : 'Chat';
     const session: ChatSession = {
       id: `session_${Date.now()}`,
@@ -415,7 +464,8 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
   const handleLoadChat = useCallback((session: ChatSession) => {
     const revivedMessages = session.messages.map((m) => ({
       ...m,
-      timestamp: typeof m.timestamp === 'string' ? new Date(m.timestamp) : m.timestamp,
+      timestamp:
+        typeof m.timestamp === 'string' ? new Date(m.timestamp) : m.timestamp,
     })) as Message[];
     setMessages(revivedMessages);
   }, []);
@@ -425,32 +475,35 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
     employeeData?.lastName?.[0]?.toUpperCase() ||
     'U';
 
-  const addMetadata = useCallback((responseText: string): Message['metadata'] => {
-    const metadata: Message['metadata'] = {};
-    if (
-      responseText.includes('attendance records') ||
-      responseText.includes('Time & Attendance')
-    ) {
-      metadata.source = 'Time & Attendance';
-      metadata.confidence = 'Based on attendance records';
-    } else if (
-      responseText.includes('OKR data') ||
-      responseText.includes('OKR System')
-    ) {
-      metadata.source = 'OKR System';
-      metadata.confidence = 'From OKR data';
-    } else if (
-      responseText.includes('organizational structure') ||
-      responseText.includes('Employee & Organization')
-    ) {
-      metadata.source = 'Employee & Organization';
-      metadata.confidence = 'Based on organizational structure data';
-    } else if (responseText.includes('Authentication successful')) {
-      metadata.source = 'Copilot Service';
-      metadata.confidence = 'Authenticated with backend';
-    }
-    return metadata;
-  }, []);
+  const addMetadata = useCallback(
+    (responseText: string): Message['metadata'] => {
+      const metadata: Message['metadata'] = {};
+      if (
+        responseText.includes('attendance records') ||
+        responseText.includes('Time & Attendance')
+      ) {
+        metadata.source = 'Time & Attendance';
+        metadata.confidence = 'Based on attendance records';
+      } else if (
+        responseText.includes('OKR data') ||
+        responseText.includes('OKR System')
+      ) {
+        metadata.source = 'OKR System';
+        metadata.confidence = 'From OKR data';
+      } else if (
+        responseText.includes('organizational structure') ||
+        responseText.includes('Employee & Organization')
+      ) {
+        metadata.source = 'Employee & Organization';
+        metadata.confidence = 'Based on organizational structure data';
+      } else if (responseText.includes('Authentication successful')) {
+        metadata.source = 'Copilot Service';
+        metadata.confidence = 'Authenticated with backend';
+      }
+      return metadata;
+    },
+    [],
+  );
 
   const sendQuery = useCallback(
     async (query: string) => {
@@ -469,39 +522,53 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
       try {
         const responseText = await sendCopilotChatRequest(query);
         // Parse response to extract answer and table data
-        let parsedResponse: { success?: boolean; answer: string; data?: any; intent?: string; error?: string };
+        let parsedResponse: {
+          success?: boolean;
+          answer: string;
+          data?: any;
+          intent?: string;
+          error?: string;
+        };
         try {
           parsedResponse = JSON.parse(responseText);
         } catch {
           // Fallback if response is plain text
           parsedResponse = { success: true, answer: responseText };
         }
-        
+
         // Check if the request failed
         if (parsedResponse.success === false || parsedResponse.error) {
           const errorMessage: Message = {
             id: `msg-${Date.now()}-error`,
-            text: parsedResponse.answer || parsedResponse.error || 'Unable to fetch data. Please try again.',
+            text:
+              parsedResponse.answer ||
+              parsedResponse.error ||
+              'Unable to fetch data. Please try again.',
             sender: 'copilot',
             timestamp: new Date(),
           };
           setMessages((prev) => [...prev, errorMessage]);
           return;
         }
-        
+
         // Transform raw data to table format if backend doesn't send table structure
         let tableData = parsedResponse.data?.table;
         if (!tableData && parsedResponse.data && parsedResponse.intent) {
-          tableData = transformResponseDataToTable(parsedResponse.data, parsedResponse.intent);
+          tableData = transformResponseDataToTable(
+            parsedResponse.data,
+            parsedResponse.intent,
+          );
         }
-        
+
         // Only show text if no table data is available (hide repeated text when table is shown)
         const copilotMessage: Message = {
           id: `msg-${Date.now()}-copilot`,
-          text: tableData ? undefined : (parsedResponse.answer || responseText), // Hide text when table is available
+          text: tableData ? undefined : parsedResponse.answer || responseText, // Hide text when table is available
           sender: 'copilot',
           timestamp: new Date(),
-          metadata: tableData ? undefined : addMetadata(parsedResponse.answer || responseText),
+          metadata: tableData
+            ? undefined
+            : addMetadata(parsedResponse.answer || responseText),
           tableData: tableData, // Include table data (from backend or transformed)
         };
         setMessages((prev) => [...prev, copilotMessage]);
@@ -520,7 +587,7 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
         setIsLoading(false);
       }
     },
-    [isLoading, addMetadata]
+    [isLoading, addMetadata],
   );
 
   const handleSend = useCallback(() => {
@@ -534,11 +601,15 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
   return (
     <div
       className="flex flex-col h-[calc(100vh-130px)] overflow-hidden bg-gray-50 p-4"
+      id="copilot-module"
       data-cy="copilot-module"
     >
       {/* Header with New Chat, History, Close */}
-      <div className="flex-shrink-0 flex items-start justify-between pb-3">
-        <div>
+      <div
+        className="flex-shrink-0 flex items-start justify-between pb-3"
+        data-cy="copilot-module-header"
+      >
+        <div data-cy="copilot-module-header-title">
           <Title level={4} className="!mb-0 !text-gray-900">
             SelamNew Copilot
           </Title>
@@ -546,7 +617,10 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
             Ask questions and generate insights from your HR data
           </Text>
         </div>
-        <div className="flex items-center gap-1">
+        <div
+          className="flex items-center gap-1"
+          data-cy="copilot-module-header-actions"
+        >
           <Tooltip title="New Chat">
             <Button
               type="text"
@@ -554,6 +628,7 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
               icon={<PlusOutlined />}
               onClick={handleNewChat}
               className="text-gray-500 hover:text-blue-600"
+              id="copilot-new-chat-button"
               data-cy="copilot-new-chat-button"
             />
           </Tooltip>
@@ -575,6 +650,7 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                   size="small"
                   icon={<HistoryOutlined />}
                   className="text-gray-500 hover:text-blue-600"
+                  id="copilot-history-button"
                   data-cy="copilot-history-button"
                 />
               </Tooltip>
@@ -585,6 +661,7 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
             icon={<CloseOutlined />}
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
+            id="copilot-close-button"
             data-cy="copilot-close-button"
             aria-label="Close Copilot"
           />
@@ -592,13 +669,28 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
       </div>
 
       {/* Body: fills all remaining space; both panels scroll independently */}
-      <div className="flex flex-1 min-h-0 gap-4 overflow-hidden">
+      <div
+        className="flex flex-1 min-h-0 gap-4 overflow-hidden"
+        data-cy="copilot-module-body"
+      >
         {/* Chat - full width when intents hidden, scrolls internally */}
-        <div className="flex-1 flex flex-col min-w-0 h-full border border-gray-200 rounded-lg bg-white overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto bg-gray-50/50 p-4">
+        <div
+          className="flex-1 flex flex-col min-w-0 h-full border border-gray-200 rounded-lg bg-white overflow-hidden"
+          data-cy="copilot-module-chat-container"
+        >
+          <div
+            className="flex-1 min-h-0 overflow-y-auto bg-gray-50/50 p-4"
+            data-cy="copilot-module-chat-messages"
+          >
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full min-h-[200px] py-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+              <div
+                className="flex flex-col items-center justify-center h-full min-h-[200px] py-8"
+                data-cy="copilot-module-empty-state"
+              >
+                <div
+                  className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4"
+                  data-cy="copilot-module-empty-state-icon"
+                >
                   <MessageOutlined className="text-3xl text-gray-400" />
                 </div>
                 <Text className="text-base text-gray-600 block mb-2">
@@ -608,10 +700,10 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                   type="secondary"
                   className="text-sm block text-center max-w-md"
                 >
-                  Ask questions about your HR data, get insights, and manage your
-                  work more efficiently. Click an intent on the right to copy it
-                  to the input, edit if needed, then send. Or type your question
-                  below.
+                  Ask questions about your HR data, get insights, and manage
+                  your work more efficiently. Click an intent on the right to
+                  copy it to the input, edit if needed, then send. Or type your
+                  question below.
                 </Text>
               </div>
             ) : (
@@ -622,7 +714,10 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
               />
             )}
           </div>
-          <div className="flex-shrink-0 border-t border-gray-200 bg-white">
+          <div
+            className="flex-shrink-0 border-t border-gray-200 bg-white"
+            data-cy="copilot-module-chat-input-container"
+          >
             <CopilotInput
               value={inputValue}
               onChange={setInputValue}
@@ -635,7 +730,10 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
 
         {/* Show intents button when panel is hidden - vertical tab outside chat */}
         {!isIntentPanelVisible && (
-          <div className="flex-shrink-0 hidden md:flex flex-col justify-start">
+          <div
+            className="flex-shrink-0 hidden md:flex flex-col justify-start"
+            data-cy="copilot-module-show-intents-desktop"
+          >
             <Button
               type="primary"
               icon={<MenuUnfoldOutlined />}
@@ -651,7 +749,10 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
 
         {/* Right: Intent Panel - toggleable, fixed height, own scroll */}
         {isIntentPanelVisible && (
-          <div className="w-[300px] flex-shrink-0 h-full hidden md:flex flex-col border border-gray-200 rounded-lg bg-white overflow-hidden">
+          <div
+            className="w-[300px] flex-shrink-0 h-full hidden md:flex flex-col border border-gray-200 rounded-lg bg-white overflow-hidden"
+            data-cy="copilot-module-intent-panel-desktop"
+          >
             <CopilotIntentPanel
               onIntentSelect={handleIntentSelect}
               onHide={() => setIsIntentPanelVisible(false)}
@@ -662,7 +763,10 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
 
       {/* Mobile: Show reports button when hidden */}
       {!isIntentPanelVisible && (
-        <div className="md:hidden mt-2 flex-shrink-0">
+        <div
+          className="md:hidden mt-2 flex-shrink-0"
+          data-cy="copilot-module-show-intents-mobile"
+        >
           <Button
             type="primary"
             icon={<MenuUnfoldOutlined />}
@@ -677,7 +781,10 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
 
       {/* Mobile: Intent panel below chat, toggleable */}
       {isIntentPanelVisible && (
-        <div className="md:hidden mt-2 flex-shrink-0 flex flex-col border border-gray-200 rounded-lg bg-white overflow-hidden h-[35vh]">
+        <div
+          className="md:hidden mt-2 flex-shrink-0 flex flex-col border border-gray-200 rounded-lg bg-white overflow-hidden h-[35vh]"
+          data-cy="copilot-module-intent-panel-mobile"
+        >
           <CopilotIntentPanel
             onIntentSelect={handleIntentSelect}
             onHide={() => setIsIntentPanelVisible(false)}

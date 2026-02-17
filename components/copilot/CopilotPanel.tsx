@@ -16,17 +16,17 @@ interface CopilotPanelProps {
 
 /**
  * CopilotPanel - Main Copilot UI component
- * 
+ *
  * Architecture:
  * - Uses Ant Design Drawer for right-side panel
  * - Width: ~400px (responsive)
  * - Full height (minus header)
  * - Non-blocking overlay (allows dashboard context)
- * 
+ *
  * State Management:
  * - Messages stored locally (can be moved to global store later)
  * - Loading state for async operations
- * 
+ *
  * Extension Points:
  * - handleSend: Replace with actual AI API call
  * - Mock responses: Replace with real AI responses
@@ -61,7 +61,6 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-
   const handleSend = useCallback(async () => {
     if (!inputValue.trim() || isLoading) return;
 
@@ -83,13 +82,22 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
 
       // Determine metadata based on response content
       const metadata: Message['metadata'] = {};
-      if (responseText.includes('attendance records') || responseText.includes('Time & Attendance')) {
+      if (
+        responseText.includes('attendance records') ||
+        responseText.includes('Time & Attendance')
+      ) {
         metadata.source = 'Time & Attendance';
         metadata.confidence = 'Based on attendance records';
-      } else if (responseText.includes('OKR data') || responseText.includes('OKR System')) {
+      } else if (
+        responseText.includes('OKR data') ||
+        responseText.includes('OKR System')
+      ) {
         metadata.source = 'OKR System';
         metadata.confidence = 'From OKR data';
-      } else if (responseText.includes('organizational structure') || responseText.includes('Employee & Organization')) {
+      } else if (
+        responseText.includes('organizational structure') ||
+        responseText.includes('Employee & Organization')
+      ) {
         metadata.source = 'Employee & Organization';
         metadata.confidence = 'Based on organizational structure data';
       } else if (responseText.includes('Authentication successful')) {
@@ -109,7 +117,10 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
     } catch (error) {
       const errorMessage: Message = {
         id: `msg-${Date.now()}-error`,
-        text: error instanceof Error ? error.message : 'Sorry, I encountered an error. Please try again.',
+        text:
+          error instanceof Error
+            ? error.message
+            : 'Sorry, I encountered an error. Please try again.',
         sender: 'copilot',
         timestamp: new Date(),
       };
@@ -146,16 +157,26 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
           overflow: 'hidden', // Prevent body from scrolling
         },
       }}
+      id="copilot-panel"
       data-cy="copilot-panel"
     >
-      <div className="flex flex-col h-full min-h-0">
+      <div
+        className="flex flex-col h-full min-h-0"
+        data-cy="copilot-panel-content"
+      >
         {/* Header */}
-        <div className="px-4 pt-4 bg-white border-b border-gray-200 flex-shrink-0">
+        <div
+          className="px-4 pt-4 bg-white border-b border-gray-200 flex-shrink-0"
+          data-cy="copilot-panel-header"
+        >
           <CopilotHeader onClose={onClose} />
         </div>
 
         {/* Messages Area - Scrollable */}
-        <div className="flex-1 min-h-0 overflow-y-auto bg-gray-50">
+        <div
+          className="flex-1 min-h-0 overflow-y-auto bg-gray-50"
+          data-cy="copilot-panel-messages"
+        >
           {messages.length === 0 ? (
             <CopilotEmptyState onPromptSelect={handlePromptSelect} />
           ) : (
@@ -168,7 +189,10 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
         </div>
 
         {/* Input Area */}
-        <div className="bg-white border-t border-gray-200 flex-shrink-0">
+        <div
+          className="bg-white border-t border-gray-200 flex-shrink-0"
+          data-cy="copilot-panel-input"
+        >
           <CopilotInput
             value={inputValue}
             onChange={setInputValue}
@@ -178,8 +202,14 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
         </div>
 
         {/* Footer Note */}
-        <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 flex-shrink-0">
-          <p className="text-xs text-gray-500 text-center">
+        <div
+          className="px-4 py-2 bg-gray-50 border-t border-gray-200 flex-shrink-0"
+          data-cy="copilot-panel-footer"
+        >
+          <p
+            className="text-xs text-gray-500 text-center"
+            data-cy="copilot-panel-footer-text"
+          >
             Responses are role-aware and based on system data.
           </p>
         </div>

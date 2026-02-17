@@ -13,9 +13,7 @@ import { useCopilotStore } from '@/store/uistate/features/copilot';
 const Copilot: React.FC = () => {
   const { isOpen, setIsOpen } = useCopilotStore();
 
-  return (
-    <CopilotButton onClick={() => setIsOpen(true)} isActive={isOpen} />
-  );
+  return <CopilotButton onClick={() => setIsOpen(true)} isActive={isOpen} />;
 };
 
 export default Copilot;

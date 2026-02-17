@@ -4,11 +4,10 @@ function getCopilotEndpoint(): string {
   const base =
     process.env.NEXT_PUBLIC_AZURE_APP_SERVICE ||
     'https://selamnew-copilot-dev-dbdcc9ahe7eqgbez.eastus-01.azurewebsites.net';
-    // 'https://selamnew-copilot-prod-fwbef9g7ehhacbg7.canadacentral-01.azurewebsites.net';
-  const path = (process.env.NEXT_PUBLIC_AZURE_COPILOT_PATH || 'copilot').replace(
-    /^\/+/,
-    ''
-  );
+  // 'https://selamnew-copilot-prod-fwbef9g7ehhacbg7.canadacentral-01.azurewebsites.net';
+  const path = (
+    process.env.NEXT_PUBLIC_AZURE_COPILOT_PATH || 'copilot'
+  ).replace(/^\/+/, '');
   return `${base.replace(/\/+$/, '')}/${path}`;
 }
 
@@ -35,7 +34,9 @@ export async function POST(request: NextRequest) {
 
     let endpoint = getCopilotEndpoint();
     if (process.env.NODE_ENV === 'development') {
+      /* eslint-disable no-console */
       console.log('[Copilot proxy] POST', endpoint);
+      /* eslint-enable no-console */
     }
 
     let response = await fetch(endpoint, {
@@ -46,12 +47,16 @@ export async function POST(request: NextRequest) {
     });
 
     // If 404, try the other common path (Azure sometimes mounts app at /api)
-    const altPath = endpoint.endsWith('/api/copilot') ? 'copilot' : 'api/copilot';
+    const altPath = endpoint.endsWith('/api/copilot')
+      ? 'copilot'
+      : 'api/copilot';
     if (response.status === 404 && altPath) {
       const base = endpoint.replace(/\/(api\/)?copilot\/?$/, '');
       const altEndpoint = `${base}/${altPath}`;
       if (process.env.NODE_ENV === 'development') {
+        /* eslint-disable no-console */
         console.log('[Copilot proxy] 404, retrying POST', altEndpoint);
+        /* eslint-enable no-console */
       }
       response = await fetch(altEndpoint, {
         method: 'POST',
@@ -65,7 +70,9 @@ export async function POST(request: NextRequest) {
     const data = await response.json().catch(() => ({}));
 
     if (process.env.NODE_ENV === 'development') {
+      /* eslint-disable no-console */
       console.log('[Copilot proxy]', response.status, endpoint);
+      /* eslint-enable no-console */
     }
 
     if (!response.ok) {
@@ -84,21 +91,23 @@ export async function POST(request: NextRequest) {
           answer,
           error: serverMessage ?? answer,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
     return NextResponse.json(data);
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'Unable to reach the copilot service.';
+      error instanceof Error
+        ? error.message
+        : 'Unable to reach the copilot service.';
     return NextResponse.json(
       {
         success: false,
         answer: message,
         error: message,
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 }

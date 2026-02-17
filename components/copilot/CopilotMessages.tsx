@@ -2,7 +2,12 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { Avatar, Typography, Spin, Tag, Table, Button, Modal } from 'antd';
-import { UserOutlined, RobotOutlined, ExpandOutlined, CompressOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  RobotOutlined,
+  ExpandOutlined,
+  CompressOutlined,
+} from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -31,14 +36,14 @@ interface CopilotMessagesProps {
 
 /**
  * CopilotMessages - Displays conversation messages
- * 
+ *
  * Features:
  * - User messages (right-aligned, blue accent)
  * - Copilot messages (left-aligned, neutral)
  * - Support for metadata (source, confidence cues)
  * - Auto-scroll to bottom
  * - Loading indicator
- * 
+ *
  * Future-ready for:
  * - Structured insights (bullets, highlights)
  * - Action suggestions
@@ -50,7 +55,9 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
   userInitials = 'U',
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [fullScreenTableMessageId, setFullScreenTableMessageId] = useState<string | null>(null);
+  const [fullScreenTableMessageId, setFullScreenTableMessageId] = useState<
+    string | null
+  >(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -70,7 +77,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
 
   const renderTable = (
     tableData: NonNullable<Message['tableData']>,
-    isFullScreen: boolean
+    isFullScreen: boolean,
   ) => (
     <>
       <div
@@ -81,8 +88,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
           background: '#fff',
           minWidth: '100%',
         }}
+        data-cy="copilot-table-wrapper"
       >
         <Table
+          data-cy="copilot-table"
           dataSource={tableData.rows}
           columns={tableData.columns.map((col) => ({
             title: col.dataIndex === 'order' ? '' : col.title,
@@ -90,25 +99,50 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             key: col.key,
             render: (text: any) => {
               if (col.dataIndex === 'order') {
-                return <span style={{ fontWeight: 600, color: '#1890ff', display: 'inline-block', minWidth: '30px' }}>{text}</span>;
+                return (
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      color: '#1890ff',
+                      display: 'inline-block',
+                      minWidth: '30px',
+                    }}
+                    data-cy="copilot-table-order-cell"
+                  >
+                    {text}
+                  </span>
+                );
               }
-              return <span style={{ display: 'inline-block', minWidth: '200px' }}>{text ?? '-'}</span>;
+              return (
+                <span
+                  style={{ display: 'inline-block', minWidth: '200px' }}
+                  data-cy="copilot-table-data-cell"
+                >
+                  {text ?? '-'}
+                </span>
+              );
             },
-            ...(col.dataIndex === 'order' ? {
-              width: 80,
-              align: 'center' as const,
-              fixed: 'left' as const,
-            } : {
-              width: 'auto',
-              ellipsis: false,
-            }),
+            ...(col.dataIndex === 'order'
+              ? {
+                  width: 80,
+                  align: 'center' as const,
+                  fixed: 'left' as const,
+                }
+              : {
+                  width: 'auto',
+                  ellipsis: false,
+                }),
           }))}
-          pagination={tableData.rows.length > 10 ? {
-            pageSize: 10,
-            showSizeChanger: false,
-            showQuickJumper: false,
-            style: { marginTop: '16px', textAlign: 'center' },
-          } : false}
+          pagination={
+            tableData.rows.length > 10
+              ? {
+                  pageSize: 10,
+                  showSizeChanger: false,
+                  showQuickJumper: false,
+                  style: { marginTop: '16px', textAlign: 'center' },
+                }
+              : false
+          }
           size="middle"
           className="copilot-table"
           rowKey={(record, index) => `row-${index}`}
@@ -120,7 +154,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
           }}
         />
       </div>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        data-cy="copilot-table-styles"
+        dangerouslySetInnerHTML={{
+          __html: `
               .copilot-table .ant-table {
                 table-layout: fixed !important;
                 width: 100% !important;
@@ -185,7 +222,9 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               .copilot-table .ant-pagination-item-active a {
                 color: #fff !important;
               }
-            `}} />
+            `,
+        }}
+      />
     </>
   );
 
@@ -194,44 +233,58 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
     const tableData = message.tableData;
 
     return (
-      <div>
+      <div data-cy="copilot-message-content">
         {text && (
-          <Text className="text-sm leading-relaxed whitespace-pre-wrap block mb-3">
+          <Text
+            className="text-sm leading-relaxed whitespace-pre-wrap block mb-3"
+            data-cy="copilot-message-text"
+          >
             {text}
           </Text>
         )}
 
         {/* Render table if table data is available */}
-        {tableData && tableData.type === 'table' && tableData.columns && tableData.rows && (
-          <div className="mt-4 mb-3">
-            {tableData.title && (
-              <Text strong className="text-base block mb-3" style={{ color: '#262626' }}>
-                {tableData.title}
-              </Text>
-            )}
-            {renderTable(tableData, false)}
-            <Button
-              type="link"
-              size="small"
-              icon={<ExpandOutlined />}
-              onClick={() => setFullScreenTableMessageId(message.id)}
-              className="p-0 h-auto mt-2 text-gray-500 hover:text-blue-600"
-              data-cy="copilot-table-maximize"
+        {tableData &&
+          tableData.type === 'table' &&
+          tableData.columns &&
+          tableData.rows && (
+            <div
+              className="mt-4 mb-3"
+              data-cy="copilot-message-table-container"
             >
-              Maximize
-            </Button>
-          </div>
-        )}
-        
+              {tableData.title && (
+                <Text
+                  strong
+                  className="text-base block mb-3"
+                  style={{ color: '#262626' }}
+                  data-cy="copilot-message-table-title"
+                >
+                  {tableData.title}
+                </Text>
+              )}
+              {renderTable(tableData, false)}
+              <Button
+                type="link"
+                size="small"
+                icon={<ExpandOutlined />}
+                onClick={() => setFullScreenTableMessageId(message.id)}
+                className="p-0 h-auto mt-2 text-gray-500 hover:text-blue-600"
+                data-cy="copilot-table-maximize"
+              >
+                Maximize
+              </Button>
+            </div>
+          )}
+
         {message.metadata?.source && (
-          <div className="mt-2">
+          <div className="mt-2" data-cy="copilot-message-metadata-source">
             <Tag color="default" className="text-xs">
               {message.metadata.source}
             </Tag>
           </div>
         )}
         {message.metadata?.confidence && (
-          <div className="mt-1">
+          <div className="mt-1" data-cy="copilot-message-metadata-confidence">
             <Text type="secondary" className="text-xs italic">
               {message.metadata.confidence}
             </Text>
@@ -242,7 +295,11 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
   };
 
   return (
-    <div className="h-full overflow-y-auto px-4 py-4 space-y-4">
+    <div
+      className="h-full overflow-y-auto px-4 py-4 space-y-4"
+      id="copilot-messages"
+      data-cy="copilot-messages"
+    >
       {messages.map((message) => {
         const isUser = message.sender === 'user';
         return (
@@ -256,6 +313,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                 size={32}
                 icon={<RobotOutlined />}
                 className="bg-gray-100 text-gray-600 flex-shrink-0"
+                data-cy="copilot-message-avatar-robot"
               />
             )}
             <div
@@ -264,9 +322,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                   ? 'bg-blue-50 border border-blue-100'
                   : 'bg-white border border-gray-200 shadow-sm'
               }`}
+              data-cy={`copilot-message-bubble-${isUser ? 'user' : 'copilot'}`}
             >
               {renderMessageContent(message)}
-              <div className="mt-1.5">
+              <div className="mt-1.5" data-cy="copilot-message-timestamp">
                 <Text type="secondary" className="text-xs">
                   {formatTime(message.timestamp)}
                 </Text>
@@ -277,6 +336,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                 size={32}
                 icon={<UserOutlined />}
                 className="bg-blue-100 text-blue-600 flex-shrink-0"
+                data-cy="copilot-message-avatar-user"
               >
                 {userInitials}
               </Avatar>
@@ -290,13 +350,17 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             size={32}
             icon={<RobotOutlined />}
             className="bg-gray-100 text-gray-600"
+            data-cy="copilot-loading-avatar"
           />
-          <div className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 shadow-sm">
+          <div
+            className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 shadow-sm"
+            data-cy="copilot-loading-spinner"
+          >
             <Spin size="small" />
           </div>
         </div>
       )}
-      <div ref={messagesEndRef} />
+      <div ref={messagesEndRef} data-cy="copilot-messages-end" />
 
       {/* Full screen table modal */}
       <Modal
@@ -313,20 +377,26 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
         }
         width="95vw"
         styles={{ body: { maxHeight: '85vh', overflow: 'auto' } }}
-        title={
+        title={(() => {
+          const msg = messages.find((m) => m.id === fullScreenTableMessageId);
+          return msg?.tableData?.title || 'Table';
+        })()}
+        destroyOnClose
+        data-cy="copilot-table-modal"
+      >
+        {fullScreenTableMessageId &&
           (() => {
             const msg = messages.find((m) => m.id === fullScreenTableMessageId);
-            return msg?.tableData?.title || 'Table';
-          })()
-        }
-        destroyOnClose
-      >
-        {fullScreenTableMessageId && (() => {
-          const msg = messages.find((m) => m.id === fullScreenTableMessageId);
-          const tableData = msg?.tableData;
-          if (!tableData || tableData.type !== 'table' || !tableData.columns || !tableData.rows) return null;
-          return renderTable(tableData, true);
-        })()}
+            const tableData = msg?.tableData;
+            if (
+              !tableData ||
+              tableData.type !== 'table' ||
+              !tableData.columns ||
+              !tableData.rows
+            )
+              return null;
+            return renderTable(tableData, true);
+          })()}
       </Modal>
     </div>
   );
