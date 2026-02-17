@@ -4,7 +4,7 @@ import React, {
   useState,
   useEffect,
   useRef,
-  useCallback,
+  useCallback
 } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
@@ -184,6 +184,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       permissions: ['view_feedback_conversation'], // Same permission as conversation page
     },
   ];
+
 
   const getRoutesAndPermissions = (
     menuItems: CustomMenuItem[],

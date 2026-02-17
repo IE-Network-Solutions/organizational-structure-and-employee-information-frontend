@@ -469,6 +469,7 @@ export const transformReportToPlanSummary = (
     id: dataItem.id || '',
     cadence: cadence,
     owner: {
+      id: employee?.id || dataItem?.createdBy || dataItem?.userId || '',
       name: fullName,
       role: department,
       avatarInitials: initials,
@@ -574,6 +575,7 @@ export const transformToPlanSummary = (
     id: dataItem.id || '',
     cadence: cadence,
     owner: {
+      id: employee?.id || dataItem?.userId || '',
       name: fullName,
       role: department,
       avatarInitials: initials,
