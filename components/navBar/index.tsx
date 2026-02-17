@@ -187,25 +187,32 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         permissions: ['view_okr_dashboard'],
       },
       {
-        title: <span>OKR</span>,
+        title: <span data-cy="okr-menu-item">OKR</span>,
         key: '/okr',
         className: 'font-bold',
         permissions: ['view_okr_overview'],
       },
       {
-        title: <span>Planning and Reporting</span>,
-        key: okrMode === 'Basic' ? '/basic-okr/planning-and-reporting' : '/planning-and-reporting',
+        title: (
+          <span data-cy="planning-reporting-menu-item">
+            Planning and Reporting
+          </span>
+        ),
+        key:
+          okrMode === 'Basic'
+            ? '/basic-okr/planning-and-reporting'
+            : '/planning-and-reporting',
         className: 'font-bold',
         permissions: ['manage_planning_reporting'],
       },
       {
-        title: <span>Weekly Priority</span>,
+        title: <span data-cy="weekly-priority-menu-item">Weekly Priority</span>,
         key: '/weekly-priority',
         className: 'font-bold h-8',
         permissions: ['view_weekly_priority'],
       },
       {
-        title: <span>Settings</span>,
+        title: <span data-cy="okr-settings-menu-item">Settings</span>,
         key: '/okr/settings',
         className: 'font-bold',
         permissions: ['manage_okr_settings'],
@@ -1008,7 +1015,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const filteredMenuItems = treeData
@@ -1023,10 +1030,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ...item,
         children: item.children
           ? item.children.filter((child) =>
-            AccessGuard.checkAccess({
-              permissions: child.permissions,
-            }),
-          )
+              AccessGuard.checkAccess({
+                permissions: child.permissions,
+              }),
+            )
           : [],
       };
     })
@@ -1043,8 +1050,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             {children.map((child) => (
               <div
                 key={child.key}
-                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
-                  }`}
+                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${
+                  selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = String(child.key);

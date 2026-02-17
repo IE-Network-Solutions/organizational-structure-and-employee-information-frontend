@@ -83,7 +83,10 @@ const updateComment = async (
  * it invalidates the "posts" query to refetch the latest data.
  */
 /** Build comment object for cache from API response and/or form variables */
-function toCommentForCache(apiResponse: any, variables: { reportId?: string; comment?: string; commentedBy?: string }) {
+function toCommentForCache(
+  apiResponse: any,
+  variables: { reportId?: string; comment?: string; commentedBy?: string },
+) {
   const now = new Date().toISOString();
   return {
     id: apiResponse?.id ?? `temp-${Date.now()}`,
@@ -122,7 +125,7 @@ export const useAddReportComment = () => {
         const updatedItems = data.items.map((report: any) =>
           String(report.id) === String(reportId)
             ? { ...report, comments: [...(report.comments || []), newComment] }
-            : report
+            : report,
         );
         return { ...data, items: updatedItems };
       });
@@ -153,7 +156,9 @@ export const useDeleteReportComment = () => {
       updateOkrReportsCaches(queryClient, (data) => {
         if (!data?.items || !Array.isArray(data.items)) return undefined;
         const updatedItems = data.items.map((report: any) => {
-          const comments = (report.comments || []).filter((c: any) => String(c.id) !== String(commentId));
+          const comments = (report.comments || []).filter(
+            (c: any) => String(c.id) !== String(commentId),
+          );
           return { ...report, comments };
         });
         return { ...data, items: updatedItems };
@@ -175,7 +180,10 @@ export const useUpdateReportComment = () => {
     ({ id, updatedComment }: { id: string; updatedComment: CommentsData }) =>
       updateComment(id, updatedComment),
     {
-      onSuccess: (responseData: any, variables: { id: string; updatedComment: CommentsData }) => {
+      onSuccess: (
+        responseData: any,
+        variables: { id: string; updatedComment: CommentsData },
+      ) => {
         const commentId = variables.id;
         const newText = variables.updatedComment?.comment;
 
@@ -183,7 +191,9 @@ export const useUpdateReportComment = () => {
           if (!data?.items || !Array.isArray(data.items)) return undefined;
           const updatedItems = data.items.map((report: any) => {
             const comments = report.comments || [];
-            const idx = comments.findIndex((c: any) => String(c.id) === String(commentId));
+            const idx = comments.findIndex(
+              (c: any) => String(c.id) === String(commentId),
+            );
             if (idx === -1) return report;
             const updatedComments = [...comments];
             updatedComments[idx] = {

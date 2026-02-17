@@ -21,7 +21,7 @@ export function useFiscalYearRedirect() {
   const { userData } = useAuthenticationStore();
   const userPermissions = useMemo(
     () => userData?.userPermissions || [],
-    [userData?.userPermissions]
+    [userData?.userPermissions],
   );
   const isOwner = userData?.role?.slug === 'owner';
 
