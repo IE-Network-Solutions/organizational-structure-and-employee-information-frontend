@@ -637,7 +637,7 @@ const TypesAndPoliciesSidebar = () => {
                       >
                         This leave balance can be converted into cash based on
                         your company&apos;s policy.
-                        <br />
+                        <br data-cy="leave-types-and-policies-components-typesandpoliciessidebar-index-tsx-index-br-640" />
                         The amount is calculated daily.
                       </div>
                     }

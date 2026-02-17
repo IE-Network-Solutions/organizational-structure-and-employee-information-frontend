@@ -1,29 +1,41 @@
 'use client';
-import React, { useState } from 'react';
-import { Avatar, Menu, Dropdown, Layout, Button, Badge, Drawer } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Dropdown, Button, Badge } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useNotificationStore } from '@/store/uistate/features/notification';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { useGetUnreadCount } from '@/store/server/features/notification/queries';
 import { usePWA } from '@/hooks/usePWA';
-import { BellOutlined, DownloadOutlined } from '@ant-design/icons';
-import NotificationBar from './notificationBar';
+import { DownloadOutlined } from '@ant-design/icons';
+import { FiSearch, FiBell } from 'react-icons/fi';
+import { AiOutlineDown } from 'react-icons/ai';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
-
-const { Header } = Layout;
+import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 interface NavBarProps {
-  page: string;
   handleLogout: () => void;
 }
 
-const NavBar = ({ page, handleLogout }: NavBarProps) => {
+const NavBar = ({ handleLogout }: NavBarProps) => {
   const router = useRouter();
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetEmployee(userId);
-  const { notificationCount } = useNotificationStore();
+  const { notificationCount, setNotificationCount } = useNotificationStore();
+  const [mounted, setMounted] = useState(false);
+  const { data: unreadCount } = useGetUnreadCount(userId ?? '', mounted);
   const { isInstallable, isInstalled, isStandalone, installApp } = usePWA();
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] =
+    useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && typeof unreadCount === 'number')
+      setNotificationCount(unreadCount);
+  }, [mounted, unreadCount, setNotificationCount]);
 
   const handleProfileRoute = () => {
     router.push(`/employees/manage-employees/${userId}`);
@@ -37,84 +49,167 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
     }
   };
 
-  const menu = (
-    <Menu>
-      <Menu.Item>
-        <a onClick={handleProfileRoute}>Profile</a>
-      </Menu.Item>
-      <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
-    </Menu>
-  );
+  const profileMenuItems = [
+    {
+      key: 'profile',
+      label: (
+        <div
+          data-cy="top-nav-profile-label"
+          onClick={handleProfileRoute}
+          className="text-gray-600 font-medium px-1"
+        >
+          Profile
+        </div>
+      ),
+      className: 'rounded-lg',
+    },
+    {
+      type: 'divider' as const,
+    },
+    {
+      key: 'logout',
+      label: (
+        <div
+          data-cy="top-nav-logout-label"
+          className="text-red-500 font-medium px-1"
+        >
+          Logout
+        </div>
+      ),
+      onClick: handleLogout,
+      className: 'rounded-lg',
+    },
+  ];
 
   return (
-    <Header
-      className="flex justify-between items-center bg-white w-[90%] md:w-full"
-      style={{
-        padding: '0 20px',
-      }}
+    <div
+      data-cy="top-nav-bar"
+      className="flex justify-between items-center bg-white w-full h-full px-6"
     >
-      <p>{page}</p>
-      <div className="flex items-center gap-5">
-        {/* PWA Install Button - Show when installable and not installed */}
+      {/* Left side: Search Bar */}
+      <div
+        data-cy="top-nav-search-wrap"
+        className="flex-1 max-w-[420px] flex items-center pr-4"
+      >
+        <div data-cy="top-nav-search-inner" className="relative w-full group">
+          <div
+            data-cy="top-nav-search-icon-wrap"
+            className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
+          >
+            <FiSearch className="h-4.5 w-4.5 text-gray-400 group-focus-within:text-[#3636F0] transition-colors" />
+          </div>
+          <input
+            data-cy="top-nav-search-input"
+            type="text"
+            className="block w-full h-[44px] pl-11 pr-12 bg-[#F9FBFF] border border-gray-200 rounded-xl text-[14.5px] placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#3636F0]/20 focus:border-[#3636F0] transition-all"
+            placeholder="Search"
+          />
+          <div
+            data-cy="top-nav-search-shortcut-wrap"
+            className="absolute inset-y-0 right-3 flex items-center pointer-events-none"
+          >
+            <div
+              data-cy="top-nav-search-shortcut"
+              className="flex items-center justify-center w-6 h-6 border border-gray-200 rounded-md text-[11px] font-bold text-gray-400 bg-white"
+            >
+              S
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right side: Actions & User Profile */}
+      <div data-cy="top-nav-actions" className="flex items-center gap-5">
+        {/* PWA Install Button */}
         {isInstallable && !isInstalled && !isStandalone && (
           <Button
+            data-cy="top-nav-install-app-btn"
             type="primary"
             icon={<DownloadOutlined />}
             onClick={handleInstallClick}
-            size="small"
-            className="hidden md:flex"
-            title="Install App"
+            size="middle"
+            className="hidden md:flex rounded-xl bg-[#3636F0] border-none hover:bg-[#1e1eb9] shadow-sm font-semibold h-[40px]"
           >
-            Install
+            Install App
           </Button>
         )}
 
-        {/* Mobile Install Button */}
-        {isInstallable && !isInstalled && !isStandalone && (
-          <Button
-            type="primary"
-            icon={<DownloadOutlined />}
-            onClick={handleInstallClick}
-            size="small"
-            className="md:hidden"
-            title="Install App"
-          />
-        )}
-
         {/* Notification Bell */}
-        <div className="relative">
-          <Badge count={notificationCount} size="small">
-            <Button
-              type="text"
-              icon={<BellOutlined />}
-              onClick={() => setIsNotificationOpen(true)}
-            />
-          </Badge>
-        </div>
+        <Dropdown
+          open={notificationDropdownOpen}
+          onOpenChange={setNotificationDropdownOpen}
+          trigger={['click']}
+          placement="bottomRight"
+          dropdownRender={() =>
+            mounted ? (
+              <NotificationDropdownPanel open={notificationDropdownOpen} />
+            ) : (
+              <div data-cy="top-nav-notification-placeholder" />
+            )
+          }
+        >
+          <div
+            data-cy="top-nav-notification-trigger"
+            className="relative flex items-center justify-center cursor-pointer hover:bg-gray-50 p-2.5 rounded-full transition-all active:scale-95 group"
+          >
+            <Badge count={notificationCount} size="small" offset={[-2, 2]}>
+              <FiBell
+                size={23}
+                className="text-[#475569] group-hover:text-[#3636F0] transition-colors"
+              />
+            </Badge>
+          </div>
+        </Dropdown>
 
-        <Dropdown overlay={menu} placement="bottomRight">
-          <Avatar
-            src={
-              employeeData?.profileImage ||
-              (DefaultAvatar as any).src ||
-              (DefaultAvatar as unknown as string)
-            }
-            className="cursor-pointer border-gray-300 rounded-full"
-          />
+        {/* User Profile */}
+        <Dropdown
+          menu={{ items: profileMenuItems }}
+          trigger={['click']}
+          placement="bottomRight"
+          overlayClassName="profile-dropdown"
+        >
+          <div
+            data-cy="top-nav-profile-trigger"
+            className="flex items-center gap-3 px-3.5 py-2 bg-[#F0F7FF] rounded-xl cursor-pointer hover:bg-[#E1EFFF] transition-all border border-transparent hover:border-[#D0E6FF] group h-[52px]"
+          >
+            <Avatar
+              size={36}
+              src={
+                employeeData?.profileImage ||
+                (DefaultAvatar as any).src ||
+                (DefaultAvatar as unknown as string)
+              }
+              className="border-2 border-white shadow-sm transition-transform group-hover:scale-105"
+            />
+            <div
+              data-cy="top-nav-profile-info"
+              className="hidden lg:flex flex-col text-left leading-tight"
+            >
+              <span
+                data-cy="top-nav-profile-name"
+                className="text-[13.5px] font-bold text-[#1E293B] mb-0.5"
+              >
+                {employeeData?.fullName ||
+                  (employeeData?.firstName
+                    ? `${employeeData.firstName} ${employeeData.lastName}`
+                    : 'Selam Belete')}
+              </span>
+              <span
+                data-cy="top-nav-profile-title"
+                className="text-[10.5px] text-[#64748B] font-semibold uppercase tracking-wide opacity-80"
+              >
+                {employeeData?.jobInformation?.jobTitle?.name ||
+                  'Software Developer'}
+              </span>
+            </div>
+            <AiOutlineDown
+              size={14}
+              className="text-[#94A3B8] ml-1 transition-transform group-hover:translate-y-0.5"
+            />
+          </div>
         </Dropdown>
       </div>
-
-      {/* Notification Drawer */}
-      <Drawer
-        title="Notifications"
-        placement="right"
-        onClose={() => setIsNotificationOpen(false)}
-        open={isNotificationOpen}
-        width={400}
-      >
-        <NotificationBar />
-      </Drawer>
-    </Header>
+    </div>
   );
 };
 

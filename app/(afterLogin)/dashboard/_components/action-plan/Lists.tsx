@@ -98,14 +98,20 @@ const Lists = () => {
                   data-cy="action-plan-item-details"
                 >
                   <Tooltip title={item?.type}>
-                    <div className="text-xs font-medium">
+                    <div
+                      className="text-xs font-medium"
+                      data-cy="action-plan-item-type"
+                    >
                       {item?.type?.length >= 20
                         ? item?.type?.slice(0, 20) + '...'
                         : item?.type}
                     </div>
                   </Tooltip>
                   <Tooltip title={item?.title}>
-                    <div className="text-base font-bold">
+                    <div
+                      className="text-base font-bold"
+                      data-cy="action-plan-item-title"
+                    >
                       {item?.title?.length >= 10
                         ? item?.title?.slice(0, 10) + '...'
                         : item?.title}

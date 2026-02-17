@@ -88,7 +88,10 @@ const Appreciation = () => {
           />
         </AccessGuard>
       </div>
-      <div className="flex  justify-between items-center mb-4 gap-5">
+      <div
+        className="flex  justify-between items-center mb-4 gap-5"
+        data-cy="appreciation-filters-container"
+      >
         <Select
           showSearch
           placeholder="Select a person"

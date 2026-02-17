@@ -166,7 +166,7 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
             id="okr-mode-selection-modal-description"
           >
             Select how you want to track objectives for your organization.
-            <br />
+            <br data-cy="okr-mode-selection-modal-description-br" />
             This setting applies to all users but can be changed later by
             admins.
           </p>

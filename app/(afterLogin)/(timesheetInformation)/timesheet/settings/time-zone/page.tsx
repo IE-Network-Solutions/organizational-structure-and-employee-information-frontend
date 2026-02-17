@@ -110,7 +110,7 @@ const TimezoneSelect = () => {
             </AccessGuard>
           </Form.Item>
         </Form>
-        <hr />
+        <hr data-cy="timesheet-settings-time-zone-page-tsx-page-hr-113" />
         <div
           className="text-xl"
           id="time-attendance-settings-time-zone-current"

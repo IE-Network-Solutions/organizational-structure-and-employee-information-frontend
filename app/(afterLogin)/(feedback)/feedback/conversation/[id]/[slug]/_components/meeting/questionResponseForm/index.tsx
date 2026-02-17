@@ -20,7 +20,12 @@ const QuestionResponseForm = ({
       <Form.Item
         name={`userId_${attendeeIndex}`}
         label={
-          <span className="text-black text-sm font-semibold">Attendee</span>
+          <span
+            className="text-black text-sm font-semibold"
+            data-cy="question-response-form-attendee-label"
+          >
+            Attendee
+          </span>
         }
         rules={[{ required: true, message: 'Please select an attendee' }]}
       >

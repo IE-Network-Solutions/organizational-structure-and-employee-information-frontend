@@ -41,12 +41,17 @@ export default function CommentsSection({
       '-';
     const profileImage = userDetails?.profileImage;
     return (
-      <div className="flex gap-2 items-center">
+      <div
+        className="flex gap-2 items-center"
+        data-cy="comments-section-user-container"
+      >
         <Tooltip title={type == 'all' ? '' : userName}>
           <Avatar src={profileImage} icon={<UserOutlined />} />
         </Tooltip>
 
-        {type == 'all' && <div>{userName}</div>}
+        {type == 'all' && (
+          <div data-cy="comments-section-user-name">{userName}</div>
+        )}
       </div>
     );
   };

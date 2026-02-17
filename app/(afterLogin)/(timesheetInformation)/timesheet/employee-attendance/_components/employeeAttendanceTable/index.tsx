@@ -158,7 +158,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'createdAt',
       key: 'createdAt',
       sorter: true,
-      render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
+      render: (date: string) => (
+        <div data-cy="employee-attendance-components-employeeattendancetable-index-tsx-index-div-161">
+          {dayjs(date).format(DATE_FORMAT)}
+        </div>
+      ),
     },
     {
       title: 'Clock In',

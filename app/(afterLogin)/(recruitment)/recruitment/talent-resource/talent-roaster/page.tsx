@@ -174,7 +174,10 @@ const TalentRoasterPage = () => {
           data-cy="talent-acquisition-talent-roaster-page-breadcrumb"
           subtitle={
             <>
-              <span className="text-xs sm:text-xs">
+              <span
+                data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-177"
+                className="text-xs sm:text-xs"
+              >
                 Unassigned profiles for potential hiring.
               </span>
             </>
@@ -194,7 +197,12 @@ const TalentRoasterPage = () => {
               <CustomButton
                 title={
                   !(isMobile || isTablet) && (
-                    <span className="hidden sm:inline">Move to Job</span>
+                    <span
+                      data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-197"
+                      className="hidden sm:inline"
+                    >
+                      Move to Job
+                    </span>
                   )
                 }
                 id="createUserButton"
@@ -213,7 +221,12 @@ const TalentRoasterPage = () => {
             icon={<FaPlus />}
             onClick={handleCreate}
           >
-            <span className="hidden sm:inline">New</span>
+            <span
+              data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-216"
+              className="hidden sm:inline"
+            >
+              New
+            </span>
           </Button>
           <Button
             type="primary"
@@ -224,7 +237,12 @@ const TalentRoasterPage = () => {
             onClick={handleCopyLink}
             title="Copy public application link"
           >
-            <span className="hidden sm:inline">Copy Link</span>
+            <span
+              data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-227"
+              className="hidden sm:inline"
+            >
+              Copy Link
+            </span>
           </Button>
         </div>
       </div>

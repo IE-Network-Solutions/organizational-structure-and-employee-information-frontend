@@ -137,28 +137,45 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
               maxCount={1}
             >
               {companyProfileImage ? (
-                <div className="mt-4">
+                <div className="mt-4" data-cy="company-profile-image-preview">
                   <Image
                     width={300}
                     height={300}
                     src={getImageUrl(companyProfileImage)}
                     alt="Uploaded Preview"
                     className="w-full h-auto max-h-64 object-cover rounded-xl"
+                    data-cy="company-profile-image"
                   />
                 </div>
               ) : (
                 <>
-                  <p className="text-5xl flex justify-center text-primary">
+                  <p
+                    className="text-5xl flex justify-center text-primary"
+                    data-cy="company-profile-upload-icon"
+                  >
                     <AiOutlineCloudUpload />
                   </p>
-                  <p className="ant-upload-text">Upload Your Logo</p>
-                  <p className="ant-upload-hint">or drag and drop it here</p>
+                  <p
+                    className="ant-upload-text"
+                    data-cy="company-profile-upload-text"
+                  >
+                    Upload Your Logo
+                  </p>
+                  <p
+                    className="ant-upload-hint"
+                    data-cy="company-profile-upload-hint"
+                  >
+                    or drag and drop it here
+                  </p>
                 </>
               )}
             </Upload.Dragger>
           </Form.Item>
 
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div
+            data-cy="onboarding-components-steper-companyprofile-tsx-companyprofile-div-179"
+            className="grid grid-cols-2 gap-4 mt-4"
+          >
             <Form.Item
               name="companyName"
               label="Company Name"

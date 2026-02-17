@@ -44,13 +44,16 @@ const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
     '-';
   const profileImage = userDetails?.profileImage;
   return (
-    <div className="flex gap-2 items-center">
+    <div
+      className="flex gap-2 items-center"
+      data-cy="comments-employee-details-container"
+    >
       <Tooltip title={type == 'all' ? '' : userName}>
         <Avatar size={20} src={profileImage} icon={<UserOutlined />} />
       </Tooltip>
 
       {type == 'all' && (
-        <div className="text-[10px]">
+        <div className="text-[10px]" data-cy="comments-employee-details-name">
           {userName?.length > 10 ? userName?.slice(0, 10) + '...' : userName}
         </div>
       )}

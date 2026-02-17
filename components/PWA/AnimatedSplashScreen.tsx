@@ -136,7 +136,10 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
       </div>
 
       {/* Keyframe Animations */}
-      <style jsx>{`
+      <style
+        data-cy="organizational-structure-and-employee-information-frontend-components-pwa-animatedsplashscreen-tsx-animatedsplashscreen-style-139"
+        jsx
+      >{`
         @keyframes logoScale {
           from {
             transform: scale(0) rotate(-180deg);

@@ -469,6 +469,7 @@ const AdminProfile = () => {
                 width={100}
                 height={100}
                 className="mb-4 rounded-full object-cover"
+                data-cy="admin-profile-page-img-466"
               />
             ) : (
               <img
@@ -684,6 +685,7 @@ const AdminProfile = () => {
                 width={100}
                 height={100}
                 className="mb-4 rounded-full object-cover"
+                data-cy="admin-profile-page-img-681"
               />
             ) : (
               <img

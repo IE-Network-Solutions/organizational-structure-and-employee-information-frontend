@@ -71,7 +71,10 @@ const RecruitmentStatusDrawer: React.FC = () => {
     <CustomDrawerLayout
       data-cy="talent-acquisition-status-drawer"
       modalHeader={
-        <h1 className="text-lg font-bold py-2">
+        <h1
+          data-cy="settings-status-statusdrawer-index-tsx-index-h1-74"
+          className="text-lg font-bold py-2"
+        >
           {isEditMode ? 'Edit Status' : 'Define Status'}
         </h1>
       }
@@ -79,8 +82,14 @@ const RecruitmentStatusDrawer: React.FC = () => {
       open={isDrawerOPen}
       width="40%"
       footer={
-        <div className="flex justify-center items-center w-full p-2">
-          <div className="flex justify-between items-center gap-4">
+        <div
+          data-cy="settings-status-statusdrawer-index-tsx-index-div-82"
+          className="flex justify-center items-center w-full p-2"
+        >
+          <div
+            data-cy="settings-status-statusdrawer-index-tsx-index-div-83"
+            className="flex justify-between items-center gap-4"
+          >
             <CustomButton
               id="talent-acquisition-status-button-cancel"
               data-cy="talent-acquisition-status-button-cancel"

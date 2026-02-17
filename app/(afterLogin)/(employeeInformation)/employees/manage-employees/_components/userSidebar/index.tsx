@@ -107,7 +107,10 @@ const UserSidebar = (props: any) => {
           className="border-2 border-indigo-700 rounded-full h-6 w-6 flex items-center justify-center"
           data-cy={`user-sidebar-step-dot-current-${step}`}
         >
-          <span className="bg-indigo-700 rounded-full h-2.5 w-2.5 block"></span>
+          <span
+            className="bg-indigo-700 rounded-full h-2.5 w-2.5 block"
+            data-cy={`user-sidebar-step-dot-inner-${step}`}
+          ></span>
         </div>
       );
     } else {

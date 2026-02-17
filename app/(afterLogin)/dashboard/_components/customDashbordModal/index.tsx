@@ -18,7 +18,7 @@ const CustomDashboardModal: React.FC<CustomDrawerLayoutProps> = ({
   const { placement } = useDrawerStore();
 
   return (
-    <div>
+    <div data-cy="custom-dashboard-modal">
       {/* {open && (
         <Button
           id="closeSidebarButton"
@@ -40,7 +40,7 @@ const CustomDashboardModal: React.FC<CustomDrawerLayoutProps> = ({
       <Drawer
         title={
           <CustomDrawerHeader className="flex justify-center items-center text-2xl font-bold text-primary">
-            <span>Announcements</span>
+            <span data-cy="custom-dashboard-modal-title">Announcements</span>
           </CustomDrawerHeader>
         }
         width={'90%'}

@@ -99,7 +99,10 @@ const StatsCards: React.FC = () => {
                 id={`talent-acquisition-stats-cards-div-value-${index}`}
                 data-cy={`talent-acquisition-stats-cards-div-value-${index}`}
               >
-                <p className={`text-[26.5px] font-bold text-center`}>
+                <p
+                  data-cy="dashboard-components-adminpanel-statscards-tsx-statscards-p-102"
+                  className={`text-[26.5px] font-bold text-center`}
+                >
                   {stat.value}
                 </p>
               </div>
@@ -114,7 +117,10 @@ const StatsCards: React.FC = () => {
                 data-cy={`talent-acquisition-stats-cards-div-other-title-${index}`}
                 className={`flex items-center gap-4`}
               >
-                <p className="text-gray-500 text-[10px] mb-1">
+                <p
+                  data-cy="dashboard-components-adminpanel-statscards-tsx-statscards-p-117"
+                  className="text-gray-500 text-[10px] mb-1"
+                >
                   {stat.otherTitle}
                 </p>
               </div>
@@ -122,7 +128,10 @@ const StatsCards: React.FC = () => {
                 id={`talent-acquisition-stats-cards-div-other-value-${index}`}
                 data-cy={`talent-acquisition-stats-cards-div-other-value-${index}`}
               >
-                <p className={`text-[26.5px] font-bold text-center `}>
+                <p
+                  data-cy="dashboard-components-adminpanel-statscards-tsx-statscards-p-125"
+                  className={`text-[26.5px] font-bold text-center `}
+                >
                   {stat.OtherValue}
                 </p>
               </div>

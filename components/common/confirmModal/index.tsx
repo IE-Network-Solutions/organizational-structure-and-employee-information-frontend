@@ -54,7 +54,10 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       footer={confirmModalFooter}
       closeIcon={false}
     >
-      <p className="flex justify-center items-center h-[200px] m-6">
+      <p
+        data-cy="components-common-confirmmodal-index-tsx-index-p-57"
+        className="flex justify-center items-center h-[200px] m-6"
+      >
         <Image
           src={imageSrc}
           width={300}
@@ -63,10 +66,16 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
           className=""
         />
       </p>
-      <p className="flex justify-center items-center mt-4 text-2xl text-gray-950 font-extrabold">
+      <p
+        data-cy="components-common-confirmmodal-index-tsx-index-p-66"
+        className="flex justify-center items-center mt-4 text-2xl text-gray-950 font-extrabold"
+      >
         Are you sure?
       </p>
-      <p className="flex justify-center items-center mt-4 text-lg text-gray-950 font-medium">
+      <p
+        data-cy="components-common-confirmmodal-index-tsx-index-p-69"
+        className="flex justify-center items-center mt-4 text-lg text-gray-950 font-medium"
+      >
         {description}
       </p>
     </Modal>

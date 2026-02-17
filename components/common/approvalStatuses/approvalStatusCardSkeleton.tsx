@@ -10,7 +10,10 @@ const ApprovalStatusCardSkeleton: React.FC<ApprovalStatusCardSkeletonProps> = ({
 }) => {
   return (
     <div className="border-b border-gray-200" data-cy={`${dataCyPrefix}`}>
-      <div className="flex items-center px-3 py-4 gap-4">
+      <div
+        data-cy="components-common-approvalstatuses-approvalstatuscardskeleton-tsx-approvalstatuscardskeleton-div-13"
+        className="flex items-center px-3 py-4 gap-4"
+      >
         <Skeleton.Input
           active
           size="small"
@@ -23,7 +26,10 @@ const ApprovalStatusCardSkeleton: React.FC<ApprovalStatusCardSkeletonProps> = ({
           shape="square"
           data-cy={`${dataCyPrefix}-icon`}
         />
-        <div className="flex-1">
+        <div
+          data-cy="components-common-approvalstatuses-approvalstatuscardskeleton-tsx-approvalstatuscardskeleton-div-26"
+          className="flex-1"
+        >
           <Skeleton
             active
             avatar={{ size: 32, shape: 'circle' }}

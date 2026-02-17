@@ -37,7 +37,12 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
     const commonProps = {
       className: 'font-semibold text-xs',
       label: (
-        <span className="mb-1 font-semibold text-xs">{field.fieldName}</span>
+        <span
+          className="mb-1 font-semibold text-xs"
+          data-cy={`dynamic-form-field-label-${field.fieldName}`}
+        >
+          {field.fieldName}
+        </span>
       ),
       name: [formTitle, field.fieldName],
       id: `${formTitle}${field.fieldName}`,

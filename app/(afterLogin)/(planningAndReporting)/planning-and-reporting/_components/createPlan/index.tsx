@@ -490,9 +490,18 @@ function CreatePlan() {
     </div>
   );
   const footer = (
-    <div className="flex items-center justify-between w-full">
-      <div className="flex-1"></div>
-      <div className="flex justify-center gap-4 flex-1">
+    <div
+      data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-493"
+      className="flex items-center justify-between w-full"
+    >
+      <div
+        data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-494"
+        className="flex-1"
+      ></div>
+      <div
+        data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-495"
+        className="flex justify-center gap-4 flex-1"
+      >
         <Tooltip
           title={
             totalWeight !== 100
@@ -509,8 +518,18 @@ function CreatePlan() {
             loading={isLoading}
             disabled={totalWeight !== 100}
           >
-            <span className="md:hidden">Plan</span>
-            <span className="hidden md:inline">Create Plan</span>
+            <span
+              data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-512"
+              className="md:hidden"
+            >
+              Plan
+            </span>
+            <span
+              data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-513"
+              className="hidden md:inline"
+            >
+              Create Plan
+            </span>
           </Button>
         </Tooltip>
 
@@ -524,10 +543,26 @@ function CreatePlan() {
           Cancel
         </Button>
       </div>
-      <div className="flex-1 flex justify-end pr-5">
-        <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
-          <span className="md:hidden">WP:</span>{' '}
-          <span className="hidden md:inline">Weight Point:</span>{' '}
+      <div
+        data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-527"
+        className="flex-1 flex justify-end pr-5"
+      >
+        <span
+          data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-528"
+          className="text-sm font-medium text-[#161A2C] whitespace-nowrap"
+        >
+          <span
+            data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-529"
+            className="md:hidden"
+          >
+            WP:
+          </span>{' '}
+          <span
+            data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-530"
+            className="hidden md:inline"
+          >
+            Weight Point:
+          </span>{' '}
           {Math.round(Number(totalWeight) || 0)}%
         </span>
       </div>
@@ -586,7 +621,10 @@ function CreatePlan() {
         footer={footer}
       >
         {loadingPlanningPeriodHierarchy ? (
-          <div className="flex items-center justify-center min-h-screen">
+          <div
+            data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-589"
+            className="flex items-center justify-center min-h-screen"
+          >
             <Spin size="large" tip="Loading...." />
           </div>
         ) : (

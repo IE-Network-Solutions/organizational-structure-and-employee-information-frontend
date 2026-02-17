@@ -64,10 +64,26 @@ const CandidateActivity: React.FC<ActivityProps> = () => {
               className="text-[12px] text-gray-700"
               data-cy={`talent-acquisition-candidate-tab-activity-description-${index}`}
             >
-              <span className="font-semibold">{history?.userName}</span>
+              <span
+                data-cy="-components-tabs-activity-index-tsx-index-span-67"
+                className="font-semibold"
+              >
+                {history?.userName}
+              </span>
               {history?.action}
-              <span className="font-semibold">{history?.fromStage}</span> to
-              <span className="font-semibold">{history?.toStage}</span>
+              <span
+                data-cy="-components-tabs-activity-index-tsx-index-span-69"
+                className="font-semibold"
+              >
+                {history?.fromStage}
+              </span>{' '}
+              to
+              <span
+                data-cy="-components-tabs-activity-index-tsx-index-span-70"
+                className="font-semibold"
+              >
+                {history?.toStage}
+              </span>
             </div>
             <div
               className="text-xs text-gray-400"
@@ -80,7 +96,12 @@ const CandidateActivity: React.FC<ActivityProps> = () => {
                 className="mt-1 text-xs text-gray-500"
                 data-cy={`talent-acquisition-candidate-tab-activity-reason-${index}`}
               >
-                <span className="font-semibold">Reason: </span>
+                <span
+                  data-cy="-components-tabs-activity-index-tsx-index-span-83"
+                  className="font-semibold"
+                >
+                  Reason:{' '}
+                </span>
                 {history?.reason}
               </div>
             )}

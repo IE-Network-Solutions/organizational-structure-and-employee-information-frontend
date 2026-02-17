@@ -71,8 +71,13 @@ const EmploymentStats: React.FC = () => {
       className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col shadow-lg"
       bodyStyle={{ padding: '0px', margin: '0px' }}
     >
-      <div className="flex justify-between items-center mb-2 pl-4 h-[20%] ">
-        <h3 className=" font-bold text-lg">Employee Status</h3>
+      <div
+        className="flex justify-between items-center mb-2 pl-4 h-[20%] "
+        data-cy="employee-status-header"
+      >
+        <h3 className=" font-bold text-lg" data-cy="employee-status-title">
+          Employee Status
+        </h3>
         <Select
           bordered={false}
           defaultValue="All Time"
@@ -89,41 +94,78 @@ const EmploymentStats: React.FC = () => {
       </div>
 
       {employeeStatus?.length ? (
-        <div className="flex-1 flex items-center justify-between h-[80%] gap-1 mt-5 ">
-          <div className="relative flex items-center justify-center w-[180px] h-[180px] overflow-visible z-10 pl-2 2xl:pl-10">
+        <div
+          className="flex-1 flex items-center justify-between h-[80%] gap-1 mt-5 "
+          data-cy="employee-status-content"
+        >
+          <div
+            className="relative flex items-center justify-center w-[180px] h-[180px] overflow-visible z-10 pl-2 2xl:pl-10"
+            data-cy="employee-status-chart-container"
+          >
             <Doughnut data={data} options={options} className="z-20" />
             <div
               className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0 pl-2 2xl:pl-10"
               style={{ transform: 'translate(-50%, -50%)' }}
+              data-cy="employee-status-chart-center"
             >
               <div
                 className="bg-white border border-gray-200 shadow-md rounded-full flex flex-col items-center justify-center"
                 style={{ width: 60, height: 60 }}
+                data-cy="employee-status-total-badge"
               >
-                <span className="font-bold text-2xl text-gray-900">
+                <span
+                  className="font-bold text-2xl text-gray-900"
+                  data-cy="employee-status-total-count"
+                >
                   {totalCount?.toLocaleString()}
                 </span>
-                <span className="text-sm text-gray-400">Total</span>
+                <span
+                  className="text-sm text-gray-400"
+                  data-cy="employee-status-total-label"
+                >
+                  Total
+                </span>
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-2 pr-1 2xl:pr-4">
+          <div
+            className="flex flex-col gap-2 pr-1 2xl:pr-4"
+            data-cy="employee-status-legend"
+          >
             {data.labels.map((label: string, i: number) => (
-              <div key={i} className="flex items-center mb-2 gap-2">
+              <div
+                key={i}
+                className="flex items-center mb-2 gap-2"
+                data-cy={`employee-status-legend-item-${i}`}
+              >
                 <div
                   style={{
                     backgroundColor: data.datasets[0].backgroundColor[i],
                   }}
                   className="w-3 h-3 rounded-full mr-2"
+                  data-cy={`employee-status-legend-color-${i}`}
                 />
-                <span className="text-xs font-medium">{label}</span>
+                <span
+                  className="text-xs font-medium"
+                  data-cy={`employee-status-legend-label-${i}`}
+                >
+                  {label}
+                </span>
               </div>
             ))}
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-center h-10">
-          <div className="text-gray-400 text-sm">No data available</div>
+        <div
+          className="flex items-center justify-center h-10"
+          data-cy="employee-status-empty"
+        >
+          <div
+            className="text-gray-400 text-sm"
+            data-cy="employee-status-empty-message"
+          >
+            No data available
+          </div>
         </div>
       )}
     </Card>

@@ -110,20 +110,37 @@ const Branches = () => {
               loading={isLoading}
               className="mt-3"
               title={
-                <div className="grid space-y-2 p-3">
+                <div
+                  className="grid space-y-2 p-3"
+                  data-cy={`branches-card-title-${item.name}`}
+                >
                   {item.name.includes('HQ') ? (
-                    <span className="flex justify-start items-center gap-4">
+                    <span
+                      className="flex justify-start items-center gap-4"
+                      data-cy={`branches-card-name-hq-${item.name}`}
+                    >
                       {item.name}{' '}
-                      <span className="bg-blue rounded-lg text-white p-1 text-xs border">
+                      <span
+                        className="bg-blue rounded-lg text-white p-1 text-xs border"
+                        data-cy={`branches-card-hq-badge-${item.name}`}
+                      >
                         HQ
                       </span>
                     </span>
                   ) : (
-                    <span className="flex justify-start items-center gap-4">
+                    <span
+                      className="flex justify-start items-center gap-4"
+                      data-cy={`branches-card-name-${item.name}`}
+                    >
                       {item.name}{' '}
                     </span>
                   )}
-                  <p className="text-sm font-light">{item.location}</p>
+                  <p
+                    className="text-sm font-light"
+                    data-cy={`branches-card-location-${item.name}`}
+                  >
+                    {item.location}
+                  </p>
                 </div>
               }
               extra={
@@ -135,13 +152,33 @@ const Branches = () => {
                 </Dropdown>
               }
             >
-              <p className="flex justify-start items-center text-gray-400 gap-6">
-                <p>Contact Number</p>
-                <span className="text-black">{item.contactNumber}</span>
+              <p
+                className="flex justify-start items-center text-gray-400 gap-6"
+                data-cy={`branches-card-contact-number-${item.name}`}
+              >
+                <p data-cy={`branches-card-contact-number-label-${item.name}`}>
+                  Contact Number
+                </p>
+                <span
+                  className="text-black"
+                  data-cy={`branches-card-contact-number-value-${item.name}`}
+                >
+                  {item.contactNumber}
+                </span>
               </p>
-              <p className="flex justify-start items-center text-gray-400 gap-6">
-                <p>Contact Email</p>
-                <span className="text-black">{item.contactEmail}</span>
+              <p
+                className="flex justify-start items-center text-gray-400 gap-6"
+                data-cy={`branches-card-contact-email-${item.name}`}
+              >
+                <p data-cy={`branches-card-contact-email-label-${item.name}`}>
+                  Contact Email
+                </p>
+                <span
+                  className="text-black"
+                  data-cy={`branches-card-contact-email-value-${item.name}`}
+                >
+                  {item.contactEmail}
+                </span>
               </p>
             </Card>
           )}

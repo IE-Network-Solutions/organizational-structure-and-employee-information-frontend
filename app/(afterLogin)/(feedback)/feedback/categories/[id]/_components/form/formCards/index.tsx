@@ -183,7 +183,10 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
 
   if (isFormCardsLoading)
     return (
-      <div className="flex justify-center items-center h-64">
+      <div
+        className="flex justify-center items-center h-64"
+        data-cy="form-cards-loading"
+      >
         <Spin size="large" />
       </div>
     );

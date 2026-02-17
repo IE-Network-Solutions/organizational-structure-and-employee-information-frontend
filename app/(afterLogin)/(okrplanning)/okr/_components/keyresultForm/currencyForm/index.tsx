@@ -204,7 +204,14 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               data-cy={`okr-currency-desktop-initial-input-${index}`}
               min={0}
               placeholder="Initial Value"
-              addonAfter={<span className="text-base">$</span>}
+              addonAfter={
+                <span
+                  className="text-base"
+                  data-cy={`okr-currency-desktop-initial-currency-${index}`}
+                >
+                  $
+                </span>
+              }
               value={
                 keyItem.initialValue === 0 ? undefined : keyItem.initialValue
               }
@@ -237,7 +244,14 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               data-cy={`okr-currency-desktop-target-input-${index}`}
               min={0}
               placeholder="Target Value"
-              addonAfter={<span className="text-base">$</span>}
+              addonAfter={
+                <span
+                  className="text-base"
+                  data-cy={`okr-currency-desktop-target-currency-${index}`}
+                >
+                  $
+                </span>
+              }
               value={
                 keyItem.targetValue === 0 ? undefined : keyItem.targetValue
               }
@@ -403,7 +417,14 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 data-cy={`okr-currency-mobile-initial-input-${index}`}
                 min={0}
                 placeholder="Initial Value"
-                addonAfter={<span className="text-base">$</span>}
+                addonAfter={
+                  <span
+                    className="text-base"
+                    data-cy={`okr-currency-mobile-initial-currency-${index}`}
+                  >
+                    $
+                  </span>
+                }
                 value={
                   keyItem.initialValue === 0 ? undefined : keyItem.initialValue
                 }
@@ -436,7 +457,14 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 data-cy={`okr-currency-mobile-target-input-${index}`}
                 min={0}
                 placeholder="Target Value"
-                addonAfter={<span className="text-base">$</span>}
+                addonAfter={
+                  <span
+                    className="text-base"
+                    data-cy={`okr-currency-mobile-target-currency-${index}`}
+                  >
+                    $
+                  </span>
+                }
                 value={
                   keyItem.targetValue === 0 ? undefined : keyItem.targetValue
                 }

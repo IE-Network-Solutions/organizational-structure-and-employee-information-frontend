@@ -774,8 +774,12 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 viewBox="0 0 24 24"
                 fill="currentColor"
                 xmlns="http://www.w3.org/2000/svg"
+                data-cy="okr-edit-objective-ai-suggestions-icon"
               >
-                <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
+                <path
+                  d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"
+                  data-cy="okr-edit-objective-ai-suggestions-path"
+                />
               </svg>
               AI Suggestions
             </Button>
@@ -799,12 +803,14 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   className="text-white"
+                  data-cy="okr-edit-objective-add-keyresult-icon"
                 >
                   <path
                     d="M12 5V19M5 12H19"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
+                    data-cy="okr-edit-objective-add-keyresult-path"
                     strokeLinejoin="round"
                   />
                 </svg>
@@ -877,7 +883,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 className="text-sm text-gray-500"
               >
                 Total Key Results Weight:{' '}
-                <strong>
+                <strong data-cy="okr-edit-objective-total-weight-value">
                   {[
                     ...(objectiveValue.keyResults || []),
                     ...(objective?.keyResults || []),

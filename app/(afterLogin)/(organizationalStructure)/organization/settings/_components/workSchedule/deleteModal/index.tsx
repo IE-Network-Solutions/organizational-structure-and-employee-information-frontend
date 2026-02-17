@@ -108,7 +108,10 @@ function CustomDeleteWorkingSchduel() {
         cancelButtonProps={{ style: { display: 'none' } }}
         closable={true}
       >
-        <p style={{ marginTop: 16, fontSize: 14 }}>
+        <p
+          style={{ marginTop: 16, fontSize: 14 }}
+          data-cy="work-schedule-delete-modal-message"
+        >
           Users are currently using this Work Schedule. You cannot delete it.
         </p>
       </Modal>
