@@ -37,11 +37,18 @@ const ReprimandEditDrawer: React.FC<RepDrawerProps> = ({
   const customTagRender = (props: any) => {
     const { label, closable, onClose } = props;
     return (
-      <div className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1">
+      <div
+        className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1"
+        data-cy="reprimand-edit-drawer-tag-container"
+      >
         <Avatar size={20} icon={<UserOutlined />} />
-        <span>{label}</span>
+        <span data-cy="reprimand-edit-drawer-tag-label">{label}</span>
         {closable && (
-          <span onClick={onClose} className="text-black text-xs">
+          <span
+            onClick={onClose}
+            className="text-black text-xs"
+            data-cy="reprimand-edit-drawer-tag-close"
+          >
             ✖
           </span>
         )}
@@ -76,13 +83,19 @@ const ReprimandEditDrawer: React.FC<RepDrawerProps> = ({
   }, [reprimandLog, form]);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="reprimand-edit-drawer-modal-header"
+    >
       Edit Reprimand
     </div>
   );
 
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div
+      className="w-full flex justify-center items-center gap-4 pt-8"
+      data-cy="reprimand-edit-drawer-footer"
+    >
       <CustomButton
         type="default"
         title="Cancel"

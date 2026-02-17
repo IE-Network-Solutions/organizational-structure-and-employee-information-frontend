@@ -304,7 +304,10 @@ const CreateMeeting = ({
               />
             ))}
 
-            <div className="flex justify-center items-center gap-4 space-x-2 my-7">
+            <div
+              className="flex justify-center items-center gap-4 space-x-2 my-7"
+              data-cy="create-meeting-actions"
+            >
               <Button
                 htmlType="button"
                 type="primary"
@@ -316,7 +319,10 @@ const CreateMeeting = ({
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-center items-center gap-4 space-x-2">
+            <div
+              className="flex justify-center items-center gap-4 space-x-2"
+              data-cy="create-meeting-navigation-buttons"
+            >
               <Button onClick={() => setCurrentStep(0)}>Back</Button>
               <Button htmlType="submit" type="primary">
                 Create

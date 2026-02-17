@@ -208,6 +208,7 @@ export default function StatusDropdown({
           style={{
             backgroundColor: highlightColor,
           }}
+          data-cy="components-action-plan-statusdropdown-tsx-div-206"
         >
           <Tag
             className="font-bold border-none min-w-16 text-center capitalize text-[10px] m-0"

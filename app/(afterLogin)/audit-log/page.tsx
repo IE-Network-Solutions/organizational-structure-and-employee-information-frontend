@@ -193,7 +193,9 @@ const AuditLogPage = () => {
           data-cy="audit-log-performed-at-header"
           id="audit-log-performed-at-header"
         >
-          <span>Performed at</span>
+          <span data-cy="app-afterlogin-audit-log-page-tsx-page-span-196">
+            Performed at
+          </span>
           {orderDirection === 'DESC' ? (
             <ArrowDownOutlined className="text-xs" />
           ) : (

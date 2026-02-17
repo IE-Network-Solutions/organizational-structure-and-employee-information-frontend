@@ -144,7 +144,10 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                   >
                     <Form.Item
                       label={
-                        <span className="text-md font-semibold text-gray-700">
+                        <span
+                          className="text-md font-semibold text-gray-700"
+                          data-cy="question-template-drawer-field-type-label"
+                        >
                           Field Type
                         </span>
                       }

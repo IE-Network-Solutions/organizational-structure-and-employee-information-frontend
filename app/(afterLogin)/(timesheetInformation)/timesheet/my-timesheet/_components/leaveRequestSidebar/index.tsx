@@ -383,7 +383,10 @@ const LeaveRequestSidebar = () => {
                       />
                     </Form.Item>
                   </Col>
-                  <Col span={12}>
+                  <Col
+                    span={12}
+                    data-cy="time-attendance-leave-request-sidebar-end-date-column"
+                  >
                     <Form.Item
                       name="endDate"
                       label="End Date"

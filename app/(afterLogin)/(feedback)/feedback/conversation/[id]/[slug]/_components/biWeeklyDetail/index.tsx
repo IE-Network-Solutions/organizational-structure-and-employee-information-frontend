@@ -25,17 +25,26 @@ function ConversationInstanceDetail({
   return (
     <Card className="mb-3">
       <>
-        <div className="flex flex-col gap-3 items-center">
-          <h5 className="text-lg font-semibold">
+        <div
+          className="flex flex-col gap-3 items-center"
+          data-cy="bi-weekly-detail-header"
+        >
+          <h5 className="text-lg font-semibold" data-cy="bi-weekly-detail-name">
             {conversationInstance?.name ?? 'N/A'}
           </h5>
-          <span className="text-sm text-gray-500">
+          <span
+            className="text-sm text-gray-500"
+            data-cy="bi-weekly-detail-date"
+          >
             {dayjs(conversationInstance?.createdAt).format('MMMM D, YYYY')}
           </span>
           <Divider className="my-2" />
         </div>
 
-        <span className="flex justify-center items-center mb-2 text-lg font-bold">
+        <span
+          className="flex justify-center items-center mb-2 text-lg font-bold"
+          data-cy="bi-weekly-detail-attendees-title"
+        >
           Attendees
         </span>
         <Divider className="my-2" />
@@ -68,17 +77,24 @@ function ConversationInstanceDetail({
                   />,
                 ]}
               >
-                <div className="flex flex-col w-full">
+                <div
+                  className="flex flex-col w-full"
+                  data-cy={`bi-weekly-detail-attendee-${attendee.id}`}
+                >
                   <span
                     className="mb-1 font-semibold text-gray-700 text-xs truncate w-full"
                     title={activePosition?.department?.name || '-'}
+                    data-cy={`bi-weekly-detail-attendee-department-${attendee.id}`}
                   >
                     {activePosition?.department?.name || '-'}
                   </span>
                   <UserCard
                     data={attendee}
                     name={
-                      <span className="text-xs font-medium cursor-pointer truncate w-full">
+                      <span
+                        className="text-xs font-medium cursor-pointer truncate w-full"
+                        data-cy={`bi-weekly-detail-attendee-name-${attendee.id}`}
+                      >
                         {`${attendee?.firstName ?? '-'} ${attendee?.middleName ?? ''} ${attendee?.lastName ?? ''}`}
                       </span>
                     }

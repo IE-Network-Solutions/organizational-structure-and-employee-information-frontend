@@ -58,7 +58,10 @@ const TnaReviewPage = () => {
             profileImage={employeeData?.profileImage}
             size="small"
           />
-          <div className="text-[10px] leading-4 text-gray-600">
+          <div
+            data-cy="-tna-tna-my-training-page-tsx-page-div-61"
+            className="text-[10px] leading-4 text-gray-600"
+          >
             {employeeData?.email}
           </div>
         </div>
@@ -143,7 +146,9 @@ const TnaReviewPage = () => {
       dataIndex: 'title',
       key: 'title',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div data-cy="-tna-tna-my-training-page-tsx-page-div-146">{text}</div>
+      ),
     },
     {
       title: 'Requested by',
@@ -158,7 +163,9 @@ const TnaReviewPage = () => {
       key: 'completedAt',
       sorter: true,
       render: (date: string) => (
-        <div>{date ? dayjs(date).format(DATE_FORMAT) : '-'}</div>
+        <div data-cy="-tna-tna-my-training-page-tsx-page-div-161">
+          {date ? dayjs(date).format(DATE_FORMAT) : '-'}
+        </div>
       ),
     },
     {
@@ -166,7 +173,11 @@ const TnaReviewPage = () => {
       dataIndex: 'commitmentPeriod',
       key: 'commitmentPeriod',
       sorter: true,
-      render: (text: string) => <div>{text ? text : '-'}</div>,
+      render: (text: string) => (
+        <div data-cy="-tna-tna-my-training-page-tsx-page-div-169">
+          {text ? text : '-'}
+        </div>
+      ),
     },
     {
       title: 'Status',

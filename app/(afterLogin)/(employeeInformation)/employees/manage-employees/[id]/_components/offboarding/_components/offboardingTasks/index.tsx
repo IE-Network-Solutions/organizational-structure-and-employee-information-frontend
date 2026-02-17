@@ -377,7 +377,10 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                     id="offboarding-delete-modal-title-p"
                     data-cy="offboarding-delete-modal-title-p"
                   >
-                    <strong>Title: </strong> {taskToDelete.title}
+                    <strong data-cy="offboarding-delete-modal-title-label">
+                      Title:{' '}
+                    </strong>{' '}
+                    {taskToDelete.title}
                   </p>
                   <p
                     id="offboarding-delete-modal-assigned-to-p"

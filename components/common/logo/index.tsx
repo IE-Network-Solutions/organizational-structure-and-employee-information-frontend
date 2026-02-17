@@ -104,6 +104,7 @@ const Logo: React.FC<LogoProps> = ({ type, width, height }) => {
           height={height || '28'}
           viewBox="0 0 145 28"
           fill="none"
+          data-cy="components-common-logo-index-tsx-index-svg-102"
           xmlns="http://www.w3.org/2000/svg"
         >
           <text
@@ -114,6 +115,7 @@ const Logo: React.FC<LogoProps> = ({ type, width, height }) => {
             fontWeight="700"
             fill="#374151"
             transform="skewX(12)"
+            data-cy="components-common-logo-index-tsx-index-text-109"
           >
             ZK
           </text>
@@ -125,6 +127,7 @@ const Logo: React.FC<LogoProps> = ({ type, width, height }) => {
             fontWeight="700"
             fill="#22C55E"
             transform="skewX(12)"
+            data-cy="components-common-logo-index-tsx-index-text-120"
           >
             Teco
           </text>
@@ -135,6 +138,7 @@ const Logo: React.FC<LogoProps> = ({ type, width, height }) => {
             fontSize="8"
             fontWeight="400"
             fill="#22C55E"
+            data-cy="components-common-logo-index-tsx-index-text-131"
           >
             ®
           </text>

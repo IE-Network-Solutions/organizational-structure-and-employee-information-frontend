@@ -99,7 +99,11 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
 
     if (componentType === 'avatar') {
       return (
-        <div key={index} className="flex items-center space-x-4">
+        <div
+          data-cy="components-common-loadings-skeletonloading-tsx-skeletonloading-div-102"
+          key={index}
+          className="flex items-center space-x-4"
+        >
           <Skeleton.Avatar active={type === 'active'} />
           <Skeleton.Input active={type === 'active'} style={{ width: 200 }} />
         </div>
@@ -108,7 +112,11 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
 
     // Default to custom or fallback layout
     return (
-      <div key={index} className="p-4 border rounded-md">
+      <div
+        data-cy="components-common-loadings-skeletonloading-tsx-skeletonloading-div-111"
+        key={index}
+        className="p-4 border rounded-md"
+      >
         <Skeleton active={type === 'active'} avatar={type === 'avatar'} />
       </div>
     );
@@ -116,6 +124,7 @@ const SkeletonLoading: React.FC<SkeletonLoadingProps> = ({
 
   return (
     <div
+      data-cy="components-common-loadings-skeletonloading-tsx-skeletonloading-div-126"
       className={`flex ${
         alignment === 'horizontal' ? 'space-x-4' : 'space-y-4 flex-col'
       }`}

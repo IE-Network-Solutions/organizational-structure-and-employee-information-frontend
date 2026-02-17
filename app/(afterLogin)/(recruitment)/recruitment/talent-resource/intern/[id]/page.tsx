@@ -29,7 +29,10 @@ const InternDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-96">
+      <div
+        data-cy="talent-resource-intern-id-page-tsx-page-div-32"
+        className="flex justify-center items-center min-h-96"
+      >
         <Spin size="large" />
       </div>
     );
@@ -37,7 +40,10 @@ const InternDetails = () => {
 
   if (!internData) {
     return (
-      <div className="flex justify-center items-center min-h-96">
+      <div
+        data-cy="talent-resource-intern-id-page-tsx-page-div-40"
+        className="flex justify-center items-center min-h-96"
+      >
         <Text>Talent roaster not found</Text>
       </div>
     );
@@ -61,9 +67,15 @@ const InternDetails = () => {
   );
 
   return (
-    <div className="w-full mx-auto p-4 space-y-6">
+    <div
+      data-cy="talent-resource-intern-id-page-tsx-page-div-64"
+      className="w-full mx-auto p-4 space-y-6"
+    >
       {/* Back Button */}
-      <div className="mb-4">
+      <div
+        data-cy="talent-resource-intern-id-page-tsx-page-div-66"
+        className="mb-4"
+      >
         <Button
           id="talent-acquisition-intern-detail-button-back"
           data-cy="talent-acquisition-intern-detail-button-back"
@@ -158,10 +170,16 @@ const InternDetails = () => {
         title={<Title level={4}>Additional Information</Title>}
         className="w-full"
       >
-        <div className="space-y-4">
-          <div>
+        <div
+          data-cy="talent-resource-intern-id-page-tsx-page-div-161"
+          className="space-y-4"
+        >
+          <div data-cy="talent-resource-intern-id-page-tsx-page-div-162">
             <Text className="text-gray-600">Expected Salary</Text>
-            <div className="mt-1">
+            <div
+              data-cy="talent-resource-intern-id-page-tsx-page-div-164"
+              className="mt-1"
+            >
               <Text strong>
                 {internData?.expectedSalary
                   ? `${internData.expectedSalary} Birr`
@@ -172,9 +190,12 @@ const InternDetails = () => {
 
           <Divider />
 
-          <div>
+          <div data-cy="talent-resource-intern-id-page-tsx-page-div-175">
             <Text className="text-gray-600">Motivation for applying</Text>
-            <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+            <div
+              data-cy="talent-resource-intern-id-page-tsx-page-div-177"
+              className="mt-2 p-3 bg-gray-50 rounded-lg"
+            >
               <Text>
                 {internData?.motivationForApplying ||
                   'No motivation statement provided'}
@@ -182,11 +203,14 @@ const InternDetails = () => {
             </div>
           </div>
 
-          <div>
+          <div data-cy="talent-resource-intern-id-page-tsx-page-div-185">
             <Text className="text-gray-600">
               Why are you interested in this internship
             </Text>
-            <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+            <div
+              data-cy="talent-resource-intern-id-page-tsx-page-div-189"
+              className="mt-2 p-3 bg-gray-50 rounded-lg"
+            >
               <Text>{internData?.whyInterested || 'No response provided'}</Text>
             </div>
           </div>
@@ -196,7 +220,10 @@ const InternDetails = () => {
       {/* Cover Letter Section */}
       {internData?.coverLetter && (
         <Card title={<Title level={4}>Cover Letter</Title>} className="w-full">
-          <div className="p-3 bg-gray-50 rounded-lg">
+          <div
+            data-cy="talent-resource-intern-id-page-tsx-page-div-199"
+            className="p-3 bg-gray-50 rounded-lg"
+          >
             <Text style={{ whiteSpace: 'pre-wrap' }}>
               {internData.coverLetter}
             </Text>

@@ -753,7 +753,7 @@ const PayPeriodSideBar = () => {
                         <Popover
                           data-cy={`payroll-payperiod-sidebar-division-footer-popover-${index}`}
                           content={
-                            <span>{`${dayjs(range[0]).format('MMMM D, YYYY')} - ${dayjs(range[1]).format('MMMM D, YYYY')}`}</span>
+                            <span data-cy="settings-pay-period-components-payperiodsidebar-tsx-payperiodsidebar-span-756">{`${dayjs(range[0]).format('MMMM D, YYYY')} - ${dayjs(range[1]).format('MMMM D, YYYY')}`}</span>
                           }
                           title="Delete Pay Period Range"
                           trigger="hover"

@@ -1114,8 +1114,14 @@ const EmployeeProfile = () => {
                         </div>
                         <Divider className="my-2" />
 
-                        <header className=" border-b pb-2 mb-2">
-                          <h2 className="text-xl font-semibold">
+                        <header
+                          className=" border-b pb-2 mb-2"
+                          data-cy="employee-information-deductions-header"
+                        >
+                          <h2
+                            className="text-xl font-semibold"
+                            data-cy="employee-information-deductions-heading"
+                          >
                             Employee Deductions
                           </h2>
                         </header>

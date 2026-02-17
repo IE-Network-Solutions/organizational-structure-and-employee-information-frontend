@@ -75,7 +75,10 @@ function CreateReport() {
   //   useGetUnReportedPlanning(planningPeriodId,activeTab);
 
   const modalHeader = (
-    <div className="text-center text-xl font-bold text-[#161A2C]">
+    <div
+      data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-78"
+      className="text-center text-xl font-bold text-[#161A2C]"
+    >
       Create {planningPeriodName} Report
     </div>
   );
@@ -251,9 +254,18 @@ function CreateReport() {
   }, 0);
 
   const footer = (
-    <div className="flex items-center justify-between w-full">
-      <div className="flex-1"></div>
-      <div className="flex justify-center gap-4 flex-1">
+    <div
+      data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-254"
+      className="flex items-center justify-between w-full"
+    >
+      <div
+        data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-255"
+        className="flex-1"
+      ></div>
+      <div
+        data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-256"
+        className="flex justify-center gap-4 flex-1"
+      >
         <Button
           id="submit-report-button-for-planning-and-reporting"
           data-cy="submit-report-button-for-planning-and-reporting"
@@ -262,8 +274,18 @@ function CreateReport() {
           loading={createReportLoading}
           onClick={() => form.submit()}
         >
-          <span className="md:hidden">Report</span>
-          <span className="hidden md:inline">Create Report</span>
+          <span
+            data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-265"
+            className="md:hidden"
+          >
+            Report
+          </span>
+          <span
+            data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-266"
+            className="hidden md:inline"
+          >
+            Create Report
+          </span>
         </Button>
         <Button
           id="cancel-report-button-for-planning-and-reporting"
@@ -276,11 +298,30 @@ function CreateReport() {
         </Button>
       </div>
 
-      <div className="flex-1 flex justify-end pr-5">
-        <div className="my-2 font-bold">
-          <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
-            <span className="md:hidden">WP:</span>{' '}
-            <span className="hidden md:inline">Weight Point:</span>{' '}
+      <div
+        data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-279"
+        className="flex-1 flex justify-end pr-5"
+      >
+        <div
+          data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-280"
+          className="my-2 font-bold"
+        >
+          <span
+            data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-281"
+            className="text-sm font-medium text-[#161A2C] whitespace-nowrap"
+          >
+            <span
+              data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-282"
+              className="md:hidden"
+            >
+              WP:
+            </span>{' '}
+            <span
+              data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-283"
+              className="hidden md:inline"
+            >
+              Weight Point:
+            </span>{' '}
             <span
               className={
                 totalWeight > 84
@@ -289,6 +330,7 @@ function CreateReport() {
                     ? 'text-orange-500'
                     : 'text-red-500'
               }
+              data-cy="planningandreporting-planning-and-reporting-components-createreport-index-tsx-span-325"
             >
               {totalWeight}%
             </span>
@@ -309,7 +351,11 @@ function CreateReport() {
       keyresult?.metricType?.name !== NAME.MILESTONE;
 
     return (
-      <div key={task.taskId} className="mb-5 last:mb-0">
+      <div
+        data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-312"
+        key={task.taskId}
+        className="mb-5 last:mb-0"
+      >
         <Row gutter={[16, 16]} align="middle">
           <Col
             xs={showActualValue ? 7 : 11}
@@ -319,6 +365,7 @@ function CreateReport() {
             <p
               className="text-gray-800 text-sm font-medium leading-relaxed m-0 truncate"
               title={task.taskName}
+              data-cy="planningandreporting-planning-and-reporting-components-createreport-index-tsx-p-364"
             >
               {task.taskName}
             </p>
@@ -329,7 +376,10 @@ function CreateReport() {
             sm={showActualValue ? 16 : 10}
             md={showActualValue ? 14 : 8}
           >
-            <div className="flex items-center justify-end gap-2 sm:gap-4 overflow-x-auto no-scrollbar">
+            <div
+              data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-332"
+              className="flex items-center justify-end gap-2 sm:gap-4 overflow-x-auto no-scrollbar"
+            >
               {/* Actual Value Input */}
               {showActualValue && (
                 <Form.Item
@@ -387,7 +437,12 @@ function CreateReport() {
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                     }
                     addonAfter={
-                      <span className="text-[10px]">{metricSymbol}</span>
+                      <span
+                        data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-390"
+                        className="text-[10px]"
+                      >
+                        {metricSymbol}
+                      </span>
                     }
                     controls={false}
                   />
@@ -400,7 +455,10 @@ function CreateReport() {
                 className="mb-0"
                 rules={[{ required: true, message: '' }]}
               >
-                <div className="flex items-center gap-2 sm:gap-4 bg-transparent p-0 border-none">
+                <div
+                  data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-403"
+                  className="flex items-center gap-2 sm:gap-4 bg-transparent p-0 border-none"
+                >
                   {/* Done Option */}
                   <div
                     id={`create-report-status-done-${task.taskId}`}
@@ -418,12 +476,18 @@ function CreateReport() {
                   >
                     <div
                       className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${isDone ? 'bg-[#00C48C] border-[#00C48C]' : 'bg-white border-[#E5E7EB]'}`}
+                      data-cy="planningandreporting-planning-and-reporting-components-createreport-index-tsx-div-475"
                     >
                       {isDone && (
                         <CheckOutlined className="text-white text-[10px]" />
                       )}
                     </div>
-                    <span className={`text-[13px] text-[#161A2C]`}>Done</span>
+                    <span
+                      data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-426"
+                      className={`text-[13px] text-[#161A2C]`}
+                    >
+                      Done
+                    </span>
                   </div>
 
                   {/* Not Option */}
@@ -442,13 +506,19 @@ function CreateReport() {
                     }}
                   >
                     <div
+                      data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-508"
                       className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${isNot ? 'bg-[#FF4D4F] border-[#FF4D4F]' : 'bg-white border-[#E5E7EB]'}`}
                     >
                       {isNot && (
                         <CloseOutlined className="text-white text-[10px]" />
                       )}
                     </div>
-                    <span className={`text-[13px] text-[#161A2C]`}>Not</span>
+                    <span
+                      data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-451"
+                      className={`text-[13px] text-[#161A2C]`}
+                    >
+                      Not
+                    </span>
                   </div>
                 </div>
               </Form.Item>
@@ -458,7 +528,10 @@ function CreateReport() {
 
         {/* Reason Box */}
         {isNot && (
-          <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div
+            data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-461"
+            className="mt-4 animate-in fade-in slide-in-from-top-2 duration-200"
+          >
             <Form.Item
               name={[task.taskId, 'customReason']}
               className="mb-0"
@@ -515,13 +588,20 @@ function CreateReport() {
                           id={`create-report-panel-${objective.id || ''}-${index}`}
                           data-cy={`create-report-panel-${objective.id || ''}-${index}`}
                           header={
-                            <div className="flex items-center gap-2 min-w-0 w-full">
-                              <span className="font-bold text-gray-900 whitespace-nowrap flex-shrink-0">
+                            <div
+                              data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-518"
+                              className="flex items-center gap-2 min-w-0 w-full"
+                            >
+                              <span
+                                data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-519"
+                                className="font-bold text-gray-900 whitespace-nowrap flex-shrink-0"
+                              >
                                 {planningPeriodName}-task :
                               </span>
                               <span
                                 className="text-gray-700 font-normal truncate flex-1 min-w-0"
                                 title={keyresult?.title}
+                                data-cy="planningandreporting-planning-and-reporting-components-createreport-index-tsx-span-597"
                               >
                                 {keyresult?.title}
                               </span>
@@ -533,7 +613,10 @@ function CreateReport() {
                             border: '1px solid #e5e7eb',
                           }}
                         >
-                          <div className="py-2">
+                          <div
+                            data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-536"
+                            className="py-2"
+                          >
                             {/* Milestone Tasks */}
                             {keyresult?.milestones?.map((milestone: any) =>
                               milestone?.tasks?.map((task: any) =>
@@ -555,7 +638,10 @@ function CreateReport() {
             </Form>
           </Spin>
         ) : (
-          <div className="flex justify-center items-center h-64">
+          <div
+            data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-558"
+            className="flex justify-center items-center h-64"
+          >
             <CustomizeRenderEmpty />
           </div>
         )}

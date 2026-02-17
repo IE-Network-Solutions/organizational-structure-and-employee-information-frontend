@@ -316,8 +316,14 @@ export default dynamic(() => Promise.resolve(LocationPicker), {
     <div
       className="bg-gray-100 rounded-lg flex items-center justify-center"
       style={{ height: '400px' }}
+      data-cy="components-common-map-locationpicker-tsx-locationpicker-div-316"
     >
-      <div className="text-gray-500">Loading map...</div>
+      <div
+        data-cy="components-common-map-locationpicker-tsx-locationpicker-div-320"
+        className="text-gray-500"
+      >
+        Loading map...
+      </div>
     </div>
   ),
 });

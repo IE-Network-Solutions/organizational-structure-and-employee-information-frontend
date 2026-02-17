@@ -330,7 +330,10 @@ const AttendanceTable = () => {
           id="time-attendance-attendance-table-mobile-filter-container"
           data-cy="time-attendance-attendance-table-mobile-filter-container"
         >
-          <div className="h-10 flex ">
+          <div
+            data-cy="my-timesheet-components-attendancetable-index-tsx-index-div-333"
+            className="h-10 flex "
+          >
             <AttendanceTableFilter
               onChange={onFilterChange}
               data-cy="time-attendance-attendance-table-mobile-filter"

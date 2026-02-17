@@ -154,12 +154,28 @@ export default function EmployeeAttendanceTable() {
   ];
 
   const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+    <div
+      className="flex flex-col gap-4"
+      data-cy="time-attendance-employee-attendance-mobile-filter-content-div"
+    >
+      <h3
+        className="text-lg font-medium mb-2"
+        data-cy="time-attendance-employee-attendance-mobile-filter-title-h3"
+      >
+        Filter
+      </h3>
 
       {/* Attendance Type */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Status</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-employee-attendance-mobile-filter-status-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-employee-attendance-mobile-filter-status-label"
+        >
+          Status
+        </label>
         <Select
           showSearch
           placeholder="Select Status"
@@ -177,8 +193,16 @@ export default function EmployeeAttendanceTable() {
       </div>
 
       {/* Date Range */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Date Range</label>
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-employee-attendance-mobile-filter-date-range-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-employee-attendance-mobile-filter-date-range-label"
+        >
+          Date Range
+        </label>
         <RangePicker
           allowClear
           className="w-full h-12"
@@ -207,27 +231,51 @@ export default function EmployeeAttendanceTable() {
           `/timesheet/dashboard?employeeAttendance&user=${employee.userId}`,
         );
       }}
+      data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}`}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
+      <div
+        className="flex items-center justify-between mb-3"
+        data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-header-div`}
+      >
+        <div
+          className="flex items-center gap-3"
+          data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-profile-div`}
+        >
           {employee?.profileImage ? (
-            <Avatar src={employee?.profileImage} className="flex-shrink-0" />
+            <Avatar
+              src={employee?.profileImage}
+              className="flex-shrink-0"
+              data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-avatar-image`}
+            />
           ) : (
-            <Avatar className="flex-shrink-0">
+            <Avatar
+              className="flex-shrink-0"
+              data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-avatar-fallback`}
+            >
               {employee?.name?.charAt(0)?.toUpperCase()}
             </Avatar>
           )}
-          <div className="min-w-0 flex-1">
-            <p className="font-medium text-sm text-black truncate">
+          <div
+            className="min-w-0 flex-1"
+            data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-info-div`}
+          >
+            <p
+              className="font-medium text-sm text-black truncate"
+              data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-name-text`}
+            >
               {employee?.name}
             </p>
-            <p className="text-xs text-gray-600 truncate">
+            <p
+              className="text-xs text-gray-600 truncate"
+              data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-department-text`}
+            >
               {employee?.department}
             </p>
           </div>
         </div>
         <Tag
           className={`capitalize px-2 py-1 font-medium rounded-md border-none text-xs ${statusColors[employee?.currentStatus as keyof typeof statusColors]}`}
+          data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-status-tag`}
         >
           {employee?.currentStatus === 'onleave'
             ? 'On Leave'
@@ -235,20 +283,46 @@ export default function EmployeeAttendanceTable() {
         </Tag>
       </div>
 
-      <div className="flex justify-between text-xs text-gray-600">
-        <span>Absent: {employee?.absentDays} days</span>
-        <span>Late: {employee?.totalLateRecords} days</span>
+      <div
+        className="flex justify-between text-xs text-gray-600"
+        data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-stats-div`}
+      >
+        <span
+          data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-absent-span`}
+        >
+          Absent: {employee?.absentDays} days
+        </span>
+        <span
+          data-cy={`time-attendance-employee-attendance-mobile-card-${employee.userId}-late-span`}
+        >
+          Late: {employee?.totalLateRecords} days
+        </span>
       </div>
     </div>
   );
 
   return (
-    <div className="p-3 sm:p-6 bg-white rounded-lg shadow-sm">
-      <div className="flex flex-col gap-4">
+    <div
+      className="p-3 sm:p-6 bg-white rounded-lg shadow-sm"
+      data-cy="time-attendance-employee-attendance-container-div"
+    >
+      <div
+        className="flex flex-col gap-4"
+        data-cy="time-attendance-employee-attendance-content-div"
+      >
         {/* Desktop Filters */}
-        <div className="hidden md:block">
-          <div className="grid grid-cols-12 gap-4 mb-6">
-            <div className="col-span-6">
+        <div
+          className="hidden md:block"
+          data-cy="time-attendance-employee-attendance-desktop-filters-div"
+        >
+          <div
+            className="grid grid-cols-12 gap-4 mb-6"
+            data-cy="time-attendance-employee-attendance-desktop-filters-grid-div"
+          >
+            <div
+              className="col-span-6"
+              data-cy="time-attendance-employee-attendance-desktop-filters-employee-select-div"
+            >
               <Select
                 showSearch
                 placeholder="Search Employee"
@@ -261,9 +335,13 @@ export default function EmployeeAttendanceTable() {
                     .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
+                data-cy="time-attendance-employee-attendance-desktop-filters-employee-select"
               />
             </div>
-            <div className="col-span-3">
+            <div
+              className="col-span-3"
+              data-cy="time-attendance-employee-attendance-desktop-filters-status-select-div"
+            >
               <Select
                 showSearch
                 placeholder="Status"
@@ -277,9 +355,13 @@ export default function EmployeeAttendanceTable() {
                     .includes(input.toLowerCase())
                 }
                 options={attendanceTypeOptions}
+                data-cy="time-attendance-employee-attendance-desktop-filters-status-select"
               />
             </div>
-            <div className="col-span-3">
+            <div
+              className="col-span-3"
+              data-cy="time-attendance-employee-attendance-desktop-filters-date-range-div"
+            >
               <RangePicker
                 allowClear
                 className="w-full h-12"
@@ -296,15 +378,25 @@ export default function EmployeeAttendanceTable() {
                     setEndDateOnAttendance('');
                   }
                 }}
+                data-cy="time-attendance-employee-attendance-desktop-filters-date-range-picker"
               />
             </div>
           </div>
         </div>
 
         {/* Mobile Filters */}
-        <div className="md:hidden">
-          <div className="flex justify-between gap-4 w-full mb-4">
-            <div className="flex-1">
+        <div
+          className="md:hidden"
+          data-cy="time-attendance-employee-attendance-mobile-filters-div"
+        >
+          <div
+            className="flex justify-between gap-4 w-full mb-4"
+            data-cy="time-attendance-employee-attendance-mobile-filters-row-div"
+          >
+            <div
+              className="flex-1"
+              data-cy="time-attendance-employee-attendance-mobile-filters-employee-select-div"
+            >
               <Select
                 showSearch
                 placeholder="Search Employee"
@@ -317,9 +409,10 @@ export default function EmployeeAttendanceTable() {
                     .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
+                data-cy="time-attendance-employee-attendance-mobile-filters-employee-select"
               />
             </div>
-            <div>
+            <div data-cy="time-attendance-employee-attendance-mobile-filters-settings-button-div">
               <CustomButton
                 type="default"
                 size="small"
@@ -327,13 +420,17 @@ export default function EmployeeAttendanceTable() {
                 className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
                 title=""
                 icon={<LuSettings2 size={20} />}
+                data-cy="time-attendance-employee-attendance-mobile-filters-settings-button"
               />
             </div>
           </div>
         </div>
 
         {/* Desktop Table */}
-        <div className="hidden md:block">
+        <div
+          className="hidden md:block"
+          data-cy="time-attendance-employee-attendance-desktop-table-div"
+        >
           <Table
             columns={columns}
             dataSource={adminAttendanceUsers?.users}
@@ -349,28 +446,51 @@ export default function EmployeeAttendanceTable() {
               },
               style: { cursor: 'pointer' },
             })}
+            data-cy="time-attendance-employee-attendance-desktop-table"
           />
         </div>
 
         {/* Mobile Cards */}
-        <div className="md:hidden space-y-3">
+        <div
+          className="md:hidden space-y-3"
+          data-cy="time-attendance-employee-attendance-mobile-cards-div"
+        >
           {loading ? (
-            <div className="flex justify-center items-center h-32">
-              <div className="text-gray-500 text-sm">Loading...</div>
+            <div
+              className="flex justify-center items-center h-32"
+              data-cy="time-attendance-employee-attendance-mobile-cards-loading-div"
+            >
+              <div
+                className="text-gray-500 text-sm"
+                data-cy="time-attendance-employee-attendance-mobile-cards-loading-text"
+              >
+                Loading...
+              </div>
             </div>
           ) : adminAttendanceUsers?.users?.length > 0 ? (
             adminAttendanceUsers.users.map((employee: any) => (
               <MobileEmployeeCard key={employee.userId} employee={employee} />
             ))
           ) : (
-            <div className="flex justify-center items-center h-32">
-              <div className="text-gray-500 text-sm">No employees found</div>
+            <div
+              className="flex justify-center items-center h-32"
+              data-cy="time-attendance-employee-attendance-mobile-cards-empty-div"
+            >
+              <div
+                className="text-gray-500 text-sm"
+                data-cy="time-attendance-employee-attendance-mobile-cards-empty-text"
+              >
+                No employees found
+              </div>
             </div>
           )}
         </div>
 
         {/* Pagination and Result Count */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mt-4 text-sm text-gray-600">
+        <div
+          className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mt-4 text-sm text-gray-600"
+          data-cy="time-attendance-employee-attendance-pagination-div"
+        >
           <Pagination
             current={adminAttendanceUsers?.pagination?.page}
             total={adminAttendanceUsers?.pagination?.total}
@@ -379,8 +499,12 @@ export default function EmployeeAttendanceTable() {
             showSizeChanger={false}
             className="self-center sm:self-start"
             size="small"
+            data-cy="time-attendance-employee-attendance-pagination"
           />
-          <div className="text-center sm:text-right">
+          <div
+            className="text-center sm:text-right"
+            data-cy="time-attendance-employee-attendance-result-count-div"
+          >
             {adminAttendanceUsers?.pagination?.total} Result
             {adminAttendanceUsers?.pagination?.total !== 1 ? 's' : ''}
           </div>
@@ -392,12 +516,16 @@ export default function EmployeeAttendanceTable() {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={
-          <div className="flex gap-2 justify-center mt-4">
+          <div
+            className="flex gap-2 justify-center mt-4"
+            data-cy="time-attendance-employee-attendance-mobile-filter-modal-footer-div"
+          >
             <CustomButton
               onClick={() => setIsModalOpen(false)}
               className="px-6 py-2 border rounded-lg text-sm text-gray-900"
               title="Cancel"
               type="default"
+              data-cy="time-attendance-employee-attendance-mobile-filter-modal-cancel-button"
             />
             <CustomButton
               title="Apply Filter"
@@ -406,6 +534,7 @@ export default function EmployeeAttendanceTable() {
                 setIsModalOpen(false);
               }}
               className="px-6 py-2 text-white rounded-lg text-sm"
+              data-cy="time-attendance-employee-attendance-mobile-filter-modal-apply-button"
             />
           </div>
         }
@@ -418,6 +547,7 @@ export default function EmployeeAttendanceTable() {
         }}
         width="90%"
         centered
+        data-cy="time-attendance-employee-attendance-mobile-filter-modal"
       >
         <MobileFilterContent />
       </Modal>

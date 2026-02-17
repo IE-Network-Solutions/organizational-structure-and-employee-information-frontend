@@ -123,7 +123,10 @@ const IncentiveSettingsTable: React.FC = () => {
         data-cy="incentive-settings-table-action-wrapper"
         className="flex items-center gap-2"
       >
-        <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+        <div
+          className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center"
+          data-cy="incentive-settings-table-action-edit-wrapper"
+        >
           <Pencil
             id="incentive-settings-table-action-pencil"
             data-cy="incentive-settings-table-action-pencil"
@@ -136,7 +139,10 @@ const IncentiveSettingsTable: React.FC = () => {
           onDelete={() => handleDelete(recognitionData?.id)}
           data-cy="incentive-settings-table-delete-popover"
         >
-          <div className="bg-red-500 w-7 h-7 rounded-md flex items-center justify-center">
+          <div
+            className="bg-red-500 w-7 h-7 rounded-md flex items-center justify-center"
+            data-cy="incentive-settings-table-action-delete-wrapper"
+          >
             <Trash2
               id="incentive-settings-table-action-delete"
               data-cy="incentive-settings-table-action-delete"

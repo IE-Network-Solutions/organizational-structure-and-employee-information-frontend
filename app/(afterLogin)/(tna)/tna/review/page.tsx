@@ -90,7 +90,10 @@ const TnaReviewPage = () => {
             profileImage={employeeData?.profileImage}
             size="small"
           />
-          <div className="text-[10px] leading-4 text-gray-600">
+          <div
+            data-cy="-tna-tna-review-page-tsx-page-div-93"
+            className="text-[10px] leading-4 text-gray-600"
+          >
             {employeeData?.email}
           </div>
         </div>
@@ -180,7 +183,9 @@ const TnaReviewPage = () => {
       dataIndex: 'title',
       key: 'title',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div data-cy="-tna-tna-review-page-tsx-page-div-183">{text}</div>
+      ),
     },
     {
       title: 'Requested by',
@@ -194,7 +199,9 @@ const TnaReviewPage = () => {
       dataIndex: 'trainingPrice',
       key: 'trainingPrice',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div data-cy="-tna-tna-review-page-tsx-page-div-197">{text}</div>
+      ),
     },
     {
       title: 'Completed Date',
@@ -202,7 +209,9 @@ const TnaReviewPage = () => {
       key: 'completedAt',
       sorter: true,
       render: (date: string) => (
-        <div>{date ? dayjs(date).format(DATE_FORMAT) : '-'}</div>
+        <div data-cy="-tna-tna-review-page-tsx-page-div-205">
+          {date ? dayjs(date).format(DATE_FORMAT) : '-'}
+        </div>
       ),
     },
     {
@@ -220,7 +229,7 @@ const TnaReviewPage = () => {
       },
       render: (trainingProofs: TrainingProof[]) => {
         return (
-          <div>
+          <div data-cy="-tna-tna-review-page-tsx-page-div-223">
             {trainingProofs?.map((proof) =>
               proof.attachmentFile ? (
                 <FileButton
@@ -373,7 +382,11 @@ const TnaReviewPage = () => {
                 data-cy="tna-review-new-button"
                 onClick={() => setIsShowTnaReviewSidebar(true)}
               >
-                {!isMobile && <span>New TNA</span>}
+                {!isMobile && (
+                  <span data-cy="-tna-tna-review-page-tsx-page-span-376">
+                    New TNA
+                  </span>
+                )}
               </Button>
             </AccessGuard>
           </Space>

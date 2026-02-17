@@ -42,9 +42,13 @@ function TimeZone() {
           Set up your Timezone
         </div>
         <TimezoneComponent autoDetectedTimeZone={detectedTimeZone} />
-        <br />
-        <div className="text-center">
+        <br data-cy="timezone-stepper-br" />
+        <div
+          className="text-center"
+          data-cy="timezone-stepper-continue-wrapper"
+        >
           <Button
+            data-cy="timezone-stepper-continue-button"
             onClick={() => nextStep()}
             name="skipButton"
             type="link"

@@ -22,7 +22,10 @@ function Page(): JSX.Element {
             title="Weekly Priority"
             subtitle="OKR setting"
           />
-          <div className="flex items-center bg-gray-50 shadow-md rounded-lg w-fit h-12 p-1 gap-3">
+          <div
+            data-cy="-afterlogin-weeklypriority-weekly-priority-page-tsx-page-div-25"
+            className="flex items-center bg-gray-50 shadow-md rounded-lg w-fit h-12 p-1 gap-3"
+          >
             <button
               onClick={() => setActiveTab(1)}
               className={
@@ -30,6 +33,7 @@ function Page(): JSX.Element {
                   ? ' px-4 h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm'
                   : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
               }
+              data-cy="weeklypriority-weekly-priority-page-tsx-button-29"
             >
               Department
             </button>
@@ -40,12 +44,16 @@ function Page(): JSX.Element {
                   ? ' px-4 h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm'
                   : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
               }
+              data-cy="weeklypriority-weekly-priority-page-tsx-button-39"
             >
               Team
             </button>
           </div>
         </div>
-        <div className="mt-4">
+        <div
+          data-cy="-afterlogin-weeklypriority-weekly-priority-page-tsx-page-div-48"
+          className="mt-4"
+        >
           <Department />
         </div>
       </div>

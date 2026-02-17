@@ -49,9 +49,20 @@ const ApprovalStatusCard = ({
         />
       </div>
       {data?.approvalComments?.length > 0 && (
-        <div className="flex items-center gap-4 mb-2 px-5">
-          <div className="text-[10px] text-gray-500">Reason</div>
-          <div className="text-xs text-gray-900">
+        <div
+          data-cy="components-common-approvalstatuses-approvalstatuscard-tsx-approvalstatuscard-div-52"
+          className="flex items-center gap-4 mb-2 px-5"
+        >
+          <div
+            data-cy="components-common-approvalstatuses-approvalstatuscard-tsx-approvalstatuscard-div-53"
+            className="text-[10px] text-gray-500"
+          >
+            Reason
+          </div>
+          <div
+            data-cy="components-common-approvalstatuses-approvalstatuscard-tsx-approvalstatuscard-div-54"
+            className="text-xs text-gray-900"
+          >
             {data?.approvalComments?.[0]?.comment}
           </div>
         </div>

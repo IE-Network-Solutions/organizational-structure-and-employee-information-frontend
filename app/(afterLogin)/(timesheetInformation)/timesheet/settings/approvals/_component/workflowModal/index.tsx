@@ -235,7 +235,10 @@ const WorkflowModal = ({
       open={open}
       onCancel={handleWorkflowModalCancel}
       title={
-        <p className="text-xl font-semibold">
+        <p
+          data-cy="approvals-component-workflowmodal-index-tsx-index-p-238"
+          className="text-xl font-semibold"
+        >
           In order to remove this workflow you have to transfer this workflow to
           another workflow
         </p>
@@ -357,8 +360,8 @@ const WorkflowModal = ({
           name="workFlownName"
           label="WorkFlow Name"
           rules={[{ required: true, message: 'Please enter a workFlow name!' }]}
-          data-cy="approval-workflow-name"
-          id="approval-workflow-name"
+          data-cy="approval-workflow-name-form-item"
+          id="approval-workflow-name-form-item"
         >
           <Input
             data-cy="approval-workflow-name-input"
@@ -368,8 +371,8 @@ const WorkflowModal = ({
           />
         </Form.Item>
         <div
-          data-cy="approval-workflow-name-label"
-          id="approval-workflow-name-label"
+          data-cy="approval-workflow-name-hint-label"
+          id="approval-workflow-name-hint-label"
           className="font-medium mb-3 text-gray-500"
         >
           WorkfLow Name
@@ -524,8 +527,8 @@ const WorkflowModal = ({
           />
 
           <div
-            data-cy="approval-workflow-number-of-level-label-text"
-            id="approval-workflow-number-of-level-label-text"
+            data-cy="approval-workflow-number-of-level-hint-text"
+            id="approval-workflow-number-of-level-hint-text"
             className="font-medium mb-3 text-gray-500"
           >
             Select Number of specific approval stage or level within the process
@@ -543,7 +546,9 @@ const WorkflowModal = ({
               key={index}
               className="px-10 my-1"
             >
-              <div>Level: {index + 1}</div>
+              <div data-cy="approvals-component-workflowmodal-index-tsx-index-div-546">
+                Level: {index + 1}
+              </div>
               <Form.Item
                 data-cy="approval-workflow-assigned-user"
                 id="approval-workflow-assigned-user"
@@ -599,8 +604,8 @@ const WorkflowModal = ({
         )}
 
         <Form.Item
-          data-cy="approval-workflow-submit-button"
-          id="approval-workflow-submit-button"
+          data-cy="approval-workflow-submit-form-item"
+          id="approval-workflow-submit-form-item"
         >
           <Row
             data-cy="approval-workflow-submit-button-row"

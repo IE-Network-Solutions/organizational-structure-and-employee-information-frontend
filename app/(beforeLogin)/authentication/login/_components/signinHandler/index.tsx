@@ -100,13 +100,14 @@ export const useHandleSignIn = () => {
           Modal.confirm({
             title: 'Link accounts',
             content: (
-              <div>
-                <p>
+              <div data-cy="link-account-modal-content">
+                <p data-cy="link-account-modal-message">
                   An account already exists with {emailAddress}. Please enter
                   your password to link your {providerLabel} account:
                 </p>
                 <Input.Password
                   placeholder="Password"
+                  data-cy="link-account-password-input"
                   onChange={(e) => {
                     passwordValue = e.target.value;
                   }}
@@ -290,6 +291,10 @@ export const useHandleSignIn = () => {
 
       message.success('Welcome!');
       message.loading({ content: 'Redirecting...', key: 'redirect' });
+
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('showPushPromptAfterLogin', '1');
+      }
 
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
       sessionStorage.removeItem('redirectAfterLogin');

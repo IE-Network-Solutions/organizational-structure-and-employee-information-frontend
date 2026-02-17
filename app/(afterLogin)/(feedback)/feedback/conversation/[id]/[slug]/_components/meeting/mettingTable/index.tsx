@@ -156,6 +156,7 @@ const MettingDataTable = ({
               e.stopPropagation();
               handleEdit(record.id);
             }}
+            data-cy={`meeting-table-edit-button-${record.id}`}
           >
             Edit
           </Button>
@@ -168,8 +169,14 @@ const MettingDataTable = ({
             }}
             okText="Yes"
             cancelText="No"
+            data-cy={`meeting-table-delete-popconfirm-${record.id}`}
           >
-            <Button type="primary" danger onClick={(e) => e.stopPropagation()}>
+            <Button
+              type="primary"
+              danger
+              onClick={(e) => e.stopPropagation()}
+              data-cy={`meeting-table-delete-button-${record.id}`}
+            >
               Delete
             </Button>
           </Popconfirm>
@@ -286,6 +293,7 @@ const MettingDataTable = ({
         }}
         modalHeader={'Edit Conversation Instance'}
         width="40%"
+        data-cy="meeting-table-edit-drawer"
       >
         <Form
           form={form}
@@ -295,6 +303,7 @@ const MettingDataTable = ({
           onFinish={handleEditConversationResponse}
           style={{ maxWidth: '100%' }}
           className="text-black"
+          data-cy="meeting-table-edit-form"
         >
           <ConversationInstanceForm
             initialValues={singleConvestionInstance}

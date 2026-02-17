@@ -35,7 +35,10 @@ const AddApproverComponent = ({
       width="40%"
       footer={null}
     >
-      <div className="pb-[60px]">
+      <div
+        data-cy="components-approval-addapprover-index-tsx-index-div-38"
+        className="pb-[60px]"
+      >
         <Form
           form={form}
           onFinish={handleSubmit}
@@ -55,8 +58,14 @@ const AddApproverComponent = ({
             <Input disabled placeholder="Enter Workflow Name" />
           </Form.Item>
 
-          <div className="my-3">
-            <div className="text-lg font-bold ">
+          <div
+            data-cy="components-approval-addapprover-index-tsx-index-div-58"
+            className="my-3"
+          >
+            <div
+              data-cy="components-approval-addapprover-index-tsx-index-div-59"
+              className="text-lg font-bold "
+            >
               {approverType === 'Parallel' ? 'Approvers' : 'Level'}
             </div>
             <Select
@@ -79,7 +88,10 @@ const AddApproverComponent = ({
               )}
             />
 
-            <div className="font-medium">
+            <div
+              data-cy="components-approval-addapprover-index-tsx-index-div-82"
+              className="font-medium"
+            >
               This is the specific approval stage or level within the process
             </div>
           </div>
@@ -88,9 +100,13 @@ const AddApproverComponent = ({
               _,
               index,
             ) => (
-              <div key={index} className="px-10 my-1 ">
+              <div
+                data-cy="components-approval-addapprover-index-tsx-index-div-91"
+                key={index}
+                className="px-10 my-1 "
+              >
                 {approverType !== 'Parallel' && (
-                  <div>
+                  <div data-cy="components-approval-addapprover-index-tsx-index-div-93">
                     Additional Levels:{' '}
                     {selectedItem?.approvers?.length + index + 1}
                   </div>

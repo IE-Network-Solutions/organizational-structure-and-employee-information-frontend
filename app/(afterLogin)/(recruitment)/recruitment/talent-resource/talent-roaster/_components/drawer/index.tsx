@@ -227,7 +227,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
           id="fullNameId"
           name="fullName"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="talent-roaster-components-drawer-index-tsx-index-span-230"
+              className="text-md font-semibold text-gray-700"
+            >
               Full-Name
             </span>
           }
@@ -253,7 +256,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               id="emailAddressId"
               name="email"
               label={
-                <span className="text-md font-semibold text-gray-700">
+                <span
+                  data-cy="talent-roaster-components-drawer-index-tsx-index-span-256"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Email Address
                 </span>
               }
@@ -280,7 +286,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               id="phoneNumberId"
               name="phone"
               label={
-                <span className="text-md font-semibold text-gray-700">
+                <span
+                  data-cy="talent-roaster-components-drawer-index-tsx-index-span-283"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Phone Number
                 </span>
               }
@@ -309,7 +318,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               id="cgpaId"
               name="CGPA"
               label={
-                <span className="text-md font-semibold text-gray-700">
+                <span
+                  data-cy="talent-roaster-components-drawer-index-tsx-index-span-312"
+                  className="text-md font-semibold text-gray-700"
+                >
                   CGPA
                 </span>
               }
@@ -332,7 +344,12 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               className="flex items-center justify-start gap-1 ml-1"
             >
               <FaInfoCircle />
-              <div className="text-xs font-md">Put your point 4.0 scale</div>
+              <div
+                data-cy="talent-roaster-components-drawer-index-tsx-index-div-335"
+                className="text-xs font-md"
+              >
+                Put your point 4.0 scale
+              </div>
             </div>
           </Col>
         </Row>
@@ -341,7 +358,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
           id="yearOfGraduationId"
           name="yearOfGraduation"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="talent-roaster-components-drawer-index-tsx-index-span-344"
+              className="text-md font-semibold text-gray-700"
+            >
               Year of Graduation
             </span>
           }
@@ -365,7 +385,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
           id="departmentId"
           name="department"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="talent-roaster-components-drawer-index-tsx-index-span-368"
+              className="text-md font-semibold text-gray-700"
+            >
               Department
             </span>
           }
@@ -401,7 +424,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
           id="coverLetterId"
           name="coverLetter"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="talent-roaster-components-drawer-index-tsx-index-span-404"
+              className="text-md font-semibold text-gray-700"
+            >
               Cover Letter
             </span>
           }
@@ -420,7 +446,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
           id="documentNameId"
           name="resumeUrl"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="talent-roaster-components-drawer-index-tsx-index-span-423"
+              className="text-md font-semibold text-gray-700"
+            >
               Upload CV
             </span>
           }
@@ -445,7 +474,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             listType="picture"
             accept=".pdf,.doc,.docx"
           >
-            <p>
+            <p data-cy="talent-roaster-components-drawer-index-tsx-index-p-448">
               <Image
                 preview={false}
                 className="w-full max-w-xs"
@@ -453,15 +482,26 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                 alt="Loading"
               />
             </p>
-            <div className="flex flex-col justify-center items-center text-md font-semibold text-gray-950">
-              <p>Upload your CV</p>
-              <p className="text-gray-400 text-sm font-normal">
+            <div
+              data-cy="talent-roaster-components-drawer-index-tsx-index-div-456"
+              className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
+            >
+              <p data-cy="talent-roaster-components-drawer-index-tsx-index-p-457">
+                Upload your CV
+              </p>
+              <p
+                data-cy="talent-roaster-components-drawer-index-tsx-index-p-458"
+                className="text-gray-400 text-sm font-normal"
+              >
                 or drag and drop it here
               </p>
             </div>
           </Dragger>
         </Form.Item>
-        <div className="text-sm font-md mb-8">
+        <div
+          data-cy="talent-roaster-components-drawer-index-tsx-index-div-464"
+          className="text-sm font-md mb-8"
+        >
           Max file size: 5MB. File formats: .pdf, .doc, .docx
         </div>
       </Form>

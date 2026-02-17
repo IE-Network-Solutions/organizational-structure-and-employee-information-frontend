@@ -68,6 +68,7 @@ const DeleteConfirmationPopover: React.FC<DeleteConfirmationPopoverProps> = ({
         >
           <p
             className="text-base text-gray-900 mb-4 text-center"
+            data-cy="components-common-deleteconfirmationpopover-index-tsx-index-p-69"
             style={{
               lineHeight: '1.4',
               wordBreak: 'break-word',
@@ -77,7 +78,10 @@ const DeleteConfirmationPopover: React.FC<DeleteConfirmationPopoverProps> = ({
           >
             {message}
           </p>
-          <div className="flex justify-center gap-4">
+          <div
+            data-cy="components-common-deleteconfirmationpopover-index-tsx-index-div-80"
+            className="flex justify-center gap-4"
+          >
             <Button
               className="px-6 py-2 text-sm font-bold border border-gray-300 bg-white hover:bg-gray-50"
               onClick={onCancel}

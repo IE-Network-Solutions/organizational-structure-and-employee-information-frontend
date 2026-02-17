@@ -457,7 +457,7 @@ const ViewAttendanceSidebar = () => {
                   />
                 </div>
 
-                <div>
+                <div data-cy="my-timesheet-components-viewattendancesidebar-index-tsx-index-div-460">
                   <div
                     id="time-attendance-view-attendance-sidebar-additional-information-imported-date-label"
                     data-cy="time-attendance-view-attendance-sidebar-additional-information-imported-date-label"

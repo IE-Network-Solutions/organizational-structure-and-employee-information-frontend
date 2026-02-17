@@ -82,7 +82,11 @@ const CustomConfirmPopover: React.FC<CustomConfirmPopoverProps> = ({
   };
 
   return (
-    <div ref={wrapperRef} style={{ width: '100%' }}>
+    <div
+      data-cy="components-common-customconfirmpopover-index-tsx-index-div-85"
+      ref={wrapperRef}
+      style={{ width: '100%' }}
+    >
       <Popover
         open={open}
         onOpenChange={(visible) => setPopoverOpen(popoverId, visible)}
@@ -94,6 +98,7 @@ const CustomConfirmPopover: React.FC<CustomConfirmPopoverProps> = ({
           <div id={id} data-cy={dataCy} style={{ width: '100%' }}>
             <p
               className="text-sm text-gray-900 mb-4 text-left"
+              data-cy="components-common-customconfirmpopover-index-tsx-index-p-99"
               style={{
                 lineHeight: '1.5',
                 wordBreak: 'break-word',
@@ -105,7 +110,10 @@ const CustomConfirmPopover: React.FC<CustomConfirmPopoverProps> = ({
             >
               {title}
             </p>
-            <div className="flex justify-center gap-2">
+            <div
+              data-cy="components-common-customconfirmpopover-index-tsx-index-div-108"
+              className="flex justify-center gap-2"
+            >
               <Button
                 className="px-4 py-1 text-xs font-medium border border-gray-400 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-700 hover:border-gray-400 h-7 min-w-[70px] rounded"
                 onClick={handleCancel}

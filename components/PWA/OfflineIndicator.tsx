@@ -64,14 +64,20 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   const positionClass = position === 'top' ? 'top-4' : 'bottom-4';
 
   return (
-    <div className={`fixed left-4 right-4 z-50 ${positionClass} ${className}`}>
+    <div
+      data-cy="organizational-structure-and-employee-information-frontend-components-pwa-offlineindicator-tsx-offlineindicator-div-67"
+      className={`fixed left-4 right-4 z-50 ${positionClass} ${className}`}
+    >
       {/* Offline Alert */}
       {!isOnline && showOfflineAlert && (
         <Alert
           message="You are offline"
           description={
-            <div className="flex items-center justify-between">
-              <span>
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-pwa-offlineindicator-tsx-offlineindicator-div-73"
+              className="flex items-center justify-between"
+            >
+              <span data-cy="organizational-structure-and-employee-information-frontend-components-pwa-offlineindicator-tsx-offlineindicator-span-74">
                 Some features may be limited. Check your internet connection.
               </span>
               <Button
@@ -103,16 +109,29 @@ export const ConnectionStatus: React.FC<{ className?: string }> = ({
   const { isOnline } = usePWA();
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div
+      data-cy="organizational-structure-and-employee-information-frontend-components-pwa-offlineindicator-tsx-offlineindicator-div-106"
+      className={`flex items-center gap-2 ${className}`}
+    >
       {isOnline ? (
         <>
           <WifiOutlined className="text-green-500" />
-          <span className="text-green-500 text-sm">Online</span>
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-pwa-offlineindicator-tsx-offlineindicator-span-110"
+            className="text-green-500 text-sm"
+          >
+            Online
+          </span>
         </>
       ) : (
         <>
           <DisconnectOutlined className="text-orange-500" />
-          <span className="text-orange-500 text-sm">Offline</span>
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-pwa-offlineindicator-tsx-offlineindicator-span-115"
+            className="text-orange-500 text-sm"
+          >
+            Offline
+          </span>
         </>
       )}
     </div>
