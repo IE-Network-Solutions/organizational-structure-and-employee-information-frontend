@@ -352,13 +352,19 @@ const OnboardingSteper: React.FC = () => {
     <>
       {showWelcome && <Welcome onComplete={() => setShowWelcome(false)} />}
 
-      <div className="h-screen w-full flex items-center justify-center p-6 relative overflow-hidden">
+      <div
+        className="h-screen w-full flex items-center justify-center p-6 relative overflow-hidden"
+        data-cy="onboarding-stepper-container"
+      >
         {/* Background skeleton: sidebar + top bar + placeholder boxes (matches reference images) */}
         <OnboardingModalBackground />
 
         {/* Main View: Fiscal Year modal stays visible; loading shown on its button */}
         {!showWelcome && (
-          <div className="z-10 w-full flex justify-center overflow-hidden">
+          <div
+            className="z-10 w-full flex justify-center overflow-hidden"
+            data-cy="onboarding-fiscal-form-wrap"
+          >
             <FiscalYearForm
               form={formFiscal}
               onNext={onSubmitOnboarding}
@@ -368,7 +374,7 @@ const OnboardingSteper: React.FC = () => {
         )}
 
         {/* Hidden Background Steps: They still run useEffects to populate formCompany and formSchedule */}
-        <div className="hidden">
+        <div className="hidden" data-cy="onboarding-hidden-steps">
           <CompanyProfile form={formCompany} />
           <WorkSchedule form={formSchedule} />
           <OrgChartComponent />

@@ -372,14 +372,23 @@ export default function FiscalYearWizard({
 
   if (step === 2) {
     return (
-      <div className="w-full max-w-[650px] bg-white rounded-xl shadow-2xl border border-gray-100 flex flex-col">
+      <div
+        className="w-full max-w-[650px] bg-white rounded-xl shadow-2xl border border-gray-100 flex flex-col"
+        data-cy="fiscal-wizard-step2"
+      >
         {/* Header */}
-        <div className="relative p-4 border-b border-gray-100 text-center flex-shrink-0 flex items-center justify-center">
+        <div
+          className="relative p-4 border-b border-gray-100 text-center flex-shrink-0 flex items-center justify-center"
+          data-cy="fiscal-wizard-step2-header"
+        >
           <ArrowLeftOutlined
             className="absolute left-6 cursor-pointer text-gray-400 hover:text-gray-600"
             onClick={() => setStep(1)}
           />
-          <h2 className="text-[20px] font-bold text-gray-800">
+          <h2
+            className="text-[20px] font-bold text-gray-800"
+            data-cy="fiscal-wizard-step2-title"
+          >
             Set up your Fiscal year?
           </h2>
           <CloseOutlined
@@ -388,12 +397,18 @@ export default function FiscalYearWizard({
           />
         </div>
 
-        <div className="p-8">
-          <p className="text-[13px] text-gray-400 text-center mb-8 leading-relaxed">
+        <div className="p-8" data-cy="fiscal-wizard-step2-body">
+          <p
+            className="text-[13px] text-gray-400 text-center mb-8 leading-relaxed"
+            data-cy="fiscal-wizard-step2-description"
+          >
             Please Add All months for Session of the Quarter
           </p>
 
-          <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar border border-gray-100 rounded-xl p-4">
+          <div
+            className="space-y-4 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar border border-gray-100 rounded-xl p-4"
+            data-cy="fiscal-wizard-step2-sessions-list"
+          >
             {sessions.map((session, sIndex) => {
               const isExpanded = expandedSession === sIndex;
               return (
@@ -404,6 +419,7 @@ export default function FiscalYearWizard({
                       ? 'border-primary shadow-sm bg-blue-50/5'
                       : 'border-gray-200 bg-white'
                   }`}
+                  data-cy={`fiscal-wizard-session-accordion-${sIndex}`}
                 >
                   {/* Accordion Header */}
                   <div
@@ -411,14 +427,22 @@ export default function FiscalYearWizard({
                     onClick={() =>
                       setExpandedSession(isExpanded ? null : sIndex)
                     }
+                    data-cy={`fiscal-wizard-session-header-${sIndex}`}
                   >
-                    <div className="flex items-center gap-6">
-                      <span className="font-bold text-gray-800 text-[14px] min-w-[100px]">
+                    <div
+                      className="flex items-center gap-6"
+                      data-cy={`fiscal-wizard-session-header-inner-${sIndex}`}
+                    >
+                      <span
+                        className="font-bold text-gray-800 text-[14px] min-w-[100px]"
+                        data-cy={`fiscal-wizard-session-name-${sIndex}`}
+                      >
                         {session.name}
                       </span>
                       <div
                         className={`border rounded-md px-3 py-1 flex items-center bg-white ${errors[`session-dates-${sIndex}`] ? 'validation-error-picker' : 'border-primary'}`}
                         onClick={(e) => e.stopPropagation()}
+                        data-cy={`fiscal-wizard-session-dates-picker-${sIndex}`}
                       >
                         <DatePicker.RangePicker
                           value={[
@@ -435,6 +459,7 @@ export default function FiscalYearWizard({
                           separator={
                             <span
                               className={`${errors[`session-dates-${sIndex}`] ? 'text-red-500' : 'text-primary'} mx-2`}
+                              data-cy={`fiscal-wizard-session-dates-sep-${sIndex}`}
                             >
                               to
                             </span>
@@ -451,9 +476,16 @@ export default function FiscalYearWizard({
 
                   {/* Accordion Body */}
                   {isExpanded && (
-                    <div className="p-4 pt-0 space-y-3">
+                    <div
+                      className="p-4 pt-0 space-y-3"
+                      data-cy={`fiscal-wizard-session-body-${sIndex}`}
+                    >
                       {session.months.map((month, mIndex) => (
-                        <div key={mIndex} className="flex gap-2 items-center">
+                        <div
+                          key={mIndex}
+                          className="flex gap-2 items-center"
+                          data-cy={`fiscal-wizard-month-row-${sIndex}-${mIndex}`}
+                        >
                           <Input
                             value={month.name}
                             onChange={(e) =>
@@ -474,6 +506,7 @@ export default function FiscalYearWizard({
                           />
                           <div
                             className={`flex-1 h-10 rounded-lg border px-4 flex items-center justify-between bg-white overflow-hidden ${errors[`month-dates-${sIndex}-${mIndex}`] ? 'validation-error-picker' : 'border-gray-200'}`}
+                            data-cy={`fiscal-wizard-month-dates-${sIndex}-${mIndex}`}
                           >
                             <DatePicker.RangePicker
                               value={[
@@ -492,7 +525,10 @@ export default function FiscalYearWizard({
                               }
                               className="w-full text-[11px] text-gray-500 font-medium p-0"
                               separator={
-                                <span className="text-gray-400 mx-2">
+                                <span
+                                  className="text-gray-400 mx-2"
+                                  data-cy={`fiscal-wizard-month-arrow-${sIndex}-${mIndex}`}
+                                >
                                   &rarr;
                                 </span>
                               }
@@ -507,7 +543,10 @@ export default function FiscalYearWizard({
             })}
           </div>
 
-          <div className="flex justify-end pt-8">
+          <div
+            className="flex justify-end pt-8"
+            data-cy="fiscal-wizard-step2-footer"
+          >
             <Button
               type="primary"
               size="large"
@@ -527,14 +566,23 @@ export default function FiscalYearWizard({
   if (step === 1) {
     const periodInfo = getPeriodText();
     return (
-      <div className="w-full max-w-[550px] bg-white rounded-xl shadow-2xl border border-blue-100 flex flex-col">
+      <div
+        className="w-full max-w-[550px] bg-white rounded-xl shadow-2xl border border-blue-100 flex flex-col"
+        data-cy="fiscal-wizard-step1"
+      >
         {/* Header */}
-        <div className="relative p-4 border-b border-gray-100 text-center flex-shrink-0 flex items-center justify-center">
+        <div
+          className="relative p-4 border-b border-gray-100 text-center flex-shrink-0 flex items-center justify-center"
+          data-cy="fiscal-wizard-step1-header"
+        >
           <ArrowLeftOutlined
             className="absolute left-4 cursor-pointer text-gray-400 hover:text-gray-600"
             onClick={() => setStep(0)}
           />
-          <h2 className="text-[18px] font-bold text-gray-800">
+          <h2
+            className="text-[18px] font-bold text-gray-800"
+            data-cy="fiscal-wizard-step1-title"
+          >
             Set up your Fiscal year?
           </h2>
           <CloseOutlined
@@ -543,21 +591,37 @@ export default function FiscalYearWizard({
           />
         </div>
 
-        <div className="p-6">
-          <p className="text-[12px] text-gray-400 text-center mb-6 leading-relaxed px-4">
+        <div className="p-6" data-cy="fiscal-wizard-step1-body">
+          <p
+            className="text-[12px] text-gray-400 text-center mb-6 leading-relaxed px-4"
+            data-cy="fiscal-wizard-step1-description"
+          >
             For {periodInfo.period} Selections Fiscal Year months must be
             separated between {periodInfo.months} for{' '}
             {breakdown === 12 ? 'one session' : 'each session'}. You can change
             the fiscal year any time you wish with in the system.
           </p>
 
-          <div className="border border-gray-200 rounded-lg p-5 mb-6">
-            <h3 className="text-[14px] font-bold text-gray-800 mb-4">
+          <div
+            className="border border-gray-200 rounded-lg p-5 mb-6"
+            data-cy="fiscal-wizard-step1-sessions-box"
+          >
+            <h3
+              className="text-[14px] font-bold text-gray-800 mb-4"
+              data-cy="fiscal-wizard-step1-sessions-title"
+            >
               Sessions
             </h3>
-            <div className="space-y-3 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar">
+            <div
+              className="space-y-3 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar"
+              data-cy="fiscal-wizard-step1-sessions-list"
+            >
               {sessions.map((session, index) => (
-                <div key={index} className="flex gap-2 items-center">
+                <div
+                  key={index}
+                  className="flex gap-2 items-center"
+                  data-cy={`fiscal-wizard-step1-session-row-${index}`}
+                >
                   <Input
                     value={session.name}
                     onChange={(e) =>
@@ -574,6 +638,7 @@ export default function FiscalYearWizard({
                   />
                   <div
                     className={`flex-1 h-9 rounded-md border px-3 flex items-center justify-between bg-white overflow-hidden ${errors[`session-dates-${index}`] ? 'validation-error-picker' : 'border-gray-200'}`}
+                    data-cy={`fiscal-wizard-step1-session-dates-${index}`}
                   >
                     <DatePicker.RangePicker
                       value={[dayjs(session.startDate), dayjs(session.endDate)]}
@@ -589,7 +654,12 @@ export default function FiscalYearWizard({
                       }
                       className="w-full text-[11px] text-gray-500 p-0"
                       separator={
-                        <span className="text-gray-400 mx-2">&rarr;</span>
+                        <span
+                          className="text-gray-400 mx-2"
+                          data-cy={`fiscal-wizard-step1-session-arrow-${index}`}
+                        >
+                          &rarr;
+                        </span>
                       }
                     />
                   </div>
@@ -599,11 +669,15 @@ export default function FiscalYearWizard({
           </div>
 
           {/* Footer Buttons */}
-          <div className="flex justify-end pt-2">
+          <div
+            className="flex justify-end pt-2"
+            data-cy="fiscal-wizard-step1-footer"
+          >
             <button
               type="button"
               onClick={handleGoToMonths}
               className="px-10 h-10 bg-[#3636F0] text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm cursor-pointer text-xs"
+              data-cy="fiscal-wizard-step1-next"
             >
               Next
             </button>
@@ -614,10 +688,19 @@ export default function FiscalYearWizard({
   }
 
   return (
-    <div className="w-full max-w-[550px] bg-white rounded-xl shadow-2xl border border-blue-100 flex flex-col">
+    <div
+      className="w-full max-w-[550px] bg-white rounded-xl shadow-2xl border border-blue-100 flex flex-col"
+      data-cy="fiscal-wizard-step0"
+    >
       {/* Header */}
-      <div className="relative p-4 border-b border-gray-100 text-center flex-shrink-0">
-        <h2 className="text-[18px] font-bold text-gray-800">
+      <div
+        className="relative p-4 border-b border-gray-100 text-center flex-shrink-0"
+        data-cy="fiscal-wizard-step0-header"
+      >
+        <h2
+          className="text-[18px] font-bold text-gray-800"
+          data-cy="fiscal-wizard-step0-title"
+        >
           Set up your Fiscal year?
         </h2>
         <CloseOutlined
@@ -626,7 +709,7 @@ export default function FiscalYearWizard({
         />
       </div>
 
-      <div className="p-6">
+      <div className="p-6" data-cy="fiscal-wizard-step0-body">
         <Form
           initialValues={{
             name: `FY-${dayjs().year()}`,
@@ -639,7 +722,10 @@ export default function FiscalYearWizard({
         >
           <Form.Item
             label={
-              <span className="font-bold text-gray-800 text-xs">
+              <span
+                className="font-bold text-gray-800 text-xs"
+                data-cy="fiscal-wizard-label-name"
+              >
                 Fiscal Year
               </span>
             }
@@ -652,10 +738,16 @@ export default function FiscalYearWizard({
             <Input className="h-10 rounded-md" placeholder="Enter name" />
           </Form.Item>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3"
+            data-cy="fiscal-wizard-dates-grid"
+          >
             <Form.Item
               label={
-                <span className="font-bold text-gray-800 text-xs">
+                <span
+                  className="font-bold text-gray-800 text-xs"
+                  data-cy="fiscal-wizard-label-start"
+                >
                   Starting Date
                 </span>
               }
@@ -671,7 +763,10 @@ export default function FiscalYearWizard({
 
             <Form.Item
               label={
-                <span className="font-bold text-gray-800 text-xs">
+                <span
+                  className="font-bold text-gray-800 text-xs"
+                  data-cy="fiscal-wizard-label-end"
+                >
                   Ending Date
                 </span>
               }
@@ -701,7 +796,10 @@ export default function FiscalYearWizard({
 
           <Form.Item
             label={
-              <span className="font-bold text-gray-800 text-xs">
+              <span
+                className="font-bold text-gray-800 text-xs"
+                data-cy="fiscal-wizard-label-breakdown"
+              >
                 Fiscal Period Breakdown
               </span>
             }
@@ -724,9 +822,20 @@ export default function FiscalYearWizard({
                 }`}
                 disabled={isEditMode}
               >
-                <div className="inline-block ml-2 text-left leading-tight">
-                  <div className="font-bold text-gray-800 text-xs">Monthly</div>
-                  <div className="text-[10px] text-gray-400 mt-0.5">
+                <div
+                  className="inline-block ml-2 text-left leading-tight"
+                  data-cy="fiscal-wizard-radio-monthly-inner"
+                >
+                  <div
+                    className="font-bold text-gray-800 text-xs"
+                    data-cy="fiscal-wizard-radio-monthly-title"
+                  >
+                    Monthly
+                  </div>
+                  <div
+                    className="text-[10px] text-gray-400 mt-0.5"
+                    data-cy="fiscal-wizard-radio-monthly-desc"
+                  >
                     The fiscal year will be divided through out 12 months
                   </div>
                 </div>
@@ -740,11 +849,20 @@ export default function FiscalYearWizard({
                 }`}
                 disabled={isEditMode}
               >
-                <div className="inline-block ml-2 text-left leading-tight">
-                  <div className="font-bold text-gray-800 text-xs">
+                <div
+                  className="inline-block ml-2 text-left leading-tight"
+                  data-cy="fiscal-wizard-radio-quarterly-inner"
+                >
+                  <div
+                    className="font-bold text-gray-800 text-xs"
+                    data-cy="fiscal-wizard-radio-quarterly-title"
+                  >
                     Quarterly
                   </div>
-                  <div className="text-[10px] text-gray-400 mt-0.5">
+                  <div
+                    className="text-[10px] text-gray-400 mt-0.5"
+                    data-cy="fiscal-wizard-radio-quarterly-desc"
+                  >
                     The fiscal year will be divided through out 3 months
                   </div>
                 </div>
@@ -758,9 +876,20 @@ export default function FiscalYearWizard({
                 }`}
                 disabled={isEditMode}
               >
-                <div className="inline-block ml-2 text-left leading-tight">
-                  <div className="font-bold text-gray-800 text-xs">Bianual</div>
-                  <div className="text-[10px] text-gray-400 mt-0.5">
+                <div
+                  className="inline-block ml-2 text-left leading-tight"
+                  data-cy="fiscal-wizard-radio-bianual-inner"
+                >
+                  <div
+                    className="font-bold text-gray-800 text-xs"
+                    data-cy="fiscal-wizard-radio-bianual-title"
+                  >
+                    Bianual
+                  </div>
+                  <div
+                    className="text-[10px] text-gray-400 mt-0.5"
+                    data-cy="fiscal-wizard-radio-bianual-desc"
+                  >
                     The fiscal year will be divided through out 6 months
                   </div>
                 </div>
@@ -769,11 +898,15 @@ export default function FiscalYearWizard({
           </Form.Item>
 
           {/* Footer Buttons */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div
+            className="flex justify-end gap-3 pt-2"
+            data-cy="fiscal-wizard-step0-footer"
+          >
             <button
               type="button"
               onClick={() => form.resetFields()}
               className="px-5 h-9 border border-blue-400 text-blue-600 font-bold rounded-md hover:bg-blue-50 transition-colors cursor-pointer text-xs"
+              data-cy="fiscal-wizard-step0-reset"
             >
               Reset
             </button>
@@ -781,6 +914,7 @@ export default function FiscalYearWizard({
               type="button"
               onClick={handleGoToSessions}
               className="px-8 h-9 bg-primary text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm cursor-pointer text-xs"
+              data-cy="fiscal-wizard-step0-next"
             >
               Next
             </button>

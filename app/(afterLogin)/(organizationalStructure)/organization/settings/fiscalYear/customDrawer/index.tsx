@@ -177,7 +177,10 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="flex justify-start text-base font-bold text-gray-800">
+        <h1
+          className="flex justify-start text-base font-bold text-gray-800"
+          data-cy="fiscal-year-drawer-title"
+        >
           {isEditMode ? 'Edit Fiscal Year' : 'Add New Fiscal Year'}
         </h1>
       }
@@ -187,11 +190,20 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       footer={null}
       customPadding="0px"
     >
-      <div className="p-0 h-full overflow-y-auto">
-        <div style={{ display: current === 0 ? 'block' : 'none' }}>
+      <div
+        className="p-0 h-full overflow-y-auto"
+        data-cy="fiscal-year-drawer-body"
+      >
+        <div
+          style={{ display: current === 0 ? 'block' : 'none' }}
+          data-cy="fiscal-year-drawer-step-0"
+        >
           <FiscalYearForm form={form1} />
         </div>
-        <div style={{ display: current === 1 ? 'block' : 'none' }}>
+        <div
+          style={{ display: current === 1 ? 'block' : 'none' }}
+          data-cy="fiscal-year-drawer-step-1"
+        >
           <SessionDrawer
             isCreateLoading={createIsLoading}
             isUpdateLoading={updateIsLoading}
@@ -199,7 +211,10 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
             isFiscalYear={true}
           />
         </div>
-        <div style={{ display: current === 2 ? 'block' : 'none' }}>
+        <div
+          style={{ display: current === 2 ? 'block' : 'none' }}
+          data-cy="fiscal-year-drawer-step-2"
+        >
           <MonthDrawer
             isCreateLoading={createIsLoading}
             isUpdateLoading={updateIsLoading}
