@@ -158,16 +158,10 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
   if (!jobId) {
     return (
       <div
-        id="ai-job-detail-not-found"
-        data-cy="ai-job-detail-not-found"
+        data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-160"
         className="flex items-center justify-center min-h-96"
       >
-        <div
-          id="ai-job-detail-not-found-empty"
-          data-cy="ai-job-detail-not-found-empty"
-        >
-          <Empty description="Job not found" />
-        </div>
+        <Empty description="Job not found" />
       </div>
     );
   }
@@ -175,16 +169,10 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
   if (isMatchesLoading) {
     return (
       <div
-        id="ai-job-detail-loading"
-        data-cy="ai-job-detail-loading"
+        data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-168"
         className="flex items-center justify-center min-h-screen bg-gray-50"
       >
-        <div
-          id="ai-job-detail-loading-spinner"
-          data-cy="ai-job-detail-loading-spinner"
-        >
-          <Spin size="large" />
-        </div>
+        <Spin size="large" />
       </div>
     );
   }
@@ -196,7 +184,10 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
         className="bg-white px-6 py-4 border-b border-gray-200"
         data-cy="ai-job-detail-header"
       >
-        <div className="flex items-center gap-4">
+        <div
+          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-181"
+          className="flex items-center gap-4"
+        >
           <Button
             type="text"
             onClick={() => router.push('/recruitment/ai-job-matching')}
@@ -204,42 +195,75 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
           >
             G�� Back
           </Button>
-          <div className="flex-1">
-            <h1 className="text-xl font-semibold text-gray-900">
+          <div
+            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-189"
+            className="flex-1"
+          >
+            <h1
+              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-h1-190"
+              className="text-xl font-semibold text-gray-900"
+            >
               AI Job Matching
             </h1>
-            <p className="text-sm text-gray-500">
+            <p
+              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-193"
+              className="text-sm text-gray-500"
+            >
               Match candidates to jobs using AI-powered analysis
             </p>
           </div>
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div
+        data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-200"
+        className="p-6 space-y-6"
+      >
         {/* Job Info Card */}
         {jobDetails && (
           <Card
             className="rounded-2xl border border-gray-200 shadow-sm"
             data-cy="ai-job-detail-summary-card"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <div
+              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-207"
+              className="flex items-start justify-between mb-4"
+            >
+              <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-208">
+                <h2
+                  data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-h2-209"
+                  className="text-2xl font-bold text-gray-900 mb-2"
+                >
                   {jobDetails.jobTitle}
                 </h2>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                  {jobDetails.location && <span>{jobDetails.location}</span>}
-                  <span>G��</span>
-                  <span>
+                <div
+                  data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-212"
+                  className="flex flex-wrap items-center gap-4 text-sm text-gray-600"
+                >
+                  {jobDetails.location && (
+                    <span data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-213">
+                      {jobDetails.location}
+                    </span>
+                  )}
+                  <span data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-214">
+                    G��
+                  </span>
+                  <span data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-215">
                     Posted {dayjs(jobDetails.createdAt).format('DD MMM YYYY')}
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-2">
+              <div
+                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-220"
+                className="flex flex-col items-end gap-2"
+              >
                 <Tag color="green" className="text-sm px-3 py-1 rounded">
                   Active
                 </Tag>
-                <span className="text-xs text-gray-500">
+                <span
+                  data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-224"
+                  className="text-xs text-gray-500"
+                >
                   Last Analyzed G��{' '}
                   {dayjs(matchResponse?.analysisTimestamp).fromNow()}
                 </span>
@@ -251,14 +275,12 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
 
         {/* Candidates + Detail layout */}
         <div
-          id="ai-job-detail-layout"
-          data-cy="ai-job-detail-layout"
+          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-235"
           className="flex flex-col lg:flex-row gap-6"
         >
           {/* Candidates List - Left */}
           <div
-            id="ai-job-detail-candidates-list"
-            data-cy="ai-job-detail-candidates-list"
+            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-237"
             className="w-full lg:w-1/2 space-y-4"
           >
             {sortedCandidates.length === 0 ? (
@@ -306,8 +328,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                     onClick={() => handleOpenDetails(candidate)}
                   >
                     <div
-                      id={`ai-candidate-card-${candidate.candidateId}-body`}
-                      data-cy={`ai-candidate-card-${candidate.candidateId}-body`}
+                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-271"
                       className="flex items-start gap-4"
                     >
                       {/* Avatar */}
@@ -323,50 +344,42 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
 
                       {/* Candidate Info */}
                       <div
-                        id={`ai-candidate-info-${candidate.candidateId}`}
-                        data-cy={`ai-candidate-info-${candidate.candidateId}`}
+                        data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-276"
                         className="flex-1 min-w-0"
                       >
                         <div
-                          id={`ai-candidate-basic-info-${candidate.candidateId}`}
-                          data-cy={`ai-candidate-basic-info-${candidate.candidateId}`}
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-277"
                           className="flex items-start justify-between mb-3"
                         >
                           <div
-                            id={`ai-candidate-name-email-phone-${candidate.candidateId}`}
-                            data-cy={`ai-candidate-name-email-phone-${candidate.candidateId}`}
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-278"
                             className="flex-1 min-w-0"
                           >
                             <h3
-                              id={`ai-candidate-name-${candidate.candidateId}`}
-                              data-cy={`ai-candidate-name-${candidate.candidateId}`}
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-h3-279"
                               className="text-lg font-semibold text-gray-900"
                             >
                               {candidate.candidate.fullName}
                             </h3>
                             <p
-                              id={`ai-candidate-email-${candidate.candidateId}`}
-                              data-cy={`ai-candidate-email-${candidate.candidateId}`}
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-282"
                               className="text-sm text-gray-600"
                             >
                               {candidate.candidate.email}
                             </p>
                             <p
-                              id={`ai-candidate-phone-${candidate.candidateId}`}
-                              data-cy={`ai-candidate-phone-${candidate.candidateId}`}
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-285"
                               className="text-sm text-gray-600"
                             >
                               {candidate.candidate.phone}
                             </p>
                           </div>
                           <div
-                            id={`ai-candidate-score-container-${candidate.candidateId}`}
-                            data-cy={`ai-candidate-score-container-${candidate.candidateId}`}
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-289"
                             className="text-right flex-shrink-0 ml-4"
                           >
                             <div
-                              id={`ai-candidate-score-${candidate.candidateId}`}
-                              data-cy={`ai-candidate-score-${candidate.candidateId}`}
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-290"
                               className={`text-3xl font-bold ${scoreColor}`}
                             >
                               {candidate.matchScore}%
@@ -376,8 +389,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
 
                         {/* Short summary from Azure matchReasons */}
                         <p
-                          id={`ai-candidate-summary-${candidate.candidateId}`}
-                          data-cy={`ai-candidate-summary-${candidate.candidateId}`}
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-297"
                           className="text-sm text-gray-700 mb-4"
                         >
                           {primaryReason}
@@ -385,20 +397,15 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
 
                         {/* Matched skills from Azure (up to 5) */}
                         {topMatchedSkills.length > 0 && (
-                          <div
-                            id={`ai-candidate-skill-matching-${candidate.candidateId}`}
-                            data-cy={`ai-candidate-skill-matching-${candidate.candidateId}`}
-                          >
+                          <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-303">
                             <div
-                              id={`ai-candidate-skill-matching-label-${candidate.candidateId}`}
-                              data-cy={`ai-candidate-skill-matching-label-${candidate.candidateId}`}
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-304"
                               className="text-xs font-medium text-gray-700 mb-2"
                             >
                               Matched skills
                             </div>
                             <div
-                              id={`ai-candidate-skill-chips-${candidate.candidateId}`}
-                              data-cy={`ai-candidate-skill-chips-${candidate.candidateId}`}
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-307"
                               className="flex flex-wrap gap-2"
                             >
                               {topMatchedSkills.map((skill, idx) => (
@@ -439,8 +446,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
           {/* Details Panel - Right (only when there are candidates) */}
           {sortedCandidates.length > 0 && (
             <div
-              id="ai-candidate-detail-panel-container"
-              data-cy="ai-candidate-detail-panel-container"
+              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-341"
               className="w-full lg:w-1/2 shrink-0"
             >
               <Card
@@ -464,16 +470,14 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                     ) : (
                       <>
                         <p
-                          id="ai-candidate-detail-empty-message"
-                          data-cy="ai-candidate-detail-empty-message"
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-355"
                           className="text-sm font-medium text-gray-700"
                         >
                           Select a candidate on the left to view AI match
                           details
                         </p>
                         <p
-                          id="ai-candidate-detail-empty-hint"
-                          data-cy="ai-candidate-detail-empty-hint"
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-359"
                           className="text-xs text-gray-500"
                         >
                           You can compare different candidates by clicking their
@@ -483,22 +487,43 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="h-full flex flex-col">
+                  <div
+                    data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-367"
+                    className="h-full flex flex-col"
+                  >
                     {/* Header */}
-                    <div className="pb-4 border-b border-gray-200">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 flex-1">
+                    <div
+                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-369"
+                      className="pb-4 border-b border-gray-200"
+                    >
+                      <div
+                        data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-370"
+                        className="flex items-start justify-between gap-3"
+                      >
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-371"
+                          className="flex items-center gap-3 flex-1"
+                        >
                           <Avatar
                             size={48}
                             className="bg-blue-500 flex-shrink-0"
                           />
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 truncate">
+                          <div
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-376"
+                            className="flex-1 min-w-0"
+                          >
+                            <h3
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-h3-377"
+                              className="text-lg font-semibold text-gray-900 truncate"
+                            >
                               {selectedCandidate.candidate.fullName ||
                                 'Name not provided'}
                             </h3>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
-                              <span>
+                            <div
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-381"
+                              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700"
+                            >
+                              <span data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-382">
                                 {selectedCandidate.matchScore}% Overall Match
                               </span>
                             </div>
@@ -523,17 +548,39 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                       </div>
 
                       {/* Contact Info */}
-                      <div className="mt-4 space-y-2 text-sm text-gray-700">
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-400">@</span>
-                          <span className="truncate">
+                      <div
+                        data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-407"
+                        className="mt-4 space-y-2 text-sm text-gray-700"
+                      >
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-408"
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-409"
+                            className="text-gray-400"
+                          >
+                            @
+                          </span>
+                          <span
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-410"
+                            className="truncate"
+                          >
                             {selectedCandidate.candidate.email ||
                               'Email not provided'}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-400">=��P</span>
-                          <span>
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-415"
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-416"
+                            className="text-gray-400"
+                          >
+                            =��P
+                          </span>
+                          <span data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-417">
                             {selectedCandidate.candidate.phone ||
                               'Phone number not provided'}
                           </span>
@@ -542,27 +589,66 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                     </div>
 
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto pt-4 space-y-6">
+                    <div
+                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-426"
+                      className="flex-1 overflow-y-auto pt-4 space-y-6"
+                    >
                       {/* Candidate Overview (from Azure data) */}
-                      <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-gray-600">=���</span>
-                          <span className="font-semibold text-gray-900">
+                      <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-428">
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-429"
+                          className="flex items-center gap-2 mb-3"
+                        >
+                          <span
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-430"
+                            className="text-gray-600"
+                          >
+                            =���
+                          </span>
+                          <span
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-431"
+                            className="font-semibold text-gray-900"
+                          >
                             Candidate overview
                           </span>
                         </div>
-                        <div className="space-y-2 text-sm text-gray-700">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-600">Stage</span>
-                            <span className="font-medium">
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-435"
+                          className="space-y-2 text-sm text-gray-700"
+                        >
+                          <div
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-436"
+                            className="flex items-center justify-between gap-2"
+                          >
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-437"
+                              className="text-gray-600"
+                            >
+                              Stage
+                            </span>
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-438"
+                              className="font-medium"
+                            >
                               {selectedCandidate.jobCandidate
                                 ?.applicantStatusStage?.title ||
                                 'No stage information'}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-600">Location</span>
-                            <span className="font-medium">
+                          <div
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-444"
+                            className="flex items-center justify-between gap-2"
+                          >
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-445"
+                              className="text-gray-600"
+                            >
+                              Location
+                            </span>
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-446"
+                              className="font-medium"
+                            >
                               {[
                                 matchDetails?.candidate?.city,
                                 matchDetails?.candidate?.country,
@@ -571,9 +657,20 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 .join(', ') || 'Location not provided'}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-600">CGPA</span>
-                            <span className="font-medium">
+                          <div
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-455"
+                            className="flex items-center justify-between gap-2"
+                          >
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-456"
+                              className="text-gray-600"
+                            >
+                              CGPA
+                            </span>
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-457"
+                              className="font-medium"
+                            >
                               {matchDetails?.candidate?.CGPA != null
                                 ? matchDetails.candidate.CGPA
                                 : 'Not provided in resume'}
@@ -583,19 +680,42 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                       </div>
 
                       {/* Experience Section (from Azure blob data) */}
-                      <div>
-                        <div className="border-t border-gray-200" />
-                        <div className="pt-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className="text-gray-700">=��+</span>
-                            <span className="font-semibold text-gray-900">
+                      <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-467">
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-468"
+                          className="border-t border-gray-200"
+                        />
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-469"
+                          className="pt-4"
+                        >
+                          <div
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-470"
+                            className="flex items-center gap-2 mb-3"
+                          >
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-471"
+                              className="text-gray-700"
+                            >
+                              =��+
+                            </span>
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-472"
+                              className="font-semibold text-gray-900"
+                            >
                               Experience
                             </span>
                           </div>
-                          <div className="space-y-3 text-sm text-gray-700">
+                          <div
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-476"
+                            className="space-y-3 text-sm text-gray-700"
+                          >
                             {(matchDetails?.candidate?.experience?.length ??
                               0) === 0 && (
-                              <p className="text-xs text-gray-500">
+                              <p
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-479"
+                                className="text-xs text-gray-500"
+                              >
                                 No experience information provided.
                               </p>
                             )}
@@ -603,17 +723,27 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               (exp, idx) => (
                                 <div
                                   key={idx}
+                                  data-cy={`previous-job-detail-page-tsx-previous_job_detail_page-div-694-${idx}`}
                                   className="flex items-start justify-between gap-2"
                                 >
-                                  <div>
-                                    <p className="font-medium text-gray-900">
+                                  <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-489">
+                                    <p
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-490"
+                                      className="font-medium text-gray-900"
+                                    >
                                       {exp.role || 'Role not specified'}
                                     </p>
-                                    <p className="text-gray-600">
+                                    <p
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-493"
+                                      className="text-gray-600"
+                                    >
                                       {exp.company || 'Company not specified'}
                                     </p>
                                   </div>
-                                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                                  <span
+                                    data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-497"
+                                    className="text-xs text-gray-500 whitespace-nowrap"
+                                  >
                                     {[exp.startDate, exp.endDate]
                                       .filter(Boolean)
                                       .join(' - ') || 'Dates not provided'}
@@ -626,19 +756,42 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                       </div>
 
                       {/* Education Section (from Azure blob data) */}
-                      <div>
-                        <div className="border-t border-gray-200" />
-                        <div className="pt-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className="text-gray-700">=���</span>
-                            <span className="font-semibold text-gray-900">
+                      <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-510">
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-511"
+                          className="border-t border-gray-200"
+                        />
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-512"
+                          className="pt-4"
+                        >
+                          <div
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-513"
+                            className="flex items-center gap-2 mb-3"
+                          >
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-514"
+                              className="text-gray-700"
+                            >
+                              =���
+                            </span>
+                            <span
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-515"
+                              className="font-semibold text-gray-900"
+                            >
                               Education
                             </span>
                           </div>
-                          <div className="space-y-3 text-sm text-gray-700">
+                          <div
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-519"
+                            className="space-y-3 text-sm text-gray-700"
+                          >
                             {(matchDetails?.candidate?.education?.length ??
                               0) === 0 && (
-                              <p className="text-xs text-gray-500">
+                              <p
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-522"
+                                className="text-xs text-gray-500"
+                              >
                                 No education information provided.
                               </p>
                             )}
@@ -646,18 +799,28 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               (edu, idx) => (
                                 <div
                                   key={idx}
+                                  data-cy={`previous-job-detail-page-tsx-previous_job_detail_page-div-769-${idx}`}
                                   className="flex items-start justify-between gap-2"
                                 >
-                                  <div>
-                                    <p className="font-medium text-gray-900">
+                                  <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-532">
+                                    <p
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-533"
+                                      className="font-medium text-gray-900"
+                                    >
                                       {edu.degree || 'Education'}
                                     </p>
-                                    <p className="text-gray-600">
+                                    <p
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-536"
+                                      className="text-gray-600"
+                                    >
                                       {edu.institution ||
                                         'Institution not specified'}
                                     </p>
                                   </div>
-                                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                                  <span
+                                    data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-541"
+                                    className="text-xs text-gray-500 whitespace-nowrap"
+                                  >
                                     {[edu.startYear, edu.endYear]
                                       .filter(Boolean)
                                       .join(' - ') || 'Years not provided'}
@@ -669,33 +832,57 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="border-t border-gray-200" />
+                      <div
+                        data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-553"
+                        className="border-t border-gray-200"
+                      />
 
                       {/* Skill Analysis Section */}
-                      <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="font-semibold text-gray-900">
+                      <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-556">
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-557"
+                          className="flex items-center gap-2 mb-3"
+                        >
+                          <span
+                            data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-558"
+                            className="font-semibold text-gray-900"
+                          >
                             Skill Analysis
                           </span>
                         </div>
-                        <div className="space-y-2 text-sm">
+                        <div
+                          data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-562"
+                          className="space-y-2 text-sm"
+                        >
                           {/* Matched skills */}
                           {visibleMatchedSkills.length > 0 && (
-                            <div>
-                              <p className="text-xs font-semibold text-gray-700 mb-1">
+                            <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-565">
+                              <p
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-566"
+                                className="text-xs font-semibold text-gray-700 mb-1"
+                              >
                                 Matched skills
                               </p>
-                              <div className="flex flex-wrap gap-2">
+                              <div
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-569"
+                                className="flex flex-wrap gap-2"
+                              >
                                 {visibleMatchedSkills.map((skill, idx) => (
                                   <div
                                     key={`matched-skill-${idx}`}
                                     className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1"
                                     data-cy="ai-skill-matched"
                                   >
-                                    <span className="text-green-600 text-xs">
+                                    <span
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-576"
+                                      className="text-green-600 text-xs"
+                                    >
                                       G��
                                     </span>
-                                    <span className="text-gray-800 text-xs">
+                                    <span
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-579"
+                                      className="text-gray-800 text-xs"
+                                    >
                                       {skill}
                                     </span>
                                   </div>
@@ -732,20 +919,15 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
 
                           {/* Missing skills */}
                           {visibleMissingSkills.length > 0 && (
-                            <div
-                              id="ai-candidate-detail-missing-skills"
-                              data-cy="ai-candidate-detail-missing-skills"
-                            >
+                            <div data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-616">
                               <p
-                                id="ai-candidate-detail-missing-skills-label"
-                                data-cy="ai-candidate-detail-missing-skills-label"
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-617"
                                 className="text-xs font-semibold text-gray-700 mb-1"
                               >
                                 Missing skills
                               </p>
                               <div
-                                id="ai-candidate-detail-missing-skills-list"
-                                data-cy="ai-candidate-detail-missing-skills-list"
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-620"
                                 className="flex flex-wrap gap-2"
                               >
                                 {visibleMissingSkills.map((skill, idx) => (
@@ -756,15 +938,13 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     data-cy={`ai-skill-missing-${idx}`}
                                   >
                                     <span
-                                      id={`ai-skill-missing-${idx}-icon`}
-                                      data-cy={`ai-skill-missing-${idx}-icon`}
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-627"
                                       className="text-red-600 text-xs"
                                     >
                                       !
                                     </span>
                                     <span
-                                      id={`ai-skill-missing-${idx}-text`}
-                                      data-cy={`ai-skill-missing-${idx}-text`}
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-630"
                                       className="text-gray-800 text-xs"
                                     >
                                       {skill}
@@ -806,20 +986,17 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           {/* Strengths */}
                           {visibleStrengths.length > 0 && (
                             <div
-                              id="ai-candidate-detail-strengths"
-                              data-cy="ai-candidate-detail-strengths"
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-667"
                               className="pt-1"
                             >
                               <p
-                                id="ai-candidate-detail-strengths-label"
-                                data-cy="ai-candidate-detail-strengths-label"
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-668"
                                 className="text-xs font-semibold text-gray-700 mb-1"
                               >
                                 Strengths
                               </p>
                               <div
-                                id="ai-candidate-detail-strengths-list"
-                                data-cy="ai-candidate-detail-strengths-list"
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-671"
                                 className="space-y-1.5"
                               >
                                 {visibleStrengths.map((item, idx) => (
@@ -830,13 +1007,11 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     data-cy={`ai-strength-${idx}`}
                                   >
                                     <div
-                                      id={`ai-strength-${idx}-dot`}
-                                      data-cy={`ai-strength-${idx}-dot`}
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-678"
                                       className="mt-1 h-1.5 w-1.5 rounded-full bg-green-500"
                                     />
                                     <p
-                                      id={`ai-strength-${idx}-text`}
-                                      data-cy={`ai-strength-${idx}-text`}
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-679"
                                       className="text-xs text-gray-800"
                                     >
                                       {item}
@@ -873,20 +1048,17 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                           {/* Concerns */}
                           {visibleConcerns.length > 0 && (
                             <div
-                              id="ai-candidate-detail-concerns"
-                              data-cy="ai-candidate-detail-concerns"
+                              data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-711"
                               className="pt-1"
                             >
                               <p
-                                id="ai-candidate-detail-concerns-label"
-                                data-cy="ai-candidate-detail-concerns-label"
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-712"
                                 className="text-xs font-semibold text-gray-700 mb-1"
                               >
                                 Areas to review
                               </p>
                               <div
-                                id="ai-candidate-detail-concerns-list"
-                                data-cy="ai-candidate-detail-concerns-list"
+                                data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-715"
                                 className="space-y-1.5"
                               >
                                 {visibleConcerns.map((item, idx) => (
@@ -897,13 +1069,11 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                     data-cy={`ai-concern-${idx}`}
                                   >
                                     <div
-                                      id={`ai-concern-${idx}-dot`}
-                                      data-cy={`ai-concern-${idx}-dot`}
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-722"
                                       className="mt-1 h-1.5 w-1.5 rounded-full bg-red-500"
                                     />
                                     <p
-                                      id={`ai-concern-${idx}-text`}
-                                      data-cy={`ai-concern-${idx}-text`}
+                                      data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-p-723"
                                       className="text-xs text-gray-800"
                                     >
                                       {item}

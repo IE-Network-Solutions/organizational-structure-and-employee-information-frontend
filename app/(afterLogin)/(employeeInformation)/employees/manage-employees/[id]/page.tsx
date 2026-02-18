@@ -210,30 +210,50 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
             >
               <Tooltip
                 title={
-                  <div className="text-sm text-black">
-                    <div className="space-y-1">
+                  <div
+                    className="text-sm text-black"
+                    data-cy="employee-actions-tooltip-content"
+                  >
+                    <div
+                      className="space-y-1"
+                      data-cy="employee-actions-tooltip-list"
+                    >
                       {employeeData?.deletedAt === null &&
                         (resignationSubmittedDate === null ? (
-                          <div>
-                            • <strong>Initiate Resignation:</strong> starts
-                            removing the employee
+                          <div data-cy="employee-actions-tooltip-initiate-resignation">
+                            •{' '}
+                            <strong data-cy="employee-actions-tooltip-initiate-resignation-label">
+                              Initiate Resignation:
+                            </strong>{' '}
+                            starts removing the employee
                           </div>
                         ) : (
-                          <div>
-                            • <strong>End Employment:</strong> completes the
-                            employment termination after resignation
+                          <div data-cy="employee-actions-tooltip-end-employment">
+                            •{' '}
+                            <strong data-cy="employee-actions-tooltip-end-employment-label">
+                              End Employment:
+                            </strong>{' '}
+                            completes the employment termination after
+                            resignation
                           </div>
                         ))}
                       {resignationSubmittedDate === null &&
                         (employeeData?.deletedAt === null ? (
-                          <div>
-                            • <strong>Deactivate Employee:</strong> revokes the
-                            employees access
+                          <div data-cy="employee-actions-tooltip-deactivate">
+                            •{' '}
+                            <strong data-cy="employee-actions-tooltip-deactivate-label">
+                              Deactivate Employee:
+                            </strong>{' '}
+                            revokes the employees access
                           </div>
                         ) : (
-                          <div>
-                            • <strong>ReActivate Employee:</strong> reactivates
-                            a previously deactivated employee account
+                          <div data-cy="employee-actions-tooltip-reactivate">
+                            •{' '}
+                            <strong data-cy="employee-actions-tooltip-reactivate-label">
+                              ReActivate Employee:
+                            </strong>{' '}
+                            reactivates a previously deactivated employee
+                            account
                           </div>
                         ))}
                     </div>
@@ -432,7 +452,10 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
             id="employee-detail-rehire-form-actions"
             data-cy="employee-detail-rehire-form-actions"
           >
-            <div className="flex justify-end gap-3">
+            <div
+              className="flex justify-end gap-3"
+              data-cy="employee-detail-rehire-form-actions-buttons"
+            >
               <Button
                 loading={rehireLoading}
                 type="primary"

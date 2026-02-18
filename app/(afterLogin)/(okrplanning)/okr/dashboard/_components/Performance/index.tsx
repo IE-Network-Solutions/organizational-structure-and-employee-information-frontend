@@ -455,7 +455,9 @@ const Performance: React.FC = () => {
           value={selectedFilter}
           onChange={handleFilterChange}
           suffixIcon={
-            <DownOutlined data-cy="okr-performance-admin-period-filter-icon-display-icon" />
+            <div data-cy="okr-performance-admin-period-filter-icon-wrapper">
+              <DownOutlined data-cy="okr-performance-admin-period-filter-icon-display-icon" />
+            </div>
           }
           className="w-20 rounded-lg"
           options={[

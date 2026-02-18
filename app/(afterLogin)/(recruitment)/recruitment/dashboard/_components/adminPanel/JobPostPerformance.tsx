@@ -72,12 +72,28 @@ const JobPostPerformance = () => {
   });
 
   const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+    <div
+      data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-75"
+      className="flex flex-col gap-4"
+    >
+      <h3
+        data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-h3-76"
+        className="text-lg font-medium mb-2"
+      >
+        Filter
+      </h3>
 
       {/* Job */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Job</label>
+      <div
+        data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-79"
+        className="flex flex-col gap-2"
+      >
+        <label
+          data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-label-80"
+          className="text-sm text-gray-600"
+        >
+          Job
+        </label>
         <Select
           id="talent-acquisition-job-post-performance-select-job"
           data-cy="talent-acquisition-job-post-performance-select-job"
@@ -99,8 +115,16 @@ const JobPostPerformance = () => {
       </div>
 
       {/* Department */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Department</label>
+      <div
+        data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-102"
+        className="flex flex-col gap-2"
+      >
+        <label
+          data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-label-103"
+          className="text-sm text-gray-600"
+        >
+          Department
+        </label>
         <Select
           id="talent-acquisition-job-post-performance-select-department"
           data-cy="talent-acquisition-job-post-performance-select-department"
@@ -122,8 +146,16 @@ const JobPostPerformance = () => {
       </div>
 
       {/* Date Range */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Date Range</label>
+      <div
+        data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-125"
+        className="flex flex-col gap-2"
+      >
+        <label
+          data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-label-126"
+          className="text-sm text-gray-600"
+        >
+          Date Range
+        </label>
         <RangePicker
           id="talent-acquisition-job-post-performance-date-picker"
           data-cy="talent-acquisition-job-post-performance-date-picker"
@@ -151,8 +183,16 @@ const JobPostPerformance = () => {
         className="bg-white p-6 rounded-xl shadow-lg mx-1"
         data-cy="talent-acquisition-job-post-performance-card"
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-[16px] font-bold">Job Post Performance</h2>
+        <div
+          data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-154"
+          className="flex justify-between items-center mb-6"
+        >
+          <h2
+            data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-h2-155"
+            className="text-[16px] font-bold"
+          >
+            Job Post Performance
+          </h2>
           <Button
             icon={<LuFileDown />}
             type="default"
@@ -165,7 +205,10 @@ const JobPostPerformance = () => {
         </div>
 
         {/* Desktop Filters */}
-        <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <div
+          data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-168"
+          className="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6"
+        >
           <Select
             placeholder="Job"
             allowClear
@@ -212,9 +255,18 @@ const JobPostPerformance = () => {
         </div>
 
         {/* Mobile Filters */}
-        <div className="md:hidden">
-          <div className="flex justify-between gap-4 w-full mb-6">
-            <div className="flex-1">
+        <div
+          data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-215"
+          className="md:hidden"
+        >
+          <div
+            data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-216"
+            className="flex justify-between gap-4 w-full mb-6"
+          >
+            <div
+              data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-217"
+              className="flex-1"
+            >
               <Select
                 placeholder="Job"
                 allowClear
@@ -231,7 +283,7 @@ const JobPostPerformance = () => {
                 onChange={(value) => setJobPostJobId(value)}
               />
             </div>
-            <div>
+            <div data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-234">
               <CustomButton
                 type="default"
                 size="small"
@@ -252,7 +304,10 @@ const JobPostPerformance = () => {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={
-          <div className="flex gap-2 justify-center mt-4">
+          <div
+            data-cy="dashboard-components-adminpanel-jobpostperformance-tsx-jobpostperformance-div-255"
+            className="flex gap-2 justify-center mt-4"
+          >
             <CustomButton
               onClick={() => setIsModalOpen(false)}
               className="px-6 py-2 border rounded-lg text-sm text-gray-900"

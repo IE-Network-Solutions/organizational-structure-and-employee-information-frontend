@@ -68,7 +68,10 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
   };
 
   return (
-    <div key={questionId}>
+    <div
+      data-cy="-id-components-fieldtypes-index-tsx-index-div-71"
+      key={questionId}
+    >
       {type === 'multiple_choice' && (
         <Row key={questionId} gutter={16} className="ml-1 mt-2">
           {field?.map((choice, index) => {

@@ -210,7 +210,11 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             data-cy={`talent-acquisition-intern-table-cell-department-${id}`}
             className="flex gap-2 items-center"
           >
-            {<div>{depName}</div>}
+            {
+              <div data-cy="intern-components-table-index-tsx-index-div-213">
+                {depName}
+              </div>
+            }
           </div>
         );
       };

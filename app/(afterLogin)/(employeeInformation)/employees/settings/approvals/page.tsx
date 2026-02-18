@@ -142,7 +142,7 @@ const Approvals = () => {
                   className="text-white"
                   data-cy="settings-approvals-back-btn-icon"
                 />
-                <span> Back</span>
+                <span data-cy="settings-approvals-back-btn-text"> Back</span>
               </Button>
               <div
                 className="text-2xl font-bold "

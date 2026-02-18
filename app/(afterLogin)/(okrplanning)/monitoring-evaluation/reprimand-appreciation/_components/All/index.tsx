@@ -73,7 +73,10 @@ const All = () => {
         General Insight
       </h1>
       <DashboardHeader />
-      <div className="flex  justify-between items-center mb-4 gap-5">
+      <div
+        className="flex  justify-between items-center mb-4 gap-5"
+        data-cy="reprimand-appreciation-all-filters-container"
+      >
         <Select
           showSearch
           placeholder="Select a person"

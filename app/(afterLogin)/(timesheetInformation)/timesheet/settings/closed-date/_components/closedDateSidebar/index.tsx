@@ -297,7 +297,11 @@ const ClosedDateSidebar = () => {
                   id="closedHolidayDateToFieldId"
                   data-cy="time-attendance-settings-closed-date-sidebar-to-field-id"
                   label={
-                    <Radio checked={isTo} onClick={() => setIsTo(!isTo)}>
+                    <Radio
+                      checked={isTo}
+                      onClick={() => setIsTo(!isTo)}
+                      data-cy="time-attendance-settings-closed-date-sidebar-to-radio"
+                    >
                       To
                     </Radio>
                   }

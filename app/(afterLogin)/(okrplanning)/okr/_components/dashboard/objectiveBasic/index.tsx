@@ -208,6 +208,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           >
             <div
               className={`flex  ${isMobile ? 'flex-col' : 'items-center justify-between'} flex-1 min-w-0`}
+              data-cy={`okr-objective-basic-title-wrapper-${objective?.id}`}
             >
               <h2
                 id={`objective-basic-title-${objective?.id}`}
@@ -271,6 +272,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
               >
                 <div
                   className={`flex gap-2 flex-1 min-w-0 ${isMobile ? 'items-start' : 'items-center'}`}
+                  data-cy={`okr-key-result-basic-content-${keyResult.id}`}
                 >
                   <MdKey
                     size={isMobile ? 18 : 20}
@@ -278,15 +280,23 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   />
                   <div
                     className={`flex-1 min-w-0 flex ${isMobile ? 'flex-col gap-1' : 'items-center justify-between'}`}
+                    data-cy={`okr-key-result-basic-details-${keyResult.id}`}
                   >
-                    <div className="flex items-center justify-between gap-2 min-w-0 flex-1">
+                    <div
+                      className="flex items-center justify-between gap-2 min-w-0 flex-1"
+                      data-cy={`okr-key-result-basic-title-wrapper-${keyResult.id}`}
+                    >
                       <span
                         className={`text-gray-800 truncate ${isMobile ? 'text-xs' : 'text-sm'}`}
+                        data-cy={`okr-key-result-basic-title-${keyResult.id}`}
                       >
                         {keyResult?.title}
                       </span>
                       {!isMobile && (
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div
+                          className="flex items-center gap-2 flex-shrink-0"
+                          data-cy={`okr-key-result-basic-status-wrapper-${keyResult.id}`}
+                        >
                           <Select
                             value={statusInfo.value}
                             onChange={(value) =>

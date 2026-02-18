@@ -53,11 +53,22 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
       className="mobile-filter-modal"
       centered
     >
-      <div className="flex flex-col gap-4 py-4">
+      <div
+        data-cy="planning-and-reporting-components-filters-mobilefiltermodal-tsx-mobilefiltermodal-div-56"
+        className="flex flex-col gap-4 py-4"
+      >
         {/* Plan Type */}
         {showPlanType && (
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-gray-700">Plan Type</span>
+          <div
+            data-cy="planning-and-reporting-components-filters-mobilefiltermodal-tsx-mobilefiltermodal-div-59"
+            className="flex flex-col gap-2"
+          >
+            <span
+              data-cy="planning-and-reporting-components-filters-mobilefiltermodal-tsx-mobilefiltermodal-span-60"
+              className="text-sm font-medium text-gray-700"
+            >
+              Plan Type
+            </span>
             <Select
               className="w-full [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!py-2.5 [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&_.ant-select-selection-placeholder]:!leading-7 [&_.ant-select-selection-placeholder]:!pt-0 [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-item]:!leading-7 [&_.ant-select-selection-item]:!pt-0 [&.ant-select]:!h-12"
               placeholder="Plan type"
@@ -71,8 +82,14 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
 
         {/* Department */}
         {showDepartment && (
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-gray-700">
+          <div
+            data-cy="planning-and-reporting-components-filters-mobilefiltermodal-tsx-mobilefiltermodal-div-74"
+            className="flex flex-col gap-2"
+          >
+            <span
+              data-cy="planning-and-reporting-components-filters-mobilefiltermodal-tsx-mobilefiltermodal-span-75"
+              className="text-sm font-medium text-gray-700"
+            >
               Department
             </span>
             <Select
@@ -89,9 +106,20 @@ export const MobileFilterModal: React.FC<MobileFilterModalProps> = ({
         )}
 
         {/* Session Filter */}
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-gray-700">Session</span>
-          <div className="flex flex-col gap-3">
+        <div
+          data-cy="planning-and-reporting-components-filters-mobilefiltermodal-tsx-mobilefiltermodal-div-92"
+          className="flex flex-col gap-2"
+        >
+          <span
+            data-cy="planning-and-reporting-components-filters-mobilefiltermodal-tsx-mobilefiltermodal-span-93"
+            className="text-sm font-medium text-gray-700"
+          >
+            Session
+          </span>
+          <div
+            data-cy="planning-and-reporting-components-filters-mobilefiltermodal-tsx-mobilefiltermodal-div-94"
+            className="flex flex-col gap-3"
+          >
             <SessionFilter />
           </div>
         </div>

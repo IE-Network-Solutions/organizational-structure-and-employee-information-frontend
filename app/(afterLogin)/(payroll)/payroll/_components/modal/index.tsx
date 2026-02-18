@@ -132,7 +132,9 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
             className="w-full border border-gray-300 rounded-lg px-3 py-2"
             disabled
           >
-            <option value="">Select Pay Period</option>
+            <option value="" data-cy="payroll-modal-payperiod-placeholder">
+              Select Pay Period
+            </option>
           </select>
         </div>
       </div>

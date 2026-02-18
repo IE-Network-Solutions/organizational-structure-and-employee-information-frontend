@@ -185,6 +185,7 @@ const CriteriaContributionChart: React.FC<CriteriaContributionProps> = ({
                       height="10"
                       rx="5"
                       fill={colors[index]}
+                      data-cy={`okr-dashboard-vpdashboard-graphs-criteriacontribution-index-tsx-rect-182-${index}`}
                     />
                   </svg>
                   <span

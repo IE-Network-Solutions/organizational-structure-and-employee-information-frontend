@@ -87,9 +87,16 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
     `${String(keyResultId ?? '')}${String(milestoneId ?? '')}${String(taskId ?? '')}`;
 
   return (
-    <div className="flex flex-col gap-6 p-2">
+    <div
+      data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-90"
+      className="flex flex-col gap-6 p-2"
+    >
       {formattedData.map((objective) => (
-        <div key={objective.id} className="flex flex-col gap-6">
+        <div
+          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-92"
+          key={objective.id}
+          className="flex flex-col gap-6"
+        >
           {objective.keyResults.map((keyResult) => (
             <React.Fragment key={keyResult.id}>
               {/* Render tasks within milestones as cards */}
@@ -105,10 +112,20 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                       <div
                         key={task.id}
                         className="bg-white border border-gray-200 rounded-lg overflow-hidden"
+                        data-cy="planningandreporting-planning-and-reporting-components-planning-createplanhierarchy-tsx-div-112"
                       >
-                        <div className="pt-5 px-4 pb-0 flex justify-between items-center gap-3">
-                          <div className="text-sm flex items-center min-w-0 flex-1 pr-2">
-                            <strong className="text-gray-950 flex-shrink-0 whitespace-nowrap">
+                        <div
+                          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-109"
+                          className="pt-5 px-4 pb-0 flex justify-between items-center gap-3"
+                        >
+                          <div
+                            data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-110"
+                            className="text-sm flex items-center min-w-0 flex-1 pr-2"
+                          >
+                            <strong
+                              data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-strong-111"
+                              className="text-gray-950 flex-shrink-0 whitespace-nowrap"
+                            >
                               {planningPeriodHierarchy?.parentPlan?.name ||
                                 'Parent'}
                               -task :
@@ -116,6 +133,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                             <span
                               className="ml-2 text-gray-700 truncate flex-1 min-w-0"
                               title={task.task}
+                              data-cy="planningandreporting-planning-and-reporting-components-planning-createplanhierarchy-tsx-span-132"
                             >
                               {task.task}
                             </span>
@@ -142,14 +160,25 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                               Number(keyResult.progress) === 100
                             }
                           >
-                            <span className="sm:hidden">Add Task</span>
-                            <span className="hidden sm:inline">
+                            <span
+                              data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-145"
+                              className="sm:hidden"
+                            >
+                              Add Task
+                            </span>
+                            <span
+                              data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-146"
+                              className="hidden sm:inline"
+                            >
                               Add plan Task
                             </span>
                           </Button>
                         </div>
 
-                        <div className="px-4 pb-5 pt-0">
+                        <div
+                          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-152"
+                          className="px-4 pb-5 pt-0"
+                        >
                           <DefaultCardForm
                             kId={keyResult.id}
                             milestoneId={milestone.id}
@@ -177,11 +206,21 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                 return (
                   <div
                     key={task.id}
+                    data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-207"
                     className="bg-white border border-gray-200 rounded-lg overflow-hidden"
                   >
-                    <div className="pt-5 px-4 pb-0 flex justify-between items-center gap-3">
-                      <div className="text-sm flex items-center min-w-0 flex-1 pr-2">
-                        <strong className="text-gray-950 flex-shrink-0 whitespace-nowrap">
+                    <div
+                      data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-182"
+                      className="pt-5 px-4 pb-0 flex justify-between items-center gap-3"
+                    >
+                      <div
+                        data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-183"
+                        className="text-sm flex items-center min-w-0 flex-1 pr-2"
+                      >
+                        <strong
+                          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-strong-184"
+                          className="text-gray-950 flex-shrink-0 whitespace-nowrap"
+                        >
                           {planningPeriodHierarchy?.parentPlan?.name ||
                             'Parent'}
                           -task :
@@ -189,6 +228,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                         <span
                           className="ml-2 text-gray-700 truncate flex-1 min-w-0"
                           title={task.task}
+                          data-cy="planningandreporting-planning-and-reporting-components-planning-createplanhierarchy-tsx-span-225"
                         >
                           {task.task}
                         </span>
@@ -214,12 +254,25 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           Number(keyResult.progress) === 100
                         }
                       >
-                        <span className="sm:hidden">Add Task</span>
-                        <span className="hidden sm:inline">Add plan Task</span>
+                        <span
+                          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-217"
+                          className="sm:hidden"
+                        >
+                          Add Task
+                        </span>
+                        <span
+                          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-218"
+                          className="hidden sm:inline"
+                        >
+                          Add plan Task
+                        </span>
                       </Button>
                     </div>
 
-                    <div className="px-4 pb-5 pt-0">
+                    <div
+                      data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-222"
+                      className="px-4 pb-5 pt-0"
+                    >
                       <DefaultCardForm
                         kId={keyResult.id}
                         milestoneId={null}

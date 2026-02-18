@@ -26,7 +26,14 @@ const EmployeeAddressForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['address', 'country']}
-            label={<span className="mb-1 font-semibold text-xs">Country</span>}
+            label={
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="employee-address-country-label"
+              >
+                Country
+              </span>
+            }
             id="addressCountryId"
             data-cy="addressCountryId"
             rules={[
@@ -56,7 +63,14 @@ const EmployeeAddressForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['address', 'city']}
-            label={<span className="mb-1 font-semibold text-xs">City</span>}
+            label={
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="employee-address-city-label"
+              >
+                City
+              </span>
+            }
             id="addressCityId"
             data-cy="addressCityId"
             rules={[
@@ -85,7 +99,14 @@ const EmployeeAddressForm = () => {
         >
           <Form.Item
             name={['address', 'subCity']}
-            label={<span className="mb-1 font-semibold text-xs">Sub City</span>}
+            label={
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="employee-address-subcity-label"
+              >
+                Sub City
+              </span>
+            }
             id="addressSubCityId"
             data-cy="addressSubCityId"
           >
@@ -104,7 +125,12 @@ const EmployeeAddressForm = () => {
           <Form.Item
             name={['address', 'phoneNumber']}
             label={
-              <span className="mb-1 font-semibold text-xs">Phone Number</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="employee-address-phone-label"
+              >
+                Phone Number
+              </span>
             }
             id="phoneNumber"
             data-cy="phoneNumber"

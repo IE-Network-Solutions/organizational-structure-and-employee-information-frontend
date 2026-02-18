@@ -11,6 +11,7 @@ import {
 } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useActivateMonth } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import {
   useActivateMonth,
 } from '@/store/server/features/organizationStructure/fiscalYear/mutation';

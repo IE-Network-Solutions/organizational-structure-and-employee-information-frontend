@@ -74,7 +74,9 @@ const CustomRadio: FC<CustomRadioProps> = ({
       disabled={disabled}
       onClick={handleChange}
     >
-      <div>{label}</div>
+      <div data-cy="components-form-customradio-index-tsx-index-div-77">
+        {label}
+      </div>
     </Radio>
   );
 };

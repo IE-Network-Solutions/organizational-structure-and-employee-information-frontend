@@ -34,9 +34,12 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
     const profileImage = userDetails?.profileImage;
 
     return (
-      <div className="flex gap-2 items-center">
+      <div
+        className="flex gap-2 items-center"
+        data-cy="recognition-page-user-container"
+      >
         <Avatar src={profileImage} icon={<UserOutlined />} />
-        <div>{userName}</div>
+        <div data-cy="recognition-page-user-name">{userName}</div>
       </div>
     );
   };

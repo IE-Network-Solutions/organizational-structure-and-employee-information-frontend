@@ -30,7 +30,7 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
   };
 
   return (
-    <div>
+    <div data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-div-33">
       <Form.List
         name="questions"
         initialValue={[
@@ -50,9 +50,15 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                 <div
                   key={index}
                   className="text-md font-semibold text-gray-800 mb-2 block"
+                  data-cy="recruitment-recruitment-jobs-components-createjobs-createapplicationform-dynamicjobform-index-tsx-div-50"
                 >
                   Question {index + 1}
-                  <span className="text-red-500">*</span>
+                  <span
+                    data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-span-55"
+                    className="text-red-500"
+                  >
+                    *
+                  </span>
                 </div>
 
                 <Row gutter={12} key={key}>
@@ -67,7 +73,10 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                         },
                       ]}
                     >
-                      <div className="flex items-center">
+                      <div
+                        data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-div-70"
+                        className="flex items-center"
+                      >
                         <Input
                           id={`talent-acquisition-create-application-form-input-question-${index}`}
                           data-cy={`talent-acquisition-create-application-form-input-question-${index}`}
@@ -144,7 +153,10 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                   className="mb-2 mt-0 ml-4"
                   valuePropName="checked"
                 >
-                  <div className="flex items-center text-sm">
+                  <div
+                    data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-div-147"
+                    className="flex items-center text-sm"
+                  >
                     <Checkbox
                       id={`talent-acquisition-create-application-form-checkbox-required-${index}`}
                       data-cy={`talent-acquisition-create-application-form-checkbox-required-${index}`}
@@ -193,10 +205,16 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                       'fieldType',
                     ]);
                     return (
-                      <div className="ml-8">
+                      <div
+                        data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-div-196"
+                        className="ml-8"
+                      >
                         {fields.map((field) => (
                           <Form.Item required={false} key={field.key}>
-                            <div className="flex items-center gap-3">
+                            <div
+                              data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-div-199"
+                              className="flex items-center gap-3"
+                            >
                               {renderOptionInput(questionType)}
                               <Form.Item
                                 {...field}
@@ -231,7 +249,10 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                         {questionType === 'multiple_choice' ||
                         questionType === FieldType.CHECKBOX ? (
                           <Form.Item>
-                            <div className="flex flex-col items-center justify-center">
+                            <div
+                              data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-div-234"
+                              className="flex flex-col items-center justify-center"
+                            >
                               <div
                                 id={`talent-acquisition-create-application-form-button-add-option-${name}`}
                                 data-cy={`talent-acquisition-create-application-form-button-add-option-${name}`}
@@ -243,7 +264,10 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                                   className="text-white"
                                 />
                               </div>
-                              <p className="text-xs font-light text-gray-400 ">
+                              <p
+                                data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-p-246"
+                                className="text-xs font-light text-gray-400 "
+                              >
                                 Add Option
                               </p>
                             </div>
@@ -258,7 +282,10 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
               </>
             ))}
             <Form.Item>
-              <div className="flex flex-col items-center justify-center my-8">
+              <div
+                data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-div-261"
+                className="flex flex-col items-center justify-center my-8"
+              >
                 <div
                   id="talent-acquisition-create-application-form-button-add-question"
                   data-cy="talent-acquisition-create-application-form-button-add-question"
@@ -267,7 +294,10 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                 >
                   <PlusOutlined size={50} className="text-white" />
                 </div>
-                <p className="text-md font-normal mt-2 text-gray-400">
+                <p
+                  data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-p-270"
+                  className="text-md font-normal mt-2 text-gray-400"
+                >
                   Add Question
                 </p>
               </div>

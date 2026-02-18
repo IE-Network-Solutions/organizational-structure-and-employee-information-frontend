@@ -195,7 +195,10 @@ const PaySlip = ({ data }: { data: any[] }) => {
             {employeeData?.employeeInfo?.lastName}
             {employeeData?.employeeInfo?.employeeInformation
               ?.additionalInformation?.tinNumber && (
-              <span className="ml-2 text-sm font-normal">
+              <span
+                data-cy="payroll-components-payslip-index-tsx-index-span-198"
+                className="ml-2 text-sm font-normal"
+              >
                 (TIN:{' '}
                 {
                   employeeData?.employeeInfo?.employeeInformation

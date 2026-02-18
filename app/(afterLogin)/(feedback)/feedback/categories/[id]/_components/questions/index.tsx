@@ -337,7 +337,10 @@ const Question: React.FC<Props> = (props) => {
                         className="mb-2 mt-0 ml-4"
                         valuePropName="checked"
                       >
-                        <div className="flex items-center text-sm">
+                        <div
+                          className="flex items-center text-sm"
+                          data-cy="question-builder-required-container"
+                        >
                           <Checkbox
                             data-cy="question-builder-required-checkbox"
                             id="question-builder-required-checkbox"

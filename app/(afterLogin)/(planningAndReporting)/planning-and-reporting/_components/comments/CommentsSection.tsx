@@ -89,12 +89,19 @@ export default function CommentsSection({
   }, [achieved]);
 
   return (
-    <div className="mt-5">
+    <div
+      data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-div-92"
+      className="mt-5"
+    >
       {/* Header: Avatars | Comments Count | Add Comment Button */}
-      <div className="flex items-end justify-between w-full">
+      <div
+        data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-div-94"
+        className="flex items-end justify-between w-full"
+      >
         <div
           className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={handleCommentsClick}
+          data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-101"
         >
           {commentCount > 0 && uniqueCommenters.length > 0 && (
             <Avatar.Group size={48} maxCount={5}>
@@ -120,14 +127,23 @@ export default function CommentsSection({
               })}
             </Avatar.Group>
           )}
-          <span className="text-xs md:text-sm font-semibold text-[#1F213A]">
+          <span
+            data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-span-123"
+            className="text-xs md:text-sm font-semibold text-[#1F213A]"
+          >
             {commentCount} Comments
           </span>
         </div>
-        <div className="flex flex-col items-end gap-0.5">
+        <div
+          data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-div-127"
+          className="flex flex-col items-end gap-0.5"
+        >
           {/* Total Points Display (only for reporting mode, above Add Comment) */}
           {!isPlanCard && (
-            <span className="text-[10px] md:text-xs font-normal text-[#8F94A3]">
+            <span
+              data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-span-130"
+              className="text-[10px] md:text-xs font-normal text-[#8F94A3]"
+            >
               total point:{' '}
               <span
                 className={`font-medium ${
@@ -137,6 +153,7 @@ export default function CommentsSection({
                       ? 'text-orange-500'
                       : 'text-red-500'
                 }`}
+                data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-147"
               >
                 {formattedAchieved}%
               </span>
@@ -146,6 +163,7 @@ export default function CommentsSection({
             onClick={handleAddCommentClick}
             className="cursor-pointer text-xs md:text-sm font-bold transition-colors"
             style={{ color: '#2563EB' }}
+            data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-160"
             onMouseEnter={(e) => {
               e.currentTarget.style.color = '#1D4ED8';
             }}
@@ -160,7 +178,10 @@ export default function CommentsSection({
 
       {/* Comments List and Add Comment Form */}
       {showComments && (
-        <div className="mt-4">
+        <div
+          data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-div-163"
+          className="mt-4"
+        >
           {isLoading ? (
             <Skeleton
               active

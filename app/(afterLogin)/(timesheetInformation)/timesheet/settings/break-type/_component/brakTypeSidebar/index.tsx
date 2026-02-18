@@ -188,7 +188,10 @@ const BreakTypeSidebar = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col span={12}>
+              <Col
+                span={12}
+                data-cy="time-attendance-settings-break-type-sidebar-end-at-column"
+              >
                 <Form.Item
                   id="endAtFieldId"
                   data-cy="time-attendance-settings-break-type-sidebar-end-at-field-id"

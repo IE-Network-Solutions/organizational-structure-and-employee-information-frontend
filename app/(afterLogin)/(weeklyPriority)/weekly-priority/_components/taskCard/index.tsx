@@ -207,22 +207,37 @@ const TaskCard: React.FC = () => {
           bodyStyle={{ padding: 0 }}
           className=" my-3 border border-gray-300"
         >
-          <div className="flex justify-between bg-gray-50  p-2 items-center rounded-t-xl">
-            <span className="text-right text-md font-bold">
+          <div
+            data-cy="weekly-priority-components-taskcard-index-tsx-index-div-210"
+            className="flex justify-between bg-gray-50  p-2 items-center rounded-t-xl"
+          >
+            <span
+              data-cy="weekly-priority-components-taskcard-index-tsx-index-span-211"
+              className="text-right text-md font-bold"
+            >
               {item.departmentId
                 ? getDepartmentData(item.departmentId)?.name +
                     " Team's weekly priority:" || ''
                 : ''}
             </span>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500 flex flex-col text-xs">
-                <span className="text-right">
+            <div
+              data-cy="weekly-priority-components-taskcard-index-tsx-index-div-217"
+              className="flex items-center gap-2"
+            >
+              <span
+                data-cy="weekly-priority-components-taskcard-index-tsx-index-span-218"
+                className="text-gray-500 flex flex-col text-xs"
+              >
+                <span
+                  data-cy="weekly-priority-components-taskcard-index-tsx-index-span-219"
+                  className="text-right"
+                >
                   {getEmployeeData(item.tasks[0]?.createdBy || '')?.firstName +
                     ' ' +
                     (getEmployeeData(item.tasks[0]?.createdBy || '')
                       ?.middleName || '')}
                 </span>
-                <span>
+                <span data-cy="weekly-priority-components-taskcard-index-tsx-index-span-225">
                   {dayjs(item?.tasks[0]?.createdAt).format(
                     'MMMM DD YYYY, h:mm:ss A',
                   )}
@@ -248,11 +263,24 @@ const TaskCard: React.FC = () => {
           </div> */}
 
           <Form form={form}>
-            <div className="p-2">
+            <div
+              data-cy="weekly-priority-components-taskcard-index-tsx-index-div-251"
+              className="p-2"
+            >
               {item.tasks.map((task, taskIndex) => (
-                <div key={taskIndex} className="flex flex-col mt-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex gap-2 items-center w-full">
+                <div
+                  data-cy="weekly-priority-components-taskcard-index-tsx-index-div-253"
+                  key={taskIndex}
+                  className="flex flex-col mt-2"
+                >
+                  <div
+                    data-cy="weekly-priority-components-taskcard-index-tsx-index-div-254"
+                    className="flex justify-between items-center"
+                  >
+                    <div
+                      data-cy="weekly-priority-components-taskcard-index-tsx-index-div-255"
+                      className="flex gap-2 items-center w-full"
+                    >
                       {task.status === 'COMPLETED' ? (
                         <Popconfirm
                           title="Do you want to undo the task progress?"
@@ -298,8 +326,14 @@ const TaskCard: React.FC = () => {
                       ) : (
                         '  '
                       )}
-                      <div className="border-[1px] rounded-[4px] w-3 h-3 flex items-center justify-center border-[#cfaaff]">
-                        <span className="rounded-full bg-blue w-1 h-1"></span>
+                      <div
+                        data-cy="weekly-priority-components-taskcard-index-tsx-index-div-301"
+                        className="border-[1px] rounded-[4px] w-3 h-3 flex items-center justify-center border-[#cfaaff]"
+                      >
+                        <span
+                          data-cy="weekly-priority-components-taskcard-index-tsx-index-span-302"
+                          className="rounded-full bg-blue w-1 h-1"
+                        ></span>
                       </div>
 
                       {task.isEdit ? (
@@ -327,6 +361,7 @@ const TaskCard: React.FC = () => {
                               handleEditToggle(itemIndex, taskIndex);
                             }
                           }}
+                          data-cy="weeklypriority-weekly-priority-components-taskcard-index-tsx-span-357"
                         >
                           {task.title}
                         </span>
@@ -334,7 +369,10 @@ const TaskCard: React.FC = () => {
                     </div>
                     {task.status === 'PENDING' &&
                       item.tasks[0]?.createdBy === userId && (
-                        <div className="flex gap-4 mb-4">
+                        <div
+                          data-cy="weekly-priority-components-taskcard-index-tsx-index-div-337"
+                          className="flex gap-4 mb-4"
+                        >
                           {task?.isEdit ? (
                             <Button
                               type="primary"
@@ -402,7 +440,10 @@ const TaskCard: React.FC = () => {
                       )}
                   </div>
                   {failedReasonVisible[`${itemIndex}-${taskIndex}`] && (
-                    <div className="ml-6 mt-2 relative">
+                    <div
+                      data-cy="weekly-priority-components-taskcard-index-tsx-index-div-405"
+                      className="ml-6 mt-2 relative"
+                    >
                       <Input.TextArea
                         placeholder="Enter reason for failure"
                         value={
@@ -419,8 +460,14 @@ const TaskCard: React.FC = () => {
                         className="mb-2"
                         autoFocus
                       />
-                      <div className="absolute bottom-2 right-2">
-                        <div className="flex gap-2 mb-1">
+                      <div
+                        data-cy="weekly-priority-components-taskcard-index-tsx-index-div-422"
+                        className="absolute bottom-2 right-2"
+                      >
+                        <div
+                          data-cy="weekly-priority-components-taskcard-index-tsx-index-div-423"
+                          className="flex gap-2 mb-1"
+                        >
                           <Button
                             type="primary"
                             className="text-xs py-1 px-2 h-6"
@@ -458,9 +505,15 @@ const TaskCard: React.FC = () => {
                             [taskKey]: true,
                           });
                         }}
+                        data-cy="weeklypriority-weekly-priority-components-taskcard-index-tsx-div-499"
                         className="ml-6 mt-2 relative border rounded-md p-2 cursor-pointer"
                       >
-                        <span className="text-xs">{task.failureReason}</span>
+                        <span
+                          data-cy="weekly-priority-components-taskcard-index-tsx-index-span-463"
+                          className="text-xs"
+                        >
+                          {task.failureReason}
+                        </span>
                       </div>
                     )}
                 </div>

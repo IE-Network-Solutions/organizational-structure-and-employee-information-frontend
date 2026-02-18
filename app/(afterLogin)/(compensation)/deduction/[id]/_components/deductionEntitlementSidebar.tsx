@@ -417,7 +417,10 @@ const DeductionEntitlementSideBar = () => {
 
               {/* Show loading state for basic salary */}
               {selectedEmployeeForDeduction && basicSalaryLoading && (
-                <div className="text-sm text-gray-500 mb-4">
+                <div
+                  className="text-sm text-gray-500 mb-4"
+                  data-cy="deduction-sidebar-loading-salary"
+                >
                   Loading employee basic salary...
                 </div>
               )}
@@ -426,7 +429,10 @@ const DeductionEntitlementSideBar = () => {
               {selectedEmployeeForDeduction &&
                 !basicSalaryLoading &&
                 !selectedEmployeeBasicSalary && (
-                  <div className="text-sm text-red-500 mb-4">
+                  <div
+                    className="text-sm text-red-500 mb-4"
+                    data-cy="deduction-sidebar-no-salary-error"
+                  >
                     No active basic salary found for this employee. Please set
                     up the employee&apos;s basic salary first.
                   </div>
@@ -439,8 +445,14 @@ const DeductionEntitlementSideBar = () => {
                   id="compensation-deduction-sidebar-schedule-container"
                   data-cy="compensation-deduction-sidebar-schedule-container"
                 >
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium mb-3 text-gray-700">
+                  <div
+                    className="border-t pt-4"
+                    data-cy="deduction-sidebar-payment-schedule-header"
+                  >
+                    <h4
+                      className="font-medium mb-3 text-gray-700"
+                      data-cy="deduction-sidebar-payment-schedule-title"
+                    >
                       Payment Schedule
                     </h4>
                   </div>

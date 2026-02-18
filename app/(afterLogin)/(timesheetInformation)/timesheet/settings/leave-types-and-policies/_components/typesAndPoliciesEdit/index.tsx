@@ -460,7 +460,7 @@ const TypesAndPoliciesEdit = () => {
                   </Form.Item>
                 </div>
               </div>
-              <div>
+              <div data-cy="leave-types-and-policies-components-typesandpoliciesedit-index-tsx-index-div-463">
                 {isIncremental && (
                   <div
                     id="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-id"

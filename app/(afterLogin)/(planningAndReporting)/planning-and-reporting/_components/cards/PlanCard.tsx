@@ -5,7 +5,8 @@ import { BsKey } from 'react-icons/bs';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
-import { PlanSummary, ViewMode } from '../types';
+import { PlanSummary, ViewMode, Cadence } from '../types';
+import { formatPlanningReportDate } from '../utils';
 import UserInfo from '../UserInfo';
 import StatusBadge from '../StatusBadge';
 import KRSummaryBar from '../KRSummaryBar';
@@ -85,16 +86,17 @@ export default function PlanCard({
         onClick={onEdit}
       >
         <Tooltip title="Edit Plan">
-          <span>Edit</span>
+          <span data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-90">
+            Edit
+          </span>
         </Tooltip>
       </Menu.Item>
     </Menu>
   );
 
-  const getDateLabel = () => {
+  const getDateLabel = (): string => {
     if (dateLabel) return dateLabel;
-
-    return formatDateLabel(plan.createdAt);
+    return formatPlanningReportDate(plan.createdAt ?? '');
   };
 
   // Calculate total achieved points for the plan (sum of weights of completed tasks)
@@ -142,22 +144,49 @@ export default function PlanCard({
   }, [plan, viewMode]);
 
   return (
-    <article className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4">
+    <article
+       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
+      className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4"
+      data-active-cadence={activeCadence}
+    >
       {/* Header with Title and Reprimand/Appreciation Badges */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xs md:text-base font-bold text-[#8F94A3]">
+      <div
+        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-162"
+        className="flex items-center justify-between mb-4"
+      >
+        <h3
+          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-h3-163"
+          className="text-xs md:text-base font-bold text-[#8F94A3]"
+        >
           {getDateLabel()}
         </h3>
-        <div className="flex items-center gap-2">
+        <div
+          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-166"
+          className="flex items-center gap-2"
+        >
           {plan.reprimandCount && plan.reprimandCount > 0 ? (
-            <div className="flex items-center gap-1.5 rounded-lg bg-[#EF4444] px-3 py-1 text-white shadow-sm">
-              <span className="font-bold text-sm">{plan.reprimandCount}</span>
+            <div
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-168"
+              className="flex items-center gap-1.5 rounded-lg bg-[#EF4444] px-3 py-1 text-white shadow-sm"
+            >
+              <span
+                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-169"
+                className="font-bold text-sm"
+              >
+                {plan.reprimandCount}
+              </span>
               <FaBomb className="text-sm" />
             </div>
           ) : null}
           {plan.appreciationCount && plan.appreciationCount > 0 ? (
-            <div className="flex items-center gap-1.5 rounded-lg bg-[#10B981] px-3 py-1 text-white shadow-sm">
-              <span className="font-bold text-sm">
+            <div
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-174"
+              className="flex items-center gap-1.5 rounded-lg bg-[#10B981] px-3 py-1 text-white shadow-sm"
+            >
+              <span
+                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-175"
+                className="font-bold text-sm"
+              >
                 {plan.appreciationCount}
               </span>
               <FaRegThumbsUp className="text-sm" />
@@ -166,15 +195,21 @@ export default function PlanCard({
         </div>
       </div>
 
-      <div className="flex flex-nowrap items-center justify-between gap-2 md:gap-4 mb-4 px-1 min-w-0">
+      <div
+        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-184"
+        className="flex flex-nowrap items-center justify-between gap-2 md:gap-4 mb-4 px-1 min-w-0"
+      >
         <UserInfo
           owner={plan.owner}
           notificationCount={plan.notificationCount}
         />
-        <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+        <div
+          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-189"
+          className="flex items-center gap-2 md:gap-3 flex-shrink-0"
+        >
           {plan.status && <StatusBadge status={plan.status} />}
           {canApprove && (
-            <Dropdown overlay={approvalMenu} trigger={['click']}>
+            <Dropdown dropdownRender={() => approvalMenu} trigger={['click']}>
               <Button
                 id={`plan-card-approve-dropdown-button-${plan.id}`}
                 data-cy={`plan-card-approve-dropdown-button-${plan.id}`}
@@ -187,7 +222,7 @@ export default function PlanCard({
             </Dropdown>
           )}
           {canEdit && plan.status?.label === 'Open' && (
-            <Dropdown overlay={editMenu} trigger={['click']}>
+            <Dropdown dropdownRender={() => editMenu} trigger={['click']}>
               <Button
                 id={`plan-card-edit-dropdown-button-${plan.id}`}
                 data-cy={`plan-card-edit-dropdown-button-${plan.id}`}
@@ -204,11 +239,24 @@ export default function PlanCard({
       {/* Display Key Results - each in its own separate container */}
       {plan.keyResults && plan.keyResults.length > 0 ? (
         plan.keyResults.map((keyResult, krIndex) => (
-          <div key={keyResult.id} className={krIndex > 0 ? 'mt-4' : ''}>
-            <div className="rounded-xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-6">
-              <div className="pl-0 md:pl-2">
+          <div
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-222"
+            key={keyResult.id}
+            className={krIndex > 0 ? 'mt-4' : ''}
+          >
+            <div
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-223"
+              className="rounded-xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-6"
+            >
+              <div
+                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-224"
+                className="pl-0 md:pl-2"
+              >
                 {/* Key Result Summary Bar */}
-                <div className="mb-4 hidden md:block">
+                <div
+                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-226"
+                  className="mb-4 hidden md:block"
+                >
                   <KRSummaryBar
                     plan={plan}
                     viewMode={viewMode}
@@ -217,24 +265,39 @@ export default function PlanCard({
                 </div>
 
                 {/* Key Result Header */}
-                <div className="flex items-start gap-3 mb-4 ">
+                <div
+                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-235"
+                  className="flex items-start gap-3 mb-4 "
+                >
                   <BsKey
                     size={24}
                     className="text-[#574CFF] flex-shrink-0 mt-0.5"
                   />
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <p className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2">
+                  <div
+                    data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-240"
+                    className="flex items-center gap-2 flex-1 min-w-0"
+                  >
+                    <p
+                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-241"
+                      className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2"
+                    >
                       {keyResult.title || keyResult.name || plan.summary}
                     </p>
                     {keyResult.deletedAt !== null &&
                       keyResult.deletedAt !== undefined && (
-                        <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                        <span
+                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-246"
+                          className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded"
+                        >
                           Deleted KR
                         </span>
                       )}
                     {keyResult.objective?.deletedAt !== null &&
                       keyResult.objective?.deletedAt !== undefined && (
-                        <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded">
+                        <span
+                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-252"
+                          className="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-gray-200 text-gray-600 rounded"
+                        >
                           Deleted OKR
                         </span>
                       )}
@@ -243,26 +306,45 @@ export default function PlanCard({
 
                 {/* Key Result Tasks (directly under key result) - Show with grouping if metric is not Milestone */}
                 {keyResult.tasks && keyResult.tasks.length > 0 && (
-                  <div className="relative mb-4">
+                  <div
+                    data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-261"
+                    className="relative mb-4"
+                  >
                     {/* Show grouping header for non-milestone metrics */}
                     {keyResult.metricType?.name &&
                       keyResult.metricType.name !== 'Milestone' && (
                         <>
-                          <div className="flex items-center gap-3 mb-1 relative z-10">
-                            <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                          <div
+                            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-266"
+                            className="flex items-center gap-3 mb-1 relative z-10"
+                          >
+                            <div
+                              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-267"
+                              className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0"
+                            >
+                              <div
+                                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-268"
+                                className="w-1.5 h-1.5 rounded-full bg-[#574CFF]"
+                              />
                             </div>
-                            <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                            <p
+                              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-270"
+                              className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2"
+                            >
                               {keyResult.title || keyResult.name}
                             </p>
                           </div>
                           {/* Vertical line */}
-                          <div className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]" />
+                          <div
+                            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-275"
+                            className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]"
+                          />
                         </>
                       )}
 
                     <div
                       className={`flex flex-col gap-0 ${keyResult.metricType?.name && keyResult.metricType.name !== 'Milestone' ? 'pt-1' : ''}`}
+                      data-cy="planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-359"
                     >
                       {keyResult.tasks.map((task, index) => (
                         <TaskRow
@@ -286,14 +368,30 @@ export default function PlanCard({
                     const isRedundant = parentTaskName === krTitle;
 
                     return (
-                      <div key={parentTask.id} className="relative mb-4">
+                      <div
+                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-304"
+                        key={parentTask.id}
+                        className="relative mb-4"
+                      >
                         {/* Parent Task Header - skip if same as KR title */}
                         {!isRedundant && (
-                          <div className="flex items-center gap-3 mb-1 relative z-10">
-                            <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                          <div
+                            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-307"
+                            className="flex items-center gap-3 mb-1 relative z-10"
+                          >
+                            <div
+                              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-308"
+                              className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0"
+                            >
+                              <div
+                                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-309"
+                                className="w-1.5 h-1.5 rounded-full bg-[#574CFF]"
+                              />
                             </div>
-                            <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                            <p
+                              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-311"
+                              className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2"
+                            >
                               {parentTaskName}
                             </p>
                           </div>
@@ -303,12 +401,14 @@ export default function PlanCard({
                         {parentTask.tasks && parentTask.tasks.length > 0 && (
                           <div
                             className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`}
+                            data-cy="planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-415"
                           />
                         )}
 
                         {/* Sub-tasks under Parent Task */}
                         <div
                           className={`flex flex-col gap-0 ${isRedundant ? 'pt-0' : 'pt-1'}`}
+                          data-cy="planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-421"
                         >
                           {parentTask.tasks &&
                             parentTask.tasks.map((task: any, index: number) => (
@@ -328,13 +428,29 @@ export default function PlanCard({
                 {/* Milestones */}
                 {keyResult.milestones &&
                   keyResult.milestones.map((milestone) => (
-                    <div key={milestone.id} className="relative mb-4">
+                    <div
+                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-346"
+                      key={milestone.id}
+                      className="relative mb-4"
+                    >
                       {/* Milestone Header */}
-                      <div className="flex items-center gap-3 mb-1 relative z-10">
-                        <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                      <div
+                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-348"
+                        className="flex items-center gap-3 mb-1 relative z-10"
+                      >
+                        <div
+                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-349"
+                          className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0"
+                        >
+                          <div
+                            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-350"
+                            className="w-1.5 h-1.5 rounded-full bg-[#574CFF]"
+                          />
                         </div>
-                        <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                        <p
+                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-352"
+                          className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2"
+                        >
                           {milestone.title || milestone.name}
                         </p>
                       </div>
@@ -343,11 +459,17 @@ export default function PlanCard({
                       {((milestone.tasks && milestone.tasks.length > 0) ||
                         (milestone.parentTask &&
                           milestone.parentTask.length > 0)) && (
-                        <div className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]" />
+                        <div
+                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-361"
+                          className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]"
+                        />
                       )}
 
                       {/* Milestone Tasks */}
-                      <div className="flex flex-col gap-0 pt-1">
+                      <div
+                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-365"
+                        className="flex flex-col gap-0 pt-1"
+                      >
                         {milestone.tasks &&
                           milestone.tasks.map((task: any, index: number) => (
                             <TaskRow
@@ -375,14 +497,27 @@ export default function PlanCard({
                             <div
                               key={parentTask.id}
                               className={`relative ${isRedundant ? 'mt-0' : 'mt-4'}`}
+                              data-cy="planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-508"
                             >
                               {/* Parent Task Header - skip if name matches milestone title */}
                               {!isRedundant && (
-                                <div className="flex items-center gap-3 mb-1 relative z-10">
-                                  <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
+                                <div
+                                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-396"
+                                  className="flex items-center gap-3 mb-1 relative z-10"
+                                >
+                                  <div
+                                    data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-397"
+                                    className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0"
+                                  >
+                                    <div
+                                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-398"
+                                      className="w-1.5 h-1.5 rounded-full bg-[#574CFF]"
+                                    />
                                   </div>
-                                  <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
+                                  <p
+                                    data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-400"
+                                    className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2"
+                                  >
                                     {parentTaskName}
                                   </p>
                                 </div>
@@ -393,12 +528,14 @@ export default function PlanCard({
                                 parentTask.tasks.length > 0 && (
                                   <div
                                     className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`}
+                                    data-cy="planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-539"
                                   />
                                 )}
 
                               {/* Sub-tasks under Parent Task */}
                               <div
                                 className={`flex flex-col gap-0 ${isRedundant ? 'pt-0' : 'pt-1'}`}
+                                data-cy="planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-545"
                               >
                                 {parentTask.tasks &&
                                   parentTask.tasks.map(
@@ -426,24 +563,45 @@ export default function PlanCard({
         ))
       ) : (
         /* Fallback to flat tasks if no key results */
-        <div className="rounded-xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-6">
-          <div className="pl-2">
-            <div className="mb-4 hidden md:block">
+        <div
+          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-444"
+          className="rounded-xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-6"
+        >
+          <div
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-445"
+            className="pl-2"
+          >
+            <div
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-446"
+              className="mb-4 hidden md:block"
+            >
               <KRSummaryBar plan={plan} viewMode={viewMode} />
             </div>
 
-            <div className="relative">
-              <div className="flex items-start gap-3 mb-6">
+            <div
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-450"
+              className="relative"
+            >
+              <div
+                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-451"
+                className="flex items-start gap-3 mb-6"
+              >
                 <BsKey
                   size={24}
                   className="text-[#574CFF] flex-shrink-0 mt-0.5"
                 />
-                <p className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2">
+                <p
+                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-456"
+                  className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2"
+                >
                   {plan.summary}
                 </p>
               </div>
 
-              <div className="flex flex-col gap-0">
+              <div
+                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-461"
+                className="flex flex-col gap-0"
+              >
                 {plan.tasks.map((task, index) => (
                   <TaskRow
                     key={task.id}
@@ -459,7 +617,10 @@ export default function PlanCard({
         </div>
       )}
 
-      <div className="mt-4">
+      <div
+        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-477"
+        className="mt-4"
+      >
         <CommentsSection
           commentCount={plan.commentCount}
           commentAvatars={plan.commentAvatars}

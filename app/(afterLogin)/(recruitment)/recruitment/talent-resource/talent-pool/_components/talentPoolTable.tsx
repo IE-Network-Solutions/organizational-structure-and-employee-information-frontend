@@ -150,7 +150,12 @@ const TalentPoolTable: React.FC<any> = () => {
             className="bg-[#ADD5F0] border-none"
             onClick={() => showModal(record)}
           >
-            <div className="text-[#1D9BF0]">Re-onboard</div>
+            <div
+              data-cy="talent-resource-talent-pool-components-talentpooltable-tsx-talentpooltable-div-153"
+              className="text-[#1D9BF0]"
+            >
+              Re-onboard
+            </div>
           </Button>
         </AccessGuard>
       ),

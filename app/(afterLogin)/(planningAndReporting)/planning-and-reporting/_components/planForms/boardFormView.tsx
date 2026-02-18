@@ -65,6 +65,7 @@ function BoardCardForm({
                   width: '100%',
                   marginBottom: '16px',
                 }}
+                data-cy="planningandreporting-planning-and-reporting-components-planforms-boardformview-tsx-div-60"
                 className="[&_.ant-form-item-explain-error]:text-[11px]"
               >
                 <Form.Item
@@ -108,13 +109,22 @@ function BoardCardForm({
                 <Input type="hidden" />
               </Form.Item>
               {/* <Divider className="mt-2 mb-2" /> */}
-              <div className="mt-2 [&_.ant-form-item-explain-error]:text-[11px]">
+              <div
+                data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-div-111"
+                className="mt-2 [&_.ant-form-item-explain-error]:text-[11px]"
+              >
                 <Row gutter={[12, 12]} align="top">
                   <Col flex="none">
                     <Row align="middle" gutter={8} wrap={false}>
                       <Col flex="none">
-                        <div className="text-xs flex items-center gap-1">
-                          <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                        <div
+                          data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-div-116"
+                          className="text-xs flex items-center gap-1"
+                        >
+                          <span
+                            data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-span-117"
+                            className="w-1 h-1 rounded-full bg-primary inline-block"
+                          ></span>
                           Priority
                         </div>
                       </Col>
@@ -132,19 +142,32 @@ function BoardCardForm({
                             id={`board-form-priority-select-${name}-${subName}`}
                             data-cy={`board-form-priority-select-${name}-${subName}`}
                             placeholder={
-                              <div className="text-xs">Priority</div>
+                              <div
+                                data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-div-135"
+                                className="text-xs"
+                              >
+                                Priority
+                              </div>
                             }
                             className="w-full h-10"
                             options={[
                               {
                                 label: (
-                                  <div className="text-error text-xs">High</div>
+                                  <div
+                                    data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-div-141"
+                                    className="text-error text-xs"
+                                  >
+                                    High
+                                  </div>
                                 ),
                                 value: 'high',
                               },
                               {
                                 label: (
-                                  <div className="text-warning text-xs">
+                                  <div
+                                    data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-div-147"
+                                    className="text-warning text-xs"
+                                  >
                                     Medium
                                   </div>
                                 ),
@@ -152,7 +175,10 @@ function BoardCardForm({
                               },
                               {
                                 label: (
-                                  <div className="text-success text-xs">
+                                  <div
+                                    data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-div-155"
+                                    className="text-success text-xs"
+                                  >
                                     Low
                                   </div>
                                 ),
@@ -168,8 +194,14 @@ function BoardCardForm({
                   <Col flex="none">
                     <Row align="middle" gutter={8} wrap={false}>
                       <Col flex="none">
-                        <div className="text-xs flex items-center gap-1">
-                          <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                        <div
+                          data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-div-171"
+                          className="text-xs flex items-center gap-1"
+                        >
+                          <span
+                            data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-span-172"
+                            className="w-1 h-1 rounded-full bg-primary inline-block"
+                          ></span>
                           Weight
                         </div>
                       </Col>
@@ -214,8 +246,14 @@ function BoardCardForm({
                     <Col flex="none">
                       <Row align="middle" gutter={8} wrap={false}>
                         <Col flex="none">
-                          <div className="text-xs flex items-center gap-1">
-                            <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                          <div
+                            data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-div-217"
+                            className="text-xs flex items-center gap-1"
+                          >
+                            <span
+                              data-cy="planning-and-reporting-components-planforms-boardformview-tsx-boardformview-span-218"
+                              className="w-1 h-1 rounded-full bg-primary inline-block"
+                            ></span>
                             Target
                           </div>
                         </Col>
