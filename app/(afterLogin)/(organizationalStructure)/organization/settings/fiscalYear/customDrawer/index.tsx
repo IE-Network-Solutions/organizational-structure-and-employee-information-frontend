@@ -387,6 +387,9 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           // Fallback to slicing if date matching returns empty array
           // But only assign months that actually belong to this session (verify dates)
           if (sessionMonths.length === 0 && allMonths.length > 0 && sessionStartStr && sessionEndStr) {
+            const fallbackSessionStart = dayjs(sessionStartStr);
+            const fallbackSessionEnd = dayjs(sessionEndStr);
+            
             // Only use unassigned months for slicing fallback
             const unassignedMonths = allMonths.filter(m => {
               const key = `${m.startDate}-${m.endDate}`;
@@ -394,10 +397,10 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
               
               // Verify the month actually belongs to this session
               const mStart = dayjs(m.startDate);
-              if (!mStart.isValid()) return false;
+              if (!mStart.isValid() || !fallbackSessionStart.isValid() || !fallbackSessionEnd.isValid()) return false;
               return (
-                mStart.isSameOrAfter(sessionStartDate, 'day') &&
-                mStart.isBefore(sessionEndDate, 'day')
+                mStart.isSameOrAfter(fallbackSessionStart, 'day') &&
+                mStart.isBefore(fallbackSessionEnd, 'day')
               );
             });
             const slicedMonths = unassignedMonths.slice(0, 3);
@@ -475,6 +478,9 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           // Fallback to slicing if date matching returns empty array
           // But only assign months that actually belong to this session (verify dates)
           if (sessionMonths.length === 0 && allMonths.length > 0 && sessionStartStr && sessionEndStr) {
+            const fallbackSessionStart = dayjs(sessionStartStr);
+            const fallbackSessionEnd = dayjs(sessionEndStr);
+            
             // Only use unassigned months for slicing fallback
             const unassignedMonths = allMonths.filter(m => {
               const key = `${m.startDate}-${m.endDate}`;
@@ -482,10 +488,10 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
               
               // Verify the month actually belongs to this session
               const mStart = dayjs(m.startDate);
-              if (!mStart.isValid()) return false;
+              if (!mStart.isValid() || !fallbackSessionStart.isValid() || !fallbackSessionEnd.isValid()) return false;
               return (
-                mStart.isSameOrAfter(sessionStartDate, 'day') &&
-                mStart.isBefore(sessionEndDate, 'day')
+                mStart.isSameOrAfter(fallbackSessionStart, 'day') &&
+                mStart.isBefore(fallbackSessionEnd, 'day')
               );
             });
             const slicedMonths = unassignedMonths.slice(0, 6);
