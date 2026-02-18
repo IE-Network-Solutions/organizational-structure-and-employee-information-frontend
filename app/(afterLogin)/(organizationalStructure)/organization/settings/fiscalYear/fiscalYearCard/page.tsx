@@ -178,6 +178,7 @@ const FiscalYearListCard: React.FC = () => {
             className="bg-white hover:bg-gray-100"
             icon={
               <MdDelete
+                className="text-gray-600"
                 data-cy={`org-settings-fiscal-year-delete-icon-${fiscalYearId}`}
               />
             }
@@ -232,7 +233,7 @@ const FiscalYearListCard: React.FC = () => {
               data-cy={`org-settings-fiscal-year-delete-popconfirm-${fiscalYearId}`}
             >
               <span
-                className="cursor-pointer"
+                className="cursor-pointer text-gray-600"
                 data-cy={`org-settings-fiscal-year-delete-popconfirm-trigger-${fiscalYearId}`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -405,7 +406,7 @@ const FiscalYearListCard: React.FC = () => {
                         data-cy={`org-settings-fiscal-year-date-range-icon-${fiscalYearId}`}
                       />
                       <span
-                        className="text-sm text-gray-700"
+                        className="text-sm text-gray-500"
                         data-cy={`org-settings-fiscal-year-date-range-text-${fiscalYearId}`}
                       >
                         {dayjs(fYear.startDate).format('DD MMM, YYYY')} -{' '}
@@ -423,7 +424,7 @@ const FiscalYearListCard: React.FC = () => {
                         data-cy={`org-settings-fiscal-year-frequency-icon-${fiscalYearId}`}
                       />
                       <span
-                        className="text-sm text-gray-700"
+                        className="text-sm text-gray-500"
                         data-cy={`org-settings-fiscal-year-frequency-text-${fiscalYearId}`}
                       >
                         {getCalendarFrequency(fYear.sessions)}
@@ -459,7 +460,7 @@ const FiscalYearListCard: React.FC = () => {
                                 data-cy={`org-settings-fiscal-year-session-header-content-${sessionId}`}
                               >
                                 <p
-                                  className="font-semibold text-gray-800 m-0"
+                                  className="font-base text-gray-800 m-0"
                                   style={{ fontSize: '14px' }}
                                   data-cy={`org-settings-fiscal-year-session-name-${sessionId}`}
                                   id={`org-settings-fiscal-year-session-name-${sessionId}`}
@@ -467,7 +468,7 @@ const FiscalYearListCard: React.FC = () => {
                                   {session.name ?? 'Session One'}
                                 </p>
                                 <div
-                                  className="text-gray-700"
+                                  className="text-gray-500"
                                   style={{ fontSize: '12px' }}
                                   data-cy={`org-settings-fiscal-year-session-dates-${sessionId}`}
                                   id={`org-settings-fiscal-year-session-dates-${sessionId}`}
@@ -545,7 +546,7 @@ const FiscalYearListCard: React.FC = () => {
                                             id="org-settings-fiscalyear-fiscalyearcard-page-div-1"
                                           >
                                             <p
-                                              className="font-semibold text-gray-800 m-0"
+                                              className="font-base text-gray-800 m-0"
                                               style={{ fontSize: '14px' }}
                                               data-cy={`org-settings-fiscal-year-month-name-${monthId}`}
                                               id={`org-settings-fiscal-year-month-name-${monthId}`}
@@ -553,7 +554,7 @@ const FiscalYearListCard: React.FC = () => {
                                               {month?.name ?? 'Month'}
                                             </p>
                                             <div
-                                              className="text-gray-700"
+                                              className="text-gray-500"
                                               style={{ fontSize: '12px' }}
                                               data-cy={`org-settings-fiscal-year-month-dates-${monthId}`}
                                               id={`org-settings-fiscal-year-month-dates-${monthId}`}

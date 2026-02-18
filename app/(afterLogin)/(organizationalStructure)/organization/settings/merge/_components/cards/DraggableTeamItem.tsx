@@ -31,13 +31,13 @@ const DraggableTeamItem: React.FC<DraggableTeamItemProps> = ({
       style={style}
       {...attributes}
       {...listeners}
-      className={`p-2 mb-2 rounded-lg border cursor-grab active:cursor-grabbing ${getTeamColor(
+      className={`p-2 mb-2 rounded-lg border shadow-sm cursor-grab active:cursor-grabbing ${getTeamColor(
         index,
       )} ${isDragging ? 'shadow-lg' : 'shadow-sm'}`}
       data-cy={`merge-available-team-${department.id}`}
     >
       <p
-        className="font-medium text-xs text-gray-900 m-0 truncate"
+        className="text-sm text-gray-500 m-0 truncate"
         data-cy={`merge-available-team-name-${department.id}`}
       >
         {department.name}

@@ -104,7 +104,7 @@ const Branches = () => {
             onClick={() => handleEdit(branch)}
             data-cy={`org-settings-branch-edit-${branchId}`}
             id={`org-settings-branch-edit-${branchId}`}
-            className="bg-white hover:bg-gray-100"
+            className="bg-white hover:bg-gray-100 text-gray-600"
             icon={<MdEdit />}
           >
             Edit
@@ -118,7 +118,7 @@ const Branches = () => {
           <Menu.Item
             data-cy={`org-settings-branch-delete-${branchId}`}
             id={`org-settings-branch-delete-${branchId}`}
-            className="bg-white hover:bg-gray-100"
+            className="bg-white hover:bg-gray-100  text-gray-600"
             icon={<MdDelete />}
           >
             <Popconfirm
@@ -184,13 +184,13 @@ const Branches = () => {
                   className="flex justify-between items-center mb-4"
                   data-cy={`org-settings-branch-card-separator-${branchId}`}
                 >
-                  <h3
-                    className="text-base font-semibold text-gray-800 m-0"
+                  <div
+                    className="text-base text-gray-800 m-0"
                     data-cy={`org-settings-branch-name-${branchId}`}
                     id={`org-settings-branch-name-${branchId}`}
                   >
                     {item.name}
-                  </h3>
+                  </div>
                   <Dropdown
                     overlay={menu(item)}
                     trigger={['click']}
@@ -228,7 +228,7 @@ const Branches = () => {
                       Location
                     </span>
                     <span
-                      className="text-sm text-gray-700 break-words"
+                      className="text-base text-gray-700 break-words"
                       data-cy={`org-settings-branch-location-value-${branchId}`}
                       id={`org-settings-branch-location-value-${branchId}`}
                     >
@@ -248,7 +248,7 @@ const Branches = () => {
                       Contact Number
                     </span>
                     <span
-                      className="text-sm text-gray-700 break-words"
+                      className="text-base text-gray-700 break-words"
                       data-cy={`org-settings-branch-contact-number-value-${branchId}`}
                       id={`org-settings-branch-contact-number-value-${branchId}`}
                     >
