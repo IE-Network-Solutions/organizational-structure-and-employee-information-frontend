@@ -20,6 +20,7 @@ interface WeeklyPriorityModalProps {
   month: string;
   selectedTask: any;
   planningType: string;
+  'data-cy'?: string;
 }
 
 const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
@@ -33,6 +34,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
   month,
   selectedTask,
   planningType,
+  'data-cy': dataCy,
 }) => {
   const { checkedList, setCheckedList } = useWeeklyPriorityStore();
   const {
@@ -205,6 +207,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
         }
       `}</style>
       <Modal
+        data-cy={dataCy}
         open={open}
         onCancel={handleClose}
         width={780}
@@ -255,7 +258,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
                 return (
                   <div
                     key={priority.id}
-                    className={`priority-item-row py-3.5 md:py-4.5 px-4 md:px-8 flex items-center gap-4 md:gap-5 cursor-pointer ${isChecked ? 'selected' : ''}`}
+                    className={`priority-item-row py-3.5 md:py-4.5 px-4 md:px-6 flex items-center gap-4 md:gap-5 cursor-pointer ${isChecked ? 'selected' : ''}`}
                     onClick={() => handleCheck(!isChecked, {
                       taskId: priority.id,
                       title: priority.task,

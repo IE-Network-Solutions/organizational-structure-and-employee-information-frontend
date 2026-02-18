@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Input, Form, Dropdown, Checkbox, Avatar, Tooltip } from 'antd';
-import { HiCheckCircle } from 'react-icons/hi';
-import { RiMoreFill, RiCloseLine } from 'react-icons/ri';
+import { HiCheckCircle, HiXCircle } from 'react-icons/hi';
+import { RiMoreFill, RiCloseLine, RiCloseFill } from 'react-icons/ri';
 import { UserOutlined } from '@ant-design/icons';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
 import { Popconfirm } from 'antd/lib';
@@ -181,9 +181,59 @@ const TaskCard: React.FC = () => {
             border-color: #84cc16 !important;
         }
         .text-strike-green {
-            text-decoration: line-through;
-            text-decoration-color: #84cc16;
-            text-decoration-thickness: 1.5px;
+            color: #374151; /* Darker text for completed task */
+        }
+        .text-strike-red {
+            color: #374151;
+        }
+        .task-row-line {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            top: 52%;
+            height: 1px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        @media (min-width: 768px) {
+            .task-row-line {
+                left: 24px;
+                right: 24px;
+            }
+        }
+        .task-row-line-inner {
+            width: 100%;
+            height: 100%;
+        }
+        .bg-strike-green {
+            background-color: #22c55e; /* Standard green */
+        }
+        .bg-strike-red {
+            background-color: #ef4444; /* Standard red */
+        }
+        
+        /* Custom styled checkboxes for the left side */
+        .completed-checkbox .ant-checkbox-inner {
+            background-color: #22c55e !important;
+            border-color: #22c55e !important;
+        }
+        .failed-checkbox-icon {
+            width: 16px;
+            height: 16px;
+            background-color: #ef4444;
+            border: 1px solid #ef4444;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+        @media (max-width: 767px) {
+            .task-row-line {
+                left: 16px;
+                right: 16px;
+            }
         }
       `}</style>
 
@@ -210,7 +260,7 @@ const TaskCard: React.FC = () => {
                                     <div className="flex items-center gap-2" data-cy={`task-card-meta-${itemIndex}`}>
                                         <Avatar
                                             size={22}
-                                            icon={<UserOutlined />}
+                                            icon={<UserOutlined data-cy={`task-card-avatar-icon-${itemIndex}`} />}
                                             src={employee?.photo}
                                             className="bg-gray-100 flex-shrink-0"
                                             data-cy={`task-card-avatar-${itemIndex}`}
@@ -233,7 +283,7 @@ const TaskCard: React.FC = () => {
                                         <Button
                                             type="text"
                                             className="flex items-center justify-center h-8 w-8 hover:bg-white hover:shadow-sm border border-transparent rounded-[6px] transition-all"
-                                            icon={<RiMoreFill className="text-gray-400 text-[20px]" />}
+                                            icon={<RiMoreFill className="text-gray-400 text-[20px]" data-cy={`task-card-dropdown-icon-${itemIndex}`} />}
                                             data-cy={`task-card-dropdown-button-${itemIndex}`}
                                         />
                                     </Dropdown>
@@ -241,133 +291,152 @@ const TaskCard: React.FC = () => {
                             </div>
                         </div>
 
-                        <Form form={form} className="pb-4" data-cy={`task-card-form-${itemIndex}`}>
+                        <Form form={form} className="pb-0" data-cy={`task-card-form-${itemIndex}`}>
                             {item.tasks.map((task, taskIndex) => {
                                 const taskId = task.id || `${itemIndex}-${taskIndex}`;
                                 const isCompleted = task.status === 'COMPLETED';
+                                const isNotCompleted = task.status === 'NOT_COMPLETED';
                                 const isSelected = !!selectedTaskIds[taskId] || isCompleted;
 
                                 return (
                                     <div key={taskIndex} className="flex flex-col" data-cy={`task-item-${itemIndex}-${taskIndex}`}>
                                         <div
-                                            className={`flex items-start gap-4 group px-4 md:px-6 py-4 md:py-[18px] transition-colors ${isCompleted ? 'bg-[#f7fee7]' : 'bg-white'}`}
+                                            className={`grid grid-cols-[auto_1fr] transition-colors ${isCompleted ? 'bg-[#f7fee7]' : isNotCompleted ? 'bg-[#fff1f2]' : 'bg-white'}`}
                                             data-cy={`task-item-content-${itemIndex}-${taskIndex}`}
                                         >
-                                            <div className="flex-shrink-0 pt-0.5" data-cy={`task-item-checkbox-wrapper-${itemIndex}-${taskIndex}`}>
-                                                {isCompleted ? (
-                                                    <Popconfirm
-                                                        title="Undo task progress?"
-                                                        onConfirm={() => handleCheckboxChange(false, itemIndex, taskIndex, taskId)}
-                                                        okText="Yes"
-                                                        cancelText="No"
-                                                        placement="topLeft"
-                                                        data-cy={`task-item-popconfirm-completed-${itemIndex}-${taskIndex}`}
-                                                    >
-                                                        <Checkbox
-                                                            checked={true}
-                                                            className="custom-pixel-checkbox completed-task-checkbox"
-                                                            data-cy={`task-item-checkbox-completed-${itemIndex}-${taskIndex}`}
-                                                        />
-                                                    </Popconfirm>
-                                                ) : (
-                                                    <Checkbox
-                                                        checked={isSelected}
-                                                        onChange={(e) => handleCheckboxChange(e.target.checked, itemIndex, taskIndex, taskId)}
-                                                        disabled={task.status === 'NOT_COMPLETED'}
-                                                        className="custom-pixel-checkbox"
-                                                        data-cy={`task-item-checkbox-${itemIndex}-${taskIndex}`}
-                                                    />
-                                                )}
-                                            </div>
-
-                                            <div className="flex-1 min-w-0 pr-2" data-cy={`task-item-details-${itemIndex}-${taskIndex}`}>
-                                                <div className="flex justify-between items-center w-full" data-cy={`task-item-header-${itemIndex}-${taskIndex}`}>
-                                                    <span
-                                                        className={`text-[14.5px] md:text-[15px] font-medium leading-normal transition-all ${isCompleted ? 'text-gray-400 text-strike-green' : 'text-[#374151]'}`}
-                                                        data-cy={`task-item-title-${itemIndex}-${taskIndex}`}
-                                                    >
-                                                        {task.title}
-                                                    </span>
-
-                                                    {isCompleted && (
-                                                        <HiCheckCircle className="text-[#84cc16] text-[20px] ml-2 flex-shrink-0" data-cy={`task-item-completed-icon-${itemIndex}-${taskIndex}`} />
-                                                    )}
-
-                                                    {!isCompleted && (task.status === 'PENDING' || task.status === 'NOT_COMPLETED') && (
-                                                        <div className={`opacity-0 group-hover:opacity-100 transition-opacity ml-4 ${failedReasonVisible[taskId] ? 'opacity-100' : ''}`} data-cy={`task-item-actions-${itemIndex}-${taskIndex}`}>
-                                                            {task.status !== 'NOT_COMPLETED' && (
-                                                                <Tooltip title="Cancel/Postpone Task" data-cy={`task-item-cancel-tooltip-${itemIndex}-${taskIndex}`}>
-                                                                    <Button
-                                                                        type="text"
-                                                                        size="small"
-                                                                        className="text-gray-300 hover:text-red-500 flex items-center justify-center p-1"
-                                                                        icon={<RiCloseLine className="text-lg" />}
-                                                                        onClick={() => {
-                                                                            setFailedReasonVisible({
-                                                                                ...failedReasonVisible,
-                                                                                [taskId]: true,
-                                                                            });
-                                                                        }}
-                                                                        data-cy={`task-item-cancel-button-${itemIndex}-${taskIndex}`}
-                                                                    />
-                                                                </Tooltip>
-                                                            )}
+                                            {/* Left Column: Icon */}
+                                            <div className={`flex ${isNotCompleted ? 'items-center' : 'items-center md:items-start md:pt-[18px]'} pl-4 md:pl-6 pr-1 md:pr-0 py-4 md:py-[18px]`} data-cy={`task-item-icon-column-${itemIndex}-${taskIndex}`}>
+                                                <div className="flex-shrink-0" data-cy={`task-item-checkbox-wrapper-${itemIndex}-${taskIndex}`}>
+                                                    {isCompleted ? (
+                                                        <Popconfirm
+                                                            title="Undo task progress?"
+                                                            onConfirm={() => handleCheckboxChange(false, itemIndex, taskIndex, taskId)}
+                                                            okText="Yes"
+                                                            cancelText="No"
+                                                            placement="topLeft"
+                                                            data-cy={`task-item-popconfirm-completed-${itemIndex}-${taskIndex}`}
+                                                        >
+                                                            <div className="relative z-10 bg-[#f7fee7] px-1" data-cy={`task-item-completed-wrapper-${itemIndex}-${taskIndex}`}>
+                                                                <Checkbox checked className="completed-checkbox" data-cy={`task-item-completed-checkbox-${itemIndex}-${taskIndex}`} />
+                                                            </div>
+                                                        </Popconfirm>
+                                                    ) : isNotCompleted ? (
+                                                        <div className="relative z-10 bg-[#fff1f2] px-1" data-cy={`task-item-failed-wrapper-${itemIndex}-${taskIndex}`}>
+                                                            <div className="failed-checkbox-icon" data-cy={`task-item-failed-checkbox-icon-${itemIndex}-${taskIndex}`}>
+                                                                <RiCloseFill data-cy={`task-item-failed-checkbox-icon-inner-${itemIndex}-${taskIndex}`} />
+                                                            </div>
                                                         </div>
+                                                    ) : (
+                                                        <Checkbox
+                                                            checked={isSelected}
+                                                            onChange={(e) => handleCheckboxChange(e.target.checked, itemIndex, taskIndex, taskId)}
+                                                            disabled={task.status === 'NOT_COMPLETED'}
+                                                            className="custom-pixel-checkbox"
+                                                            data-cy={`task-item-checkbox-${itemIndex}-${taskIndex}`}
+                                                        />
                                                     )}
                                                 </div>
+                                            </div>
 
-                                                {failedReasonVisible[taskId] && (
-                                                    <div className="mt-3 bg-[#fef2f2] border border-[#fee2e2] p-4 rounded-[10px]" data-cy={`task-item-failed-reason-form-${itemIndex}-${taskIndex}`}>
-                                                        <p className="text-[12px] font-bold text-red-800 mb-2 uppercase tracking-tight" data-cy={`task-item-failed-reason-title-${itemIndex}-${taskIndex}`}>Postpone Details</p>
-                                                        <Input.TextArea
-                                                            placeholder="Why did this task fail?"
-                                                            value={failedReasons[taskId] || task.failureReason}
-                                                            onChange={(e) => {
-                                                                setFailedReasons({ ...failedReasons, [taskId]: e.target.value });
-                                                            }}
-                                                            className="mb-3 text-sm rounded-[6px] border-[#fee2e2]"
-                                                            autoFocus
-                                                            rows={2}
-                                                            data-cy={`task-item-failed-reason-textarea-${itemIndex}-${taskIndex}`}
-                                                        />
-                                                        <div className="flex gap-2 justify-end" data-cy={`task-item-failed-reason-actions-${itemIndex}-${taskIndex}`}>
-                                                            <Button
-                                                                size="small"
-                                                                className="rounded-[6px] text-[12px]"
-                                                                onClick={() => handleFailedReasonCancel(itemIndex, taskIndex)}
-                                                                data-cy={`task-item-failed-reason-cancel-${itemIndex}-${taskIndex}`}
-                                                            >
-                                                                Cancel
-                                                            </Button>
-                                                            <Button
-                                                                type="primary"
-                                                                danger
-                                                                size="small"
-                                                                className="rounded-[6px] text-[12px] bg-red-600 border-none font-semibold"
-                                                                loading={updateWeeklyPriorityTaskLoading}
-                                                                onClick={() => handleFailedReasonSubmit(itemIndex, taskIndex)}
-                                                                disabled={!failedReasons[taskId]?.trim()}
-                                                                data-cy={`task-item-failed-reason-submit-${itemIndex}-${taskIndex}`}
-                                                            >
-                                                                Submit
-                                                            </Button>
+                                            {/* Right Column: Content */}
+                                            <div className="flex-1 flex flex-col min-w-0" data-cy={`task-item-content-column-${itemIndex}-${taskIndex}`}>
+                                                <div className="flex items-center md:items-start gap-4 group pr-4 md:pr-6 py-4 md:py-[18px] relative pl-4 md:pl-5" data-cy={`task-item-header-container-${itemIndex}-${taskIndex}`}>
+                                                    {(isCompleted || isNotCompleted) && (
+                                                        <div className="task-row-line -ml-4 md:-ml-5" data-cy={`task-item-line-wrapper-${itemIndex}-${taskIndex}`}>
+                                                            <div className={`task-row-line-inner ${isCompleted ? 'bg-strike-green' : 'bg-strike-red'}`} data-cy={`task-item-line-inner-${itemIndex}-${taskIndex}`} />
                                                         </div>
+                                                    )}
+
+                                                    <div className="flex-1 min-w-0" data-cy={`task-item-details-${itemIndex}-${taskIndex}`}>
+                                                        <div className="flex justify-between items-center w-full min-h-[24px]" data-cy={`task-item-header-${itemIndex}-${taskIndex}`}>
+                                                            <span
+                                                                className={`text-[14.5px] md:text-[15px] font-medium leading-normal transition-all truncate md:whitespace-normal ${isCompleted ? 'text-strike-green' : isNotCompleted ? 'text-strike-red' : 'text-[#374151]'}`}
+                                                                data-cy={`task-item-title-${itemIndex}-${taskIndex}`}
+                                                            >
+                                                                {task.title}
+                                                            </span>
+
+                                                            <div className="flex items-center gap-2 flex-shrink-0 ml-4" data-cy={`task-item-status-icons-${itemIndex}-${taskIndex}`}>
+                                                                {!isCompleted && (task.status === 'PENDING' || task.status === 'NOT_COMPLETED') && (
+                                                                    <div className={`opacity-0 group-hover:opacity-100 transition-opacity ${failedReasonVisible[taskId] ? 'opacity-100' : ''}`} data-cy={`task-item-actions-${itemIndex}-${taskIndex}`}>
+                                                                        {task.status !== 'NOT_COMPLETED' && (
+                                                                            <Tooltip title="Cancel/Postpone Task" data-cy={`task-item-cancel-tooltip-${itemIndex}-${taskIndex}`}>
+                                                                                <Button
+                                                                                    type="text"
+                                                                                    size="small"
+                                                                                    className="text-gray-300 hover:text-red-500 flex items-center justify-center p-1"
+                                                                                    icon={<RiCloseLine className="text-lg" />}
+                                                                                    onClick={() => {
+                                                                                        setFailedReasonVisible({
+                                                                                            ...failedReasonVisible,
+                                                                                            [taskId]: true,
+                                                                                        });
+                                                                                    }}
+                                                                                    data-cy={`task-item-cancel-button-${itemIndex}-${taskIndex}`}
+                                                                                />
+                                                                            </Tooltip>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+
+                                                                {isCompleted && (
+                                                                    <HiCheckCircle className="text-[#22c55e] text-[15px] flex-shrink-0 relative z-10 bg-[#f7fee7] rounded-full" data-cy={`task-item-completed-icon-${itemIndex}-${taskIndex}`} />
+                                                                )}
+
+                                                                {isNotCompleted && (
+                                                                    <HiXCircle className="text-[#ef4444] text-[15px] flex-shrink-0 relative z-10 bg-[#fff1f2] rounded-full" data-cy={`task-item-failed-icon-${itemIndex}-${taskIndex}`} />
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {failedReasonVisible[taskId] && (
+                                                            <div className="mt-3 bg-white border border-[#fee2e2] p-4 rounded-[10px]" data-cy={`task-item-failed-reason-form-${itemIndex}-${taskIndex}`}>
+                                                                <p className="text-[12px] font-bold text-red-800 mb-2 uppercase tracking-tight" data-cy={`task-item-failed-reason-title-${itemIndex}-${taskIndex}`}>Postpone Details</p>
+                                                                <Input.TextArea
+                                                                    placeholder="Why did this task fail?"
+                                                                    value={failedReasons[taskId] || task.failureReason}
+                                                                    onChange={(e) => {
+                                                                        setFailedReasons({ ...failedReasons, [taskId]: e.target.value });
+                                                                    }}
+                                                                    className="mb-3 text-sm rounded-[6px] border-[#fee2e2]"
+                                                                    autoFocus
+                                                                    rows={2}
+                                                                    data-cy={`task-item-failed-reason-textarea-${itemIndex}-${taskIndex}`}
+                                                                />
+                                                                <div className="flex gap-2 justify-end" data-cy={`task-item-failed-reason-actions-${itemIndex}-${taskIndex}`}>
+                                                                    <Button
+                                                                        size="small"
+                                                                        className="rounded-[6px] text-[12px]"
+                                                                        onClick={() => handleFailedReasonCancel(itemIndex, taskIndex)}
+                                                                        data-cy={`task-item-failed-reason-cancel-${itemIndex}-${taskIndex}`}
+                                                                    >
+                                                                        Cancel
+                                                                    </Button>
+                                                                    <Button
+                                                                        type="primary"
+                                                                        danger
+                                                                        size="small"
+                                                                        className="rounded-[6px] text-[12px] bg-red-600 border-none font-semibold"
+                                                                        loading={updateWeeklyPriorityTaskLoading}
+                                                                        onClick={() => handleFailedReasonSubmit(itemIndex, taskIndex)}
+                                                                        disabled={!failedReasons[taskId]?.trim()}
+                                                                        data-cy={`task-item-failed-reason-submit-${itemIndex}-${taskIndex}`}
+                                                                    >
+                                                                        Submit
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
+                                                </div>
 
                                                 {!failedReasonVisible[taskId] && task.status === 'NOT_COMPLETED' && (
                                                     <div
-                                                        className="mt-2 text-[12px] text-red-600 bg-[#fef2f2] px-3 py-2 rounded-[6px] border border-[#fee2e2] cursor-pointer inline-flex items-center gap-1.5"
-                                                        onClick={() => {
-                                                            setFailedReasonVisible({
-                                                                ...failedReasonVisible,
-                                                                [taskId]: true,
-                                                            });
-                                                        }}
+                                                        className="ml-4 md:ml-5 mr-4 md:mr-6 mb-4 md:mb-[18px] bg-white border border-gray-100 shadow-sm px-5 py-3 rounded-[12px]"
                                                         data-cy={`task-item-failed-reason-display-${itemIndex}-${taskIndex}`}
                                                     >
-                                                        <span className="font-bold" data-cy={`task-item-failed-reason-label-${itemIndex}-${taskIndex}`}>POSTPONED:</span>
-                                                        <span className="opacity-90" data-cy={`task-item-failed-reason-text-${itemIndex}-${taskIndex}`}>{task.failureReason}</span>
+                                                        <span className="text-[13.5px] text-[#111827] font-bold" data-cy={`task-item-failed-reason-label-${itemIndex}-${taskIndex}`}>Reason : </span>
+                                                        <span className="text-[13.5px] text-gray-500 font-medium ml-1" data-cy={`task-item-failed-reason-text-${itemIndex}-${taskIndex}`}>{task.failureReason}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -384,6 +453,7 @@ const TaskCard: React.FC = () => {
             })}
 
             <WeeklyPriorityModal
+                data-cy="weekly-priority-modal"
                 open={modalOpen}
                 onCancel={() => {
                     setModalOpen(false);

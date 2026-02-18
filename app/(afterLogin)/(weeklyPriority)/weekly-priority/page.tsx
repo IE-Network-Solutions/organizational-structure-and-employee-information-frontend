@@ -50,14 +50,14 @@ function Page(): JSX.Element {
               <div className="flex items-center gap-1 text-[12px] md:text-[13px] text-gray-400" data-cy="weekly-priority-breadcrumb">
                 <span data-cy="weekly-priority-breadcrumb-okr">OKR</span>
                 <span data-cy="weekly-priority-breadcrumb-separator">/</span>
-                <span className="text-gray-400" data-cy="weekly-priority-breadcrumb-current">Weekly Priority</span>
+                <span className="text-gray-400" data-cy="weekly-priority-breadcrumb-current">Weekly priority</span>
               </div>
             </div>
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => setModalOpen(true)}
-              className="bg-[#254ec2] hover:bg-[#1e3e9a] h-[40px] md:h-[44px] px-3 md:px-6 rounded-[8px] flex items-center justify-center text-sm font-semibold border-none"
+              className="bg-[#254ec2] hover:bg-[#1e3e9a] h-[40px] md:h-[44px] w-[40px] md:w-auto px-0 md:px-6 rounded-[8px] flex items-center justify-center text-sm font-semibold border-none"
               data-cy="weekly-priority-create-button"
             >
               <span className="hidden md:inline ml-1" data-cy="weekly-priority-create-button-text">Create Priority</span>

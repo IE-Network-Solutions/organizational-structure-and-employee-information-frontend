@@ -5,7 +5,7 @@ import {
   useGetDepartmentChild,
   useGetWeeklyPriorities,
 } from '@/store/server/features/okrplanning/weeklyPriority/queries';
-import TaskCard from '../taskCard';
+import TaskCard from '../taskCard/index';
 import CustomPagination from '@/components/customPagination';
 
 const Department: React.FC = () => {
@@ -43,7 +43,7 @@ const Department: React.FC = () => {
   }, [weeklyPriority, activeTab, setData]);
 
   return (
-    <div style={{ padding: 20 }} data-cy="department-team-container">
+    <div className="py-4 md:py-5" data-cy="department-team-container">
       <div
         className="flex justify-between mb-5"
         data-cy="department-team-header"
