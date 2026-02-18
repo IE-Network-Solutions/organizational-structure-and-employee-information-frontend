@@ -6,7 +6,9 @@ import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 dayjs.extend(advancedFormat);
 import { BsChevronDown } from 'react-icons/bs';
+import { IoMdSwitch } from 'react-icons/io';
 import PlanFilters from './PlanFilters';
+import MobileFilterModal from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/filters/MobileFilterModal';
 import BasicPlanCard from './BasicPlanCard';
 import CustomPagination from '@/components/customPagination';
 import PlanCardSkeleton from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/cards/PlanCardSkeleton';
@@ -70,6 +72,7 @@ export default function BasicPlanning() {
   const [reportingPlan, setReportingPlan] = useState<any>(null);
   const [isEdit, setIsEdit] = useState(false);
   const [editingData, setEditingData] = useState<any>(null);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   // Filter states
   const [selectedDepartment, setSelectedDepartment] = useState<
@@ -484,7 +487,10 @@ export default function BasicPlanning() {
   const handleDelete = (id: string) => {
     Modal.confirm({
       title: (
-        <div className="text-[#101828] text-lg font-medium pt-2" data-cy="delete-plan-confirmation-title">
+        <div
+          className="text-[#101828] text-lg font-medium pt-2"
+          data-cy="delete-plan-confirmation-title"
+        >
           Are you sure you want to delete this plan
         </div>
       ),
@@ -868,18 +874,39 @@ export default function BasicPlanning() {
   };
 
   return (
-    <div className="space-y-6" data-cy="planning-container">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4" data-cy="planning-header">
-        <h1 className="text-2xl font-bold text-gray-900" data-cy="planning-title">Planning</h1>
-        <Dropdown menu={{ items: planMenuItems }} trigger={['click']} data-cy="add-plan-dropdown">
+    <div
+      className="space-y-6 bg-gray-100 min-h-screen px-4 md:px-6 py-4 md:py-6"
+      data-cy="planning-container"
+    >
+      <div
+        className="flex flex-row justify-between items-center gap-4 w-full"
+        data-cy="planning-header"
+      >
+        <h1
+          className="text-2xl font-bold text-gray-900"
+          data-cy="planning-title"
+        >
+          Planning
+        </h1>
+        <Dropdown
+          menu={{ items: planMenuItems }}
+          trigger={['click']}
+          data-cy="add-plan-dropdown"
+        >
           <Button
             type="primary"
             icon={<FaPlus className="text-sm" data-cy="add-plan-icon" />}
-            className="bg-blue-600 hover:bg-blue-700 h-10 px-6 rounded-lg font-medium flex items-center gap-2"
+            className="bg-blue-600 hover:bg-blue-700 h-10 px-4 sm:px-6 rounded-lg font-medium flex items-center gap-2 flex-shrink-0"
             disabled={(objective?.items?.length ?? 0) === 0}
             data-cy="add-plan-button"
           >
-            Add Plan <BsChevronDown className="ml-2 text-xs" data-cy="add-plan-chevron" />
+            <span className="hidden sm:inline" data-cy="add-plan-text">
+              Add Plan
+            </span>
+            <BsChevronDown
+              className="text-xs sm:ml-2"
+              data-cy="add-plan-chevron"
+            />
           </Button>
         </Dropdown>
       </div>
@@ -897,6 +924,24 @@ export default function BasicPlanning() {
         selectedDepartment={selectedDepartment || 'all'}
         handleDepartmentChange={handleDepartmentChange}
         loadingEmployees={loadingEmployees}
+      >
+        <Button
+          className="md:hidden w-12 h-12 flex items-center justify-center border-[#E5E7EB] rounded-lg bg-white"
+          icon={<IoMdSwitch size={20} />}
+          onClick={() => setIsFilterModalOpen(true)}
+        />
+      </PlanFilters>
+
+      <MobileFilterModal
+        open={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApply={() => setIsFilterModalOpen(false)}
+        planTypeOptions={planTypeOptions}
+        selectedPlanType={selectedPlanType}
+        onPlanTypeChange={handlePlanTypeChange}
+        departmentOptions={departmentOptions}
+        selectedDepartment={selectedDepartment || 'all'}
+        onDepartmentChange={handleDepartmentChange}
       />
 
       <div className="space-y-4 mt-6" data-cy="plans-list-container">

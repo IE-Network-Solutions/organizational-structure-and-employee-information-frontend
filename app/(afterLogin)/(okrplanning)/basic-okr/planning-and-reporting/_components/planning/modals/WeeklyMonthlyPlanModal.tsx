@@ -79,8 +79,11 @@ export default function WeeklyMonthlyPlanModal({
       className="basic-okr-modal"
       closeIcon={null}
     >
-      <div className="p-2" data-cy="weekly-monthly-plan-modal-content">
-        <h2 className="text-2xl font-bold text-center text-[#161A2C] mb-8" data-cy="weekly-monthly-plan-modal-title">
+      <div className="p-1 sm:p-2" data-cy="weekly-monthly-plan-modal-content">
+        <h2
+          className="text-2xl font-bold text-center text-[#161A2C] mb-8"
+          data-cy="weekly-monthly-plan-modal-title"
+        >
           {isEdit ? 'Edit Plan' : 'Create Plan'}
         </h2>
 
@@ -90,7 +93,6 @@ export default function WeeklyMonthlyPlanModal({
           requiredMark={false}
           onValuesChange={handleValuesChange}
           initialValues={{ tasks: [{}] }}
-          data-cy="weekly-monthly-plan-form"
         >
           <Form.List name="tasks">
             {(fields, { add, remove }) => (
@@ -107,7 +109,10 @@ export default function WeeklyMonthlyPlanModal({
                         className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors"
                         data-cy={`remove-task-button-${name}`}
                       >
-                        <FaTrash size={14} data-cy={`remove-task-icon-${name}`} />
+                        <FaTrash
+                          size={14}
+                          data-cy={`remove-task-icon-${name}`}
+                        />
                       </button>
                     )}
                     <div
@@ -137,7 +142,10 @@ export default function WeeklyMonthlyPlanModal({
                           placeholder="Set Objective"
                           className="h-12"
                           suffixIcon={
-                            <BsChevronDown className="text-gray-400" data-cy={`objective-chevron-${name}`} />
+                            <BsChevronDown
+                              className="text-gray-400"
+                              data-cy={`objective-chevron-${name}`}
+                            />
                           }
                           data-cy={`objective-select-${name}`}
                         >
@@ -177,12 +185,12 @@ export default function WeeklyMonthlyPlanModal({
                               label={
                                 <span
                                   className="text-sm font-bold text-[#161A2C]"
-                                  data-cy={`key-result-label-${name}`}
+                                  data-cy={`keyresult-label-${name}`}
                                 >
                                   Associated Key Result{' '}
                                   <span
                                     className="text-red-500"
-                                    data-cy={`key-result-required-${name}`}
+                                    data-cy={`keyresult-required-${name}`}
                                   >
                                     *
                                   </span>
@@ -196,15 +204,18 @@ export default function WeeklyMonthlyPlanModal({
                                 className="h-12"
                                 disabled={!objectiveId}
                                 suffixIcon={
-                                  <BsChevronDown className="text-gray-400" data-cy={`key-result-chevron-${name}`} />
+                                  <BsChevronDown
+                                    className="text-gray-400"
+                                    data-cy={`keyresult-chevron-${name}`}
+                                  />
                                 }
-                                data-cy={`key-result-select-${name}`}
+                                data-cy={`keyresult-select-${name}`}
                               >
                                 {keyResults.map((kr: any) => (
                                   <Option
                                     key={kr.id}
                                     value={kr.id}
-                                    data-cy={`key-result-option-${kr.id}`}
+                                    data-cy={`keyresult-option-${kr.id}`}
                                   >
                                     {kr.title}
                                   </Option>
@@ -277,7 +288,10 @@ export default function WeeklyMonthlyPlanModal({
                             placeholder="priority"
                             className="h-12"
                             suffixIcon={
-                              <BsChevronDown className="text-gray-400" data-cy={`priority-chevron-${name}`} />
+                              <BsChevronDown
+                                className="text-gray-400"
+                                data-cy={`priority-chevron-${name}`}
+                              />
                             }
                             data-cy={`priority-select-${name}`}
                           >
@@ -358,17 +372,24 @@ export default function WeeklyMonthlyPlanModal({
                     </div>
 
                     <div
-                      className="w-full flex justify-center"
+                      className="w-full flex justify-end sm:justify-center"
                       data-cy="add-plan-button-container"
                     >
                       <Button
                         type="primary"
-                        icon={<FaPlus className="text-xs" data-cy="add-plan-icon" />}
+                        icon={
+                          <FaPlus className="text-xs" data-cy="add-plan-icon" />
+                        }
                         onClick={() => add()}
-                        className="bg-[#4F46E5] hover:bg-[#4338CA] h-12 px-8 rounded-xl font-bold flex items-center gap-2"
+                        className="bg-[#4F46E5] hover:bg-[#4338CA] h-12 px-4 sm:px-8 rounded-xl font-bold flex items-center gap-2"
                         data-cy="add-plan-button"
                       >
-                        Add Plan
+                        <span
+                          className="hidden sm:inline"
+                          data-cy="add-plan-text"
+                        >
+                          Add Plan
+                        </span>
                       </Button>
                     </div>
                   </div>
@@ -444,6 +465,11 @@ export default function WeeklyMonthlyPlanModal({
         .basic-okr-modal .ant-modal-content {
           border-radius: 24px;
           padding: 32px;
+        }
+        @media (max-width: 767px) {
+          .basic-okr-modal .ant-modal-content {
+            padding: 12px;
+          }
         }
         .basic-okr-modal .ant-select-selector {
           border-radius: 12px !important;

@@ -92,7 +92,9 @@ export default function BasicPlanCard({
           </span>
         ),
         onClick: onApprove,
-        icon: <IoCheckmarkSharp className="text-green-600" data-cy="approve-icon" />,
+        icon: (
+          <IoCheckmarkSharp className="text-green-600" data-cy="approve-icon" />
+        ),
       });
     }
   }
@@ -167,9 +169,12 @@ export default function BasicPlanCard({
         className="flex flex-col md:flex-row justify-between items-start mb-4 gap-4"
         data-cy="basic-plan-card-dates"
       >
-        <div className="flex flex-col gap-2" data-cy="dates-container">
+        <div
+          className="flex flex-col gap-2 w-full md:w-auto"
+          data-cy="dates-container"
+        >
           <div
-            className="flex items-center gap-6 text-[11px]"
+            className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-[11px]"
             data-cy="dates-row"
           >
             <div className="flex items-center gap-1.5" data-cy="planned-date">
@@ -209,27 +214,36 @@ export default function BasicPlanCard({
         </div>
       </div>
 
-      {/* Owner and Status Section */}
+      {/* Owner and Status Section - single line on small screen with truncated name */}
       {(owner || planStatus) && (
         <div
-          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 pt-0"
+          className="flex flex-row justify-between items-center gap-2 md:gap-4 mb-4 pt-0 min-w-0"
           data-cy="owner-status-section"
         >
           {owner && (
-            <div className="flex items-center gap-3" data-cy="owner-section">
+            <div
+              className="flex items-center gap-3 min-w-0 flex-1"
+              data-cy="owner-section"
+            >
               <Avatar
                 size={40}
+                className="flex-shrink-0"
                 src={owner.avatar}
                 icon={!owner.avatar && (owner.initials || owner.name?.[0])}
               />
-              <div data-cy="owner-info">
+              <div className="min-w-0 flex-1" data-cy="owner-info">
                 <h4
-                  className="text-gray-900 font-bold text-sm"
+                  className="text-gray-900 font-bold text-sm truncate"
+                  title={owner.name}
                   data-cy="owner-name"
                 >
                   {owner.name}
                 </h4>
-                <p className="text-gray-400 text-xs" data-cy="owner-team">
+                <p
+                  className="text-gray-400 text-xs truncate hidden md:block"
+                  title={owner.team}
+                  data-cy="owner-team"
+                >
                   {owner.team}
                 </p>
               </div>
@@ -238,7 +252,7 @@ export default function BasicPlanCard({
 
           {planStatus && (
             <div
-              className="flex items-center gap-3"
+              className="flex items-center gap-2 flex-shrink-0"
               data-cy="plan-status-section"
             >
               <div
@@ -246,16 +260,26 @@ export default function BasicPlanCard({
                 data-cy="status-container"
               >
                 <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center text-white ${planStatus.status === 'success' ? 'bg-[#00BA88]' : 'bg-[#FFA500]'}`}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-white flex-shrink-0 ${planStatus.status === 'success' ? 'bg-[#00BA88]' : 'bg-[#FFA500]'}`}
                   data-cy="status-icon"
                 >
                   {planStatus.status === 'success' ? (
-                    <IoCheckmarkSharp className="text-xl" data-cy="status-success-icon" />
+                    <IoCheckmarkSharp
+                      className="text-xl"
+                      data-cy="status-success-icon"
+                    />
                   ) : (
-                    <BsThreeDots className="text-xl" data-cy="status-pending-icon" />
+                    <BsThreeDots
+                      className="text-xl"
+                      data-cy="status-pending-icon"
+                    />
                   )}
                 </div>
-                <div className="flex flex-col min-w-0" data-cy="status-info">
+                {/* Label and date hidden on small screen; only icon shown */}
+                <div
+                  className="hidden md:flex flex-col min-w-0"
+                  data-cy="status-info"
+                >
                   <p
                     className="text-[#161A2C] font-bold text-[15px] leading-tight"
                     data-cy="status-label"
@@ -280,7 +304,10 @@ export default function BasicPlanCard({
                   <Button
                     type="text"
                     icon={
-                      <IoEllipsisVertical className="text-gray-400 text-lg" data-cy="status-menu-icon" />
+                      <IoEllipsisVertical
+                        className="text-gray-400 text-lg"
+                        data-cy="status-menu-icon"
+                      />
                     }
                     data-cy="status-menu-button"
                   />

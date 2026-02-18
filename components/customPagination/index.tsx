@@ -176,7 +176,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         >
           <LeftOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
-        <div className="flex items-center" data-cy="pagination-numbers-container">{renderPageNumbers()}</div>
+        <div
+          className="flex items-center"
+          data-cy="pagination-numbers-container"
+        >
+          {renderPageNumbers()}
+        </div>
         <button
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}

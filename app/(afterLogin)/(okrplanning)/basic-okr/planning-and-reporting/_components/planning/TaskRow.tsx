@@ -183,13 +183,22 @@ export default function TaskRow({
       >
         <div className="mt-1 flex-shrink-0" data-cy="task-status-icon">
           {task.status === 'completed' && (
-            <IoCheckmarkCircleOutline className="text-2xl text-[#52C41A]" data-cy="task-completed-icon" />
+            <IoCheckmarkCircleOutline
+              className="text-2xl text-[#52C41A]"
+              data-cy="task-completed-icon"
+            />
           )}
           {task.status === 'failed' && (
-            <IoCloseCircleOutline className="text-2xl text-[#FF4D4F]" data-cy="task-failed-icon" />
+            <IoCloseCircleOutline
+              className="text-2xl text-[#FF4D4F]"
+              data-cy="task-failed-icon"
+            />
           )}
           {(task.status === 'pending' || !task.status) && (
-            <IoTimeOutline className="text-2xl text-[#FAAD14]" data-cy="task-pending-icon" />
+            <IoTimeOutline
+              className="text-2xl text-[#FAAD14]"
+              data-cy="task-pending-icon"
+            />
           )}
         </div>
         <div className="min-w-0 flex-1" data-cy="task-details">
@@ -225,16 +234,18 @@ export default function TaskRow({
         >
           <PriorityBadge priority={task.priority} />
         </div>
+        {/* Hide weight on small screens */}
         <div
-          className="flex justify-start min-w-[120px]"
+          className="hidden md:flex justify-start min-w-[120px]"
           data-cy="weight-badge-container"
         >
           {task.weight !== undefined && <WeightBadge weight={task.weight} />}
         </div>
       </div>
 
+      {/* Hide task status (Pending/Achieved/Failed) on small screen for reported plans */}
       <div
-        className="col-span-6 md:col-span-3 flex items-center justify-end mt-3 md:mt-0"
+        className={`col-span-6 md:col-span-3 flex items-center justify-end mt-3 md:mt-0 ${isReported ? 'hidden md:flex' : ''}`}
         data-cy="task-status-section"
       >
         {showStatus && (

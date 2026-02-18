@@ -115,7 +115,10 @@ export default function ReportModal({
       closeIcon={null}
     >
       <div className="p-2" data-cy="report-modal-content">
-        <h2 className="text-2xl font-bold text-center text-[#161A2C] mb-8" data-cy="report-modal-title">
+        <h2
+          className="text-2xl font-bold text-center text-[#161A2C] mb-8"
+          data-cy="report-modal-title"
+        >
           {modalTitle}
         </h2>
 

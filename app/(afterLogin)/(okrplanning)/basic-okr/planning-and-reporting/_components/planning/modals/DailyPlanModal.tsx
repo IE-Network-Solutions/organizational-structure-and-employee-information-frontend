@@ -79,7 +79,10 @@ export default function DailyPlanModal({
       closeIcon={null}
     >
       <div className="p-2" data-cy="daily-plan-modal-content">
-        <h2 className="text-2xl font-bold text-center text-[#161A2C] mb-8" data-cy="daily-plan-modal-title">
+        <h2
+          className="text-2xl font-bold text-center text-[#161A2C] mb-8"
+          data-cy="daily-plan-modal-title"
+        >
           {isEdit ? 'Edit Plan' : 'Create Plan'}
         </h2>
 
@@ -106,16 +109,27 @@ export default function DailyPlanModal({
                         className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors"
                         data-cy={`remove-task-button-${name}`}
                       >
-                        <FaTrash size={14} data-cy={`remove-task-icon-${name}`} />
+                        <FaTrash
+                          size={14}
+                          data-cy={`remove-task-icon-${name}`}
+                        />
                       </button>
                     )}
 
                     <Form.Item
                       {...restField}
                       label={
-                        <span className="text-sm font-bold text-[#161A2C]" data-cy={`weekly-task-label-${name}`}>
+                        <span
+                          className="text-sm font-bold text-[#161A2C]"
+                          data-cy={`weekly-task-label-${name}`}
+                        >
                           Associated Weekly Task{' '}
-                          <span className="text-red-500" data-cy={`weekly-task-required-${name}`}>*</span>
+                          <span
+                            className="text-red-500"
+                            data-cy={`weekly-task-required-${name}`}
+                          >
+                            *
+                          </span>
                         </span>
                       }
                       name={[name, 'parentTaskId']}
@@ -125,7 +139,12 @@ export default function DailyPlanModal({
                       <Select
                         placeholder="Select Task"
                         className="h-12"
-                        suffixIcon={<BsChevronDown className="text-gray-400" data-cy={`weekly-task-chevron-${name}`} />}
+                        suffixIcon={
+                          <BsChevronDown
+                            className="text-gray-400"
+                            data-cy={`weekly-task-chevron-${name}`}
+                          />
+                        }
                         data-cy={`weekly-task-select-${name}`}
                       >
                         {weeklyPlans.map((plan) => (
@@ -159,8 +178,17 @@ export default function DailyPlanModal({
                         <Form.Item
                           {...restField}
                           label={
-                            <span className="text-sm font-bold text-[#161A2C]" data-cy={`plan-title-label-${name}`}>
-                              Plan Title <span className="text-red-500" data-cy={`plan-title-required-${name}`}>*</span>
+                            <span
+                              className="text-sm font-bold text-[#161A2C]"
+                              data-cy={`plan-title-label-${name}`}
+                            >
+                              Plan Title{' '}
+                              <span
+                                className="text-red-500"
+                                data-cy={`plan-title-required-${name}`}
+                              >
+                                *
+                              </span>
                             </span>
                           }
                           name={[name, 'title']}
@@ -180,8 +208,17 @@ export default function DailyPlanModal({
                         <Form.Item
                           {...restField}
                           label={
-                            <span className="text-sm font-bold text-[#161A2C]" data-cy={`priority-label-${name}`}>
-                              Priority <span className="text-red-500" data-cy={`priority-required-${name}`}>*</span>
+                            <span
+                              className="text-sm font-bold text-[#161A2C]"
+                              data-cy={`priority-label-${name}`}
+                            >
+                              Priority{' '}
+                              <span
+                                className="text-red-500"
+                                data-cy={`priority-required-${name}`}
+                              >
+                                *
+                              </span>
                             </span>
                           }
                           name={[name, 'priority']}
@@ -217,8 +254,17 @@ export default function DailyPlanModal({
                         <Form.Item
                           {...restField}
                           label={
-                            <span className="text-sm font-bold text-[#161A2C]" data-cy={`weight-label-${name}`}>
-                              Weight <span className="text-red-500" data-cy={`weight-required-${name}`}>*</span>
+                            <span
+                              className="text-sm font-bold text-[#161A2C]"
+                              data-cy={`weight-label-${name}`}
+                            >
+                              Weight{' '}
+                              <span
+                                className="text-red-500"
+                                data-cy={`weight-required-${name}`}
+                              >
+                                *
+                              </span>
                             </span>
                           }
                           name={[name, 'weight']}
@@ -268,7 +314,9 @@ export default function DailyPlanModal({
                     >
                       <Button
                         type="primary"
-                        icon={<FaPlus className="text-xs" data-cy="add-plan-icon" />}
+                        icon={
+                          <FaPlus className="text-xs" data-cy="add-plan-icon" />
+                        }
                         onClick={() => add()}
                         className="bg-[#4F46E5] hover:bg-[#4338CA] h-12 px-8 rounded-xl font-bold flex items-center gap-2"
                         data-cy="add-plan-button"
