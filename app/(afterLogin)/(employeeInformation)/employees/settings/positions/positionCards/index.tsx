@@ -1,6 +1,9 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { Pencil, Trash2 } from 'lucide-react';
 import React, { useEffect, useRef } from 'react';
+import { Button, Dropdown } from 'antd';
+import { MoreOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { useDeletePosition } from '@/store/server/features/employees/positions/mutation';
@@ -75,6 +78,49 @@ const PositionCards: React.FC = () => {
       {positions?.items && positions?.items?.length > 0 ? (
         positions?.items.map((position: any, index: number) => {
           const positionSlug = toSlug(position?.id ?? position?.name ?? index);
+            const menuItems: MenuProps['items'] = [
+              {
+                key: 'edit',
+                label: (
+                  <AccessGuard
+                    permissions={[Permissions.UpdatePosition]}
+                    id={`settings-position-edit-menu-guard-${positionSlug}`}
+                    data-cy={`settings-position-edit-menu-guard-${positionSlug}`}
+                  >
+                    <div
+                      className="flex items-center gap-2"
+                      onClick={() => handlePositionEditModalOpen(position)}
+                      id={`settings-position-edit-menu-item-${positionSlug}`}
+                      data-cy={`settings-position-edit-menu-item-${positionSlug}`}
+                    >
+                      <Pencil size={14} className="text-gray-600" />
+                      <span>Edit</span>
+                    </div>
+                  </AccessGuard>
+                ),
+              },
+              {
+                key: 'delete',
+                label: (
+                  <AccessGuard
+                    permissions={[Permissions.DeletePosition]}
+                    id={`settings-position-delete-menu-guard-${positionSlug}`}
+                    data-cy={`settings-position-delete-menu-guard-${positionSlug}`}
+                  >
+                    <div
+                      className="flex items-center gap-2 text-red-600"
+                      onClick={() => handlePositionDeleteModalOpen(position)}
+                      id={`settings-position-delete-menu-item-${positionSlug}`}
+                      data-cy={`settings-position-delete-menu-item-${positionSlug}`}
+                    >
+                      <Trash2 size={14} />
+                      <span>Delete</span>
+                    </div>
+                  </AccessGuard>
+                ),
+                danger: true,
+              },
+            ];
           return (
             <div
               key={index}
@@ -94,42 +140,20 @@ const PositionCards: React.FC = () => {
                 id={`settings-position-card-actions-${positionSlug}`}
                 data-cy={`settings-position-card-actions-${positionSlug}`}
               >
-                <AccessGuard
-                  permissions={[Permissions.UpdatePosition]}
-                  id="settings-position-edit-btn-guard"
-                  data-cy="settings-position-edit-btn-guard"
-                >
-                  <div
-                    className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center"
-                    id={`settings-position-edit-btn-${positionSlug}`}
-                    data-cy={`settings-position-edit-btn-${positionSlug}`}
+
+<Dropdown
+                    menu={{ items: menuItems }}
+                    trigger={['click']}
+                    placement="bottomRight"
                   >
-                    <Pencil
-                      size={15}
-                      className="text-white cursor-pointer"
-                      onClick={() => handlePositionEditModalOpen(position)}
-                      data-cy="settings-position-edit-btn-icon"
+                    <Button
+                      type="text"
+                      icon={<MoreOutlined />}
+                      className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
+                      id={`settings-position-menu-btn-${positionSlug}`}
+                      data-cy={`settings-position-menu-btn-${positionSlug}`}
                     />
-                  </div>
-                </AccessGuard>
-                <AccessGuard
-                  permissions={[Permissions.DeletePosition]}
-                  id="settings-position-delete-btn-guard"
-                  data-cy="settings-position-delete-btn-guard"
-                >
-                  <div
-                    className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center"
-                    id={`settings-position-delete-btn-${positionSlug}`}
-                    data-cy={`settings-position-delete-btn-${positionSlug}`}
-                  >
-                    <Trash2
-                      size={15}
-                      className="text-white cursor-pointer"
-                      onClick={() => handlePositionDeleteModalOpen(position)}
-                      data-cy="settings-position-delete-btn-icon"
-                    />
-                  </div>
-                </AccessGuard>
+                  </Dropdown>
               </div>
             </div>
           );

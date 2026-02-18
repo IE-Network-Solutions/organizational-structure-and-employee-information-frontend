@@ -1,15 +1,12 @@
-import { Col, Input, Row, Select, Table } from 'antd';
-import React, { useEffect } from 'react';
+import { Col, Input, Row, Spin } from 'antd';
+import React, { useEffect, useMemo } from 'react';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import {
   useGetPermissions,
   useSearchPermissions,
 } from '@/store/server/features/employees/settings/permission/queries';
-import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
-import { GroupPermissionItem } from '@/store/server/features/employees/settings/groupPermission/interface';
 import useDebounce from '@/store/uistate/features/useDebounce';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { LuSettings2 } from 'react-icons/lu';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
@@ -26,8 +23,6 @@ const Permission: React.FC<any> = () => {
 
   const { data: permissionData, isLoading: permissionLoading } =
     useGetPermissions(permissionCurrentPage, pageSize);
-  const { data: groupPermissionDatawithOutPagination } =
-    useGetPermissionGroupsWithOutPagination();
   const { isMobile, isTablet } = useIsMobile();
 
   const debouncedTerm = useDebounce(searchTerm?.searchTerm, 2000); // returns true and false
@@ -55,21 +50,17 @@ const Permission: React.FC<any> = () => {
     setPageSize(pageSize);
   };
   const hasSelected = selectedRowKeys?.length > 0;
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string) => text ?? 'N/A',
-    },
-    {
-      title: 'Slug',
-      dataIndex: 'slug',
-      key: 'slug',
-      render: (text: string) => text ?? 'N/A',
-    },
-  ];
-  const { Option } = Select;
+  const items = displayData?.items ?? [];
+  const columnsCount = 3;
+  const chunkSize = Math.ceil(items.length / columnsCount) || 1;
+  const columnChunks = useMemo(() => {
+    return [
+      items.slice(0, chunkSize),
+      items.slice(chunkSize, chunkSize * 2),
+      items.slice(chunkSize * 2, items.length),
+    ];
+  }, [items, chunkSize]);
+
   const handleSearchChange = (e: any, termKey: string) => {
     if (e === undefined || e === '') {
       setSearchTerm({
@@ -90,146 +81,14 @@ const Permission: React.FC<any> = () => {
         id="settings-permission-filters"
         data-cy="settings-permission-filters"
       >
-        {isMobile ? (
-          <Row
-            gutter={16}
-            id="settings-permission-filters-mobile"
-            data-cy="settings-permission-filters-mobile"
-          >
-            <Col
-              xl={14}
-              lg={14}
-              md={14}
-              sm={20}
-              xs={20}
-              id="settings-permission-search-input-wrapper-mobile"
-              data-cy="settings-permission-search-input-wrapper-mobile"
-            >
-              <Input
-                className="w-full h-10"
-                placeholder="Search permission"
-                allowClear
-                onChange={(e) => handleSearchChange(e.target.value, 'name')}
-                data-cy="settings-permission-search-input-mobile"
-              />
-            </Col>
-            <Col
-              xl={10}
-              lg={10}
-              md={10}
-              sm={4}
-              xs={4}
-              id="settings-permission-group-select-wrapper-mobile"
-              data-cy="settings-permission-group-select-wrapper-mobile"
-            >
-              <Select
-                showSearch
-                className=" control m-0 w-[48px] h-10 mx-auto p-0 pl-2"
-                placeholder=""
-                optionFilterProp="children"
-                dropdownStyle={{ left: '50%', transform: 'translateX(-50%)' }}
-                dropdownMatchSelectWidth={false}
-                allowClear
-                onChange={(value) =>
-                  handleSearchChange(value, 'permissionGroupId')
-                }
-                filterOption={(input, option: any) =>
-                  option.props.children
-                    .toLowerCase()
-                    .indexOf(input.toLowerCase()) >= 0
-                }
-                suffixIcon={
-                  <div
-                    className="flex items-center justify-center w-full h-full text-black"
-                    data-cy="settings-permission-group-select-mobile-icon"
-                  >
-                    <LuSettings2 size={20} />
-                  </div>
-                }
-                data-cy="settings-permission-group-select-mobile"
-              >
-                {groupPermissionDatawithOutPagination?.items?.map(
-                  (item: GroupPermissionItem) => (
-                    <Option
-                      key={item?.id}
-                      value={item?.id}
-                      id={`settings-permission-group-option-${item?.id}`}
-                      data-cy={`settings-permission-group-option-${item?.id}`}
-                    >
-                      {item?.name}
-                    </Option>
-                  ),
-                )}
-              </Select>
-              {/* </div> */}
-            </Col>
-          </Row>
-        ) : (
-          <Row
-            gutter={16}
-            justify="space-between"
-            id="settings-permission-group-select-wrapper-desktop"
-            data-cy="settings-permission-group-select-wrapper-desktop"
-          >
-            <Col
-              xl={14}
-              lg={14}
-              md={14}
-              sm={14}
-              xs={14}
-              id="settings-permission-search-input-wrapper-desktop"
-              data-cy="settings-permission-search-input-wrapper-desktop"
-            >
-              <Input
+       <Input
                 className="w-full h-10"
                 placeholder="Search permission"
                 allowClear
                 onChange={(e) => handleSearchChange(e.target.value, 'name')}
                 data-cy="settings-permission-search-input"
               />
-            </Col>
-            <Col
-              xl={10}
-              lg={10}
-              md={10}
-              sm={10}
-              xs={10}
-              id="settings-permission-group-select-wrapper-desktop"
-              data-cy="settings-permission-group-select-wrapper-desktop"
-            >
-              <Select
-                showSearch
-                className="w-full h-10"
-                placeholder="Select a group"
-                optionFilterProp="children"
-                allowClear
-                onChange={(value) =>
-                  handleSearchChange(value, 'permissionGroupId')
-                }
-                data-cy="settings-permission-group-select"
-                filterOption={(input, option: any) =>
-                  option.props.children
-                    .toLowerCase()
-                    .indexOf(input.toLowerCase()) >= 0
-                }
-              >
-                {groupPermissionDatawithOutPagination?.items?.map(
-                  (item: GroupPermissionItem) => (
-                    <Option
-                      key={item?.id}
-                      value={item?.id}
-                      id={`settings-permission-group-option-${item?.id}`}
-                      data-cy={`settings-permission-group-option-${item?.id}`}
-                    >
-                      {item?.name}
-                    </Option>
-                  ),
-                )}
-              </Select>
-              {/* </div> */}
-            </Col>
-          </Row>
-        )}
+            
       </div>
       <div
         className="mb-4"
@@ -244,14 +103,39 @@ const Permission: React.FC<any> = () => {
           {hasSelected ? `Selected ${selectedRowKeys?.length} items` : ''}
         </span>
       </div>
-      <Table
-        columns={columns}
-        dataSource={displayData?.items}
-        loading={permissionLoading || isSearching}
-        pagination={false}
-        id="settings-permission-table"
-        data-cy="settings-permission-table"
-      />
+      {(permissionLoading || isSearching) && (
+        <div className="flex justify-center py-8">
+          <Spin size="large" data-cy="settings-permission-loading" />
+        </div>
+      )}
+      {!(permissionLoading || isSearching) && items.length > 0 && (
+        <Row
+          gutter={[16, 8]}
+          id="settings-permission-table"
+          data-cy="settings-permission-table"
+        >
+          {columnChunks.map((chunk, colIndex) => (
+            <Col key={colIndex} xs={24} sm={24} md={8} lg={8}>
+              <div className="flex flex-col gap-2">
+                {chunk.map((item: { id?: string; name?: string; slug?: string }, index: number) => (
+                  <div
+                    key={item?.id ?? item?.slug ?? `${colIndex}-${index}`}
+                    className="text-gray-800 py-1"
+                    data-cy={`settings-permission-item-${item?.id ?? item?.slug}`}
+                  >
+                    {item?.name ?? 'N/A'}
+                  </div>
+                ))}
+              </div>
+            </Col>
+          ))}
+        </Row>
+      )}
+      {!(permissionLoading || isSearching) && items.length === 0 && displayData !== undefined && (
+        <div className="py-8 text-center text-gray-500" data-cy="settings-permission-empty">
+          No permissions found
+        </div>
+      )}
       {isMobile || isTablet ? (
         <CustomMobilePagination
           totalResults={displayData?.meta?.totalItems ?? 0}

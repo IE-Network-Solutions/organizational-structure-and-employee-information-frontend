@@ -43,40 +43,7 @@ const CreatePosition: React.FC = () => {
   };
 
   return (
-    openPositionDrawer && (
-      <CustomDrawerLayout
-        open={openPositionDrawer}
-        onClose={handleCloseDrawer}
-        modalHeader={addPositionDrawerHeader}
-        width="40%"
-        footer={
-          <div
-            className="flex justify-center w-full bg-[#fff] space-x-5 p-4 "
-            id={`settings-position-create-footer-${drawerSlug}`}
-            data-cy={`settings-position-create-footer-${drawerSlug}`}
-          >
-            <Button
-              className="h-[40px] sm:h-[56px] text-base px-10"
-              type="default"
-              onClick={handleCloseDrawer}
-              id={`settings-position-create-cancel-${drawerSlug}`}
-              data-cy={`settings-position-create-cancel-${drawerSlug}`}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="h-[40px] sm:h-[56px] text-base px-10"
-              type="primary"
-              onClick={() => form.submit()}
-              id={`settings-position-create-submit-${drawerSlug}`}
-              data-cy={`settings-position-create-submit-${drawerSlug}`}
-            >
-              Submit
-            </Button>
-          </div>
-        }
-        data-cy={`settings-position-create-drawer-${drawerSlug}`}
-      >
+   <div className="border border-gray-200 rounded-lg">
         <Form
           form={form}
           layout="vertical"
@@ -88,6 +55,7 @@ const CreatePosition: React.FC = () => {
           }}
           id={`settings-position-create-form-${drawerSlug}`}
           data-cy={`settings-position-create-form-${drawerSlug}`}
+          className="p-4"
         >
           <Form.Item
             id="positionTitle"
@@ -138,7 +106,7 @@ const CreatePosition: React.FC = () => {
             data-cy="settings-position-create-description-item"
           >
             <TextArea
-              className="h-36"
+              className="h-12"
               rows={4}
               placeholder="Job description"
               allowClear
@@ -146,10 +114,25 @@ const CreatePosition: React.FC = () => {
               data-cy={`settings-position-create-description-input-${drawerSlug}`}
             />
           </Form.Item>
+          <div
+            className="flex justify-end w-full bg-[#fff] space-x-5 p-4 "
+            id={`settings-position-create-footer-${drawerSlug}`}
+            data-cy={`settings-position-create-footer-${drawerSlug}`}
+          >
+           
+            <Button
+              className="h-8 text-base"
+              type="primary"
+              onClick={() => form.submit()}
+              id={`settings-position-create-submit-${drawerSlug}`}
+              data-cy={`settings-position-create-submit-${drawerSlug}`}
+            >
+              Submit
+            </Button>
+          </div>
         </Form>
-      </CustomDrawerLayout>
-    )
-  );
+        </div>
+  )
 };
 
 export default CreatePosition;
