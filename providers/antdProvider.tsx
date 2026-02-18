@@ -4,8 +4,8 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
   const theme: ThemeConfig = {
     token: {
-      // Font Family - SF Pro Text with fallbacks
-      fontFamily: `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`,
+      // Font Family - Calibre with fallbacks
+      fontFamily: `'Calibre', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`,
 
       // Typography - Base Text Styles
       fontSize: 14, // Base font size
