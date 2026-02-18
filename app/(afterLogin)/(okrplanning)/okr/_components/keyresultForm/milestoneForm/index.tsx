@@ -107,7 +107,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
           <div
             id={`okr-milestone-mobile-wrapper-${index}`}
             data-cy={`okr-milestone-mobile-wrapper-${index}`}
-            className="flex flex-col gap-2 mt-4 mx-4"
+            className="flex flex-col gap-2 mt-4"
           >
             {/* Row 1: Key Result Name */}
             <div
@@ -255,7 +255,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             <div
               id={`okr-milestone-mobile-list-${index}`}
               data-cy={`okr-milestone-mobile-list-${index}`}
-              className="flex flex-col gap-2 pl-4"
+              className="flex flex-col gap-2"
             >
               {/* First milestone row (always present) */}
               <div

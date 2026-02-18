@@ -24,7 +24,7 @@ dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 const { RangePicker } = DatePicker;
-const { Option } = Select;
+// const { Option } = Select;
 
 const PayPeriodSideBar = () => {
   const [form] = Form.useForm();
@@ -129,15 +129,15 @@ const PayPeriodSideBar = () => {
     form.setFieldsValue(fields);
   }, [divisions, form]);
 
-  const allMonths = selectedFiscalYear?.sessions?.flatMap(
-    (session) => session.months,
-  );
-  const monthsWithStartEndDates = allMonths?.map((month) => ({
-    id: month?.id,
-    startDate: month?.startDate,
-    monthName: dayjs(month?.startDate).format('MMMM'),
-    endDate: month?.endDate,
-  }));
+  // const allMonths = selectedFiscalYear?.sessions?.flatMap(
+  //   (session) => session.months,
+  // );
+  // const monthsWithStartEndDates = allMonths?.map((month) => ({
+  //   id: month?.id,
+  //   startDate: month?.startDate,
+  //   monthName: dayjs(month?.startDate).format('MMMM'),
+  //   endDate: month?.endDate,
+  // }));
 
   const checkDateOverlap = (
     start1: dayjs.Dayjs,
@@ -227,14 +227,14 @@ const PayPeriodSideBar = () => {
     setDivisions(updatedDivisions);
   };
 
-  const handleMonthSelect = (value: string, index: number) => {
-    const newDivisions = [...divisions];
-    newDivisions[index] = {
-      ...newDivisions[index],
-      monthId: value,
-    };
-    setDivisions(newDivisions);
-  };
+  // const handleMonthSelect = (value: string, index: number) => {
+  //   const newDivisions = [...divisions];
+  //   newDivisions[index] = {
+  //     ...newDivisions[index],
+  //     monthId: value,
+  //   };
+  //   setDivisions(newDivisions);
+  // };
 
   const handleFiscalYearChange = (value: string) => {
     const selected = fiscalYearsData?.items.find((year) => year.id === value);
@@ -389,7 +389,7 @@ const PayPeriodSideBar = () => {
                     <div
                       id={`payroll-payperiod-sidebar-division-form-${index}`}
                       data-cy={`payroll-payperiod-sidebar-division-form-${index}`}
-                      className="flex justify-between"
+                      className="w-full"
                     >
                       <Form.Item
                         name={`range${index}`}
@@ -460,6 +460,7 @@ const PayPeriodSideBar = () => {
                         <RangePicker
                           data-cy={`payroll-payperiod-sidebar-division-rangepicker-${index}`}
                           value={[dayjs(range[0]), dayjs(range[1])]}
+                          className="w-full"
                           onOpenChange={(open) => {
                             if (!open)
                               setActivePicker({ index: null, part: null });
@@ -702,7 +703,7 @@ const PayPeriodSideBar = () => {
                           }}
                         />
                       </Form.Item>
-                      <Form.Item
+                      {/* <Form.Item
                         name={`monthId${index}`}
                         data-cy={`payroll-payperiod-sidebar-division-monthid-formitem-${index}`}
                         label="Pay Period month"
@@ -733,7 +734,7 @@ const PayPeriodSideBar = () => {
                             ));
                           })()}
                         </Select>
-                      </Form.Item>
+                      </Form.Item> */}
                     </div>
                     <div
                       id={`payroll-payperiod-sidebar-division-footer-${index}`}
