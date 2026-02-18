@@ -284,7 +284,17 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
             className="w-full lg:w-1/2 space-y-4"
           >
             {sortedCandidates.length === 0 ? (
-              <Empty description="No candidates available yet" />
+              <div
+                id="ai-job-detail-candidates-empty"
+                data-cy="ai-job-detail-candidates-empty"
+              >
+                <div
+                  id="ai-job-detail-candidates-empty-state"
+                  data-cy="ai-job-detail-candidates-empty-state"
+                >
+                  <Empty description="No candidates available yet" />
+                </div>
+              </div>
             ) : (
               visibleCandidates.map((candidate) => {
                 const isSelected =
@@ -312,6 +322,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                 return (
                   <Card
                     key={candidate.candidateId}
+                    id={`ai-candidate-card-${candidate.candidateId}`}
                     data-cy={`ai-candidate-card-${candidate.candidateId}`}
                     className={`rounded-2xl border-2 ${borderColor} ${bgColor} cursor-pointer hover:shadow-lg ${hoverClasses} transition-all`}
                     onClick={() => handleOpenDetails(candidate)}
@@ -321,7 +332,15 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                       className="flex items-start gap-4"
                     >
                       {/* Avatar */}
-                      <Avatar size={56} className="bg-blue-500 flex-shrink-0" />
+                      <div
+                        id={`ai-candidate-avatar-${candidate.candidateId}`}
+                        data-cy={`ai-candidate-avatar-${candidate.candidateId}`}
+                      >
+                        <Avatar
+                          size={56}
+                          className="bg-blue-500 flex-shrink-0"
+                        />
+                      </div>
 
                       {/* Candidate Info */}
                       <div
@@ -392,6 +411,8 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                               {topMatchedSkills.map((skill, idx) => (
                                 <Tag
                                   key={idx}
+                                  id={`ai-candidate-skill-chip-${candidate.candidateId}-${idx}`}
+                                  data-cy={`ai-candidate-skill-chip-${candidate.candidateId}-${idx}`}
                                   color="blue"
                                   className="text-xs px-3 py-1 rounded-full m-0 max-w-full truncate"
                                 >
@@ -410,6 +431,8 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
 
             {hasMoreCandidates && !showAllCandidates && (
               <Button
+                id="ai-job-detail-view-more-candidates"
+                data-cy="ai-job-detail-view-more-candidates"
                 type="default"
                 className="w-full mt-2 border-green-500 text-green-600 hover:bg-green-50"
                 onClick={() => setShowAllCandidates(true)}
@@ -427,16 +450,23 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
               className="w-full lg:w-1/2 shrink-0"
             >
               <Card
+                id="ai-candidate-detail-panel"
                 className="rounded-2xl border border-gray-200 shadow-sm h-full"
                 data-cy="ai-candidate-detail-panel"
               >
                 {!selectedCandidate || isDetailsLoading || !matchDetails ? (
                   <div
+                    id="ai-candidate-detail-empty"
                     className="flex flex-col items-center justify-center h-full text-center space-y-3"
                     data-cy="ai-candidate-detail-empty"
                   >
                     {isDetailsLoading ? (
-                      <Spin size="large" />
+                      <div
+                        id="ai-candidate-detail-loading-spinner"
+                        data-cy="ai-candidate-detail-loading-spinner"
+                      >
+                        <Spin size="large" />
+                      </div>
                     ) : (
                       <>
                         <p
@@ -903,8 +933,9 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 {visibleMissingSkills.map((skill, idx) => (
                                   <div
                                     key={`missing-skill-${idx}`}
+                                    id={`ai-skill-missing-${idx}`}
                                     className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1"
-                                    data-cy="ai-skill-missing"
+                                    data-cy={`ai-skill-missing-${idx}`}
                                   >
                                     <span
                                       data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-span-627"
@@ -923,6 +954,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 {extraMissingSkills > 0 &&
                                   !showAllMissingSkills && (
                                     <button
+                                      id="ai-skill-missing-more-button"
                                       type="button"
                                       className="text-xs font-medium text-blue-600 hover:underline"
                                       data-cy="ai-skill-missing-more"
@@ -936,6 +968,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 {showAllMissingSkills &&
                                   missingSkillsAll.length > 5 && (
                                     <button
+                                      id="ai-skill-missing-less-button"
                                       type="button"
                                       className="text-xs font-medium text-blue-600 hover:underline"
                                       data-cy="ai-skill-missing-less"
@@ -969,8 +1002,9 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 {visibleStrengths.map((item, idx) => (
                                   <div
                                     key={`strength-${idx}`}
+                                    id={`ai-strength-${idx}`}
                                     className="flex items-start gap-2"
-                                    data-cy="ai-strength"
+                                    data-cy={`ai-strength-${idx}`}
                                   >
                                     <div
                                       data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-678"
@@ -986,6 +1020,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 ))}
                                 {extraStrengths > 0 && !showAllStrengths && (
                                   <button
+                                    id="ai-strength-more-button"
                                     type="button"
                                     className="text-xs font-medium text-blue-600 hover:underline"
                                     data-cy="ai-strength-more"
@@ -997,6 +1032,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 {showAllStrengths &&
                                   strengthsAll.length > 5 && (
                                     <button
+                                      id="ai-strength-less-button"
                                       type="button"
                                       className="text-xs font-medium text-blue-600 hover:underline"
                                       data-cy="ai-strength-less"
@@ -1028,8 +1064,9 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 {visibleConcerns.map((item, idx) => (
                                   <div
                                     key={`concern-${idx}`}
+                                    id={`ai-concern-${idx}`}
                                     className="flex items-start gap-2"
-                                    data-cy="ai-concern"
+                                    data-cy={`ai-concern-${idx}`}
                                   >
                                     <div
                                       data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-722"
@@ -1045,6 +1082,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 ))}
                                 {extraConcerns > 0 && !showAllConcerns && (
                                   <button
+                                    id="ai-concern-more-button"
                                     type="button"
                                     className="text-xs font-medium text-blue-600 hover:underline"
                                     data-cy="ai-concern-more"
@@ -1055,6 +1093,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 )}
                                 {showAllConcerns && concernsAll.length > 5 && (
                                   <button
+                                    id="ai-concern-less-button"
                                     type="button"
                                     className="text-xs font-medium text-blue-600 hover:underline"
                                     data-cy="ai-concern-less"

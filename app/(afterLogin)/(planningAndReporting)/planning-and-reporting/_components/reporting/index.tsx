@@ -32,6 +32,7 @@ import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
+import { getDateLabel } from '../utils';
 
 function Reporting() {
   const {
@@ -468,7 +469,6 @@ function Reporting() {
                     key={plan.id}
                     plan={plan}
                     viewMode="reporting"
-                    activeCadence={cadence}
                     onApprove={() => handleApproveHandler(dataItem.id, true)}
                     onOpen={() => handleApproveHandler(dataItem.id, false)}
                     onEdit={() => {

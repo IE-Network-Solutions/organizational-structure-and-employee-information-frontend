@@ -33,6 +33,7 @@ import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import { transformToPlanSummary } from '../dataTransformer/vamp';
 import { ViewMode, Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
+import { getDateLabel } from '../utils';
 
 function Planning() {
   const {
@@ -499,9 +500,6 @@ function Planning() {
                     key={plan.id}
                     plan={plan}
                     viewMode="planning"
-                    activeCadence={
-                      (activeTabName?.toLowerCase() as Cadence) || 'weekly'
-                    }
                     // Pass action handlers as props if needed
                     onApprove={() =>
                       handleApproveHandler(originalDataItem.id, true)

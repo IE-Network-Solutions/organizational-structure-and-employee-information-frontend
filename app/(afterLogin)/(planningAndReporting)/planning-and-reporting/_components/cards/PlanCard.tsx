@@ -12,11 +12,11 @@ import StatusBadge from '../StatusBadge';
 import KRSummaryBar from '../KRSummaryBar';
 import TaskRow from '../TaskRow';
 import CommentsSection from '../comments/CommentsSection';
+import { getDateLabel as formatDateLabel } from '../utils';
 
 interface PlanCardProps {
   plan: PlanSummary;
   viewMode: ViewMode;
-  activeCadence: Cadence;
   // Optional action handlers
   onApprove?: () => void;
   onOpen?: () => void;
@@ -30,7 +30,6 @@ interface PlanCardProps {
 export default function PlanCard({
   plan,
   viewMode,
-  activeCadence,
   onApprove,
   onOpen,
   onEdit,
