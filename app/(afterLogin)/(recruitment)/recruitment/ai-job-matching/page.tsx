@@ -260,7 +260,13 @@ const AIJobMatchingPage: React.FC = () => {
           id="ai-job-matching-search"
           data-cy="ai-job-matching-search"
           placeholder="Search"
-          prefix={<SearchOutlined className="text-gray-400" />}
+          prefix={
+            <SearchOutlined
+              id="ai-job-matching-search-icon"
+              data-cy="ai-job-matching-search-icon"
+              className="text-gray-400"
+            />
+          }
           className="max-w-md rounded-lg border border-gray-200 bg-white shadow-sm"
           size="large"
         />

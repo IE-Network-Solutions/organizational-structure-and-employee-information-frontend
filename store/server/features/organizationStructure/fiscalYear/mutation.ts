@@ -131,7 +131,11 @@ export const useUpdateClosedDate = () => {
   );
 };
 
-const activateMonth = async (id: string): Promise<void> => {
+
+
+const activateMonth = async (
+  id: string,
+): Promise<void> => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -145,23 +149,28 @@ const activateMonth = async (id: string): Promise<void> => {
   });
 };
 
+
+
 export const useActivateMonth = () => {
   const queryClient = useQueryClient();
-  return useMutation((id: string) => activateMonth(id), {
-    onSuccess: () => {
-      queryClient.invalidateQueries('fiscalYears');
-      queryClient.invalidateQueries('fiscalActiveYear');
-      NotificationMessage.success({
-        message: 'Month activation updated',
-        description: 'Month status has been updated successfully',
-      });
+  return useMutation(
+    (id: string) =>
+      activateMonth(id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('fiscalYears');
+        queryClient.invalidateQueries('fiscalActiveYear');
+        NotificationMessage.success({
+          message: 'Month activation updated',
+          description: 'Month status has been updated successfully',
+        });
+      },
+      onError: () => {
+        NotificationMessage.error({
+          message: 'Failed to update month',
+          description: 'Could not update month activation status. Please try again.',
+        });
+      },
     },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Failed to update month',
-        description:
-          'Could not update month activation status. Please try again.',
-      });
-    },
-  });
+  );
 };

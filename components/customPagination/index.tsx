@@ -38,8 +38,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
-    // Reduce visible pages on mobile for better UX
-    const maxVisiblePages = isMobile ? 3 : 5;
+    const maxVisiblePages = 5;
 
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
@@ -47,12 +46,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`${
-              isMobile ? 'w-10 h-10' : 'w-8 h-8'
-            } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
+            className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
               current === i
                 ? 'bg-[#F8F8F8] text-[#111827] '
-                : 'bg-white text-[#111827] hover:bg-gray-100'
+                : 'bg-white text-[#111827]'
             }`}
             data-cy="pagination-page-button"
           >
@@ -61,20 +58,15 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         );
       }
     } else {
-      // For mobile, show fewer pages around current
-      const rangeToCurrent = isMobile ? 0 : 1;
-
       // Always show first page
       pageNumbers.push(
         <button
           key={1}
           onClick={() => handlePageChange(1)}
-          className={`${
-            isMobile ? 'w-10 h-10' : 'w-8 h-8'
-          } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
+          className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
             current === 1
               ? 'bg-[#F8F8F8] text-[#111827]'
-              : 'bg-white text-[#111827] hover:bg-gray-100'
+              : 'bg-white text-[#111827]'
           }`}
           data-cy="pagination-page-button"
         >
@@ -83,16 +75,16 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       );
 
       // Calculate the range of pages to show around current page
-      let startPage = Math.max(2, current - rangeToCurrent);
-      let endPage = Math.min(totalPages - 1, current + rangeToCurrent);
+      let startPage = Math.max(2, current - 1);
+      let endPage = Math.min(totalPages - 1, current + 1);
 
       // Adjust if we're near the start
       if (current <= 3) {
-        endPage = Math.min(isMobile ? 3 : 4, totalPages - 1);
+        endPage = Math.min(4, totalPages - 1);
       }
       // Adjust if we're near the end
       if (current >= totalPages - 2) {
-        startPage = Math.max(2, totalPages - (isMobile ? 2 : 3));
+        startPage = Math.max(2, totalPages - 3);
       }
 
       // Add ellipsis after first page if needed
@@ -114,12 +106,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`${
-              isMobile ? 'w-10 h-10' : 'w-8 h-8'
-            } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
+            className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
               current === i
                 ? 'bg-[#F8F8F8] text-[#111827] '
-                : 'bg-white text-[#111827] hover:bg-gray-100'
+                : 'bg-white text-[#111827] '
             }`}
             data-cy="pagination-page-button"
           >
@@ -178,11 +168,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           data-cy="pagination-prev-button"
           className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === 1
-              ? 'text-[#111827] border-gray-200 opacity-50'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+              ? 'text-[#111827] border-gray-200'
+              : 'text-[#111827] border-gray-300 hover:bg-gray-100'
           }`}
         >
-          <LeftOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
+          <LeftOutlined />
         </button>
         {renderPageNumbers()}
         <button
@@ -191,11 +181,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           data-cy="pagination-next-button"
           className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === totalPages
-              ? 'text-[#111827] border-gray-200 opacity-50'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+              ? 'text-[#111827] border-gray-200'
+              : 'text-[#111827] border-gray-300 hover:bg-gray-100'
           }`}
         >
-          <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
+          <RightOutlined />
         </button>
       </div>
 
@@ -230,8 +220,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
         <Select
           value={pageSize}
-          className={isMobile ? 'w-20' : 'w-24'}
-          size={isMobile ? 'small' : 'middle'}
+          className="w-24 h-8"
           onChange={(value) => handleSizeChange(value)}
         >
           <Option value={5}>
