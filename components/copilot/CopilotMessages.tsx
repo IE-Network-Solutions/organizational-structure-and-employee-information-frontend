@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Avatar, Typography, Spin, Tag, Table, Button, Modal } from 'antd';
+import { Avatar, Typography, Spin, Tag, Table, Button, Modal, Alert } from 'antd';
 import {
   UserOutlined,
   RobotOutlined,
   ExpandOutlined,
   CompressOutlined,
+  WarningOutlined,
 } from '@ant-design/icons';
 
 const { Text } = Typography;
@@ -16,6 +17,8 @@ export interface Message {
   text?: string; // Made optional - can be undefined when table is shown
   sender: 'user' | 'copilot';
   timestamp: Date;
+  /** When 'permission_denied', show prominent access-denied styling */
+  messageType?: 'permission_denied';
   metadata?: {
     source?: string;
     confidence?: string;
@@ -265,16 +268,29 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
   const renderMessageContent = (message: Message) => {
     const text = message.text;
     const tableData = message.tableData;
+    const isPermissionDenied = message.messageType === 'permission_denied';
 
     return (
       <div data-cy="copilot-message-content">
         {text && (
-          <Text
-            className="text-sm leading-relaxed whitespace-pre-wrap block mb-3"
-            data-cy="copilot-message-text"
-          >
-            {text}
-          </Text>
+          isPermissionDenied ? (
+            <Alert
+              type="warning"
+              showIcon
+              icon={<WarningOutlined />}
+              message="Access denied"
+              description={text}
+              className="mb-3"
+              data-cy="copilot-message-permission-denied"
+            />
+          ) : (
+            <Text
+              className="text-sm leading-relaxed whitespace-pre-wrap block mb-3"
+              data-cy="copilot-message-text"
+            >
+              {text}
+            </Text>
+          )
         )}
 
         {/* Render table if table data is available */}
@@ -336,6 +352,12 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
     >
       {messages.map((message) => {
         const isUser = message.sender === 'user';
+        const isPermissionDenied = message.messageType === 'permission_denied';
+        const bubbleClass = isUser
+          ? 'bg-blue-50 border border-blue-100'
+          : isPermissionDenied
+            ? 'bg-amber-50 border-2 border-amber-400 shadow-sm'
+            : 'bg-white border border-gray-200 shadow-sm';
         return (
           <div
             key={message.id}
@@ -351,11 +373,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               />
             )}
             <div
-              className={`max-w-[75%] rounded-lg px-4 py-2.5 ${
-                isUser
-                  ? 'bg-blue-50 border border-blue-100'
-                  : 'bg-white border border-gray-200 shadow-sm'
-              }`}
+              className={`max-w-[75%] rounded-lg px-4 py-2.5 ${bubbleClass}`}
               data-cy={`copilot-message-bubble-${isUser ? 'user' : 'copilot'}`}
             >
               {renderMessageContent(message)}

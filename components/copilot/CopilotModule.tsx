@@ -543,16 +543,23 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
           parsedResponse = { success: true, answer: responseText };
         }
 
-        // Check if the request failed
+        // Check if the request failed (including permission denied)
         if (parsedResponse.success === false || parsedResponse.error) {
+          const isPermissionDenied =
+            parsedResponse.error === 'permission_denied';
+          const displayText =
+            isPermissionDenied
+              ? parsedResponse.answer ||
+                'You do not have permission to perform this action. Contact your administrator if you need access.'
+              : parsedResponse.answer ||
+                parsedResponse.error ||
+                'Unable to fetch data. Please try again.';
           const errorMessage: Message = {
             id: `msg-${Date.now()}-error`,
-            text:
-              parsedResponse.answer ||
-              parsedResponse.error ||
-              'Unable to fetch data. Please try again.',
+            text: displayText,
             sender: 'copilot',
             timestamp: new Date(),
+            ...(isPermissionDenied && { messageType: 'permission_denied' }),
           };
           setMessages((prev) => [...prev, errorMessage]);
           return;
