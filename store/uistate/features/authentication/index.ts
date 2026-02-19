@@ -112,7 +112,10 @@ export const useAuthenticationStore = create<StoreState>()(
           tenantId: state.tenantId,
           localId: state.localId,
           userId: state.userId,
-          userData: state.userData,
+          // Persist userData without permissions so permissions always come from backend/Redis
+          userData: state.userData
+            ? { ...state.userData, userPermissions: undefined }
+            : state.userData,
           activeCalendar: state.activeCalendar,
         }),
         // getStorage: () => ({
