@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   DatePicker,
@@ -9,7 +9,9 @@ import {
   Dropdown,
   Menu,
   Modal,
+  Tooltip,
 } from 'antd';
+import { QuestionCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import KeyResultForm from '../keyresultForm';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
@@ -46,14 +48,24 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const { mutate: createObjective, isLoading } = useCreateObjective();
   const { isMobile } = useIsMobile();
   const [showAISuggestions, setShowAISuggestions] = React.useState(false);
+  const [showMetricSelector, setShowMetricSelector] = useState(false);
   const isBasic = useIsBasicOkr();
-  const modalHeader = (
+
+  const modalHeader = isBasic ? (
     <div
       id="okr-drawer-modal-header"
       data-cy="okr-drawer-modal-header"
       className="flex justify-center text-2xl font-extrabold text-gray-800 p-4"
     >
       OKR
+    </div>
+  ) : (
+    <div
+      id="okr-drawer-modal-header"
+      data-cy="okr-drawer-modal-header"
+      className="text-lg font-semibold text-gray-900"
+    >
+      Create Objective
     </div>
   );
 
@@ -217,7 +229,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
   const totalWeight = calculateTotalWeight();
 
-  const footer = (
+  const footer = isBasic ? (
     <div
       id="okr-drawer-modal-footer"
       data-cy="okr-drawer-modal-footer"
@@ -245,6 +257,36 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         }
         style={{ height: '40px' }}
       />
+    </div>
+  ) : (
+    <div
+      id="okr-drawer-modal-footer"
+      data-cy="okr-drawer-modal-footer"
+      className="w-full flex justify-end items-center pt-2 gap-3"
+    >
+      <Button
+        id="okr-drawer-cancel-button"
+        data-cy="okr-drawer-cancel-button"
+        onClick={handleDrawerClose}
+        className="px-6 h-10 rounded-lg text-sm border-gray-300 text-gray-700"
+      >
+        Cancel
+      </Button>
+      <Button
+        id="okr-drawer-save-button"
+        data-cy="okr-drawer-save-button"
+        type="primary"
+        onClick={onSubmit}
+        loading={isLoading}
+        disabled={
+          !objectiveValue?.title ||
+          !objectiveValue?.deadline ||
+          !objective?.keyResults?.length
+        }
+        className="px-6 h-10 rounded-lg text-sm bg-okr-primary border-okr-primary"
+      >
+        Create
+      </Button>
     </div>
   );
 
@@ -324,13 +366,18 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       onCancel={handleDrawerClose}
       footer={footer}
       title={modalHeader}
-      centered
-      width={isMobile ? '100vw' : 1200}
-      bodyStyle={{ padding: isMobile ? 12 : 32 }}
-      style={{ top: isMobile ? 0 : 32, padding: 0, maxHeight: '95vh' }}
+      centered={!isMobile}
+      width={isMobile ? '100%' : 1200}
+      wrapClassName={isMobile ? 'okr-mobile-bottom-sheet' : ''}
+      bodyStyle={{
+        padding: isMobile ? 12 : isBasic ? 32 : 24,
+        maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
+        overflowY: isMobile ? 'auto' : undefined,
+      }}
+      style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
       maskClosable={false}
       destroyOnClose
-      closable={false}
+      closable={!isBasic}
     >
       <Form
         id="okr-drawer-form"
@@ -338,21 +385,46 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         form={form}
         layout="vertical"
         className="w-full"
+        requiredMark={false}
       >
         {/* OKR Section Title */}
-        <div
-          id="okr-drawer-objective-section-header"
-          data-cy="okr-drawer-objective-section-header"
-          className="mb-6"
-        >
-          <h2
-            id="okr-drawer-objective-section-title"
-            data-cy="okr-drawer-objective-section-title"
-            className="text-xl font-semibold text-gray-800 mb-4"
+        {isBasic ? (
+          <div
+            id="okr-drawer-objective-section-header"
+            data-cy="okr-drawer-objective-section-header"
+            className="mb-6"
           >
-            Objective
-          </h2>
-        </div>
+            <h2
+              id="okr-drawer-objective-section-title"
+              data-cy="okr-drawer-objective-section-title"
+              className="text-xl font-semibold text-gray-800 mb-4"
+            >
+              Objective
+            </h2>
+          </div>
+        ) : (
+          <div
+            id="okr-drawer-objective-section-header"
+            data-cy="okr-drawer-objective-section-header"
+            className="mb-6"
+          >
+            <h2
+              id="okr-drawer-objective-section-title"
+              data-cy="okr-drawer-objective-section-title"
+              className="text-base font-bold text-gray-900"
+            >
+              Set your Objective
+            </h2>
+            <p
+              id="okr-drawer-objective-section-subtitle"
+              data-cy="okr-drawer-objective-section-subtitle"
+              className="text-sm text-gray-500 mt-1"
+            >
+              Please select objective alignment to add objective
+            </p>
+            <div className="border-b border-gray-200 mt-4" />
+          </div>
+        )}
 
         {isMobile ? (
           <div
@@ -363,9 +435,27 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             <Form.Item
               id="okr-drawer-mobile-title-input"
               data-cy="okr-drawer-mobile-title-input"
-              className="h-11 mb-10"
+              className="h-11 mb-6"
               name="title"
-              label="Objective"
+              label={
+                <span className="text-sm font-medium text-gray-700">
+                  Objective <span className="text-red-500">*</span>{' '}
+                  <Tooltip
+                    title={
+                      <div className="py-1">
+                        <div className="font-bold text-gray-900 mb-1">Objective name</div>
+                        <div className="text-sm text-gray-700 leading-relaxed">
+                          These are objective names they can be given or are automatically selected when you select your alignment
+                        </div>
+                      </div>
+                    }
+                    overlayClassName="okr-tooltip-custom"
+                    placement="topLeft"
+                  >
+                    <QuestionCircleOutlined className="text-gray-400 cursor-help" />
+                  </Tooltip>
+                </span>
+              }
               rules={[
                 {
                   required: true,
@@ -377,7 +467,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 id="okr-drawer-mobile-title-input-field"
                 data-cy="okr-drawer-mobile-title-input-field"
                 allowClear
-                className="h-11 w-full"
+                placeholder="Input"
+                className="h-11 w-full rounded-lg"
                 onChange={(e) => {
                   handleObjectiveChange(e.target.value, 'title');
                 }}
@@ -387,14 +478,35 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             <div
               id="okr-drawer-mobile-form-alignment-select"
               data-cy="okr-drawer-mobile-form-alignment-select"
-              className="flex w-full gap-4 mb-10"
+              className="flex flex-col w-full gap-4 mb-6"
             >
               <Form.Item
                 id="okr-drawer-mobile-alignment-select"
                 data-cy="okr-drawer-mobile-alignment-select"
-                className="h-11 w-1/2 mb-0"
+                className="h-11 w-full mb-0"
                 name="allignedKeyResultId"
-                label="Alignment"
+                label={
+                  <span className="text-sm font-medium text-gray-700">
+                    Alignment <span className="text-red-500">*</span>{' '}
+                    <Tooltip
+                      title={
+                        <div className="py-1">
+                          <div className="font-bold text-gray-900 mb-1">Alignment</div>
+                          <div className="text-sm text-gray-700 leading-relaxed">
+                            These are objectives of your direct supervisor it mandatory you align with your direct supervisor
+                          </div>
+                        </div>
+                      }
+                      overlayClassName="okr-tooltip-custom"
+                      placement="topLeft"
+                    >
+                      <QuestionCircleOutlined className="text-gray-400 cursor-help" />
+                    </Tooltip>
+                    {!reportsToId && (
+                      <span className="text-gray-400 text-xs ml-1">(optional)</span>
+                    )}
+                  </span>
+                }
                 rules={[
                   {
                     required: reportsToId ? true : false,
@@ -405,9 +517,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 <Select
                   id="okr-drawer-mobile-alignment-select-dropdown"
                   data-cy="okr-drawer-mobile-alignment-select-dropdown"
-                  className="h-11"
+                  className="h-11 w-full rounded-lg"
                   showSearch
-                  placeholder="Search and select a Key Result"
+                  placeholder="Select"
                   value={objectiveValue?.allignedKeyResultId}
                   onChange={(value) =>
                     handleObjectiveChange(value, 'allignedKeyResultId')
@@ -432,9 +544,16 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               <Form.Item
                 id="okr-drawer-mobile-deadline-picker"
                 data-cy="okr-drawer-mobile-deadline-picker"
-                className="h-11 w-1/2 mb-0"
+                className="h-11 w-full mb-0"
                 name="ObjectiveDeadline"
-                label={isMobile ? 'Deadline' : 'Objective Deadline'}
+                label={
+                  <span className="text-sm font-medium text-gray-700">
+                    Deadline <span className="text-red-500">*</span>{' '}
+                    <Tooltip title="Set the objective deadline">
+                      <QuestionCircleOutlined className="text-gray-400 cursor-help" />
+                    </Tooltip>
+                  </span>
+                }
                 rules={[
                   { required: true, message: 'Please select a deadline' },
                 ]}
@@ -453,7 +572,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       'deadline',
                     );
                   }}
-                  className="w-full h-11"
+                  className="w-full h-11 rounded-lg"
                   format="YYYY-MM-DD"
                   disabledDate={(current) =>
                     current && current < dayjs().startOf('day')
@@ -462,43 +581,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 />
               </Form.Item>
             </div>
-            {/* <div
-              id="okr-drawer-mobile-form-add-keyresult-button"
-              data-cy="okr-drawer-mobile-form-add-keyresult-button"
-              className="w-full flex justify-end mb-10"
-            >
-              {isBasic ? (
-                <Button
-                  type="default"
-                  id="okr-drawer-mobile-add-keyresult-button"
-                  data-cy="okr-drawer-mobile-add-keyresult-button"
-                  className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
-                  aria-label="Add Key Result"
-                  onClick={handleAddKeyResult}
-                >
-                  <GoPlus size={24} />
-                </Button>
-              ) : (
-                <Dropdown
-                  data-cy="okr-drawer-mobile-form-add-keyresult-button-dropdown"
-                  overlay={keyResultMenu}
-                  trigger={['click']}
-                  className=""
-                >
-                  <Button
-                    type="default"
-                    id="okr-drawer-mobile-add-keyresult-button"
-                    data-cy="okr-drawer-mobile-add-keyresult-button"
-                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
-                    aria-label="Add Key Result"
-                  >
-                    <GoPlus size={24} />
-                  </Button>
-                </Dropdown>
-              )}
-            </div> */}
           </div>
-        ) : (
+        ) : isBasic ? (
           <div
             id="okr-drawer-desktop-form"
             data-cy="okr-drawer-desktop-form"
@@ -525,10 +609,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 onChange={(e) => {
                   handleObjectiveChange(e.target.value, 'title');
                 }}
-                style={{
-                  fontSize: isMobile ? '14px' : '12px',
-                  height: '44px',
-                }}
+                style={{ fontSize: '12px', height: '44px' }}
               />
             </Form.Item>
             <Form.Item
@@ -557,10 +638,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 filterOption={(input: string, option: any) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
                 }
-                style={{
-                  fontSize: isMobile ? '14px' : '12px',
-                  height: '44px',
-                }}
+                style={{ fontSize: '12px', height: '44px' }}
               >
                 {keyResultByUser?.items?.map((keyResult: any) => (
                   <Select.Option
@@ -598,109 +676,217 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 disabledDate={(current) =>
                   current && current < dayjs().startOf('day')
                 }
-                style={{
-                  fontSize: isMobile ? '14px' : '12px',
-                  height: '44px',
+                style={{ fontSize: '12px', height: '44px' }}
+              />
+            </Form.Item>
+          </div>
+        ) : (
+          /* Advanced mode desktop form */
+          <div
+            id="okr-drawer-desktop-form"
+            data-cy="okr-drawer-desktop-form"
+            className="flex gap-4 w-full mt-4"
+          >
+            <Form.Item
+              id="okr-drawer-desktop-title-input"
+              data-cy="okr-drawer-desktop-title-input"
+              className="h-11 mb-10 flex-1"
+              name="title"
+              label={
+                <span className="text-sm font-medium text-gray-700">
+                  Objective <span className="text-red-500">*</span>{' '}
+                  <Tooltip
+                    title={
+                      <div className="py-1">
+                        <div className="font-bold text-gray-900 mb-1">Objective name</div>
+                        <div className="text-sm text-gray-700 leading-relaxed">
+                          These are objective names they can be given or are automatically selected when you select your alignment
+                        </div>
+                      </div>
+                    }
+                    overlayClassName="okr-tooltip-custom"
+                    placement="topLeft"
+                  >
+                    <QuestionCircleOutlined className="text-gray-400 cursor-help" />
+                  </Tooltip>
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter the Objective name',
+                },
+              ]}
+            >
+              <Input
+                id="okr-drawer-desktop-title-input-field"
+                data-cy="okr-drawer-desktop-title-input-field"
+                allowClear
+                placeholder="Input"
+                className="h-11 w-full rounded-lg"
+                onChange={(e) => {
+                  handleObjectiveChange(e.target.value, 'title');
                 }}
+                style={{ fontSize: '14px', height: '44px' }}
+              />
+            </Form.Item>
+            <Form.Item
+              id="okr-drawer-desktop-alignment-select"
+              data-cy="okr-drawer-desktop-alignment-select"
+              className="h-11 mb-10 w-1/4"
+              name="allignedKeyResultId"
+              label={
+                <span className="text-sm font-medium text-gray-700">
+                  Alignment <span className="text-red-500">*</span>{' '}
+                  <Tooltip
+                    title={
+                      <div className="py-1">
+                        <div className="font-bold text-gray-900 mb-1">Alignment</div>
+                        <div className="text-sm text-gray-700 leading-relaxed">
+                          These are objectives of your direct supervisor it mandatory you align with your direct supervisor
+                        </div>
+                      </div>
+                    }
+                    overlayClassName="okr-tooltip-custom"
+                    placement="topLeft"
+                  >
+                    <QuestionCircleOutlined className="text-gray-400 cursor-help" />
+                  </Tooltip>
+                  {!reportsToId && (
+                    <span className="text-gray-400 text-xs ml-1">(optional)</span>
+                  )}
+                </span>
+              }
+              rules={[
+                {
+                  required: reportsToId ? true : false,
+                  message: 'Please select alignment',
+                },
+              ]}
+            >
+              <Select
+                id="okr-drawer-desktop-alignment-select-dropdown"
+                data-cy="okr-drawer-desktop-alignment-select-dropdown"
+                className="h-11 w-full"
+                showSearch
+                placeholder="Select"
+                value={objectiveValue?.allignedKeyResultId}
+                onChange={(value) =>
+                  handleObjectiveChange(value, 'allignedKeyResultId')
+                }
+                filterOption={(input: string, option: any) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
+                style={{ fontSize: '14px', height: '44px' }}
+              >
+                {keyResultByUser?.items?.map((keyResult: any) => (
+                  <Select.Option
+                    id="okr-drawer-desktop-alignment-select-option"
+                    data-cy="okr-drawer-desktop-alignment-select-option"
+                    key={keyResult.id}
+                    value={keyResult.id}
+                  >
+                    {keyResult.title}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              id="okr-drawer-desktop-deadline-picker"
+              data-cy="okr-drawer-desktop-deadline-picker"
+              className="h-11 mb-10 w-1/5"
+              name="ObjectiveDeadline"
+              label={
+                <span className="text-sm font-medium text-gray-700">
+                  Deadline <span className="text-red-500">*</span>{' '}
+                  <Tooltip title="Set the objective deadline">
+                    <QuestionCircleOutlined className="text-gray-400 cursor-help" />
+                  </Tooltip>
+                </span>
+              }
+              rules={[{ required: true, message: 'Please select a deadline' }]}
+            >
+              <DatePicker
+                id="okr-drawer-desktop-deadline-picker-field"
+                data-cy="okr-drawer-desktop-deadline-picker-field"
+                value={
+                  objectiveValue.deadline
+                    ? dayjs(objectiveValue.deadline)
+                    : null
+                }
+                placeholder="Select date"
+                onChange={(date) => {
+                  handleObjectiveChange(date?.format('YYYY-MM-DD'), 'deadline');
+                }}
+                className="w-full h-11 rounded-lg"
+                format="YYYY-MM-DD"
+                disabledDate={(current) =>
+                  current && current < dayjs().startOf('day')
+                }
+                style={{ fontSize: '14px', height: '44px' }}
               />
             </Form.Item>
           </div>
         )}
 
-        {/* Key Result Section with inline title and buttons */}
-        <div
-          id="okr-drawer-key-result-section-header"
-          data-cy="okr-drawer-key-result-section-header"
-          className="flex justify-between items-center mb-6 mt-8"
-        >
-          <h2
-            id="okr-drawer-key-result-section-title"
-            data-cy="okr-drawer-key-result-section-title"
-            className="text-xl font-semibold text-gray-800"
-          >
-            Key Result
-          </h2>
-          <div
-            data-cy="okr-components-okrdrawer-index-tsx-index-div-623"
-            className="flex gap-2"
-          >
-            <Button
-              type="primary"
-              id="okr-ai-inline-suggestions-toggle-button"
-              data-cy="okr-ai-inline-suggestions-toggle-button"
-              ghost
-              onClick={() => setShowAISuggestions(!showAISuggestions)}
-              disabled={
-                !objectiveValue?.title || objectiveValue.title.trim() === ''
-              }
-              className="flex items-center gap-1 border-indigo-500 text-indigo-600 hover:text-indigo-700 hover:border-indigo-600"
+        {/* Key Result Section */}
+        {isBasic ? (
+          <>
+            {/* Basic mode: original KR section header */}
+            <div
+              id="okr-drawer-key-result-section-header"
+              data-cy="okr-drawer-key-result-section-header"
+              className="flex justify-between items-center mb-6 mt-8"
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-                data-cy="okr-drawer-ai-suggestions-icon"
+              <h2
+                id="okr-drawer-key-result-section-title"
+                data-cy="okr-drawer-key-result-section-title"
+                className="text-xl font-semibold text-gray-800"
               >
-                <path
-                  data-cy="okr-components-okrdrawer-index-tsx-index-path-643"
-                  d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"
-                />
-              </svg>
-              <span
-                className="hidden sm:inline"
-                data-cy="okr-drawer-ai-suggestions-text"
+                Key Result
+              </h2>
+              <div
+                data-cy="okr-components-okrdrawer-index-tsx-index-div-623"
+                className="flex gap-2"
               >
-                AI Suggestions
-              </span>
-            </Button>
-            {isBasic ? (
-              <Button
-                type="default"
-                id="okr-drawer-desktop-add-keyresult-button"
-                data-cy="okr-drawer-desktop-add-keyresult-button"
-                className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
-                aria-label="Add Key Result"
-                onClick={handleAddKeyResult}
-              >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-white"
-                  data-cy="okr-components-okrdrawer-index-tsx-svg-667"
+                <Button
+                  type="primary"
+                  id="okr-ai-inline-suggestions-toggle-button"
+                  data-cy="okr-ai-inline-suggestions-toggle-button"
+                  ghost
+                  onClick={() => setShowAISuggestions(!showAISuggestions)}
+                  disabled={
+                    !objectiveValue?.title || objectiveValue.title.trim() === ''
+                  }
+                  className="flex items-center gap-1 border-indigo-500 text-indigo-600 hover:text-indigo-700 hover:border-indigo-600"
                 >
-                  <path
-                    d="M12 5V19M5 12H19"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    data-cy="okr-components-okrdrawer-index-tsx-path-675"
-                  />
-                </svg>
-                <span
-                  data-cy="okr-components-okrdrawer-index-tsx-index-span-677"
-                  className="hidden sm:inline"
-                >
-                  Key Result
-                </span>
-              </Button>
-            ) : (
-              <Dropdown
-                data-cy="okr-drawer-desktop-add-keyresult-button-dropdown"
-                dropdownRender={() => keyResultMenu}
-                trigger={['click']}
-              >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                    data-cy="okr-drawer-ai-suggestions-icon"
+                  >
+                    <path
+                      data-cy="okr-components-okrdrawer-index-tsx-index-path-643"
+                      d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"
+                    />
+                  </svg>
+                  <span
+                    className="hidden sm:inline"
+                    data-cy="okr-drawer-ai-suggestions-text"
+                  >
+                    AI Suggestions
+                  </span>
+                </Button>
                 <Button
                   type="default"
                   id="okr-drawer-desktop-add-keyresult-button"
                   data-cy="okr-drawer-desktop-add-keyresult-button"
                   className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
                   aria-label="Add Key Result"
+                  onClick={handleAddKeyResult}
                 >
                   <svg
                     width="12"
@@ -709,7 +895,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                     className="text-white"
-                    data-cy="okr-drawer-add-keyresult-icon-plus"
+                    data-cy="okr-components-okrdrawer-index-tsx-svg-667"
                   >
                     <path
                       d="M12 5V19M5 12H19"
@@ -717,35 +903,110 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      data-cy="okr-components-okrdrawer-index-tsx-path-712"
+                      data-cy="okr-components-okrdrawer-index-tsx-path-675"
                     />
                   </svg>
-                  <span data-cy="okr-drawer-add-keyresult-text">
+                  <span
+                    data-cy="okr-components-okrdrawer-index-tsx-index-span-677"
+                    className="hidden sm:inline"
+                  >
                     Key Result
                   </span>
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="text-white"
-                    data-cy="okr-drawer-add-keyresult-icon-chevron"
-                  >
-                    <path
-                      d="M6 9L12 15L18 9"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      data-cy="okr-components-okrdrawer-index-tsx-path-732"
-                    />
-                  </svg>
                 </Button>
-              </Dropdown>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Advanced mode: new KR section header */}
+            <div
+              id="okr-drawer-key-result-section-header"
+              data-cy="okr-drawer-key-result-section-header"
+              className="mt-8 mb-6"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2
+                    id="okr-drawer-key-result-section-title"
+                    data-cy="okr-drawer-key-result-section-title"
+                    className="text-base font-bold text-gray-900"
+                  >
+                    Set your Key Result
+                  </h2>
+                  <p
+                    id="okr-drawer-key-result-section-subtitle"
+                    data-cy="okr-drawer-key-result-section-subtitle"
+                    className="text-sm text-gray-500 mt-1"
+                  >
+                    {isMobile
+                      ? 'Please select objective alignment.'
+                      : 'Please add your key results'}
+                  </p>
+                </div>
+                {isMobile ? (
+                  <Button
+                    type="default"
+                    id="okr-drawer-desktop-add-keyresult-button"
+                    data-cy="okr-drawer-desktop-add-keyresult-button"
+                    className={`w-10 h-10 flex items-center justify-center p-0 rounded-full ${
+                      objectiveValue?.title && objectiveValue.title.trim() !== ''
+                        ? 'bg-okr-primary border-okr-primary text-white hover:bg-blue-800'
+                        : 'border border-gray-300 text-gray-400 cursor-not-allowed'
+                    }`}
+                    aria-label="Add Key Result"
+                    onClick={() => setShowMetricSelector(!showMetricSelector)}
+                    disabled={!objectiveValue?.title || objectiveValue.title.trim() === ''}
+                    icon={<PlusOutlined />}
+                  />
+                ) : (
+                  <Button
+                    type="default"
+                    id="okr-drawer-desktop-add-keyresult-button"
+                    data-cy="okr-drawer-desktop-add-keyresult-button"
+                    className={`flex items-center gap-2 text-sm font-medium rounded-lg ${
+                      objectiveValue?.title && objectiveValue.title.trim() !== ''
+                        ? 'bg-okr-primary border-okr-primary text-white hover:bg-blue-800'
+                        : 'border border-gray-300 text-gray-400 cursor-not-allowed'
+                    }`}
+                    aria-label="Add Key Result"
+                    onClick={() => setShowMetricSelector(!showMetricSelector)}
+                    disabled={!objectiveValue?.title || objectiveValue.title.trim() === ''}
+                    icon={<PlusOutlined />}
+                  >
+                    Add Key Result
+                  </Button>
+                )}
+              </div>
+              <div className="border-b border-gray-200 mt-4" />
+            </div>
+
+            {/* Metric type pill selector */}
+            {showMetricSelector && (
+              <div
+                id="okr-drawer-metric-selector"
+                data-cy="okr-drawer-metric-selector"
+                className="border border-gray-200 rounded-lg p-4 mb-6 flex flex-wrap items-center gap-3"
+              >
+                <span className="text-sm text-gray-600 mr-2">Please Select a Key Result Metric :</span>
+                {keyResultTypes.map((type) => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    id={`okr-drawer-metric-pill-${type.value}`}
+                    data-cy={`okr-drawer-metric-pill-${type.value}`}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-okr-primary hover:text-okr-primary transition-colors"
+                    onClick={() => {
+                      handleAddKeyResultType({ key: type.value });
+                      setShowMetricSelector(false);
+                    }}
+                  >
+                    {type.label}
+                  </button>
+                ))}
+              </div>
             )}
-          </div>
-        </div>
+          </>
+        )}
 
         {/* AI Inline Suggestions */}
         <OKRInlineSuggestions
@@ -761,7 +1022,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         <div
           id="okr-drawer-key-results-container"
           data-cy="okr-drawer-key-results-container"
-          className={`rounded-lg mt-5 w-full min-h-64 ${objective?.keyResults?.length > 2 ? 'max-h-96 overflow-y-auto' : ''}`}
+          className={`rounded-lg mt-5 w-full ${isBasic ? 'min-h-64' : ''} ${
+            !isMobile && objective?.keyResults?.length > 2
+              ? 'max-h-96 overflow-y-auto'
+              : ''
+          }`}
         >
           {/* Show forms for key results */}
           <div
@@ -778,6 +1043,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   updateKeyResult={updateKeyResult}
                   removeKeyResult={removeKeyResult}
                   addKeyResultValue={addKeyResultValue}
+                  embedInOkrSheet={isMobile}
                 />
               ))}
           </div>

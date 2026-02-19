@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Menu, Dropdown, Select } from 'antd';
+import { Avatar, Card, Menu, Dropdown, Select } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { MoreOutlined, DownOutlined } from '@ant-design/icons';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
@@ -228,20 +228,49 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 {status}
               </span>
             </div>
-            {objective?.isClosed === false && menu && (
-              <Dropdown
-                data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
-                overlay={menu}
-                trigger={['click']}
-                placement="bottomRight"
-              >
-                <MoreOutlined
-                  id={`objective-basic-menu-button-${objective?.id}`}
-                  data-cy={`okr-objective-basic-menu-button-${objective?.id}`}
-                  className="text-gray-500 text-lg cursor-pointer flex-shrink-0"
-                />
-              </Dropdown>
-            )}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {!myOkr && objective?.user && (
+                <div
+                  className="flex items-center gap-3"
+                  data-cy={`okr-objective-basic-assignee-${objective?.id}`}
+                >
+                  <Avatar
+                    size={40}
+                    src={objective.user.profileImage}
+                    className="border border-gray-200"
+                  >
+                    {!objective.user.profileImage &&
+                      `${objective.user.firstName?.[0] || ''}${objective.user.lastName?.[0] || ''}`.toUpperCase()}
+                  </Avatar>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-gray-900">
+                      {[objective.user.firstName, objective.user.middleName, objective.user.lastName]
+                        .filter(Boolean)
+                        .join(' ')}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {objective.user?.employeeJobInformation?.[0]?.department?.name ||
+                        objective.user?.employeeJobInformation?.[0]?.position?.name ||
+                        '-'}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {objective?.isClosed === false && menu && (
+                <Dropdown
+                  data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
+                  overlay={menu}
+                  trigger={['click']}
+                  placement="bottomRight"
+                >
+                  <MoreOutlined
+                    id={`objective-basic-menu-button-${objective?.id}`}
+                    data-cy={`okr-objective-basic-menu-button-${objective?.id}`}
+                    className="text-gray-500 text-lg cursor-pointer"
+                  />
+                </Dropdown>
+              )}
+            </div>
           </div>
         }
       >

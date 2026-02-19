@@ -1,5 +1,5 @@
 'use client';
-import { Spin, Tabs } from 'antd';
+import { Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import ObjectiveCard from '../objectivecard';
 import ObjectiveBasic from '../objectiveBasic';
@@ -19,15 +19,24 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import EmployeeOKRTable from '../EmployeeOkr';
 import CustomPagination from '@/components/customPagination';
-import dynamic from 'next/dynamic';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-// Dynamically import Tabs with no SSR to avoid hydration issues
-const DynamicTabs = dynamic(() => Promise.resolve(Tabs), { ssr: false });
+const TAB_CONFIG = [
+  { key: '1', label: 'My OKR' },
+  { key: '2', label: 'Team OKR' },
+  { key: '3', label: 'Company OKR' },
+  { key: '4', label: 'All Employees OKR' },
+];
 
-export default function OkrTab() {
+interface OkrTabProps {
+  filterComponent?: React.ReactNode;
+  'data-cy'?: string;
+}
+
+export default function OkrTab({ filterComponent, 'data-cy': dataCy }: OkrTabProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const [activeKey, setActiveKey] = useState<string>('1');
   const { userId } = useAuthenticationStore();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
@@ -54,6 +63,7 @@ export default function OkrTab() {
     setCompanyPageSize,
     companyCurrentPage,
     companyPageSize,
+    okrTab,
     setOkrTab,
   } = useOKRStore();
   const { isMobile, isTablet } = useIsMobile();
@@ -146,6 +156,10 @@ export default function OkrTab() {
     }
   }, [companyPageSize, companyCurrentPage, isMounted]);
 
+  useEffect(() => {
+    setActiveKey(String(okrTab));
+  }, [okrTab]);
+
   // Return null or loading state during SSR
   if (!isMounted) {
     return (
@@ -158,20 +172,23 @@ export default function OkrTab() {
     );
   }
 
-  return (
-    <div id="okr-tab-container" data-cy="okr-tab-container" className="mt-6">
-      <DynamicTabs
-        id="okr-tabs"
-        data-cy="okr-tabs"
-        defaultActiveKey="1"
-        onChange={(key) => setOkrTab(key)}
-        items={[
+  const handleTabChange = (key: string) => {
+    setOkrTab(key);
+    setActiveKey(key);
+  };
+
+  const visibleTabs = TAB_CONFIG.filter((tab) => {
+    if (tab.key === '2' && !canVieTeamOkr) return false;
+    if ((tab.key === '3' || tab.key === '4') && !canVieCompanyOkr) return false;
+    return true;
+  });
+
+  const tabContent = [
           {
             key: '1',
             label: 'My OKR',
             children: (
               <div id="my-okr-tab-content" data-cy="okr-my-okr-tab-content">
-                <OkrProgress data-cy="okr-my-okr-progress" />
                 {isUserLoading && (
                   <Spin
                     data-cy="okr-my-okr-loading-spin"
@@ -255,7 +272,6 @@ export default function OkrTab() {
                       id="team-okr-tab-content"
                       data-cy="okr-team-okr-tab-content"
                     >
-                      <OkrProgress />
                       {isTeamLoading && (
                         <Spin
                           data-cy="okr-team-okr-loading-spin"
@@ -350,7 +366,6 @@ export default function OkrTab() {
                           className="text-white text-center flex w-full justify-center"
                         />
                       )}
-                      <OkrProgress data-cy="okr-company-okr-progress" />
                       {companyObjective?.items?.length !== 0 && (
                         <div
                           id="company-okr-objectives-list"
@@ -421,7 +436,7 @@ export default function OkrTab() {
                 },
                 {
                   key: '4',
-                  label: 'All Employee OKR',
+                  label: 'All Employees OKR',
                   children: (
                     <div
                       id="all-employee-okr-tab-content"
@@ -433,8 +448,40 @@ export default function OkrTab() {
                 },
               ]
             : []),
-        ]}
-      />
+  ];
+
+  const currentContent = tabContent.find((t) => t.key === activeKey)?.children;
+
+  return (
+    <div id="okr-tab-container" data-cy={dataCy || 'okr-tab-container'}>
+      {activeKey !== '4' && <OkrProgress data-cy="okr-progress" />}
+      <div className="flex justify-between items-center gap-3 border-b border-gray-200 mb-6">
+        <div className="flex space-x-6 flex-1 min-w-0 overflow-x-auto pb-px">
+          {visibleTabs.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => handleTabChange(tab.key)}
+              className={`whitespace-nowrap py-3 px-1 text-sm font-medium transition-colors border-b-2 ${
+                activeKey === tab.key
+                  ? 'border-okr-primary text-okr-primary font-semibold'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+              data-cy={`okr-tab-${tab.key}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {activeKey !== '4' && (
+          <div className="flex-shrink-0" data-cy="okr-filter-inline-container">
+            {filterComponent}
+          </div>
+        )}
+      </div>
+      <div id="okr-tabs" data-cy="okr-tabs" className="mt-6">
+        {currentContent}
+      </div>
     </div>
   );
 }

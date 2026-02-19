@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Progress, Card, Avatar, Menu, Dropdown } from 'antd';
+import { Avatar, Dropdown, Menu } from 'antd';
 import { PiCalendarBold } from 'react-icons/pi';
-import KeyResultMetrics from '../keyresultmetrics';
+import KeyResultTableRow from '../keyResultTableRow';
 import EditObjective from '../editObjective';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -10,10 +10,11 @@ import {
   defaultObjective,
   ObjectiveProps,
 } from '@/store/uistate/features/okrplanning/okr/interface';
-import { MoreOutlined } from '@ant-design/icons';
+import { EllipsisOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { setObjectiveValue, objectiveValue, keyResultId, objectiveId } =
@@ -21,21 +22,19 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { userId } = useAuthenticationStore();
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const { mutate: deleteObjective } = useDeleteObjective();
-  const { isMobile, isTablet } = useIsMobile();
+  const { isMobile } = useIsMobile();
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
 
-  // Get active session ID
   const activeSessionId = activeFiscalYear?.sessions?.find(
     (item: any) => item?.active,
   )?.id;
 
-  // Only owner can edit/delete
   const isOwner = objective?.userId === userId;
-
-  // Check if objective is part of the active session
   const isInActiveSession =
     !activeSessionId || objective?.sessionId === activeSessionId;
+
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setObjectiveValue(objective);
@@ -59,35 +58,17 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
 
-  // Owner-only menu - only show if objective is in active session
   const menu =
     isOwner && isInActiveSession ? (
       <Menu
         items={[
-          {
-            key: '1',
-            label: 'Edit',
-            onClick: showDrawer,
-          },
-          {
-            key: '2',
-            label: 'Delete',
-            onClick: showDeleteModal,
-          },
+          { key: '1', label: 'Edit', onClick: showDrawer },
+          { key: '2', label: 'Delete', onClick: showDeleteModal },
         ]}
       />
     ) : null;
-  function handleDeleteObjective(id: string) {
-    deleteObjective(id, {
-      onSuccess: () => {
-        onCloseDeleteModal();
-      },
-    });
-  }
 
-  // ==========> Deleting Key result and distributing weight Section <===============
   const selectedObjective = objective?.id === objectiveId ? objective : null;
-
   const relatedKeyResults =
     (selectedObjective &&
       selectedObjective?.keyResults?.filter(
@@ -97,211 +78,204 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const remainingKeyResults = relatedKeyResults?.filter(
     (kr: any) => kr?.id !== keyResultId,
   );
-
   const keyResultToDelete = relatedKeyResults.find(
     (kr: any) => kr.id === keyResultId,
   );
-
   const redistributedWeight =
-    parseFloat(keyResultToDelete?.weight) / remainingKeyResults.length;
-
+    parseFloat(keyResultToDelete?.weight) / (remainingKeyResults.length || 1);
   const updatedKeyResults = remainingKeyResults.map((kr: any) => ({
     id: kr.id,
     weight: parseFloat(kr.weight) + redistributedWeight,
   }));
 
+  const handleDeleteObjective = (id: string) => {
+    deleteObjective(id, { onSuccess: () => onCloseDeleteModal() });
+  };
+
   return (
     <div
       id={`objective-card-${objective?.id}`}
       data-cy={`okr-objective-card-${objective?.id}`}
-      className={`${isMobile ? 'p-0 grid gap-0' : 'p-2 grid gap-0'}`}
+      className={`${isMobile ? 'mb-4' : 'mb-6'}`}
     >
       <div
         data-cy={`okr-objective-card-wrapper-${objective?.id}`}
-        className="flex justify-center"
+        className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
       >
-        <Card
-          id={`objective-card-container-${objective?.id}`}
-          data-cy={`okr-objective-card-container-${objective?.id}`}
-          className={`bg-white shadow-sm rounded-lg w-full mb-3 ${isMobile ? 'p-0' : 'p-6'}`}
-        >
-          <div
-            id={`okr-objective-card-content-${objective?.id}`}
-            data-cy={`okr-objective-card-content-${objective?.id}`}
-            className="flex flex-col gap-4"
-          >
-            {/* Title Section */}
-            <div
-              id={`okr-objective-card-title-section-${objective?.id}`}
-              data-cy={`okr-objective-card-title-section-${objective?.id}`}
-              className={`flex justify-between items-start ${isMobile ? 'mb-1' : 'mb-4'}`}
-            >
-              <div
-                className="flex flex-col"
-                data-cy={`okr-objective-title-container-${objective?.id}`}
-              >
-                <h2
-                  id={`objective-title-${objective?.id}`}
-                  data-cy={`okr-objective-title-${objective?.id}`}
-                  className={`font-bold text-black ${isMobile ? 'text-xs' : 'text-sm'}`}
-                >
-                  {objective?.title}
-                </h2>
-              </div>
-              {objective?.isClosed === false && menu ? (
-                <Dropdown
-                  data-cy={`okr-objective-actions-dropdown-${objective?.id}`}
-                  overlay={menu}
-                  trigger={['click']}
-                  placement="bottomRight"
-                >
-                  <MoreOutlined
-                    id={`objective-menu-button-${objective?.id}`}
-                    data-cy={`okr-objective-menu-button-${objective?.id}`}
-                    className="text-gray-500 text-lg cursor-pointer"
-                  />
-                </Dropdown>
-              ) : null}
-            </div>
-
-            <div
-              id={`okr-objective-body-${objective?.id}`}
-              data-cy={`okr-objective-body-${objective?.id}`}
-              className={`flex ${isMobile ? 'flex-col gap-4' : isTablet ? 'flex-col sm:flex-row gap-6' : 'flex-col sm:flex-row'} justify-between items-${isMobile ? 'start' : 'center'}`}
-            >
-              {/* Progress and Metrics Section */}
-              <div
-                id={`okr-objective-progress-wrapper-${objective?.id}`}
-                data-cy={`okr-objective-progress-wrapper-${objective?.id}`}
-                className={`${isMobile ? 'flex justify-between items-center gap-2 w-full' : 'flex items-center gap-2 w-full sm:gap-8'}`}
-              >
-                {/* Objective Progress */}
-                <div
-                  id={`okr-objective-progress-block-${objective?.id}`}
-                  data-cy={`okr-objective-progress-block-${objective?.id}`}
-                  className={`${isMobile ? 'w-full' : 'grid items-center'}`}
-                >
-                  <div
-                    id={`okr-objective-progress-label-${objective?.id}`}
-                    data-cy={`okr-objective-progress-label-${objective?.id}`}
-                    className="text-xs text-gray-600"
-                  >
+        <div className={`${expanded ? 'p-6 pb-2' : 'p-6'}`}>
+          <div className="flex items-start justify-between">
+            <div className="w-full">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between sm:justify-start gap-2 mb-3 pl-10">
+                  <div className="flex-1 sm:flex-none min-w-0">
                     <span
-                      id={`objective-progress-text-${objective?.id}`}
-                      data-cy={`okr-objective-progress-text-${objective?.id}`}
-                      className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue`}
+                      className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 whitespace-nowrap"
+                      data-cy={`okr-objective-progress-badge-${objective?.id}`}
                     >
                       {Number(objective?.objectiveProgress)?.toLocaleString()}%
-                    </span>{' '}
-                    Objective Progress
+                      Objective Progress
+                    </span>
                   </div>
-                  <Progress
-                    data-cy={`okr-objective-progress-bar-${objective?.id}`}
-                    percent={objective?.objectiveProgress}
-                    showInfo={false}
-                    strokeColor="#3636f0"
-                    trailColor="#EDEDF6"
-                    className={`${isMobile ? 'w-full' : 'w-full sm:w-32'}`}
-                  />
-                  <div
-                    id={`objective-key-results-count-${objective?.id}`}
-                    data-cy={`okr-objective-key-results-count-${objective?.id}`}
-                    className="text-xs text-gray-600"
-                  >
-                    {completedKeyResults}/{totalKeyResults} Key Result Done
+                  <div className="flex-1 sm:flex-none min-w-0 flex justify-end sm:justify-start">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white">
+                      {completedKeyResults} - {totalKeyResults} Key Results Done
+                    </span>
                   </div>
                 </div>
-
-                {/* Key Result Section */}
-                <div
-                  id={`okr-objective-days-left-section-${objective?.id}`}
-                  data-cy={`okr-objective-days-left-section-${objective?.id}`}
-                  className={`${isMobile ? 'gap-2 items-center justify-between w-full' : 'grid items-center gap-0'}`}
-                >
-                  <div
-                    id={`okr-objective-days-left-wrapper-${objective?.id}`}
-                    data-cy={`okr-objective-days-left-wrapper-${objective?.id}`}
-                    className="flex items-center"
-                  >
-                    <PiCalendarBold
-                      data-cy={`okr-objective-days-left-icon-${objective?.id}`}
-                      className="text-blue mt-1"
-                    />
-                    <div
-                      id={`objective-days-left-${objective?.id}`}
-                      data-cy={`okr-objective-days-left-${objective?.id}`}
-                      className={`font-bold text-[#3636f0] ${isMobile ? 'text-lg ml-2' : 'text-2xl'}`}
-                    >
-                      {objective?.daysLeft}
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4">
+                  <div className="max-w-3xl min-w-0 order-1">
+                    <div className="relative flex items-center justify-between gap-2 mb-2 sm:pl-10">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <button
+                          type="button"
+                          onClick={() => setExpanded(!expanded)}
+                          className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 text-gray-400 transition-colors w-8 h-8 flex items-center justify-center flex-shrink-0 sm:absolute sm:left-0 sm:top-0"
+                          data-cy={`okr-objective-expand-${objective?.id}`}
+                        >
+                          {expanded ? (
+                            <MdKeyboardArrowUp size={20} />
+                          ) : (
+                            <MdKeyboardArrowDown size={20} />
+                          )}
+                        </button>
+                        <h2
+                          id={`objective-title-${objective?.id}`}
+                          data-cy={`okr-objective-title-${objective?.id}`}
+                          className="text-base sm:text-lg font-bold text-gray-900 leading-snug min-w-0"
+                        >
+                          {objective?.title}
+                        </h2>
+                      </div>
+                      {objective?.isClosed === false && menu && (
+                        <Dropdown
+                          overlay={menu}
+                          trigger={['click']}
+                          placement="bottomRight"
+                        >
+                          <button
+                            type="button"
+                            className="sm:hidden text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 flex items-center justify-center flex-shrink-0"
+                            data-cy={`okr-objective-menu-button-${objective?.id}`}
+                          >
+                            <EllipsisOutlined />
+                          </button>
+                        </Dropdown>
+                      )}
+                    </div>
+                    <div className="flex items-center text-sm text-gray-500 pl-10">
+                      <PiCalendarBold className="mr-2 text-lg text-gray-400" />
+                      {objective?.daysLeft} Days Left
                     </div>
                   </div>
-                  <div
-                    id={`okr-objective-days-left-label-${objective?.id}`}
-                    data-cy={`okr-objective-days-left-label-${objective?.id}`}
-                    className="text-xs text-gray-600 "
-                  >
-                    Days left
+                  <div className="flex items-start sm:items-center justify-end gap-3 flex-shrink-0 order-2 sm:ml-auto">
+                    {!myOkr && objective?.user && (
+                      <div
+                        className="flex items-center gap-3"
+                        data-cy={`okr-objective-assignee-${objective?.id}`}
+                      >
+                        <Avatar
+                          size={40}
+                          src={objective.user.profileImage}
+                          className="border border-gray-200"
+                        >
+                          {!objective.user.profileImage &&
+                            `${objective.user.firstName?.[0] || ''}${objective.user.lastName?.[0] || ''}`.toUpperCase()}
+                        </Avatar>
+                        <div className="text-left sm:text-right">
+                          <p className="text-xs sm:text-sm font-semibold text-gray-900">
+                            {[objective.user.firstName, objective.user.middleName, objective.user.lastName]
+                              .filter(Boolean)
+                              .join(' ')}
+                          </p>
+                          <p className="text-[11px] sm:text-xs text-gray-500">
+                            {objective.user?.employeeJobInformation?.[0]?.department?.name ||
+                              objective.user?.employeeJobInformation?.[0]?.position?.name ||
+                              '-'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {objective?.isClosed === false && menu && (
+                      <Dropdown
+                        overlay={menu}
+                        trigger={['click']}
+                        placement="bottomRight"
+                      >
+                        <button
+                          type="button"
+                          className="hidden sm:flex text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 items-center justify-center flex-shrink-0"
+                          data-cy={`okr-objective-menu-button-${objective?.id}`}
+                        >
+                          <EllipsisOutlined />
+                        </button>
+                      </Dropdown>
+                    )}
                   </div>
                 </div>
               </div>
-
-              {!myOkr && (
-                <div
-                  id={`objective-user-info-${objective?.id}`}
-                  data-cy={`okr-objective-user-info-${objective?.id}`}
-                  className={`flex items-center gap-1 ${isMobile ? 'mt-2' : 'mt-4 sm:mt-0'}`}
-                >
-                  <div
-                    className="flex flex-col gap-0"
-                    data-cy={`okr-objective-user-details-${objective?.id}`}
-                  >
-                    <span
-                      id={`objective-user-name-${objective?.id}`}
-                      data-cy={`okr-objective-user-name-${objective?.id}`}
-                      className="text-xs text-normal"
-                    >{`${objective?.user?.firstName} ${objective?.user?.middleName}  ${objective?.user?.lastName} `}</span>
-                    <span
-                      id={`objective-user-email-${objective?.id}`}
-                      data-cy={`okr-objective-user-email-${objective?.id}`}
-                      className="text-xs text-normal"
-                    >
-                      {objective?.user?.email}
-                    </span>
-                  </div>
-                  {objective?.user?.profileImage ? (
-                    <Avatar
-                      data-cy={`okr-objective-user-avatar-${objective?.id}`}
-                      size={isMobile ? 32 : 40}
-                      src={objective?.user?.profileImage}
-                    />
-                  ) : (
-                    <Avatar
-                      data-cy={`okr-objective-user-avatar-fallback-${objective?.id}`}
-                      size={isMobile ? 32 : 40}
-                    >
-                      {objective?.user?.firstName[0]?.toUpperCase()}{' '}
-                      {objective?.user?.middleName[0]?.toUpperCase()}
-                      {objective?.user?.lastName[0]?.toUpperCase()}
-                    </Avatar>
-                  )}
-                </div>
-              )}
             </div>
           </div>
-        </Card>
+        </div>
+
+        {expanded && objective?.keyResults?.length > 0 && (
+          <div className="mt-4 border-t border-gray-200 overflow-x-auto">
+            <table className="min-w-[900px] w-full table-auto divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-semibold text-gray-900 tracking-wider min-w-[280px]"
+                  >
+                    Key Result
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider w-[120px] whitespace-nowrap"
+                  >
+                    Metrics
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider w-[90px] whitespace-nowrap"
+                  >
+                    Weight
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider w-[110px] whitespace-nowrap"
+                  >
+                    Milestone
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider w-[220px] whitespace-nowrap"
+                  >
+                    Progress
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 w-[56px] whitespace-nowrap"
+                  />
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200 text-sm">
+                {objective.keyResults.map((keyResult: any) => (
+                  <KeyResultTableRow
+                    key={keyResult.id}
+                    keyResult={keyResult}
+                    myOkr={myOkr}
+                    updatedKeyResults={updatedKeyResults}
+                    objectiveId={objective?.id}
+                    objectiveUserId={objective?.userId}
+                    isInActiveSession={isInActiveSession}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-      {objective.keyResults?.map((keyResult: any) => (
-        <KeyResultMetrics
-          data-cy={`okr-objective-card-key-result-metrics-${keyResult?.id}`}
-          myOkr={myOkr}
-          keyResult={keyResult}
-          key={keyResult.id}
-          updatedKeyResults={updatedKeyResults}
-          objectiveId={objectiveId}
-          objectiveUserId={objective?.userId}
-          isInActiveSession={isInActiveSession}
-        />
-      ))}
+
       <EditObjective
         data-cy={`okr-objective-card-edit-objective-${objective?.id}`}
         objective={objectiveValue}

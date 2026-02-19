@@ -94,6 +94,8 @@ export interface OKRFormProps {
   removeKeyResult: (index: number) => void;
   addKeyResultValue: (value: any) => void;
   keyResults?: KeyResult;
+  /** When true, on mobile render the form inline (e.g. inside OKR Create Objective bottom sheet) instead of card + separate drawer */
+  embedInOkrSheet?: boolean;
 }
 export interface ObjectiveProps {
   objective: Objective;
