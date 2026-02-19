@@ -29,6 +29,11 @@ function CustomDeleteTalentPool() {
         onConfirm={() =>
           handleDeleteTalentPoolCategory(selectedTalentPool?.id ?? '')
         }
+        title="Delete Talent Pool category"
+        deleteMessage="Are you Sure you want to delete this category?"
+        hideImage
+        danger
+        modalClassName="recruitment-settings-delete-modal"
       />
     </div>
   );

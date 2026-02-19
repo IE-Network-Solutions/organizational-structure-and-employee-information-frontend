@@ -344,7 +344,7 @@ const CustomFieldsDrawer: React.FC<{
       data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-322"
       className="flex justify-center text-xl font-extrabold text-gray-800 px-4 py-2"
     >
-      {isEdit ? 'Edit Question' : 'Create New Field'}
+      {isEdit ? 'Edit Question' : 'Custom Field'}
     </div>
   );
 
@@ -353,7 +353,7 @@ const CustomFieldsDrawer: React.FC<{
       <Modal
         data-cy="talent-acquisition-custom-fields-modal-edit"
         centered
-        title="Edit Question"
+        title="Custom Field"
         open={true}
         onCancel={onClose}
         footer={
@@ -416,7 +416,7 @@ const CustomFieldsDrawer: React.FC<{
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
               onClick={() => form.submit()}
             >
-              {isEdit ? 'Update Template' : 'Create'}
+              {isEdit ? 'Update' : 'Create Field'}
             </Button>
           </div>
         }
