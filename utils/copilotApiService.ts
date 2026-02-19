@@ -55,8 +55,11 @@ export const sendCopilotChatRequest = async (
   // forceRefresh=true ensures we always get a newly refreshed token
   const token = await getCurrentToken(true);
 
-  // Get tenant and user info from store
-  const { tenantId, userId } = useAuthenticationStore.getState();
+  // Get tenant, user and role from store (role used for copilot access: only owner allowed)
+  const { tenantId, userId, loggedUserRole, userData } =
+    useAuthenticationStore.getState();
+  const userRole =
+    (loggedUserRole || userData?.role?.slug || '').toString().trim().toLowerCase();
 
   if (!tenantId || !token) {
     throw new Error('Authentication required. Please log in again.');
@@ -80,6 +83,11 @@ export const sendCopilotChatRequest = async (
 
   if (userId) {
     headers.userId = userId;
+  }
+
+  // Send user role so backend can restrict copilot to owner only
+  if (userRole) {
+    headers['user-role'] = userRole;
   }
 
   // Add sessionId header if provided (for OKR session-specific queries)

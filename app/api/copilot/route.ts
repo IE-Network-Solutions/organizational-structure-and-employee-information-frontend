@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     const tenantId = request.headers.get('tenantid');
     const userId = request.headers.get('userid');
     const sessionId = request.headers.get('sessionid');
+    const userRole = request.headers.get('user-role');
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
       ...(tenantId && { tenantId }),
       ...(userId && { userId }),
       ...(sessionId && { sessionId }),
+      ...(userRole && { 'user-role': userRole }),
     };
 
     let endpoint = getCopilotEndpoint();
