@@ -157,15 +157,6 @@ const MergeDragDrop: React.FC = () => {
       );
 
       if (destinationDept && sourceDept) {
-        // Collect children from source team
-        const sourceChildren = sourceDept.children || [];
-
-        // Combine with destination's existing children
-        const mergedChildren = [
-          ...(destinationDept.children || []),
-          ...sourceChildren,
-        ].filter((child: any) => child.id !== sourceTeam.id);
-
         const level = getDepartmentLevel(orgStructureData, destinationTeam.id) || 3;
 
         // API expects department: []; teamLeader added at submit time
