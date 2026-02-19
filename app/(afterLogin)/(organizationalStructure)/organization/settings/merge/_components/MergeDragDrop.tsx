@@ -131,6 +131,19 @@ const MergeDragDrop: React.FC = () => {
     [],
   );
 
+  // Compute depth (level) of a department in the org tree; root = 1
+  const getDepartmentLevel = useCallback((tree: any, id: string, depth = 1): number => {
+    if (!tree) return 1;
+    if (tree.id === id) return depth;
+    if (tree.department?.length) {
+      for (const child of tree.department) {
+        const found = getDepartmentLevel(child, id, depth + 1);
+        if (found > 0) return found;
+      }
+    }
+    return 0;
+  }, []);
+
   // Build merge data
   useEffect(() => {
     if (sourceTeam && destinationTeam && orgStructureData) {
@@ -153,13 +166,17 @@ const MergeDragDrop: React.FC = () => {
           ...sourceChildren,
         ].filter((child: any) => child.id !== sourceTeam.id);
 
+        const level = getDepartmentLevel(orgStructureData, destinationTeam.id) || 3;
+
+        // API expects department: []; teamLeader added at submit time
         const mergePayload = {
           id: destinationTeam.id,
           name: destinationTeam.name,
           description: destinationTeam.description || '',
           branchId: destinationTeam.branchId,
           departmentToDelete: [sourceTeam.id],
-          department: mergedChildren.map((child: any) => ({ id: child.id })),
+          department: [],
+          level,
         };
 
         setMergeData(mergePayload);
@@ -170,6 +187,7 @@ const MergeDragDrop: React.FC = () => {
     destinationTeam,
     orgStructureData,
     findDepartmentWithChildren,
+    getDepartmentLevel,
     setMergeData,
   ]);
 
@@ -281,11 +299,12 @@ const MergeDragDrop: React.FC = () => {
       return;
     }
 
-    // Update merge data with form values if needed
+    // Update merge data with form values - API expects teamLeader and name from form
     const updatedMergeData = {
       ...mergeData,
-      // Add form data to merge payload if needed
       name: formData?.departmentName || mergeData.name,
+      teamLeader: formData?.teamLead ?? '',
+      level: mergeData.level ?? 3,
     };
 
     mergeDepartment(updatedMergeData, {
