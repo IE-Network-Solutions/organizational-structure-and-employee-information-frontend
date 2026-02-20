@@ -574,16 +574,15 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
           );
         }
 
-        // Only show text if no table data is available (hide repeated text when table is shown)
+        // Show LLM answer and table: always show answer when present; show table with its title below
+        const answerText = parsedResponse.answer || responseText;
         const copilotMessage: Message = {
           id: `msg-${Date.now()}-copilot`,
-          text: tableData ? undefined : parsedResponse.answer || responseText, // Hide text when table is available
+          text: answerText || undefined,
           sender: 'copilot',
           timestamp: new Date(),
-          metadata: tableData
-            ? undefined
-            : addMetadata(parsedResponse.answer || responseText),
-          tableData: tableData, // Include table data (from backend or transformed)
+          metadata: answerText ? addMetadata(answerText) : undefined,
+          tableData: tableData, // Table with LLM-generated short title from backend
         };
         setMessages((prev) => [...prev, copilotMessage]);
       } catch (error) {
