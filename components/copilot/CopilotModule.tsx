@@ -3,7 +3,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Typography, Button, Dropdown, Tooltip } from 'antd';
 import {
-  MessageOutlined,
   CloseOutlined,
   MenuUnfoldOutlined,
   PlusOutlined,
@@ -17,6 +16,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import CopilotMessages, { Message } from './CopilotMessages';
 import CopilotInput from './CopilotInput';
 import CopilotIntentPanel from './CopilotIntentPanel';
+import SelamnewHandIcon from './SelamnewHandIcon';
 import {
   sendCopilotChatRequest,
   normalizeCopilotError,
@@ -810,38 +810,42 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
           >
             {messages.length === 0 ? (
               <div
-                className="flex flex-col items-center justify-center h-full min-h-[200px] py-8 px-4"
+                className="flex flex-col h-full min-h-[200px] py-8 px-4"
                 data-cy="copilot-module-empty-state"
               >
-                <div
-                  className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4"
-                  data-cy="copilot-module-empty-state-icon"
-                >
-                  <MessageOutlined className="text-3xl text-gray-400" />
+                <div className="flex items-start gap-4 max-w-2xl mx-auto w-full">
+                  <div
+                    className="flex-shrink-0 inline-flex items-center justify-center w-14 h-14 rounded-full bg-white border border-gray-200 shadow-sm"
+                    data-cy="copilot-module-empty-state-icon"
+                  >
+                    <SelamnewHandIcon className="w-8 h-8" />
+                  </div>
+                  <div className="flex-1 min-w-0 pt-0.5">
+                    <Text className="text-xl font-semibold text-gray-800 block mb-2">
+                      Hello {employeeData?.firstName ?? employeeData?.lastName ?? 'there'}!
+                    </Text>
+                    <Text
+                      type="secondary"
+                      className="text-sm block text-gray-600 mb-1"
+                    >
+                      SelamNew Copilot can help you answer questions, complete
+                      tasks, and discover insights from your HR data.
+                    </Text>
+                    <Text
+                      type="secondary"
+                      className="text-sm block text-gray-600 mb-4"
+                    >
+                      Ready to explore? Click an intent on the right or type
+                      your question below.
+                    </Text>
+                    <span
+                      className="text-[11px] text-gray-400"
+                      data-cy="copilot-disclaimer"
+                    >
+                      AI-generated content may be incorrect.
+                    </span>
+                  </div>
                 </div>
-                <Text className="text-base text-gray-600 block mb-2">
-                  Welcome to SelamNew Copilot
-                </Text>
-                <Text
-                  type="secondary"
-                  className="text-sm block text-center max-w-md mb-1"
-                >
-                  Ask questions about your HR data, get insights, and manage
-                  your work more efficiently.
-                </Text>
-                <Text
-                  type="secondary"
-                  className="text-xs block text-center max-w-md mb-4"
-                >
-                  Ready to explore? Click an intent on the right or type your
-                  question below.
-                </Text>
-                <span
-                  className="text-[11px] text-gray-400"
-                  data-cy="copilot-disclaimer"
-                >
-                  AI-generated content may be incorrect.
-                </span>
               </div>
             ) : (
               <CopilotMessages

@@ -6,13 +6,15 @@ import {
   ClockCircleOutlined,
   UserOutlined,
   CheckCircleOutlined,
-  MessageOutlined,
 } from '@ant-design/icons';
+import SelamnewHandIcon from './SelamnewHandIcon';
 
 const { Text } = Typography;
 
 interface CopilotEmptyStateProps {
   onPromptSelect: (prompt: string) => void;
+  /** User's first name (or display name) for personalized greeting e.g. "Hello Muluken!" */
+  userName?: string;
 }
 
 /**
@@ -27,6 +29,7 @@ interface CopilotEmptyStateProps {
  */
 const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
   onPromptSelect,
+  userName,
 }) => {
   const examplePrompts = {
     'Time & Attendance': [
@@ -62,24 +65,25 @@ const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
       data-cy="copilot-empty-state"
     >
       <div
-        className="text-center mb-8 max-w-md"
+        className="flex items-start gap-4 mb-8 max-w-md mx-auto text-left w-full"
         data-cy="copilot-empty-state-content"
       >
-        <div className="mb-4" data-cy="copilot-empty-state-icon-wrapper">
-          <div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4"
-            data-cy="copilot-empty-state-icon-circle"
-          >
-            <MessageOutlined className="text-2xl text-gray-400" />
-          </div>
+        <div
+          className="flex-shrink-0 inline-flex items-center justify-center w-14 h-14 rounded-full bg-white border border-gray-200 shadow-sm"
+          data-cy="copilot-empty-state-icon-circle"
+        >
+          <SelamnewHandIcon className="w-8 h-8" />
         </div>
-        <Text className="text-base text-gray-600 block mb-2">
-          Welcome to SelamNew Copilot
-        </Text>
-        <Text type="secondary" className="text-sm block">
-          Ask questions about your HR data, get insights, and manage your work
-          more efficiently.
-        </Text>
+        <div className="flex-1 min-w-0 pt-0.5">
+          <Text className="text-xl font-semibold text-gray-800 block mb-2">
+            {userName ? `Hello ${userName}!` : 'Welcome to SelamNew Copilot'}
+          </Text>
+          <Text type="secondary" className="text-sm block text-gray-600">
+            SelamNew Copilot can help you answer questions, complete tasks, and
+            discover insights from your HR data. Ready to explore? Select one of
+            the suggestions below to get started.
+          </Text>
+        </div>
       </div>
 
       <div

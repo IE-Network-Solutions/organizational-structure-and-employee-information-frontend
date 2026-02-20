@@ -14,7 +14,6 @@ import {
 } from 'antd';
 import { COPILOT_ERROR_MESSAGES } from '@/utils/copilotApiService';
 import {
-  UserOutlined,
   RobotOutlined,
   ExpandOutlined,
   CompressOutlined,
@@ -453,7 +452,6 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             {isUser && (
               <Avatar
                 size={32}
-                icon={<UserOutlined />}
                 className="bg-blue-100 text-blue-600 flex-shrink-0"
                 data-cy="copilot-message-avatar-user"
               >
