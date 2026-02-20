@@ -1,6 +1,5 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import { Cadence, ViewMode } from './types';
-import dayjs from 'dayjs';
 
 function getOrdinal(day: number): string {
   if (day > 3 && day < 21) return `${day}th`;

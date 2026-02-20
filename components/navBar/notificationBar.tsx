@@ -11,7 +11,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
 
 const toSlug = (v: string | number | null | undefined) =>
-  String(v ?? 'na').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  String(v ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 
 function getNotificationRoute(n: NotificationType): string | null {
   const r = n?.route?.trim();
@@ -60,8 +63,18 @@ function NotificationBar() {
     }
   };
   const notificationMenu = (
-    <Menu className="font-lexend max-w-[400px] max-h-96 overflow-y-auto" id="notification-bar-menu" data-cy="notification-bar-menu">
-      <p className="m-2 border-b border-black" id="notification-bar-title" data-cy="notification-bar-title">Notifications</p>
+    <Menu
+      className="font-lexend max-w-[400px] max-h-96 overflow-y-auto"
+      id="notification-bar-menu"
+      data-cy="notification-bar-menu"
+    >
+      <p
+        className="m-2 border-b border-black"
+        id="notification-bar-title"
+        data-cy="notification-bar-title"
+      >
+        Notifications
+      </p>
 
       {isLoading ? (
         <Spin tip="Loading" size="small" />
@@ -73,54 +86,65 @@ function NotificationBar() {
               const theme = getNotificationThemeClasses(notification);
               const slug = toSlug(notification.id);
               return (
-              <div
-                key={notification.id}
-                id={`notification-bar-item-${slug}`}
-                data-cy={`notification-bar-item-${slug}`}
-                className={`flex justify-between gap-4 border-l-4 ${theme.border} ${theme.hover}`}
-              >
-                <Menu.Item>
-                  <div
-                    data-cy={`components-navbar-notificationbar-tsx-notificationbar-div-78-${notification.id}`}
-                    className="flex items-center p-2 cursor-pointer"
-                    onClick={() => handleNotificationClick(notification)}
-                  >
-                    <Avatar
-                      className={theme.bg}
-                      icon={<AiFillNotification className={theme.icon} />}
-                    />
-                    <div className="ml-2" data-cy={`notification-bar-content-${slug}`}>
-                      <div className="font-semibold" data-cy={`notification-bar-title-${slug}`}>{notification?.title}</div>
-                      <div className="text-xs text-gray-500" data-cy={`notification-bar-date-${slug}`}>
-                        {formatDateDifference(notification?.updatedAt)}
-                      </div>
+                <div
+                  key={notification.id}
+                  id={`notification-bar-item-${slug}`}
+                  data-cy={`notification-bar-item-${slug}`}
+                  className={`flex justify-between gap-4 border-l-4 ${theme.border} ${theme.hover}`}
+                >
+                  <Menu.Item>
+                    <div
+                      data-cy={`components-navbar-notificationbar-tsx-notificationbar-div-78-${notification.id}`}
+                      className="flex items-center p-2 cursor-pointer"
+                      onClick={() => handleNotificationClick(notification)}
+                    >
+                      <Avatar
+                        className={theme.bg}
+                        icon={<AiFillNotification className={theme.icon} />}
+                      />
                       <div
-                        className="text-xs text-gray-400"
-                        data-cy={`notification-bar-body-${slug}`}
+                        className="ml-2"
+                        data-cy={`notification-bar-content-${slug}`}
                       >
-                        {notification?.body?.slice(0, 15)}
-                        {notification?.body?.length > 15 && '...'}
+                        <div
+                          className="font-semibold"
+                          data-cy={`notification-bar-title-${slug}`}
+                        >
+                          {notification?.title}
+                        </div>
+                        <div
+                          className="text-xs text-gray-500"
+                          data-cy={`notification-bar-date-${slug}`}
+                        >
+                          {formatDateDifference(notification?.updatedAt)}
+                        </div>
+                        <div
+                          className="text-xs text-gray-400"
+                          data-cy={`notification-bar-body-${slug}`}
+                        >
+                          {notification?.body?.slice(0, 15)}
+                          {notification?.body?.length > 15 && '...'}
+                        </div>
                       </div>
                     </div>
+                  </Menu.Item>
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-88"
+                    className="flex items-center"
+                  >
+                    <Tooltip title="Mark as read">
+                      <CgCloseO
+                        className="text-sm"
+                        data-cy={`notification-bar-mark-read-${slug}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateNotification(notification.id);
+                        }}
+                      />
+                    </Tooltip>
                   </div>
-                </Menu.Item>
-                <div
-                  data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationbar-tsx-notificationbar-div-88"
-                  className="flex items-center"
-                >
-                  <Tooltip title="Mark as read">
-                    <CgCloseO
-                      className="text-sm"
-                      data-cy={`notification-bar-mark-read-${slug}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updateNotification(notification.id);
-                      }}
-                    />
-                  </Tooltip>
                 </div>
-              </div>
-            );
+              );
             })}
 
           <Menu.Item key="view-more" className="text-center">

@@ -31,17 +31,27 @@ import { requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription'
 import { VAPID_PUBLIC_KEY } from '@/utils/constants';
 
 const toSlug = (v: string | number | null | undefined) =>
-  String(v ?? 'na').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  String(v ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 
-function getNotificationIcon(item: NotificationType): React.ComponentType<{ className?: string }> {
+function getNotificationIcon(
+  item: NotificationType,
+): React.ComponentType<{ className?: string }> {
   const s = (item.source_service ?? '').toLowerCase().replace(/_/g, '-');
   const r = (item.route ?? '').toLowerCase();
-  if (s.includes('org-structure') || r.includes('quarter_completion')) return GlobalOutlined;
+  if (s.includes('org-structure') || r.includes('quarter_completion'))
+    return GlobalOutlined;
   if (s.includes('planning-and-reporting')) return BarChartOutlined;
   if (s.includes('time-and-attendance')) return ClockCircleOutlined;
   if (s.includes('training-and-learning')) return ReadOutlined;
   if (s.includes('recruitment')) return UserAddOutlined;
-  if (s.includes('compensation-and-benefits') || (r.includes('compensationsetting') && r.includes('allowance'))) return GiftOutlined;
+  if (
+    s.includes('compensation-and-benefits') ||
+    (r.includes('compensationsetting') && r.includes('allowance'))
+  )
+    return GiftOutlined;
   if (s.includes('payroll')) return DollarOutlined;
   return FileTextOutlined;
 }
@@ -80,20 +90,21 @@ function NotificationItem({
   const IconComponent = getNotificationIcon(item);
   const themeClasses = getNotificationThemeClasses(item);
   return (
-      <div
-        id={`notification-item-${toSlug(item.id)}`}
-        data-cy={`notification-item-${toSlug(item.id)}`}
+    <div
+      id={`notification-item-${toSlug(item.id)}`}
+      data-cy={`notification-item-${toSlug(item.id)}`}
       onClick={() => onClick(item)}
       className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors border-l-2 ${themeClasses.border} ${themeClasses.hover} ${unread ? 'opacity-100' : 'opacity-70'}`}
     >
-      <div className="flex-shrink-0 relative mt-0.5" data-cy={`notification-item-avatar-wrapper-${toSlug(item.id)}`}>
+      <div
+        className="flex-shrink-0 relative mt-0.5"
+        data-cy={`notification-item-avatar-wrapper-${toSlug(item.id)}`}
+      >
         <div
           className={`w-9 h-9 rounded-full flex items-center justify-center ${themeClasses.bg}`}
           data-cy={`notification-item-icon-${toSlug(item.id)}`}
         >
-          <IconComponent
-            className={`text-sm ${themeClasses.icon}`}
-          />
+          <IconComponent className={`text-sm ${themeClasses.icon}`} />
         </div>
         {unread && (
           <span
@@ -153,7 +164,9 @@ function NotificationItem({
   );
 }
 
-export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } = {}) {
+export function NotificationDropdownPanel({
+  open: isOpen,
+}: { open?: boolean } = {}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const userId = useAuthenticationStore.getState().userId ?? '';
@@ -439,13 +452,28 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
             </div>
           ) : filter === 'all' &&
             (unreadList.length > 0 || readList.length > 0) ? (
-            <div className="p-2 space-y-4" id="notification-all-sections" data-cy="notification-all-sections">
+            <div
+              className="p-2 space-y-4"
+              id="notification-all-sections"
+              data-cy="notification-all-sections"
+            >
               {unreadList.length > 0 && (
-                <div id="notification-unread-section" data-cy="notification-unread-section">
-                  <h3 id="notification-unread-heading" data-cy="notification-unread-heading" className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2">
+                <div
+                  id="notification-unread-section"
+                  data-cy="notification-unread-section"
+                >
+                  <h3
+                    id="notification-unread-heading"
+                    data-cy="notification-unread-heading"
+                    className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2"
+                  >
                     Unread
                   </h3>
-                  <div className="space-y-3" id="notification-unread-list" data-cy="notification-unread-list">
+                  <div
+                    className="space-y-3"
+                    id="notification-unread-list"
+                    data-cy="notification-unread-list"
+                  >
                     {unreadList.map((item: NotificationType) => (
                       <NotificationItem
                         key={item.id}
@@ -460,11 +488,22 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
                 </div>
               )}
               {readList.length > 0 && (
-                <div id="notification-previous-section" data-cy="notification-previous-section">
-                  <h3 id="notification-previous-heading" data-cy="notification-previous-heading" className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2 border-t border-gray-200 pt-3 mt-1">
+                <div
+                  id="notification-previous-section"
+                  data-cy="notification-previous-section"
+                >
+                  <h3
+                    id="notification-previous-heading"
+                    data-cy="notification-previous-heading"
+                    className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2 border-t border-gray-200 pt-3 mt-1"
+                  >
                     Previous notifications
                   </h3>
-                  <div className="space-y-3" id="notification-previous-list" data-cy="notification-previous-list">
+                  <div
+                    className="space-y-3"
+                    id="notification-previous-list"
+                    data-cy="notification-previous-list"
+                  >
                     {readList.map((item: NotificationType) => (
                       <NotificationItem
                         key={item.id}
@@ -480,7 +519,11 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
               )}
             </div>
           ) : (
-            <div className="p-2 space-y-3" id="notification-filtered-list" data-cy="notification-filtered-list">
+            <div
+              className="p-2 space-y-3"
+              id="notification-filtered-list"
+              data-cy="notification-filtered-list"
+            >
               {filtered.map((item: NotificationType) => (
                 <NotificationItem
                   key={item.id}
