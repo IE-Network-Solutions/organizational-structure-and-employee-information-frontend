@@ -1012,7 +1012,6 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 id="ai-candidate-detail-experience-empty"
                                 data-cy="ai-candidate-detail-experience-empty"
                                 className="text-xs text-gray-500"
-                                data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1006"
                               >
                                 No experience information provided.
                               </p>
@@ -1144,8 +1143,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 id="ai-candidate-detail-education-empty"
                                 data-cy="ai-candidate-detail-education-empty"
                                 className="text-xs text-gray-500"
-                                data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1133"
-                              >
+                                >
                                 No education information provided.
                               </p>
                             )}
@@ -1182,7 +1180,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                         id={`ai-candidate-education-degree-${idx}`}
                                         data-cy={`ai-candidate-education-degree-${idx}`}
                                         className="font-medium text-gray-900"
-                                        data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1169"
+                                      
                                       >
                                         {edu.degree || 'Education'}
                                       </p>
@@ -1190,7 +1188,6 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                         id={`ai-candidate-education-institution-${idx}`}
                                         data-cy={`ai-candidate-education-institution-${idx}`}
                                         className="text-gray-600"
-                                        data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1175"
                                       >
                                         {edu.institution ||
                                           'Institution not specified'}
@@ -1200,8 +1197,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                           id={`ai-candidate-education-cgpa-${idx}`}
                                           data-cy={`ai-candidate-education-cgpa-${idx}`}
                                           className="text-xs text-gray-500 mt-1"
-                                          data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-p-1183"
-                                        >
+                                          >
                                           CGPA: {edu.cgpa}
                                         </p>
                                       )}
@@ -1210,7 +1206,6 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                       id={`ai-candidate-education-years-${idx}`}
                                       data-cy={`ai-candidate-education-years-${idx}`}
                                       className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0"
-                                      data-cy="recruitment-recruitment-ai-job-matching-jobid-page-tsx-span-1191"
                                     >
                                       {yearRange}
                                     </span>
