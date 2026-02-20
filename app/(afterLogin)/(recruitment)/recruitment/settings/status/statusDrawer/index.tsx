@@ -129,7 +129,10 @@ const RecruitmentStatusDrawer: React.FC = () => {
           />
         </Form.Item>
 
-        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+        <div
+          className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100"
+          data-cy="talent-acquisition-status-drawer-actions"
+        >
           <Button
             id="talent-acquisition-status-button-cancel"
             data-cy="talent-acquisition-status-button-cancel"

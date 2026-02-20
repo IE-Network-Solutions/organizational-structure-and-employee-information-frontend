@@ -151,12 +151,12 @@ function TalentPoolCategoryTab() {
                   {talentPool?.title}
                 </span>
                 {showMenu && (
-                    <Dropdown
-                      menu={{ items: menuItems }}
-                      trigger={['click']}
-                      placement="bottomRight"
-                      overlayClassName="recruitment-settings-dropdown-overlay"
-                    >
+                  <Dropdown
+                    menu={{ items: menuItems }}
+                    trigger={['click']}
+                    placement="bottomRight"
+                    overlayClassName="recruitment-settings-dropdown-overlay"
+                  >
                     <button
                       type="button"
                       className="recruitment-settings-more-btn p-1 text-gray-500"
@@ -175,7 +175,10 @@ function TalentPoolCategoryTab() {
       <TalentPoolDrawer />
       <CustomDeleteTalentPool />
       {isMobile || isTablet ? (
-        <div className="mt-6">
+        <div
+          className="mt-6"
+          data-cy="talent-acquisition-talent-pool-category-mobile-pagination"
+        >
           <CustomMobilePagination
             totalResults={talentPoolCategories?.meta?.totalItems ?? 1}
             pageSize={pageSize}

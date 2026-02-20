@@ -3,7 +3,10 @@ import { FC, ReactNode } from 'react';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { usePathname, useRouter } from 'next/navigation';
-import { SettingsAddButtonProvider, useSettingsAddButton } from './SettingsAddButtonContext';
+import {
+  SettingsAddButtonProvider,
+  useSettingsAddButton,
+} from './SettingsAddButtonContext';
 import { UserPlus } from 'lucide-react';
 
 interface SettingsLayoutProps {
@@ -11,7 +14,11 @@ interface SettingsLayoutProps {
 }
 
 const TABS = [
-  { key: 'status', label: 'Define Status', path: '/recruitment/settings/status' },
+  {
+    key: 'status',
+    label: 'Define Status',
+    path: '/recruitment/settings/status',
+  },
   {
     key: 'talentPoolCategoryTab',
     label: 'Talent Pool Category',
@@ -65,8 +72,14 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
           id="talent-acquisition-settings-tabs"
           data-cy="talent-acquisition-settings-tabs"
         >
-          <div className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden">
-            <div className="flex gap-0 border-b-0 w-max min-h-full">
+          <div
+            className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden"
+            data-cy="talent-acquisition-settings-tabs-scroll"
+          >
+            <div
+              className="flex gap-0 border-b-0 w-max min-h-full"
+              data-cy="talent-acquisition-settings-tabs-inner"
+            >
               {TABS.map((tab) => {
                 const active = isTabActive(tab.path);
                 return (

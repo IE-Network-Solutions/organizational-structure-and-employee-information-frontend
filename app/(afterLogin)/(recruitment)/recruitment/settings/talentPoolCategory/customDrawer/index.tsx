@@ -117,7 +117,10 @@ const TalentPoolDrawer: React.FC = () => {
           />
         </Form.Item>
 
-        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+        <div
+          className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100"
+          data-cy="talent-acquisition-talent-pool-category-drawer-actions"
+        >
           <Button
             id="talent-acquisition-talent-pool-category-button-cancel"
             data-cy="talent-acquisition-talent-pool-category-button-cancel"

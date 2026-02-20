@@ -14,7 +14,9 @@ const FIELD_VALIDATION_OPTIONS = [
   { label: 'Dropdown', value: 'dropdown' },
 ];
 
-function getDefaultFieldOptions(fieldType: string): { id: string; value: string }[] {
+function getDefaultFieldOptions(
+  fieldType: string,
+): { id: string; value: string }[] {
   if (fieldType === 'multiple_choice' || fieldType === 'checkbox') {
     return [
       { id: uuidv4(), value: 'Option 1' },
@@ -110,7 +112,9 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
         <Form.Item
           name="fieldValidation"
           label="Field Validation"
-          rules={[{ required: true, message: 'Please select field validation' }]}
+          rules={[
+            { required: true, message: 'Please select field validation' },
+          ]}
           required
         >
           <Select
@@ -120,36 +124,59 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             data-cy="custom-field-select-validation"
           />
         </Form.Item>
-        <p className="text-sm text-gray-500 -mt-2 mb-4">
+        <p
+          className="text-sm text-gray-500 -mt-2 mb-4"
+          data-cy="custom-field-validation-description"
+        >
           Select a field validation type.
         </p>
 
         <Form.Item name="fieldMode" label={null}>
-          <Radio.Group className="w-full">
-            <div className="mb-3">
+          <Radio.Group className="w-full" data-cy="custom-field-radio-group">
+            <div className="mb-3" data-cy="custom-field-radio-active-wrapper">
               <Radio value="active" data-cy="custom-field-radio-active">
-                <span className="font-medium text-gray-900">Active</span>
+                <span
+                  className="font-medium text-gray-900"
+                  data-cy="custom-field-radio-active-label"
+                >
+                  Active
+                </span>
               </Radio>
-              <p className="text-sm text-gray-500 ml-6 mt-0.5">
+              <p
+                className="text-sm text-gray-500 ml-6 mt-0.5"
+                data-cy="custom-field-radio-active-description"
+              >
                 If the field is active will show.
               </p>
             </div>
-            <div>
+            <div data-cy="custom-field-radio-required-wrapper">
               <Radio value="required" data-cy="custom-field-radio-required">
-                <span className="font-medium text-gray-900">Required</span>
+                <span
+                  className="font-medium text-gray-900"
+                  data-cy="custom-field-radio-required-label"
+                >
+                  Required
+                </span>
               </Radio>
-              <p className="text-sm text-gray-500 ml-6 mt-0.5">
+              <p
+                className="text-sm text-gray-500 ml-6 mt-0.5"
+                data-cy="custom-field-radio-required-description"
+              >
                 If selected it must be filled.
               </p>
             </div>
           </Radio.Group>
         </Form.Item>
 
-        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+        <div
+          className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100"
+          data-cy="custom-field-modal-actions"
+        >
           <Button
             type="default"
             className="px-6 py-2 rounded-md"
             onClick={onClose}
+            data-cy="custom-field-button-cancel"
           >
             Cancel
           </Button>

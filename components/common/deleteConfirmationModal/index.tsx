@@ -86,12 +86,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-69"
           className="flex justify-center items-center h-[200px]"
         >
-          <Image
-            src="/deleteSvg.svg"
-            width={300}
-            height={300}
-            alt="Delete"
-          />
+          <Image src="/deleteSvg.svg" width={300} height={300} alt="Delete" />
         </p>
       )}
 

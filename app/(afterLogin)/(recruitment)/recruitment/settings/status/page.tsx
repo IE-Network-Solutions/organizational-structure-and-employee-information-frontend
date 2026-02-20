@@ -1,7 +1,7 @@
 'use client';
 import { Button, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import RecruitmentStatusDrawer from './statusDrawer';
 import { useGetRecruitmentStatuses } from '@/store/server/features/recruitment/settings/status/queries';
@@ -71,11 +71,11 @@ const Status: React.FC = () => {
     setSelectedStatus(null);
   };
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     setIsDrawerOpen(true);
     setEditMode(false);
     setSelectedStatus(null);
-  };
+  }, [setIsDrawerOpen, setEditMode, setSelectedStatus]);
 
   const { setAddAction } = useSettingsAddButton();
   const canCreate = AccessGuard.checkAccess({
@@ -84,7 +84,7 @@ const Status: React.FC = () => {
   useEffect(() => {
     if (canCreate) setAddAction(() => handleOpen);
     return () => setAddAction(null);
-  }, [setAddAction, canCreate]);
+  }, [setAddAction, canCreate, handleOpen]);
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -168,8 +168,7 @@ const Status: React.FC = () => {
               },
             ].filter(Boolean) as MenuProps['items'];
 
-            const showMenu =
-              !isLastStage && menuItems && menuItems.length > 0;
+            const showMenu = !isLastStage && menuItems && menuItems.length > 0;
 
             return (
               <div
@@ -178,7 +177,10 @@ const Status: React.FC = () => {
                 data-cy="recruitment-settings-status-card"
               >
                 {showMenu && (
-                  <div className="absolute top-3 right-3">
+                  <div
+                    className="absolute top-3 right-3"
+                    data-cy="talent-acquisition-status-card-menu-wrapper"
+                  >
                     <Dropdown
                       menu={{ items: menuItems }}
                       trigger={['click']}
@@ -196,7 +198,10 @@ const Status: React.FC = () => {
                     </Dropdown>
                   </div>
                 )}
-                <div className="flex flex-wrap items-center gap-2 pr-8">
+                <div
+                  className="flex flex-wrap items-center gap-2 pr-8"
+                  data-cy="talent-acquisition-status-card-content"
+                >
                   <h3
                     className="recruitment-settings-card-title text-[14px] font-normal"
                     data-cy="recruitment-settings-status-card-title"
@@ -238,7 +243,10 @@ const Status: React.FC = () => {
       />
 
       {isMobile || isTablet ? (
-        <div className="mt-6">
+        <div
+          className="mt-6"
+          data-cy="talent-acquisition-status-mobile-pagination"
+        >
           <CustomMobilePagination
             totalResults={recruitmentStatus?.meta?.totalItems ?? 1}
             pageSize={pageSize}

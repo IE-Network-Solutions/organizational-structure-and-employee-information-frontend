@@ -102,7 +102,8 @@ const CustomFieldsCard: React.FC = () => {
       {customFields?.items && customFields?.items?.length > 0 ? (
         customFields?.items.map((questions: any, index: number) => {
           const fieldType =
-            questions?.form?.[0]?.fieldType ?? questions?.questions?.[0]?.fieldType;
+            questions?.form?.[0]?.fieldType ??
+            questions?.questions?.[0]?.fieldType;
           const typeLabel = fieldTypeToLabel(fieldType);
           const displayTitle =
             questions?.title ??
@@ -135,7 +136,10 @@ const CustomFieldsCard: React.FC = () => {
               data-cy="recruitment-recruitment-settings-customfields-customfieldscard-index-tsx-div-85"
             >
               {showMenu && (
-                <div className="absolute top-3 right-3">
+                <div
+                  className="absolute top-3 right-3"
+                  data-cy="talent-acquisition-custom-fields-card-menu-wrapper"
+                >
                   <Dropdown
                     menu={{ items: menuItems }}
                     trigger={['click']}

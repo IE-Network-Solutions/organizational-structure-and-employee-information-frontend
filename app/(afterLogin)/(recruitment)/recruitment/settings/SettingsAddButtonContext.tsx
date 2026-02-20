@@ -11,12 +11,19 @@ type ContextValue = {
 
 const SettingsAddButtonContext = createContext<ContextValue | null>(null);
 
-export function SettingsAddButtonProvider({ children }: { children: React.ReactNode }) {
+export function SettingsAddButtonProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [addAction, setAddActionState] = useState<AddAction>(null);
   const setAddAction = useCallback((fn: AddAction) => {
     setAddActionState(fn);
   }, []);
-  const value = React.useMemo(() => ({ addAction, setAddAction }), [addAction, setAddAction]);
+  const value = React.useMemo(
+    () => ({ addAction, setAddAction }),
+    [addAction, setAddAction],
+  );
   return (
     <SettingsAddButtonContext.Provider value={value}>
       {children}
