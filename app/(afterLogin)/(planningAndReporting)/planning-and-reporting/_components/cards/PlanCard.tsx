@@ -12,7 +12,7 @@ import StatusBadge from '../StatusBadge';
 import KRSummaryBar from '../KRSummaryBar';
 import TaskRow from '../TaskRow';
 import CommentsSection from '../comments/CommentsSection';
-import { getDateLabel as formatDateLabel } from '../utils';
+
 
 interface PlanCardProps {
   plan: PlanSummary;
@@ -147,7 +147,6 @@ export default function PlanCard({
     <article
       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
       className="rounded-3xl border border-gray-300 bg-white p-3 md:p-6 mb-4"
-      data-active-cadence={activeCadence}
     >
       {/* Header with Title and Reprimand/Appreciation Badges */}
       <div
