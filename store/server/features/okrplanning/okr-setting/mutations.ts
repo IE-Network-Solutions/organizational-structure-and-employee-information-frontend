@@ -155,21 +155,17 @@ export const useSwitchOkrMode = () => {
       const status = error?.response?.status;
       const data = error?.response?.data;
       const message =
-        typeof data?.message === 'string' ? data.message : 'Failed to switch OKR mode.';
-      if (status === 400) {
-        const incompleteUserIds = data?.incompleteUserIds;
-        NotificationMessage.error({
-          message: 'Cannot switch mode',
-          description: incompleteUserIds?.length
-            ? `${message} (${incompleteUserIds.length} user(s) with incomplete reports)`
-            : message,
-        });
-      } else if (status === 404) {
+        typeof data?.message === 'string'
+          ? data.message
+          : 'Failed to switch OKR mode.';
+
+      // We don't show notification for 400 because it's handled by custom modal in the UI
+      if (status === 404) {
         NotificationMessage.error({
           message: 'OKR setting not found',
           description: message,
         });
-      } else {
+      } else if (status !== 400) {
         NotificationMessage.error({
           message: 'Switch failed',
           description: message,
