@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 
 import JobCard from './_components/jobCard/jobCard';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
@@ -9,6 +9,7 @@ import { FaPlus } from 'react-icons/fa';
 import WhatYouNeed from './[id]/_components/candidateSearch/whatYouNeed';
 import ShareToSocialMedia from './_components/modals/share';
 import AddFormResult from './_components/modals/result';
+import JobsFilterModal from './_components/modals/filter';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -17,6 +18,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 const RecruitmentPage: React.FC = () => {
   const { setAddNewDrawer } = useJobState();
   const { isTablet } = useIsMobile();
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
 
   const handleAddNewDrawer = () => {
     setAddNewDrawer(true);
@@ -26,51 +28,68 @@ const RecruitmentPage: React.FC = () => {
     <div
       id="talent-acquisition-jobs-page-div-container"
       data-cy="talent-acquisition-jobs-page-div-container"
-      className="p-4 min-h-screen sm:p-6 bg-[#ffffff]"
+      className="p-4 min-h-screen sm:p-6 bg-[#f9fafb]"
     >
       <div
         id="talent-acquisition-jobs-page-div-header"
         data-cy="talent-acquisition-jobs-page-div-header"
-        className={`flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-1 ${isTablet ? 'flex-wrap gap-y-4' : ''}`}
+        className={`flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 ${isTablet ? 'flex-wrap gap-y-4' : ''}`}
       >
         <CustomBreadcrumb
           data-cy="talent-acquisition-jobs-page-breadcrumb"
           title="Jobs"
-          subtitle="Here's all job list"
+          subtitle="Talent Acquisition / Jobs"
         />
-        <div
-          id="talent-acquisition-jobs-div-buttons"
-          data-cy="talent-acquisition-jobs-div-buttons"
-          className="flex items-center sm:justify-between gap-10 md:gap-8 sm:gap-4"
+        <AccessGuard
+          data-cy="talent-acquisition-jobs-page-access-guard"
+          permissions={[Permissions.CreateJobDescription]}
         >
-          <WhatYouNeed data-cy="talent-acquisition-jobs-page-what-you-need" />
-          <AccessGuard
-            data-cy="talent-acquisition-jobs-page-access-guard"
-            permissions={[Permissions.CreateJobDescription]}
-          >
-            <CustomButton
-              title={
-                <span
-                  data-cy="-recruitment-recruitment-jobs-page-tsx-page-span-52"
-                  className="hidden sm:inline sm:mr-2"
-                >
-                  Add New
-                </span>
-              }
-              id="createJobButton"
-              data-cy="talent-acquisition-jobs-button-add-new"
-              icon={<FaPlus className="md:mr-0 ml-2" />}
-              onClick={() => handleAddNewDrawer()}
-              className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
-            />
-          </AccessGuard>
-        </div>
+          <CustomButton
+            title={
+              <span
+                data-cy="-recruitment-recruitment-jobs-page-tsx-page-span-52"
+                className="hidden sm:inline"
+              >
+                Add Job
+              </span>
+            }
+            id="createJobButton"
+            data-cy="talent-acquisition-jobs-button-add-new"
+            icon={<FaPlus className="sm:mr-2 ml-0" />}
+            onClick={() => handleAddNewDrawer()}
+            className="!bg-[#6366F1] hover:!bg-[#4F46E5] w-10 sm:w-auto sm:px-5 !h-11 px-5 py-5 rounded-lg border-0"
+          />
+        </AccessGuard>
       </div>
-      <div
-        id="talent-acquisition-jobs-page-div-job-card"
-        data-cy="talent-acquisition-jobs-page-div-job-card"
-      >
-        <JobCard />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <div className="flex-1 max-w-md">
+            <WhatYouNeed placeholder="Search Jobs" data-cy="talent-acquisition-jobs-page-what-you-need" />
+          </div>
+          <JobsFilterModal
+            asPopover
+            open={filterModalOpen}
+            onOpenChange={(visible) => setFilterModalOpen(visible)}
+            onClose={() => setFilterModalOpen(false)}
+          >
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 h-11 px-4 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium shrink-0"
+              data-cy="talent-acquisition-jobs-filter-button"
+            >
+              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              Filter
+            </button>
+          </JobsFilterModal>
+        </div>
+        <div
+          id="talent-acquisition-jobs-page-div-job-card"
+          data-cy="talent-acquisition-jobs-page-div-job-card"
+        >
+          <JobCard />
+        </div>
       </div>
       <CreateJobs data-cy="talent-acquisition-jobs-page-create-jobs" />
       <AddFormResult data-cy="talent-acquisition-jobs-page-add-form-result" />

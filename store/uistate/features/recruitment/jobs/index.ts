@@ -135,7 +135,7 @@ export const useJobState = create<JobState>((set) => ({
   setFilteredQuestions: (value) => set({ filteredQuestions: value }),
 
   currentPage: 1,
-  pageSize: 4,
+  pageSize: 10,
   setCurrentPage: (value) => set({ currentPage: value }),
   setPageSize: (value) => set({ pageSize: value }),
 

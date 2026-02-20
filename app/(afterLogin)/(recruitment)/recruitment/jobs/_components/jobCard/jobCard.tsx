@@ -1,12 +1,12 @@
 'use client';
 import React from 'react';
-import { Card, Dropdown, Button, Tooltip, Spin, Avatar } from 'antd';
-import { BsThreeDotsVertical } from 'react-icons/bs';
+import { Dropdown, Tooltip, Spin, Popover, Button } from 'antd';
+import { BsThreeDots } from 'react-icons/bs';
+import { IoShareSocialOutline } from 'react-icons/io5';
+import { AiOutlineClockCircle } from 'react-icons/ai';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import RecruitmentPagination from '../../../_components';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
-import AvatarImage from '@/public/gender_neutral_avatar.jpg';
-import Image from 'next/image';
 import ShareToSocialMedia from '../modals/share';
 import ChangeStatusModal from '../modals/changeJobStatus';
 import EditJob from '../modals/editJob/editModal';
@@ -15,14 +15,122 @@ import { useCandidateState } from '@/store/uistate/features/recruitment/candidat
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
-import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { useDeleteJobs } from '@/store/server/features/recruitment/job/mutation';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { DATE_FORMAT } from '@/utils/constants';
 
 dayjs.extend(relativeTime);
+
+const aiGradient = 'linear-gradient(180deg, #1E40AF 0%, #91CAFF 100%)';
+
+const FRAME_WIDTH = 30.6;
+const FRAME_HEIGHT = 29.6;
+const FRAME_RADIUS = 8;
+const FRAME_BORDER = 1;
+const FRAME_PADDING = 2; // marginXXS
+const FRAME_GAP = 2;
+const VECTOR_WIDTH = 22.6;
+const VECTOR_HEIGHT = 21.6;
+const VECTOR_PADDING = 3;
+const AI_ICON_WIDTH = 16.6;
+const AI_ICON_HEIGHT = 15.6;
+
+const AIcon: React.FC<{ className?: string }> = ({ className }) => {
+  const gradientId = `ai-star-${React.useId().replace(/:/g, '')}`;
+  return (
+    <span
+      className={`inline-flex items-center justify-center flex-shrink-0 ${className ?? ''}`}
+      style={{
+        width: FRAME_WIDTH,
+        height: FRAME_HEIGHT,
+        borderRadius: FRAME_RADIUS,
+        background: aiGradient,
+        padding: FRAME_BORDER,
+        boxSizing: 'border-box',
+      }}
+    >
+      <span
+        className="flex items-center justify-center bg-white"
+        style={{
+          width: '100%',
+          height: '100%',
+          borderRadius: FRAME_RADIUS - FRAME_BORDER,
+          padding: FRAME_PADDING,
+          boxSizing: 'border-box',
+        }}
+      >
+        <span
+          className="flex items-center justify-center"
+          style={{
+            width: VECTOR_WIDTH,
+            height: VECTOR_HEIGHT,
+            padding: VECTOR_PADDING,
+            boxSizing: 'border-box',
+          }}
+        >
+        <span
+          className="inline-flex items-center leading-none font-extrabold"
+          style={{
+            width: AI_ICON_WIDTH,
+            height: AI_ICON_HEIGHT,
+            gap: FRAME_GAP,
+            boxSizing: 'border-box',
+          }}
+        >
+          <span
+            style={{
+              background: aiGradient,
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent',
+              fontSize: '14px',
+              lineHeight: 1,
+              fontWeight: 800,
+            }}
+          >
+            A
+          </span>
+          <span className="flex flex-col items-center justify-center font-extrabold" style={{ lineHeight: 1 }}>
+            <svg
+              className="pointer-events-none shrink-0"
+              width="6"
+              height="6"
+              viewBox="0 0 8 8"
+              fill="none"
+            >
+              <defs>
+                <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#1E40AF" />
+                  <stop offset="100%" stopColor="#91CAFF" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M4 0L4.5 2.5L7 3L5 5L5.5 7.5L4 6L2.5 7.5L3 5L1 3L3.5 2.5L4 0Z"
+                fill={`url(#${gradientId})`}
+              />
+            </svg>
+            <span
+              style={{
+                background: aiGradient,
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                color: 'transparent',
+                fontSize: '9px',
+                lineHeight: 1,
+                marginTop: '1px',
+                fontWeight: 800,
+              }}
+            >
+              i
+            </span>
+          </span>
+        </span>
+        </span>
+      </span>
+    </span>
+  );
+};
 
 const JobCard: React.FC = () => {
   const { searchParams } = useCandidateState();
@@ -106,348 +214,217 @@ const JobCard: React.FC = () => {
     setSelectedJobId(job?.id);
   };
 
+  const displayStatus = (status: string) => (status === 'Closed' ? 'Closed' : 'Open');
+
   return (
     <>
       {jobList?.items && jobList?.items?.length >= 1 ? (
-        jobList?.items.map((job: any, index: string) => {
-          const jobDeadline = job?.jobDeadline
-            ? new Date(job?.jobDeadline)
-            : null;
-          const today = new Date();
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {jobList?.items.map((job: any, index: string) => {
+            const jobDeadline = job?.jobDeadline
+              ? new Date(job?.jobDeadline)
+              : null;
+            const today = new Date();
+            const isDeadlinePassed = jobDeadline && jobDeadline < today;
+            const jobStatus = isDeadlinePassed ? 'Closed' : job?.jobStatus;
+            const applicantCount = job?.jobCandidate?.length ?? 0;
 
-          const isDeadlinePassed = jobDeadline && jobDeadline < today;
-          const jobStatus = isDeadlinePassed ? 'Closed' : job?.jobStatus;
-
-          const items = [
-            {
-              label: 'Change Status',
-              key: '1',
-              onClick: () => handleStatusChange(job),
-              permissions: [Permissions.UpdateJobDescription],
-            },
-            {
-              label: 'Share',
-              key: '2',
-              onClick: () => handleShareModalVisible(job?.id),
-            },
-            {
-              label: 'Edit',
-              key: '3',
-              onClick: () => handleEditModalVisible(job),
-              permissions: [Permissions.UpdateJobDescription],
-            },
-            {
-              label: 'Delete',
-              key: '4',
-              onClick: () => {
-                handleDeleteJob(job?.id);
-                setDeleteModal(true);
+            const items = [
+              {
+                label: 'Change Status',
+                key: '1',
+                onClick: () => handleStatusChange(job),
+                permissions: [Permissions.UpdateJobDescription],
               },
-              permissions: [Permissions.UpdateJobDescription],
-            },
-          ];
+              {
+                label: 'Share',
+                key: '2',
+                onClick: () => handleShareModalVisible(job?.id),
+              },
+              {
+                label: 'Edit',
+                key: '3',
+                onClick: () => handleEditModalVisible(job),
+                permissions: [Permissions.UpdateJobDescription],
+              },
+              {
+                label: 'Delete',
+                key: '4',
+                onClick: () => {
+                  handleDeleteJob(job?.id);
+                  setDeleteModal(true);
+                },
+                permissions: [Permissions.UpdateJobDescription],
+              },
+            ];
 
-          const filteredItems = items.filter((item) => {
-            const { permissions } = item;
-            return AccessGuard.checkAccess({ permissions });
-          });
+            const filteredItems = items.filter((item) => {
+              const { permissions } = item;
+              return AccessGuard.checkAccess({ permissions });
+            });
 
-          return (
-            <Card key={index} className="mb-4 rounded-lg w-full">
+            return (
               <div
+                key={job?.id ?? index}
                 id={`talent-acquisition-job-card-div-card-${index}`}
                 data-cy={`talent-acquisition-job-card-div-card-${index}`}
-                className="relative"
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col relative"
               >
-                {/* Dropdown positioned at top-right corner */}
-                <div
-                  id={`talent-acquisition-job-card-div-dropdown-${index}`}
-                  data-cy={`talent-acquisition-job-card-div-dropdown-${index}`}
-                  className="absolute top-0 right-0"
-                >
-                  <Dropdown
-                    data-cy={`talent-acquisition-job-card-dropdown-${job?.id}`}
-                    menu={{
-                      items: filteredItems.map(({ label, key, onClick }) => ({
-                        label,
-                        key,
-                        onClick,
-                      })),
-                    }}
-                    trigger={['click']}
-                  >
-                    <Button
-                      id={`talent-acquisition-job-card-button-menu-${job?.id}`}
-                      data-cy={`talent-acquisition-job-card-button-menu-${job?.id}`}
-                      icon={<BsThreeDotsVertical />}
-                      className="border-0"
-                      size="small"
-                    />
-                  </Dropdown>
+                {/* Top row: status + deadline | actions + kebab */}
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                    <span
+                      className={`inline-flex items-center text-xs font-medium rounded-full px-3 py-1 ${
+                        jobStatus === 'Closed'
+                          ? 'bg-gray-200 text-gray-600'
+                          : 'bg-emerald-100 text-emerald-700'
+                      }`}
+                      data-cy={`talent-acquisition-job-card-div-status-${index}`}
+                    >
+                      {displayStatus(jobStatus)}
+                    </span>
+                    <span className="text-sm text-gray-500 whitespace-nowrap">
+                      Deadline:{' '}
+                      {job?.jobDeadline
+                        ? dayjs(job.jobDeadline).format('DD MMMM YYYY')
+                        : 'Not set'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <div className="flex items-center gap-1">
+                    <Tooltip title="View applicants">
+                      <Link
+                        href={`/recruitment/jobs/${job?.id}`}
+                        className="flex items-center justify-center w-8 h-8 rounded-lg hover:opacity-90 shrink-0 transition-opacity"
+                        data-cy={`talent-acquisition-job-card-link-applicants-${job?.id}`}
+                        aria-label="View applicants (AI)"
+                      >
+                        <AIcon className="w-8 h-8" />
+                      </Link>
+                    </Tooltip>
+                      <Tooltip title="Share">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleShareModalVisible(job?.id);
+                          }}
+                          className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 shrink-0"
+                          data-cy={`talent-acquisition-job-card-share-${job?.id}`}
+                        >
+                          <IoShareSocialOutline className="w-4 h-4" />
+                        </button>
+                      </Tooltip>
+                    </div>
+                  </div>
                 </div>
 
-                <div
-                  id={`talent-acquisition-job-card-div-content-${index}`}
-                  data-cy={`talent-acquisition-job-card-div-content-${index}`}
-                >
+                <div className="flex items-start justify-between gap-2 mb-2 min-w-0">
                   <Link
                     id={`talent-acquisition-job-card-link-${job?.id}`}
                     data-cy={`talent-acquisition-job-card-link-${job?.id}`}
                     href={`/recruitment/jobs/${job?.id}`}
-                    className="block"
+                    className="flex-1 min-w-0"
                   >
-                    <div
-                      id={`talent-acquisition-job-card-div-link-content-${index}`}
-                      data-cy={`talent-acquisition-job-card-div-link-content-${index}`}
-                      className="w-full"
-                    >
-                      {/* Title and Status - Mobile: Stack vertically, Desktop: Side by side */}
-                      <div
-                        id={`talent-acquisition-job-card-div-title-status-${index}`}
-                        data-cy={`talent-acquisition-job-card-div-title-status-${index}`}
-                        className="flex flex-col sm:flex-row sm:justify-between gap-3 mb-3"
-                      >
-                        <div
-                          id={`talent-acquisition-job-card-div-title-${index}`}
-                          data-cy={`talent-acquisition-job-card-div-title-${index}`}
-                          className="flex-1 pr-8 sm:pr-0"
-                        >
-                          <Tooltip title={job?.jobTitle}>
-                            <span
-                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-216"
-                              className="font-bold text-lg sm:text-xl text-gray-700 block truncate"
-                            >
-                              {job?.jobTitle}
-                            </span>
-                          </Tooltip>
-                        </div>
-                        <div
-                          id={`talent-acquisition-job-card-div-status-${index}`}
-                          data-cy={`talent-acquisition-job-card-div-status-${index}`}
-                          className="sm:mr-10"
-                        >
-                          {jobStatus == 'Closed' ? (
-                            <div
-                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-227"
-                              className="inline-flex items-center text-xs font-normal rounded-lg px-3 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border"
-                            >
-                              Closed
-                            </div>
-                          ) : (
-                            <div
-                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-231"
-                              className="inline-flex items-center text-xs font-normal rounded-lg px-3 py-1 bg-[#B2B2FF] text-[#3636F0]"
-                            >
-                              Active
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Department/Location and Closing Date - Mobile: Stack vertically, Desktop: Side by side */}
-                      <div
-                        id={`talent-acquisition-job-card-div-dept-location-${index}`}
-                        data-cy={`talent-acquisition-job-card-div-dept-location-${index}`}
-                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3"
-                      >
-                        <div
-                          id={`talent-acquisition-job-card-div-dept-${index}`}
-                          data-cy={`talent-acquisition-job-card-div-dept-${index}`}
-                          className="flex items-center gap-2 flex-wrap"
-                        >
-                          <p
-                            id={`talent-acquisition-job-departmentId-${index}`}
-                            data-cy={`talent-acquisition-job-departmentId-${index}`}
-                            className="text-sm text-gray-500"
-                          >
-                            {getDepartmentName(job?.departmentId)}
-                          </p>
-                          {getDepartmentName(job?.departmentId) &&
-                            job?.jobLocation && (
-                              <span
-                                data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-258"
-                                className="text-gray-300"
-                              >
-                                •
-                              </span>
-                            )}
-                          <p
-                            id={`talent-acquisition-job-jobLocation-${index}`}
-                            data-cy={`talent-acquisition-job-jobLocation-${index}`}
-                            className="text-sm text-gray-500"
-                          >
-                            {job?.jobLocation}
-                          </p>
-                        </div>
-                        <div
-                          id={`talent-acquisition-job-card-div-closing-date-desktop-${index}`}
-                          data-cy={`talent-acquisition-job-card-div-closing-date-desktop-${index}`}
-                          className="hidden sm:block"
-                        >
-                          <span
-                            data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-273"
-                            className="text-gray-700 font-medium"
-                          >
-                            Closing Date:{' '}
-                          </span>
-                          {job?.jobDeadline ? (
-                            <span
-                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-277"
-                              className="text-gray-500"
-                            >
-                              {dayjs(job.jobDeadline).format(DATE_FORMAT)}
-                            </span>
-                          ) : (
-                            <span
-                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-281"
-                              className="text-gray-500"
-                            >
-                              Not set
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Mobile Closing Date - Only show on mobile */}
-                      <div
-                        id={`talent-acquisition-job-card-div-closing-date-mobile-${index}`}
-                        data-cy={`talent-acquisition-job-card-div-closing-date-mobile-${index}`}
-                        className="block sm:hidden mb-3"
-                      >
-                        <div
-                          data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-292"
-                          className="text-sm"
-                        >
-                          <span
-                            data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-293"
-                            className="text-gray-700 font-medium"
-                          >
-                            Closing Date:{' '}
-                          </span>
-                          {job?.jobDeadline ? (
-                            <span
-                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-297"
-                              className="text-gray-500"
-                            >
-                              {dayjs(job.jobDeadline).format(DATE_FORMAT)}
-                            </span>
-                          ) : (
-                            <span
-                              data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-span-301"
-                              className="text-gray-500"
-                            >
-                              Not set
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Candidates and Created Date - Mobile: Stack vertically, Desktop: Side by side */}
-                      <div
-                        id={`talent-acquisition-job-card-div-candidates-created-${index}`}
-                        data-cy={`talent-acquisition-job-card-div-candidates-created-${index}`}
-                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
-                      >
-                        <div
-                          id={`talent-acquisition-job-card-div-candidates-${index}`}
-                          data-cy={`talent-acquisition-job-card-div-candidates-${index}`}
-                          className="flex items-center gap-2"
-                        >
-                          {job?.jobCandidate?.length > 0 ? (
-                            <Avatar.Group
-                              maxCount={3}
-                              maxStyle={{
-                                color: '#f56a00',
-                                backgroundColor: '#fde3cf',
-                              }}
-                              size="small"
-                            >
-                              {job.jobCandidate
-                                .slice(0, 3)
-                                .map((member: any) => (
-                                  <Tooltip
-                                    title={
-                                      <div
-                                        data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-331"
-                                        className="flex justify-start items-center gap-4"
-                                      >
-                                        {member?.name ?? '-'}
-                                      </div>
-                                    }
-                                    key={member?.id}
-                                  >
-                                    <Image
-                                      src={AvatarImage}
-                                      alt="Profile pic"
-                                      width={20}
-                                      height={20}
-                                      className="rounded-full object-cover"
-                                    />
-                                  </Tooltip>
-                                ))}
-                            </Avatar.Group>
-                          ) : (
-                            <Image
-                              src={AvatarImage}
-                              alt="Profile pic"
-                              width={20}
-                              height={20}
-                              className="rounded-full object-cover"
-                            />
-                          )}
-                          <p
-                            data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-p-356"
-                            className="text-sm text-gray-500"
-                          >
-                            {job?.jobCandidate.length > 0
-                              ? job?.jobCandidate?.length + ' '
-                              : '0 '}
-                            Candidates Applied
-                          </p>
-                        </div>
-
-                        <div
-                          id={`talent-acquisition-job-card-div-created-desktop-${index}`}
-                          data-cy={`talent-acquisition-job-card-div-created-desktop-${index}`}
-                          className="hidden sm:block"
-                        >
-                          <div
-                            data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-369"
-                            className="text-sm text-gray-500"
-                          >
-                            Created{' '}
-                            {job?.createdAt
-                              ? dayjs(job.createdAt).fromNow()
-                              : 'Unknown'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Mobile Created Date - Only show on mobile */}
-                      <div
-                        id={`talent-acquisition-job-card-div-created-mobile-${index}`}
-                        data-cy={`talent-acquisition-job-card-div-created-mobile-${index}`}
-                        className="block sm:hidden mt-3"
-                      >
-                        <div
-                          data-cy="jobs-components-jobcard-jobcard-tsx-jobcard-div-384"
-                          className="text-sm text-gray-500"
-                        >
-                          Created{' '}
-                          {job?.createdAt
-                            ? dayjs(job.createdAt).fromNow()
-                            : 'Unknown'}
-                        </div>
-                      </div>
-                    </div>
+                    <Tooltip title={job?.jobTitle}>
+                      <h3 className="font-bold text-lg text-gray-900 truncate pr-2">
+                        {job?.jobTitle}
+                      </h3>
+                    </Tooltip>
                   </Link>
+                  <Popover
+                    open={deleteModal && selectedJobId === job?.id}
+                    onOpenChange={(open) => {
+                      if (!open) setDeleteModal(false);
+                    }}
+                    trigger={[]}
+                    placement="bottom"
+                    align={{ offset: [0, 4] }}
+                    content={
+                      <div className="w-[320px]">
+                        <div className="text-base font-semibold text-gray-900 mb-2">Delete Job</div>
+                        <p className="text-gray-500 text-sm mb-4">Are you sure you want to delete this job?</p>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            className="border-gray-300 text-gray-700"
+                            onClick={() => setDeleteModal(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="primary"
+                            className="!bg-red-600 hover:!bg-red-700 !border-0"
+                            loading={isLoading}
+                            onClick={() => {
+                              handleDeleteModal();
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    }
+                  >
+                    <div>
+                      <Dropdown
+                        data-cy={`talent-acquisition-job-card-dropdown-${job?.id}`}
+                        menu={{
+                          items: filteredItems.map(({ label, key, onClick }) => ({
+                            label,
+                            key,
+                            onClick,
+                          })),
+                        }}
+                        trigger={['click']}
+                      >
+                        <button
+                          type="button"
+                          id={`talent-acquisition-job-card-button-menu-${job?.id}`}
+                          data-cy={`talent-acquisition-job-card-button-menu-${job?.id}`}
+                          className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 shrink-0 border-0 cursor-pointer bg-transparent"
+                        >
+                          <BsThreeDots className="w-4 h-4" />
+                        </button>
+                      </Dropdown>
+                    </div>
+                  </Popover>
+                </div>
 
-                  {/* Date information - shown at bottom */}
+                <Link
+                  href={`/recruitment/jobs/${job?.id}`}
+                  className="block flex-1 min-w-0"
+                >
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
+                    <span id={`talent-acquisition-job-departmentId-${index}`} data-cy={`talent-acquisition-job-departmentId-${index}`}>
+                      {getDepartmentName(job?.departmentId) || '—'}
+                    </span>
+                    <span className="text-gray-300">•</span>
+                    <span>{applicantCount} Applicants</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {job?.jobLocation && (
+                      <span className="inline-flex items-center text-xs font-medium rounded-full px-3 py-1 bg-gray-100 text-gray-700">
+                        {job.jobLocation}
+                      </span>
+                    )}
+                    {job?.employmentType && (
+                      <span className="inline-flex items-center text-xs font-medium rounded-full px-3 py-1 bg-gray-100 text-gray-700">
+                        {job.employmentType}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+
+                <div className="flex items-center gap-1.5 text-sm text-gray-400 mt-auto pt-2 border-t border-gray-100">
+                  <AiOutlineClockCircle className="w-4 h-4 shrink-0" />
+                  <span>
+                    Created {job?.createdAt ? dayjs(job.createdAt).fromNow() : 'Unknown'}
+                  </span>
                 </div>
               </div>
-            </Card>
-          );
-        })
+            );
+          })}
+        </div>
       ) : (
         <div
           id="talent-acquisition-job-card-div-no-jobs"
@@ -463,16 +440,6 @@ const JobCard: React.FC = () => {
           </div>
         </div>
       )}
-      <DeleteModal
-        loading={isLoading}
-        open={deleteModal}
-        deleteMessage="Are you sure you want to delete this job?"
-        onCancel={() => setDeleteModal(false)}
-        onConfirm={() => {
-          handleDeleteModal();
-        }}
-      />
-
       <ChangeStatusModal />
       <ShareToSocialMedia />
       <EditJob />

@@ -2,12 +2,14 @@
 
 import React from 'react';
 import { Modal, Button } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 
 interface DeleteModalProps {
   open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  title?: string;
   customMessage?: React.ReactNode;
   deleteMessage?: React.ReactNode;
   deleteText?: React.ReactNode;
@@ -21,6 +23,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   open,
   onConfirm,
   onCancel,
+  title,
   customMessage,
   deleteMessage,
   deleteText,
@@ -29,13 +32,15 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   id,
   'data-cy': dataCy,
 }) => {
+  const simpleLayout = Boolean(title);
+
   const deleteModalFooter = (
     <div
-      className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6"
+      className={`w-full flex flex-col md:flex-row items-center gap-6 mt-6 ${simpleLayout ? 'justify-end' : 'justify-center'}`}
       data-cy="delete-confirmation-modal-footer"
     >
       <Button
-        className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+        className="w-70 md:w-auto px-8 py-4 text-xs font-bold border-gray-300 text-gray-700"
         id="deleteModalCancelButtonId"
         onClick={onCancel}
       >
@@ -43,7 +48,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       </Button>
       <Button
         id="confirmDeleteId"
-        className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+        className="w-70 md:w-auto px-8 py-4 text-xs font-bold !bg-red-600 hover:!bg-red-700 !border-0"
         type="primary"
         loading={loading ?? false}
         onClick={onConfirm}
@@ -56,41 +61,68 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
     <Modal
       open={open}
       width={500}
+      title={title}
       okText={'Delete'}
       onOk={onConfirm}
       onCancel={onCancel}
       footer={deleteModalFooter}
+      closeIcon={<CloseOutlined className="text-emerald-600" style={{ color: '#059669' }} />}
+      styles={
+        simpleLayout
+          ? { wrapper: { alignItems: 'flex-start', paddingTop: '5vh' } }
+          : undefined
+      }
       modalRender={(modal) => (
         <div id={id} data-cy={dataCy}>
           {modal}
         </div>
       )}
     >
-      <p
-        data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-69"
-        className="flex justify-center items-center h-[200px]"
-      >
-        <Image
-          src="/deleteSvg.svg"
-          width={300}
-          height={300}
-          alt="Picture of the author"
-        />
-      </p>
-
-      <p
-        data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
-        className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
-      >
-        {deleteMessage ?? 'you sure to Delete ? '}
-      </p>
-      {customMessage && (
-        <div
-          data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
-          className="mt-4 text-center"
-        >
-          {customMessage}
-        </div>
+      {simpleLayout ? (
+        <>
+          <p
+            data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
+            className="text-gray-500 text-base font-normal"
+          >
+            {deleteMessage ?? 'Are you sure to delete?'}
+          </p>
+          {customMessage && (
+            <div
+              data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
+              className="mt-4 text-center"
+            >
+              {customMessage}
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <p
+            data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-69"
+            className="flex justify-center items-center h-[200px]"
+          >
+            <Image
+              src="/deleteSvg.svg"
+              width={300}
+              height={300}
+              alt="Picture of the author"
+            />
+          </p>
+          <p
+            data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
+            className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
+          >
+            {deleteMessage ?? 'you sure to Delete ? '}
+          </p>
+          {customMessage && (
+            <div
+              data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
+              className="mt-4 text-center"
+            >
+              {customMessage}
+            </div>
+          )}
+        </>
       )}
     </Modal>
   );
