@@ -1,13 +1,25 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Avatar, Typography, Spin, Tag, Table, Button, Modal, Alert } from 'antd';
+import {
+  Avatar,
+  Typography,
+  Spin,
+  Tag,
+  Table,
+  Button,
+  Modal,
+  Alert,
+  Collapse,
+} from 'antd';
+import { COPILOT_ERROR_MESSAGES } from '@/utils/copilotApiService';
 import {
   UserOutlined,
   RobotOutlined,
   ExpandOutlined,
   CompressOutlined,
   WarningOutlined,
+  InfoCircleOutlined,
 } from '@ant-design/icons';
 
 const { Text } = Typography;
@@ -17,8 +29,10 @@ export interface Message {
   text?: string; // Made optional - can be undefined when table is shown
   sender: 'user' | 'copilot';
   timestamp: Date;
-  /** When 'permission_denied', show prominent access-denied styling */
-  messageType?: 'permission_denied';
+  /** 'permission_denied' = access denied styling; 'error' = generic error styling */
+  messageType?: 'permission_denied' | 'error';
+  /** Optional backend error details for "Details for support" (developers/support only) */
+  backend_errors?: string[];
   metadata?: {
     source?: string;
     confidence?: string;
@@ -269,11 +283,15 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
     const text = message.text;
     const tableData = message.tableData;
     const isPermissionDenied = message.messageType === 'permission_denied';
+    const isError = message.messageType === 'error';
+    const hasBackendErrors =
+      Array.isArray(message.backend_errors) &&
+      message.backend_errors.length > 0;
 
     return (
       <div data-cy="copilot-message-content">
-        {text && (
-          isPermissionDenied ? (
+        {text &&
+          (isPermissionDenied ? (
             <Alert
               type="warning"
               showIcon
@@ -283,6 +301,15 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               className="mb-3"
               data-cy="copilot-message-permission-denied"
             />
+          ) : isError ? (
+            <div className="mb-3">
+              <Text
+                className="text-sm leading-relaxed whitespace-pre-wrap block text-gray-700"
+                data-cy="copilot-message-error-text"
+              >
+                {text}
+              </Text>
+            </div>
           ) : (
             <Text
               className="text-sm leading-relaxed whitespace-pre-wrap block mb-3"
@@ -290,16 +317,16 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             >
               {text}
             </Text>
-          )
-        )}
+          ))}
 
-        {/* Render table if table data is available */}
+        {/* Render table only when there are rows; otherwise show friendly no-data message */}
         {tableData &&
           tableData.type === 'table' &&
           tableData.columns &&
-          tableData.rows && (
+          Array.isArray(tableData.rows) &&
+          tableData.rows.length > 0 && (
             <div
-              className="mt-4 mb-3"
+              className="mt-4 mb-3 relative z-0"
               data-cy="copilot-message-table-container"
             >
               {tableData.title && (
@@ -318,12 +345,23 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                 size="small"
                 icon={<ExpandOutlined />}
                 onClick={() => setFullScreenTableMessageId(message.id)}
-                className="p-0 h-auto mt-2 text-gray-500 hover:text-blue-600"
+                className="p-0 h-auto mt-2 text-gray-500 hover:text-blue-600 relative z-10"
                 data-cy="copilot-table-maximize"
               >
                 Maximize
               </Button>
             </div>
+          )}
+        {tableData &&
+          tableData.type === 'table' &&
+          (!Array.isArray(tableData.rows) || tableData.rows.length === 0) && (
+            <Text
+              type="secondary"
+              className="text-sm block mt-2 mb-3 text-gray-600"
+              data-cy="copilot-message-no-data"
+            >
+              {message.text?.trim() || COPILOT_ERROR_MESSAGES.NO_DATA}
+            </Text>
           )}
 
         {message.metadata?.source && (
@@ -340,6 +378,32 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             </Text>
           </div>
         )}
+        {hasBackendErrors && (
+          <Collapse
+            ghost
+            size="small"
+            className="mt-2 copilot-details-for-support"
+            items={[
+              {
+                key: 'support',
+                label: (
+                  <span className="text-xs text-gray-500 flex items-center gap-1">
+                    <InfoCircleOutlined />
+                    Details for support
+                  </span>
+                ),
+                children: (
+                  <pre
+                    className="text-xs text-gray-600 whitespace-pre-wrap break-words bg-gray-50 p-2 rounded border border-gray-200"
+                    data-cy="copilot-message-backend-errors"
+                  >
+                    {message.backend_errors!.join('\n')}
+                  </pre>
+                ),
+              },
+            ]}
+          />
+        )}
       </div>
     );
   };
@@ -353,11 +417,14 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
       {messages.map((message) => {
         const isUser = message.sender === 'user';
         const isPermissionDenied = message.messageType === 'permission_denied';
+        const isError = message.messageType === 'error';
         const bubbleClass = isUser
           ? 'bg-blue-50 border border-blue-100'
           : isPermissionDenied
             ? 'bg-amber-50 border-2 border-amber-400 shadow-sm'
-            : 'bg-white border border-gray-200 shadow-sm';
+            : isError
+              ? 'bg-red-50/70 border border-red-200 shadow-sm'
+              : 'bg-white border border-gray-200 shadow-sm';
         return (
           <div
             key={message.id}
@@ -414,10 +481,11 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
       )}
       <div ref={messagesEndRef} data-cy="copilot-messages-end" />
 
-      {/* Full screen table modal */}
+      {/* Full screen table modal - zIndex above full-screen Copilot wrapper (9999) so Maximize stays clickable */}
       <Modal
         open={!!fullScreenTableMessageId}
         onCancel={() => setFullScreenTableMessageId(null)}
+        zIndex={10000}
         footer={
           <Button
             icon={<CompressOutlined />}

@@ -2,6 +2,72 @@ import axios, { AxiosError } from 'axios';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+/** User-facing error messages for consistent Copilot UX */
+export const COPILOT_ERROR_MESSAGES = {
+  AUTH_REQUIRED: 'Please log in to continue using Copilot.',
+  PERMISSION_DENIED:
+    "You don't have permission for this action. Contact your administrator if needed.",
+  TIMEOUT: 'Request timed out. Please try again.',
+  SERVICE_UNAVAILABLE:
+    'Copilot is temporarily unavailable. Please try again later.',
+  NO_DATA:
+    "I couldn't find any information on that. Try refining your question.",
+  NETWORK: "We couldn't reach Copilot. Check your connection and try again.",
+  INVALID_REQUEST:
+    'Your request could not be processed. Please check your input.',
+  UNEXPECTED: 'Something went wrong. Please try again.',
+} as const;
+
+/**
+ * Maps backend, proxy, or axios errors to a single user-friendly message.
+ * Use in catch blocks so users never see raw "Aborted", "Server error (503)", etc.
+ */
+export function normalizeCopilotError(error: unknown): string {
+  if (error instanceof Error) {
+    const msg = error.message;
+    const lower = msg.toLowerCase();
+    if (
+      lower.includes('auth') ||
+      lower.includes('log in') ||
+      lower.includes('token') ||
+      lower.includes('401')
+    )
+      return COPILOT_ERROR_MESSAGES.AUTH_REQUIRED;
+    if (
+      lower.includes('permission') ||
+      lower.includes('403') ||
+      lower.includes('access denied')
+    )
+      return COPILOT_ERROR_MESSAGES.PERMISSION_DENIED;
+    if (
+      lower.includes('timeout') ||
+      lower.includes('timed out') ||
+      lower.includes('abort') ||
+      lower.includes('econnaborted')
+    )
+      return COPILOT_ERROR_MESSAGES.TIMEOUT;
+    if (
+      lower.includes('503') ||
+      lower.includes('unavailable') ||
+      lower.includes('service')
+    )
+      return COPILOT_ERROR_MESSAGES.SERVICE_UNAVAILABLE;
+    if (
+      lower.includes('network') ||
+      lower.includes('connection') ||
+      lower.includes('err_network') ||
+      lower.includes('reach')
+    )
+      return COPILOT_ERROR_MESSAGES.NETWORK;
+    if (lower.includes('400') || lower.includes('invalid request'))
+      return COPILOT_ERROR_MESSAGES.INVALID_REQUEST;
+    if (lower.includes("couldn't find") || lower.includes('no information'))
+      return COPILOT_ERROR_MESSAGES.NO_DATA;
+    return msg || COPILOT_ERROR_MESSAGES.UNEXPECTED;
+  }
+  return COPILOT_ERROR_MESSAGES.UNEXPECTED;
+}
+
 // Azure App Service URL for copilot (used by server-side proxy)
 // Use dev for local/testing; set NEXT_PUBLIC_AZURE_APP_SERVICE to prod for production
 const AZURE_APP_SERVICE_URL =
@@ -37,6 +103,148 @@ interface CopilotChatResponse {
   backend_errors?: string[];
 }
 
+/** Table shape used by frontend (matches backend data.table) */
+export interface CopilotTableData {
+  type: string;
+  title?: string;
+  columns: Array<{ key: string; title: string; dataIndex: string }>;
+  rows: Array<Record<string, unknown>>;
+}
+
+/**
+ * Normalized result of a Copilot API response for consistent UI handling.
+ * Covers all backend response formats: success/error, permission_denied, empty table, data.table, data.items, etc.
+ */
+export interface NormalizedCopilotResponse {
+  success: boolean;
+  displayText: string;
+  messageType?: 'permission_denied' | 'error';
+  backend_errors?: string[];
+  tableData?: CopilotTableData;
+  rawData?: unknown;
+  intent?: string;
+  answerForMetadata?: string;
+}
+
+/**
+ * Normalizes the parsed Copilot API response into a single shape for UI.
+ * Backend returns: { success, answer (from response), data, intent, error, backend_errors }.
+ * Handles: success false, permission_denied, empty table (answer-only), table with rows, malformed payloads.
+ * Never exposes raw JSON or stack traces to the user.
+ */
+export function normalizeCopilotResponse(
+  parsed: unknown,
+): NormalizedCopilotResponse {
+  if (parsed == null || typeof parsed !== 'object') {
+    return {
+      success: false,
+      displayText: COPILOT_ERROR_MESSAGES.UNEXPECTED,
+      messageType: 'error',
+    };
+  }
+
+  const p = parsed as Record<string, unknown>;
+  const success = p.success === true;
+  const errorVal = p.error;
+  const errorStr =
+    errorVal != null && errorVal !== '' ? String(errorVal).trim() : '';
+  const answer = String(p.answer ?? p.response ?? '').trim();
+  const data = p.data;
+  const intent = typeof p.intent === 'string' ? p.intent : undefined;
+  const backend_errors = Array.isArray(p.backend_errors)
+    ? (p.backend_errors as string[]).filter(
+        (e): e is string => typeof e === 'string',
+      )
+    : undefined;
+
+  if (!success || errorStr) {
+    const isPermissionDenied = errorStr === 'permission_denied';
+    const displayText =
+      answer ||
+      (isPermissionDenied
+        ? COPILOT_ERROR_MESSAGES.PERMISSION_DENIED
+        : errorStr || COPILOT_ERROR_MESSAGES.UNEXPECTED);
+    return {
+      success: false,
+      displayText,
+      messageType: isPermissionDenied ? 'permission_denied' : 'error',
+      backend_errors: backend_errors?.length ? backend_errors : undefined,
+    };
+  }
+
+  const dataObj =
+    data && typeof data === 'object'
+      ? (data as Record<string, unknown>)
+      : undefined;
+  const table = dataObj?.table;
+  const tableObj =
+    table && typeof table === 'object'
+      ? (table as Record<string, unknown>)
+      : undefined;
+  const rows = tableObj?.rows;
+  const rowsArray = Array.isArray(rows) ? rows : [];
+  const isEmptyTable = tableObj && rowsArray.length === 0;
+  const hasMeaningfulAnswer = answer && answer !== 'No response received';
+
+  let tableData: CopilotTableData | undefined;
+  if (tableObj && !isEmptyTable && Array.isArray(tableObj.columns)) {
+    tableData = {
+      type: String(tableObj.type ?? 'table'),
+      title: typeof tableObj.title === 'string' ? tableObj.title : undefined,
+      columns: (
+        tableObj.columns as Array<{
+          key: string;
+          title: string;
+          dataIndex: string;
+        }>
+      ).filter(
+        (c) =>
+          c && typeof c === 'object' && c.key != null && c.dataIndex != null,
+      ),
+      rows: rowsArray as Array<Record<string, unknown>>,
+    };
+    if (tableData.columns.length === 0) tableData = undefined;
+  }
+
+  const displayText = tableData
+    ? ''
+    : hasMeaningfulAnswer
+      ? answer
+      : COPILOT_ERROR_MESSAGES.NO_DATA;
+
+  return {
+    success: true,
+    displayText,
+    tableData,
+    rawData: dataObj,
+    intent,
+    answerForMetadata: answer || undefined,
+  };
+}
+
+/**
+ * Safely parses the raw Copilot API response string.
+ * Returns null if parsing fails and response looks like JSON; otherwise returns parsed object or fallback.
+ */
+export function parseCopilotResponse(responseText: string): {
+  parsed: Record<string, unknown>;
+  parseError: boolean;
+} {
+  const trimmed = typeof responseText === 'string' ? responseText.trim() : '';
+  try {
+    const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+    return { parsed: parsed ?? {}, parseError: false };
+  } catch {
+    const looksLikeJson = trimmed.startsWith('{');
+    return {
+      parsed: looksLikeJson
+        ? {}
+        : { success: true, answer: trimmed, data: null },
+      parseError: looksLikeJson,
+    };
+  }
+}
+
 /**
  * Sends a chat request to the Azure App Service backend
  * The backend will:
@@ -46,10 +254,12 @@ interface CopilotChatResponse {
  *
  * @param query - The user's query/prompt
  * @param sessionId - Optional session ID for OKR session-specific queries
+ * @param signal - Optional AbortSignal to cancel the request (e.g. when user clicks Stop)
  */
 export const sendCopilotChatRequest = async (
   query: string,
   sessionId?: string,
+  signal?: AbortSignal,
 ): Promise<string> => {
   // Get fresh token from Firebase (force refresh to ensure it's valid)
   // forceRefresh=true ensures we always get a newly refreshed token
@@ -58,11 +268,13 @@ export const sendCopilotChatRequest = async (
   // Get tenant, user and role from store (role used for copilot access: only owner allowed)
   const { tenantId, userId, loggedUserRole, userData } =
     useAuthenticationStore.getState();
-  const userRole =
-    (loggedUserRole || userData?.role?.slug || '').toString().trim().toLowerCase();
+  const userRole = (loggedUserRole || userData?.role?.slug || '')
+    .toString()
+    .trim()
+    .toLowerCase();
 
   if (!tenantId || !token) {
-    throw new Error('Authentication required. Please log in again.');
+    throw new Error(COPILOT_ERROR_MESSAGES.AUTH_REQUIRED);
   }
 
   // Log token info in development (first 20 chars only for security)
@@ -110,6 +322,7 @@ export const sendCopilotChatRequest = async (
       {
         headers,
         timeout: 60000, // 60 seconds timeout (increased for complex queries like daily plans)
+        signal,
       },
     );
 
@@ -123,6 +336,9 @@ export const sendCopilotChatRequest = async (
       backend_errors: response.data.backend_errors || null,
     });
   } catch (error) {
+    if (axios.isAxiosError(error) && error.code === 'ERR_CANCELED') {
+      throw error;
+    }
     // Handle different error types
     if (axios.isAxiosError(error)) {
       type ErrorPayload = {
@@ -140,35 +356,33 @@ export const sendCopilotChatRequest = async (
         const message = data?.detail || data?.message || axiosError.message;
 
         if (status === 401) {
-          throw new Error('Authentication failed. Please log in again.');
+          throw new Error(COPILOT_ERROR_MESSAGES.AUTH_REQUIRED);
+        } else if (status === 403) {
+          throw new Error(COPILOT_ERROR_MESSAGES.PERMISSION_DENIED);
         } else if (status === 400) {
-          throw new Error(
-            message || 'Invalid request. Please check your input.',
-          );
+          throw new Error(message || COPILOT_ERROR_MESSAGES.INVALID_REQUEST);
         } else if (status === 503) {
           const serviceMessage = data?.answer || data?.error || message;
           throw new Error(
-            serviceMessage ||
-              'Service is temporarily unavailable. Please try again later.',
+            serviceMessage && !/^\d+$/.test(String(serviceMessage).trim())
+              ? String(serviceMessage).trim()
+              : COPILOT_ERROR_MESSAGES.SERVICE_UNAVAILABLE,
           );
         } else {
           throw new Error(
-            message || `Server error (${status}). Please try again.`,
+            status >= 500
+              ? COPILOT_ERROR_MESSAGES.SERVICE_UNAVAILABLE
+              : message || COPILOT_ERROR_MESSAGES.UNEXPECTED,
           );
         }
       } else if (axiosError.request) {
-        // Request was made but no response received
-        // This could be: network error, CORS issue, timeout, or server unreachable
-        const targetLabel =
-          typeof window !== 'undefined'
-            ? 'the copilot service'
-            : AZURE_APP_SERVICE_URL;
+        // Request was made but no response received (network, timeout, CORS, etc.)
         const errorMessage =
           axiosError.code === 'ECONNABORTED'
-            ? `Request timeout. The server took too long to respond (60s). This query may require processing large amounts of data. Please try again or contact support if the issue persists.`
+            ? COPILOT_ERROR_MESSAGES.TIMEOUT
             : axiosError.code === 'ERR_NETWORK'
-              ? `Network error. Unable to connect to ${targetLabel}. Please check your internet connection and try again.`
-              : `Unable to reach ${targetLabel}. Please check your connection and try again.`;
+              ? COPILOT_ERROR_MESSAGES.NETWORK
+              : COPILOT_ERROR_MESSAGES.NETWORK;
 
         // Log detailed error in development
         if (process.env.NODE_ENV === 'development') {
@@ -186,9 +400,6 @@ export const sendCopilotChatRequest = async (
       }
     }
 
-    // Something else happened
-    throw new Error(
-      error instanceof Error ? error.message : 'An unexpected error occurred.',
-    );
+    throw new Error(normalizeCopilotError(error));
   }
 };

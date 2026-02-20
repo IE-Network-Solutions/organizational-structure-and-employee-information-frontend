@@ -1,21 +1,30 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Typography, Button, Dropdown, Tooltip } from 'antd';
-import type { MenuProps } from 'antd';
 import {
   MessageOutlined,
   CloseOutlined,
   MenuUnfoldOutlined,
   PlusOutlined,
   HistoryOutlined,
+  FullscreenOutlined,
+  CompressOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CopilotMessages, { Message } from './CopilotMessages';
 import CopilotInput from './CopilotInput';
 import CopilotIntentPanel from './CopilotIntentPanel';
-import { sendCopilotChatRequest } from '@/utils/copilotApiService';
+import {
+  sendCopilotChatRequest,
+  normalizeCopilotError,
+  normalizeCopilotResponse,
+  parseCopilotResponse,
+  COPILOT_ERROR_MESSAGES,
+} from '@/utils/copilotApiService';
+import axios from 'axios';
 
 const { Title, Text } = Typography;
 
@@ -190,7 +199,11 @@ function transformResponseDataToTable(
           title: 'Department',
           dataIndex: 'departmentName',
         },
-        { key: 'okrAverageScore', title: 'OKR Average Score', dataIndex: 'okrAverageScore' },
+        {
+          key: 'okrAverageScore',
+          title: 'OKR Average Score',
+          dataIndex: 'okrAverageScore',
+        },
       ],
     },
     headcount_by_department: {
@@ -420,6 +433,8 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isIntentPanelVisible, setIsIntentPanelVisible] = useState(true);
   const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Load chat history from localStorage
   useEffect(() => {
@@ -477,6 +492,23 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
     setMessages(revivedMessages);
   }, []);
 
+  const handleDeleteSession = useCallback(
+    (sessionId: string, e: React.MouseEvent) => {
+      e.stopPropagation();
+      setChatHistory((prev) => {
+        const next = prev.filter((s) => s.id !== sessionId);
+        localStorage.setItem(COPILOT_HISTORY_KEY, JSON.stringify(next));
+        return next;
+      });
+    },
+    [],
+  );
+
+  const handleClearAllHistory = useCallback(() => {
+    setChatHistory([]);
+    localStorage.removeItem(COPILOT_HISTORY_KEY);
+  }, []);
+
   const userInitials =
     employeeData?.firstName?.[0]?.toUpperCase() ||
     employeeData?.lastName?.[0]?.toUpperCase() ||
@@ -525,75 +557,90 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
       setMessages((prev) => [...prev, userMessage]);
       setInputValue('');
       setIsLoading(true);
+      abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
 
       try {
-        const responseText = await sendCopilotChatRequest(query);
-        // Parse response to extract answer and table data
-        let parsedResponse: {
-          success?: boolean;
-          answer: string;
-          data?: any;
-          intent?: string;
-          error?: string;
-        };
-        try {
-          parsedResponse = JSON.parse(responseText);
-        } catch {
-          // Fallback if response is plain text
-          parsedResponse = { success: true, answer: responseText };
-        }
-
-        // Check if the request failed (including permission denied)
-        if (parsedResponse.success === false || parsedResponse.error) {
-          const isPermissionDenied =
-            parsedResponse.error === 'permission_denied';
-          const displayText =
-            isPermissionDenied
-              ? parsedResponse.answer ||
-                'You do not have permission to perform this action. Contact your administrator if you need access.'
-              : parsedResponse.answer ||
-                parsedResponse.error ||
-                'Unable to fetch data. Please try again.';
-          const errorMessage: Message = {
-            id: `msg-${Date.now()}-error`,
-            text: displayText,
-            sender: 'copilot',
-            timestamp: new Date(),
-            ...(isPermissionDenied && { messageType: 'permission_denied' }),
-          };
-          setMessages((prev) => [...prev, errorMessage]);
+        const responseText = await sendCopilotChatRequest(
+          query,
+          undefined,
+          signal,
+        );
+        const { parsed, parseError } = parseCopilotResponse(responseText);
+        if (parseError) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Date.now()}-error`,
+              text: COPILOT_ERROR_MESSAGES.UNEXPECTED,
+              sender: 'copilot',
+              timestamp: new Date(),
+              messageType: 'error',
+            },
+          ]);
           return;
         }
 
-        // Transform raw data to table format if backend doesn't send table structure
-        let tableData = parsedResponse.data?.table;
-        if (!tableData && parsedResponse.data && parsedResponse.intent) {
-          tableData = transformResponseDataToTable(
-            parsedResponse.data,
-            parsedResponse.intent,
-          );
+        const normalized = normalizeCopilotResponse(parsed);
+
+        if (!normalized.success) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Date.now()}-error`,
+              text: normalized.displayText,
+              sender: 'copilot',
+              timestamp: new Date(),
+              ...(normalized.messageType && {
+                messageType: normalized.messageType,
+              }),
+              ...(normalized.backend_errors?.length && {
+                backend_errors: normalized.backend_errors,
+              }),
+            },
+          ]);
+          return;
         }
 
-        // When there's a table: show only the table with its title (no duplicate answer text). Otherwise show full answer.
-        const answerText = parsedResponse.answer || responseText;
+        let tableData = normalized.tableData;
+        if (!tableData && normalized.rawData && normalized.intent) {
+          tableData = transformResponseDataToTable(
+            normalized.rawData as Record<string, unknown>,
+            normalized.intent,
+          );
+        }
+        if (
+          tableData &&
+          (!Array.isArray(tableData.rows) || tableData.rows.length === 0)
+        ) {
+          tableData = undefined;
+        }
+        const displayText = tableData
+          ? undefined
+          : normalized.displayText || COPILOT_ERROR_MESSAGES.NO_DATA;
         const copilotMessage: Message = {
           id: `msg-${Date.now()}-copilot`,
-          text: tableData ? undefined : (answerText || undefined),
+          text: displayText,
           sender: 'copilot',
           timestamp: new Date(),
-          metadata: tableData ? undefined : (answerText ? addMetadata(answerText) : undefined),
-          tableData: tableData,
+          metadata: tableData
+            ? undefined
+            : normalized.answerForMetadata
+              ? addMetadata(normalized.answerForMetadata)
+              : undefined,
+          tableData: tableData ?? undefined,
         };
         setMessages((prev) => [...prev, copilotMessage]);
       } catch (error) {
+        if (axios.isAxiosError(error) && error.code === 'ERR_CANCELED') {
+          return;
+        }
         const errorMessage: Message = {
           id: `msg-${Date.now()}-error`,
-          text:
-            error instanceof Error
-              ? error.message
-              : 'Sorry, I encountered an error. Please try again.',
+          text: normalizeCopilotError(error),
           sender: 'copilot',
           timestamp: new Date(),
+          messageType: 'error',
         };
         setMessages((prev) => [...prev, errorMessage]);
       } finally {
@@ -607,17 +654,21 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
     if (inputValue.trim()) sendQuery(inputValue);
   }, [inputValue, sendQuery]);
 
+  const handleStop = useCallback(() => {
+    abortControllerRef.current?.abort();
+  }, []);
+
   const handleIntentSelect = useCallback((intent: string) => {
     setInputValue(intent);
   }, []);
 
-  return (
+  const content = (
     <div
-      className="flex flex-col h-[calc(100vh-130px)] overflow-hidden bg-gray-50 p-4"
+      className={`flex flex-col overflow-hidden bg-gray-50 p-4 ${isFullScreen ? 'h-full' : 'h-[calc(100vh-130px)]'}`}
       id="copilot-module"
       data-cy="copilot-module"
     >
-      {/* Header with New Chat, History, Close */}
+      {/* Header with New Chat, History, Full-screen, Close (Azure-style) */}
       <div
         className="flex-shrink-0 flex items-start justify-between pb-3"
         data-cy="copilot-module-header"
@@ -647,15 +698,63 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
           </Tooltip>
           {chatHistory.length > 0 && (
             <Dropdown
-              menu={{
-                items: chatHistory.slice(0, 20).map((s) => ({
-                  key: s.id,
-                  label: s.title,
-                  onClick: () => handleLoadChat(s),
-                })) as MenuProps['items'],
-              }}
               trigger={['click']}
               placement="bottomRight"
+              overlayStyle={{ zIndex: 10000 }}
+              dropdownRender={() => (
+                <div
+                  className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[240px] max-w-[320px]"
+                  data-cy="copilot-history-dropdown"
+                >
+                  <div className="max-h-[280px] overflow-y-auto">
+                    {chatHistory.slice(0, 20).map((s) => (
+                      <div
+                        key={s.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleLoadChat(s)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleLoadChat(s);
+                          }
+                        }}
+                        className="flex items-start justify-between gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer group"
+                        data-cy={`copilot-history-item-${s.id}`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {s.title || 'New Chat'}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {s.messages?.length ?? 0} messages
+                          </p>
+                        </div>
+                        <Button
+                          type="text"
+                          size="small"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={(e) => handleDeleteSession(s.id, e)}
+                          className="opacity-70 group-hover:opacity-100 flex-shrink-0"
+                          aria-label="Delete this chat"
+                          data-cy={`copilot-history-delete-${s.id}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-t border-gray-100 mt-2 pt-2 px-3">
+                    <button
+                      type="button"
+                      onClick={handleClearAllHistory}
+                      className="text-sm text-red-600 hover:text-red-700 font-medium w-full text-left"
+                      data-cy="copilot-history-clear-all"
+                    >
+                      Clear All Chats
+                    </button>
+                  </div>
+                </div>
+              )}
             >
               <Tooltip title="History">
                 <Button
@@ -669,6 +768,20 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
               </Tooltip>
             </Dropdown>
           )}
+          <Tooltip title={isFullScreen ? 'Exit full screen' : 'Full screen'}>
+            <Button
+              type="text"
+              size="small"
+              icon={
+                isFullScreen ? <CompressOutlined /> : <FullscreenOutlined />
+              }
+              onClick={() => setIsFullScreen((prev) => !prev)}
+              className="text-gray-500 hover:text-blue-600"
+              id="copilot-fullscreen-button"
+              data-cy="copilot-fullscreen-button"
+              aria-label={isFullScreen ? 'Exit full screen' : 'Full screen'}
+            />
+          </Tooltip>
           <Button
             type="text"
             icon={<CloseOutlined />}
@@ -697,7 +810,7 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
           >
             {messages.length === 0 ? (
               <div
-                className="flex flex-col items-center justify-center h-full min-h-[200px] py-8"
+                className="flex flex-col items-center justify-center h-full min-h-[200px] py-8 px-4"
                 data-cy="copilot-module-empty-state"
               >
                 <div
@@ -711,13 +824,24 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                 </Text>
                 <Text
                   type="secondary"
-                  className="text-sm block text-center max-w-md"
+                  className="text-sm block text-center max-w-md mb-1"
                 >
                   Ask questions about your HR data, get insights, and manage
-                  your work more efficiently. Click an intent on the right to
-                  copy it to the input, edit if needed, then send. Or type your
+                  your work more efficiently.
+                </Text>
+                <Text
+                  type="secondary"
+                  className="text-xs block text-center max-w-md mb-4"
+                >
+                  Ready to explore? Click an intent on the right or type your
                   question below.
                 </Text>
+                <span
+                  className="text-[11px] text-gray-400"
+                  data-cy="copilot-disclaimer"
+                >
+                  AI-generated content may be incorrect.
+                </span>
               </div>
             ) : (
               <CopilotMessages
@@ -731,10 +855,19 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
             className="flex-shrink-0 border-t border-gray-200 bg-white"
             data-cy="copilot-module-chat-input-container"
           >
+            {messages.length > 0 && (
+              <p
+                className="text-[11px] text-gray-400 px-4 pt-2 pb-0"
+                data-cy="copilot-disclaimer-inline"
+              >
+                AI-generated content may be incorrect.
+              </p>
+            )}
             <CopilotInput
               value={inputValue}
               onChange={setInputValue}
               onSend={handleSend}
+              onStop={handleStop}
               isLoading={isLoading}
               placeholder="Ask for a report... e.g. Monthly attendance, Who's on leave today"
             />
@@ -805,6 +938,17 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
         </div>
       )}
     </div>
+  );
+
+  return isFullScreen ? (
+    <div
+      className="fixed inset-0 z-[9999] w-screen h-screen bg-gray-50 flex flex-col overflow-hidden"
+      data-cy="copilot-module-fullscreen-wrapper"
+    >
+      {content}
+    </div>
+  ) : (
+    content
   );
 };
 
