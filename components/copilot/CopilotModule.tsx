@@ -574,15 +574,15 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
           );
         }
 
-        // Show LLM answer and table: always show answer when present; show table with its title below
+        // When there's a table: show only the table with its title (no duplicate answer text). Otherwise show full answer.
         const answerText = parsedResponse.answer || responseText;
         const copilotMessage: Message = {
           id: `msg-${Date.now()}-copilot`,
-          text: answerText || undefined,
+          text: tableData ? undefined : (answerText || undefined),
           sender: 'copilot',
           timestamp: new Date(),
-          metadata: answerText ? addMetadata(answerText) : undefined,
-          tableData: tableData, // Table with LLM-generated short title from backend
+          metadata: tableData ? undefined : (answerText ? addMetadata(answerText) : undefined),
+          tableData: tableData,
         };
         setMessages((prev) => [...prev, copilotMessage]);
       } catch (error) {
