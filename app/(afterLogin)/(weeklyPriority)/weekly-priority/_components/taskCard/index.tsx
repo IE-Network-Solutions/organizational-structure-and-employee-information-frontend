@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Card, Input, Form, Dropdown, Checkbox, Avatar, Tooltip } from 'antd';
+import { Button, Card, Input, Form, Dropdown, Checkbox, Avatar } from 'antd';
 import { HiCheckCircle, HiXCircle } from 'react-icons/hi';
-import { RiMoreFill, RiCloseLine, RiCloseFill } from 'react-icons/ri';
-import { UserOutlined } from '@ant-design/icons';
+import { RiMoreFill, RiCloseFill } from 'react-icons/ri';
+import { UserOutlined, EditOutlined } from '@ant-design/icons';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
 import { Popconfirm } from 'antd/lib';
 import {
@@ -31,8 +31,6 @@ const TaskCard: React.FC = () => {
         failedReasons,
         setFailedReasons,
     } = useWeeklyPriorityStore();
-
-    const [selectedTaskIds, setSelectedTaskIds] = useState<Record<string, boolean>>({});
 
     const {
         mutate: updateWeeklyPriorityTask,
@@ -146,27 +144,14 @@ const TaskCard: React.FC = () => {
     const dropdownItems = (item: any) => [
         {
             key: 'edit',
-            label: 'Edit',
+            label: 'Edit Weekly Priority',
+            icon: <EditOutlined />,
             onClick: () => handleEditClick(item),
         },
     ];
 
-    const handleCheckboxChange = (checked: boolean, itemIndex: number, taskIndex: number, taskId: string) => {
-        if (checked) {
-            // Marking as selected (Blue)
-            setSelectedTaskIds(prev => ({ ...prev, [taskId]: true }));
-        } else {
-            // Unselecting
-            setSelectedTaskIds(prev => {
-                const newState = { ...prev };
-                delete newState[taskId];
-                return newState;
-            });
-
-            if (data[itemIndex].tasks[taskIndex].status === 'COMPLETED') {
-                handleUpdateStatus(itemIndex, taskIndex, 'PENDING', '');
-            }
-        }
+    const handleUndoCompleted = (itemIndex: number, taskIndex: number) => {
+        handleUpdateStatus(itemIndex, taskIndex, 'PENDING', '');
     }
 
     return (
@@ -296,51 +281,45 @@ const TaskCard: React.FC = () => {
                                 const taskId = task.id || `${itemIndex}-${taskIndex}`;
                                 const isCompleted = task.status === 'COMPLETED';
                                 const isNotCompleted = task.status === 'NOT_COMPLETED';
-                                const isSelected = !!selectedTaskIds[taskId] || isCompleted;
+                                const isReported = isCompleted || isNotCompleted;
 
                                 return (
                                     <div key={taskIndex} className="flex flex-col" data-cy={`task-item-${itemIndex}-${taskIndex}`}>
                                         <div
-                                            className={`grid grid-cols-[auto_1fr] transition-colors ${isCompleted ? 'bg-[#f7fee7]' : isNotCompleted ? 'bg-[#fff1f2]' : 'bg-white'}`}
+                                            className={`${isReported ? 'grid grid-cols-[auto_1fr]' : 'flex'} transition-colors ${isCompleted ? 'bg-[#f7fee7]' : isNotCompleted ? 'bg-[#fff1f2]' : 'bg-white'}`}
                                             data-cy={`task-item-content-${itemIndex}-${taskIndex}`}
                                         >
-                                            {/* Left Column: Icon */}
-                                            <div className={`flex ${isNotCompleted ? 'items-center' : 'items-center md:items-start md:pt-[18px]'} pl-4 md:pl-6 pr-1 md:pr-0 py-4 md:py-[18px]`} data-cy={`task-item-icon-column-${itemIndex}-${taskIndex}`}>
-                                                <div className="flex-shrink-0" data-cy={`task-item-checkbox-wrapper-${itemIndex}-${taskIndex}`}>
-                                                    {isCompleted ? (
-                                                        <Popconfirm
-                                                            title="Undo task progress?"
-                                                            onConfirm={() => handleCheckboxChange(false, itemIndex, taskIndex, taskId)}
-                                                            okText="Yes"
-                                                            cancelText="No"
-                                                            placement="topLeft"
-                                                            data-cy={`task-item-popconfirm-completed-${itemIndex}-${taskIndex}`}
-                                                        >
-                                                            <div className="relative z-10 bg-[#f7fee7] px-1" data-cy={`task-item-completed-wrapper-${itemIndex}-${taskIndex}`}>
-                                                                <Checkbox checked className="completed-checkbox" data-cy={`task-item-completed-checkbox-${itemIndex}-${taskIndex}`} />
+                                            {/* Left Column: Icon - Only show for reported tasks */}
+                                            {isReported && (
+                                                <div className={`flex ${isNotCompleted ? 'items-center' : 'items-center md:items-start md:pt-[18px]'} pl-4 md:pl-6 pr-1 md:pr-0 py-4 md:py-[18px]`} data-cy={`task-item-icon-column-${itemIndex}-${taskIndex}`}>
+                                                    <div className="flex-shrink-0" data-cy={`task-item-checkbox-wrapper-${itemIndex}-${taskIndex}`}>
+                                                        {isCompleted ? (
+                                                            <Popconfirm
+                                                                title="Undo task progress?"
+                                                                onConfirm={() => handleUndoCompleted(itemIndex, taskIndex)}
+                                                                okText="Yes"
+                                                                cancelText="No"
+                                                                placement="topLeft"
+                                                                data-cy={`task-item-popconfirm-completed-${itemIndex}-${taskIndex}`}
+                                                            >
+                                                                <div className="relative z-10 bg-[#f7fee7] px-1" data-cy={`task-item-completed-wrapper-${itemIndex}-${taskIndex}`}>
+                                                                    <Checkbox checked className="completed-checkbox" data-cy={`task-item-completed-checkbox-${itemIndex}-${taskIndex}`} />
+                                                                </div>
+                                                            </Popconfirm>
+                                                        ) : (
+                                                            <div className="relative z-10 bg-[#fff1f2] px-1" data-cy={`task-item-failed-wrapper-${itemIndex}-${taskIndex}`}>
+                                                                <div className="failed-checkbox-icon" data-cy={`task-item-failed-checkbox-icon-${itemIndex}-${taskIndex}`}>
+                                                                    <RiCloseFill data-cy={`task-item-failed-checkbox-icon-inner-${itemIndex}-${taskIndex}`} />
+                                                                </div>
                                                             </div>
-                                                        </Popconfirm>
-                                                    ) : isNotCompleted ? (
-                                                        <div className="relative z-10 bg-[#fff1f2] px-1" data-cy={`task-item-failed-wrapper-${itemIndex}-${taskIndex}`}>
-                                                            <div className="failed-checkbox-icon" data-cy={`task-item-failed-checkbox-icon-${itemIndex}-${taskIndex}`}>
-                                                                <RiCloseFill data-cy={`task-item-failed-checkbox-icon-inner-${itemIndex}-${taskIndex}`} />
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <Checkbox
-                                                            checked={isSelected}
-                                                            onChange={(e) => handleCheckboxChange(e.target.checked, itemIndex, taskIndex, taskId)}
-                                                            disabled={task.status === 'NOT_COMPLETED'}
-                                                            className="custom-pixel-checkbox"
-                                                            data-cy={`task-item-checkbox-${itemIndex}-${taskIndex}`}
-                                                        />
-                                                    )}
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            )}
 
                                             {/* Right Column: Content */}
                                             <div className="flex-1 flex flex-col min-w-0" data-cy={`task-item-content-column-${itemIndex}-${taskIndex}`}>
-                                                <div className="flex items-center md:items-start gap-4 group pr-4 md:pr-6 py-4 md:py-[18px] relative pl-4 md:pl-5" data-cy={`task-item-header-container-${itemIndex}-${taskIndex}`}>
+                                                <div className={`flex items-center md:items-start gap-4 group pr-4 md:pr-6 py-4 md:py-[18px] relative ${isReported ? 'pl-4 md:pl-5' : 'pl-4 md:pl-6'}`} data-cy={`task-item-header-container-${itemIndex}-${taskIndex}`}>
                                                     {(isCompleted || isNotCompleted) && (
                                                         <div className="task-row-line -ml-4 md:-ml-5" data-cy={`task-item-line-wrapper-${itemIndex}-${taskIndex}`}>
                                                             <div className={`task-row-line-inner ${isCompleted ? 'bg-strike-green' : 'bg-strike-red'}`} data-cy={`task-item-line-inner-${itemIndex}-${taskIndex}`} />
@@ -357,28 +336,6 @@ const TaskCard: React.FC = () => {
                                                             </span>
 
                                                             <div className="flex items-center gap-2 flex-shrink-0 ml-4" data-cy={`task-item-status-icons-${itemIndex}-${taskIndex}`}>
-                                                                {!isCompleted && (task.status === 'PENDING' || task.status === 'NOT_COMPLETED') && (
-                                                                    <div className={`opacity-0 group-hover:opacity-100 transition-opacity ${failedReasonVisible[taskId] ? 'opacity-100' : ''}`} data-cy={`task-item-actions-${itemIndex}-${taskIndex}`}>
-                                                                        {task.status !== 'NOT_COMPLETED' && (
-                                                                            <Tooltip title="Cancel/Postpone Task" data-cy={`task-item-cancel-tooltip-${itemIndex}-${taskIndex}`}>
-                                                                                <Button
-                                                                                    type="text"
-                                                                                    size="small"
-                                                                                    className="text-gray-300 hover:text-red-500 flex items-center justify-center p-1"
-                                                                                    icon={<RiCloseLine className="text-lg" />}
-                                                                                    onClick={() => {
-                                                                                        setFailedReasonVisible({
-                                                                                            ...failedReasonVisible,
-                                                                                            [taskId]: true,
-                                                                                        });
-                                                                                    }}
-                                                                                    data-cy={`task-item-cancel-button-${itemIndex}-${taskIndex}`}
-                                                                                />
-                                                                            </Tooltip>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-
                                                                 {isCompleted && (
                                                                     <HiCheckCircle className="text-[#22c55e] text-[15px] flex-shrink-0 relative z-10 bg-[#f7fee7] rounded-full" data-cy={`task-item-completed-icon-${itemIndex}-${taskIndex}`} />
                                                                 )}
@@ -389,7 +346,7 @@ const TaskCard: React.FC = () => {
                                                             </div>
                                                         </div>
 
-                                                        {failedReasonVisible[taskId] && (
+                                                        {failedReasonVisible[taskId] && isNotCompleted && (
                                                             <div className="mt-3 bg-white border border-[#fee2e2] p-4 rounded-[10px]" data-cy={`task-item-failed-reason-form-${itemIndex}-${taskIndex}`}>
                                                                 <p className="text-[12px] font-bold text-red-800 mb-2 uppercase tracking-tight" data-cy={`task-item-failed-reason-title-${itemIndex}-${taskIndex}`}>Postpone Details</p>
                                                                 <Input.TextArea
