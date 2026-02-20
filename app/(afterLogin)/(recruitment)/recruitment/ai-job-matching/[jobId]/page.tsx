@@ -1143,7 +1143,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                 id="ai-candidate-detail-education-empty"
                                 data-cy="ai-candidate-detail-education-empty"
                                 className="text-xs text-gray-500"
-                                >
+                              >
                                 No education information provided.
                               </p>
                             )}
@@ -1180,7 +1180,6 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                         id={`ai-candidate-education-degree-${idx}`}
                                         data-cy={`ai-candidate-education-degree-${idx}`}
                                         className="font-medium text-gray-900"
-                                      
                                       >
                                         {edu.degree || 'Education'}
                                       </p>
@@ -1197,7 +1196,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                                           id={`ai-candidate-education-cgpa-${idx}`}
                                           data-cy={`ai-candidate-education-cgpa-${idx}`}
                                           className="text-xs text-gray-500 mt-1"
-                                          >
+                                        >
                                           CGPA: {edu.cgpa}
                                         </p>
                                       )}

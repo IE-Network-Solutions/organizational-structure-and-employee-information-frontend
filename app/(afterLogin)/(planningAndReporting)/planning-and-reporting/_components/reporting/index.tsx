@@ -33,7 +33,6 @@ import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
 
-
 function Reporting() {
   const {
     setOpenReportModal,

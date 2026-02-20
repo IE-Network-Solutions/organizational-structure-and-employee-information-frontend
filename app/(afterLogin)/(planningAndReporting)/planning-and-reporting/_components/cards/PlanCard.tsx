@@ -5,14 +5,13 @@ import { BsKey } from 'react-icons/bs';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
-import { PlanSummary, ViewMode, Cadence } from '../types';
+import { PlanSummary, ViewMode } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import UserInfo from '../UserInfo';
 import StatusBadge from '../StatusBadge';
 import KRSummaryBar from '../KRSummaryBar';
 import TaskRow from '../TaskRow';
 import CommentsSection from '../comments/CommentsSection';
-
 
 interface PlanCardProps {
   plan: PlanSummary;
