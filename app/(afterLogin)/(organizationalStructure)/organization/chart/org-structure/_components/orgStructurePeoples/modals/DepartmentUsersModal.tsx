@@ -48,11 +48,21 @@ export function DepartmentUsersModal() {
     (s) => s.usersModalDepartmentId,
   );
   const usersModalAnchor = useDepartmentStore((s) => s.usersModalAnchor);
+  const usersModalScreenPosition = useDepartmentStore(
+    (s) => s.usersModalScreenPosition,
+  );
+  const fullNodes = useDepartmentStore((s) => s.fullNodes);
   const setUsersModalOpen = useDepartmentStore((s) => s.setUsersModalOpen);
   const setUsersModalDepartmentId = useDepartmentStore(
     (s) => s.setUsersModalDepartmentId,
   );
   const setUsersModalAnchor = useDepartmentStore((s) => s.setUsersModalAnchor);
+  const setUsersModalFlowPosition = useDepartmentStore(
+    (s) => s.setUsersModalFlowPosition,
+  );
+  const setUsersModalScreenPosition = useDepartmentStore(
+    (s) => s.setUsersModalScreenPosition,
+  );
 
   const { data: users = [], isLoading } = useGetDepartmentUsersWithoutTeamLead(
     usersModalDepartmentId,
@@ -72,9 +82,20 @@ export function DepartmentUsersModal() {
     setUsersModalOpen(false);
     setUsersModalDepartmentId(null);
     setUsersModalAnchor(null);
-  }, [setUsersModalOpen, setUsersModalDepartmentId, setUsersModalAnchor]);
+    setUsersModalFlowPosition(null);
+    setUsersModalScreenPosition(null);
+  }, [
+    setUsersModalOpen,
+    setUsersModalDepartmentId,
+    setUsersModalAnchor,
+    setUsersModalFlowPosition,
+    setUsersModalScreenPosition,
+  ]);
 
-  const useAnchor = usersModalOpen && usersModalAnchor;
+  /** Use screen position (sticks to node when chart moves) when set, else initial anchor */
+  const position =
+    usersModalScreenPosition ?? (usersModalOpen && usersModalAnchor ? usersModalAnchor : null);
+  const useAnchor = !!position;
   const cardRef = useRef<HTMLDivElement>(null);
 
   /** Close when clicking outside the card (no full-viewport overlay, so zoomed chart stays visible) */
@@ -89,8 +110,13 @@ export function DepartmentUsersModal() {
     return () => document.removeEventListener('mousedown', onMouseDown);
   }, [usersModalOpen, handleClose]);
 
-  /** Dark brown accent bar to match reference */
-  const ACCENT_COLOR = '#4A3728';
+  /** Accent bar uses department color (from node borderColor) or fallback */
+  const departmentNode = fullNodes.find(
+    (n) => n.id === usersModalDepartmentId && (n as { type?: string }).type === 'orgNode',
+  );
+  const accentColor =
+    (departmentNode as { data?: { borderColor?: string } } | undefined)?.data
+      ?.borderColor ?? '#4A3728';
 
   if (!usersModalOpen) return null;
 
@@ -180,15 +206,16 @@ export function DepartmentUsersModal() {
       aria-label="Department staff"
       className="flex flex-col w-full max-w-[180px] fixed z-[1000] shadow-lg"
       style={{
-        top: useAnchor ? usersModalAnchor!.top + 4 : '50%',
-        left: useAnchor ? usersModalAnchor!.left : '50%',
+        top: useAnchor ? position!.top : '50%',
+        left: useAnchor ? position!.left + 4 : '50%',
+        // Anchor top of modal so when the list grows it grows downward only
         ...(useAnchor ? {} : { transform: 'translate(-50%, -50%)' }),
       }}
       data-cy="org-structure-department-users-modal"
     >
       <div
         className="h-1 w-full rounded-t-md shrink-0"
-        style={{ backgroundColor: ACCENT_COLOR }}
+        style={{ backgroundColor: accentColor }}
         data-cy="org-structure-department-users-modal-accent"
       />
       <div

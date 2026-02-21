@@ -20,7 +20,7 @@ import {
   HorizontalConnectorNode,
   VerticalEdge,
 } from './nodes';
-import { buildFlowFromTree, NODE_WIDTH, NODE_HEIGHT } from './layout';
+import { buildFlowFromTree } from './layout';
 import type { OrgNodeData } from './layout';
 import { useChartRef } from '../../../layout';
 import { OrgChartActionsProvider } from './OrgChartActionsContext';
@@ -29,6 +29,8 @@ import {
   DepartmentUsersModal,
   DeleteDepartmentModal,
 } from './modals';
+import { OrgChartExportBridge } from '../OrgChartExportBridge';
+import { DepartmentUsersModalPositionBridge } from './DepartmentUsersModalPositionBridge';
 
 const nodeTypes = {
   orgNode: OrgChartNode,
@@ -89,87 +91,18 @@ function OrgFlowContent() {
     [setEdges],
   );
 
-  // Center viewport on level-zero (root) node and zoom to fit whole tree.
-  // Runs when flow is ready and again when nodes load; delay so viewport dimensions are set.
-  const centerViewOnRoot = useCallback(() => {
+  // When nodes load, fit the entire structure in view so the whole chart is visible on first load.
+  const fitWholeStructure = useCallback(() => {
     const instance = flowInstanceRef.current;
-    const container = chartRef.current;
-    const currentNodes = useDepartmentStore.getState()
-      .nodes as Node<OrgNodeData>[];
-    if (!instance || !container || currentNodes.length === 0) return;
-
-    const rootNode =
-      currentNodes.find(
-        (n) => n.type === 'orgNode' && (n.data as OrgNodeData).isRoot,
-      ) ??
-      (currentNodes
-        .filter((n) => n.type === 'orgNode')
-        .sort((a, b) => a.position.y - b.position.y)[0] as
-        | Node<OrgNodeData>
-        | undefined);
-    if (!rootNode) return;
-
-    const rootCenterX = rootNode.position.x + NODE_WIDTH / 2;
-
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-    currentNodes.forEach((n) => {
-      const left = n.position.x;
-      const top = n.position.y;
-      let w = 0;
-      let h = 0;
-      if (n.type === 'orgNode') {
-        w = NODE_WIDTH;
-        h = NODE_HEIGHT;
-      } else if (
-        n.type === 'horizontalConnector' &&
-        n.data &&
-        'width' in n.data
-      ) {
-        w = Number((n.data as { width: number }).width) || 0;
-        h = 20;
-      }
-      minX = Math.min(minX, left);
-      minY = Math.min(minY, top);
-      maxX = Math.max(maxX, left + w);
-      maxY = Math.max(maxY, top + h);
-    });
-    const boundsW = maxX - minX;
-    const boundsH = maxY - minY;
-
-    const padding = { top: 8, right: 40, bottom: 40, left: 40 };
-    const width = container.offsetWidth;
-    const height = container.offsetHeight;
-    const availableW = Math.max(1, width - padding.left - padding.right);
-    const availableH = Math.max(1, height - padding.top - padding.bottom);
-    const zoomX = boundsW > 0 ? availableW / boundsW : 1;
-    const zoomY = boundsH > 0 ? availableH / boundsH : 1;
-    const zoom = Math.min(zoomX, zoomY, 1.2, 1.5);
-    const zoomedIn = zoom * 1.2;
-    const clampedZoom = Math.max(0.1, Math.min(1.5, zoomedIn));
-
-    // Root at horizontal center and at the start (top) of the pane, not vertically centered
-    const viewportX = width / 2 - rootCenterX * clampedZoom;
-    const viewportY = padding.top - rootNode.position.y * clampedZoom;
-    instance.setViewport(
-      { x: viewportX, y: viewportY, zoom: clampedZoom },
-      { duration: 0 },
-    );
-  }, []);
+    if (!instance || nodes.length === 0) return;
+    instance.fitView({ padding: 0.12, duration: 0, maxZoom: 1.2 });
+  }, [nodes.length]);
 
   useEffect(() => {
     if (nodes.length === 0) return;
-    let timeoutId: ReturnType<typeof setTimeout>;
-    const rafId = requestAnimationFrame(() => {
-      timeoutId = setTimeout(centerViewOnRoot, 350);
-    });
-    return () => {
-      cancelAnimationFrame(rafId);
-      clearTimeout(timeoutId);
-    };
-  }, [nodes.length, centerViewOnRoot]);
+    const timeoutId = setTimeout(fitWholeStructure, 350);
+    return () => clearTimeout(timeoutId);
+  }, [nodes.length, fitWholeStructure]);
 
   return (
     <OrgChartActionsProvider>
@@ -185,14 +118,11 @@ function OrgFlowContent() {
           onEdgesChange={onEdgesChange}
           onInit={(instance) => {
             flowInstanceRef.current = instance;
-            // Schedule center once viewport and nodes are ready (backup to effect)
+            // Fit whole structure once viewport and nodes are ready (backup to effect)
             setTimeout(() => {
               const currentNodes = useDepartmentStore.getState().nodes;
               if (currentNodes.length > 0) {
-                const container = chartRef.current;
-                if (container?.offsetWidth && container?.offsetHeight) {
-                  centerViewOnRoot();
-                }
+                instance.fitView({ padding: 0.12, duration: 0, maxZoom: 1.2 });
               }
             }, 400);
           }}
@@ -210,7 +140,10 @@ function OrgFlowContent() {
           defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
           proOptions={{ hideAttribution: true }}
           className="bg-white"
-        />
+        >
+          <OrgChartExportBridge />
+          <DepartmentUsersModalPositionBridge />
+        </ReactFlow>
         <AddDepartmentModal />
         <DepartmentUsersModal />
         <DeleteDepartmentModal />

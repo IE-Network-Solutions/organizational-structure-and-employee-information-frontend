@@ -10,7 +10,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { MdOutlineAccountTree } from 'react-icons/md';
 import { FiPlus, FiEdit2, FiTrash2, FiEye } from 'react-icons/fi';
 import type { OrgNodeData } from '../layout';
-import { getSubtreeNodeIds } from '../layout';
+import { getSubtreeNodeIds, NODE_HEIGHT, NODE_WIDTH } from '../layout';
 import { useOrgChartActions } from '../OrgChartActionsContext';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 
@@ -29,6 +29,12 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
     (s) => s.setUsersModalDepartmentId,
   );
   const setUsersModalAnchor = useDepartmentStore((s) => s.setUsersModalAnchor);
+  const setUsersModalFlowPosition = useDepartmentStore(
+    (s) => s.setUsersModalFlowPosition,
+  );
+  const setUsersModalScreenPosition = useDepartmentStore(
+    (s) => s.setUsersModalScreenPosition,
+  );
   const isCollapsed = collapsedDepartmentIds.includes(data?.id ?? '');
 
   const menuItems: MenuProps['items'] = useMemo(
@@ -266,11 +272,34 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
               if (directReportCount > 0) {
                 toggleCollapse(data.id);
               } else {
-                const rect = (
-                  e.currentTarget as HTMLElement
-                ).getBoundingClientRect();
-                setUsersModalAnchor({ top: rect.bottom, left: rect.left });
+                const buttonEl = e.currentTarget as HTMLElement;
+                const cardEl = buttonEl.closest('.react-flow__node') as HTMLElement | null;
+                const verticalOffset = 0;
+                if (cardEl) {
+                  const rect = cardEl.getBoundingClientRect();
+                  setUsersModalAnchor({
+                    top: rect.top + rect.height / 2 + verticalOffset,
+                    left: rect.left + rect.width + 8,
+                  });
+                } else {
+                  const rect = buttonEl.getBoundingClientRect();
+                  setUsersModalAnchor({
+                    top: rect.top + rect.height / 2 + verticalOffset,
+                    left: rect.right + 8,
+                  });
+                }
                 setUsersModalDepartmentId(data.id);
+                setUsersModalScreenPosition(null);
+                const node = getNodes().find((n) => n.id === data.id);
+                if (node && 'position' in node) {
+                  const pos = node.position as { x: number; y: number };
+                  setUsersModalFlowPosition({
+                    x: pos.x + NODE_WIDTH + 8,
+                    y: pos.y + NODE_HEIGHT / 2 + verticalOffset,
+                  });
+                } else {
+                  setUsersModalFlowPosition(null);
+                }
                 setUsersModalOpen(true);
               }
             }}

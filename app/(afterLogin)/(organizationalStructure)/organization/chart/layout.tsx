@@ -4,21 +4,31 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
 import React, { RefObject, useRef, createContext, useContext } from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import type { UseReactFlowExportApi } from '@/hooks/export';
 
-// Create context for chart ref
-const ChartRefContext = createContext<RefObject<HTMLDivElement> | null>(null);
+type ChartLayoutContextValue = {
+  chartRef: RefObject<HTMLDivElement>;
+  exportActionsRef: React.MutableRefObject<UseReactFlowExportApi | null>;
+};
+
+const ChartRefContext = createContext<ChartLayoutContextValue | null>(null);
 
 export const useChartRef = () => {
   const context = useContext(ChartRefContext);
   if (!context) {
     throw new Error('useChartRef must be used within a ChartRefProvider');
   }
-  return context;
+  return context.chartRef;
 };
 
-// import { exportOrgStrucutreMenu, orgComposeAndMergeMenues } from '../menues/inex';
+export const useChartExportActionsRef = () => {
+  const context = useContext(ChartRefContext);
+  if (!context) {
+    throw new Error('useChartExportActionsRef must be used within a ChartRefProvider');
+  }
+  return context.exportActionsRef;
+};
 
-import { exportOrgStrucutreMenu } from './org-structure/_components/menues';
 import CustomDrawer from './org-structure/_components/customDrawer';
 import {
   useMergingDepartment,
@@ -39,7 +49,11 @@ export default function ChartLayout({
   const [form] = Form.useForm();
 
   const chartRef = useRef<HTMLDivElement>(null);
+  const exportActionsRef = useRef<UseReactFlowExportApi | null>(null);
   const { setIsDeleteConfirmVisible } = useOrganizationStore();
+  const chartDownloadLoading = useOrganizationStore(
+    (s) => s.chartDownlaodLoading,
+  );
   const { transferDepartment, resetStore } = useTransferStore();
   const { mergeData } = useMergeStore();
   const { mutate: transferDepartments, isLoading: isTransferLoading } =
@@ -63,9 +77,27 @@ export default function ChartLayout({
     reset();
   };
 
+  const handleDownloadPNG = () => {
+    if (chartDownloadLoading) return;
+    if (exportActionsRef.current?.downloadPNG) {
+      exportActionsRef.current.downloadPNG();
+    } else {
+      exportToPDFOrJPEG(chartRef as RefObject<HTMLDivElement>, false);
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    if (chartDownloadLoading) return;
+    if (exportActionsRef.current?.downloadPDF) {
+      exportActionsRef.current.downloadPDF();
+    } else {
+      exportToPDFOrJPEG(chartRef as RefObject<HTMLDivElement>, true);
+    }
+  };
+
   return (
     <ChartRefContext.Provider
-      value={chartRef}
+      value={{ chartRef, exportActionsRef }}
       data-cy="org-structure-layout-provider"
     >
       <div
@@ -97,13 +129,26 @@ export default function ChartLayout({
                 id="org-structure-actions"
               >
                 <Dropdown
-                  overlay={exportOrgStrucutreMenu(
-                    chartRef as RefObject<HTMLDivElement>,
-                    exportToPDFOrJPEG,
-                  )}
+                  menu={{
+                    items: [
+                      {
+                        key: 'pdf',
+                        label: 'PDF',
+                        onClick: handleDownloadPDF,
+                        disabled: chartDownloadLoading,
+                      },
+                      {
+                        key: 'png',
+                        label: 'PNG',
+                        onClick: handleDownloadPNG,
+                        disabled: chartDownloadLoading,
+                      },
+                    ],
+                  }}
                   trigger={['click']}
                   placement="bottomRight"
                   data-cy="org-structure-export-dropdown"
+                  disabled={chartDownloadLoading}
                 >
                   {/* <AccessGuard
                     permissions={[Permissions.DownloadOrganizationStructure]}
@@ -121,13 +166,15 @@ export default function ChartLayout({
                     className="h-10 w-[104px] rounded-lg border border-gray-300 text-gray-700 font-normal"
                     data-cy="org-structure-download-btn"
                     id="org-structure-download-btn"
+                    loading={chartDownloadLoading}
+                    disabled={chartDownloadLoading}
                   >
                     <span
                       className="font-normal"
                       data-cy="org-structure-download-btn-span"
                       id="org-structure-download-btn-span"
                     >
-                      Download
+                      {chartDownloadLoading ? 'Preparing…' : 'Download'}
                     </span>
                   </Button>
                   {/* </AccessGuard> */}

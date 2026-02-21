@@ -77,9 +77,15 @@ interface DepartmentState {
   usersModalOpen: boolean;
   usersModalDepartmentId: string | null;
   usersModalAnchor: { top: number; left: number } | null;
+  /** Flow-space position for the modal anchor (so it can stick to the node when chart pans/zooms) */
+  usersModalFlowPosition: { x: number; y: number } | null;
+  /** Screen position computed from flow position + viewport (updated by bridge inside ReactFlow) */
+  usersModalScreenPosition: { top: number; left: number } | null;
   setUsersModalOpen: (open: boolean) => void;
   setUsersModalDepartmentId: (id: string | null) => void;
   setUsersModalAnchor: (anchor: { top: number; left: number } | null) => void;
+  setUsersModalFlowPosition: (pos: { x: number; y: number } | null) => void;
+  setUsersModalScreenPosition: (pos: { top: number; left: number } | null) => void;
   /** Delete department: two-step modal (choose shift-to → confirm) */
   deleteModalOpen: boolean;
   deleteStep: 1 | 2;
@@ -133,9 +139,13 @@ const useDepartmentStore = create<DepartmentState>((set) => ({
   usersModalOpen: false,
   usersModalDepartmentId: null,
   usersModalAnchor: null,
+  usersModalFlowPosition: null,
+  usersModalScreenPosition: null,
   setUsersModalOpen: (open) => set({ usersModalOpen: open }),
   setUsersModalDepartmentId: (id) => set({ usersModalDepartmentId: id }),
   setUsersModalAnchor: (anchor) => set({ usersModalAnchor: anchor }),
+  setUsersModalFlowPosition: (pos) => set({ usersModalFlowPosition: pos }),
+  setUsersModalScreenPosition: (pos) => set({ usersModalScreenPosition: pos }),
   deleteModalOpen: false,
   deleteStep: 1,
   departmentTobeDeletedId: null,
@@ -203,6 +213,8 @@ const useDepartmentStore = create<DepartmentState>((set) => ({
       usersModalOpen: false,
       usersModalDepartmentId: null,
       usersModalAnchor: null,
+      usersModalFlowPosition: null,
+      usersModalScreenPosition: null,
       deleteModalOpen: false,
       deleteStep: 1,
       departmentTobeDeletedId: null,
