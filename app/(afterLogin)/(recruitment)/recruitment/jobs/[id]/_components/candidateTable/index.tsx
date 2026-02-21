@@ -178,8 +178,21 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       dataIndex: 'cv',
     },
     {
-      title: 'Created Date',
+      title: 'Applied/Created Date',
       dataIndex: 'createdAt',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      ellipsis: true,
+      render: (val: string) =>
+        val ? (
+          <a href={`mailto:${val}`} className="text-blue-600 hover:underline">
+            {val}
+          </a>
+        ) : (
+          '—'
+        ),
     },
     {
       title: 'Stages',
@@ -282,6 +295,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
+      email: item?.email ?? '--',
       // internal_external:
       //   item?.jobCandidate?.isExternalApplicant === false
       //     ? 'External'

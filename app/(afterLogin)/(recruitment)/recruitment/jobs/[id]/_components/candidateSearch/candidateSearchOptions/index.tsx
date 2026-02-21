@@ -3,12 +3,12 @@ import { useGetStages } from '@/store/server/features/recruitment/candidate/quer
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { useDebounce } from '@/utils/useDebounce';
-import { Button, Col, DatePicker, Modal, Row, Select } from 'antd';
+import { Button, Col, DatePicker, Modal, Popover, Row, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import React from 'react';
+import React, { useState } from 'react';
 import WhatYouNeed from '../whatYouNeed';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { LuSettings2 } from 'react-icons/lu';
+import { LuSettings2, LuFilter } from 'react-icons/lu';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -26,8 +26,10 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
     showMobileFilter,
     setShowMobileFilter,
   } = useCandidateState();
+  const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
 
   const { isMobile, isTablet } = useIsMobile();
+  const useFilterPopover = !!jobId && !isMobile && !isTablet;
 
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: jobList } = useGetJobs(
@@ -156,13 +158,52 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
       </Row>
     </>
   );
+  const filterPopoverContent = (
+    <div className="w-[320px] max-h-[70vh] overflow-y-auto">
+      <div className="mb-3 font-medium text-gray-900">Filter</div>
+      {Filters}
+      <div className="flex gap-2 justify-end mt-3 pt-3 border-t border-gray-100">
+        <Button
+          size="small"
+          onClick={() => {
+            setSearchParams('dateRange', '');
+            setSearchParams('selectedJob', '');
+            setSearchParams('selectedDepartment', '');
+            setSearchParams('selectedStage', '');
+          }}
+        >
+          Reset
+        </Button>
+        <Button type="primary" size="small" onClick={() => setFilterPopoverOpen(false)}>
+          Save Filter
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <div
       id="talent-acquisition-candidate-search-options-div-container"
       data-cy="talent-acquisition-candidate-search-options-div-container"
-      className="my-3"
+      className={useFilterPopover ? '' : 'my-3'}
     >
-      {isMobile || isTablet ? (
+      {useFilterPopover ? (
+        <Popover
+          open={filterPopoverOpen}
+          onOpenChange={setFilterPopoverOpen}
+          content={filterPopoverContent}
+          trigger="click"
+          placement="bottomRight"
+        >
+          <Button
+            icon={<LuFilter className="w-4 h-4" />}
+            className="!h-11 !border-gray-300 text-gray-700"
+            data-cy="talent-acquisition-job-candidate-search-button-filter"
+          >
+            Filter
+          </Button>
+        </Popover>
+      ) : isMobile || isTablet ? (
         <>
           <div
             id="talent-acquisition-candidate-search-options-div-mobile-header"
