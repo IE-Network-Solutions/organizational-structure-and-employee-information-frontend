@@ -67,7 +67,12 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       onOk={onConfirm}
       onCancel={onCancel}
       footer={deleteModalFooter}
-      closeIcon={<CloseOutlined className="text-emerald-600" style={{ color: '#059669' }} />}
+      closeIcon={
+        <CloseOutlined
+          className="text-emerald-600"
+          style={{ color: '#059669' }}
+        />
+      }
       modalRender={(modal) => (
         <div id={id} data-cy={dataCy}>
           {modal}

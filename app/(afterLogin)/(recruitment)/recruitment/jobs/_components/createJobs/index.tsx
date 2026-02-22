@@ -17,7 +17,6 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 const STEP_LABELS = ['Job Details', 'Hiring and offer', 'Application Form'];
 
-
 const CreateJobs: React.FC = () => {
   const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
@@ -40,7 +39,10 @@ const CreateJobs: React.FC = () => {
   };
 
   const addNewDrawerHeader = (
-    <div className="relative w-full" data-cy="talent-acquisition-create-jobs-drawer-header-container">
+    <div
+      className="relative w-full"
+      data-cy="talent-acquisition-create-jobs-drawer-header-container"
+    >
       <button
         type="button"
         onClick={() => {
@@ -50,28 +52,56 @@ const CreateJobs: React.FC = () => {
         }}
         className="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-600"
         aria-label="Close"
+        data-cy="talent-acquisition-create-jobs-drawer-close"
       >
         <IoClose className="h-5 w-5" />
       </button>
-      <div className="pr-10">
-        <h2 className="text-xl font-bold text-gray-900">Create New Job</h2>
-        <p className="mt-1 text-sm text-gray-500">Please Fill in all the information correctly</p>
+      <div
+        className="pr-10"
+        data-cy="talent-acquisition-create-jobs-drawer-title-wrap"
+      >
+        <h2
+          className="text-xl font-bold text-gray-900"
+          data-cy="talent-acquisition-create-jobs-drawer-title"
+        >
+          Create New Job
+        </h2>
+        <p
+          className="mt-1 text-sm text-gray-500"
+          data-cy="talent-acquisition-create-jobs-drawer-subtitle"
+        >
+          Please Fill in all the information correctly
+        </p>
       </div>
-      <div className="mt-4 flex w-full flex-wrap items-center gap-y-2">
+      <div
+        className="mt-4 flex w-full flex-wrap items-center gap-y-2"
+        data-cy="talent-acquisition-create-jobs-step-indicators"
+      >
         {STEP_LABELS.map((label, index) => (
           <React.Fragment key={label}>
-            <div className="flex items-center gap-2 shrink-0">
+            <div
+              className="flex items-center gap-2 shrink-0"
+              data-cy={`talent-acquisition-create-jobs-step-${index}`}
+            >
               <div
                 className={`h-3 w-3 shrink-0 rounded-full ${currentStep >= index ? 'bg-[#6366F1]' : 'bg-gray-300'}`}
                 data-cy={`talent-acquisition-create-jobs-step-dot-${index}`}
               />
-              <span className="text-xs text-gray-700 whitespace-nowrap">{label}</span>
+              <span
+                className="text-xs text-gray-700 whitespace-nowrap"
+                data-cy={`talent-acquisition-create-jobs-step-label-${index}`}
+              >
+                {label}
+              </span>
             </div>
             {index < STEP_LABELS.length - 1 && (
               <div
                 className="mx-1 sm:mx-2 h-0.5 min-w-[12px] sm:min-w-[24px] flex-1 shrink min-w-0"
-                style={{ backgroundColor: currentStep > index ? '#6366F1' : '#d1d5db' }}
+                style={{
+                  backgroundColor: currentStep > index ? '#6366F1' : '#d1d5db',
+                }}
                 aria-hidden
+                data-cy={`talent-acquisition-create-jobs-step-connector-${index}`}
               />
             )}
           </React.Fragment>
@@ -99,16 +129,20 @@ const CreateJobs: React.FC = () => {
         jobDeadline: dayjs(formValues?.jobDeadline).format('YYYY-MM-DD'),
         yearOfExperience: Number(formValues?.yearOfExperience ?? 0),
         departmentId: formValues?.department,
-        compensation: formValues?.compensation != null ? String(formValues.compensation) : formValues?.compensation,
+        compensation:
+          formValues?.compensation != null
+            ? String(formValues.compensation)
+            : formValues?.compensation,
         questions: [
           ...(formValues?.questions?.map((e: any) => ({
             ...e,
             required: e?.required || false,
             id: uuidv4(),
-            field: e.field?.map((field: any) => ({
-              id: uuidv4(),
-              value: field?.value ?? field,
-            })) || [],
+            field:
+              e.field?.map((field: any) => ({
+                id: uuidv4(),
+                value: field?.value ?? field,
+              })) || [],
           })) || []),
           ...(filteredQuestions?.flatMap((template: any) =>
             template.form?.map((formItem: any) => ({
@@ -156,7 +190,10 @@ const CreateJobs: React.FC = () => {
       className="talent-acquisition-create-job-modal"
       data-cy="talent-acquisition-create-jobs-modal"
       title={
-        <div className={`pr-8 ${isMobile ? 'pr-10' : ''}`} data-cy="talent-acquisition-create-jobs-modal-header">
+        <div
+          className={`pr-8 ${isMobile ? 'pr-10' : ''}`}
+          data-cy="talent-acquisition-create-jobs-modal-header"
+        >
           {addNewDrawerHeader}
         </div>
       }
@@ -168,13 +205,26 @@ const CreateJobs: React.FC = () => {
         onValuesChange={() => handleAddJobStateUpdate(form.getFieldsValue())}
         onFinish={handlePublish}
       >
-        <div hidden={currentStep !== 0} data-cy="talent-acquisition-create-jobs-form-step-0">
-          <JobDetailsStep form={form} close={handleCloseDrawer} stepChange={handleStepChange} />
+        <div
+          hidden={currentStep !== 0}
+          data-cy="talent-acquisition-create-jobs-form-step-0"
+        >
+          <JobDetailsStep
+            form={form}
+            close={handleCloseDrawer}
+            stepChange={handleStepChange}
+          />
         </div>
-        <div hidden={currentStep !== 1} data-cy="talent-acquisition-create-jobs-form-step-1">
+        <div
+          hidden={currentStep !== 1}
+          data-cy="talent-acquisition-create-jobs-form-step-1"
+        >
           <HiringOfferStep form={form} stepChange={handleStepChange} />
         </div>
-        <div hidden={currentStep !== 2} data-cy="talent-acquisition-create-jobs-form-step-2">
+        <div
+          hidden={currentStep !== 2}
+          data-cy="talent-acquisition-create-jobs-form-step-2"
+        >
           <CreateApplicationForm
             form={form}
             stepChange={handleStepChange}

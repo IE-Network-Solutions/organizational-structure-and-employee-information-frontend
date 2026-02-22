@@ -47,7 +47,11 @@ const CandidateDetailPage: React.FC = () => {
     {
       key: '1',
       label: (
-        <span id="candidate-detail-tab-cover-letter" className="font-semibold" data-cy="candidate-detail-tab-cover-letter">
+        <span
+          id="candidate-detail-tab-cover-letter"
+          className="font-semibold"
+          data-cy="candidate-detail-tab-cover-letter"
+        >
           Cover Letter
         </span>
       ),
@@ -57,7 +61,11 @@ const CandidateDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div id="candidate-detail-loading" className="min-h-screen w-full p-4 sm:p-6 bg-[#f9fafb]" data-cy="candidate-detail-loading">
+      <div
+        id="candidate-detail-loading"
+        className="min-h-screen w-full p-4 sm:p-6 bg-[#f9fafb]"
+        data-cy="candidate-detail-loading"
+      >
         <Skeleton active />
       </div>
     );
@@ -65,9 +73,18 @@ const CandidateDetailPage: React.FC = () => {
 
   if (!candidate) {
     return (
-      <div id="candidate-detail-not-found" className="min-h-screen w-full p-4 sm:p-6 bg-[#f9fafb]" data-cy="candidate-detail-not-found">
+      <div
+        id="candidate-detail-not-found"
+        className="min-h-screen w-full p-4 sm:p-6 bg-[#f9fafb]"
+        data-cy="candidate-detail-not-found"
+      >
         <p className="text-gray-500">Candidate not found.</p>
-        <Button type="link" id="candidate-detail-back-to-jobs" onClick={handleBack} data-cy="candidate-detail-back-to-jobs">
+        <Button
+          type="link"
+          id="candidate-detail-back-to-jobs"
+          onClick={handleBack}
+          data-cy="candidate-detail-back-to-jobs"
+        >
           Back to Job Details
         </Button>
       </div>
@@ -96,7 +113,11 @@ const CandidateDetailPage: React.FC = () => {
       className="min-h-screen w-full p-4 sm:p-6 bg-[#f9fafb]"
       data-cy="talent-acquisition-candidate-detail-page"
     >
-      <div className="flex items-center gap-3 mb-2" id="candidate-detail-header" data-cy="candidate-detail-header">
+      <div
+        className="flex items-center gap-3 mb-2"
+        id="candidate-detail-header"
+        data-cy="candidate-detail-header"
+      >
         <button
           type="button"
           id="candidate-detail-back"
@@ -107,17 +128,31 @@ const CandidateDetailPage: React.FC = () => {
           <IoIosArrowBack className="w-5 h-5" />
         </button>
         <div className="flex flex-col min-w-0">
-          <h1 className="text-2xl font-bold text-gray-900 font-['Manrope']">Job Details</h1>
-          <button type="button" onClick={handleBack} className="text-sm text-slate-500 font-medium font-['Manrope'] text-left hover:underline">
+          <h1 className="text-2xl font-bold text-gray-900 font-['Manrope']">
+            Job Details
+          </h1>
+          <button
+            type="button"
+            onClick={handleBack}
+            className="text-sm text-slate-500 font-medium font-['Manrope'] text-left hover:underline"
+          >
             Talent Acquisition / Jobs
           </button>
         </div>
       </div>
 
-      <div id="candidate-detail-summary-card" className="bg-white rounded-lg border border-gray-200 p-6 mb-6" data-cy="candidate-detail-summary-card">
+      <div
+        id="candidate-detail-summary-card"
+        className="bg-white rounded-lg border border-gray-200 p-6 mb-6"
+        data-cy="candidate-detail-summary-card"
+      >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h2 id="candidate-detail-name" className="text-xl font-bold text-gray-900 mb-2" data-cy="candidate-detail-name">
+            <h2
+              id="candidate-detail-name"
+              className="text-xl font-bold text-gray-900 mb-2"
+              data-cy="candidate-detail-name"
+            >
               {candidate?.fullName ?? '—'}
             </h2>
             <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -129,14 +164,22 @@ const CandidateDetailPage: React.FC = () => {
                 {stageTitle}
               </span>
             </div>
-            <div id="candidate-detail-contact-grid" className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2 text-sm" data-cy="candidate-detail-contact-grid">
+            <div
+              id="candidate-detail-contact-grid"
+              className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2 text-sm"
+              data-cy="candidate-detail-contact-grid"
+            >
               <div className="flex flex-col">
                 <span className="text-gray-500">Email:</span>
-                <span className="text-gray-900 mt-0.5">{candidate?.email ?? '—'}</span>
+                <span className="text-gray-900 mt-0.5">
+                  {candidate?.email ?? '—'}
+                </span>
               </div>
               <div className="flex flex-col">
                 <span className="text-gray-500">Phone Number:</span>
-                <span className="text-gray-900 mt-0.5">{candidate?.phone ?? '—'}</span>
+                <span className="text-gray-900 mt-0.5">
+                  {candidate?.phone ?? '—'}
+                </span>
               </div>
               <div className="flex flex-col">
                 <span className="text-gray-500">Job:</span>
@@ -144,15 +187,26 @@ const CandidateDetailPage: React.FC = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-gray-500">CGPA:</span>
-                <span className="text-gray-900 mt-0.5">{candidate?.CGPA ?? '—'}</span>
+                <span className="text-gray-900 mt-0.5">
+                  {candidate?.CGPA ?? '—'}
+                </span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1 shrink-0" id="candidate-detail-nav" data-cy="candidate-detail-nav">
+          <div
+            className="flex items-center gap-1 shrink-0"
+            id="candidate-detail-nav"
+            data-cy="candidate-detail-nav"
+          >
             <button
               type="button"
               id="candidate-detail-prev"
-              onClick={() => prevCandidate && router.push(`/recruitment/jobs/${jobId}/candidates/${prevCandidate.id}`)}
+              onClick={() =>
+                prevCandidate &&
+                router.push(
+                  `/recruitment/jobs/${jobId}/candidates/${prevCandidate.id}`,
+                )
+              }
               disabled={!prevCandidate}
               className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Previous candidate"
@@ -163,7 +217,12 @@ const CandidateDetailPage: React.FC = () => {
             <button
               type="button"
               id="candidate-detail-next"
-              onClick={() => nextCandidate && router.push(`/recruitment/jobs/${jobId}/candidates/${nextCandidate.id}`)}
+              onClick={() =>
+                nextCandidate &&
+                router.push(
+                  `/recruitment/jobs/${jobId}/candidates/${nextCandidate.id}`,
+                )
+              }
               disabled={!nextCandidate}
               className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Next candidate"
@@ -175,9 +234,15 @@ const CandidateDetailPage: React.FC = () => {
         </div>
 
         {(candidate?.documentName || candidate?.resumeUrl) && (
-          <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap items-center justify-between gap-2" id="candidate-detail-cv" data-cy="candidate-detail-cv">
+          <div
+            className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap items-center justify-between gap-2"
+            id="candidate-detail-cv"
+            data-cy="candidate-detail-cv"
+          >
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">{candidate?.documentName ?? 'CV'}</span>
+              <span className="text-sm font-medium text-gray-700">
+                {candidate?.documentName ?? 'CV'}
+              </span>
               <span className="text-xs text-gray-500">3MB</span>
             </div>
             <Button
@@ -194,7 +259,11 @@ const CandidateDetailPage: React.FC = () => {
         )}
       </div>
 
-      <div id="candidate-detail-tabs" className="bg-white rounded-lg border border-gray-200 p-6 talent-acquisition-candidate-detail-tabs" data-cy="candidate-detail-tabs">
+      <div
+        id="candidate-detail-tabs"
+        className="bg-white rounded-lg border border-gray-200 p-6 talent-acquisition-candidate-detail-tabs"
+        data-cy="candidate-detail-tabs"
+      >
         <Tabs
           items={items}
           size="small"

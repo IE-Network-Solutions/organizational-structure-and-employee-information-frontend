@@ -2,7 +2,16 @@ import { useEmployeeDepartments } from '@/store/server/features/employees/employ
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Col, DatePicker, Form, Modal, Popover, Row, Select } from 'antd';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Modal,
+  Popover,
+  Row,
+  Select,
+} from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import WhatYouNeed from '../whatYouNeed';
@@ -204,10 +213,15 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
     setShowMobileFilter(false);
   };
 
-  const handleDepartmentChange = (value: string) => setSearchParams('selectedDepartment', value ?? '');
-  const handleJobChange = (value: string) => setSearchParams('selectedJob', value ?? '');
-  const handleStageChange = (value: string) => setSearchParams('selectedStage', value ?? '');
-  const handleSearchByDateRange = (dates: [dayjs.Dayjs, dayjs.Dayjs] | null) => {
+  const handleDepartmentChange = (value: string) =>
+    setSearchParams('selectedDepartment', value ?? '');
+  const handleJobChange = (value: string) =>
+    setSearchParams('selectedJob', value ?? '');
+  const handleStageChange = (value: string) =>
+    setSearchParams('selectedStage', value ?? '');
+  const handleSearchByDateRange = (
+    dates: [dayjs.Dayjs, dayjs.Dayjs] | null,
+  ) => {
     if (dates && dates.length === 2) {
       const dateRange = `${dayjs(dates[0]).format('YYYY-MM-DD')} to ${dayjs(dates[1]).format('YYYY-MM-DD')}`;
       setSearchParams('dateRange', dateRange);
@@ -225,7 +239,9 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
           onChange={(dates: any) => handleSearchByDateRange(dates)}
           className="w-full h-14"
           allowClear
-          getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
+          getPopupContainer={(triggerNode) =>
+            triggerNode.parentElement || document.body
+          }
         />
       </Col>
       <Col lg={16} sm={24} xs={24}>
@@ -328,7 +344,10 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
               placement="bottomRight"
               align={{ offset: [0, 8] }}
               content={
-                <div className="w-[560px] max-w-[90vw] max-h-[70vh] overflow-y-auto overflow-x-hidden min-w-0" data-cy="talent-acquisition-job-candidate-search-modal-filter">
+                <div
+                  className="w-[560px] max-w-[90vw] max-h-[70vh] overflow-y-auto overflow-x-hidden min-w-0"
+                  data-cy="talent-acquisition-job-candidate-search-modal-filter"
+                >
                   {filterModalTitle}
                   {filterFormContent}
                   <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-200">
@@ -406,7 +425,9 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
             style={{ maxWidth: '90vw' }}
             closeIcon={<CloseOutlined className="text-gray-500" />}
           >
-            <div className="min-w-0 max-w-full overflow-x-hidden">{filterFormContent}</div>
+            <div className="min-w-0 max-w-full overflow-x-hidden">
+              {filterFormContent}
+            </div>
           </Modal>
         </>
       ) : (

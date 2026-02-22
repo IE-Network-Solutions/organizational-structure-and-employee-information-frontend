@@ -9,7 +9,10 @@ interface HiringOfferStepProps {
   stepChange: (value: number) => void;
 }
 
-const HiringOfferStep: React.FC<HiringOfferStepProps> = ({ form, stepChange }) => {
+const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
+  form,
+  stepChange,
+}) => {
   const handleBack = () => stepChange(0);
   const handleContinue = async () => {
     try {
@@ -24,7 +27,10 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({ form, stepChange }) =
   };
 
   return (
-    <div className="p-2" data-cy="talent-acquisition-create-job-hiring-offer-step">
+    <div
+      className="p-2"
+      data-cy="talent-acquisition-create-job-hiring-offer-step"
+    >
       <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <Form.Item

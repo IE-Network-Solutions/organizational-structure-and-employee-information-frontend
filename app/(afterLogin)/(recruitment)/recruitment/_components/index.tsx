@@ -76,7 +76,9 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
           data-cy="talent-acquisition-pagination-page-first"
           onClick={() => handlePageChange(1)}
           className={`min-w-[2rem] h-8 flex items-center justify-center rounded-lg text-sm font-medium ${
-            current === 1 ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]' : 'text-gray-600 bg-white hover:bg-gray-50'
+            current === 1
+              ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]'
+              : 'text-gray-600 bg-white hover:bg-gray-50'
           }`}
         >
           1
@@ -91,7 +93,9 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
             data-cy={`talent-acquisition-pagination-page-${i}`}
             onClick={() => handlePageChange(i)}
             className={`min-w-[2rem] h-8 flex items-center justify-center rounded-lg text-sm font-medium ${
-              current === i ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]' : 'text-gray-600 bg-white hover:bg-gray-50'
+              current === i
+                ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]'
+                : 'text-gray-600 bg-white hover:bg-gray-50'
             }`}
           >
             {i}
@@ -99,7 +103,11 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
         );
       }
       pageNumbers.push(
-        <span key="ellipsis" className="px-1 text-gray-500" data-cy="talent-acquisition-pagination-ellipsis">
+        <span
+          key="ellipsis"
+          className="px-1 text-gray-500"
+          data-cy="talent-acquisition-pagination-ellipsis"
+        >
           ...
         </span>,
       );
@@ -111,7 +119,9 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
           data-cy={`talent-acquisition-pagination-page-${totalPages}`}
           onClick={() => handlePageChange(totalPages)}
           className={`min-w-[2rem] h-8 flex items-center justify-center rounded-lg text-sm font-medium ${
-            current === totalPages ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]' : 'text-gray-600 bg-white hover:bg-gray-50'
+            current === totalPages
+              ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]'
+              : 'text-gray-600 bg-white hover:bg-gray-50'
           }`}
         >
           {totalPages}
@@ -160,7 +170,12 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
         data-cy="talent-acquisition-pagination-div-page-size"
         className={`flex items-center gap-2 ${isMobile ? 'hidden' : ''}`}
       >
-        <span className="text-sm text-gray-500">Go to</span>
+        <span
+          className="text-sm text-gray-500"
+          data-cy="talent-acquisition-pagination-go-to-label"
+        >
+          Go to
+        </span>
         <input
           type="number"
           min={1}
@@ -186,13 +201,25 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
           className="w-24 hidden sm:block"
           onChange={(value) => handleSizeChange(value)}
         >
-          <Option value={4} id="talent-acquisition-pagination-option-4" data-cy="talent-acquisition-pagination-option-4">
+          <Option
+            value={4}
+            id="talent-acquisition-pagination-option-4"
+            data-cy="talent-acquisition-pagination-option-4"
+          >
             Show 4
           </Option>
-          <Option value={10} id="talent-acquisition-pagination-option-10" data-cy="talent-acquisition-pagination-option-10">
+          <Option
+            value={10}
+            id="talent-acquisition-pagination-option-10"
+            data-cy="talent-acquisition-pagination-option-10"
+          >
             Show 10
           </Option>
-          <Option value={25} id="talent-acquisition-pagination-option-25" data-cy="talent-acquisition-pagination-option-25">
+          <Option
+            value={25}
+            id="talent-acquisition-pagination-option-25"
+            data-cy="talent-acquisition-pagination-option-25"
+          >
             Show 25
           </Option>
         </Select>

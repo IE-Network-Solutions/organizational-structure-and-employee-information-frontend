@@ -1,7 +1,16 @@
 'use client';
 
 import React from 'react';
-import { Modal, Button, Form, Select, DatePicker, Row, Col, Popover } from 'antd';
+import {
+  Modal,
+  Button,
+  Form,
+  Select,
+  DatePicker,
+  Row,
+  Col,
+  Popover,
+} from 'antd';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { EmploymentType, LocationType, JobStatus } from '@/types/enumTypes';
 import { CloseOutlined } from '@ant-design/icons';
@@ -157,7 +166,8 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
 }) => {
   const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
-  const { data: departments, isLoading: isDepartmentLoading } = useGetDepartments();
+  const { data: departments, isLoading: isDepartmentLoading } =
+    useGetDepartments();
 
   const header = (
     <div>
@@ -182,7 +192,13 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
     if (isMobile) {
       return (
         <>
-          <div className="inline-block" role="button" tabIndex={0} onClick={() => onOpenChange?.(true)} onKeyDown={(e) => e.key === 'Enter' && onOpenChange?.(true)}>
+          <div
+            className="inline-block"
+            role="button"
+            tabIndex={0}
+            onClick={() => onOpenChange?.(true)}
+            onKeyDown={(e) => e.key === 'Enter' && onOpenChange?.(true)}
+          >
             {children}
           </div>
           <Modal

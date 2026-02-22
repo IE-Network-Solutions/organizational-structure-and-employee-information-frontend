@@ -1,8 +1,7 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import useDrawerStore from '@/store/uistate/features/drawer';
-import { Button, Drawer, Modal } from 'antd';
+import { Drawer, Modal } from 'antd';
 import React, { useEffect } from 'react';
-import { FaAngleRight } from 'react-icons/fa';
 
 interface CustomDrawerLayoutProps {
   open: boolean;
@@ -24,9 +23,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   children,
   width,
   width: widthProp,
-  hideButton = false,
   footer = null,
-  paddingBottom = 10,
   customMobileHeight = null,
   customPadding = null,
 }) => {

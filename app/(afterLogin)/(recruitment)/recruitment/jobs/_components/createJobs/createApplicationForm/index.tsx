@@ -23,15 +23,21 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
   isLoading = false,
 }) => {
   return (
-    <div className="p-4 sm:p-2" data-cy="talent-acquisition-create-application-form-container">
+    <div
+      className="p-4 sm:p-2"
+      data-cy="talent-acquisition-create-application-form-container"
+    >
       {/* Existing Fields */}
-      <div className="mb-6" data-cy="talent-acquisition-create-application-form-existing-fields-container">
+      <div
+        className="mb-6"
+        data-cy="talent-acquisition-create-application-form-existing-fields-container"
+      >
         <h3 className="text-sm font-semibold text-gray-900">Existing Fields</h3>
         <div className="mt-1 flex items-start gap-1.5 text-xs text-gray-500">
           <CiCircleInfo className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            These fields are automatically created for you, no need to set them up again. Effortlessly
-            integrated and ready to use.
+            These fields are automatically created for you, no need to set them
+            up again. Effortlessly integrated and ready to use.
           </span>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -48,7 +54,9 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
 
       {/* Create or Select Custom Fields */}
       <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-900">Create or Select Custom Fields</h3>
+        <h3 className="text-sm font-semibold text-gray-900">
+          Create or Select Custom Fields
+        </h3>
         <div className="mt-3">
           <ApplicationFormDragDrop form={form} />
         </div>

@@ -19,7 +19,20 @@ import { useGetCandidates } from '@/store/server/features/recruitment/candidate/
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { IoIosArrowBack, IoIosShareAlt } from 'react-icons/io';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { Button, Tabs, notification, Progress, Form, Input, Select, Radio, DatePicker, InputNumber, Row, Col } from 'antd';
+import {
+  Button,
+  Tabs,
+  notification,
+  Progress,
+  Form,
+  Input,
+  Select,
+  Radio,
+  DatePicker,
+  InputNumber,
+  Row,
+  Col,
+} from 'antd';
 import { usePathname } from 'next/navigation';
 import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -175,31 +188,36 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   };
 
   const saveHeaderEdit = () => {
-    headerForm.validateFields().then((values) => {
-      const payload = {
-        id: jobById!.id,
-        updatedBy,
-        jobTitle: values.jobTitle,
-        jobLocation: values.jobLocation,
-        employmentType: values.employmentType,
-        departmentId: values.department,
-        jobStatus: values.jobStatus,
-        description: jobById!.description,
-        jobDeadline: jobById!.jobDeadline ? dayjs(jobById.jobDeadline).format('YYYY-MM-DD') : undefined,
-        yearOfExperience: Number(jobById!.yearOfExperience) ?? 0,
-        quantity: jobById!.quantity ?? 0,
-        compensation: jobById!.compensation ?? '',
-      };
-      updateJob(
-        { data: payload, id },
-        {
-          onSuccess: () => {
-            setIsEditingHeader(false);
-            headerForm.resetFields();
+    headerForm
+      .validateFields()
+      .then((values) => {
+        const payload = {
+          id: jobById!.id,
+          updatedBy,
+          jobTitle: values.jobTitle,
+          jobLocation: values.jobLocation,
+          employmentType: values.employmentType,
+          departmentId: values.department,
+          jobStatus: values.jobStatus,
+          description: jobById!.description,
+          jobDeadline: jobById!.jobDeadline
+            ? dayjs(jobById.jobDeadline).format('YYYY-MM-DD')
+            : undefined,
+          yearOfExperience: Number(jobById!.yearOfExperience) ?? 0,
+          quantity: jobById!.quantity ?? 0,
+          compensation: jobById!.compensation ?? '',
+        };
+        updateJob(
+          { data: payload, id },
+          {
+            onSuccess: () => {
+              setIsEditingHeader(false);
+              headerForm.resetFields();
+            },
           },
-        },
-      );
-    }).catch(() => {});
+        );
+      })
+      .catch(() => {});
   };
 
   const startDescriptionEdit = () => {
@@ -222,7 +240,9 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
       departmentId: jobById!.departmentId,
       jobStatus: jobById!.jobStatus ?? jobById!.status ?? 'Open',
       description: html,
-      jobDeadline: jobById!.jobDeadline ? dayjs(jobById.jobDeadline).format('YYYY-MM-DD') : undefined,
+      jobDeadline: jobById!.jobDeadline
+        ? dayjs(jobById.jobDeadline).format('YYYY-MM-DD')
+        : undefined,
       yearOfExperience: Number(jobById!.yearOfExperience) ?? 0,
       quantity: jobById!.quantity ?? 0,
       compensation: jobById!.compensation ?? '',
@@ -241,7 +261,9 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   const startInfoEdit = () => {
     setIsEditingInfo(true);
     infoForm.setFieldsValue({
-      jobDeadline: jobById?.jobDeadline ? dayjs(jobById.jobDeadline) : undefined,
+      jobDeadline: jobById?.jobDeadline
+        ? dayjs(jobById.jobDeadline)
+        : undefined,
       quantity: jobById?.quantity ?? 0,
       yearOfExperience: jobById?.yearOfExperience ?? 0,
       compensation: jobById?.compensation ?? '',
@@ -254,31 +276,36 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   };
 
   const saveInfoEdit = () => {
-    infoForm.validateFields().then((values) => {
-      const payload = {
-        id: jobById!.id,
-        updatedBy,
-        jobTitle: jobById!.jobTitle,
-        jobLocation: jobById!.jobLocation,
-        employmentType: jobById!.employmentType,
-        departmentId: jobById!.departmentId,
-        jobStatus: jobById!.jobStatus ?? jobById!.status ?? 'Open',
-        description: jobById!.description,
-        jobDeadline: values.jobDeadline ? dayjs(values.jobDeadline).format('YYYY-MM-DD') : undefined,
-        yearOfExperience: Number(values.yearOfExperience) ?? 0,
-        quantity: values.quantity ?? 0,
-        compensation: values.compensation ?? '',
-      };
-      updateJob(
-        { data: payload, id },
-        {
-          onSuccess: () => {
-            setIsEditingInfo(false);
-            infoForm.resetFields();
+    infoForm
+      .validateFields()
+      .then((values) => {
+        const payload = {
+          id: jobById!.id,
+          updatedBy,
+          jobTitle: jobById!.jobTitle,
+          jobLocation: jobById!.jobLocation,
+          employmentType: jobById!.employmentType,
+          departmentId: jobById!.departmentId,
+          jobStatus: jobById!.jobStatus ?? jobById!.status ?? 'Open',
+          description: jobById!.description,
+          jobDeadline: values.jobDeadline
+            ? dayjs(values.jobDeadline).format('YYYY-MM-DD')
+            : undefined,
+          yearOfExperience: Number(values.yearOfExperience) ?? 0,
+          quantity: values.quantity ?? 0,
+          compensation: values.compensation ?? '',
+        };
+        updateJob(
+          { data: payload, id },
+          {
+            onSuccess: () => {
+              setIsEditingInfo(false);
+              infoForm.resetFields();
+            },
           },
-        },
-      );
-    }).catch(() => {});
+        );
+      })
+      .catch(() => {});
   };
 
   const jobStatus = jobById?.status ?? jobById?.jobStatus ?? 'Open';
@@ -294,12 +321,14 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   };
 
   const daysRemaining = calculateDaysRemaining();
-  const totalDays = jobById?.jobDeadline && jobById?.createdAt
-    ? dayjs(jobById.jobDeadline).diff(dayjs(jobById.createdAt), 'day')
-    : 30; // Default to 30 days if not available
-  const progressPercent = totalDays > 0 && daysRemaining !== null
-    ? Math.round((daysRemaining / totalDays) * 100)
-    : 0;
+  const totalDays =
+    jobById?.jobDeadline && jobById?.createdAt
+      ? dayjs(jobById.jobDeadline).diff(dayjs(jobById.createdAt), 'day')
+      : 30; // Default to 30 days if not available
+  const progressPercent =
+    totalDays > 0 && daysRemaining !== null
+      ? Math.round((daysRemaining / totalDays) * 100)
+      : 0;
 
   return (
     <div
@@ -350,8 +379,17 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
             id="talent-acquisition-job-detail-header-form"
             data-cy="talent-acquisition-job-detail-header-form"
           >
-            <div className="absolute top-0 right-0 flex items-center gap-2" id="job-detail-edit-actions" data-cy="job-detail-edit-actions">
-              <Form.Item name="jobStatus" label={null} rules={[{ required: true }]} className="!mb-0">
+            <div
+              className="absolute top-0 right-0 flex items-center gap-2"
+              id="job-detail-edit-actions"
+              data-cy="job-detail-edit-actions"
+            >
+              <Form.Item
+                name="jobStatus"
+                label={null}
+                rules={[{ required: true }]}
+                className="!mb-0"
+              >
                 <Select
                   id="job-detail-edit-status"
                   placeholder="Status"
@@ -359,8 +397,12 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                   optionLabelProp="label"
                   data-cy="talent-acquisition-job-detail-edit-status"
                 >
-                  <Select.Option value="Open" label="Open">Open</Select.Option>
-                  <Select.Option value="Closed" label="Closed">Closed</Select.Option>
+                  <Select.Option value="Open" label="Open">
+                    Open
+                  </Select.Option>
+                  <Select.Option value="Closed" label="Closed">
+                    Closed
+                  </Select.Option>
                 </Select>
               </Form.Item>
               <button
@@ -383,7 +425,13 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
               </button>
             </div>
             <div className="pr-52">
-              <Form.Item name="jobTitle" label="Job Name *" rules={[{ required: true, message: 'Please input the job name!' }]}>
+              <Form.Item
+                name="jobTitle"
+                label="Job Name *"
+                rules={[
+                  { required: true, message: 'Please input the job name!' },
+                ]}
+              >
                 <Input
                   id="job-detail-edit-job-title"
                   placeholder="Job title"
@@ -394,7 +442,14 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
               </Form.Item>
               <Row gutter={[16, 0]} className="!flex !flex-wrap">
                 <Col xs={24} sm={24} md={12} lg={8}>
-                  <Form.Item name="department" label="Department *" rules={[{ required: true, message: 'Please select department!' }]} className="!mb-0">
+                  <Form.Item
+                    name="department"
+                    label="Department *"
+                    rules={[
+                      { required: true, message: 'Please select department!' },
+                    ]}
+                    className="!mb-0"
+                  >
                     <Select
                       id="job-detail-edit-department"
                       placeholder="Department"
@@ -404,22 +459,42 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       data-cy="talent-acquisition-job-detail-edit-department"
                     >
                       {departments?.map((dep: any) => (
-                        <Select.Option key={dep?.id} value={dep?.id}>{dep?.name}</Select.Option>
+                        <Select.Option key={dep?.id} value={dep?.id}>
+                          {dep?.name}
+                        </Select.Option>
                       ))}
                     </Select>
                   </Form.Item>
                 </Col>
                 <Col xs={24} sm={24} md={12} lg={8}>
-                  <Form.Item name="employmentType" label="Job Type *" rules={[{ required: true }]} className="!mb-0">
-                    <Radio.Group size="small" className={RADIO_GROUP_CLASS} data-cy="talent-acquisition-job-detail-edit-job-type">
+                  <Form.Item
+                    name="employmentType"
+                    label="Job Type *"
+                    rules={[{ required: true }]}
+                    className="!mb-0"
+                  >
+                    <Radio.Group
+                      size="small"
+                      className={RADIO_GROUP_CLASS}
+                      data-cy="talent-acquisition-job-detail-edit-job-type"
+                    >
                       <Radio value={EmploymentType.FULLTIME}>Full-time</Radio>
                       <Radio value={EmploymentType.PARTTIME}>Part-time</Radio>
                     </Radio.Group>
                   </Form.Item>
                 </Col>
                 <Col xs={24} sm={24} md={12} lg={8}>
-                  <Form.Item name="jobLocation" label="Location *" rules={[{ required: true }]} className="!mb-0">
-                    <Radio.Group size="small" className={RADIO_GROUP_CLASS} data-cy="talent-acquisition-job-detail-edit-location">
+                  <Form.Item
+                    name="jobLocation"
+                    label="Location *"
+                    rules={[{ required: true }]}
+                    className="!mb-0"
+                  >
+                    <Radio.Group
+                      size="small"
+                      className={RADIO_GROUP_CLASS}
+                      data-cy="talent-acquisition-job-detail-edit-location"
+                    >
                       <Radio value={LocationType.ONSITE}>Onsite</Radio>
                       <Radio value={LocationType.REMOTE}>Remote</Radio>
                       <Radio value={LocationType.HYBRID}>Hybrid</Radio>
@@ -431,7 +506,11 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
           </Form>
         ) : (
           <>
-            <div className="absolute top-5 right-5 flex items-center gap-2" id="job-detail-view-actions" data-cy="job-detail-view-actions">
+            <div
+              className="absolute top-5 right-5 flex items-center gap-2"
+              id="job-detail-view-actions"
+              data-cy="job-detail-view-actions"
+            >
               <span
                 id="job-detail-status-badge"
                 className={`inline-flex items-center text-xs font-medium rounded-md px-3 py-1 ${
@@ -455,7 +534,11 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                 </button>
               )}
             </div>
-            <h2 id="job-detail-job-title" className="text-xl font-bold text-gray-900 pr-24 mb-4" data-cy="talent-acquisition-job-detail-job-title">
+            <h2
+              id="job-detail-job-title"
+              className="text-xl font-bold text-gray-900 pr-24 mb-4"
+              data-cy="talent-acquisition-job-detail-job-title"
+            >
               {jobById?.jobTitle ?? '—'}
             </h2>
             <div className="flex flex-wrap justify-between gap-y-4 max-w-6xl">
@@ -500,7 +583,12 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
             <div className="flex items-center gap-2">
               <Button
                 type="default"
-                icon={<MdOutlineFileDownload size={18} className="text-gray-600 opacity-90" />}
+                icon={
+                  <MdOutlineFileDownload
+                    size={18}
+                    className="text-gray-600 opacity-90"
+                  />
+                }
                 onClick={handleDownloadExcel}
                 loading={isDownloading}
                 className="!h-11 !rounded-lg !bg-white !border-gray-300 !text-gray-700 hover:!border-gray-400 hover:!text-gray-800"
@@ -523,7 +611,10 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
             {
               key: 'candidates',
               label: (
-                <span className="flex items-center gap-2" data-cy="talent-acquisition-job-detail-tab-candidates">
+                <span
+                  className="flex items-center gap-2"
+                  data-cy="talent-acquisition-job-detail-tab-candidates"
+                >
                   Candidates
                   <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
                     {candidateCount}
@@ -547,12 +638,16 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       <CustomButton
                         title={
                           !(isMobile || isTablet) && (
-                            <span className="hidden sm:inline">Move to Talent Pool</span>
+                            <span className="hidden sm:inline">
+                              Move to Talent Pool
+                            </span>
                           )
                         }
                         id="createUserButton"
                         data-cy="talent-acquisition-job-detail-button-move-talent-pool"
-                        icon={<IoIosShareAlt className="md:mr-0 ml-2" size={20} />}
+                        icon={
+                          <IoIosShareAlt className="md:mr-0 ml-2" size={20} />
+                        }
                         onClick={handleMoveToTalentsPool}
                         className="!bg-gray-100 !text-gray-700 hover:!bg-gray-200 border border-gray-200"
                       />
@@ -570,15 +665,23 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
             {
               key: 'information',
               label: (
-                <span data-cy="talent-acquisition-job-detail-tab-information">Information</span>
+                <span data-cy="talent-acquisition-job-detail-tab-information">
+                  Information
+                </span>
               ),
               children: (
                 <div className="pt-4">
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left Column: Job Description */}
-                    <div id="job-detail-description-section" className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-6" data-cy="job-detail-description-section">
+                    <div
+                      id="job-detail-description-section"
+                      className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-6"
+                      data-cy="job-detail-description-section"
+                    >
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">Job Description</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Job Description
+                        </h3>
                         {!isEditingDescription ? (
                           <button
                             type="button"
@@ -590,7 +693,10 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                             <MdModeEdit className="w-4 h-4" />
                           </button>
                         ) : (
-                          <div className="flex items-center gap-2" data-cy="job-detail-description-edit-actions">
+                          <div
+                            className="flex items-center gap-2"
+                            data-cy="job-detail-description-edit-actions"
+                          >
                             <button
                               type="button"
                               id="job-detail-description-cancel"
@@ -603,7 +709,9 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                             <button
                               type="button"
                               id="job-detail-description-save"
-                              onClick={() => saveDescriptionEdit(descriptionDraft)}
+                              onClick={() =>
+                                saveDescriptionEdit(descriptionDraft)
+                              }
                               className="flex items-center justify-center w-8 h-8 rounded border-0 bg-[#6366F1] text-white hover:bg-[#4F46E5] shrink-0"
                               data-cy="job-detail-description-save"
                             >
@@ -614,7 +722,9 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       </div>
                       {isEditingDescription ? (
                         <div data-cy="job-detail-description-editor">
-                          <span className="text-sm text-gray-600 block mb-2">Description *</span>
+                          <span className="text-sm text-gray-600 block mb-2">
+                            Description *
+                          </span>
                           <TextEditor
                             value={descriptionDraft}
                             onChange={(html) => setDescriptionDraft(html)}
@@ -624,9 +734,15 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       ) : (
                         <div className="text-gray-600 whitespace-pre-wrap leading-relaxed">
                           {jobById?.description ? (
-                            <div dangerouslySetInnerHTML={{ __html: jobById.description }} />
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: jobById.description,
+                              }}
+                            />
                           ) : (
-                            <p className="text-gray-400 italic">No job description available.</p>
+                            <p className="text-gray-400 italic">
+                              No job description available.
+                            </p>
                           )}
                         </div>
                       )}
@@ -635,9 +751,15 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                     {/* Right Column: Closing Date + Preferences */}
                     <div className="space-y-6">
                       {/* Job Vacancy Closing Date + Job Preference */}
-                      <div id="job-detail-closing-date-section" className="bg-white rounded-lg border border-gray-200 p-6" data-cy="job-detail-closing-date-section">
+                      <div
+                        id="job-detail-closing-date-section"
+                        className="bg-white rounded-lg border border-gray-200 p-6"
+                        data-cy="job-detail-closing-date-section"
+                      >
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-gray-900">Job Vacancy Closing Date</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            Job Vacancy Closing Date
+                          </h3>
                           {!isEditingInfo ? (
                             <button
                               type="button"
@@ -649,7 +771,10 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                               <MdModeEdit className="w-4 h-4" />
                             </button>
                           ) : (
-                            <div className="flex items-center gap-2" data-cy="job-detail-info-edit-actions">
+                            <div
+                              className="flex items-center gap-2"
+                              data-cy="job-detail-info-edit-actions"
+                            >
                               <button
                                 type="button"
                                 id="job-detail-info-cancel"
@@ -672,71 +797,136 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                           )}
                         </div>
                         {isEditingInfo ? (
-                          <Form form={infoForm} layout="vertical" id="job-detail-info-form" data-cy="job-detail-info-form">
-                            <Form.Item name="jobDeadline" label="Expected Closing Date *" rules={[{ required: true, message: 'Please select date!' }]}>
-                              <DatePicker id="job-detail-edit-deadline" className="w-full !rounded-lg" data-cy="job-detail-edit-deadline" />
+                          <Form
+                            form={infoForm}
+                            layout="vertical"
+                            id="job-detail-info-form"
+                            data-cy="job-detail-info-form"
+                          >
+                            <Form.Item
+                              name="jobDeadline"
+                              label="Expected Closing Date *"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: 'Please select date!',
+                                },
+                              ]}
+                            >
+                              <DatePicker
+                                id="job-detail-edit-deadline"
+                                className="w-full !rounded-lg"
+                                data-cy="job-detail-edit-deadline"
+                              />
                             </Form.Item>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3 mt-4">Job Preference</h3>
-                            <Form.Item name="quantity" label="Quantity *" rules={[{ required: true }]}>
-                              <InputNumber id="job-detail-edit-quantity" className="w-full !rounded-lg" placeholder="0" min={0} data-cy="job-detail-edit-quantity" />
+                            <h3 className="text-lg font-semibold text-gray-900 mb-3 mt-4">
+                              Job Preference
+                            </h3>
+                            <Form.Item
+                              name="quantity"
+                              label="Quantity *"
+                              rules={[{ required: true }]}
+                            >
+                              <InputNumber
+                                id="job-detail-edit-quantity"
+                                className="w-full !rounded-lg"
+                                placeholder="0"
+                                min={0}
+                                data-cy="job-detail-edit-quantity"
+                              />
                             </Form.Item>
-                            <Form.Item name="yearOfExperience" label="Years of experience *" rules={[{ required: true }]}>
-                              <InputNumber id="job-detail-edit-years" className="w-full !rounded-lg" placeholder="0" min={0} data-cy="job-detail-edit-years" />
+                            <Form.Item
+                              name="yearOfExperience"
+                              label="Years of experience *"
+                              rules={[{ required: true }]}
+                            >
+                              <InputNumber
+                                id="job-detail-edit-years"
+                                className="w-full !rounded-lg"
+                                placeholder="0"
+                                min={0}
+                                data-cy="job-detail-edit-years"
+                              />
                             </Form.Item>
-                            <Form.Item name="compensation" label="Compensation *" rules={[{ required: true }]}>
-                              <Input id="job-detail-edit-compensation" className="!rounded-lg" placeholder="e.g. 10,000 - 12,000" data-cy="job-detail-edit-compensation" />
+                            <Form.Item
+                              name="compensation"
+                              label="Compensation *"
+                              rules={[{ required: true }]}
+                            >
+                              <Input
+                                id="job-detail-edit-compensation"
+                                className="!rounded-lg"
+                                placeholder="e.g. 10,000 - 12,000"
+                                data-cy="job-detail-edit-compensation"
+                              />
                             </Form.Item>
                           </Form>
                         ) : (
                           <>
                             <div className="space-y-4">
                               <div>
-                                <span className="text-sm text-gray-500">Closed Date</span>
+                                <span className="text-sm text-gray-500">
+                                  Closed Date
+                                </span>
                                 <p className="text-gray-900 font-medium mt-1">
                                   {jobById?.jobDeadline
-                                    ? dayjs(jobById.jobDeadline).format('DD MMMM, YYYY')
+                                    ? dayjs(jobById.jobDeadline).format(
+                                        'DD MMMM, YYYY',
+                                      )
                                     : 'Not set'}
                                 </p>
                               </div>
-                              {daysRemaining !== null && jobById?.jobDeadline && (
-                                <div className="rounded-lg border border-gray-200 bg-white p-4">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm text-gray-500">Days Remaining</span>
-                                    <span className="flex items-center gap-1.5 text-sm font-semibold text-[#6366F1]">
-                                      <IoHourglassOutline className="w-5 h-5 shrink-0" />
-                                      {daysRemaining} Days to go
-                                    </span>
+                              {daysRemaining !== null &&
+                                jobById?.jobDeadline && (
+                                  <div className="rounded-lg border border-gray-200 bg-white p-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-sm text-gray-500">
+                                        Days Remaining
+                                      </span>
+                                      <span className="flex items-center gap-1.5 text-sm font-semibold text-[#6366F1]">
+                                        <IoHourglassOutline className="w-5 h-5 shrink-0" />
+                                        {daysRemaining} Days to go
+                                      </span>
+                                    </div>
+                                    <Progress
+                                      percent={progressPercent}
+                                      strokeColor="#6366F1"
+                                      showInfo={false}
+                                      className="mb-0"
+                                    />
                                   </div>
-                                  <Progress
-                                    percent={progressPercent}
-                                    strokeColor="#6366F1"
-                                    showInfo={false}
-                                    className="mb-0"
-                                  />
-                                </div>
-                              )}
+                                )}
                             </div>
                             <div className="mt-6">
-                              <h3 className="text-lg font-semibold text-gray-900 mb-4">Job Preference</h3>
+                              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                Job Preference
+                              </h3>
                               <div className="space-y-3">
                                 <div>
-                                  <span className="text-sm text-gray-500">Quantity: </span>
+                                  <span className="text-sm text-gray-500">
+                                    Quantity:{' '}
+                                  </span>
                                   <span className="text-gray-900 font-medium">
                                     {jobById?.quantity ?? '—'}
                                   </span>
                                 </div>
                                 <div>
-                                  <span className="text-sm text-gray-500">Years of Experience: </span>
+                                  <span className="text-sm text-gray-500">
+                                    Years of Experience:{' '}
+                                  </span>
                                   <span className="text-gray-900 font-medium">
                                     {jobById?.yearOfExperience
-                                      ? typeof jobById.yearOfExperience === 'string'
+                                      ? typeof jobById.yearOfExperience ===
+                                        'string'
                                         ? jobById.yearOfExperience
                                         : `${jobById.yearOfExperience} years`
                                       : '—'}
                                   </span>
                                 </div>
                                 <div>
-                                  <span className="text-sm text-gray-500">Compensation: </span>
+                                  <span className="text-sm text-gray-500">
+                                    Compensation:{' '}
+                                  </span>
                                   <span className="text-gray-900 font-medium">
                                     {jobById?.compensation ?? '—'}
                                   </span>

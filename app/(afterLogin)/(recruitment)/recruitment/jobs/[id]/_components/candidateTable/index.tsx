@@ -13,16 +13,17 @@ import {
   Table,
   TableColumnsType,
   Popover,
-  DatePicker,
-  Form,
 } from 'antd';
 import dayjs from 'dayjs';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaEye, FaTrashAlt } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { MdOutlineFileDownload, MdModeEdit } from 'react-icons/md';
-import { useChangeCandidateStatus, useDeleteCandidate } from '@/store/server/features/recruitment/candidate/mutation';
+import {
+  useChangeCandidateStatus,
+  useDeleteCandidate,
+} from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import EditCandidate from '../../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../../_components/modals/moveToTalentPool';
@@ -38,14 +39,6 @@ interface TableProps {
 const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
-  const [_hirePopoverVisible, setHirePopoverVisible] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const [hiringCandidateId, setHiringCandidateId] = useState<string | null>(
-    null,
-  );
-  const [hireForm] = Form.useForm();
-
   const router = useRouter();
   const {
     currentPage,
@@ -63,7 +56,9 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     setSelectedRowKeys,
   } = useCandidateState();
 
-  const [deletePopoverCandidateId, setDeletePopoverCandidateId] = useState<string | null>(null);
+  const [deletePopoverCandidateId, setDeletePopoverCandidateId] = useState<
+    string | null
+  >(null);
   const { mutate: deleteCandidate } = useDeleteCandidate();
 
   const handleCandidateDetail = (candidate: any) => {
@@ -103,54 +98,6 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       });
     }
   };
-  const {
-    mutate: hireCandidate,
-    isLoading: isHireLoading,
-    isSuccess: isHireSuccess,
-    isError: isHireError,
-    reset: resetHireMutation,
-  } = useChangeCandidateStatus();
-  // Effect to handle hire success and error
-  useEffect(() => {
-    if (isHireSuccess && hiringCandidateId) {
-      setHirePopoverVisible((prev) => ({
-        ...prev,
-        [hiringCandidateId]: false,
-      }));
-      hireForm.resetFields();
-      setHiringCandidateId(null);
-      resetHireMutation();
-    }
-    if (isHireError && hiringCandidateId) {
-      setHiringCandidateId(null);
-      resetHireMutation();
-    }
-  }, [
-    isHireSuccess,
-    isHireError,
-    hiringCandidateId,
-    hireForm,
-    resetHireMutation,
-  ]);
-
-  const handleHireCandidate = async (candidate: any) => {
-    try {
-      const values = await hireForm.validateFields();
-      setHiringCandidateId(candidate?.id);
-      hireCandidate({
-        data: { hiredDate: values.hireDate, updatedBy: userId },
-        id: candidate?.jobCandidate[0]?.id,
-      });
-    } catch (error) {
-      setHiringCandidateId(null);
-    }
-  };
-
-  const handleCancelHire = (candidateId: string) => {
-    setHirePopoverVisible((prev) => ({ ...prev, [candidateId]: false }));
-    hireForm.resetFields();
-  };
-
   const columns: TableColumnsType<CandidateData> = [
     {
       title: 'Name',
@@ -186,7 +133,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       ellipsis: true,
       render: (val: string) =>
         val ? (
-          <a href={`mailto:${val}`} className="text-blue-600 hover:underline">
+          <a
+            href={`mailto:${val}`}
+            className="text-blue-600 hover:underline"
+            data-cy="talent-acquisition-job-candidate-table-email-link"
+          >
             {val}
           </a>
         ) : (
@@ -310,13 +261,28 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
             placement="bottomRight"
             trigger={[]}
             content={
-              <div id="candidate-delete-popover" className="w-72 p-1" data-cy="talent-acquisition-candidate-delete-popover">
-                <p className="text-gray-700 text-sm mb-4">
+              <div
+                id="candidate-delete-popover"
+                className="w-72 p-1"
+                data-cy="talent-acquisition-candidate-delete-popover"
+              >
+                <p
+                  className="text-gray-700 text-sm mb-4"
+                  data-cy="talent-acquisition-candidate-delete-popover-message"
+                >
                   Are you sure you want to delete{' '}
-                  <span className="font-semibold">{item?.fullName ?? 'this candidate'}</span> from
-                  candidates?
+                  <span
+                    className="font-semibold"
+                    data-cy="talent-acquisition-candidate-delete-popover-candidate-name"
+                  >
+                    {item?.fullName ?? 'this candidate'}
+                  </span>{' '}
+                  from candidates?
                 </p>
-                <div className="flex justify-end gap-2">
+                <div
+                  className="flex justify-end gap-2"
+                  data-cy="talent-acquisition-candidate-delete-popover-actions"
+                >
                   <Button
                     size="small"
                     onClick={() => setDeletePopoverCandidateId(null)}
@@ -337,7 +303,9 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               </div>
             }
           >
-            <span>
+            <span
+              data-cy={`talent-acquisition-job-candidate-table-dropdown-trigger-${item?.id}`}
+            >
               <Dropdown
                 data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
                 menu={{
@@ -370,6 +338,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
                   type="button"
                   className="flex items-center justify-center w-8 h-8 rounded text-gray-500 hover:bg-gray-100 border-0 bg-transparent cursor-pointer"
                   aria-label="Actions"
+                  data-cy={`talent-acquisition-job-candidate-table-action-button-${item?.id}`}
                 >
                   <FaEllipsisVertical className="text-lg" />
                 </button>
@@ -409,6 +378,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         scroll={{ x: 1000 }}
         rowSelection={rowSelection}
         pagination={false}
+        data-cy="talent-acquisition-job-candidate-table"
       />
 
       {isMobile || isTablet ? (

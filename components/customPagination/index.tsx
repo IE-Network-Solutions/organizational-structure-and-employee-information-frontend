@@ -109,7 +109,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
       if (startPage > 2) {
         pageNumbers.push(
-          <span key="leftEllipsis" className="px-2 text-gray-500" data-cy="pagination-ellipsis">
+          <span
+            key="leftEllipsis"
+            className="px-2 text-gray-500"
+            data-cy="pagination-ellipsis"
+          >
             ...
           </span>,
         );
@@ -134,7 +138,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
       if (endPage < totalPages - 1) {
         pageNumbers.push(
-          <span key="rightEllipsis" className="px-2 text-gray-500" data-cy="pagination-ellipsis">
+          <span
+            key="rightEllipsis"
+            className="px-2 text-gray-500"
+            data-cy="pagination-ellipsis"
+          >
             ...
           </span>,
         );
@@ -163,7 +171,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       data-cy={dataCy}
       className={`flex flex-wrap justify-between items-center gap-4 py-6 ${grayBackground ? 'bg-gray-100' : ''}`}
     >
-      <div id="pagination-nav" className="flex items-center space-x-2" data-cy="pagination-nav">
+      <div
+        id="pagination-nav"
+        className="flex items-center space-x-2"
+        data-cy="pagination-nav"
+      >
         <button
           id="pagination-prev"
           onClick={() => current > 1 && handlePageChange(current - 1)}
@@ -203,7 +215,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             className="mr-2 text-xs text-[#718096]"
           >
             Showing {Math.min(total, (current - 1) * pageSize + 1) || 0} -{' '}
-            {Math.min(total, current * pageSize) || 0} out of {total || 0} entries
+            {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
+            entries
           </span>
         )}
 
@@ -225,39 +238,81 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onChange={(value) => handleSizeChange(value)}
           data-cy="pagination-page-size"
         >
-          <Option value={5}>
-            <span className="text-xs text-[#111827]">{isMobile ? '5' : 'Show 5'}</span>
+          <Option value={5} data-cy="pagination-option-5">
+            <span
+              className="text-xs text-[#111827]"
+              data-cy="pagination-option-5-label"
+            >
+              {isMobile ? '5' : 'Show 5'}
+            </span>
           </Option>
-          <Option value={10}>
-            <span className="text-xs text-[#111827]">{isMobile ? '10' : 'Show 10'}</span>
+          <Option value={10} data-cy="pagination-option-10">
+            <span
+              className="text-xs text-[#111827]"
+              data-cy="pagination-option-10-label"
+            >
+              {isMobile ? '10' : 'Show 10'}
+            </span>
           </Option>
-          <Option value={25}>
-            <span className="text-xs text-[#111827]">{isMobile ? '25' : 'Show 25'}</span>
+          <Option value={25} data-cy="pagination-option-25">
+            <span
+              className="text-xs text-[#111827]"
+              data-cy="pagination-option-25-label"
+            >
+              {isMobile ? '25' : 'Show 25'}
+            </span>
           </Option>
-          <Option value={50}>
-            <span className="text-xs text-[#111827]">{isMobile ? '50' : 'Show 50'}</span>
+          <Option value={50} data-cy="pagination-option-50">
+            <span
+              className="text-xs text-[#111827]"
+              data-cy="pagination-option-50-label"
+            >
+              {isMobile ? '50' : 'Show 50'}
+            </span>
           </Option>
-          <Option value={75}>
-            <span className="text-xs text-[#111827]">{isMobile ? '75' : 'Show 75'}</span>
+          <Option value={75} data-cy="pagination-option-75">
+            <span
+              className="text-xs text-[#111827]"
+              data-cy="pagination-option-75-label"
+            >
+              {isMobile ? '75' : 'Show 75'}
+            </span>
           </Option>
-          <Option value={100}>
-            <span className="text-xs text-[#111827]">{isMobile ? '100' : 'Show 100'}</span>
+          <Option value={100} data-cy="pagination-option-100">
+            <span
+              className="text-xs text-[#111827]"
+              data-cy="pagination-option-100-label"
+            >
+              {isMobile ? '100' : 'Show 100'}
+            </span>
           </Option>
         </Select>
 
         {showGoToPage && !isMobile && (
           <>
-            <span className="text-sm text-gray-600 whitespace-nowrap">Go to</span>
+            <span
+              className="text-sm text-gray-600 whitespace-nowrap"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
             <Input
               id="pagination-goto-input"
               value={goToPageValue}
-              onChange={(e) => setGoToPageValue(e.target.value.replace(/\D/g, '').slice(0, 5))}
+              onChange={(e) =>
+                setGoToPageValue(e.target.value.replace(/\D/g, '').slice(0, 5))
+              }
               onPressEnter={handleGoToPage}
               onBlur={handleGoToPage}
               className="w-14 h-8 text-center text-sm"
               data-cy="pagination-goto-input"
             />
-            <span className="text-sm text-gray-600 whitespace-nowrap">Page</span>
+            <span
+              className="text-sm text-gray-600 whitespace-nowrap"
+              data-cy="pagination-page-label"
+            >
+              Page
+            </span>
           </>
         )}
       </div>

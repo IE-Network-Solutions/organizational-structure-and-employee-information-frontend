@@ -57,10 +57,24 @@ const RecruitmentPage: React.FC = () => {
             id="talent-acquisition-jobs-button-add-job"
             data-cy="talent-acquisition-jobs-button-add-new"
             icon={
-              <span className="relative inline-flex shrink-0 w-5 h-5 items-center justify-center sm:mr-2 ml-0" aria-hidden>
+              <span
+                className="relative inline-flex shrink-0 w-5 h-5 items-center justify-center sm:mr-2 ml-0"
+                aria-hidden
+                data-cy="talent-acquisition-jobs-button-add-icon"
+              >
                 <CgFileDocument className="w-5 h-5 shrink-0 text-white" />
-                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center bg-transparent text-white pointer-events-none">
-                  <svg className="w-2.5 h-2.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden stroke="none">
+                <span
+                  className="absolute -top-0.5 -right-0.5 flex items-center justify-center bg-transparent text-white pointer-events-none"
+                  data-cy="talent-acquisition-jobs-button-add-badge"
+                >
+                  <svg
+                    className="w-2.5 h-2.5 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden
+                    stroke="none"
+                    data-cy="talent-acquisition-jobs-button-add-badge-svg"
+                  >
                     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                   </svg>
                 </span>
@@ -72,11 +86,26 @@ const RecruitmentPage: React.FC = () => {
           />
         </AccessGuard>
       </div>
-      <div className="flex flex-col gap-4">
-        <div className={`flex flex-col gap-3 ${isMobile ? '' : 'sm:flex-row sm:items-center sm:justify-between'}`}>
-          <div className={`flex flex-1 items-center gap-3 ${isMobile ? 'w-full' : 'max-w-md'}`}>
-            <div className="flex-1 min-w-0">
-              <WhatYouNeed placeholder="Search Jobs" data-cy="talent-acquisition-jobs-page-what-you-need" />
+      <div
+        className="flex flex-col gap-4"
+        data-cy="talent-acquisition-jobs-page-content"
+      >
+        <div
+          className={`flex flex-col gap-3 ${isMobile ? '' : 'sm:flex-row sm:items-center sm:justify-between'}`}
+          data-cy="talent-acquisition-jobs-page-toolbar"
+        >
+          <div
+            className={`flex flex-1 items-center gap-3 ${isMobile ? 'w-full' : 'max-w-md'}`}
+            data-cy="talent-acquisition-jobs-page-search-row"
+          >
+            <div
+              className="flex-1 min-w-0"
+              data-cy="talent-acquisition-jobs-page-search-wrap"
+            >
+              <WhatYouNeed
+                placeholder="Search Jobs"
+                data-cy="talent-acquisition-jobs-page-what-you-need"
+              />
             </div>
             <JobsFilterModal
               asPopover
@@ -87,12 +116,26 @@ const RecruitmentPage: React.FC = () => {
               <button
                 type="button"
                 className={`flex items-center justify-center gap-2 h-11 px-4 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium shrink-0 transition-colors ${
-                  filterModalOpen ? '!bg-[#6366F1] !text-white !border-[#6366F1] hover:!bg-[#4F46E5]' : ''
+                  filterModalOpen
+                    ? '!bg-[#6366F1] !text-white !border-[#6366F1] hover:!bg-[#4F46E5]'
+                    : ''
                 }`}
                 data-cy="talent-acquisition-jobs-filter-button"
               >
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                <svg
+                  className="w-4 h-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  data-cy="talent-acquisition-jobs-filter-icon"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                  />
                 </svg>
                 Filter
               </button>

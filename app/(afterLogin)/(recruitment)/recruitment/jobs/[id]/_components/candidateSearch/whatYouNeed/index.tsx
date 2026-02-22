@@ -10,7 +10,10 @@ interface WhatYouNeedProps {
   embeddedInBar?: boolean;
 }
 
-const WhatYouNeed: React.FC<WhatYouNeedProps> = ({ placeholder = 'Search what you need', embeddedInBar = false }) => {
+const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
+  placeholder = 'Search what you need',
+  embeddedInBar = false,
+}) => {
   const { searchParams, setSearchParams } = useCandidateState();
 
   const handleSearchCandidate = async (
@@ -44,7 +47,10 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({ placeholder = 'Search what yo
         className={`w-full h-11 ${embeddedInBar ? '!rounded-l-lg !rounded-r-none !border-0 !border-r-0 !shadow-none hover:!border-0 focus:!shadow-none' : 'rounded-lg border-gray-300'}`}
         allowClear
         suffix={
-          <span className="inline-flex items-center h-full min-h-[1.5rem] border-l border-gray-200 pl-2.5 ml-0">
+          <span
+            className="inline-flex items-center h-full min-h-[1.5rem] border-l border-gray-200 pl-2.5 ml-0"
+            data-cy="talent-acquisition-job-candidate-search-input-suffix"
+          >
             <AiOutlineSearch className="text-gray-400 w-4 h-4 shrink-0" />
           </span>
         }
