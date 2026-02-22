@@ -6,9 +6,11 @@ import { AiOutlineSearch } from 'react-icons/ai';
 
 interface WhatYouNeedProps {
   placeholder?: string;
+  /** When true, removes right border and right radius for use in a combined search+filter bar */
+  embeddedInBar?: boolean;
 }
 
-const WhatYouNeed: React.FC<WhatYouNeedProps> = ({ placeholder = 'Search what you need' }) => {
+const WhatYouNeed: React.FC<WhatYouNeedProps> = ({ placeholder = 'Search what you need', embeddedInBar = false }) => {
   const { searchParams, setSearchParams } = useCandidateState();
 
   const handleSearchCandidate = async (
@@ -39,9 +41,13 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({ placeholder = 'Search what yo
         data-cy="talent-acquisition-job-candidate-search-input"
         placeholder={placeholder}
         onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
-        className="w-full h-11 rounded-lg border-gray-300"
+        className={`w-full h-11 ${embeddedInBar ? '!rounded-l-lg !rounded-r-none !border-0 !border-r-0 !shadow-none hover:!border-0 focus:!shadow-none' : 'rounded-lg border-gray-300'}`}
         allowClear
-        suffix={<AiOutlineSearch className="text-gray-400" />}
+        suffix={
+          <span className="inline-flex items-center h-full min-h-[1.5rem] border-l border-gray-200 pl-2.5 ml-0">
+            <AiOutlineSearch className="text-gray-400 w-4 h-4 shrink-0" />
+          </span>
+        }
       />
     </div>
   );

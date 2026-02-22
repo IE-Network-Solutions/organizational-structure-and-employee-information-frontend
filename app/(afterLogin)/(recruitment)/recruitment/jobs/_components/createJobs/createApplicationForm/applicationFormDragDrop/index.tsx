@@ -6,6 +6,7 @@ import { Button, Checkbox, Form, FormInstance, Input, Modal, Select } from 'antd
 import { FieldType } from '@/types/enumTypes';
 import { v4 as uuidv4 } from 'uuid';
 import { IoClose } from 'react-icons/io5';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
@@ -44,6 +45,7 @@ interface ApplicationFormDragDropProps {
 }
 
 const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({ form }) => {
+  const { isMobile } = useIsMobile();
   const [questions, setQuestions] = useState<QuestionItem[]>(() => {
     const q = form.getFieldValue('questions');
     return Array.isArray(q) && q.length ? q : [];
@@ -130,7 +132,8 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({ form 
       onCancel={handleCustomFieldCancel}
       footer={null}
       closable
-      width={480}
+      width={isMobile ? 'calc(100vw - 2rem)' : 480}
+      style={isMobile ? { maxWidth: 480 } : undefined}
       className="talent-acquisition-custom-field-modal"
       data-cy="talent-acquisition-create-job-custom-field-modal"
       closeIcon={<IoClose className="h-5 w-5" />}
@@ -206,7 +209,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({ form 
         </Form>
     </Modal>
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Left: Field types to drag */}
         <Droppable droppableId={SOURCES_DROPPABLE} isDropDisabled={true}>
           {(provided) => (

@@ -143,16 +143,16 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       width="40%"
       customMobileHeight="75vh"
       footer={
-        <Form.Item>
+        <Form.Item className="mb-0">
           <div
             data-cy="-id-components-createcandidate-index-tsx-index-div-144"
-            className="flex justify-center w-full bg-[#fff] gap-6 p-3"
+            className="flex flex-col sm:flex-row justify-center sm:justify-center w-full bg-[#fff] gap-3 sm:gap-6 p-3 sm:p-3"
           >
             <Button
               id="talent-acquisition-job-create-candidate-button-cancel"
               data-cy="talent-acquisition-job-create-candidate-button-cancel"
               onClick={onClose}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+              className="w-full sm:w-auto flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-11 sm:h-10 hover:border-gray-500 border-gray-300 rounded-lg"
               disabled={isCreatingCandidate}
             >
               Cancel
@@ -161,7 +161,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               id="talent-acquisition-job-create-candidate-button-submit"
               data-cy="talent-acquisition-job-create-candidate-button-submit"
               onClick={() => form.submit()}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              className="w-full sm:w-auto flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-11 sm:h-10 border-none rounded-lg"
               loading={isCreatingCandidate}
               disabled={isCreatingCandidate}
             >
@@ -177,6 +177,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
+        className="pb-4"
       >
         <Form.Item
           id="fullNameId"

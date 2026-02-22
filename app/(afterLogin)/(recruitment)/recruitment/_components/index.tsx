@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Select } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
@@ -19,6 +20,7 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
   onChange,
   onShowSizeChange,
 }) => {
+  const { isMobile } = useIsMobile();
   const [goToPageInput, setGoToPageInput] = useState<string>(String(current));
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -124,12 +126,12 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
     <div
       id="talent-acquisition-pagination-div-container"
       data-cy="talent-acquisition-pagination-div-container"
-      className="flex flex-col sm:flex-row justify-between items-center gap-4 py-6"
+      className={`flex flex-col sm:flex-row justify-between items-center gap-4 py-6 ${isMobile ? 'py-4' : ''}`}
     >
       <div
         id="talent-acquisition-pagination-div-buttons"
         data-cy="talent-acquisition-pagination-div-buttons"
-        className="flex items-center gap-1.5 flex-wrap"
+        className="flex items-center gap-1.5 flex-wrap justify-center sm:justify-start"
       >
         <button
           type="button"
@@ -156,7 +158,7 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
       <div
         id="talent-acquisition-pagination-div-page-size"
         data-cy="talent-acquisition-pagination-div-page-size"
-        className="flex items-center gap-2"
+        className={`flex items-center gap-2 ${isMobile ? 'hidden' : ''}`}
       >
         <span className="text-sm text-gray-500">Go to</span>
         <input

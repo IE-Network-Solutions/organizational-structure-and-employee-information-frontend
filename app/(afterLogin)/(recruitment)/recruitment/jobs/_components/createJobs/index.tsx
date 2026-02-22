@@ -13,11 +13,13 @@ import HiringOfferStep from './hiringOfferStep';
 import CreateApplicationForm from './createApplicationForm';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { IoClose } from 'react-icons/io5';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const STEP_LABELS = ['Job Details', 'Hiring and offer', 'Application Form'];
 
 
 const CreateJobs: React.FC = () => {
+  const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
   const createdBy = useAuthenticationStore.getState().userId;
   const {
@@ -55,19 +57,19 @@ const CreateJobs: React.FC = () => {
         <h2 className="text-xl font-bold text-gray-900">Create New Job</h2>
         <p className="mt-1 text-sm text-gray-500">Please Fill in all the information correctly</p>
       </div>
-      <div className="mt-4 flex w-full items-center">
+      <div className="mt-4 flex w-full flex-wrap items-center gap-y-2">
         {STEP_LABELS.map((label, index) => (
           <React.Fragment key={label}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <div
                 className={`h-3 w-3 shrink-0 rounded-full ${currentStep >= index ? 'bg-[#6366F1]' : 'bg-gray-300'}`}
                 data-cy={`talent-acquisition-create-jobs-step-dot-${index}`}
               />
-              <span className="text-xs text-gray-700">{label}</span>
+              <span className="text-xs text-gray-700 whitespace-nowrap">{label}</span>
             </div>
             {index < STEP_LABELS.length - 1 && (
               <div
-                className="mx-2 h-0.5 min-w-[24px] flex-1"
+                className="mx-1 sm:mx-2 h-0.5 min-w-[12px] sm:min-w-[24px] flex-1 shrink min-w-0"
                 style={{ backgroundColor: currentStep > index ? '#6366F1' : '#d1d5db' }}
                 aria-hidden
               />
@@ -146,14 +148,15 @@ const CreateJobs: React.FC = () => {
       open={addNewDrawer}
       onCancel={handleCloseDrawer}
       footer={null}
-      width={960}
-      centered
+      width={isMobile ? 'calc(100vw - 2rem)' : 960}
+      style={isMobile ? { maxWidth: 960, top: 16 } : undefined}
+      centered={!isMobile}
       closable={false}
       destroyOnClose
       className="talent-acquisition-create-job-modal"
       data-cy="talent-acquisition-create-jobs-modal"
       title={
-        <div className="pr-8" data-cy="talent-acquisition-create-jobs-modal-header">
+        <div className={`pr-8 ${isMobile ? 'pr-10' : ''}`} data-cy="talent-acquisition-create-jobs-modal-header">
           {addNewDrawerHeader}
         </div>
       }

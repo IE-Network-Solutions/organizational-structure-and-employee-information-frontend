@@ -5,6 +5,7 @@ import { Modal, Button, Form, Select, DatePicker, Row, Col, Popover } from 'antd
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { EmploymentType, LocationType, JobStatus } from '@/types/enumTypes';
 import { CloseOutlined } from '@ant-design/icons';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
@@ -154,6 +155,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
   asPopover = false,
   children,
 }) => {
+  const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
   const { data: departments, isLoading: isDepartmentLoading } = useGetDepartments();
 
@@ -177,6 +179,42 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
   );
 
   if (asPopover) {
+    if (isMobile) {
+      return (
+        <>
+          <div className="inline-block" role="button" tabIndex={0} onClick={() => onOpenChange?.(true)} onKeyDown={(e) => e.key === 'Enter' && onOpenChange?.(true)}>
+            {children}
+          </div>
+          <Modal
+            data-cy="talent-acquisition-jobs-filter-modal"
+            title={header}
+            open={open}
+            onCancel={onClose}
+            centered
+            width="calc(100vw - 2rem)"
+            style={{ maxWidth: 560, top: 20 }}
+            styles={{
+              content: {
+                maxHeight: 'calc(100vh - 2rem)',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              },
+              body: {
+                overflowY: 'auto',
+                flex: 1,
+                minHeight: 0,
+                overflowX: 'hidden',
+              },
+            }}
+            closeIcon={<CloseOutlined className="text-gray-500" />}
+            footer={null}
+          >
+            {content}
+          </Modal>
+        </>
+      );
+    }
     return (
       <Popover
         data-cy="talent-acquisition-jobs-filter-popover"
@@ -189,7 +227,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
         placement="bottomLeft"
         align={{ offset: [0, 4] }}
         content={
-          <div className="w-[560px]">
+          <div className="w-full max-w-[min(560px,calc(100vw-2rem))] overflow-auto">
             {header}
             {content}
           </div>

@@ -266,35 +266,8 @@ const JobCard: React.FC = () => {
               return AccessGuard.checkAccess({ permissions });
             });
 
-            return (
-              <div
-                key={job?.id ?? index}
-                id={`talent-acquisition-job-card-div-card-${index}`}
-                data-cy={`talent-acquisition-job-card-div-card-${index}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col relative"
-              >
-                {/* Top row: status + deadline | actions + kebab */}
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
-                    <span
-                      className={`inline-flex items-center text-xs font-medium rounded-md border px-3 py-1.5 ${
-                        jobStatus === 'Closed'
-                          ? 'border-gray-200 bg-white text-gray-600'
-                          : 'border-emerald-200 bg-white text-emerald-700'
-                      }`}
-                      data-cy={`talent-acquisition-job-card-div-status-${index}`}
-                    >
-                      {displayStatus(jobStatus)}
-                    </span>
-                    <span className="inline-flex items-center text-xs font-medium rounded-md border border-gray-200 bg-white px-3 py-1.5 text-gray-700 whitespace-nowrap">
-                      Deadline:{' '}
-                      {job?.jobDeadline
-                        ? dayjs(job.jobDeadline).format('DD MMMM YYYY')
-                        : 'Not set'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <div className="flex items-center gap-1">
+            const actionIconsTop = (
+                  <div className="flex items-center gap-1 shrink-0">
                     <Tooltip title="Job matching">
                       <Link
                         href={`/recruitment/ai-job-matching/${job?.id}`}
@@ -305,36 +278,23 @@ const JobCard: React.FC = () => {
                         <AIcon className="w-8 h-8" />
                       </Link>
                     </Tooltip>
-                      <Tooltip title="Share">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleShareModalVisible(job?.id);
-                          }}
-                          className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 shrink-0"
-                          data-cy={`talent-acquisition-job-card-share-${job?.id}`}
-                        >
-                          <IoShareSocialOutline className="w-4 h-4" />
-                        </button>
-                      </Tooltip>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start justify-between gap-2 mb-2 min-w-0">
-                  <Link
-                    id={`talent-acquisition-job-card-link-${job?.id}`}
-                    data-cy={`talent-acquisition-job-card-link-${job?.id}`}
-                    href={`/recruitment/jobs/${job?.id}`}
-                    className="flex-1 min-w-0"
-                  >
-                    <Tooltip title={job?.jobTitle}>
-                      <h3 className="font-bold text-lg text-gray-900 truncate pr-2">
-                        {job?.jobTitle}
-                      </h3>
+                    <Tooltip title="Share">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleShareModalVisible(job?.id);
+                        }}
+                        className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 shrink-0"
+                        data-cy={`talent-acquisition-job-card-share-${job?.id}`}
+                      >
+                        <IoShareSocialOutline className="w-4 h-4" />
+                      </button>
                     </Tooltip>
-                  </Link>
+                  </div>
+                );
+
+            const menuButton = (
                   <Popover
                     open={deleteModal && selectedJobId === job?.id}
                     onOpenChange={(open) => {
@@ -358,9 +318,7 @@ const JobCard: React.FC = () => {
                             type="primary"
                             className="!bg-red-600 hover:!bg-red-700 !border-0"
                             loading={isLoading}
-                            onClick={() => {
-                              handleDeleteModal();
-                            }}
+                            onClick={() => handleDeleteModal()}
                           >
                             Delete
                           </Button>
@@ -391,12 +349,53 @@ const JobCard: React.FC = () => {
                       </Dropdown>
                     </div>
                   </Popover>
-                </div>
+                );
 
-                <Link
-                  href={`/recruitment/jobs/${job?.id}`}
-                  className="block flex-1 min-w-0"
-                >
+            return (
+              <div
+                key={job?.id ?? index}
+                id={`talent-acquisition-job-card-div-card-${index}`}
+                data-cy={`talent-acquisition-job-card-div-card-${index}`}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col relative"
+              >
+                {/* Same order on mobile and desktop: status + deadline | actions → title → department • applicants → location/type pills → created */}
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                    <span
+                      className={`inline-flex items-center text-xs font-medium rounded-md border px-3 py-1.5 ${
+                        jobStatus === 'Closed'
+                          ? 'border-gray-200 bg-white text-gray-600'
+                          : 'border-emerald-200 bg-white text-emerald-700'
+                      }`}
+                      data-cy={`talent-acquisition-job-card-div-status-${index}`}
+                    >
+                      {displayStatus(jobStatus)}
+                    </span>
+                    <span className="inline-flex items-center text-xs font-medium rounded-md border border-gray-200 bg-white px-3 py-1.5 text-gray-700 whitespace-nowrap">
+                      Deadline:{' '}
+                      {job?.jobDeadline
+                        ? dayjs(job.jobDeadline).format('DD MMMM YYYY')
+                        : 'Not set'}
+                    </span>
+                  </div>
+                  {actionIconsTop}
+                </div>
+                <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+                  <Link
+                    id={`talent-acquisition-job-card-link-${job?.id}`}
+                    data-cy={`talent-acquisition-job-card-link-${job?.id}`}
+                    href={`/recruitment/jobs/${job?.id}`}
+                    className="flex-1 min-w-0"
+                  >
+                    <Tooltip title={job?.jobTitle}>
+                      <h3 className="font-bold text-lg text-gray-900 truncate pr-2">
+                        {job?.jobTitle}
+                      </h3>
+                    </Tooltip>
+                  </Link>
+                  {menuButton}
+                </div>
+                <Link href={`/recruitment/jobs/${job?.id}`} className="block flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
                     <span id={`talent-acquisition-job-departmentId-${index}`} data-cy={`talent-acquisition-job-departmentId-${index}`}>
                       {getDepartmentName(job?.departmentId) || '—'}
@@ -417,7 +416,6 @@ const JobCard: React.FC = () => {
                     )}
                   </div>
                 </Link>
-
                 <div className="flex items-center justify-end gap-1.5 text-sm text-gray-400 mt-auto pt-2 border-t border-gray-100">
                   <AiOutlineClockCircle className="w-4 h-4 shrink-0" />
                   <span>

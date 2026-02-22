@@ -1,6 +1,6 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import useDrawerStore from '@/store/uistate/features/drawer';
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, Modal } from 'antd';
 import React, { useEffect } from 'react';
 import { FaAngleRight } from 'react-icons/fa';
 
@@ -66,58 +66,56 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   // Render the component only on the client side
   if (!isClient) return null;
 
+  // Desktop: centered Modal (original behavior)
+  if (!isMobile) {
+    return (
+      <Modal
+        data-cy="custom-drawer-container"
+        title={modalHeader}
+        open={open}
+        onCancel={onClose}
+        footer={footer}
+        width={width || currentWidth}
+        centered
+        destroyOnClose
+        styles={{
+          header: { borderBottom: 'none', padding: '24px 36px' },
+          body: { padding: `0 ${customPadding ?? '36px'}` },
+          footer: { borderTop: 'none', padding: 8, paddingInline: 16 },
+        }}
+      >
+        {children}
+      </Modal>
+    );
+  }
+
+  // Mobile: bottom Drawer (responsive)
   return (
     <div data-cy="custom-drawer-container">
-      <>
-        {open && !hideButton && (
-          <Button
-            id="closeSidebarButton"
-            className="bg-white text-lg text-grey-9 rounded-full border-none mr-8 hidden md:flex"
-            icon={<FaAngleRight />}
-            onClick={onClose}
-            style={{
-              display: window.innerWidth <= 768 ? 'none' : 'flex',
-              position: 'fixed',
-              right: width,
-              width: '50px',
-              height: '50px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              zIndex: 1001,
-            }}
-          />
-        )}
-      </>
-      {/* removed the padding because it is not needed for Drawer */}
       <Drawer
         title={modalHeader}
-        width={width || currentWidth}
+        width="100%"
         closable={false}
         onClose={onClose}
         open={open}
-        style={{ paddingBottom: isMobile ? 0 : paddingBottom }}
+        style={{ paddingBottom: 0 }}
         footer={footer}
+        placement="bottom"
+        height={customMobileHeight ?? '85vh'}
         styles={{
-          header: {
-            borderBottom: 'none',
-            padding: isMobile ? '24px 12px' : '24px 36px',
-          },
+          header: { borderBottom: 'none', padding: '16px 16px' },
           footer: {
             borderTop: 'none',
-            paddingBlock: isMobile ? 8 : 8,
-            paddingInline: isMobile ? 12 : 16,
+            paddingBlock: 12,
+            paddingInline: 16,
             boxShadow: 'none',
           },
           body: {
-            padding: isMobile
-              ? `0 ${customPadding ? customPadding : '12px'}`
-              : `0 ${customPadding ? customPadding : '36px'}`,
+            padding: `0 ${customPadding ?? '16px'}`,
+            overflowY: 'auto',
+            maxHeight: 'calc(100vh - 140px)',
           },
         }}
-        height={
-          customMobileHeight ? customMobileHeight : isMobile ? '65vh' : 400
-        }
-        placement={placement}
       >
         {children}
       </Drawer>

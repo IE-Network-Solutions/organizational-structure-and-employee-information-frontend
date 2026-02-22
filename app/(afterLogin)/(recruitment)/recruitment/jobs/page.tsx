@@ -17,7 +17,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 const RecruitmentPage: React.FC = () => {
   const { setAddNewDrawer } = useJobState();
-  const { isTablet } = useIsMobile();
+  const { isTablet, isMobile } = useIsMobile();
   const [filterModalOpen, setFilterModalOpen] = useState(false);
 
   const handleAddNewDrawer = () => {
@@ -28,12 +28,12 @@ const RecruitmentPage: React.FC = () => {
     <div
       id="talent-acquisition-jobs-page-div-container"
       data-cy="talent-acquisition-jobs-page-div-container"
-      className="p-4 min-h-screen sm:p-6 bg-[#f9fafb]"
+      className={`min-h-screen bg-[#f9fafb] ${isMobile ? 'p-4' : 'p-4 sm:p-6'}`}
     >
       <div
         id="talent-acquisition-jobs-page-div-header"
         data-cy="talent-acquisition-jobs-page-div-header"
-        className={`flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 ${isTablet ? 'flex-wrap gap-y-4' : ''}`}
+        className={`flex flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 ${isTablet ? 'flex-wrap gap-y-4' : ''}`}
       >
         <CustomBreadcrumb
           data-cy="talent-acquisition-jobs-page-breadcrumb"
@@ -73,27 +73,31 @@ const RecruitmentPage: React.FC = () => {
         </AccessGuard>
       </div>
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-          <div className="flex-1 max-w-md">
-            <WhatYouNeed placeholder="Search Jobs" data-cy="talent-acquisition-jobs-page-what-you-need" />
-          </div>
-          <JobsFilterModal
-            asPopover
-            open={filterModalOpen}
-            onOpenChange={(visible) => setFilterModalOpen(visible)}
-            onClose={() => setFilterModalOpen(false)}
-          >
-            <button
-              type="button"
-              className="flex items-center justify-center gap-2 h-11 px-4 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium shrink-0"
-              data-cy="talent-acquisition-jobs-filter-button"
+        <div className={`flex flex-col gap-3 ${isMobile ? '' : 'sm:flex-row sm:items-center sm:justify-between'}`}>
+          <div className={`flex flex-1 items-center gap-3 ${isMobile ? 'w-full' : 'max-w-md'}`}>
+            <div className="flex-1 min-w-0">
+              <WhatYouNeed placeholder="Search Jobs" data-cy="talent-acquisition-jobs-page-what-you-need" />
+            </div>
+            <JobsFilterModal
+              asPopover
+              open={filterModalOpen}
+              onOpenChange={(visible) => setFilterModalOpen(visible)}
+              onClose={() => setFilterModalOpen(false)}
             >
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              Filter
-            </button>
-          </JobsFilterModal>
+              <button
+                type="button"
+                className={`flex items-center justify-center gap-2 h-11 px-4 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium shrink-0 transition-colors ${
+                  filterModalOpen ? '!bg-[#6366F1] !text-white !border-[#6366F1] hover:!bg-[#4F46E5]' : ''
+                }`}
+                data-cy="talent-acquisition-jobs-filter-button"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                Filter
+              </button>
+            </JobsFilterModal>
+          </div>
         </div>
         <div
           id="talent-acquisition-jobs-page-div-job-card"
