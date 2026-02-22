@@ -101,7 +101,6 @@ const ChangeStatusModal: React.FC = () => {
           }
         `}</style>
         <Modal
-          id="change-job-status-modal"
           data-cy="talent-acquisition-change-job-status-modal"
           title={modalTitle}
           open={isChangeStatusModalVisible}
@@ -110,6 +109,7 @@ const ChangeStatusModal: React.FC = () => {
           footer={null}
           classNames={{ content: 'rounded-lg' }}
         >
+          <div id="change-job-status-modal">
           <Form
             id="talent-acquisition-change-job-status-form"
             data-cy="talent-acquisition-change-job-status-form"
@@ -185,6 +185,7 @@ const ChangeStatusModal: React.FC = () => {
               </div>
             </Form.Item>
           </Form>
+          </div>
         </Modal>
       </>
     )
