@@ -40,7 +40,7 @@ const FilterFormContent: React.FC<{
 
   const handleSaveFilter = async () => {
     try {
-      const values = await form.validateFields();
+      const values = (await form.validateFields()) as Record<string, unknown>;
       onSaveFilter?.(values);
       onClose();
     } catch {
