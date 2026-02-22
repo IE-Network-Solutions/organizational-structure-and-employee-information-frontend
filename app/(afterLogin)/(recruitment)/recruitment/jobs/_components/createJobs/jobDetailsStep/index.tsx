@@ -143,7 +143,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({ form, close, stepChange
               message: 'Please input the description!',
             },
             {
-              validator: (_, value) => {
+              validator: (_rule, value) => {
                 const text = value ? String(value).replace(/<[^>]*>/g, '').trim() : '';
                 if (!text) return Promise.reject(new Error('Please input the description!'));
                 return Promise.resolve();

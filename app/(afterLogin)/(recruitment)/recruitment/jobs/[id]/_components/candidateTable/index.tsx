@@ -38,7 +38,7 @@ interface TableProps {
 const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
-  const [hirePopoverVisible, setHirePopoverVisible] = useState<{
+  const [_hirePopoverVisible, setHirePopoverVisible] = useState<{
     [key: string]: boolean;
   }>({});
   const [hiringCandidateId, setHiringCandidateId] = useState<string | null>(
@@ -233,66 +233,6 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       link.click();
       document.body.removeChild(link);
     };
-
-    const hirePopoverContent = (
-      <div
-        id={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`}
-        data-cy={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`}
-        className="w-64"
-      >
-        <h3
-          className="text-lg font-semibold mb-4 text-center"
-          data-cy="talent-acquisition-job-candidate-table-hire-popover-title"
-        >
-          Date Hired
-        </h3>
-        <Form form={hireForm} layout="vertical">
-          <Form.Item
-            name="hireDate"
-            rules={[
-              {
-                required: true,
-                message: 'Please select a hire date',
-              },
-            ]}
-          >
-            <DatePicker
-              id={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
-              data-cy={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
-              className="w-full"
-              placeholder="Select date"
-              format="DD MMM YYYY"
-            />
-          </Form.Item>
-          <div
-            id={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`}
-            data-cy={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`}
-            className="flex justify-center gap-2 mt-4"
-          >
-            <Button
-              id={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
-              data-cy={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
-              type="primary"
-              size="small"
-              onClick={() => handleHireCandidate(item)}
-              className="bg-blue-600 hover:bg-blue-700 h-8"
-              loading={isHireLoading}
-            >
-              Hire Candidate
-            </Button>
-            <Button
-              id={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
-              data-cy={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
-              size="small"
-              onClick={() => handleCancelHire(item?.id)}
-              className="h-8"
-            >
-              Cancel
-            </Button>
-          </div>
-        </Form>
-      </div>
-    );
 
     return {
       key: index,

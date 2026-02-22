@@ -1,7 +1,7 @@
 'use client';
 
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
-import { Form, Modal, Steps } from 'antd';
+import { Form, Modal } from 'antd';
 import React from 'react';
 import { useDebounce } from '@/utils/useDebounce';
 import { v4 as uuidv4 } from 'uuid';
