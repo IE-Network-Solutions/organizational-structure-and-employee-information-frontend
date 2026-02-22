@@ -91,7 +91,10 @@ const AIcon: React.FC<{ className?: string }> = ({ className }) => {
           >
             A
           </span>
-          <span className="flex flex-col items-center justify-center font-extrabold" style={{ lineHeight: 1 }}>
+          <span
+            className="flex flex-col items-center justify-center font-extrabold"
+            style={{ lineHeight: 1, marginTop: '-3px', alignSelf: 'flex-start' }}
+          >
             <svg
               className="pointer-events-none shrink-0"
               width="6"
@@ -292,12 +295,12 @@ const JobCard: React.FC = () => {
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     <div className="flex items-center gap-1">
-                    <Tooltip title="View applicants">
+                    <Tooltip title="Job matching">
                       <Link
-                        href={`/recruitment/jobs/${job?.id}`}
+                        href={`/recruitment/ai-job-matching/${job?.id}`}
                         className="flex items-center justify-center w-8 h-8 rounded-lg hover:opacity-90 shrink-0 transition-opacity"
                         data-cy={`talent-acquisition-job-card-link-applicants-${job?.id}`}
-                        aria-label="View applicants (AI)"
+                        aria-label="Job matching (AI)"
                       >
                         <AIcon className="w-8 h-8" />
                       </Link>
