@@ -109,8 +109,11 @@ const ChangeStatusModal: React.FC = () => {
           footer={null}
           classNames={{ content: 'rounded-lg' }}
         >
-          <div id="change-job-status-modal">
-          <Form
+          <div
+            id="change-job-status-modal"
+            data-cy="talent-acquisition-change-job-status-modal-content"
+          >
+            <Form
             id="talent-acquisition-change-job-status-form"
             data-cy="talent-acquisition-change-job-status-form"
             form={form}
