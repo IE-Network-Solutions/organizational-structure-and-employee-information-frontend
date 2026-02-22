@@ -18,13 +18,12 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useState, useEffect } from 'react';
-import { FaEye } from 'react-icons/fa';
-import CandidateDetail from '../candidateDetail/page';
+import { FaEye, FaTrashAlt } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 import { FaEllipsisVertical } from 'react-icons/fa6';
-import { FileDown } from 'lucide-react';
-import { useChangeCandidateStatus } from '@/store/server/features/recruitment/candidate/mutation';
+import { MdOutlineFileDownload, MdModeEdit } from 'react-icons/md';
+import { useChangeCandidateStatus, useDeleteCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import DeleteCandidate from '../../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../../_components/modals/moveToTalentPool';
 import { TableRowSelection } from 'antd/es/table/interface';
@@ -47,28 +46,28 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   );
   const [hireForm] = Form.useForm();
 
+  const router = useRouter();
   const {
     currentPage,
     pageSize,
     searchParams,
     setCurrentPage,
     setPageSize,
-    setCandidateDetailDrawer,
     setSelectedCandidate,
     setSelectedCandidateID,
     setEditCandidateModal,
     setEditCandidate,
     setDeleteCandidateId,
-    setDeleteCandidateModal,
     setMoveToTalentPoolModal,
     selectedRowKeys,
     setSelectedRowKeys,
   } = useCandidateState();
 
+  const [deletePopoverCandidateId, setDeletePopoverCandidateId] = useState<string | null>(null);
+  const { mutate: deleteCandidate } = useDeleteCandidate();
+
   const handleCandidateDetail = (candidate: any) => {
-    setSelectedCandidate(candidate);
-    setSelectedCandidateID(candidate?.id);
-    setCandidateDetailDrawer(true);
+    router.push(`/recruitment/jobs/${jobId}/candidates/${candidate?.id}`);
   };
   const { isMobile, isTablet } = useIsMobile();
 
@@ -208,15 +207,21 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   const handleMenuClick = (key: string, candidate: any) => {
     if (key === 'moveToTalentPool') {
       setMoveToTalentPoolModal(true);
-      setSelectedCandidate([candidate]); // Wrap candidate in an array
+      setSelectedCandidate([candidate]);
     } else if (key === 'edit') {
       setEditCandidate(candidate);
       setSelectedCandidateID(candidate?.id);
       setEditCandidateModal(true);
     } else if (key === 'delete') {
       setDeleteCandidateId(candidate?.id);
-      setDeleteCandidateModal(true);
+      setDeletePopoverCandidateId(candidate?.id);
     }
+  };
+
+  const handleConfirmDelete = () => {
+    deleteCandidate(undefined, {
+      onSuccess: () => setDeletePopoverCandidateId(null),
+    });
   };
 
   const data = candidateList?.items?.map((item: any, index: any) => {
@@ -321,7 +326,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
             className="cursor-pointer"
             onClick={handleDownload}
           >
-            <FileDown size={20} strokeWidth={1.25} />
+            <MdOutlineFileDownload size={20} />
           </div>
         </div>
       ),
@@ -357,87 +362,80 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         <div
           id={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
           data-cy={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
-          className="flex items-center justify-between gap-4 text-white"
+          className="flex items-center justify-end"
         >
-          <Button
-            id={`editUserButton${item?.id}`}
-            data-cy={`talent-acquisition-job-candidate-table-button-view-${item?.id}`}
-            disabled={item?.deletedAt !== null}
-            className="bg-primary px-[10px]  text-white disabled:bg-gray-400 "
-            onClick={() => handleCandidateDetail(item)}
-          >
-            <FaEye />
-          </Button>
-          <Dropdown
-            data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
-            menu={{
-              items: [
-                {
-                  key: 'hireCandidate',
-                  label: (
-                    <Popover
-                      id={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
-                      data-cy={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
-                      content={hirePopoverContent}
-                      trigger="click"
-                      open={hirePopoverVisible[item?.id]}
-                      onOpenChange={(visible) => {
-                        setHirePopoverVisible((prev) => ({
-                          ...prev,
-                          [item?.id]: visible,
-                        }));
-                        if (visible) {
-                          // Set the form value when popover opens
-                          hireForm?.setFieldsValue({
-                            hireDate: item?.jobCandidate[0]?.hiredDate
-                              ? dayjs(item?.jobCandidate[0]?.hiredDate)
-                              : null,
-                          });
-                        } else {
-                          // Reset form when popover closes
-                          hireForm?.resetFields();
-                        }
-                      }}
-                      placement="rightTop"
-                      overlayClassName="hire-candidate-popover"
-                    >
-                      <span
-                        data-cy={`talent-acquisition-job-candidate-table-popover-hire-text-${item?.id}`}
-                      >
-                        Hire Candidate
-                      </span>
-                    </Popover>
-                  ),
-                },
-                {
-                  key: 'edit',
-                  label: (
-                    <span
-                      data-cy={`talent-acquisition-job-candidate-table-menu-item-edit-${item?.id}`}
-                    >
-                      Edit
-                    </span>
-                  ),
-                  onClick: () => handleMenuClick('edit', item),
-                },
-                {
-                  key: 'delete',
-                  label: (
-                    <span
-                      data-cy={`talent-acquisition-job-candidate-table-menu-item-delete-${item?.id}`}
-                    >
-                      Delete
-                    </span>
-                  ),
-                  onClick: () => handleMenuClick('delete', item),
-                },
-              ],
-            }}
-            trigger={['click']}
+          <Popover
+            open={deletePopoverCandidateId === item?.id}
+            onOpenChange={(open) => !open && setDeletePopoverCandidateId(null)}
             placement="bottomRight"
+            trigger={[]}
+            content={
+              <div id="candidate-delete-popover" className="w-72 p-1" data-cy="talent-acquisition-candidate-delete-popover">
+                <p className="text-gray-700 text-sm mb-4">
+                  Are you sure you want to delete{' '}
+                  <span className="font-semibold">{item?.fullName ?? 'this candidate'}</span> from
+                  candidates?
+                </p>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    size="small"
+                    onClick={() => setDeletePopoverCandidateId(null)}
+                    data-cy="talent-acquisition-candidate-delete-popover-cancel"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="primary"
+                    danger
+                    size="small"
+                    onClick={handleConfirmDelete}
+                    data-cy="talent-acquisition-candidate-delete-popover-confirm"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            }
           >
-            <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
-          </Dropdown>
+            <span>
+              <Dropdown
+                data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
+                menu={{
+                  items: [
+                    {
+                      key: 'view',
+                      label: 'View Detail',
+                      icon: <FaEye className="text-gray-500 text-sm" />,
+                      onClick: () => handleCandidateDetail(item),
+                    },
+                    {
+                      key: 'edit',
+                      label: 'Edit',
+                      icon: <MdModeEdit className="text-gray-500 text-sm" />,
+                      onClick: () => handleMenuClick('edit', item),
+                    },
+                    {
+                      key: 'delete',
+                      label: 'Delete',
+                      icon: <FaTrashAlt className="text-gray-500 text-sm" />,
+                      onClick: () => handleMenuClick('delete', item),
+                    },
+                  ],
+                }}
+                trigger={['click']}
+                placement="bottomRight"
+                overlayClassName="talent-acquisition-candidate-action-dropdown rounded-lg shadow-lg border border-gray-200"
+              >
+                <button
+                  type="button"
+                  className="flex items-center justify-center w-8 h-8 rounded text-gray-500 hover:bg-gray-100 border-0 bg-transparent cursor-pointer"
+                  aria-label="Actions"
+                >
+                  <FaEllipsisVertical className="text-lg" />
+                </button>
+              </Dropdown>
+            </span>
+          </Popover>
         </div>
       ),
     };
@@ -482,17 +480,18 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         />
       ) : (
         <CustomPagination
+          id="talent-acquisition-candidate-table-pagination"
           current={currentPage}
           total={candidateList?.meta?.totalItems ?? 1}
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={onSizeChange}
+          showGoToPage
+          data-cy="talent-acquisition-candidate-table-pagination"
         />
       )}
-      <DeleteCandidate />
       <EditCandidate />
       <MoveToTalentPool />
-      <CandidateDetail />
     </div>
   );
 };

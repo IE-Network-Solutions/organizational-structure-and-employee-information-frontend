@@ -6,6 +6,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Modal,
   Row,
   Select,
   Upload,
@@ -17,7 +18,7 @@ import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { FaInfoCircle } from 'react-icons/fa';
 import TextArea from 'antd/es/input/TextArea';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { IoClose } from 'react-icons/io5';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -108,16 +109,6 @@ const EditCandidate: React.FC = () => {
       },
     );
   };
-  const editCandidateHeader = (
-    <div
-      id="talent-acquisition-edit-candidate-div-header"
-      data-cy="talent-acquisition-edit-candidate-div-header"
-      className="flex flex-col items-center py-4"
-    >
-      Edit Candidate
-    </div>
-  );
-
   useEffect(() => {
     if (editCandidate && selectedCandidateId) {
       form.setFieldsValue({
@@ -143,13 +134,17 @@ const EditCandidate: React.FC = () => {
 
   return (
     editCandidateModal && (
-      <CustomDrawerLayout
-        data-cy="talent-acquisition-edit-candidate-modal"
+      <Modal
+        title="Edit Candidate"
         open={editCandidateModal}
-        onClose={() => setEditCandidateModal(false)}
-        modalHeader={editCandidateHeader}
-        width="40%"
+        onCancel={() => setEditCandidateModal(false)}
+        centered
+        width="90%"
+        style={{ maxWidth: 640 }}
+        closeIcon={<IoClose className="h-5 w-5" />}
         footer={null}
+        data-cy="talent-acquisition-edit-candidate-modal"
+        bodyStyle={{ maxHeight: '80vh', overflowY: 'auto' }}
       >
         <Form
           id="talent-acquisition-edit-candidate-form"
@@ -447,13 +442,13 @@ const EditCandidate: React.FC = () => {
             <div
               id="talent-acquisition-edit-candidate-div-buttons"
               data-cy="talent-acquisition-edit-candidate-div-buttons"
-              className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+              className="flex justify-end w-full gap-3 pt-4"
             >
               <Button
                 id="talent-acquisition-edit-candidate-button-cancel"
                 data-cy="talent-acquisition-edit-candidate-button-cancel"
                 onClick={() => setEditCandidateModal(false)}
-                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+                className="!h-10 rounded-lg border-gray-300 text-gray-700"
               >
                 Cancel
               </Button>
@@ -461,14 +456,15 @@ const EditCandidate: React.FC = () => {
                 id="talent-acquisition-edit-candidate-button-save"
                 data-cy="talent-acquisition-edit-candidate-button-save"
                 htmlType="submit"
-                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+                type="primary"
+                className="!h-10 rounded-lg !bg-[#6366F1] hover:!bg-[#4F46E5]"
               >
-                Save Changes
+                Edit
               </Button>
             </div>
           </Form.Item>
         </Form>
-      </CustomDrawerLayout>
+      </Modal>
     )
   );
 };

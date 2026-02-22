@@ -1,87 +1,76 @@
-import { Button, Col, Form, FormInstance, Row } from 'antd';
+import { Button, Form, FormInstance } from 'antd';
 import React from 'react';
 import { CiCircleInfo } from 'react-icons/ci';
-import DynamicJobForm from './dynamicJobForm';
-import CustomFieldsSelector from './customFieldSelector';
+import ApplicationFormDragDrop from './applicationFormDragDrop';
 
-const staticField = [
-  { key: '1', name: 'Full Name Input Field' },
-  { key: '2', name: 'CV Upload File' },
-  { key: '3', name: 'CGPA' },
-  { key: '4', name: 'Email' },
-  { key: '5', name: 'Phone Number' },
+const EXISTING_FIELDS = [
+  { key: '1', name: 'Full Name' },
+  { key: '2', name: 'Email' },
+  { key: '3', name: 'Phone Number' },
+  { key: '4', name: 'CGPA' },
+  { key: '5', name: 'CV Upload' },
 ];
+
 interface ApplicationFormProps {
   stepChange: (value: number) => void;
   form: FormInstance;
   isLoading?: boolean;
 }
+
 const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
   stepChange,
   form,
   isLoading = false,
 }) => {
   return (
-    <div
-      className="p-2"
-      data-cy="talent-acquisition-create-application-form-container"
-    >
-      <CustomFieldsSelector />
-      <div
-        className="my-4"
-        data-cy="talent-acquisition-create-application-form-existing-fields-container"
-      >
-        <div
-          className="text-md font-semibold"
-          data-cy="talent-acquisition-create-application-form-existing-fields-title"
-        >
-          Existing Fields
+    <div className="p-2" data-cy="talent-acquisition-create-application-form-container">
+      {/* Existing Fields */}
+      <div className="mb-6" data-cy="talent-acquisition-create-application-form-existing-fields-container">
+        <h3 className="text-sm font-semibold text-gray-900">Existing Fields</h3>
+        <div className="mt-1 flex items-start gap-1.5 text-xs text-gray-500">
+          <CiCircleInfo className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>
+            These fields are automatically created for you, no need to set them up again. Effortlessly
+            integrated and ready to use.
+          </span>
         </div>
-        <div
-          data-cy="-components-createjobs-createapplicationform-index-tsx-index-div-40"
-          className="flex items-center justify-start text-[10px] text-gray-400 font-normal gap-1 my-1 h-10"
-        >
-          <CiCircleInfo />
-          These fields are automatically created for you-no need to set them up
-          again. Effortlessly integrated and ready to use!
+        <div className="mt-3 flex flex-wrap gap-2">
+          {EXISTING_FIELDS.map((item) => (
+            <span
+              key={item.key}
+              className="rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-700"
+            >
+              {item.name}
+            </span>
+          ))}
         </div>
-        <div data-cy="-components-createjobs-createapplicationform-index-tsx-index-div-45">
-          <Row gutter={16}>
-            {staticField?.map((item: any) => (
-              <Col key={item?.key} xs={24} sm={24} lg={12} md={12} xl={12}>
-                <div
-                  data-cy="-components-createjobs-createapplicationform-index-tsx-index-div-49"
-                  className="w-full rounded-md border-gray-200 border p-3 bg-gray-100 my-1 text-sm font-normal"
-                >
-                  {item?.name}
-                </div>
-              </Col>
-            ))}
-          </Row>
-        </div>
-        <DynamicJobForm form={form} />
       </div>
-      <Form.Item>
-        <div
-          data-cy="-components-createjobs-createapplicationform-index-tsx-index-div-59"
-          className="flex justify-center w-full  bg-[#fff] px-6 py-6 gap-6"
-        >
+
+      {/* Create or Select Custom Fields - Drag from left to right */}
+      <div className="mb-6">
+        <h3 className="text-sm font-semibold text-gray-900">Create or Select Custom Fields</h3>
+        <div className="mt-3">
+          <ApplicationFormDragDrop form={form} />
+        </div>
+      </div>
+
+      <Form.Item className="mb-0">
+        <div className="flex justify-end gap-3 bg-white pt-4">
           <Button
-            id="talent-acquisition-create-application-form-button-back"
-            data-cy="talent-acquisition-create-application-form-button-back"
-            onClick={() => stepChange(0)}
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+            onClick={() => stepChange(1)}
+            className="h-11 min-w-[100px] rounded-lg border-gray-300 text-gray-700"
             disabled={isLoading}
+            data-cy="talent-acquisition-create-application-form-button-back"
           >
             Back
           </Button>
           <Button
-            id="talent-acquisition-create-application-form-button-publish"
-            data-cy="talent-acquisition-create-application-form-button-publish"
             htmlType="submit"
-            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+            type="primary"
+            className="h-11 min-w-[100px] rounded-lg !bg-[#6366F1] hover:!bg-[#4F46E5]"
             loading={isLoading}
             disabled={isLoading}
+            data-cy="talent-acquisition-create-application-form-button-publish"
           >
             Publish
           </Button>

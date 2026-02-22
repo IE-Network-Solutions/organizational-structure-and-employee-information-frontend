@@ -1,19 +1,21 @@
 'use client';
+
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
-import { Form, Steps } from 'antd';
+import { Form, Modal, Steps } from 'antd';
 import React from 'react';
-import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useDebounce } from '@/utils/useDebounce';
 import { v4 as uuidv4 } from 'uuid';
 import { useCreateJobs } from '@/store/server/features/recruitment/job/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import dayjs from 'dayjs';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import CreateNewJob from './createNewJob';
+import JobDetailsStep from './jobDetailsStep';
+import HiringOfferStep from './hiringOfferStep';
 import CreateApplicationForm from './createApplicationForm';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { IoClose } from 'react-icons/io5';
 
-const { Step } = Steps;
+const STEP_LABELS = ['Job Details', 'Hiring and offer', 'Application Form'];
+
 
 const CreateJobs: React.FC = () => {
   const [form] = Form.useForm();
@@ -31,118 +33,81 @@ const CreateJobs: React.FC = () => {
   } = useJobState();
   const { mutate: createJob, isLoading: isCreatingJob } = useCreateJobs();
 
-  const customDot = (step: number) =>
-    (
-      <div
-        className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${currentStep >= step ? 'bg-indigo-700 text-white' : 'bg-white border-gray-300 text-gray-500'}`}
-        data-cy={`talent-acquisition-create-jobs-step-dot-${step}`}
-      >
-        <div
-          style={{ fontSize: '24px', lineHeight: '24px' }}
-          data-cy={`talent-acquisition-create-jobs-step-dot-content-${step}`}
-        >
-          {currentStep >= step ? (
-            <IoCheckmarkSharp
-              className="text-xs font-bold"
-              data-cy={`talent-acquisition-create-jobs-step-dot-checkmark-${step}`}
-            />
-          ) : (
-            <span
-              data-cy={`talent-acquisition-create-jobs-step-dot-bullet-${step}`}
-            >
-              •
-            </span>
-          )}
-        </div>
-      </div>
-    ) as React.ReactNode;
   const handleStepChange = (value: number) => {
     setCurrentStep(value);
   };
 
   const addNewDrawerHeader = (
-    <div
-      className="flex flex-col items-center"
-      data-cy="talent-acquisition-create-jobs-drawer-header-container"
-    >
-      {currentStep === 0 ? (
-        <div
-          className="flex justify-center text-xl font-extrabold text-gray-800 p-2"
-          data-cy="talent-acquisition-create-jobs-drawer-header-step-0"
-        >
-          <span data-cy="talent-acquisition-create-jobs-drawer-header-step-0-text">
-            Create New Job
-          </span>
-        </div>
-      ) : null}
-      {currentStep !== 0 ? (
-        <div
-          className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
-          data-cy="talent-acquisition-create-jobs-drawer-header-step-1"
-        >
-          <span data-cy="talent-acquisition-create-jobs-drawer-header-step-1-text">
-            Create Application Forms
-          </span>
-        </div>
-      ) : null}
-      <div
-        className="flex items-center justify-between"
-        data-cy="talent-acquisition-create-jobs-steps-container"
+    <div className="relative w-full" data-cy="talent-acquisition-create-jobs-drawer-header-container">
+      <button
+        type="button"
+        onClick={() => {
+          setAddNewDrawer(false);
+          form.resetFields();
+          setCurrentStep(0);
+        }}
+        className="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+        aria-label="Close"
       >
-        <Steps
-          data-cy="talent-acquisition-create-jobs-steps"
-          current={currentStep}
-          onChange={handleStepChange}
-          size="default"
-          responsive={false}
-          className="w-full"
-        >
-          <Step
-            icon={customDot(0)}
-            data-cy="talent-acquisition-create-jobs-step-0"
-          />
-          <Step
-            icon={customDot(1)}
-            data-cy="talent-acquisition-create-jobs-step-1"
-          />
-        </Steps>
+        <IoClose className="h-5 w-5" />
+      </button>
+      <div className="pr-10">
+        <h2 className="text-xl font-bold text-gray-900">Create New Job</h2>
+        <p className="mt-1 text-sm text-gray-500">Please Fill in all the information correctly</p>
+      </div>
+      <div className="mt-4 flex w-full items-center">
+        {STEP_LABELS.map((label, index) => (
+          <React.Fragment key={label}>
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-3 w-3 shrink-0 rounded-full ${currentStep >= index ? 'bg-[#6366F1]' : 'bg-gray-300'}`}
+                data-cy={`talent-acquisition-create-jobs-step-dot-${index}`}
+              />
+              <span className="text-xs text-gray-700">{label}</span>
+            </div>
+            {index < STEP_LABELS.length - 1 && (
+              <div
+                className="mx-2 h-0.5 min-w-[24px] flex-1"
+                style={{ backgroundColor: currentStep > index ? '#6366F1' : '#d1d5db' }}
+                aria-hidden
+              />
+            )}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );
+
   const handleCloseDrawer = () => {
     setAddNewDrawer(false);
     form.resetFields();
+    setCurrentStep(0);
+    setSelectedQuestions([]);
   };
 
   const handleAddJobStateUpdate = useDebounce(setFormValues, 1500);
 
   const handlePublish = async () => {
     try {
-      // Validate all form fields before proceeding
       await form.validateFields();
-
       const formValues = form.getFieldsValue();
-
       const formattedValue = {
         ...formValues,
         createdBy,
         jobDeadline: dayjs(formValues?.jobDeadline).format('YYYY-MM-DD'),
-        yearOfExperience: Number(formValues?.yearOfExperience),
+        yearOfExperience: Number(formValues?.yearOfExperience ?? 0),
         departmentId: formValues?.department,
+        compensation: formValues?.compensation != null ? String(formValues.compensation) : formValues?.compensation,
         questions: [
-          ...(formValues?.questions?.map((e: any) => {
-            return {
-              ...e,
-              required: e?.required || false,
+          ...(formValues?.questions?.map((e: any) => ({
+            ...e,
+            required: e?.required || false,
+            id: uuidv4(),
+            field: e.field?.map((field: any) => ({
               id: uuidv4(),
-              field: e.field.map((field: any) => {
-                return {
-                  id: uuidv4(),
-                  value: field,
-                };
-              }),
-            };
-          }) || []),
+              value: field?.value ?? field,
+            })) || [],
+          })) || []),
           ...(filteredQuestions?.flatMap((template: any) =>
             template.form?.map((formItem: any) => ({
               id: uuidv4(),
@@ -161,8 +126,7 @@ const CreateJobs: React.FC = () => {
       createJob(formattedValue, {
         onSuccess: (response) => {
           setAddJobModalResult(true);
-          const newJobId = response?.id;
-          setSelectedJobId(newJobId);
+          setSelectedJobId(response?.id);
           setAddNewDrawer(false);
           form.resetFields();
           setCurrentStep(0);
@@ -170,7 +134,6 @@ const CreateJobs: React.FC = () => {
         },
       });
     } catch (error) {
-      // If validation fails, the error will be caught here and no request will be sent
       NotificationMessage.error({
         message: 'Validation Failed',
         description: 'Please check all required fields before publishing.',
@@ -178,43 +141,37 @@ const CreateJobs: React.FC = () => {
     }
   };
 
-  return addNewDrawer ? (
-    <CustomDrawerLayout
-      data-cy="talent-acquisition-create-jobs-drawer"
+  return (
+    <Modal
       open={addNewDrawer}
-      onClose={handleCloseDrawer}
-      modalHeader={addNewDrawerHeader}
-      width="40%"
+      onCancel={handleCloseDrawer}
       footer={null}
-      customMobileHeight="90vh"
+      width={960}
+      centered
+      closable={false}
+      destroyOnClose
+      className="talent-acquisition-create-job-modal"
+      data-cy="talent-acquisition-create-jobs-modal"
+      title={
+        <div className="pr-8" data-cy="talent-acquisition-create-jobs-modal-header">
+          {addNewDrawerHeader}
+        </div>
+      }
     >
       <Form
         id="talent-acquisition-create-jobs-form"
-        data-cy="talent-acquisition-create-jobs-form"
         form={form}
         layout="vertical"
-        onValuesChange={() => {
-          handleAddJobStateUpdate(form.getFieldsValue());
-        }}
-        onFinish={() => {
-          handlePublish();
-        }}
+        onValuesChange={() => handleAddJobStateUpdate(form.getFieldsValue())}
+        onFinish={handlePublish}
       >
-        <div
-          style={{ height: 'auto' }}
-          hidden={currentStep !== 0}
-          data-cy="talent-acquisition-create-jobs-form-step-0"
-        >
-          <CreateNewJob
-            form={form}
-            close={handleCloseDrawer}
-            stepChange={handleStepChange}
-          />
+        <div hidden={currentStep !== 0} data-cy="talent-acquisition-create-jobs-form-step-0">
+          <JobDetailsStep form={form} close={handleCloseDrawer} stepChange={handleStepChange} />
         </div>
-        <div
-          hidden={currentStep !== 1}
-          data-cy="talent-acquisition-create-jobs-form-step-1"
-        >
+        <div hidden={currentStep !== 1} data-cy="talent-acquisition-create-jobs-form-step-1">
+          <HiringOfferStep form={form} stepChange={handleStepChange} />
+        </div>
+        <div hidden={currentStep !== 2} data-cy="talent-acquisition-create-jobs-form-step-2">
           <CreateApplicationForm
             form={form}
             stepChange={handleStepChange}
@@ -222,9 +179,7 @@ const CreateJobs: React.FC = () => {
           />
         </div>
       </Form>
-    </CustomDrawerLayout>
-  ) : (
-    <div data-cy="talent-acquisition-create-jobs-drawer-empty"></div>
+    </Modal>
   );
 };
 

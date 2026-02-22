@@ -274,16 +274,16 @@ const JobCard: React.FC = () => {
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                     <span
-                      className={`inline-flex items-center text-xs font-medium rounded-full px-3 py-1 ${
+                      className={`inline-flex items-center text-xs font-medium rounded-md border px-3 py-1.5 ${
                         jobStatus === 'Closed'
-                          ? 'bg-gray-200 text-gray-600'
-                          : 'bg-emerald-100 text-emerald-700'
+                          ? 'border-gray-200 bg-white text-gray-600'
+                          : 'border-emerald-200 bg-white text-emerald-700'
                       }`}
                       data-cy={`talent-acquisition-job-card-div-status-${index}`}
                     >
                       {displayStatus(jobStatus)}
                     </span>
-                    <span className="text-sm text-gray-500 whitespace-nowrap">
+                    <span className="inline-flex items-center text-xs font-medium rounded-md border border-gray-200 bg-white px-3 py-1.5 text-gray-700 whitespace-nowrap">
                       Deadline:{' '}
                       {job?.jobDeadline
                         ? dayjs(job.jobDeadline).format('DD MMMM YYYY')
@@ -403,19 +403,19 @@ const JobCard: React.FC = () => {
                   </div>
                   <div className="flex flex-wrap gap-2 mb-3">
                     {job?.jobLocation && (
-                      <span className="inline-flex items-center text-xs font-medium rounded-full px-3 py-1 bg-gray-100 text-gray-700">
+                      <span className="inline-flex items-center text-xs font-medium rounded-md border border-gray-200 bg-white px-3 py-1.5 text-gray-700">
                         {job.jobLocation}
                       </span>
                     )}
                     {job?.employmentType && (
-                      <span className="inline-flex items-center text-xs font-medium rounded-full px-3 py-1 bg-gray-100 text-gray-700">
+                      <span className="inline-flex items-center text-xs font-medium rounded-md border border-gray-200 bg-white px-3 py-1.5 text-gray-700">
                         {job.employmentType}
                       </span>
                     )}
                   </div>
                 </Link>
 
-                <div className="flex items-center gap-1.5 text-sm text-gray-400 mt-auto pt-2 border-t border-gray-100">
+                <div className="flex items-center justify-end gap-1.5 text-sm text-gray-400 mt-auto pt-2 border-t border-gray-100">
                   <AiOutlineClockCircle className="w-4 h-4 shrink-0" />
                   <span>
                     Created {job?.createdAt ? dayjs(job.createdAt).fromNow() : 'Unknown'}

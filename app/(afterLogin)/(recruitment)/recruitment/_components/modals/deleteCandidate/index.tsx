@@ -4,13 +4,18 @@ import { useCandidateState } from '@/store/uistate/features/recruitment/candidat
 import React from 'react';
 
 const DeleteCandidate: React.FC = () => {
-  const { deleteCandidateModal, setDeleteCandidateModal } = useCandidateState();
+  const {
+    deleteCandidateModal,
+    setDeleteCandidateModal,
+    deleteCandidateName,
+  } = useCandidateState();
   const { mutate: deleteCandidate } = useDeleteCandidate();
 
   const handleCandidateDelete = () => {
     deleteCandidate();
     setDeleteCandidateModal(false);
   };
+
   return (
     deleteCandidateModal && (
       <div
@@ -21,6 +26,14 @@ const DeleteCandidate: React.FC = () => {
           open={deleteCandidateModal}
           onCancel={() => setDeleteCandidateModal(false)}
           onConfirm={handleCandidateDelete}
+          title="Delete Candidate"
+          deleteMessage={
+            <span className="text-gray-700">
+              Are you Sure you want to delete{' '}
+              <span className="font-semibold">{deleteCandidateName || 'this candidate'}</span>{' '}
+              from candidates ?
+            </span>
+          }
         />
       </div>
     )

@@ -54,6 +54,8 @@ interface CandidateState {
 
   deleteCandidateId: string;
   setDeleteCandidateId: (value: string) => void;
+  deleteCandidateName: string;
+  setDeleteCandidateName: (value: string) => void;
   deleteCandidateModal: boolean;
   setDeleteCandidateModal: (value: boolean) => void;
 
@@ -129,6 +131,8 @@ export const useCandidateState = create<CandidateState>((set) => ({
 
   deleteCandidateId: '',
   setDeleteCandidateId: (value) => set({ deleteCandidateId: value }),
+  deleteCandidateName: '',
+  setDeleteCandidateName: (value) => set({ deleteCandidateName: value }),
   deleteCandidateModal: false,
   setDeleteCandidateModal: (value) => set({ deleteCandidateModal: value }),
 

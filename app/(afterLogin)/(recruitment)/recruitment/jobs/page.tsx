@@ -5,7 +5,7 @@ import JobCard from './_components/jobCard/jobCard';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import CreateJobs from './_components/createJobs';
 import CustomButton from '@/components/common/buttons/customButton';
-import { FaPlus } from 'react-icons/fa';
+import { CgFileDocument } from 'react-icons/cg';
 import WhatYouNeed from './[id]/_components/candidateSearch/whatYouNeed';
 import ShareToSocialMedia from './_components/modals/share';
 import AddFormResult from './_components/modals/result';
@@ -47,17 +47,28 @@ const RecruitmentPage: React.FC = () => {
           <CustomButton
             title={
               <span
-                data-cy="-recruitment-recruitment-jobs-page-tsx-page-span-52"
+                id="talent-acquisition-jobs-add-job-label"
+                data-cy="talent-acquisition-jobs-add-job-label"
                 className="hidden sm:inline"
               >
                 Add Job
               </span>
             }
-            id="createJobButton"
+            id="talent-acquisition-jobs-button-add-job"
             data-cy="talent-acquisition-jobs-button-add-new"
-            icon={<FaPlus className="sm:mr-2 ml-0" />}
+            icon={
+              <span className="relative inline-flex shrink-0 w-5 h-5 items-center justify-center sm:mr-2 ml-0" aria-hidden>
+                <CgFileDocument className="w-5 h-5 shrink-0 text-white" />
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center bg-transparent text-white pointer-events-none">
+                  <svg className="w-2.5 h-2.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden stroke="none">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                  </svg>
+                </span>
+              </span>
+            }
             onClick={() => handleAddNewDrawer()}
             className="!bg-[#6366F1] hover:!bg-[#4F46E5] w-10 sm:w-auto sm:px-5 !h-11 px-5 py-5 rounded-lg border-0"
+            aria-label="Add Job"
           />
         </AccessGuard>
       </div>
