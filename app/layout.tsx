@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Manrope } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import './globals.css';
 import { App as AntdApp } from 'antd';
@@ -11,7 +10,6 @@ import { PWAProvider } from '@/providers/PWAProvider';
 import { NotificationSocketProvider } from '@/providers/NotificationSocketProvider';
 import ChatBotButton from '@/components/ai/ChatBotButton';
 import RouteTopLoader from '@/components/RouteTopLoader';
-const manrope = Manrope({ subsets: ['latin'] });
 
 // Disable static prerendering globally; ensure all pages are rendered dynamically
 export const dynamic = 'force-dynamic';
@@ -334,7 +332,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${manrope.className} pwa-viewport`}
+        className="pwa-viewport"
         data-cy="root-layout-body"
         suppressHydrationWarning
       >
