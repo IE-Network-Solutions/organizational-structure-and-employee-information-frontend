@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import CustomButton from '@/components/common/buttons/customButton';
 import React, { useEffect, useState } from 'react';

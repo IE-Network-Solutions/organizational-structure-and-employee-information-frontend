@@ -87,9 +87,17 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
   };
 
   const filterModalTitle = (
-    <div>
-      <div className="text-lg font-semibold text-gray-900">Filter</div>
-      <div className="text-sm font-normal text-gray-500 mt-0.5">
+    <div data-cy="talent-acquisition-job-candidate-search-filter-modal-title-wrap">
+      <div
+        className="text-lg font-semibold text-gray-900"
+        data-cy="talent-acquisition-job-candidate-search-filter-modal-title"
+      >
+        Filter
+      </div>
+      <div
+        className="text-sm font-normal text-gray-500 mt-0.5"
+        data-cy="talent-acquisition-job-candidate-search-filter-modal-subtitle"
+      >
         Select All filters that apply
       </div>
     </div>
@@ -180,7 +188,10 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
   );
 
   const filterModalFooter = (
-    <div className="flex justify-end gap-2">
+    <div
+      className="flex justify-end gap-2"
+      data-cy="talent-acquisition-job-candidate-search-filter-modal-footer"
+    >
       <Button
         type="default"
         onClick={handleResetFilter}
@@ -350,7 +361,10 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
                 >
                   {filterModalTitle}
                   {filterFormContent}
-                  <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-200">
+                  <div
+                    className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-200"
+                    data-cy="talent-acquisition-job-candidate-search-filter-modal-actions"
+                  >
                     <Button
                       type="default"
                       onClick={handleResetFilter}
@@ -425,7 +439,10 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
             style={{ maxWidth: '90vw' }}
             closeIcon={<CloseOutlined className="text-gray-500" />}
           >
-            <div className="min-w-0 max-w-full overflow-x-hidden">
+            <div
+              className="min-w-0 max-w-full overflow-x-hidden"
+              data-cy="talent-acquisition-job-candidate-search-filter-modal-body"
+            >
               {filterFormContent}
             </div>
           </Modal>

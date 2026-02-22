@@ -32,19 +32,31 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
         className="mb-6"
         data-cy="talent-acquisition-create-application-form-existing-fields-container"
       >
-        <h3 className="text-sm font-semibold text-gray-900">Existing Fields</h3>
-        <div className="mt-1 flex items-start gap-1.5 text-xs text-gray-500">
+        <h3
+          className="text-sm font-semibold text-gray-900"
+          data-cy="talent-acquisition-create-application-form-existing-fields-title"
+        >
+          Existing Fields
+        </h3>
+        <div
+          className="mt-1 flex items-start gap-1.5 text-xs text-gray-500"
+          data-cy="talent-acquisition-create-application-form-existing-fields-hint"
+        >
           <CiCircleInfo className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>
+          <span data-cy="talent-acquisition-create-application-form-existing-fields-hint-text">
             These fields are automatically created for you, no need to set them
             up again. Effortlessly integrated and ready to use.
           </span>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div
+          className="mt-3 flex flex-wrap gap-2"
+          data-cy="talent-acquisition-create-application-form-existing-fields-list"
+        >
           {EXISTING_FIELDS.map((item) => (
             <span
               key={item.key}
               className="rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-700"
+              data-cy={`talent-acquisition-create-application-form-existing-field-${item.key}`}
             >
               {item.name}
             </span>
@@ -53,17 +65,29 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
       </div>
 
       {/* Create or Select Custom Fields */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-900">
+      <div
+        className="mb-6"
+        data-cy="talent-acquisition-create-application-form-custom-fields-container"
+      >
+        <h3
+          className="text-sm font-semibold text-gray-900"
+          data-cy="talent-acquisition-create-application-form-custom-fields-title"
+        >
           Create or Select Custom Fields
         </h3>
-        <div className="mt-3">
+        <div
+          className="mt-3"
+          data-cy="talent-acquisition-create-application-form-drag-drop-wrap"
+        >
           <ApplicationFormDragDrop form={form} />
         </div>
       </div>
 
       <Form.Item className="mb-0">
-        <div className="flex flex-col sm:flex-row justify-end gap-3 bg-white pt-4">
+        <div
+          className="flex flex-col sm:flex-row justify-end gap-3 bg-white pt-4"
+          data-cy="talent-acquisition-create-application-form-actions"
+        >
           <Button
             onClick={() => stepChange(1)}
             className="h-11 w-full sm:min-w-[100px] sm:w-auto rounded-lg border-gray-300 text-gray-700"

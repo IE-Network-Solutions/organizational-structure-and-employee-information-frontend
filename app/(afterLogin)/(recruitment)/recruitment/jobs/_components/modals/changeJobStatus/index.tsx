@@ -52,14 +52,22 @@ const ChangeStatusModal: React.FC = () => {
   }, [selectedJob, form]);
 
   const modalTitle = (
-    <span className="text-lg font-semibold text-gray-900">
+    <span
+      className="text-lg font-semibold text-gray-900"
+      data-cy="talent-acquisition-change-job-status-modal-title"
+    >
       Change Job Status
     </span>
   );
 
   const optionRender: SelectProps['optionRender'] = (option) => (
-    <div className="flex items-center justify-between w-full">
-      <span>{option.label}</span>
+    <div
+      className="flex items-center justify-between w-full"
+      data-cy="talent-acquisition-change-job-status-option"
+    >
+      <span data-cy="talent-acquisition-change-job-status-option-label">
+        {option.label}
+      </span>
       {option.value === currentStatus && (
         <CheckOutlined className="text-[#6366F1] text-sm shrink-0 ml-2" />
       )}
@@ -69,7 +77,7 @@ const ChangeStatusModal: React.FC = () => {
   return (
     isChangeStatusModalVisible && (
       <>
-        <style>{`
+        <style data-cy="talent-acquisition-change-job-status-modal-styles">{`
           #change-job-status-modal .ant-select .ant-select-selector {
             border: 1px solid #d9d9d9;
             border-radius: 6px;
@@ -123,7 +131,14 @@ const ChangeStatusModal: React.FC = () => {
                 data-cy="talent-acquisition-change-job-status-select"
                 placeholder="Open"
                 style={{ width: '100%' }}
-                suffixIcon={<span className="text-gray-400">▼</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="talent-acquisition-change-job-status-select-suffix"
+                  >
+                    ▼
+                  </span>
+                }
                 getPopupContainer={() =>
                   document.getElementById('change-job-status-modal') ||
                   document.body

@@ -58,7 +58,14 @@ const FilterFormContent: React.FC<{
                 placeholder="Select department"
                 allowClear
                 loading={isDepartmentLoading}
-                suffixIcon={<span className="text-gray-400">▼</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="talent-acquisition-jobs-filter-select-suffix"
+                  >
+                    ▼
+                  </span>
+                }
                 data-cy="talent-acquisition-jobs-filter-department"
               >
                 {departments?.map((dep: { id: string; name: string }) => (
@@ -74,7 +81,14 @@ const FilterFormContent: React.FC<{
               <Select
                 placeholder="Select employment type"
                 allowClear
-                suffixIcon={<span className="text-gray-400">▼</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="talent-acquisition-jobs-filter-select-suffix"
+                  >
+                    ▼
+                  </span>
+                }
                 data-cy="talent-acquisition-jobs-filter-employment-type"
               >
                 {Object.values(EmploymentType).map((type) => (
@@ -90,7 +104,14 @@ const FilterFormContent: React.FC<{
               <Select
                 placeholder="Select status"
                 allowClear
-                suffixIcon={<span className="text-gray-400">▼</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="talent-acquisition-jobs-filter-select-suffix"
+                  >
+                    ▼
+                  </span>
+                }
                 data-cy="talent-acquisition-jobs-filter-status"
               >
                 <Option value={JobStatus.OPEN}>{JobStatus.OPEN}</Option>
@@ -103,7 +124,14 @@ const FilterFormContent: React.FC<{
               <Select
                 placeholder="Select location"
                 allowClear
-                suffixIcon={<span className="text-gray-400">▼</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="talent-acquisition-jobs-filter-select-suffix"
+                  >
+                    ▼
+                  </span>
+                }
                 data-cy="talent-acquisition-jobs-filter-location"
               >
                 {Object.values(LocationType).map((type) => (
@@ -134,7 +162,10 @@ const FilterFormContent: React.FC<{
           </Col>
         </Row>
       </Form>
-      <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-200">
+      <div
+        className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-200"
+        data-cy="talent-acquisition-jobs-filter-modal-footer-actions"
+      >
         <Button
           type="default"
           onClick={handleReset}
@@ -170,9 +201,17 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
     useGetDepartments();
 
   const header = (
-    <div>
-      <div className="text-lg font-semibold text-gray-900">Filter</div>
-      <div className="text-sm font-normal text-gray-500 mt-0.5">
+    <div data-cy="talent-acquisition-jobs-filter-modal-header-wrap">
+      <div
+        className="text-lg font-semibold text-gray-900"
+        data-cy="talent-acquisition-jobs-filter-modal-header-title"
+      >
+        Filter
+      </div>
+      <div
+        className="text-sm font-normal text-gray-500 mt-0.5"
+        data-cy="talent-acquisition-jobs-filter-modal-header-subtitle"
+      >
         Select All filters that apply
       </div>
     </div>
@@ -198,6 +237,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
             tabIndex={0}
             onClick={() => onOpenChange?.(true)}
             onKeyDown={(e) => e.key === 'Enter' && onOpenChange?.(true)}
+            data-cy="talent-acquisition-jobs-filter-popover-trigger"
           >
             {children}
           </div>
@@ -243,7 +283,10 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
         placement="bottomLeft"
         align={{ offset: [0, 4] }}
         content={
-          <div className="w-full max-w-[min(560px,calc(100vw-2rem))] overflow-auto">
+          <div
+            className="w-full max-w-[min(560px,calc(100vw-2rem))] overflow-auto"
+            data-cy="talent-acquisition-jobs-filter-popover-content"
+          >
             {header}
             {content}
           </div>
@@ -264,7 +307,10 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
       width={560}
       closeIcon={<CloseOutlined className="text-gray-500" />}
       footer={
-        <div className="flex justify-end gap-2">
+        <div
+          className="flex justify-end gap-2"
+          data-cy="talent-acquisition-jobs-filter-modal-footer"
+        >
           <Button
             type="default"
             onClick={() => form.resetFields()}
@@ -300,7 +346,14 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
                 placeholder="Select department"
                 allowClear
                 loading={isDepartmentLoading}
-                suffixIcon={<span className="text-gray-400">▼</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="talent-acquisition-jobs-filter-select-suffix"
+                  >
+                    ▼
+                  </span>
+                }
                 data-cy="talent-acquisition-jobs-filter-department"
               >
                 {departments?.map((dep: { id: string; name: string }) => (
@@ -316,7 +369,14 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
               <Select
                 placeholder="Select employment type"
                 allowClear
-                suffixIcon={<span className="text-gray-400">▼</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="talent-acquisition-jobs-filter-select-suffix"
+                  >
+                    ▼
+                  </span>
+                }
                 data-cy="talent-acquisition-jobs-filter-employment-type"
               >
                 {Object.values(EmploymentType).map((type) => (
@@ -332,7 +392,14 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
               <Select
                 placeholder="Select status"
                 allowClear
-                suffixIcon={<span className="text-gray-400">▼</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="talent-acquisition-jobs-filter-select-suffix"
+                  >
+                    ▼
+                  </span>
+                }
                 data-cy="talent-acquisition-jobs-filter-status"
               >
                 <Option value={JobStatus.OPEN}>{JobStatus.OPEN}</Option>
@@ -345,7 +412,14 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
               <Select
                 placeholder="Select location"
                 allowClear
-                suffixIcon={<span className="text-gray-400">▼</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="talent-acquisition-jobs-filter-select-suffix"
+                  >
+                    ▼
+                  </span>
+                }
                 data-cy="talent-acquisition-jobs-filter-location"
               >
                 {Object.values(LocationType).map((type) => (

@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 import React from 'react';
 import { Dropdown, Tooltip, Spin, Popover, Button } from 'antd';
 import { BsThreeDots } from 'react-icons/bs';

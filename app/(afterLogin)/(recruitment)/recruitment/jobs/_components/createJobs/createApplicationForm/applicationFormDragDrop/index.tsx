@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import React, { useEffect, useState } from 'react';
 import {

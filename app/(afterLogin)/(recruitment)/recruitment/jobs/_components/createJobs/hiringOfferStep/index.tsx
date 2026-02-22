@@ -31,13 +31,28 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
       className="p-2"
       data-cy="talent-acquisition-create-job-hiring-offer-step"
     >
-      <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div
+        className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+        data-cy="talent-acquisition-create-job-hiring-offer-form-container"
+      >
+        <div
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2"
+          data-cy="talent-acquisition-create-job-hiring-offer-fields"
+        >
           <Form.Item
             name="employmentType"
             label={
-              <span className="text-sm font-semibold text-gray-700">
-                Job Type <span className="text-red-500">*</span>
+              <span
+                className="text-sm font-semibold text-gray-700"
+                data-cy="talent-acquisition-create-job-label-job-type"
+              >
+                Job Type{' '}
+                <span
+                  className="text-red-500"
+                  data-cy="talent-acquisition-create-job-required-job-type"
+                >
+                  *
+                </span>
               </span>
             }
             rules={[{ required: true, message: 'Please select job type!' }]}
@@ -54,8 +69,17 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
           <Form.Item
             name="quantity"
             label={
-              <span className="text-sm font-semibold text-gray-700">
-                Quantity <span className="text-red-500">*</span>
+              <span
+                className="text-sm font-semibold text-gray-700"
+                data-cy="talent-acquisition-create-job-label-quantity"
+              >
+                Quantity{' '}
+                <span
+                  className="text-red-500"
+                  data-cy="talent-acquisition-create-job-required-quantity"
+                >
+                  *
+                </span>
               </span>
             }
             rules={[{ required: true, message: 'Please input quantity!' }]}
@@ -71,8 +95,17 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
           <Form.Item
             name="yearOfExperience"
             label={
-              <span className="text-sm font-semibold text-gray-700">
-                Years of experience <span className="text-red-500">*</span>
+              <span
+                className="text-sm font-semibold text-gray-700"
+                data-cy="talent-acquisition-create-job-label-years-experience"
+              >
+                Years of experience{' '}
+                <span
+                  className="text-red-500"
+                  data-cy="talent-acquisition-create-job-required-years"
+                >
+                  *
+                </span>
               </span>
             }
             rules={[
@@ -94,8 +127,17 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
           <Form.Item
             name="compensation"
             label={
-              <span className="text-sm font-semibold text-gray-700">
-                Compensation <span className="text-red-500">*</span>
+              <span
+                className="text-sm font-semibold text-gray-700"
+                data-cy="talent-acquisition-create-job-label-compensation"
+              >
+                Compensation{' '}
+                <span
+                  className="text-red-500"
+                  data-cy="talent-acquisition-create-job-required-compensation"
+                >
+                  *
+                </span>
               </span>
             }
             rules={[{ required: true, message: 'Please input compensation!' }]}
@@ -110,7 +152,10 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
         </div>
       </div>
 
-      <div className="mt-6 flex justify-end gap-3">
+      <div
+        className="mt-6 flex justify-end gap-3"
+        data-cy="talent-acquisition-create-job-hiring-offer-actions"
+      >
         <Button
           onClick={handleBack}
           className="h-11 min-w-[100px] rounded-lg border-gray-300 text-gray-700"

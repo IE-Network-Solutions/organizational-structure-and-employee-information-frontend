@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import React from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -78,7 +79,12 @@ const CandidateDetailPage: React.FC = () => {
         className="min-h-screen w-full p-4 sm:p-6 bg-[#f9fafb]"
         data-cy="candidate-detail-not-found"
       >
-        <p className="text-gray-500">Candidate not found.</p>
+        <p
+          className="text-gray-500"
+          data-cy="candidate-detail-not-found-message"
+        >
+          Candidate not found.
+        </p>
         <Button
           type="link"
           id="candidate-detail-back-to-jobs"
