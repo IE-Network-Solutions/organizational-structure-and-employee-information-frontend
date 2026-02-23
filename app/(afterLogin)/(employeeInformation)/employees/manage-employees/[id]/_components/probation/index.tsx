@@ -13,6 +13,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import AddIcon from '@mui/icons-material/Add';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface Ids {
   id: string;
@@ -34,6 +35,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
     refetch,
   } = useFetchProbationTargetsByUserId(id);
   const pageSlug = toSlug(id);
+  const { isMobile } = useIsMobile();
 
   // Mutation hooks
   const { mutate: updateTaskMutation } = useUpdateProbationTask();
@@ -213,12 +215,12 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
               type="primary"
               onClick={handleCreateProbationTarget}
               loading={isCreatingTarget}
-              className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+              className=""
               id="probation-create-target-btn"
               data-cy="probation-create-target-btn"
               icon={<AddIcon />}
             >
-              Add Probation Target
+              {!isMobile && 'Add Probation Target'}
             </Button>
           </AccessGuard>
         </div>

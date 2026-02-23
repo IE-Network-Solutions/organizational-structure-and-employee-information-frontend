@@ -659,7 +659,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
               key={target.id}
               header={
                 <div
-                  className="flex md:flex-row flex-col items-start md:items-center justify-between w-full pr-0 gap-2"
+                  className="flex flex-row items-start md:items-center justify-between w-full pr-0 gap-2"
                   style={{ padding: 0 }}
                   id={`probation-target-header-${targetSlug}`}
                   data-cy={`probation-target-header-${targetSlug}`}
@@ -673,7 +673,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                       size="default"
                       src={target.user.profileImage}
                       icon={<UserOutlined />}
-                      className="mr-3"
+                      className="mr-3 hidden sm:flex"
                       data-cy={`probation-target-avatar-${targetSlug}`}
                     >
                       {!target.user.profileImage &&
@@ -774,7 +774,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                           e.stopPropagation();
                           handleAddTask(target.id);
                         }}
-                        className="bg-blue-600 hover:bg-blue-700 flex-shrink-0"
+                        className="hidden sm:flex"
                         id={`probation-target-add-task-btn-${targetSlug}`}
                         data-cy={`probation-target-add-task-btn-${targetSlug}`}
                       >
@@ -792,6 +792,15 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                         permissions: [Permissions.DeleteProbationTarget],
                       });
                       const items = [
+                        isMobile ? {
+                          key: 'add-task',
+                          label: 'Add Probation Task',
+                          icon: <PlusOutlined />,
+                          onClick: (e: any) => {
+                            e?.domEvent?.stopPropagation?.();
+                            handleAddTask(target.id);
+                          },
+                        } : null,
                         canEditTarget
                           ? {
                               key: 'edit-target',

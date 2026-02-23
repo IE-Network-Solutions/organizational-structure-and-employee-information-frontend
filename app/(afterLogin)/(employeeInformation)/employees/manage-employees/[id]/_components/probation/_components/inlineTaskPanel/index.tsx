@@ -497,7 +497,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
         data-cy={`probation-inline-panel-actions-${panelSlug}`}
       >
         <Space
-          direction={isMobile ? 'vertical' : 'horizontal'}
+          direction={'horizontal'}
           size={isMobile ? 8 : 12}
           id={`probation-inline-panel-actions-space-${panelSlug}`}
           data-cy={`probation-inline-panel-actions-space-${panelSlug}`}
