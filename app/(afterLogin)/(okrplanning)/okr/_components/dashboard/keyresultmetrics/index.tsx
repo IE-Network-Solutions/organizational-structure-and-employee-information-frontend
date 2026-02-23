@@ -1,4 +1,4 @@
-import { Dropdown, Menu, Progress, Select } from 'antd';
+import { Dropdown, Menu, Progress, Select, Tooltip } from 'antd';
 import { FC, useState } from 'react';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
@@ -12,7 +12,9 @@ import {
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
-import { DownOutlined } from '@ant-design/icons';
+import { DownOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import RecentModesTimelineModal from '../../recentModesTimelineModal';
+import { useQueryClient } from 'react-query';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -35,6 +37,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openTimelineModal, setOpenTimelineModal] = useState(false);
+  const queryClient = useQueryClient();
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
   const { mutate: updateKeyResult } = useUpdateKeyResult();
   const { userId } = useAuthenticationStore();
@@ -177,6 +181,15 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         >
           {`${keyResult?.title} ${getMetricName(keyResult.metricType.name)}`}
         </h2>
+        {keyResult?.previousMetricTypeId && (
+          <Tooltip title="Recent modes timeline">
+            <InfoCircleOutlined
+              className="text-blue-500 cursor-pointer hover:text-blue-600"
+              onClick={() => setOpenTimelineModal(true)}
+              data-cy={`okr-key-result-timeline-info-${keyResult?.id}`}
+            />
+          </Tooltip>
+        )}
         {keyResult?.isClosed === false &&
           Number(keyResult?.progress) === 0 &&
           menu && (
@@ -419,6 +432,15 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         open={open}
         onClose={onClose}
         keyResult={keyResultValue}
+      />
+      <RecentModesTimelineModal
+        open={openTimelineModal}
+        onClose={() => setOpenTimelineModal(false)}
+        keyResult={keyResult}
+        onRestoreSuccess={() => {
+          queryClient.invalidateQueries('ObjectiveInformation');
+          queryClient.refetchQueries('ObjectiveDashboard');
+        }}
       />
       <DeleteModal
         open={openDeleteModal}
