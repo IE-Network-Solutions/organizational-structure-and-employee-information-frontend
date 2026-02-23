@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Switch, Button, Tag, Divider } from 'antd';
+import { Card, Switch, Button, Tag, Divider, Spin } from 'antd';
 import {
   GoogleOutlined,
   CheckCircleOutlined,
@@ -9,34 +9,62 @@ import {
   InfoCircleOutlined,
   SyncOutlined,
   ArrowRightOutlined,
+  LoadingOutlined,
 } from '@ant-design/icons';
+import {
+  useGetGoogleCalendarUserStatus,
+  useGetGoogleCalendarTenantStatus,
+} from '@/store/server/features/okrplanning/google-calendar/queries';
+import {
+  useConnectGoogleCalendar,
+  useDisconnectGoogleCalendar,
+  useTriggerGoogleCalendarSync,
+  useEnableGoogleCalendarTenant,
+  useDisableGoogleCalendarTenant,
+} from '@/store/server/features/okrplanning/google-calendar/mutations';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const GoogleCalendarSettingsPage: React.FC = () => {
-  // Connection state (will be replaced with real API integration)
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
+  const { data: userStatus, isLoading: isLoadingUserStatus } =
+    useGetGoogleCalendarUserStatus();
+  const { data: tenantStatus, isLoading: isLoadingTenantStatus } =
+    useGetGoogleCalendarTenantStatus();
+  const connectMutation = useConnectGoogleCalendar();
+  const disconnectMutation = useDisconnectGoogleCalendar();
+  const syncMutation = useTriggerGoogleCalendarSync();
+  const enableTenantMutation = useEnableGoogleCalendarTenant();
+  const disableTenantMutation = useDisableGoogleCalendarTenant();
 
-  // Sync preferences
+  const tenantEnabled = tenantStatus?.isEnabled ?? false;
+  const isAdmin = AccessGuard.checkAccess({
+    permissions: [Permissions.CreateOkrRule],
+  });
+  const isConnected = !!(userStatus?.isConnected && userStatus?.hasTokens);
+  const isLoadingStatus = isLoadingUserStatus || isLoadingTenantStatus;
+
+  // Sync preferences (local state — backend does not yet support granular preferences)
   const [syncObjectives, setSyncObjectives] = useState(true);
   const [syncKeyResults, setSyncKeyResults] = useState(true);
   const [syncPlans, setSyncPlans] = useState(true);
   const [syncCheckIns, setSyncCheckIns] = useState(false);
   const [autoSync, setAutoSync] = useState(true);
 
-  const handleConnect = async () => {
-    setIsConnecting(true);
-    // TODO: Implement Google OAuth2 flow for Calendar API
-    // This will be replaced with actual Google Calendar OAuth integration
-    setTimeout(() => {
-      setIsConnected(true);
-      setIsConnecting(false);
-    }, 1500);
+  const handleConnect = () => {
+    connectMutation.mutate();
   };
 
   const handleDisconnect = () => {
-    // TODO: Implement disconnect / revoke Google Calendar access
-    setIsConnected(false);
+    disconnectMutation.mutate();
   };
+
+  if (isLoadingStatus) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Spin indicator={<LoadingOutlined spin />} size="large" />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -94,6 +122,66 @@ const GoogleCalendarSettingsPage: React.FC = () => {
 
       <Divider className="my-4" />
 
+      {/* Admin: Organization-level toggle */}
+      {isAdmin && (
+        <Card
+          className="mb-6"
+          data-cy="google-calendar-tenant-toggle-card"
+          id="google-calendar-tenant-toggle-card"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h3
+                className="text-base font-semibold text-gray-900 m-0 mb-1"
+                data-cy="google-calendar-tenant-toggle-title"
+                id="google-calendar-tenant-toggle-title"
+              >
+                Enable for Organization
+              </h3>
+              <p
+                className="text-sm text-gray-500 m-0"
+                data-cy="google-calendar-tenant-toggle-description"
+                id="google-calendar-tenant-toggle-description"
+              >
+                {tenantEnabled
+                  ? 'Google Calendar integration is enabled. All users in your organization can connect their own Google Calendar.'
+                  : 'Enable Google Calendar integration to allow users in your organization to connect and sync their OKR data.'}
+              </p>
+            </div>
+            <div className="ml-4">
+              <Switch
+                checked={tenantEnabled}
+                loading={
+                  enableTenantMutation.isLoading ||
+                  disableTenantMutation.isLoading
+                }
+                onChange={(checked) => {
+                  if (checked) {
+                    enableTenantMutation.mutate();
+                  } else {
+                    disableTenantMutation.mutate();
+                  }
+                }}
+                data-cy="google-calendar-tenant-toggle-switch"
+                id="google-calendar-tenant-toggle-switch"
+              />
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {!tenantEnabled && !isAdmin && (
+        <div
+          className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg"
+          data-cy="google-calendar-tenant-disabled-notice"
+        >
+          <p className="text-sm text-amber-800 m-0">
+            Google Calendar integration is not enabled for your organization.
+            Contact your administrator to enable it.
+          </p>
+        </div>
+      )}
+
       {/* Connection Card */}
       <Card
         className="mb-6"
@@ -124,6 +212,7 @@ const GoogleCalendarSettingsPage: React.FC = () => {
               <Button
                 danger
                 onClick={handleDisconnect}
+                loading={disconnectMutation.isLoading}
                 data-cy="google-calendar-disconnect-button"
                 id="google-calendar-disconnect-button"
               >
@@ -133,8 +222,9 @@ const GoogleCalendarSettingsPage: React.FC = () => {
               <Button
                 type="primary"
                 icon={<GoogleOutlined />}
-                loading={isConnecting}
+                loading={connectMutation.isLoading}
                 onClick={handleConnect}
+                disabled={!tenantEnabled}
                 className="bg-blue-600 hover:bg-blue-700 border-blue-600"
                 data-cy="google-calendar-connect-button"
                 id="google-calendar-connect-button"
@@ -314,6 +404,39 @@ const GoogleCalendarSettingsPage: React.FC = () => {
               id="google-calendar-auto-sync-switch"
             />
           </div>
+
+          {isConnected && (
+            <>
+              <Divider className="my-2" />
+              <div className="flex items-center justify-between">
+                <div>
+                  <p
+                    className="text-sm font-medium text-gray-900 m-0"
+                    data-cy="google-calendar-manual-sync-label"
+                    id="google-calendar-manual-sync-label"
+                  >
+                    Manual Sync
+                  </p>
+                  <p
+                    className="text-xs text-gray-500 m-0 mt-0.5"
+                    data-cy="google-calendar-manual-sync-description"
+                    id="google-calendar-manual-sync-description"
+                  >
+                    Trigger a full sync of all OKR data to Google Calendar
+                  </p>
+                </div>
+                <Button
+                  icon={<SyncOutlined />}
+                  loading={syncMutation.isLoading}
+                  onClick={() => syncMutation.mutate()}
+                  data-cy="google-calendar-sync-now-button"
+                  id="google-calendar-sync-now-button"
+                >
+                  Sync Now
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </Card>
 

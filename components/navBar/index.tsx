@@ -23,7 +23,7 @@ import { Layout, Button, theme, Tree, Skeleton, Dropdown, message } from 'antd';
 const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
-import { TbMessage2 } from 'react-icons/tb';
+import { TbMessage2, TbPlug } from 'react-icons/tb';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
@@ -868,6 +868,36 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       className: 'font-bold',
       permissions: ['view_audit_log'],
       disabled: hasEndedFiscalYear,
+    },
+    {
+      title: (
+        <span
+          data-cy="navbar-integrations"
+          className="flex items-center gap-2 h-12"
+        >
+          <TbPlug
+            size={18}
+            className={
+              expandedKeys.includes('integrations-menu') ? 'text-blue' : ''
+            }
+          />
+          <span data-cy="navbar-integrations-label">Integrations</span>
+        </span>
+      ),
+      key: 'integrations-menu',
+      className: 'font-bold',
+      permissions: ['view_basecamp_integration'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          title: (
+            <span data-cy="navbar-integrations-basecamp-label">Basecamp</span>
+          ),
+          key: '/integrations/basecamp',
+          className: 'font-bold',
+          permissions: ['view_basecamp_integration'],
+        },
+      ],
     },
     {
       title: (
