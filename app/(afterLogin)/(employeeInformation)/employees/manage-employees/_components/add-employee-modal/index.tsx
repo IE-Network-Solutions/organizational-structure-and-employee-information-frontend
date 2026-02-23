@@ -100,9 +100,10 @@ const AddEmployeeModal = (props: any) => {
           open={open}
           onCancel={handleCancel}
           title={modalHeader}
-          width={900}
           data-cy="user-sidebar-drawer"
           footer={null}
+          className='w-full max-w-screen-md'
+          zIndex={10002}
         >
 
           <div className="my-6">

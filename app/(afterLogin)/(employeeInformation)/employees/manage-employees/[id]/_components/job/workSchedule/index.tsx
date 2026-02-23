@@ -310,6 +310,7 @@ const WorkScheduleComponent: React.FC = () => {
       id="job-work-schedule-card"
       data-cy="job-work-schedule-card"
       headStyle={{ borderBottom: 'none' }}
+      bodyStyle={{ padding: '0 0 0 24px' }}
     >
       {!edit.workSchedule ? (
         <>
@@ -512,7 +513,7 @@ const WorkScheduleComponent: React.FC = () => {
                           value={day.startTime}
                           format="HH:mm"
                           placeholder="Start time"
-                          disabled={!day.workDay}
+                          disabled
                           onChange={(time) => {
                             const updated = [...dailySchedule];
                             updated[index].startTime = time;
@@ -533,7 +534,7 @@ const WorkScheduleComponent: React.FC = () => {
                           value={day.endTime}
                           format="HH:mm"
                           placeholder="End time"
-                          disabled={!day.workDay}
+                          disabled
                           onChange={(time) => {
                             const updated = [...dailySchedule];
                             updated[index].endTime = time;
@@ -550,7 +551,7 @@ const WorkScheduleComponent: React.FC = () => {
                           data-cy={`job-work-schedule-end-time-${index}`}
                         />
                         <div
-                          className={`px-3 py-1 rounded text-sm font-medium min-w-[80px] text-center ${
+                          className={`px-3 py-1 rounded text-sm font-medium min-w-[80px] text-center hidden sm:block ${
                             day.workDay
                               ? 'bg-blue-100 text-blue-700'
                               : 'bg-gray-100 text-gray-400'

@@ -179,7 +179,7 @@ const ManageEmployees: React.FC<any> = () => {
 
   return (
     <div
-      className="h-auto w-full"
+      className="h-auto w-full pr-2"
       id="manage-employees-page"
       data-cy="manage-employees-page"
     >

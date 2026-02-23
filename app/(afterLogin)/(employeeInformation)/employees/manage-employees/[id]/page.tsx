@@ -237,7 +237,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
 
   return (
     <div
-      className="mx-5 h-auto min-h-screen"
+      className="p-2 sm:mx-5 sm:pr-2 h-auto min-h-screen"
       id="employee-detail-page"
       data-cy="employee-detail-page"
     >
@@ -299,11 +299,6 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           >
             <BasicInfo id={id} data-cy="employee-detail-basic-info" />
           </div>
-         
-      
-     
-        
-      
           {/* <Card
             id="employee-detail-tabs-card"
             data-cy="employee-detail-tabs-card"
