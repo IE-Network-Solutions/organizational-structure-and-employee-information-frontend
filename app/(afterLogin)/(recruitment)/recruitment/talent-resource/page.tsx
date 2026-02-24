@@ -6,6 +6,8 @@ import TalentPoolPage from '../talent-resource/talent-pool/_components/talentPoo
 import { useTalentResourceStore } from '@/store/uistate/features/recruitment/talent-resource';
 import TalentRoasterPage from './talent-roaster/page';
 import InternPage from './intern/page';
+import { Breadcrumb, Divider } from 'antd';
+import Link from 'next/link';
 
 const TalentResourcePage = () => {
   const { setActiveTab, activeTab } = useTalentResourceStore();
@@ -13,22 +15,51 @@ const TalentResourcePage = () => {
     <div
       id="talent-acquisition-talent-resource-page-div-container"
       data-cy="talent-acquisition-talent-resource-page-div-container"
-      className="h-auto w-full"
+      className="h-auto w-full px-3 sm:px-6"
     >
-      <BlockWrapper
-        data-cy="talent-acquisition-talent-resource-page-block-wrapper"
-        className="h-auto w-full"
-      >
-        <div
+      <CustomBreadcrumb
+            title={<span 
+              className="text-xl" data-cy="talent-acquisition-talent-resource-page-breadcrumb-title">Talent Resource</span>}
+            subtitle={
+              <Breadcrumb
+                data-cy="talent-acquisition-talent-resource-page-breadcrumb"
+                items={[
+                  {
+                    title: <span className="text-xs" data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-title">Talent Aquistion</span>,
+                  },
+                  {
+                    title: (
+                      <Link
+                        className="text-xs"
+                        data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-link"
+                        href="/recruitment/talent-resource"
+                      >
+                      Talent Resource
+                      </Link>
+                    ),
+                  },
+                ]}
+              />
+            }
+            data-cy="manage-employees-breadcrumb"
+          />
+          <Divider />
+          <div
           id="talent-acquisition-talent-resource-page-div-header"
           data-cy="talent-acquisition-talent-resource-page-div-header"
           className="flex flex-wrap justify-between items-center"
         >
-          <CustomBreadcrumb
+          {/* <CustomBreadcrumb
             title="Talent Resource"
             subtitle="Profiles of interested and prospective talent."
             data-cy="talent-acquisition-talent-resource-page-breadcrumb"
-          />
+          /> */}
+
+
+
+
+
+
           <div
             id="talent-acquisition-talent-resource-page-div-tabs"
             data-cy="talent-acquisition-talent-resource-page-div-tabs"
@@ -88,6 +119,11 @@ const TalentResourcePage = () => {
             </button>
           </div>
         </div>
+      <BlockWrapper
+        data-cy="talent-acquisition-talent-resource-page-block-wrapper"
+        className="h-auto w-full"
+      >
+        
 
         <div
           id="talent-acquisition-talent-resource-page-div-content"
