@@ -19,11 +19,19 @@ const InitialStateView: React.FC<InitialStateViewProps> = ({
   setIsSourceOver,
 }) => {
   return (
-    <div className="flex-1 flex items-center justify-center pt-4 lg:pt-[60px] w-full">
-      <div className="w-full max-w-[350px] lg:max-w-md">
+    <div
+      className="flex-1 flex items-center justify-center pt-4 lg:pt-[60px] w-full"
+      data-cy="transfer-initial-state-container"
+    >
+      <div
+        className="w-full max-w-[350px] lg:max-w-md"
+        data-cy="transfer-initial-state-content"
+      >
         <div
           className={`border-2 rounded-lg p-4 bg-gray-50 ${
-            isSourceOver ? 'border-solid border-primary' : 'border-dashed border-gray-400'
+            isSourceOver
+              ? 'border-solid border-primary'
+              : 'border-dashed border-gray-400'
           }`}
           style={{ minHeight: '130px' }}
           data-cy="transfer-initial-container"
@@ -35,7 +43,7 @@ const InitialStateView: React.FC<InitialStateViewProps> = ({
             placeholder="Drag the team you want to transfer from"
             onDragOver={setIsSourceOver}
             mobileSelectProps={{
-              placeholder: "Select department",
+              placeholder: 'Select department',
               value: null,
               options: availableDepartments.map((dept: Department) => ({
                 value: dept.id,
@@ -43,13 +51,15 @@ const InitialStateView: React.FC<InitialStateViewProps> = ({
               })),
               onChange: (value) => {
                 if (value) {
-                  const dept = availableDepartments.find((d: Department) => d.id === value);
+                  const dept = availableDepartments.find(
+                    (d: Department) => d.id === value,
+                  );
                   if (dept && !sourceTeams.find((t) => t.id === dept.id)) {
                     setSourceTeams([...sourceTeams, dept]);
                   }
                 }
               },
-              dataCy: "transfer-mobile-source-select-initial",
+              dataCy: 'transfer-mobile-source-select-initial',
             }}
           >
             {null}

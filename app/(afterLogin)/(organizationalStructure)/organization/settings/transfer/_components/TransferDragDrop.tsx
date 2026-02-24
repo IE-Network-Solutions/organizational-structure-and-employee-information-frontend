@@ -12,10 +12,7 @@ import {
   DragStartEvent,
   DragOverlay,
 } from '@dnd-kit/core';
-import {
-  arrayMove,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useTransferDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
 import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -29,7 +26,9 @@ import TransferConfirmationModal from './modals/TransferConfirmationModal';
 const TransferDragDrop: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sourceTeams, setSourceTeams] = useState<Department[]>([]);
-  const [destinationTeam, setDestinationTeam] = useState<Department | null>(null);
+  const [destinationTeam, setDestinationTeam] = useState<Department | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isSourceOver, setIsSourceOver] = useState(false);
@@ -38,7 +37,7 @@ const TransferDragDrop: React.FC = () => {
   const { data: departments } = useGetDepartments();
   const { data: orgStructureData } = useGetOrgCharts();
   const { mutate: transferDepartment, isLoading } = useTransferDepartment();
-  
+
   const {
     setRootDepartment,
     setChildDepartment,
@@ -56,7 +55,7 @@ const TransferDragDrop: React.FC = () => {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   // Filter departments based on search
@@ -64,19 +63,19 @@ const TransferDragDrop: React.FC = () => {
     if (!departments) return [];
     const query = searchQuery.toLowerCase().trim();
     if (!query) return departments;
-    
+
     return departments.filter((dept: any) =>
-      dept.name?.toLowerCase().includes(query)
+      dept.name?.toLowerCase().includes(query),
     );
   }, [departments, searchQuery]);
 
   // Exclude already selected teams from the list
   const availableDepartments = useMemo(() => {
     const selectedIds = [
-      ...sourceTeams.map(t => t.id),
+      ...sourceTeams.map((t) => t.id),
       destinationTeam?.id,
     ].filter(Boolean);
-    
+
     return filteredDepartments
       .filter((dept: any) => !selectedIds.includes(dept.id))
       .map((dept: any) => ({
@@ -122,12 +121,18 @@ const TransferDragDrop: React.FC = () => {
   // Build transfer data when source teams or destination changes
   useEffect(() => {
     if (sourceTeams.length > 0 && destinationTeam && orgStructureData) {
-      const rootDept = findDepartmentWithChildren(orgStructureData, destinationTeam.id);
-      
+      const rootDept = findDepartmentWithChildren(
+        orgStructureData,
+        destinationTeam.id,
+      );
+
       if (!rootDept) return;
 
       const departmentChildren = sourceTeams.map((child) => {
-        const departmentData = findDepartmentWithChildren(orgStructureData, child.id);
+        const departmentData = findDepartmentWithChildren(
+          orgStructureData,
+          child.id,
+        );
         return {
           id: child.id,
           name: departmentData?.name || child.name,
@@ -154,7 +159,15 @@ const TransferDragDrop: React.FC = () => {
       });
       setChildDepartment(departmentChildren);
     }
-  }, [sourceTeams, destinationTeam, orgStructureData, findDepartmentWithChildren, setTransferDepartment, setRootDepartment, setChildDepartment]);
+  }, [
+    sourceTeams,
+    destinationTeam,
+    orgStructureData,
+    findDepartmentWithChildren,
+    setTransferDepartment,
+    setRootDepartment,
+    setChildDepartment,
+  ]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -168,7 +181,10 @@ const TransferDragDrop: React.FC = () => {
 
     if (!over) {
       // If dropped outside, and it was from source/destination, return to available
-      if (sourceTeams.find(t => t.id === active.id) || (destinationTeam && destinationTeam.id === active.id)) {
+      if (
+        sourceTeams.find((t) => t.id === active.id) ||
+        (destinationTeam && destinationTeam.id === active.id)
+      ) {
         // No explicit action needed here, as it will remain in its original list
         // or be handled by the availableDepartments filter if it was a new drag.
       }
@@ -182,7 +198,9 @@ const TransferDragDrop: React.FC = () => {
     let deptData: Department | null = null;
 
     // Try to find in available departments
-    const availableDept = availableDepartments.find((d: Department) => d.id === activeId);
+    const availableDept = availableDepartments.find(
+      (d: Department) => d.id === activeId,
+    );
     if (availableDept) {
       deptData = availableDept;
     } else {
@@ -306,15 +324,14 @@ const TransferDragDrop: React.FC = () => {
     return (
       availableDepartments.find((d: Department) => d.id === activeId) ||
       sourceTeams.find((t: Department) => t.id === activeId) ||
-      (destinationTeam && destinationTeam.id === activeId ? destinationTeam : null)
+      (destinationTeam && destinationTeam.id === activeId
+        ? destinationTeam
+        : null)
     );
   }, [activeId, availableDepartments, sourceTeams, destinationTeam]);
 
   // Dynamic styling based on items in buckets
   const hasItemsInBuckets = sourceTeams.length > 0 || !!destinationTeam;
-  const borderColorClass = hasItemsInBuckets ? 'border-primary' : 'border-gray-400';
-  const bgColorClass = hasItemsInBuckets ? 'bg-primary' : 'bg-gray-400';
-  const textColorClass = hasItemsInBuckets ? 'text-primary' : 'text-gray-900';
 
   return (
     <DndContext
@@ -332,7 +349,10 @@ const TransferDragDrop: React.FC = () => {
         data-cy="org-settings-transfer-container"
         id="org-settings-transfer-container"
       >
-        <div className="flex flex-col lg:flex-row items-center lg:items-start">
+        <div
+          className="flex flex-col lg:flex-row items-center lg:items-start"
+          data-cy="transfer-main-content-container"
+        >
           {/* Left Panel - Available Teams */}
           <AvailableTeamsPanel
             searchQuery={searchQuery}
@@ -340,7 +360,10 @@ const TransferDragDrop: React.FC = () => {
             availableDepartments={availableDepartments}
             getTeamColor={getTeamColor}
           />
-          <div className="hidden lg:block w-[6%]"></div>
+          <div
+            className="hidden lg:block w-[6%]"
+            data-cy="transfer-spacer-div"
+          ></div>
 
           {/* Middle Section - Conditional Layout */}
           {sourceTeams.length === 0 && !destinationTeam ? (
@@ -374,9 +397,12 @@ const TransferDragDrop: React.FC = () => {
         </div>
       </div>
 
-      <DragOverlay>
+      <DragOverlay data-cy="transfer-drag-overlay">
         {activeItem ? (
-          <div className="rotate-2">
+          <div
+            className="rotate-2"
+            data-cy="transfer-drag-overlay-item-container"
+          >
             <TeamCard department={activeItem} isOverlay isDragging />
           </div>
         ) : null}
