@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-import { Button, Space, Table } from 'antd';
+import { Button, Dropdown, message, Space, Table, Tag } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
-import { IoEyeOutline } from 'react-icons/io5';
 import { GoLocation } from 'react-icons/go';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
@@ -15,7 +14,7 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
 
 // Components
-import AttendanceTableFilter from './tableFilter/inedx';
+import AttendanceTableFilter from './tableFilter/index';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 
 // Store
@@ -25,16 +24,37 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 // Utils
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
-import { AttendanceRecordTypeBadgeTheme } from '@/types/timesheet/attendance';
+import {
+  AttendanceRecordType,
+  AttendanceRecordTypeBadgeTheme,
+} from '@/types/timesheet/attendance';
 import {
   calculateAttendanceRecordToTotalWorkTime,
+  calculateAttendanceRecordToTotalBreakTimeMs,
   timeToHour,
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import { usePathname } from 'next/navigation';
 import usePagination from '@/utils/usePagination';
+import { TbFileExport } from 'react-icons/tb';
+import type { MenuProps } from 'antd';
+import { UseExportAttendanceData } from '@/store/server/features/timesheet/attendance/queries';
+import { PiExportLight } from 'react-icons/pi';
 
-const AttendanceTable = () => {
+export type AttendanceTableVariant = 'default' | 'myTimesheet';
+
+const ATTENDANCE_STATUS_TAG_COLOR: Record<AttendanceRecordType, string> = {
+  [AttendanceRecordType.PRESENT]: 'blue',
+  [AttendanceRecordType.LATE]: 'warning',
+  [AttendanceRecordType.EARLY]: 'warning',
+  [AttendanceRecordType.ABSENT]: 'error',
+};
+
+interface AttendanceTableProps {
+  variant?: AttendanceTableVariant;
+}
+
+const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
   // Store hooks
   const { userId } = useAuthenticationStore();
 
@@ -42,8 +62,6 @@ const AttendanceTable = () => {
     usePagination(1, 10);
 
   const {
-    setIsShowViewSidebarAttendance,
-    setViewAttendanceId,
     filter,
     setFilter,
     currentPage,
@@ -74,9 +92,28 @@ const AttendanceTable = () => {
     { filter: { ...userFilter, ...filter } },
   );
   const { isMobile, isTablet } = useIsMobile();
+  const { mutate: exportAttendanceData } = UseExportAttendanceData();
 
-  // Table columns
-  const columns: TableColumnsType<AttendanceRecord> = [
+  const handleExport = (exportType: 'PDF' | 'EXCEL') => {
+    exportAttendanceData(
+      {
+        exportType,
+        filter: { ...userFilter, ...filter },
+      },
+      {
+        onSuccess: () => message.success('Download completed successfully!'),
+        onError: () => message.error('Failed to export. Please try again.'),
+      },
+    );
+  };
+
+  const exportMenuItems: MenuProps['items'] = [
+    { key: 'pdf', label: 'Export as PDF', onClick: () => handleExport('PDF') },
+    { key: 'excel', label: 'Export as Excel', onClick: () => handleExport('EXCEL') },
+  ];
+
+  // Table columns (default: full set including Location, Over-time)
+  const defaultColumns: TableColumnsType<AttendanceRecord> = [
     {
       title: 'Date',
       dataIndex: 'createdAt',
@@ -232,36 +269,100 @@ const AttendanceTable = () => {
         </div>
       ),
     },
+  ];
+
+  // My Timesheet variant: Date, Check In, Check Out, Total Hours, Total Break, Status, Action (no Location, no Over-time)
+  const myTimesheetColumns: TableColumnsType<AttendanceRecord> = [
     {
-      title: '',
-      dataIndex: 'action',
-      key: 'action',
-      render: (text, record) => (
+      title: 'Date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      sorter: true,
+      render: (date: string) => (
         <div
-          id="time-attendance-attendance-table-row-action-container"
-          data-cy="time-attendance-attendance-table-row-action-container"
-          className="py-4"
+          className="text-sm text-gray-900 py-4 whitespace-nowrap"
+          data-cy="time-attendance-attendance-table-row-date-div"
         >
-          <Button
-            className="w-[30px] h-[30px]"
-            icon={
-              <IoEyeOutline
-                data-cy="time-attendance-attendance-table-row-action-button-icon"
-                size={16}
-              />
-            }
-            type="primary"
-            onClick={() => {
-              setViewAttendanceId(record.id);
-              setIsShowViewSidebarAttendance(true);
-            }}
-            id={`time-attendance-attendance-table-row-view-button-${record.id}`}
-            data-cy={`time-attendance-attendance-table-row-action-button-${record.id}`}
-          />
+          {dayjs(date).format(DATE_FORMAT)}
         </div>
       ),
     },
+    {
+      title: 'Check In',
+      dataIndex: 'startAt',
+      key: 'startAt',
+      render: (date: string) => (
+        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-attendance-table-row-clock-in-div">
+          {date ? dayjs(date).format('HH:mm') : '-'}
+        </div>
+      ),
+    },
+    {
+      title: 'Check Out',
+      dataIndex: 'endAt',
+      key: 'endAt',
+      render: (date: string) => (
+        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-attendance-table-row-clock-out-div">
+          {date ? dayjs(date).format('HH:mm') : '-'}
+        </div>
+      ),
+    },
+    {
+      title: 'Total Hours',
+      dataIndex: 'totalTime',
+      key: 'totalTime',
+      render: (_: unknown, record: AttendanceRecord) => {
+        const calcTotal = calculateAttendanceRecordToTotalWorkTime(record);
+        return (
+          <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-attendance-table-row-total-time-div">
+            {record.startAt && record.endAt
+              ? `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)}`
+              : '-'}
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Total Break',
+      key: 'totalBreak',
+      render: (_: unknown, record: AttendanceRecord) => {
+        const breakMs = calculateAttendanceRecordToTotalBreakTimeMs(record);
+        return (
+          <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-attendance-table-row-total-break-div">
+            {breakMs > 0
+              ? `${timeToHour(breakMs)}:${timeToLastMinute(breakMs)}`
+              : '-'}
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (_: unknown, record: AttendanceRecord) => {
+        const statuses = formatToAttendanceStatuses(record);
+        return (
+          <div className="py-4" data-cy="time-attendance-attendance-table-row-status-container">
+            <Space wrap data-cy="time-attendance-attendance-table-row-status-space">
+              {statuses.map((status) => (
+                <Tag
+                  color={ATTENDANCE_STATUS_TAG_COLOR[status.status]}
+                  key={status.status}
+                  data-cy={`time-attendance-attendance-table-row-status-badge-${status.status}`}
+                >
+                  {status.status}
+                  {status.text ? ` ${status.text}` : ''}
+                </Tag>
+              ))}
+            </Space>
+          </div>
+        );
+      },
+    },
   ];
+
+  const columns = variant === 'myTimesheet' ? myTimesheetColumns : defaultColumns;
 
   const onFilterChange = (val: CommonObject) => {
     const nFilter: Partial<AttendanceRequestBody['filter']> = { ...userFilter };
@@ -293,7 +394,7 @@ const AttendanceTable = () => {
 
   return (
     <div
-      className=" bg-white border border-gray-100 rounded p-5"
+      className="bg-white border border-gray-100 rounded"
       id="time-attendance-attendance-table-container"
       data-cy="time-attendance-attendance-table-container"
     >
@@ -307,32 +408,35 @@ const AttendanceTable = () => {
           id="time-attendance-attendance-table-title-container"
           data-cy="time-attendance-attendance-table-title-container"
         >
-          <div
-            className="text-sm sm:text-2xl font-bold text-gray-900"
-            id="time-attendance-attendance-table-title"
-            data-cy="time-attendance-attendance-table-title"
-          >
-            Attendance
-          </div>
-
-          <Button
-            type="text"
-            size="small"
-            icon={<AiOutlineReload size={14} className="text-gray-600" />}
-            onClick={() => refetch()}
-            id="time-attendance-attendance-table-refresh-button"
-            data-cy="time-attendance-attendance-table-refresh-button"
-          />
+          {variant === 'default' && (
+            <>
+              <div
+                className="text-sm sm:text-2xl font-bold text-gray-900"
+                id="time-attendance-attendance-table-title"
+                data-cy="time-attendance-attendance-table-title"
+              >
+                Attendance
+              </div>
+              <Button
+                type="text"
+                size="small"
+                icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                onClick={() => refetch()}
+                id="time-attendance-attendance-table-refresh-button"
+                data-cy="time-attendance-attendance-table-refresh-button"
+              />
+            </>
+          )}
         </div>
         {/* Mobile Filter */}
         <div
-          className="sm:hidden flex items-center"
+          className="sm:hidden flex items-center w-full"
           id="time-attendance-attendance-table-mobile-filter-container"
           data-cy="time-attendance-attendance-table-mobile-filter-container"
         >
           <div
             data-cy="my-timesheet-components-attendancetable-index-tsx-index-div-333"
-            className="h-10 flex "
+            className="h-10 flex w-full"
           >
             <AttendanceTableFilter
               onChange={onFilterChange}
@@ -348,10 +452,29 @@ const AttendanceTable = () => {
         id="time-attendance-attendance-table-desktop-filter-container"
         data-cy="time-attendance-attendance-table-desktop-filter-container"
       >
-        <AttendanceTableFilter
-          onChange={onFilterChange}
-          data-cy="time-attendance-attendance-table-desktop-filter"
-        />
+        <div
+          className="flex flex-wrap items-center gap-4 justify-between mx-2"
+          data-cy="time-attendance-attendance-table-desktop-filter-row"
+        >
+          <AttendanceTableFilter
+            onChange={onFilterChange}
+            data-cy="time-attendance-attendance-table-desktop-filter"
+          />
+          {variant === 'myTimesheet' && (
+            <Dropdown menu={{ items: exportMenuItems }} trigger={['click']} placement="bottomRight">
+              <Button
+                type="primary"
+                ghost={true}
+                icon={<PiExportLight  size={16} />}
+                data-cy="my-timesheet-attendance-export-button"
+                id="my-timesheet-attendance-export-button"
+                className='border-gray-300 text-gray-500 font-medium hover:text-primary hover:border-primary'
+              >
+                Export
+              </Button>
+            </Dropdown>
+          )}
+        </div>
       </div>
 
       <div
@@ -369,27 +492,32 @@ const AttendanceTable = () => {
           id="time-attendance-attendance-table"
           data-cy="time-attendance-attendance-table"
         />
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={data?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-            data-cy="time-attendance-attendance-table-mobile-pagination"
-          />
-        ) : (
-          <CustomPagination
-            current={currentPage}
-            total={data?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => {
-              setPageSize(pageSize);
-              setCurrentPage(1);
-            }}
-            data-cy="time-attendance-attendance-table-pagination"
-          />
-        )}
+        <div
+          className="mx-1"
+          data-cy="time-attendance-attendance-table-pagination-wrapper"
+        >
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={data?.meta?.totalItems ?? 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageChange}
+              data-cy="time-attendance-attendance-table-mobile-pagination"
+            />
+          ) : (
+            <CustomPagination
+              current={currentPage}
+              total={data?.meta?.totalItems ?? 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={(pageSize) => {
+                setPageSize(pageSize);
+                setCurrentPage(1);
+              }}
+              data-cy="time-attendance-attendance-table-pagination"
+            />
+          )}
+        </div>
       </div>
 
       {/* View Attendance Sidebar */}

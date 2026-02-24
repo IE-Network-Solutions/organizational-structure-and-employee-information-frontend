@@ -1,8 +1,7 @@
 'use client';
 
-import { Typography } from 'antd';
-
-const { Title } = Typography;
+import AttendanceSummaryCards from '../_components/attendance/AttendanceSummaryCards';
+import AttendanceTable from '../_components/attendanceTable';
 
 export default function AttendancePage() {
   return (
@@ -10,9 +9,8 @@ export default function AttendancePage() {
       id="time-attendance-my-timesheet-attendance-page"
       data-cy="time-attendance-my-timesheet-attendance-page"
     >
-      <Title level={5} className="!mb-0 !text-gray-700">
-        Attendance content will go here (summary cards, filters, table, export).
-      </Title>
+      <AttendanceSummaryCards />
+      <AttendanceTable variant="myTimesheet" />
     </div>
   );
 }
