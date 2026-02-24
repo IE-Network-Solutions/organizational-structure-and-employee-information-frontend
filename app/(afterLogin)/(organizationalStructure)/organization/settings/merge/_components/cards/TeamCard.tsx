@@ -18,26 +18,41 @@ interface TeamCardProps {
   onRemove?: () => void;
 }
 
-const TeamCard: React.FC<TeamCardProps> = ({ department, isDragging, isOverlay, onRemove }) => {
-  const { data: teamLeadResponse, isLoading: isLoadingTeamLead, error: teamLeadError } = useGetDepartmentLead(department.id);
-  
+const TeamCard: React.FC<TeamCardProps> = ({
+  department,
+  isDragging,
+  isOverlay,
+  onRemove,
+}) => {
+  const {
+    data: teamLeadResponse,
+    isLoading: isLoadingTeamLead,
+    error: teamLeadError,
+  } = useGetDepartmentLead(department.id);
+
   // Handle response - could be array, wrapped in data property, or direct object
   let teamLeadArray = [];
   if (Array.isArray(teamLeadResponse)) {
     teamLeadArray = teamLeadResponse;
   } else if (teamLeadResponse?.data) {
-    teamLeadArray = Array.isArray(teamLeadResponse.data) ? teamLeadResponse.data : [teamLeadResponse.data];
+    teamLeadArray = Array.isArray(teamLeadResponse.data)
+      ? teamLeadResponse.data
+      : [teamLeadResponse.data];
   } else if (teamLeadResponse) {
     teamLeadArray = [teamLeadResponse];
   }
-  
+
   // Get the first team lead (or the active one if available)
-  const teamLead = teamLeadArray.length > 0 
-    ? teamLeadArray.find((lead: any) => lead?.isActive || lead?.isPositionActive) || teamLeadArray[0]
-    : null;
-  
+  const teamLead =
+    teamLeadArray.length > 0
+      ? teamLeadArray.find(
+          (lead: any) => lead?.isActive || lead?.isPositionActive,
+        ) || teamLeadArray[0]
+      : null;
+
   const teamLeadName = teamLead
-    ? `${teamLead.firstName || ''} ${teamLead.middleName || ''} ${teamLead.lastName || ''}`.trim() || 'Not assigned'
+    ? `${teamLead.firstName || ''} ${teamLead.middleName || ''} ${teamLead.lastName || ''}`.trim() ||
+      'Not assigned'
     : 'Not assigned';
 
   return (
@@ -72,22 +87,34 @@ const TeamCard: React.FC<TeamCardProps> = ({ department, isDragging, isOverlay, 
           ) : teamLeadError ? (
             <>
               <Tooltip title={department.name} placement="top">
-                <p className="text-base font-bold text-gray-800 m-0 mb-0.5 truncate" data-cy={`merge-team-card-name-${department.id}`}>
+                <p
+                  className="text-base font-bold text-gray-800 m-0 mb-0.5 truncate"
+                  data-cy={`merge-team-card-name-${department.id}`}
+                >
                   {department.name}
                 </p>
               </Tooltip>
-              <p className="text-xs text-gray-500 m-0 truncate" data-cy={`merge-team-card-lead-${department.id}`}>
+              <p
+                className="text-xs text-gray-500 m-0 truncate"
+                data-cy={`merge-team-card-lead-${department.id}`}
+              >
                 Not assigned
               </p>
             </>
           ) : (
             <>
               <Tooltip title={department.name} placement="top">
-                <p className="text-base font-bold text-gray-800 m-0 mb-0.5 truncate" data-cy={`merge-team-card-name-${department.id}`}>
+                <p
+                  className="text-base font-bold text-gray-800 m-0 mb-0.5 truncate"
+                  data-cy={`merge-team-card-name-${department.id}`}
+                >
                   {department.name}
                 </p>
               </Tooltip>
-              <p className="text-xs text-gray-600 m-0 truncate" data-cy={`merge-team-card-lead-${department.id}`}>
+              <p
+                className="text-xs text-gray-600 m-0 truncate"
+                data-cy={`merge-team-card-lead-${department.id}`}
+              >
                 {teamLeadName}
               </p>
             </>

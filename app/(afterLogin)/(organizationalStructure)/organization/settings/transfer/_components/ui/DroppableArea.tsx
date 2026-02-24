@@ -20,14 +20,14 @@ interface DroppableAreaProps {
   };
 }
 
-const DroppableArea: React.FC<DroppableAreaProps> = ({ 
-  id, 
-  children, 
-  className = '', 
-  isEmpty, 
-  placeholder, 
-  onDragOver, 
-  mobileSelectProps 
+const DroppableArea: React.FC<DroppableAreaProps> = ({
+  id,
+  children,
+  className = '',
+  isEmpty,
+  placeholder,
+  onDragOver,
+  mobileSelectProps,
 }) => {
   const { setNodeRef, isOver } = useDroppable({
     id,
@@ -42,14 +42,19 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
   return (
     <div
       ref={setNodeRef}
+      id="transfer-droppable-area"
+      data-cy="transfer-droppable-area"
       className={`${className} ${isOver ? 'bg-blue-50 border-blue-400' : ''}`}
       style={{ position: 'relative', minHeight: isEmpty ? '130px' : 'auto' }}
     >
       {/* Mobile-only searchable select input - shown regardless of items */}
       {mobileSelectProps && (
-        <div className="lg:hidden mb-4">
+        <div className="lg:hidden mb-4"
+        id="transfer-droppable-area-mobile-select-div"
+        data-cy="transfer-droppable-area-mobile-select-div"
+        >
           <Select
-            placeholder={mobileSelectProps.placeholder || "Select department"}
+            placeholder={mobileSelectProps.placeholder || 'Select department'}
             allowClear
             showSearch
             size="large"
@@ -68,16 +73,21 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
           />
         </div>
       )}
-      
+
       {isEmpty && (
-        <div 
+        <div
           className="w-full h-[130px] flex flex-col items-center justify-center"
+          id="transfer-droppable-area-empty-div"
+          data-cy="transfer-droppable-area-empty-div"
           style={{ pointerEvents: 'none', userSelect: 'none' }}
         >
-          <FolderIcon  />
-          <p className="text-gray-400 text-sm m-0">
-            {placeholder}
-          </p>
+          <FolderIcon
+           data-cy="transfer-droppable-area-empty-folder-icon"
+           />
+          <p className="text-gray-400 text-sm m-0"
+          id="transfer-droppable-area-empty-p"
+          data-cy="transfer-droppable-area-empty-p"
+          >{placeholder}</p>
         </div>
       )}
       {children}

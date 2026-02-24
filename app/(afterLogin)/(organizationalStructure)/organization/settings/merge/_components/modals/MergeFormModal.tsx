@@ -12,12 +12,12 @@ interface MergeFormModalProps {
   destinationTeam: Department | null;
 }
 
-const MergeFormModal: React.FC<MergeFormModalProps> = ({ 
-  open, 
-  onNext, 
-  onCancel, 
-  sourceTeam, 
-  destinationTeam 
+const MergeFormModal: React.FC<MergeFormModalProps> = ({
+  open,
+  onNext,
+  onCancel,
+  sourceTeam,
+  destinationTeam,
 }) => {
   const [form] = Form.useForm();
   const { data: employeeData } = useGetAllUsersToGetTeamLeads();
@@ -25,23 +25,22 @@ const MergeFormModal: React.FC<MergeFormModalProps> = ({
   // Get employees from both teams
   const teamLeadOptions = useMemo(() => {
     if (!employeeData?.items || (!sourceTeam && !destinationTeam)) return [];
-    
-    const departmentIds = [
-      sourceTeam?.id,
-      destinationTeam?.id,
-    ].filter(Boolean) as string[];
+
+    const departmentIds = [sourceTeam?.id, destinationTeam?.id].filter(
+      Boolean,
+    ) as string[];
 
     return employeeData.items
       .filter((emp: any) =>
         emp?.employeeJobInformation?.some(
           (job: any) =>
-            departmentIds.includes(job.departmentId) &&
-            job.isPositionActive
-        )
+            departmentIds.includes(job.departmentId) && job.isPositionActive,
+        ),
       )
       .map((emp: any) => ({
         value: emp.id,
-        label: `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim(),
+        label:
+          `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim(),
       }));
   }, [employeeData, sourceTeam, destinationTeam]);
 

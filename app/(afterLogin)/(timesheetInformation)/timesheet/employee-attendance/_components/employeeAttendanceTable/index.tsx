@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Avatar, Button, Space, Table } from 'antd';
+import { Avatar, Button, Dropdown, Space, Table } from 'antd';
 import TableFilter from './tableFilter';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
@@ -30,7 +30,6 @@ import {
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
-import { FiEdit2 } from 'react-icons/fi';
 import { EmployeeAttendance } from '@/types/timesheet/employeeAttendance';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
@@ -39,6 +38,7 @@ import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesh
 import { usePathname } from 'next/navigation';
 import usePagination from '@/utils/usePagination';
 import { Key } from 'react';
+import EmployeeAttendanceSideBar from '../sideBar';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -147,14 +147,24 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
   const columns: TableColumnsType<any> = [
     {
-      title: 'Employee Name',
+      title: (
+        <span className="font-bold text-base text-[#4b4b4b]"
+        id="time-attendance-employee-attendance-table-employee-name-span"
+        data-cy="time-attendance-employee-attendance-table-employee-name-span"
+        >
+          Employee Name
+        </span>
+      ),
       dataIndex: 'userId',
       key: 'createdBy',
       sorter: true,
       render: (text: string) => <EmpRender userId={text} />,
     },
     {
-      title: 'Date',
+      title: <span className="font-bold text-base text-[#4b4b4b]"
+      id="time-attendance-employee-attendance-table-date-span"
+      data-cy="time-attendance-employee-attendance-table-date-span"
+      >Date</span>,
       dataIndex: 'createdAt',
       key: 'createdAt',
       sorter: true,
@@ -165,7 +175,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
     },
     {
-      title: 'Clock In',
+      title: (
+        <span className="font-bold text-base text-[#4b4b4b]"
+        id="time-attendance-employee-attendance-table-clock-in-span"
+        data-cy="time-attendance-employee-attendance-table-clock-in-span"
+        >Clock In</span>
+      ),
       dataIndex: 'clockIn',
       key: 'clockIn',
       render: (date: string, record: any) => {
@@ -218,7 +233,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       },
     },
     {
-      title: 'Clock Out',
+      title: (
+        <span className="font-bold text-base text-[#4b4b4b]"
+        id="time-attendance-employee-attendance-table-clock-out-span"
+        data-cy="time-attendance-employee-attendance-table-clock-out-span"
+        >Clock Out</span>
+      ),
       dataIndex: 'clockOut',
       key: 'clockOut',
       render: (date: string, record: any) => {
@@ -271,7 +291,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       },
     },
     {
-      title: 'Status',
+      title: <span className="font-bold text-base text-[#4b4b4b]"
+      id="time-attendance-employee-attendance-table-status-span"
+      data-cy="time-attendance-employee-attendance-table-status-span"
+      >Status</span>,
       dataIndex: 'status',
       key: 'status',
       render: (record: AttendanceRecord) => {
@@ -345,7 +368,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     },
 
     {
-      title: 'Over-time',
+      title: (
+        <span className="font-bold text-base text-[#4b4b4b]"
+        id="time-attendance-employee-attendance-table-over-time-span"
+        data-cy="time-attendance-employee-attendance-table-over-time-span"
+        >Over-time</span>
+      ),
       dataIndex: 'overTime',
       key: 'overTime',
       render: (text: string) => (
@@ -358,7 +386,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
     },
     {
-      title: 'Total time',
+      title: (
+        <span className="font-bold text-base text-[#4b4b4b]"
+        id="time-attendance-employee-attendance-table-total-time-span"
+        data-cy="time-attendance-employee-attendance-table-total-time-span"
+        >Total time</span>
+      ),
       dataIndex: 'totalTime',
       key: 'totalTime',
       render: (text: string) => (
@@ -371,27 +404,37 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
     },
     {
-      title: 'Action',
+      title: <span className="font-bold text-base text-[#4b4b4b]"
+      id="time-attendance-employee-attendance-table-action-span"
+      data-cy="time-attendance-employee-attendance-table-action-span"
+      >Action</span>,
       dataIndex: 'action',
       key: 'action',
       render: (item: EmployeeAttendance) => {
         return (
-          <Button
-            className="w-[30px] h-[30px]"
-            icon={
-              <FiEdit2
-                data-cy="time-attendance-employee-attendance-row-edit-button-icon"
-                size={16}
-              />
-            }
-            id={`${item?.id}buttonPopOverActionForOnEditActionId`}
-            type="primary"
-            onClick={() => {
-              (setEmployeeId(item?.userId), setEmployeeAttendanceId(item?.id));
-              setIsShowEmployeeAttendanceSidebar(true);
-            }}
-            data-cy={`time-attendance-employee-attendance-row-${item?.id}-edit-button`}
-          />
+          <Dropdown trigger={['click']} 
+          overlay={<EmployeeAttendanceSideBar
+            data-cy="time-attendance-employee-attendance-table-edit-button-dropdown"
+            />}
+          data-cy="time-attendance-employee-attendance-table-edit-button-dropdown"
+          >
+            <Button
+              type="text"
+              className="border-none"
+              id={`${item?.id}buttonPopOverActionForOnEditActionId`}
+              onClick={() => {
+                (setEmployeeId(item?.userId),
+                  setEmployeeAttendanceId(item?.id));
+                setIsShowEmployeeAttendanceSidebar(true);
+              }}
+              data-cy={`time-attendance-employee-attendance-row-${item?.id}-edit-button`}
+            >
+              <span className="font-bold text-base text-[#1e40af]"
+              id="time-attendance-employee-attendance-table-edit-button-span"
+              data-cy="time-attendance-employee-attendance-table-edit-button-span"
+              >Edit</span>
+            </Button>
+          </Dropdown>
         );
       },
     },
@@ -498,7 +541,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       <div
         id="time-attendance-employee-attendance-table-filter-section"
         data-cy="time-attendance-employee-attendance-table-filter-section"
-        className="mb-6"
+        className="mb-4"
       >
         <TableFilter
           data-cy="time-attendance-employee-attendance-table-filter"

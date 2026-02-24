@@ -13,15 +13,14 @@ interface MergeConfirmationModalProps {
   loading: boolean;
 }
 
-const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({ 
-  open, 
-  onConfirm, 
-  onCancel, 
-  sourceTeams, 
-  destinationTeam, 
-  loading 
+const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({
+  open,
+  onConfirm,
+  onCancel,
+  sourceTeams,
+  destinationTeam,
+  loading,
 }) => {
-  const allTeams = [...sourceTeams, destinationTeam].filter(Boolean) as Department[];
 
   return (
     <Modal
@@ -30,10 +29,10 @@ const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({
       onCancel={onCancel}
       okText="Confirm Merge"
       cancelText="Cancel"
-      okButtonProps={{ 
+      okButtonProps={{
         loading,
         danger: true,
-        className: 'bg-red-600 hover:bg-red-700'
+        className: 'bg-red-600 hover:bg-red-700',
       }}
       cancelButtonProps={{ className: 'border-gray-300' }}
       title={
@@ -45,10 +44,13 @@ const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({
       closeIcon={<span className="text-gray-400">×</span>}
       data-cy="merge-confirmation-modal"
     >
-      <div className="py-4">
+      <div className="py-4"
+      id="merge-confirmation-modal-div"
+      data-cy="merge-confirmation-modal-div"
+      >
         <p className="text-gray-700 mb-4">
           This action will permanently merge{' '}
-          <strong>{sourceTeams.map(t => t.name).join(', ')}</strong>
+          <strong>{sourceTeams.map((t) => t.name).join(', ')}</strong>
           {destinationTeam && (
             <>
               {' into '}
@@ -59,7 +61,10 @@ const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({
         </p>
 
         <div className="bg-gray-50 rounded-lg p-4 mb-4">
-          <h4 className="font-semibold text-gray-900 mb-2" data-cy="merge-confirmation-what-will-change-title">
+          <h4
+            className="font-semibold text-gray-900 mb-2"
+            data-cy="merge-confirmation-what-will-change-title"
+          >
             What will Change
           </h4>
           <ul className="list-disc list-inside text-gray-700 space-y-1">

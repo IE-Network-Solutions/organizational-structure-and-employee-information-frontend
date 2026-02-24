@@ -31,7 +31,6 @@ const Branches = () => {
     setSearchQuery,
   } = useBranchStore();
 
-
   const handleEdit = (branch: Branch) => {
     setEditingBranch(branch);
     setFormOpen(true);
@@ -92,9 +91,8 @@ const Branches = () => {
       <Menu
         selectable={false}
         className="bg-white"
-        theme='light'
-        mode='vertical'
-
+        theme="light"
+        mode="vertical"
         data-cy={`org-settings-branch-menu-${branchId}`}
         id={`org-settings-branch-menu-${branchId}`}
       >
@@ -107,7 +105,7 @@ const Branches = () => {
             onClick={() => handleEdit(branch)}
             data-cy={`org-settings-branch-edit-${branchId}`}
             id={`org-settings-branch-edit-${branchId}`}
-            className='bg-white hover:bg-gray-100'
+            className="bg-white hover:bg-gray-100"
             icon={<MdEdit />}
           >
             Edit
@@ -121,7 +119,7 @@ const Branches = () => {
           <Menu.Item
             data-cy={`org-settings-branch-delete-${branchId}`}
             id={`org-settings-branch-delete-${branchId}`}
-            className='bg-white hover:bg-gray-100'
+            className="bg-white hover:bg-gray-100"
             icon={<MdDelete />}
           >
             <Popconfirm
@@ -151,7 +149,6 @@ const Branches = () => {
         data-cy="org-settings-branches-list-container"
         id="org-settings-branches-list-container"
       >
-
         <div
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
           data-cy="org-settings-branches-list"

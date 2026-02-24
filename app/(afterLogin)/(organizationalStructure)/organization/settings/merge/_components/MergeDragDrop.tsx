@@ -1,5 +1,11 @@
 'use client';
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from 'react';
 import { message } from 'antd';
 import ReactFlow, { Node, Edge } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -14,9 +20,7 @@ import {
   DragStartEvent,
   DragOverlay,
 } from '@dnd-kit/core';
-import {
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useMergingDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -30,14 +34,19 @@ import MergeConfirmationModal from './modals/MergeConfirmationModal';
 const MergeDragDrop: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sourceTeam, setSourceTeam] = useState<Department | null>(null);
-  const [destinationTeam, setDestinationTeam] = useState<Department | null>(null);
+  const [destinationTeam, setDestinationTeam] = useState<Department | null>(
+    null,
+  );
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  const [formData, setFormData] = useState<{ teamLead: string; departmentName: string } | null>(null);
+  const [formData, setFormData] = useState<{
+    teamLead: string;
+    departmentName: string;
+  } | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isSourceOver, setIsSourceOver] = useState(false);
   const [isDestinationOver, setIsDestinationOver] = useState(false);
-  
+
   // Refs for React Flow positioning
   const sourceBoxRef = useRef<HTMLDivElement>(null);
   const destinationBoxRef = useRef<HTMLDivElement>(null);
@@ -46,16 +55,12 @@ const MergeDragDrop: React.FC = () => {
   const [flowNodes, setFlowNodes] = useState<Node[]>([]);
   const [flowEdges, setFlowEdges] = useState<Edge[]>([]);
 
-
-
-  const { data: departments, refetch: refetchDepartments } = useGetDepartments();
+  const { data: departments, refetch: refetchDepartments } =
+    useGetDepartments();
   const { data: orgStructureData } = useGetOrgCharts();
   const { mutate: mergeDepartment, isLoading } = useMergingDepartment();
-  
-  const {
-    setMergeData,
-    mergeData,
-  } = useMergeStore();
+
+  const { setMergeData, mergeData } = useMergeStore();
 
   // Configure sensors for drag and drop
   const sensors = useSensors(
@@ -66,7 +71,7 @@ const MergeDragDrop: React.FC = () => {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   // Filter departments based on search
@@ -74,19 +79,16 @@ const MergeDragDrop: React.FC = () => {
     if (!departments) return [];
     const query = searchQuery.toLowerCase().trim();
     if (!query) return departments;
-    
+
     return departments.filter((dept: any) =>
-      dept.name?.toLowerCase().includes(query)
+      dept.name?.toLowerCase().includes(query),
     );
   }, [departments, searchQuery]);
 
   // Exclude already selected teams from the list
   const availableDepartments = useMemo(() => {
-    const selectedIds = [
-      sourceTeam?.id,
-      destinationTeam?.id,
-    ].filter(Boolean);
-    
+    const selectedIds = [sourceTeam?.id, destinationTeam?.id].filter(Boolean);
+
     return filteredDepartments
       .filter((dept: any) => !selectedIds.includes(dept.id))
       .map((dept: any) => ({
@@ -126,15 +128,21 @@ const MergeDragDrop: React.FC = () => {
       }
       return null;
     },
-    []
+    [],
   );
 
   // Build merge data
   useEffect(() => {
     if (sourceTeam && destinationTeam && orgStructureData) {
-      const destinationDept = findDepartmentWithChildren(orgStructureData, destinationTeam.id);
-      const sourceDept = findDepartmentWithChildren(orgStructureData, sourceTeam.id);
-      
+      const destinationDept = findDepartmentWithChildren(
+        orgStructureData,
+        destinationTeam.id,
+      );
+      const sourceDept = findDepartmentWithChildren(
+        orgStructureData,
+        sourceTeam.id,
+      );
+
       if (destinationDept && sourceDept) {
         // Collect children from source team
         const sourceChildren = sourceDept.children || [];
@@ -157,7 +165,13 @@ const MergeDragDrop: React.FC = () => {
         setMergeData(mergePayload);
       }
     }
-  }, [sourceTeam, destinationTeam, orgStructureData, findDepartmentWithChildren, setMergeData]);
+  }, [
+    sourceTeam,
+    destinationTeam,
+    orgStructureData,
+    findDepartmentWithChildren,
+    setMergeData,
+  ]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -180,7 +194,9 @@ const MergeDragDrop: React.FC = () => {
     let deptData: Department | null = null;
 
     // Try to find in available departments
-    const availableDept = availableDepartments.find((d: Department) => d.id === activeId);
+    const availableDept = availableDepartments.find(
+      (d: Department) => d.id === activeId,
+    );
     if (availableDept) {
       deptData = availableDept;
     } else {
@@ -244,7 +260,10 @@ const MergeDragDrop: React.FC = () => {
     setIsFormModalOpen(true);
   };
 
-  const handleFormNext = (data: { teamLead: string; departmentName: string }) => {
+  const handleFormNext = (data: {
+    teamLead: string;
+    departmentName: string;
+  }) => {
     setFormData(data);
     setIsFormModalOpen(false);
     setIsConfirmationModalOpen(true);
@@ -312,14 +331,18 @@ const MergeDragDrop: React.FC = () => {
     return (
       availableDepartments.find((d: Department) => d.id === activeId) ||
       (sourceTeam && sourceTeam.id === activeId ? sourceTeam : null) ||
-      (destinationTeam && destinationTeam.id === activeId ? destinationTeam : null)
+      (destinationTeam && destinationTeam.id === activeId
+        ? destinationTeam
+        : null)
     );
   }, [activeId, availableDepartments, sourceTeam, destinationTeam]);
 
   // Dynamic styling based on items in buckets
   const hasItemsInBuckets = !!(sourceTeam && destinationTeam); // For button border - only when both are present
   const hasAnyTeam = sourceTeam || destinationTeam; // For line colors - when either is present
-  const borderColorClass = hasItemsInBuckets ? 'border-primary' : 'border-gray-400';
+  const borderColorClass = hasItemsInBuckets
+    ? 'border-primary'
+    : 'border-gray-400';
   const bgColorClass = hasItemsInBuckets ? 'bg-primary' : 'bg-gray-100';
   const textColorClass = hasItemsInBuckets ? 'text-primary' : 'text-gray-900';
 
@@ -340,17 +363,26 @@ const MergeDragDrop: React.FC = () => {
   // Function to calculate and update node positions
   const updateNodePositions = useCallback(() => {
     // Only show lines on desktop (when desktop button is visible)
-    const isDesktop = mergeButtonRef.current && window.getComputedStyle(mergeButtonRef.current).display !== 'none';
-    const shouldShowLines = isDesktop && mergeButtonRef.current && sourceBoxRef.current && destinationBoxRef.current;
+    const isDesktop =
+      mergeButtonRef.current &&
+      window.getComputedStyle(mergeButtonRef.current).display !== 'none';
+    const shouldShowLines =
+      isDesktop &&
+      mergeButtonRef.current &&
+      sourceBoxRef.current &&
+      destinationBoxRef.current;
     const nodes: Node[] = [];
     const edges: Edge[] = [];
 
     if (shouldShowLines) {
       const buttonRect = mergeButtonRef.current.getBoundingClientRect();
-      const containerRect = mergeButtonRef.current.closest('[data-cy="org-settings-merge-container"]')?.getBoundingClientRect();
-      
+      const containerRect = mergeButtonRef.current
+        .closest('[data-cy="org-settings-merge-container"]')
+        ?.getBoundingClientRect();
+
       if (containerRect && buttonRect) {
-        const buttonX = buttonRect.left - containerRect.left + buttonRect.width / 2;
+        const buttonX =
+          buttonRect.left - containerRect.left + buttonRect.width / 2;
         const buttonY = buttonRect.top - containerRect.top;
 
         // Add merge button node (always add)
@@ -365,7 +397,8 @@ const MergeDragDrop: React.FC = () => {
 
         // Always add source box node and edge (even when empty)
         const sourceRect = sourceBoxRef.current.getBoundingClientRect();
-        const sourceX = sourceRect.left - containerRect.left + sourceRect.width / 2;
+        const sourceX =
+          sourceRect.left - containerRect.left + sourceRect.width / 2;
         const sourceY = sourceRect.bottom - containerRect.top - 25;
 
         nodes.push({
@@ -382,7 +415,7 @@ const MergeDragDrop: React.FC = () => {
           source: 'source-node',
           target: 'merge-button-node',
           type: 'straight',
-          style: { 
+          style: {
             stroke: sourceTeam ? primaryColorValue : '#e5e7eb',
             strokeWidth: 2,
             strokeDasharray: sourceTeam ? 0 : '5 3', // Solid when has item, dashed when empty
@@ -391,8 +424,10 @@ const MergeDragDrop: React.FC = () => {
         });
 
         // Always add destination box node and edge (even when empty)
-        const destinationRect = destinationBoxRef.current.getBoundingClientRect();
-        const destinationX = destinationRect.left - containerRect.left + destinationRect.width / 2;
+        const destinationRect =
+          destinationBoxRef.current.getBoundingClientRect();
+        const destinationX =
+          destinationRect.left - containerRect.left + destinationRect.width / 2;
         const destinationY = destinationRect.bottom - containerRect.top - 25;
 
         nodes.push({
@@ -409,7 +444,7 @@ const MergeDragDrop: React.FC = () => {
           source: 'destination-node',
           target: 'merge-button-node',
           type: 'straight',
-          style: { 
+          style: {
             stroke: destinationTeam ? primaryColorValue : '#e5e7eb',
             strokeWidth: 2,
             strokeDasharray: destinationTeam ? 0 : '5 3', // Solid when has item, dashed when empty
@@ -456,8 +491,10 @@ const MergeDragDrop: React.FC = () => {
 
     // Use ResizeObserver to watch for layout changes
     let resizeObserver: ResizeObserver | null = null;
-    const container = mergeButtonRef.current?.closest('[data-cy="org-settings-merge-container"]');
-    
+    const container = mergeButtonRef.current?.closest(
+      '[data-cy="org-settings-merge-container"]',
+    );
+
     if (container) {
       resizeObserver = new ResizeObserver(() => {
         updateNodePositions();
@@ -473,7 +510,6 @@ const MergeDragDrop: React.FC = () => {
       }
     };
   }, [updateNodePositions]);
-
 
   return (
     <DndContext
@@ -493,7 +529,10 @@ const MergeDragDrop: React.FC = () => {
       >
         {/* React Flow overlay for connection lines - Desktop only */}
         {flowNodes.length > 0 && (
-          <div className="hidden lg:block absolute inset-0 pointer-events-none z-30" style={{ overflow: 'visible' }}>
+          <div
+            className="hidden lg:block absolute inset-0 pointer-events-none z-30"
+            style={{ overflow: 'visible' }}
+          >
             <ReactFlow
               nodes={flowNodes}
               edges={flowEdges}
@@ -505,9 +544,12 @@ const MergeDragDrop: React.FC = () => {
               nodesConnectable={false}
               elementsSelectable={false}
               preventScrolling={false}
-              style={{ background: 'transparent', width: '100%', height: '100%' }}
-            >
-            </ReactFlow>
+              style={{
+                background: 'transparent',
+                width: '100%',
+                height: '100%',
+              }}
+            ></ReactFlow>
           </div>
         )}
         <div className="flex flex-col lg:flex-row items-start">

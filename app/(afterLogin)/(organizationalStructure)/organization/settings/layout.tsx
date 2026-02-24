@@ -134,11 +134,11 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           </span>
         </div>
       )}
-          <div
-            className="min-h-screen bg-white mr-6"
-            data-cy="org-settings-layout-div"
-            id="org-settings-layout-div"
-          >
+      <div
+        className="min-h-screen bg-white mr-6"
+        data-cy="org-settings-layout-div"
+        id="org-settings-layout-div"
+      >
         <div className="px-4 pt-4">
           <h2
             className="text-gray-900 text-2xl font-bold mb-0"
@@ -187,63 +187,63 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                 paddingRight: 0,
               }}
               tabBarExtraContent={
-              getActiveKey() === 'branches' ? (
-                <AccessGuard
-                  permissions={[Permissions.CreateBranch]}
-                  data-cy="org-settings-branches-add-btn-guard"
-                  id="org-settings-branches-add-btn-guard"
-                >
-                  <Button
-                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                    icon={
-                      <FaPlus
-                        data-cy="org-settings-branches-add-btn-icon"
-                        id="org-settings-branches-add-btn-icon"
-                      />
-                    }
-                    type="primary"
-                    onClick={handleBranchAdd}
-                    data-cy="org-settings-branches-add-btn"
-                    id="org-settings-branches-add-btn"
+                getActiveKey() === 'branches' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateBranch]}
+                    data-cy="org-settings-branches-add-btn-guard"
+                    id="org-settings-branches-add-btn-guard"
                   >
-                    {!isMobile && 'Branch'}
-                  </Button>
-                </AccessGuard>
-              ) : getActiveKey() === 'fiscalYear' ? (
-                <AccessGuard
-                  permissions={[Permissions.CreateCalendar]}
-                  data-cy="org-settings-fiscal-year-create-btn-guard"
-                  id="org-settings-fiscal-year-create-btn-guard"
-                >
-                  <Button
-                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                    icon={
-                      <FaPlus
-                        data-cy="org-settings-fiscal-year-create-btn-icon"
-                        id="org-settings-fiscal-year-create-btn-icon"
-                      />
-                    }
-                    type="primary"
-                    onClick={handleFiscalYearAdd}
-                    data-cy="org-settings-fiscal-year-create-btn"
-                    id="org-settings-fiscal-year-create-btn"
+                    <Button
+                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      icon={
+                        <FaPlus
+                          data-cy="org-settings-branches-add-btn-icon"
+                          id="org-settings-branches-add-btn-icon"
+                        />
+                      }
+                      type="primary"
+                      onClick={handleBranchAdd}
+                      data-cy="org-settings-branches-add-btn"
+                      id="org-settings-branches-add-btn"
+                    >
+                      {!isMobile && 'Branch'}
+                    </Button>
+                  </AccessGuard>
+                ) : getActiveKey() === 'fiscalYear' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateCalendar]}
+                    data-cy="org-settings-fiscal-year-create-btn-guard"
+                    id="org-settings-fiscal-year-create-btn-guard"
                   >
-                    {!isMobile && 'Fiscal Year'}
-                  </Button>
-                </AccessGuard>
-              ) : null
-            }
+                    <Button
+                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      icon={
+                        <FaPlus
+                          data-cy="org-settings-fiscal-year-create-btn-icon"
+                          id="org-settings-fiscal-year-create-btn-icon"
+                        />
+                      }
+                      type="primary"
+                      onClick={handleFiscalYearAdd}
+                      data-cy="org-settings-fiscal-year-create-btn"
+                      id="org-settings-fiscal-year-create-btn"
+                    >
+                      {!isMobile && 'Fiscal Year'}
+                    </Button>
+                  </AccessGuard>
+                ) : null
+              }
               className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
               data-cy="org-settings-tabs"
               id="org-settings-tabs"
             />
           </div>
         </div>
-            <div
-              className="px-4 pr-6 mb-4"
-              data-cy="org-settings-content-wrapper"
-              id="org-settings-content-wrapper"
-            >
+        <div
+          className="px-4 pr-6 mb-4"
+          data-cy="org-settings-content-wrapper"
+          id="org-settings-content-wrapper"
+        >
           {children}
         </div>
       </div>

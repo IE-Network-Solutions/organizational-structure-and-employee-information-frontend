@@ -155,7 +155,9 @@ export const useSwitchOkrMode = () => {
       const status = error?.response?.status;
       const data = error?.response?.data;
       const message =
-        typeof data?.message === 'string' ? data.message : 'Failed to switch OKR mode.';
+        typeof data?.message === 'string'
+          ? data.message
+          : 'Failed to switch OKR mode.';
       if (status === 400) {
         const incompleteUserIds = data?.incompleteUserIds;
         NotificationMessage.error({

@@ -20,14 +20,14 @@ interface DroppableAreaProps {
   };
 }
 
-const DroppableArea: React.FC<DroppableAreaProps> = ({ 
-  id, 
-  children, 
-  className = '', 
-  isEmpty, 
-  placeholder, 
-  onDragOver, 
-  mobileSelectProps 
+const DroppableArea: React.FC<DroppableAreaProps> = ({
+  id,
+  children,
+  className = '',
+  isEmpty,
+  placeholder,
+  onDragOver,
+  mobileSelectProps,
 }) => {
   const { setNodeRef, isOver } = useDroppable({
     id,
@@ -49,7 +49,7 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
       {mobileSelectProps && (
         <div className="lg:hidden mb-4">
           <Select
-            placeholder={mobileSelectProps.placeholder || "Select department"}
+            placeholder={mobileSelectProps.placeholder || 'Select department'}
             allowClear
             showSearch
             size="large"
@@ -68,16 +68,14 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
           />
         </div>
       )}
-      
+
       {isEmpty && (
-        <div 
+        <div
           className="w-full h-[130px] flex flex-col items-center justify-center"
           style={{ pointerEvents: 'none', userSelect: 'none' }}
         >
           <FolderIcon />
-          <p className="text-gray-400 text-sm m-0 mt-3">
-            {placeholder}
-          </p>
+          <p className="text-gray-400 text-sm m-0 mt-3">{placeholder}</p>
         </div>
       )}
       {children}

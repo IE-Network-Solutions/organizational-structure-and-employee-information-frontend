@@ -6,7 +6,6 @@ import DraggableTeamItem from '../cards/DraggableTeamItem';
 import { Department } from '../cards/TeamCard';
 import { SearchOutlined } from '@ant-design/icons';
 
-
 interface AvailableTeamsPanelProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -21,8 +20,14 @@ const AvailableTeamsPanel: React.FC<AvailableTeamsPanelProps> = ({
   getTeamColor,
 }) => {
   return (
-    <div className="hidden lg:block w-[18.5%]" data-cy="transfer-available-teams-panel">
-      <div className="mb-4">
+    <div
+      className="hidden lg:block w-[18.5%]"
+      data-cy="transfer-available-teams-panel"
+    >
+      <div
+        id="transfer-available-teams-panel-div"
+        data-cy="transfer-available-teams-panel-div"
+      className="mb-4">
         <Input
           placeholder="Search team"
           allowClear
@@ -30,12 +35,19 @@ const AvailableTeamsPanel: React.FC<AvailableTeamsPanelProps> = ({
           onChange={(e) => onSearchChange(e.target.value)}
           className="w-full pr-0 py-0"
           data-cy="transfer-search-input"
-          suffix={<div className="text-gray-400 border-l border-gray-300 p-2"><SearchOutlined /></div>}
+          suffix={
+            <div className="text-gray-400 border-l border-gray-300 p-2">
+              <SearchOutlined
+               data-cy="transfer-search-input-icon"
+               />
+            </div>
+          }
         />
       </div>
-      
+
       <DroppableArea
         id="available-teams"
+        data-cy="available-teams"
         className="max-h-[300px] overflow-y-auto w-full p-4 rounded-lg border-2 scrollbar-hide"
         isEmpty={false}
       >
@@ -45,6 +57,7 @@ const AvailableTeamsPanel: React.FC<AvailableTeamsPanelProps> = ({
             department={dept}
             index={index}
             getTeamColor={getTeamColor}
+            data-cy={`transfer-available-team-${dept.id}`}
           />
         ))}
       </DroppableArea>

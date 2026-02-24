@@ -156,7 +156,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       .filter((key) => key.startsWith('monthName_'))
       .map((key) => parseInt(key.replace('monthName_', ''), 10))
       .sort((a, b) => a - b); // Sort to ensure correct order
-    
+
     const months = monthNumbers.map((monthNumber) => ({
       name: monthFormValues[`monthName_${monthNumber}`],
       description: monthFormValues[`monthDescription_${monthNumber}`] || '',
@@ -171,23 +171,23 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           // Handle both sessionDateRange and separate date fields
           let startDate = session.sessionStartDate;
           let endDate = session.sessionEndDate;
-          
-          if (session.sessionDateRange && Array.isArray(session.sessionDateRange) && session.sessionDateRange.length === 2) {
+
+          if (
+            session.sessionDateRange &&
+            Array.isArray(session.sessionDateRange) &&
+            session.sessionDateRange.length === 2
+          ) {
             startDate = session.sessionDateRange[0];
             endDate = session.sessionDateRange[1];
           }
-          
+
           return {
             name: session.sessionName || `Session ${index + 1}`,
             description:
               session.sessionDescription ||
               `Description for Session ${index + 1}`,
-            startDate: startDate
-              ? dayjs(startDate).format('YYYY-MM-DD')
-              : '',
-            endDate: endDate
-              ? dayjs(endDate).format('YYYY-MM-DD')
-              : '',
+            startDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : '',
+            endDate: endDate ? dayjs(endDate).format('YYYY-MM-DD') : '',
             months: months.slice(index * 3, (index + 1) * 3),
           };
         }),
@@ -198,23 +198,23 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           // Handle both sessionDateRange and separate date fields
           let startDate = session.sessionStartDate;
           let endDate = session.sessionEndDate;
-          
-          if (session.sessionDateRange && Array.isArray(session.sessionDateRange) && session.sessionDateRange.length === 2) {
+
+          if (
+            session.sessionDateRange &&
+            Array.isArray(session.sessionDateRange) &&
+            session.sessionDateRange.length === 2
+          ) {
             startDate = session.sessionDateRange[0];
             endDate = session.sessionDateRange[1];
           }
-          
+
           return {
             name: session.sessionName || `Session ${index + 1}`,
             description:
               session.sessionDescription ||
               `Description for Session ${index + 1}`,
-            startDate: startDate
-              ? dayjs(startDate).format('YYYY-MM-DD')
-              : '',
-            endDate: endDate
-              ? dayjs(endDate).format('YYYY-MM-DD')
-              : '',
+            startDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : '',
+            endDate: endDate ? dayjs(endDate).format('YYYY-MM-DD') : '',
             months: months.slice(index * 6, (index + 1) * 6),
           };
         }),
@@ -225,22 +225,22 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           // Handle both sessionDateRange and separate date fields
           let startDate = session?.sessionStartDate;
           let endDate = session?.sessionEndDate;
-          
-          if (session?.sessionDateRange && Array.isArray(session.sessionDateRange) && session.sessionDateRange.length === 2) {
+
+          if (
+            session?.sessionDateRange &&
+            Array.isArray(session.sessionDateRange) &&
+            session.sessionDateRange.length === 2
+          ) {
             startDate = session.sessionDateRange[0];
             endDate = session.sessionDateRange[1];
           }
-          
+
           return {
             name: session?.sessionName || 'Session 1',
             description:
               session?.sessionDescription || 'Description for Session 1',
-            startDate: startDate
-              ? dayjs(startDate).format('YYYY-MM-DD')
-              : '',
-            endDate: endDate
-              ? dayjs(endDate).format('YYYY-MM-DD')
-              : '',
+            startDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : '',
+            endDate: endDate ? dayjs(endDate).format('YYYY-MM-DD') : '',
             months,
           };
         }),

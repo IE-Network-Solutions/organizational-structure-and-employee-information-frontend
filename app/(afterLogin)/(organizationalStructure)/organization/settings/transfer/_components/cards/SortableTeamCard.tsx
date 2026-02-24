@@ -9,7 +9,10 @@ interface SortableTeamCardProps {
   onRemove?: () => void;
 }
 
-const SortableTeamCard: React.FC<SortableTeamCardProps> = ({ department, onRemove }) => {
+const SortableTeamCard: React.FC<SortableTeamCardProps> = ({
+  department,
+  onRemove,
+}) => {
   const {
     attributes,
     listeners,
@@ -26,16 +29,15 @@ const SortableTeamCard: React.FC<SortableTeamCardProps> = ({ department, onRemov
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}
+    id="transfer-sortable-team-card"
+    data-cy="transfer-sortable-team-card"
     >
       <TeamCard
         department={department}
         isDragging={isDragging}
         onRemove={onRemove}
+        data-cy={`transfer-sortable-team-card-${department.id}`}
       />
     </div>
   );
