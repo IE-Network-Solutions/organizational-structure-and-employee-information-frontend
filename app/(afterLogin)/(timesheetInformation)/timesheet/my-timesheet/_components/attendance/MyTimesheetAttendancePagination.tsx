@@ -66,7 +66,7 @@ export default function MyTimesheetAttendancePagination({
                 ? 'bg-[#F8F8F8] text-[#111827]'
                 : 'bg-white text-[#111827] hover:bg-gray-100'
             }`}
-            data-cy="pagination-page-button"
+            data-cy={`my-timesheet-attendance-pagination-page-button-${i}`}
           >
             {i}
           </button>,
@@ -82,7 +82,7 @@ export default function MyTimesheetAttendancePagination({
               ? 'bg-[#F8F8F8] text-[#111827]'
               : 'bg-white text-[#111827] hover:bg-gray-100'
           }`}
-          data-cy="pagination-page-button"
+          data-cy="my-timesheet-attendance-pagination-page-button-1"
         >
           1
         </button>,
@@ -95,7 +95,11 @@ export default function MyTimesheetAttendancePagination({
 
       if (startPage > 2) {
         pageNumbers.push(
-          <span key="leftEllipsis" className="px-2" data-cy="pagination-ellipsis">
+          <span
+            key="leftEllipsis"
+            className="px-2"
+            data-cy="my-timesheet-attendance-pagination-ellipsis-left"
+          >
             ...
           </span>,
         );
@@ -111,7 +115,7 @@ export default function MyTimesheetAttendancePagination({
                 ? 'bg-[#F8F8F8] text-[#111827]'
                 : 'bg-white text-[#111827] hover:bg-gray-100'
             }`}
-            data-cy="pagination-page-button"
+            data-cy={`my-timesheet-attendance-pagination-page-button-${i}`}
           >
             {i}
           </button>,
@@ -120,7 +124,11 @@ export default function MyTimesheetAttendancePagination({
 
       if (endPage < totalPages - 1) {
         pageNumbers.push(
-          <span key="rightEllipsis" className="px-2" data-cy="pagination-ellipsis">
+          <span
+            key="rightEllipsis"
+            className="px-2"
+            data-cy="my-timesheet-attendance-pagination-ellipsis-right"
+          >
             ...
           </span>,
         );
@@ -135,7 +143,7 @@ export default function MyTimesheetAttendancePagination({
               ? 'bg-[#F8F8F8] text-[#111827]'
               : 'bg-white text-[#111827] hover:bg-gray-100'
           }`}
-          data-cy="pagination-page-button"
+          data-cy={`my-timesheet-attendance-pagination-page-button-${totalPages}`}
         >
           {totalPages}
         </button>,
@@ -147,15 +155,18 @@ export default function MyTimesheetAttendancePagination({
 
   return (
     <div
-      id={id}
-      data-cy={dataCy}
+      id={id ?? 'my-timesheet-attendance-pagination'}
+      data-cy={dataCy ?? 'my-timesheet-attendance-pagination'}
       className="flex justify-between items-center py-6"
     >
-      <div className="flex items-center space-x-2" data-cy="my-timesheet-attendance-pagination-controls">
+      <div
+        className="flex items-center space-x-2"
+        data-cy="my-timesheet-attendance-pagination-controls"
+      >
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
-          data-cy="pagination-prev-button"
+          data-cy="my-timesheet-attendance-pagination-prev-button"
           className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === 1
               ? 'text-[#111827] border-gray-200 opacity-50'
@@ -164,11 +175,16 @@ export default function MyTimesheetAttendancePagination({
         >
           <LeftOutlined className="text-xs" />
         </button>
-        {renderPageNumbers()}
+        <div
+          className="flex items-center space-x-2"
+          data-cy="my-timesheet-attendance-pagination-page-numbers"
+        >
+          {renderPageNumbers()}
+        </div>
         <button
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
-          data-cy="pagination-next-button"
+          data-cy="my-timesheet-attendance-pagination-next-button"
           className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === totalPages
               ? 'text-[#111827] border-gray-200 opacity-50'
@@ -179,8 +195,14 @@ export default function MyTimesheetAttendancePagination({
         </button>
       </div>
 
-      <div className="flex items-center justify-end" data-cy="my-timesheet-attendance-pagination-go-to">
-        <span className="mr-2 text-base text-[#718096]" data-cy="pagination-go-to-label">
+      <div
+        className="flex items-center justify-end"
+        data-cy="my-timesheet-attendance-pagination-go-to"
+      >
+        <span
+          className="mr-2 text-base text-[#718096]"
+          data-cy="my-timesheet-attendance-pagination-go-to-label"
+        >
           Go to
         </span>
         <Input
@@ -192,9 +214,12 @@ export default function MyTimesheetAttendancePagination({
           onPressEnter={commitPageSize}
           className="w-16 text-center"
           size="middle"
-          data-cy="pagination-page-size-input"
+          data-cy="my-timesheet-attendance-pagination-page-size-input"
         />
-        <span className="ml-2 text-base text-[#718096]" data-cy="pagination-page-label">
+        <span
+          className="ml-2 text-base text-[#718096]"
+          data-cy="my-timesheet-attendance-pagination-page-label"
+        >
           page
         </span>
       </div>
