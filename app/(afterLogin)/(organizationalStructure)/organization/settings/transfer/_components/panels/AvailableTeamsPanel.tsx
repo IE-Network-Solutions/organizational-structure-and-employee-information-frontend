@@ -24,10 +24,7 @@ const AvailableTeamsPanel: React.FC<AvailableTeamsPanelProps> = ({
       className="hidden lg:block w-[18.5%]"
       data-cy="transfer-available-teams-panel"
     >
-      <div
-        id="transfer-available-teams-panel-div"
-        data-cy="transfer-available-teams-panel-div"
-      className="mb-4">
+      <div className="mb-4" data-cy="transfer-search-container">
         <Input
           placeholder="Search team"
           allowClear
@@ -36,10 +33,11 @@ const AvailableTeamsPanel: React.FC<AvailableTeamsPanelProps> = ({
           className="w-full pr-0 py-0"
           data-cy="transfer-search-input"
           suffix={
-            <div className="text-gray-400 border-l border-gray-300 p-2">
-              <SearchOutlined
-               data-cy="transfer-search-input-icon"
-               />
+            <div
+              className="text-gray-400 border-l border-gray-300 p-2"
+              data-cy="transfer-search-icon-container"
+            >
+              <SearchOutlined data-cy="transfer-search-icon" />
             </div>
           }
         />

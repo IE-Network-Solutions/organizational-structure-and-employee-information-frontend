@@ -125,8 +125,14 @@ const BranchForm: React.FC<{
         <Form.Item
           name="name"
           label={
-            <span>
-              Branch Name <span style={{ color: 'red' }}>*</span>
+            <span data-cy={`branch-form-name-label-${modalSlug}`}>
+              Branch Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`branch-form-name-required-${modalSlug}`}
+              >
+                *
+              </span>
             </span>
           }
           rules={[{ required: true, message: 'Please enter the branch name' }]}
@@ -157,8 +163,14 @@ const BranchForm: React.FC<{
         <Form.Item
           name="location"
           label={
-            <span>
-              Location <span style={{ color: 'red' }}>*</span>
+            <span data-cy={`branch-form-location-label-${modalSlug}`}>
+              Location{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`branch-form-location-required-${modalSlug}`}
+              >
+                *
+              </span>
             </span>
           }
           rules={[{ required: true, message: 'Please enter the location' }]}
@@ -177,8 +189,14 @@ const BranchForm: React.FC<{
             <Form.Item
               name="contactNumber"
               label={
-                <span>
-                  Contact Number <span style={{ color: 'red' }}>*</span>
+                <span data-cy={`branch-form-contact-number-label-${modalSlug}`}>
+                  Contact Number{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`branch-form-contact-number-required-${modalSlug}`}
+                  >
+                    *
+                  </span>
                 </span>
               }
               rules={[
@@ -201,8 +219,14 @@ const BranchForm: React.FC<{
             <Form.Item
               name="contactEmail"
               label={
-                <span>
-                  Contact Email <span style={{ color: 'red' }}>*</span>
+                <span data-cy={`branch-form-contact-email-label-${modalSlug}`}>
+                  Contact Email{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`branch-form-contact-email-required-${modalSlug}`}
+                  >
+                    *
+                  </span>
                 </span>
               }
               rules={[

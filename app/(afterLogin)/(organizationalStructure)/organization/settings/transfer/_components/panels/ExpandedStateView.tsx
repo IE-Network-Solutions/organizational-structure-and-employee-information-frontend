@@ -47,10 +47,9 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
   setIsDestinationOver,
 }) => {
   return (
-    <div 
-    className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 relative pt-4 lg:pt-[60px] items-center justify-center w-full"
-    id="transfer-expanded-container"
-    data-cy="transfer-expanded-container"
+    <div
+      className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 relative pt-4 lg:pt-[60px] items-center justify-center w-full"
+      data-cy="transfer-expanded-state-container"
     >
       {/* Left Dashed Box - Source Teams */}
       <div
@@ -113,6 +112,7 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
                 id="transfer-add-another-team-div"
                 data-cy="transfer-add-another-team-div"
                 style={{ pointerEvents: 'none', userSelect: 'none' }}
+                data-cy="transfer-add-another-team-container"
               >
                 <button
                   type="button"

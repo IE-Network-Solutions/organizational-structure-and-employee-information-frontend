@@ -57,9 +57,15 @@ const SourceDestinationView: React.FC<SourceDestinationViewProps> = ({
   mergeButtonMobileRef,
 }) => {
   return (
-    <div className="flex-1 flex flex-col items-center pt-4 lg:pt-[60px] relative w-full">
+    <div
+      className="flex-1 flex flex-col items-center pt-4 lg:pt-[60px] relative w-full"
+      data-cy="merge-source-destination-container"
+    >
       {/* Mobile: Stacked vertically with button after boxes */}
-      <div className="flex flex-col lg:hidden gap-4 w-full items-center relative">
+      <div
+        className="flex flex-col lg:hidden gap-4 w-full items-center relative"
+        data-cy="merge-mobile-layout"
+      >
         {/* Vertical connecting lines - Mobile only */}
         {/* Line from source box to destination box */}
         <div
@@ -68,6 +74,7 @@ const SourceDestinationView: React.FC<SourceDestinationViewProps> = ({
             top: '140px', // Start after source box
             height: '154px', // Height to reach destination box (130px box + 16px gap + 8px)
           }}
+          data-cy="merge-mobile-line-source-to-destination"
         />
         {/* Line from destination box to button */}
         <div
@@ -76,6 +83,7 @@ const SourceDestinationView: React.FC<SourceDestinationViewProps> = ({
             top: '294px', // Start after destination box (140px + 154px)
             height: 'calc(100% - 294px - 80px)', // Span to button
           }}
+          data-cy="merge-mobile-line-destination-to-button"
         />
 
         {/* Source Box - Mobile */}
@@ -242,8 +250,14 @@ const SourceDestinationView: React.FC<SourceDestinationViewProps> = ({
       </div>
 
       {/* Desktop: Side by side with button below */}
-      <div className="hidden lg:flex flex-col items-center w-full">
-        <div className="grid grid-cols-12 gap-8 w-full mb-28">
+      <div
+        className="hidden lg:flex flex-col items-center w-full"
+        data-cy="merge-desktop-layout"
+      >
+        <div
+          className="grid grid-cols-12 gap-8 w-full mb-28"
+          data-cy="merge-desktop-grid"
+        >
           {/* Left Dashed Box - Source Teams */}
           <div
             className="col-span-6 relative z-10 flex flex-col items-stretch"

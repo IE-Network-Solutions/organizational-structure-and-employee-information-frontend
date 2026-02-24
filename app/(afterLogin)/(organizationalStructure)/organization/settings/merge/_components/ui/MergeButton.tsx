@@ -48,7 +48,10 @@ const MergeButton: React.FC<MergeButtonProps> = ({
             : 'org-settings-merge-submit-btn'
         }
       >
-        <span className={hasItemsInBuckets ? 'text-white' : textColorClass}>
+        <span
+          className={hasItemsInBuckets ? 'text-white' : textColorClass}
+          data-cy={isMobile ? 'merge-button-text-mobile' : 'merge-button-text'}
+        >
           Merge
         </span>
       </Button>

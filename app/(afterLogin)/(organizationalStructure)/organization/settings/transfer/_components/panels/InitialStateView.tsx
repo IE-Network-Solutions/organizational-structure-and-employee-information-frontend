@@ -19,15 +19,13 @@ const InitialStateView: React.FC<InitialStateViewProps> = ({
   setIsSourceOver,
 }) => {
   return (
-    <div 
-    className="flex-1 flex items-center justify-center pt-4 lg:pt-[60px] w-full"
-    id="transfer-initial-container"
-    data-cy="transfer-initial-container"
+    <div
+      className="flex-1 flex items-center justify-center pt-4 lg:pt-[60px] w-full"
+      data-cy="transfer-initial-state-container"
     >
       <div
-      className="w-full max-w-[350px] lg:max-w-md"
-      id="transfer-initial-container-div"
-      data-cy="transfer-initial-container-div"
+        className="w-full max-w-[350px] lg:max-w-md"
+        data-cy="transfer-initial-state-content"
       >
         <div
           className={`border-2 rounded-lg p-4 bg-gray-50 ${

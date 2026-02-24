@@ -43,15 +43,15 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
     <div
       ref={setNodeRef}
       id="transfer-droppable-area"
-      data-cy="transfer-droppable-area"
       className={`${className} ${isOver ? 'bg-blue-50 border-blue-400' : ''}`}
       style={{ position: 'relative', minHeight: isEmpty ? '130px' : 'auto' }}
+      data-cy={`transfer-droppable-area-${id}`}
     >
       {/* Mobile-only searchable select input - shown regardless of items */}
       {mobileSelectProps && (
-        <div className="lg:hidden mb-4"
-        id="transfer-droppable-area-mobile-select-div"
-        data-cy="transfer-droppable-area-mobile-select-div"
+        <div
+          className="lg:hidden mb-4"
+          data-cy="transfer-droppable-area-mobile-select-container"
         >
           <Select
             placeholder={mobileSelectProps.placeholder || 'Select department'}
@@ -78,16 +78,16 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
         <div
           className="w-full h-[130px] flex flex-col items-center justify-center"
           id="transfer-droppable-area-empty-div"
-          data-cy="transfer-droppable-area-empty-div"
           style={{ pointerEvents: 'none', userSelect: 'none' }}
+          data-cy="transfer-droppable-area-empty-placeholder"
         >
-          <FolderIcon
-           data-cy="transfer-droppable-area-empty-folder-icon"
-           />
-          <p className="text-gray-400 text-sm m-0"
-          id="transfer-droppable-area-empty-p"
-          data-cy="transfer-droppable-area-empty-p"
-          >{placeholder}</p>
+          <FolderIcon data-cy="transfer-droppable-area-empty-icon" />
+          <p
+            className="text-gray-400 text-sm m-0"
+            data-cy="transfer-droppable-area-empty-text"
+          >
+            {placeholder}
+          </p>
         </div>
       )}
       {children}

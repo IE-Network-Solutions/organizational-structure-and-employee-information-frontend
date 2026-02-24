@@ -29,7 +29,13 @@ const SortableTeamCard: React.FC<SortableTeamCardProps> = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      data-cy={`merge-sortable-team-card-${department.id}`}
+    >
       <TeamCard
         department={department}
         isDragging={isDragging}

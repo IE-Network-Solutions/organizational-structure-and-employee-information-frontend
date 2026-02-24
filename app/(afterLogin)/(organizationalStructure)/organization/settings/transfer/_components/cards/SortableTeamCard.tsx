@@ -29,9 +29,12 @@ const SortableTeamCard: React.FC<SortableTeamCardProps> = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}
-    id="transfer-sortable-team-card"
-    data-cy="transfer-sortable-team-card"
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      data-cy={`transfer-sortable-team-card-${department.id}`}
     >
       <TeamCard
         department={department}

@@ -34,7 +34,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
 
   useEffect(() => {
     refetch();
-  }, [token]);
+  }, [token, refetch]);
 
   const hasEndedFiscalYear =
     !!activeFiscalYear?.isActive &&
@@ -79,23 +79,56 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     }
   };
 
+  const activeKey = getActiveKey();
   const items: TabsProps['items'] = [
     {
       key: 'branches',
-      label: 'Branches',
+      label: (
+        <div
+          className={`text-base m-0 ${activeKey === 'branches' ? 'text-primary' : 'text-gray-800'}`}
+          data-cy="org-settings-branches-tab-label"
+          id="org-settings-branches-tab-label"
+        >
+          Branches
+        </div>
+      ),
       disabled: hasEndedFiscalYear,
     },
     {
       key: 'fiscalYear',
-      label: 'Fiscal Year',
+      label: (
+        <div
+          className={`text-base m-0 ${activeKey === 'fiscalYear' ? 'text-primary' : 'text-gray-800'}`}
+          data-cy="org-settings-fiscal-year-tab-label"
+          id="org-settings-fiscal-year-tab-label"
+        >
+          Fiscal Year
+        </div>
+      ),
     },
     {
       key: 'transfer',
-      label: 'Transfer',
+      label: (
+        <div
+          className={`text-base m-0 ${activeKey === 'transfer' ? 'text-primary' : 'text-gray-800'}`}
+          data-cy="org-settings-transfer-tab-label"
+          id="org-settings-transfer-tab-label"
+        >
+          Transfer
+        </div>
+      ),
     },
     {
       key: 'merge',
-      label: 'Merge',
+      label: (
+        <div
+          className={`text-base m-0 ${activeKey === 'merge' ? 'text-primary' : 'text-gray-800'}`}
+          data-cy="org-settings-merge-tab-label"
+          id="org-settings-merge-tab-label"
+        >
+          Merge
+        </div>
+      ),
     },
   ];
 
@@ -139,14 +172,14 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         data-cy="org-settings-layout-div"
         id="org-settings-layout-div"
       >
-        <div className="px-4 pt-4">
-          <h2
+        <div className="px-4 pt-4" data-cy="org-settings-header-container">
+          <h3
             className="text-gray-900 text-2xl font-bold mb-0"
             data-cy="org-settings-page-header-title"
             id="org-settings-page-header-title"
           >
             Setting
-          </h2>
+          </h3>
           <Breadcrumb
             className="mt-2 mb-4"
             items={[
@@ -158,6 +191,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                       e.preventDefault();
                       router.push('/organization/chart');
                     }}
+                    data-cy="org-settings-breadcrumb-organization-link"
                   >
                     Organization
                   </a>
@@ -175,9 +209,9 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           data-cy="org-settings-tabs-container"
           id="org-settings-tabs-container"
         >
-          <div className="px-4 pr-6">
+          <div className="px-4 pr-6" data-cy="org-settings-tabs-wrapper">
             <Tabs
-              activeKey={getActiveKey()}
+              activeKey={activeKey}
               onChange={handleTabChange}
               items={items}
               tabBarStyle={{
@@ -187,7 +221,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                 paddingRight: 0,
               }}
               tabBarExtraContent={
-                getActiveKey() === 'branches' ? (
+                activeKey === 'branches' ? (
                   <AccessGuard
                     permissions={[Permissions.CreateBranch]}
                     data-cy="org-settings-branches-add-btn-guard"
@@ -209,7 +243,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                       {!isMobile && 'Branch'}
                     </Button>
                   </AccessGuard>
-                ) : getActiveKey() === 'fiscalYear' ? (
+                ) : activeKey === 'fiscalYear' ? (
                   <AccessGuard
                     permissions={[Permissions.CreateCalendar]}
                     data-cy="org-settings-fiscal-year-create-btn-guard"

@@ -332,9 +332,6 @@ const TransferDragDrop: React.FC = () => {
 
   // Dynamic styling based on items in buckets
   const hasItemsInBuckets = sourceTeams.length > 0 || !!destinationTeam;
-  const borderColorClass = hasItemsInBuckets
-    ? 'border-primary'
-    : 'border-gray-400';
 
   return (
     <DndContext
@@ -352,9 +349,9 @@ const TransferDragDrop: React.FC = () => {
         id="org-settings-transfer-container"
         data-cy="org-settings-transfer-container"
       >
-        <div className="flex flex-col lg:flex-row items-center lg:items-start"
-        id="org-settings-transfer-container-div"
-        data-cy="org-settings-transfer-container-div"
+        <div
+          className="flex flex-col lg:flex-row items-center lg:items-start"
+          data-cy="transfer-main-content-container"
         >
           {/* Left Panel - Available Teams */}
           <AvailableTeamsPanel
@@ -364,10 +361,9 @@ const TransferDragDrop: React.FC = () => {
             availableDepartments={availableDepartments}
             getTeamColor={getTeamColor}
           />
-          <div 
-          className="hidden lg:block w-[6%]"
-          id="org-settings-transfer-container-divider-div"
-          data-cy="org-settings-transfer-container-divider-div"
+          <div
+            className="hidden lg:block w-[6%]"
+            data-cy="transfer-spacer-div"
           ></div>
 
           {/* Middle Section - Conditional Layout */}
@@ -404,11 +400,11 @@ const TransferDragDrop: React.FC = () => {
         </div>
       </div>
 
-      <DragOverlay>
+      <DragOverlay data-cy="transfer-drag-overlay">
         {activeItem ? (
-          <div className="rotate-2"
-          id="org-settings-transfer-drag-overlay-div"
-          data-cy="org-settings-transfer-drag-overlay-div"
+          <div
+            className="rotate-2"
+            data-cy="transfer-drag-overlay-item-container"
           >
             <TeamCard department={activeItem} isOverlay isDragging />
           </div>

@@ -131,6 +131,19 @@ const MergeDragDrop: React.FC = () => {
     [],
   );
 
+  // Compute depth (level) of a department in the org tree; root = 1
+  const getDepartmentLevel = useCallback((tree: any, id: string, depth = 1): number => {
+    if (!tree) return 1;
+    if (tree.id === id) return depth;
+    if (tree.department?.length) {
+      for (const child of tree.department) {
+        const found = getDepartmentLevel(child, id, depth + 1);
+        if (found > 0) return found;
+      }
+    }
+    return 0;
+  }, []);
+
   // Build merge data
   useEffect(() => {
     if (sourceTeam && destinationTeam && orgStructureData) {
@@ -144,22 +157,17 @@ const MergeDragDrop: React.FC = () => {
       );
 
       if (destinationDept && sourceDept) {
-        // Collect children from source team
-        const sourceChildren = sourceDept.children || [];
+        const level = getDepartmentLevel(orgStructureData, destinationTeam.id) || 3;
 
-        // Combine with destination's existing children
-        const mergedChildren = [
-          ...(destinationDept.children || []),
-          ...sourceChildren,
-        ].filter((child: any) => child.id !== sourceTeam.id);
-
+        // API expects department: []; teamLeader added at submit time
         const mergePayload = {
           id: destinationTeam.id,
           name: destinationTeam.name,
           description: destinationTeam.description || '',
           branchId: destinationTeam.branchId,
           departmentToDelete: [sourceTeam.id],
-          department: mergedChildren.map((child: any) => ({ id: child.id })),
+          department: [],
+          level,
         };
 
         setMergeData(mergePayload);
@@ -170,6 +178,7 @@ const MergeDragDrop: React.FC = () => {
     destinationTeam,
     orgStructureData,
     findDepartmentWithChildren,
+    getDepartmentLevel,
     setMergeData,
   ]);
 
@@ -281,11 +290,12 @@ const MergeDragDrop: React.FC = () => {
       return;
     }
 
-    // Update merge data with form values if needed
+    // Update merge data with form values - API expects teamLeader and name from form
     const updatedMergeData = {
       ...mergeData,
-      // Add form data to merge payload if needed
       name: formData?.departmentName || mergeData.name,
+      teamLeader: formData?.teamLead ?? '',
+      level: mergeData.level ?? 3,
     };
 
     mergeDepartment(updatedMergeData, {
@@ -307,10 +317,6 @@ const MergeDragDrop: React.FC = () => {
   const handleConfirmationCancel = () => {
     setIsConfirmationModalOpen(false);
     setFormData(null);
-  };
-
-  const handleAddAnotherTeam = () => {
-    message.info('Drag a team from the left panel to add it');
   };
 
   const getTeamColor = (index: number) => {
@@ -339,11 +345,9 @@ const MergeDragDrop: React.FC = () => {
 
   // Dynamic styling based on items in buckets
   const hasItemsInBuckets = !!(sourceTeam && destinationTeam); // For button border - only when both are present
-  const hasAnyTeam = sourceTeam || destinationTeam; // For line colors - when either is present
   const borderColorClass = hasItemsInBuckets
     ? 'border-primary'
     : 'border-gray-400';
-  const bgColorClass = hasItemsInBuckets ? 'bg-primary' : 'bg-gray-100';
   const textColorClass = hasItemsInBuckets ? 'text-primary' : 'text-gray-900';
 
   // Get primary color value dynamically from Tailwind theme
@@ -532,6 +536,7 @@ const MergeDragDrop: React.FC = () => {
           <div
             className="hidden lg:block absolute inset-0 pointer-events-none z-30"
             style={{ overflow: 'visible' }}
+            data-cy="merge-react-flow-overlay-container"
           >
             <ReactFlow
               nodes={flowNodes}
@@ -549,10 +554,14 @@ const MergeDragDrop: React.FC = () => {
                 width: '100%',
                 height: '100%',
               }}
+              data-cy="merge-react-flow"
             ></ReactFlow>
           </div>
         )}
-        <div className="flex flex-col lg:flex-row items-start">
+        <div
+          className="flex flex-col lg:flex-row items-start"
+          data-cy="merge-main-content-container"
+        >
           {/* Left Panel - Available Teams */}
           <AvailableTeamsPanel
             searchQuery={searchQuery}
@@ -560,7 +569,10 @@ const MergeDragDrop: React.FC = () => {
             availableDepartments={availableDepartments}
             getTeamColor={getTeamColor}
           />
-          <div className="hidden lg:block w-[6%]"></div>
+          <div
+            className="hidden lg:block w-[6%]"
+            data-cy="merge-spacer-div"
+          ></div>
 
           {/* Middle Section - Two boxes with button below/between */}
           <SourceDestinationView
@@ -589,9 +601,9 @@ const MergeDragDrop: React.FC = () => {
         </div>
       </div>
 
-      <DragOverlay>
+      <DragOverlay data-cy="merge-drag-overlay">
         {activeItem ? (
-          <div className="rotate-2">
+          <div className="rotate-2" data-cy="merge-drag-overlay-item-container">
             <TeamCard department={activeItem} isOverlay isDragging />
           </div>
         ) : null}

@@ -25,7 +25,6 @@ const TransferButton: React.FC<TransferButtonProps> = ({
   return (
     <div
       className="flex-shrink-0 flex items-center justify-center relative z-20"
-      id="transfer-action-container"
       data-cy="transfer-action-container"
     >
       {/* Connecting line - Vertical on mobile, horizontal on desktop */}
@@ -36,6 +35,7 @@ const TransferButton: React.FC<TransferButtonProps> = ({
           top: '-1rem',
           bottom: '-1rem',
         }}
+        data-cy="transfer-button-vertical-line"
       />
       {/* Horizontal line for desktop (when boxes are side-by-side) */}
       <div
@@ -44,11 +44,12 @@ const TransferButton: React.FC<TransferButtonProps> = ({
           left: '-2rem',
           right: '-2rem',
         }}
+        data-cy="transfer-button-horizontal-line"
       />
       {/* Button on top of line */}
-      <div className="relative z-10 bg-white "
-      id="transfer-action-container-button-div"
-      data-cy="transfer-action-container-button-div"
+      <div
+        className="relative z-10 bg-white"
+        data-cy="transfer-button-container"
       >
         <Button
           type="default"
@@ -59,11 +60,13 @@ const TransferButton: React.FC<TransferButtonProps> = ({
           data-cy="org-settings-transfer-submit-btn"
           id="org-settings-transfer-submit-btn"
         >
-          <span className={textColorClass}>Transfer</span>
+          <span className={textColorClass} data-cy="transfer-button-text">
+            Transfer
+          </span>
           <IoIosArrowForward
-           className={textColorClass}
-           data-cy="transfer-action-container-button-icon"
-           />
+            className={textColorClass}
+            data-cy="transfer-button-arrow-icon"
+          />
         </Button>
       </div>
     </div>

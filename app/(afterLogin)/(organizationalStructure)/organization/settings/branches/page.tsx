@@ -1,6 +1,6 @@
 'use client';
 import React, { useMemo } from 'react';
-import { Card, Dropdown, Menu, Form, Input, Popconfirm } from 'antd';
+import { Card, Dropdown, Menu, Form, Popconfirm } from 'antd';
 import { BsThreeDots } from 'react-icons/bs';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
@@ -19,7 +19,7 @@ const Branches = () => {
   const { data: branches, isLoading } = useGetBranches();
   const { mutate: createBranch, isLoading: createLoading } = useCreateBranch();
   const { mutate: updateBranch, isLoading: updateLoading } = useUpdateBranch();
-  const { mutate: deleteBranch, isLoading: deleteLoading } = useDeleteBranch();
+  const { mutate: deleteBranch } = useDeleteBranch();
   const [form] = Form.useForm();
 
   const {
@@ -28,7 +28,6 @@ const Branches = () => {
     setEditingBranch,
     setSelectedBranch,
     searchQuery,
-    setSearchQuery,
   } = useBranchStore();
 
   const handleEdit = (branch: Branch) => {
@@ -105,7 +104,7 @@ const Branches = () => {
             onClick={() => handleEdit(branch)}
             data-cy={`org-settings-branch-edit-${branchId}`}
             id={`org-settings-branch-edit-${branchId}`}
-            className="bg-white hover:bg-gray-100"
+            className="bg-white hover:bg-gray-100 text-gray-600"
             icon={<MdEdit />}
           >
             Edit
@@ -119,18 +118,29 @@ const Branches = () => {
           <Menu.Item
             data-cy={`org-settings-branch-delete-${branchId}`}
             id={`org-settings-branch-delete-${branchId}`}
-            className="bg-white hover:bg-gray-100"
+            className="bg-white hover:bg-gray-100  text-gray-600"
             icon={<MdDelete />}
           >
             <Popconfirm
               title={`Are you sure you want to delete ${branch.name}?`}
               onConfirm={() => handleDelete(branch)}
               okText="Delete"
-              okButtonProps={{ danger: true }}
+              okButtonProps={{
+                danger: true,
+                'data-cy': `org-settings-branch-delete-popconfirm-ok-${branchId}`,
+              }}
+              cancelButtonProps={{
+                'data-cy': `org-settings-branch-delete-popconfirm-cancel-${branchId}`,
+              }}
               cancelText="No"
               data-cy={`org-settings-branch-delete-popconfirm-${branchId}`}
             >
-              <span className="cursor-pointer">Delete</span>
+              <span
+                className="cursor-pointer"
+                data-cy={`org-settings-branch-delete-popconfirm-pointer-text-${branchId}`}
+              >
+                Delete
+              </span>
             </Popconfirm>
           </Menu.Item>
         </AccessGuard>
@@ -170,14 +180,17 @@ const Branches = () => {
                   body: { padding: '4px 14px 4px 14px' },
                 }}
               >
-                <div className="flex justify-between items-center mb-4">
-                  <h3
-                    className="text-base font-semibold text-gray-800 m-0"
+                <div
+                  className="flex justify-between items-center mb-4"
+                  data-cy={`org-settings-branch-card-separator-${branchId}`}
+                >
+                  <div
+                    className="text-base text-gray-800 m-0"
                     data-cy={`org-settings-branch-name-${branchId}`}
                     id={`org-settings-branch-name-${branchId}`}
                   >
                     {item.name}
-                  </h3>
+                  </div>
                   <Dropdown
                     overlay={menu(item)}
                     trigger={['click']}
@@ -215,7 +228,7 @@ const Branches = () => {
                       Location
                     </span>
                     <span
-                      className="text-sm text-gray-700 break-words"
+                      className="text-base text-gray-700 break-words"
                       data-cy={`org-settings-branch-location-value-${branchId}`}
                       id={`org-settings-branch-location-value-${branchId}`}
                     >
@@ -235,7 +248,7 @@ const Branches = () => {
                       Contact Number
                     </span>
                     <span
-                      className="text-sm text-gray-700 break-words"
+                      className="text-base text-gray-700 break-words"
                       data-cy={`org-settings-branch-contact-number-value-${branchId}`}
                       id={`org-settings-branch-contact-number-value-${branchId}`}
                     >

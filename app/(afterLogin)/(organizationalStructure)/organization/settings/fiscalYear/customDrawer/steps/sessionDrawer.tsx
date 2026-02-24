@@ -426,7 +426,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                   message: 'Please select the session date range!',
                 },
                 {
-                  validator: async (_, value) => {
+                  validator: async (unused, value) => {
                     if (!value || !Array.isArray(value) || value.length !== 2) {
                       return Promise.reject(
                         new Error('Please select both start and end dates!'),
@@ -478,8 +478,14 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       data-cy="org-settings-fiscal-year-session-drawer-container"
       id="org-settings-fiscal-year-session-drawer-container"
     >
-      <div className="px-0 -mt-2">
-        <p className="text-sm text-gray-600 mb-4">
+      <div
+        className="px-0 -mt-2"
+        data-cy="org-settings-fiscal-year-session-drawer-description-container"
+      >
+        <p
+          className="text-sm text-gray-600 mb-4"
+          data-cy="org-settings-fiscal-year-session-drawer-description"
+        >
           {calendarType === 'Semester' &&
             'For Biannually Selections Fiscal Year months must be separated between 6 months for each session. You can change the fiscal year any time you wish with in the system.'}
           {calendarType === 'Quarter' &&
@@ -494,8 +500,17 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         layout="vertical"
         requiredMark={(label, { required }) => (
           <>
-            {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            <span data-cy="org-settings-fiscal-year-session-drawer-form-label">
+              {label}
+            </span>
+            {required && (
+              <span
+                className="text-red-500 ml-1"
+                data-cy="org-settings-fiscal-year-session-drawer-form-required-astrix"
+              >
+                *
+              </span>
+            )}
           </>
         )}
         onValuesChange={(nonused, allValues) => {
@@ -506,8 +521,16 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         id="org-settings-fiscal-year-session-drawer-form"
         className="px-0"
       >
-        <div className="px-2 py-1 border-2 border-gray-200 rounded-lg">
-          <h3 className="font-bold text-base mb-4">Sessions</h3>
+        <div
+          className="px-2 py-1 border-2 border-gray-200 rounded-lg"
+          data-cy="org-settings-fiscal-year-session-drawer-sessions-container"
+        >
+          <h3
+            className="font-bold text-base mb-4"
+            data-cy="org-settings-fiscal-year-session-drawer-sessions-title"
+          >
+            Sessions
+          </h3>
           {sessionData.map((session, index) =>
             renderSessionForm(session, index),
           )}

@@ -66,6 +66,7 @@ const TeamCard: React.FC<TeamCardProps> = ({
         className={`bg-white border border-gray-200 rounded-lg py-4 px-1 shadow-sm relative ${
           isDragging ? 'shadow-lg' : ''
         } ${isOverlay ? 'shadow-xl' : ''}`}
+        data-cy={`merge-team-card-inner-${department.id}`}
       >
         {/* X button - only visible on mobile */}
         {onRemove && (
@@ -81,9 +82,17 @@ const TeamCard: React.FC<TeamCardProps> = ({
             <CloseOutlined className="text-xs" />
           </button>
         )}
-        <div className="text-center">
+        <div
+          className="text-center"
+          data-cy={`merge-team-card-content-${department.id}`}
+        >
           {isLoadingTeamLead ? (
-            <p className="text-sm text-gray-400 m-0">Loading...</p>
+            <p
+              className="text-sm text-gray-400 m-0"
+              data-cy={`merge-team-card-loading-${department.id}`}
+            >
+              Loading...
+            </p>
           ) : teamLeadError ? (
             <>
               <Tooltip title={department.name} placement="top">

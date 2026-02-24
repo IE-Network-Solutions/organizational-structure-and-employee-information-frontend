@@ -128,16 +128,6 @@ const MonthDrawer: React.FC<
     return {};
   };
 
-  const generateMonthName = (section: number, index: number) => {
-    if (calendarType === 'Quarter') {
-      return `Month ${index + 1} (Q${section})`;
-    } else if (calendarType === 'Semester') {
-      return `Month ${index + 1} (S${section})`;
-    } else {
-      return `Month ${index + 1}`;
-    }
-  };
-
   const getMonthStartEndDates = (month: number) => {
     if (!fiscalYearStart || !fiscalYearEnd) {
       return { startDate: null, endDate: null };
@@ -427,8 +417,17 @@ const MonthDrawer: React.FC<
       layout="vertical"
       requiredMark={(label, { required }) => (
         <>
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          <span data-cy="org-settings-fiscal-year-month-drawer-form-label">
+            {label}
+          </span>
+          {required && (
+            <span
+              className="text-red-500 ml-1"
+              data-cy="org-settings-fiscal-year-month-drawer-form-required-astrix"
+            >
+              *
+            </span>
+          )}
         </>
       )}
       onFinish={(values) => {
@@ -461,7 +460,10 @@ const MonthDrawer: React.FC<
         {sessionData &&
           sessionData.length > 0 &&
           Object.keys(monthDataBySession).length > 0 && (
-            <div className="space-y-2">
+            <div
+              className="space-y-2"
+              data-cy="org-settings-fiscal-year-sessions-container"
+            >
               {sessionData.map((session, sessionIndex) => {
                 const sessionMonths = monthDataBySession[sessionIndex] || [];
                 const isExpanded = expandedSession === sessionIndex;
@@ -491,38 +493,68 @@ const MonthDrawer: React.FC<
                       onClick={() => toggleSession(sessionIndex)}
                       data-cy={`org-settings-fiscal-year-session-header-${sessionIndex}`}
                     >
-                      <div className="flex items-center gap-6 flex-1">
-                        <span className="font-medium text-base">
+                      <div
+                        className="flex items-center gap-6 flex-1"
+                        data-cy={`org-settings-fiscal-year-session-header-content-${sessionIndex}`}
+                      >
+                        <span
+                          className="font-medium text-base"
+                          data-cy={`org-settings-fiscal-year-session-name-${sessionIndex}`}
+                        >
                           {sessionName}
                         </span>
                         {sessionDateRange &&
                         sessionDateRange[0] &&
                         sessionDateRange[1] ? (
-                          <span className="border border-primary rounded px-2 py-0.5 text-xs text-gray-700">
+                          <span
+                            className="border border-primary rounded px-2 py-0.5 text-xs text-gray-700"
+                            data-cy={`org-settings-fiscal-year-session-date-range-${sessionIndex}`}
+                          >
                             {dayjs(sessionDateRange[0]).format('YYYY-MM-DD')} to{' '}
                             {dayjs(sessionDateRange[1]).format('YYYY-MM-DD')}
                           </span>
                         ) : null}
                       </div>
-                      <div className="flex items-center">
+                      <div
+                        className="flex items-center"
+                        data-cy={`org-settings-fiscal-year-session-toggle-${sessionIndex}`}
+                      >
                         {isExpanded ? (
-                          <IoIosArrowUp size={20} className="text-gray-600" />
+                          <IoIosArrowUp
+                            size={20}
+                            className="text-gray-600"
+                            data-cy={`org-settings-fiscal-year-session-arrow-up-${sessionIndex}`}
+                          />
                         ) : (
-                          <IoIosArrowDown size={20} className="text-gray-600" />
+                          <IoIosArrowDown
+                            size={20}
+                            className="text-gray-600"
+                            data-cy={`org-settings-fiscal-year-session-arrow-down-${sessionIndex}`}
+                          />
                         )}
                       </div>
                     </div>
 
                     {/* Session Months (when expanded) */}
                     {isExpanded && (
-                      <div className="px-3 pb-3 space-y-3">
+                      <div
+                        className="px-3 pb-3 space-y-3"
+                        data-cy={`org-settings-fiscal-year-session-months-${sessionIndex}`}
+                      >
                         {sessionMonths.map((monthInfo) => (
                           <div
                             key={monthInfo.monthNumber}
                             data-cy={`org-settings-fiscal-year-month-${monthInfo.monthNumber}`}
                           >
-                            <Row gutter={16} align="middle">
-                              <Col span={12}>
+                            <Row
+                              gutter={16}
+                              align="middle"
+                              data-cy={`org-settings-fiscal-year-month-row-${monthInfo.monthNumber}`}
+                            >
+                              <Col
+                                span={12}
+                                data-cy={`org-settings-fiscal-year-month-name-col-${monthInfo.monthNumber}`}
+                              >
                                 <Form.Item
                                   data-cy={`org-settings-fiscal-year-month-name-${monthInfo.monthNumber}`}
                                   id={`monthNameId_${monthInfo.monthNumber}`}
@@ -543,7 +575,10 @@ const MonthDrawer: React.FC<
                                   />
                                 </Form.Item>
                               </Col>
-                              <Col span={12}>
+                              <Col
+                                span={12}
+                                data-cy={`org-settings-fiscal-year-month-date-range-col-${monthInfo.monthNumber}`}
+                              >
                                 <Form.Item
                                   data-cy={`org-settings-fiscal-year-month-date-range-${monthInfo.monthNumber}`}
                                   name={`monthDateRange_${monthInfo.monthNumber}`}
@@ -668,8 +703,8 @@ const MonthDrawer: React.FC<
                                       ? [
                                           {
                                             validator: async (
-                                              nonused,
-                                              value,
+                                              nonused: any,
+                                              value: any,
                                             ) => {
                                               if (
                                                 !value ||
@@ -687,8 +722,8 @@ const MonthDrawer: React.FC<
                                           },
                                           {
                                             validator: async (
-                                              nonused,
-                                              value,
+                                              nonused: any,
+                                              value: any,
                                             ) => {
                                               if (
                                                 !value ||

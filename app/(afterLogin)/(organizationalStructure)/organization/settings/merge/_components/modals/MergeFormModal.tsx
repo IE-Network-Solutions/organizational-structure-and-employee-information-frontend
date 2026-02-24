@@ -69,19 +69,35 @@ const MergeFormModal: React.FC<MergeFormModalProps> = ({
       open={open}
       onCancel={handleCancel}
       title="Merge Department"
-      closeIcon={<span className="text-gray-400">×</span>}
+      closeIcon={
+        <span className="text-gray-400" data-cy="merge-form-modal-close-icon">
+          ×
+        </span>
+      }
       footer={null}
       data-cy="merge-form-modal"
     >
-      <Form form={form} layout="vertical" className="mt-4">
+      <Form
+        form={form}
+        layout="vertical"
+        className="mt-4"
+        data-cy="merge-form-modal-form"
+      >
         <Form.Item
           name="teamLead"
           label={
-            <span>
-              Team Lead <span className="text-red-500">*</span>
+            <span data-cy="merge-form-modal-team-lead-label">
+              Team Lead{' '}
+              <span
+                className="text-red-500"
+                data-cy="merge-form-modal-team-lead-required"
+              >
+                *
+              </span>
             </span>
           }
           rules={[{ required: true, message: 'Please select team lead' }]}
+          data-cy="merge-form-modal-team-lead-item"
         >
           <Select
             placeholder="Select team lead"
@@ -89,24 +105,48 @@ const MergeFormModal: React.FC<MergeFormModalProps> = ({
             showSearch
             optionFilterProp="label"
             options={teamLeadOptions}
+            data-cy="merge-form-modal-team-lead-select"
           />
         </Form.Item>
         <Form.Item
           name="departmentName"
           label={
-            <span>
-              Name of Department <span className="text-red-500">*</span>
+            <span data-cy="merge-form-modal-department-name-label">
+              Name of Department{' '}
+              <span
+                className="text-red-500"
+                data-cy="merge-form-modal-department-name-required"
+              >
+                *
+              </span>
             </span>
           }
           rules={[{ required: true, message: 'Please enter department name' }]}
+          data-cy="merge-form-modal-department-name-item"
         >
-          <Input placeholder="Enter branch name" size="large" />
+          <Input
+            placeholder="Enter branch name"
+            size="large"
+            data-cy="merge-form-modal-department-name-input"
+          />
         </Form.Item>
-        <div className="flex justify-end gap-3 mt-6">
-          <Button onClick={handleCancel} className="border-gray-300">
+        <div
+          className="flex justify-end gap-3 mt-6"
+          data-cy="merge-form-modal-actions"
+        >
+          <Button
+            onClick={handleCancel}
+            className="border-gray-300"
+            data-cy="merge-form-modal-cancel-button"
+          >
             Cancel
           </Button>
-          <Button type="primary" onClick={handleNext} className="bg-primary">
+          <Button
+            type="primary"
+            onClick={handleNext}
+            className="bg-primary"
+            data-cy="merge-form-modal-next-button"
+          >
             Next
           </Button>
         </div>
