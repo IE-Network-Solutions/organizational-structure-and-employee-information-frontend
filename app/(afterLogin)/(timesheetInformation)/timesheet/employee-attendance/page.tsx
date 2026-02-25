@@ -231,13 +231,27 @@ const EmployeeAttendance = () => {
           data-cy="time-attendance-employee-attendance-header-section"
         >
           <CustomBreadcrumb
-            title={<span className="text-xl" data-cy="time-attendance-employee-attendance-breadcrumb-title">Time and Attendance</span>}
+            title={
+              <span
+                className="text-xl"
+                data-cy="time-attendance-employee-attendance-breadcrumb-title"
+              >
+                Time and Attendance
+              </span>
+            }
             subtitle={
               <Breadcrumb
                 data-cy="time-attendance-employee-attendance-breadcrumb"
                 items={[
                   {
-                    title: <span className="text-xs" data-cy="time-attendance-employee-attendance-breadcrumb-item-title">Time and Attendance</span>,
+                    title: (
+                      <span
+                        className="text-xs"
+                        data-cy="time-attendance-employee-attendance-breadcrumb-item-title"
+                      >
+                        Time and Attendance
+                      </span>
+                    ),
                   },
                   {
                     title: (

@@ -68,7 +68,6 @@ const TeamCard: React.FC<TeamCardProps> = ({
         className={`bg-white border border-gray-200 rounded-lg py-4 px-1 shadow-sm relative ${
           isDragging ? 'shadow-lg' : ''
         } ${isOverlay ? 'shadow-xl' : ''}`}
-        data-cy={`transfer-team-card-inner-${department.id}`}
       >
         {/* X button - only visible on mobile */}
         {onRemove && (
@@ -81,9 +80,9 @@ const TeamCard: React.FC<TeamCardProps> = ({
             data-cy={`transfer-team-card-remove-${department.id}`}
             aria-label="Remove team"
           >
-            <CloseOutlined 
-            className="text-xs"
-            data-cy="transfer-team-card-remove-icon"
+            <CloseOutlined
+              className="text-xs"
+              data-cy="transfer-team-card-remove-icon"
             />
           </button>
         )}

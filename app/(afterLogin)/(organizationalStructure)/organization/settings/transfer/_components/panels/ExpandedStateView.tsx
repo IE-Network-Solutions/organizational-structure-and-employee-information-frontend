@@ -90,6 +90,7 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
               },
               dataCy: 'transfer-mobile-source-select',
             }}
+            data-cy="transfer-source-teams-droppable-area"
           >
             {sourceTeams.length > 0 && (
               <SortableContext
@@ -112,14 +113,13 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
                 id="transfer-add-another-team-div"
                 data-cy="transfer-add-another-team-div"
                 style={{ pointerEvents: 'none', userSelect: 'none' }}
-                data-cy="transfer-add-another-team-container"
               >
                 <button
                   type="button"
                   onClick={handleAddAnotherTeam}
                   className="text-primary text-sm font-medium underline underline-offset-4"
                   style={{ pointerEvents: 'auto' }}
-                  data-cy="transfer-add-another-team"
+                  data-cy="transfer-add-another-team-button"
                 >
                   Add another team
                 </button>

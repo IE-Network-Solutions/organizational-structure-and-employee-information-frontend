@@ -148,9 +148,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   const columns: TableColumnsType<any> = [
     {
       title: (
-        <span className="font-bold text-base text-[#4b4b4b]"
-        id="time-attendance-employee-attendance-table-employee-name-span"
-        data-cy="time-attendance-employee-attendance-table-employee-name-span"
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-employee-name-span"
+          data-cy="time-attendance-employee-attendance-table-employee-name-span"
         >
           Employee Name
         </span>
@@ -161,10 +162,15 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       render: (text: string) => <EmpRender userId={text} />,
     },
     {
-      title: <span className="font-bold text-base text-[#4b4b4b]"
-      id="time-attendance-employee-attendance-table-date-span"
-      data-cy="time-attendance-employee-attendance-table-date-span"
-      >Date</span>,
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-date-span"
+          data-cy="time-attendance-employee-attendance-table-date-span"
+        >
+          Date
+        </span>
+      ),
       dataIndex: 'createdAt',
       key: 'createdAt',
       sorter: true,
@@ -176,10 +182,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     },
     {
       title: (
-        <span className="font-bold text-base text-[#4b4b4b]"
-        id="time-attendance-employee-attendance-table-clock-in-span"
-        data-cy="time-attendance-employee-attendance-table-clock-in-span"
-        >Clock In</span>
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-clock-in-span"
+          data-cy="time-attendance-employee-attendance-table-clock-in-span"
+        >
+          Clock In
+        </span>
       ),
       dataIndex: 'clockIn',
       key: 'clockIn',
@@ -234,10 +243,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     },
     {
       title: (
-        <span className="font-bold text-base text-[#4b4b4b]"
-        id="time-attendance-employee-attendance-table-clock-out-span"
-        data-cy="time-attendance-employee-attendance-table-clock-out-span"
-        >Clock Out</span>
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-clock-out-span"
+          data-cy="time-attendance-employee-attendance-table-clock-out-span"
+        >
+          Clock Out
+        </span>
       ),
       dataIndex: 'clockOut',
       key: 'clockOut',
@@ -291,10 +303,15 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       },
     },
     {
-      title: <span className="font-bold text-base text-[#4b4b4b]"
-      id="time-attendance-employee-attendance-table-status-span"
-      data-cy="time-attendance-employee-attendance-table-status-span"
-      >Status</span>,
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-status-span"
+          data-cy="time-attendance-employee-attendance-table-status-span"
+        >
+          Status
+        </span>
+      ),
       dataIndex: 'status',
       key: 'status',
       render: (record: AttendanceRecord) => {
@@ -369,10 +386,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
     {
       title: (
-        <span className="font-bold text-base text-[#4b4b4b]"
-        id="time-attendance-employee-attendance-table-over-time-span"
-        data-cy="time-attendance-employee-attendance-table-over-time-span"
-        >Over-time</span>
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-over-time-span"
+          data-cy="time-attendance-employee-attendance-table-over-time-span"
+        >
+          Over-time
+        </span>
       ),
       dataIndex: 'overTime',
       key: 'overTime',
@@ -387,10 +407,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     },
     {
       title: (
-        <span className="font-bold text-base text-[#4b4b4b]"
-        id="time-attendance-employee-attendance-table-total-time-span"
-        data-cy="time-attendance-employee-attendance-table-total-time-span"
-        >Total time</span>
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-total-time-span"
+          data-cy="time-attendance-employee-attendance-table-total-time-span"
+        >
+          Total time
+        </span>
       ),
       dataIndex: 'totalTime',
       key: 'totalTime',
@@ -404,19 +427,25 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
     },
     {
-      title: <span className="font-bold text-base text-[#4b4b4b]"
-      id="time-attendance-employee-attendance-table-action-span"
-      data-cy="time-attendance-employee-attendance-table-action-span"
-      >Action</span>,
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-action-span"
+          data-cy="time-attendance-employee-attendance-table-action-span"
+        >
+          Action
+        </span>
+      ),
       dataIndex: 'action',
       key: 'action',
       render: (item: EmployeeAttendance) => {
         return (
-          <Dropdown trigger={['click']} 
-          overlay={<EmployeeAttendanceSideBar
+          <Dropdown
+            trigger={['click']}
+            overlay={
+              <EmployeeAttendanceSideBar data-cy="time-attendance-employee-attendance-table-edit-button-dropdown" />
+            }
             data-cy="time-attendance-employee-attendance-table-edit-button-dropdown"
-            />}
-          data-cy="time-attendance-employee-attendance-table-edit-button-dropdown"
           >
             <Button
               type="text"
@@ -429,10 +458,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               }}
               data-cy={`time-attendance-employee-attendance-row-${item?.id}-edit-button`}
             >
-              <span className="font-bold text-base text-[#1e40af]"
-              id="time-attendance-employee-attendance-table-edit-button-span"
-              data-cy="time-attendance-employee-attendance-table-edit-button-span"
-              >Edit</span>
+              <span
+                className="font-bold text-base text-[#1e40af]"
+                id="time-attendance-employee-attendance-table-edit-button-span"
+                data-cy="time-attendance-employee-attendance-table-edit-button-span"
+              >
+                Edit
+              </span>
             </Button>
           </Dropdown>
         );

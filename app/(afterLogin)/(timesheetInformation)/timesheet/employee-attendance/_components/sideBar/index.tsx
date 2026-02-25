@@ -1,10 +1,5 @@
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
-import {
-  Button,
-  DatePicker,
-  Form,
-  TimePicker,
-} from 'antd';
+import { Button, DatePicker, Form, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
@@ -38,8 +33,7 @@ const EmployeeAttendanceSideBar = () => {
   const { data: currentAttendanceData } =
     useGetSingleAttendances(employeeAttendanceId);
 
-  const { data: employeeData } =
-    useGetEmployee(employeeId);
+  const { data: employeeData } = useGetEmployee(employeeId);
 
   const { mutate: updateLeaveRequest, isLoading: isLoadingRequest } =
     useSetEditAttendance();

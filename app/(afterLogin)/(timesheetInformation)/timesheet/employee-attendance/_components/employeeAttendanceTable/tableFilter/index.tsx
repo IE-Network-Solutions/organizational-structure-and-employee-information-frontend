@@ -4,7 +4,6 @@ import { CloseOutlined } from '@ant-design/icons';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
-import { useMediaQuery } from 'react-responsive';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
@@ -52,10 +51,10 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
     >
       {/* Header */}
       <div
-       className="px-6 pt-5 pb-1 relative"
-       id="time-attendance-employee-attendance-mobile-filter-header"
-       data-cy="time-attendance-employee-attendance-mobile-filter-header"
-       >
+        className="px-6 pt-5 pb-1 relative"
+        id="time-attendance-employee-attendance-mobile-filter-header"
+        data-cy="time-attendance-employee-attendance-mobile-filter-header"
+      >
         <button
           id="time-attendance-employee-attendance-mobile-filter-close-button"
           data-cy="time-attendance-employee-attendance-mobile-filter-close-button"
@@ -64,43 +63,46 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           className="absolute top-5 right-6 p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
           aria-label="Close filter"
         >
-          <CloseOutlined className="text-base" 
-          data-cy="time-attendance-employee-attendance-mobile-filter-close-button-icon"
+          <CloseOutlined
+            className="text-base"
+            data-cy="time-attendance-employee-attendance-mobile-filter-close-button-icon"
           />
         </button>
         <h3
-         id="time-attendance-employee-attendance-mobile-filter-title"
-         data-cy="time-attendance-employee-attendance-mobile-filter-title"
-         className="text-xl font-semibold text-gray-900 pr-8"
-         >Filter</h3>
+          id="time-attendance-employee-attendance-mobile-filter-title"
+          data-cy="time-attendance-employee-attendance-mobile-filter-title"
+          className="text-xl font-semibold text-gray-900 pr-8"
+        >
+          Filter
+        </h3>
         <p
-         id="time-attendance-employee-attendance-mobile-filter-description"
-         data-cy="time-attendance-employee-attendance-mobile-filter-description"
-         className="text-sm text-gray-500 mt-1"
-         >
+          id="time-attendance-employee-attendance-mobile-filter-description"
+          data-cy="time-attendance-employee-attendance-mobile-filter-description"
+          className="text-sm text-gray-500 mt-1"
+        >
           Select all filters that apply
         </p>
       </div>
 
       {/* Filter fields */}
-      <div 
-      id="time-attendance-employee-attendance-mobile-filter-fields"
-      data-cy="time-attendance-employee-attendance-mobile-filter-fields"
-      className="px-6 py-4"
+      <div
+        id="time-attendance-employee-attendance-mobile-filter-fields"
+        data-cy="time-attendance-employee-attendance-mobile-filter-fields"
+        className="px-6 py-4"
       >
         <Row
-         gutter={16}
-         id="time-attendance-employee-attendance-mobile-filter-fields-row"
-         data-cy="time-attendance-employee-attendance-mobile-filter-fields-row"
-         >
+          gutter={16}
+          id="time-attendance-employee-attendance-mobile-filter-fields-row"
+          data-cy="time-attendance-employee-attendance-mobile-filter-fields-row"
+        >
           <Col
-           lg={24}
-           md={24}
-           sm={24}
-           xs={24}
-           id="time-attendance-employee-attendance-mobile-filter-fields-col"
-           data-cy="time-attendance-employee-attendance-mobile-filter-fields-col"
-           >
+            lg={24}
+            md={24}
+            sm={24}
+            xs={24}
+            id="time-attendance-employee-attendance-mobile-filter-fields-col"
+            data-cy="time-attendance-employee-attendance-mobile-filter-fields-col"
+          >
             <div
               id="time-attendance-employee-attendance-mobile-filter-status-select-div"
               className="mb-4"
@@ -265,7 +267,10 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 flex justify-end gap-2">
+      <div
+        data-cy="time-attendance-employee-attendance-mobile-filter-footer"
+        className="px-6 py-4 flex justify-end gap-2"
+      >
         <Button
           onClick={() => {
             form.resetFields();
@@ -307,7 +312,10 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           data-cy="time-attendance-employee-attendance-mobile-filter-date-range-div"
           className="flex justify-between gap-2"
         >
-          <div className="w-1/2">
+          <div
+            data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
+            className="w-1/2"
+          >
             <Form.Item
               data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-form-item"
               name="employeeId"
