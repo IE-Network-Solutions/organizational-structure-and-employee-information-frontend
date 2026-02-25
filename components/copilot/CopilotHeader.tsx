@@ -34,14 +34,22 @@ const CopilotHeader: React.FC<CopilotHeaderProps> = ({
       data-cy="copilot-header"
     >
       <div className="flex flex-col" data-cy="copilot-header-content">
-        <Title level={5} className="!mb-1 !text-gray-900">
+        <Title
+          level={5}
+          className="!mb-1 !text-gray-900"
+          data-cy="copilot-header-title"
+        >
           SelamNew Copilot
         </Title>
-        <Text type="secondary" className="text-xs">
+        <Text
+          type="secondary"
+          className="text-xs"
+          data-cy="copilot-header-subtitle"
+        >
           Ask about attendance, employees, OKRs…
         </Text>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" data-cy="copilot-header-actions">
         {onFullScreenToggle && (
           <Tooltip title={isFullScreen ? 'Exit full screen' : 'Full screen'}>
             <Button

@@ -71,6 +71,7 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
             <span
               className="copilot-hand-cooking inline-flex items-center justify-center flex-shrink-0"
               aria-hidden
+              data-cy="copilot-stop-icon-wrapper"
             >
               <SelamnewHandIcon className="w-5 h-5" />
             </span>

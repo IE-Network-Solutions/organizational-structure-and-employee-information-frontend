@@ -111,7 +111,7 @@ export interface NormalizedCopilotResponse {
   success: boolean;
   displayText: string;
   messageType?: 'permission_denied' | 'error';
-  backend_errors?: string[];
+  backendErrors?: string[];
   tableData?: CopilotTableData;
   rawData?: unknown;
   intent?: string;
@@ -143,10 +143,10 @@ export function normalizeCopilotResponse(
   const answer = String(p.answer ?? p.response ?? '').trim();
   const data = p.data;
   const intent = typeof p.intent === 'string' ? p.intent : undefined;
-  const backend_errors = Array.isArray(p.backend_errors)
+  const backendErrors = Array.isArray(p.backend_errors)
     ? (p.backend_errors as string[]).filter(
-      (e): e is string => typeof e === 'string',
-    )
+        (e): e is string => typeof e === 'string',
+      )
     : undefined;
 
   if (!success || errorStr) {
@@ -160,7 +160,7 @@ export function normalizeCopilotResponse(
       success: false,
       displayText,
       messageType: isPermissionDenied ? 'permission_denied' : 'error',
-      backend_errors: backend_errors?.length ? backend_errors : undefined,
+      backendErrors: backendErrors?.length ? backendErrors : undefined,
     };
   }
 
@@ -325,7 +325,7 @@ export const sendCopilotChatRequest = async (
       data: response.data.data, // Includes data.table for table-capable intents
       intent: response.data.intent,
       error: response.data.error || null,
-      backend_errors: response.data.backend_errors || null,
+      backendErrors: response.data.backend_errors || null,
     });
   } catch (error) {
     if (axios.isAxiosError(error) && error.code === 'ERR_CANCELED') {

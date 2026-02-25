@@ -31,7 +31,7 @@ export interface Message {
   /** 'permission_denied' = access denied styling; 'error' = generic error styling */
   messageType?: 'permission_denied' | 'error';
   /** Optional backend error details for "Details for support" (developers/support only) */
-  backend_errors?: string[];
+  backendErrors?: string[];
   metadata?: {
     source?: string;
     confidence?: string;
@@ -284,8 +284,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
     const isPermissionDenied = message.messageType === 'permission_denied';
     const isError = message.messageType === 'error';
     const hasBackendErrors =
-      Array.isArray(message.backend_errors) &&
-      message.backend_errors.length > 0;
+      Array.isArray(message.backendErrors) && message.backendErrors.length > 0;
 
     return (
       <div data-cy="copilot-message-content">
@@ -301,7 +300,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               data-cy="copilot-message-permission-denied"
             />
           ) : isError ? (
-            <div className="mb-3">
+            <div className="mb-3" data-cy="copilot-message-error-wrapper">
               <Text
                 className="text-sm leading-relaxed whitespace-pre-wrap block text-gray-700"
                 data-cy="copilot-message-error-text"
@@ -372,7 +371,11 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
         )}
         {message.metadata?.confidence && (
           <div className="mt-1" data-cy="copilot-message-metadata-confidence">
-            <Text type="secondary" className="text-xs italic">
+            <Text
+              type="secondary"
+              className="text-xs italic"
+              data-cy="copilot-message-metadata-confidence-text"
+            >
               {message.metadata.confidence}
             </Text>
           </div>
@@ -382,11 +385,15 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             ghost
             size="small"
             className="mt-2 copilot-details-for-support"
+            data-cy="copilot-message-support-collapse"
             items={[
               {
                 key: 'support',
                 label: (
-                  <span className="text-xs text-gray-500 flex items-center gap-1">
+                  <span
+                    className="text-xs text-gray-500 flex items-center gap-1"
+                    data-cy="copilot-message-support-label"
+                  >
                     <InfoCircleOutlined />
                     Details for support
                   </span>
@@ -396,7 +403,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                     className="text-xs text-gray-600 whitespace-pre-wrap break-words bg-gray-50 p-2 rounded border border-gray-200"
                     data-cy="copilot-message-backend-errors"
                   >
-                    {message.backend_errors!.join('\n')}
+                    {message.backendErrors!.join('\n')}
                   </pre>
                 ),
               },
@@ -444,7 +451,11 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             >
               {renderMessageContent(message)}
               <div className="mt-1.5" data-cy="copilot-message-timestamp">
-                <Text type="secondary" className="text-xs">
+                <Text
+                  type="secondary"
+                  className="text-xs"
+                  data-cy="copilot-message-timestamp-text"
+                >
                   {formatTime(message.timestamp)}
                 </Text>
               </div>

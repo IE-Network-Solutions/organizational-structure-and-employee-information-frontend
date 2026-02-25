@@ -68,17 +68,28 @@ const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
         className="flex items-start gap-4 mb-8 max-w-md mx-auto text-left w-full"
         data-cy="copilot-empty-state-content"
       >
-        <div
-          className="flex-shrink-0 inline-flex items-center justify-center w-14 h-14 rounded-full bg-white border border-gray-200 shadow-sm"
-          data-cy="copilot-empty-state-icon-circle"
+        <span
+          className="copilot-hand-cooking inline-flex items-center justify-center flex-shrink-0 w-14 h-14 rounded-full bg-white border border-gray-200 shadow-sm"
+          aria-hidden
+          data-cy="copilot-stop-icon-wrapper"
         >
           <SelamnewHandIcon className="w-8 h-8" />
-        </div>
-        <div className="flex-1 min-w-0 pt-0.5">
-          <Text className="text-xl font-semibold text-gray-800 block mb-2">
+        </span>
+        <div
+          className="flex-1 min-w-0 pt-0.5"
+          data-cy="copilot-empty-state-greeting"
+        >
+          <Text
+            className="text-xl font-semibold text-gray-800 block mb-2"
+            data-cy="copilot-empty-state-title"
+          >
             {userName ? `Hello ${userName}!` : 'Welcome to SelamNew Copilot'}
           </Text>
-          <Text type="secondary" className="text-sm block text-gray-600">
+          <Text
+            type="secondary"
+            className="text-sm block text-gray-600"
+            data-cy="copilot-empty-state-subtitle"
+          >
             SelamNew Copilot can help you answer questions, complete tasks, and
             discover insights from your HR data. Ready to explore? Select one of
             the suggestions below to get started.

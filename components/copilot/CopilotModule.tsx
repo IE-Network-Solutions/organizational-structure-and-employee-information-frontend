@@ -594,8 +594,8 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
               ...(normalized.messageType && {
                 messageType: normalized.messageType,
               }),
-              ...(normalized.backend_errors?.length && {
-                backend_errors: normalized.backend_errors,
+              ...(normalized.backendErrors?.length && {
+                backendErrors: normalized.backendErrors,
               }),
             },
           ]);
@@ -706,7 +706,10 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                   className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[240px] max-w-[320px]"
                   data-cy="copilot-history-dropdown"
                 >
-                  <div className="max-h-[280px] overflow-y-auto">
+                  <div
+                    className="max-h-[280px] overflow-y-auto"
+                    data-cy="copilot-history-list"
+                  >
                     {chatHistory.slice(0, 20).map((s) => (
                       <div
                         key={s.id}
@@ -722,11 +725,20 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                         className="flex items-start justify-between gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer group"
                         data-cy={`copilot-history-item-${s.id}`}
                       >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                        <div
+                          className="flex-1 min-w-0"
+                          data-cy={`copilot-history-item-content-${s.id}`}
+                        >
+                          <p
+                            className="text-sm font-medium text-gray-900 truncate"
+                            data-cy={`copilot-history-item-title-${s.id}`}
+                          >
                             {s.title || 'New Chat'}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p
+                            className="text-xs text-gray-500"
+                            data-cy={`copilot-history-item-count-${s.id}`}
+                          >
                             {s.messages?.length ?? 0} messages
                           </p>
                         </div>
@@ -743,7 +755,10 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                       </div>
                     ))}
                   </div>
-                  <div className="border-t border-gray-100 mt-2 pt-2 px-3">
+                  <div
+                    className="border-t border-gray-100 mt-2 pt-2 px-3"
+                    data-cy="copilot-history-footer"
+                  >
                     <button
                       type="button"
                       onClick={handleClearAllHistory}
@@ -813,20 +828,34 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                 className="flex flex-col h-full min-h-[200px] py-8 px-4"
                 data-cy="copilot-module-empty-state"
               >
-                <div className="flex items-start gap-4 max-w-2xl mx-auto w-full">
+                <div
+                  className="flex items-start gap-4 max-w-2xl mx-auto w-full"
+                  data-cy="copilot-module-empty-state-inner"
+                >
                   <div
                     className="flex-shrink-0 inline-flex items-center justify-center w-14 h-14 rounded-full bg-white border border-gray-200 shadow-sm"
                     data-cy="copilot-module-empty-state-icon"
                   >
                     <SelamnewHandIcon className="w-8 h-8" />
                   </div>
-                  <div className="flex-1 min-w-0 pt-0.5">
-                    <Text className="text-xl font-semibold text-gray-800 block mb-2">
-                      Hello {employeeData?.firstName ?? employeeData?.lastName ?? 'there'}!
+                  <div
+                    className="flex-1 min-w-0 pt-0.5"
+                    data-cy="copilot-module-empty-state-text"
+                  >
+                    <Text
+                      className="text-xl font-semibold text-gray-800 block mb-2"
+                      data-cy="copilot-module-empty-state-greeting"
+                    >
+                      Hello{' '}
+                      {employeeData?.firstName ??
+                        employeeData?.lastName ??
+                        'there'}
+                      !
                     </Text>
                     <Text
                       type="secondary"
                       className="text-sm block text-gray-600 mb-1"
+                      data-cy="copilot-module-empty-state-description"
                     >
                       SelamNew Copilot can help you answer questions, complete
                       tasks, and discover insights from your HR data.
@@ -834,6 +863,7 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                     <Text
                       type="secondary"
                       className="text-sm block text-gray-600 mb-4"
+                      data-cy="copilot-module-empty-state-hint"
                     >
                       Ready to explore? Click an intent on the right or type
                       your question below.
