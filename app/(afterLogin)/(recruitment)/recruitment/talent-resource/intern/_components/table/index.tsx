@@ -398,10 +398,17 @@ const InternTable = ({ onEdit }: InternTableProps) => {
   const inputClassName = 'w-full h-10 rounded-md border-gray-300';
 
   const filterInternContent = (
-    <div className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[360px] max-w-[420px] overflow-hidden">
+    <div
+      data-cy="talent-acquisition-intern-table-filter-container"
+      className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[360px] max-w-[420px] overflow-hidden"
+    >
       {/* Header */}
-      <div className="px-6 pt-5 pb-1 relative">
+      <div
+        data-cy="talent-acquisition-intern-table-filter-header"
+        className="px-6 pt-5 pb-1 relative"
+      >
         <button
+          data-cy="talent-acquisition-intern-table-filter-button-close"
           type="button"
           onClick={() => setFilterDropdownOpen(false)}
           className="absolute top-5 right-6 p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
@@ -409,14 +416,25 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         >
           <CloseOutlined className="text-base" />
         </button>
-        <h3 className="text-xl font-semibold text-gray-900 pr-8">Filter</h3>
-        <p className="text-sm text-gray-500 mt-1">
+        <h3
+          data-cy="talent-acquisition-intern-table-filter-title"
+          className="text-xl font-semibold text-gray-900 pr-8"
+        >
+          Filter
+        </h3>
+        <p
+          data-cy="talent-acquisition-intern-table-filter-description"
+          className="text-sm text-gray-500 mt-1"
+        >
           Select all filters that apply
         </p>
       </div>
 
       {/* Filter fields */}
-      <div className="px-6 py-4">
+      <div
+        data-cy="talent-acquisition-intern-table-filter-fields"
+        className="px-6 py-4"
+      >
         <Row
           data-cy="talent-acquisition-talent-roaster-table-row-filters"
           gutter={[16, 16]}
@@ -425,7 +443,12 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             span={24}
             data-cy="talent-acquisition-talent-roaster-table-col-department"
           >
-            <label className={labelClassName}>Department</label>
+            <label
+              data-cy="talent-acquisition-intern-table-filter-label-department"
+              className={labelClassName}
+            >
+              Department
+            </label>
             <Select
               id={`selectDepartment`}
               data-cy="talent-acquisition-intern-table-select-department"
@@ -450,7 +473,12 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             span={24}
             data-cy="talent-acquisition-talent-roaster-table-col-date"
           >
-            <label className={labelClassName}>Date</label>
+            <label
+              data-cy="talent-acquisition-intern-table-filter-label-date"
+              className={labelClassName}
+            >
+              Date
+            </label>
             <RangePicker
               id={`inputDateRange`}
               data-cy="talent-acquisition-intern-table-date-picker"
@@ -473,7 +501,10 @@ const InternTable = ({ onEdit }: InternTableProps) => {
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
+      <div
+        data-cy="talent-acquisition-intern-table-filter-footer"
+        className="px-6 py-4 border-t border-gray-200 flex justify-end gap-2"
+      >
         <Button
           onClick={handleResetFilters}
           className="h-10 px-4 rounded-md border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
@@ -504,7 +535,10 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         data-cy="talent-acquisition-intern-table-filters"
         className="flex justify-between items-center py-4"
       >
-        <div className="w-1/2">
+        <div
+          data-cy="talent-acquisition-intern-table-input-search-container"
+          className="w-1/2"
+        >
           <Input
             id={`inputInternNames`}
             data-cy="talent-acquisition-intern-table-input-search"

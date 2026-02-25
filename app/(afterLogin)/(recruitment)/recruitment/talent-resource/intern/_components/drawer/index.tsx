@@ -1,5 +1,4 @@
 'use client';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   Button,
   Col,
@@ -24,9 +23,7 @@ import {
   useUpdateIntern,
 } from '@/store/server/features/recruitment/intern/mutation';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
-import { CustomDrawerFooterButtonProps } from '@/components/common/customDrawer/customDrawerFooterButton';
 import { useQueryClient } from 'react-query';
-import CustomDrawerFooterButton from '@/components/common/customDrawer/customDrawerFooterButton';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -71,10 +68,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
 
   const { data: EmployeeDepartment } = useGetDepartments();
 
-  const { mutate: createIntern, isLoading: isCreateLoading } =
-    useCreateIntern();
-  const { mutate: updateIntern, isLoading: isUpdateLoading } =
-    useUpdateIntern();
+  const { mutate: createIntern } = useCreateIntern();
+  const { mutate: updateIntern } = useUpdateIntern();
 
   const handleDocumentChange = (info: UploadChangeParam<UploadFile>) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -113,43 +108,6 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
       setDocumentFileList([]);
     }
   }, [isEdit, editData, open, form, setDocumentFileList]);
-
-  const internApplicantsDrawerHeader = (
-    <div
-      id="talent-acquisition-intern-drawer-header"
-      data-cy="talent-acquisition-intern-drawer-header"
-      className=" text-xl font-extrabold text-gray-800 "
-    >
-      {isEdit ? 'Edit Intern Applicant' : 'Intern Applicants'}
-    </div>
-  );
-
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-[40px] text-base',
-      size: 'large',
-      onClick: onClose,
-      id: 'talent-acquisition-intern-button-cancel',
-      'data-cy': 'talent-acquisition-intern-button-cancel',
-    },
-    {
-      label: isEdit ? 'Update' : 'Create',
-      key: 'create',
-      className: 'h-[40px]  text-base',
-      size: 'large',
-      type: 'primary',
-      loading: isEdit ? isUpdateLoading : isCreateLoading,
-      onClick: () => form.submit(),
-      id: isEdit
-        ? 'talent-acquisition-intern-button-update'
-        : 'talent-acquisition-intern-button-create',
-      'data-cy': isEdit
-        ? 'talent-acquisition-intern-button-update'
-        : 'talent-acquisition-intern-button-create',
-    },
-  ];
 
   const handleSubmit = async () => {
     const formValues = form.getFieldsValue();
@@ -214,20 +172,37 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           data-cy="talent-acquisition-talent-roaster-drawer-header"
           className="px-3"
         >
-          <h2 className="text-xl font-bold text-gray-800 m-0">
+          <h2
+            data-cy="talent-acquisition-intern-drawer-title"
+            className="text-xl font-bold text-gray-800 m-0"
+          >
             {isEdit ? 'Edit Intern Applicant' : 'Intern Applicants'}{' '}
           </h2>
-          <p className="text-sm text-gray-500 mt-1 mb-0 font-normal">
+          <p
+            data-cy="talent-acquisition-intern-drawer-description"
+            className="text-sm text-gray-500 mt-1 mb-0 font-normal"
+          >
             Please fill in all the information correctly
           </p>
         </div>
       }
       footer={
-        <div className="flex justify-end gap-3 px-20">
-          <Button type="default" onClick={onClose}>
+        <div
+          data-cy="talent-acquisition-intern-drawer-footer"
+          className="flex justify-end gap-3 px-20"
+        >
+          <Button
+            type="default"
+            onClick={onClose}
+            data-cy="talent-acquisition-intern-drawer-button-cancel"
+          >
             Cancel
           </Button>
-          <Button type="primary" onClick={() => form.submit()}>
+          <Button
+            type="primary"
+            onClick={() => form.submit()}
+            data-cy="talent-acquisition-intern-drawer-button-submit"
+          >
             {isEdit ? 'Update' : 'Create'}
           </Button>
         </div>
@@ -237,8 +212,14 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
       zIndex={10002}
       className="sm:w-3/5 sm:h-[95vh]"
     >
-      <div className="sm:pt-10 sm:mx-20">
-        <div className="rounded-lg bg-gray-50/50 py-5 px-5 border-2 border-[#d9d9d9]">
+      <div
+        className="sm:pt-10 sm:mx-20"
+        data-cy="talent-acquisition-intern-drawer-body"
+      >
+        <div
+          className="rounded-lg bg-gray-50/50 py-5 px-5 border-2 border-[#d9d9d9]"
+          data-cy="talent-acquisition-intern-drawer-body-form"
+        >
           <Form
             id="talent-acquisition-intern-form"
             data-cy="talent-acquisition-intern-form"
@@ -247,6 +228,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
             onFinish={handleSubmit}
           >
             <Form.Item
+              data-cy="talent-acquisition-intern-form-item-full-name"
               id="fullNameId"
               name="fullName"
               label={
@@ -273,11 +255,22 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               />
             </Form.Item>
 
-            <Row gutter={16}>
-              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Row
+              data-cy="talent-acquisition-intern-form-row-email-phone"
+              gutter={16}
+            >
+              <Col
+                data-cy="talent-acquisition-intern-form-col-email"
+                xs={24}
+                sm={24}
+                md={12}
+                lg={12}
+                xl={12}
+              >
                 <Form.Item
                   id="emailAddressId"
                   name="email"
+                  data-cy="talent-acquisition-intern-form-item-email"
                   label={
                     <span
                       data-cy="intern-components-drawer-index-tsx-index-span-251"
@@ -307,7 +300,14 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+              <Col
+                data-cy="talent-acquisition-intern-form-col-phone"
+                xs={24}
+                sm={24}
+                lg={12}
+                md={12}
+                xl={12}
+              >
                 <Form.Item
                   id="phoneNumberId"
                   name="phone"
@@ -341,8 +341,15 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               </Col>
             </Row>
 
-            <Row gutter={16}>
-              <Col xs={24} sm={24} lg={24} md={24} xl={24}>
+            <Row data-cy="talent-acquisition-intern-form-row-cgpa" gutter={16}>
+              <Col
+                data-cy="talent-acquisition-intern-form-col-cgpa"
+                xs={24}
+                sm={24}
+                lg={24}
+                md={24}
+                xl={24}
+              >
                 <Form.Item
                   id="cgpaId"
                   name="CGPA"

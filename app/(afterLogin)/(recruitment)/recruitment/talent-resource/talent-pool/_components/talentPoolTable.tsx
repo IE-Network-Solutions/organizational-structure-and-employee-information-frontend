@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import { Button, Table } from 'antd';
-import { TbFileDownload } from 'react-icons/tb';
 import { useGetTalentPool } from '@/store/server/features/recruitment/tallentPool/query';
 import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';

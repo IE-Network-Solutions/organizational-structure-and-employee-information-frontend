@@ -1,5 +1,4 @@
 'use client';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   Col,
   Form,
@@ -209,18 +208,27 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
           data-cy="talent-acquisition-talent-roaster-drawer-header"
           className="px-3"
         >
-          <h2 className="text-xl font-bold text-gray-800 m-0">
+          <h2
+            data-cy="talent-acquisition-talent-roaster-drawer-title"
+            className="text-xl font-bold text-gray-800 m-0"
+          >
             {isEdit
               ? 'Edit Talent Roaster Applicant'
               : 'Add Talent Roaster Applicant'}
           </h2>
-          <p className="text-sm text-gray-500 mt-1 mb-0 font-normal">
+          <p
+            data-cy="talent-acquisition-talent-roaster-drawer-description"
+            className="text-sm text-gray-500 mt-1 mb-0 font-normal"
+          >
             Please fill in all the information correctly
           </p>
         </div>
       }
       footer={
-        <div className="flex justify-end gap-3 pr-10">
+        <div
+          data-cy="talent-acquisition-talent-roaster-drawer-footer"
+          className="flex justify-end gap-3 pr-10"
+        >
           <CustomDrawerFooterButton buttons={footerModalItems} />
         </div>
       }
@@ -229,8 +237,14 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
       zIndex={10002}
       className="sm:w-3/5 sm:h-[95vh]"
     >
-      <div className="sm:pt-10 sm:mx-20">
-        <div className="rounded-lg bg-gray-50/50 py-5 px-5 border-2 border-[#d9d9d9]">
+      <div
+        data-cy="talent-acquisition-talent-roaster-drawer-body"
+        className="sm:pt-10 sm:mx-20"
+      >
+        <div
+          data-cy="talent-acquisition-talent-roaster-drawer-body-form"
+          className="rounded-lg bg-gray-50/50 py-5 px-5 border-2 border-[#d9d9d9]"
+        >
           <Form
             id="talent-acquisition-talent-roaster-form"
             data-cy="talent-acquisition-talent-roaster-form"
@@ -239,6 +253,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             onFinish={handleSubmit}
           >
             <Form.Item
+              data-cy="talent-acquisition-talent-roaster-form-item-full-name"
               id="fullNameId"
               name="fullName"
               label={
@@ -268,6 +283,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             <Row gutter={16}>
               <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                 <Form.Item
+                  data-cy="talent-acquisition-talent-roaster-form-item-email"
                   id="emailAddressId"
                   name="email"
                   label={
@@ -301,6 +317,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
 
               <Col xs={24} sm={24} lg={12} md={12} xl={12}>
                 <Form.Item
+                  data-cy="talent-acquisition-talent-roaster-form-item-phone"
                   id="phoneNumberId"
                   name="phone"
                   label={
@@ -336,6 +353,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             <Row gutter={16}>
               <Col xs={12} sm={12} lg={12} md={12} xl={12}>
                 <Form.Item
+                  data-cy="talent-acquisition-talent-roaster-form-item-cgpa"
                   id="cgpaId"
                   name="CGPA"
                   label={

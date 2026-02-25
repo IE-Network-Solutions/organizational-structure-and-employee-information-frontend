@@ -44,7 +44,15 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
 
   return (
     <Modal
-      title={<span className="">Add New Candidate</span>}
+      data-cy="talent-acquisition-talent-pool-drawer"
+      title={
+        <span
+          data-cy="talent-acquisition-talent-pool-drawer-title"
+          className=""
+        >
+          Add New Candidate
+        </span>
+      }
       open={open}
       onCancel={onClose}
       footer={
@@ -76,8 +84,14 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         </div>
       }
     >
-      <div className="py-10 px-6">
-        <div className="border-2 border-[#d9d9d9] rounded-md py-4 px-2">
+      <div
+        data-cy="talent-acquisition-talent-pool-drawer-body"
+        className="py-10 px-6"
+      >
+        <div
+          data-cy="talent-acquisition-talent-pool-drawer-body-form"
+          className="border-2 border-[#d9d9d9] rounded-md py-4 px-2"
+        >
           <Form
             id="talent-acquisition-talent-pool-form-add-candidate"
             data-cy="talent-acquisition-talent-pool-form-add-candidate"

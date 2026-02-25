@@ -26,13 +26,10 @@ const TalentResourcePage = () => {
   const { tenantId } = useAuthenticationStore();
 
   const {
-    createTalentRoasterDrawer,
     setCreateTalentRoasterDrawer,
     setEditData,
-    editData,
     selectedTalentRoaster,
     setMoveToJobPipelineModal,
-    moveToJobPipelineModal,
     setSelectedTalentRoaster,
   } = useTalentRoasterStore();
   const { setCreateInternDrawer, setEditInternData } = useInternStore();

@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Button, Form, Modal, Select } from 'antd';
 import { useGetJobInformation } from '@/store/server/features/recruitment/jobs/query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 

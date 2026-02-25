@@ -63,25 +63,43 @@ const Filters = () => {
   };
 
   const filterDropdownContent = (
-    <div className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[360px] max-w-[420px] overflow-hidden">
+    <div
+      data-cy="talent-acquisition-talent-pool-filter-container"
+      className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[360px] max-w-[420px] overflow-hidden"
+    >
       {/* Header */}
-      <div className="px-6 pt-5 pb-1 relative">
+      <div
+        data-cy="talent-acquisition-talent-pool-filter-header"
+        className="px-6 pt-5 pb-1 relative"
+      >
         <button
           type="button"
           onClick={() => setFilterDropdownOpen(false)}
           className="absolute top-5 right-6 p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
           aria-label="Close filter"
+          data-cy="talent-acquisition-talent-pool-filter-button-close"
         >
           <CloseOutlined className="text-base" />
         </button>
-        <h3 className="text-xl font-semibold text-gray-900 pr-8">Filter</h3>
-        <p className="text-sm text-gray-500 mt-1">
+        <h3
+          data-cy="talent-acquisition-talent-pool-filter-title"
+          className="text-xl font-semibold text-gray-900 pr-8"
+        >
+          Filter
+        </h3>
+        <p
+          data-cy="talent-acquisition-talent-pool-filter-description"
+          className="text-sm text-gray-500 mt-1"
+        >
           Select all filters that apply
         </p>
       </div>
 
       {/* Filter fields */}
-      <div className="px-6 py-4">
+      <div
+        data-cy="talent-acquisition-talent-pool-filter-fields"
+        className="px-6 py-4"
+      >
         <Row
           data-cy="talent-acquisition-talent-pool-filter-row"
           gutter={[16, 16]}
@@ -90,7 +108,12 @@ const Filters = () => {
             span={12}
             data-cy="talent-acquisition-talent-pool-filter-col-category"
           >
-            <label className={labelClassName}>Category</label>
+            <label
+              data-cy="talent-acquisition-talent-pool-filter-label-category"
+              className={labelClassName}
+            >
+              Category
+            </label>
             <Select
               id={`selectCategory${searchParams?.talentPoolCategory}`}
               data-cy="talent-acquisition-talent-pool-filter-select-category"
@@ -118,7 +141,12 @@ const Filters = () => {
             span={12}
             data-cy="talent-acquisition-talent-pool-filter-col-stage"
           >
-            <label className={labelClassName}>Stage</label>
+            <label
+              data-cy="talent-acquisition-talent-pool-filter-label-stage"
+              className={labelClassName}
+            >
+              Stage
+            </label>
             <Select
               id={`selectStage${searchParams?.stages}`}
               data-cy="talent-acquisition-talent-pool-filter-select-stage"
@@ -146,7 +174,12 @@ const Filters = () => {
             span={24}
             data-cy="talent-acquisition-talent-pool-filter-col-date"
           >
-            <label className={labelClassName}>Date</label>
+            <label
+              data-cy="talent-acquisition-talent-pool-filter-label-date"
+              className={labelClassName}
+            >
+              Date
+            </label>
             <RangePicker
               id={`inputDateRange${searchParams.date_range}`}
               data-cy="talent-acquisition-talent-pool-filter-date-picker"
@@ -172,7 +205,10 @@ const Filters = () => {
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-2">
+      <div
+        data-cy="talent-acquisition-talent-pool-filter-footer"
+        className="px-6 py-4 border-t border-gray-200 flex justify-end gap-2"
+      >
         <Button
           onClick={handleResetFilters}
           className="h-10 px-4 rounded-md border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
@@ -198,7 +234,10 @@ const Filters = () => {
       data-cy="talent-acquisition-talent-pool-filter-div-container"
       className="flex items-center justify-between py-2"
     >
-      <div className="w-1/2">
+      <div
+        data-cy="talent-acquisition-talent-pool-filter-input-search-container"
+        className="w-1/2"
+      >
         <Input
           id={`inputSearchByNameTop${searchParams?.search || ''}`}
           data-cy="talent-acquisition-talent-pool-filter-input-search"
