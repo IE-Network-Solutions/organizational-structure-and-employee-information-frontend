@@ -10,14 +10,9 @@ import { useSettingsAddButton } from '../SettingsAddButtonContext';
 
 const AVAILABLE_INPUT_TYPES = [
   {
-    label: 'Text Field',
-    description: 'Input field for text.',
-    fieldType: 'short_text',
-  },
-  {
-    label: 'Text Area',
-    description: 'Input field for larger text.',
-    fieldType: 'paragraph',
+    label: 'Multiple choice',
+    description: 'Input field for single value selection.',
+    fieldType: 'multiple_choice',
   },
   {
     label: 'Checkbox',
@@ -25,14 +20,14 @@ const AVAILABLE_INPUT_TYPES = [
     fieldType: 'checkbox',
   },
   {
-    label: 'Radio box',
-    description: 'Input field for single value.',
-    fieldType: 'multiple_choice',
+    label: 'Short text',
+    description: 'Input field for text.',
+    fieldType: 'short_text',
   },
   {
-    label: 'Dropdown',
-    description: 'Input field for selecting a value.',
-    fieldType: 'dropdown',
+    label: 'Paragraph',
+    description: 'Input field for larger text.',
+    fieldType: 'paragraph',
   },
 ];
 

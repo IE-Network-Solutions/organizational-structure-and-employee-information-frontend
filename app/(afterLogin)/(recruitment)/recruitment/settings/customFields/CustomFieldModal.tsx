@@ -2,29 +2,17 @@
 
 import { useCreateCustomFieldsTemplate } from '@/store/server/features/recruitment/settings/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { Button, Form, Input, Modal, Radio, Select } from 'antd';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Form, Input, Modal, Radio, Select } from 'antd';
 import React, { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 const FIELD_VALIDATION_OPTIONS = [
-  { label: 'Text Field', value: 'short_text' },
-  { label: 'Text Area', value: 'paragraph' },
+  { label: 'Multiple choice', value: 'multiple_choice' },
   { label: 'Checkbox', value: 'checkbox' },
-  { label: 'Radio box', value: 'multiple_choice' },
-  { label: 'Dropdown', value: 'dropdown' },
+  { label: 'Short text', value: 'short_text' },
+  { label: 'Paragraph', value: 'paragraph' },
 ];
-
-function getDefaultFieldOptions(
-  fieldType: string,
-): { id: string; value: string }[] {
-  if (fieldType === 'multiple_choice' || fieldType === 'checkbox') {
-    return [
-      { id: uuidv4(), value: 'Option 1' },
-      { id: uuidv4(), value: 'Option 2' },
-    ];
-  }
-  return [];
-}
 
 interface CustomFieldModalProps {
   open: boolean;
@@ -52,10 +40,38 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
     }
   }, [open, initialFieldType, form]);
 
+  const buildFieldOptions = (
+    fieldType: string,
+    optionValues: string[] | undefined,
+  ): { id: string; value: string }[] => {
+    if (fieldType !== 'multiple_choice' && fieldType !== 'checkbox') {
+      return [];
+    }
+    const values = optionValues?.filter((v) => v != null && String(v).trim() !== '') ?? [];
+    if (values.length < 2) return [];
+    return values.map((value) => ({ id: uuidv4(), value: String(value).trim() }));
+  };
+
   const handleSubmit = () => {
     form.validateFields().then((values) => {
       const fieldType = values.fieldValidation;
       const required = values.fieldMode === 'required';
+      const optionValues = values.field as string[] | undefined;
+      const field = buildFieldOptions(fieldType, optionValues);
+
+      if (
+        (fieldType === 'multiple_choice' || fieldType === 'checkbox') &&
+        field.length < 2
+      ) {
+        form.setFields([
+          {
+            name: 'field',
+            errors: ['At least 2 options are required'],
+          },
+        ]);
+        return;
+      }
+
       createQuestion({
         title: values.fieldName,
         createdBy: userId,
@@ -65,16 +81,24 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             fieldType,
             question: values.fieldName,
             required,
-            field: getDefaultFieldOptions(fieldType).map((o) => ({
-              id: o.id,
-              value: o.value,
-            })),
+            field,
           },
         ],
       });
       onClose();
       form.resetFields();
     });
+  };
+
+  const renderOptionInput = (type: string) => {
+    switch (type) {
+      case 'multiple_choice':
+        return <Radio className="mr-2" disabled value="" />;
+      case 'checkbox':
+        return <Checkbox className="mr-2" disabled value="" />;
+      default:
+        return null;
+    }
   };
 
   return (
@@ -130,6 +154,96 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
         >
           Select a field validation type.
         </p>
+
+        <Form.Item noStyle shouldUpdate={(prev, curr) => prev?.fieldValidation !== curr?.fieldValidation}>
+          {() => {
+            const fieldType = form.getFieldValue('fieldValidation');
+            const showOptions =
+              fieldType === 'multiple_choice' || fieldType === 'checkbox';
+            if (!showOptions) return null;
+            return (
+              <Form.List
+                name="field"
+                initialValue={[]}
+                rules={[
+                  {
+                    validator: async (_, names) => {
+                      if (!names || names.length < 2) {
+                        return Promise.reject(
+                          new Error('At least 2 options are required'),
+                        );
+                      }
+                    },
+                  },
+                ]}
+              >
+                {(fields, { add, remove }) => (
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">
+                      Options
+                    </p>
+                    {fields.map((field) => (
+                      <Form.Item
+                        key={field.key}
+                        required={false}
+                        className="mb-2"
+                      >
+                        <div className="flex items-center gap-3">
+                          {renderOptionInput(fieldType)}
+                          <Form.Item
+                            {...field}
+                            noStyle
+                            rules={[
+                              {
+                                required: true,
+                                message: 'Please input an option!',
+                              },
+                            ]}
+                          >
+                            <Input
+                              placeholder="Option"
+                              className="h-10 rounded-md flex-1"
+                              data-cy={`custom-field-input-option-${field.name}`}
+                            />
+                          </Form.Item>
+                          {fields.length > 0 && (
+                            <MinusCircleOutlined
+                              className="dynamic-delete-button text-red-500 cursor-pointer text-lg"
+                              onClick={() => remove(field.name)}
+                              data-cy={`custom-field-button-remove-option-${field.name}`}
+                            />
+                          )}
+                        </div>
+                      </Form.Item>
+                    ))}
+                    <Form.Item className="mb-0">
+                      <div
+                        className="flex flex-col items-center justify-center py-2"
+                        data-cy="custom-field-options-add-wrapper"
+                      >
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => add()}
+                          onKeyDown={(e) =>
+                            e.key === 'Enter' && (e.preventDefault(), add())
+                          }
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-primary cursor-pointer hover:opacity-90"
+                          data-cy="custom-field-button-add-option"
+                        >
+                          <PlusOutlined className="text-white text-lg" />
+                        </div>
+                        <p className="text-xs font-light text-gray-400 mt-1">
+                          + Add options
+                        </p>
+                      </div>
+                    </Form.Item>
+                  </div>
+                )}
+              </Form.List>
+            );
+          }}
+        </Form.Item>
 
         <Form.Item name="fieldMode" label={null}>
           <Radio.Group className="w-full" data-cy="custom-field-radio-group">
