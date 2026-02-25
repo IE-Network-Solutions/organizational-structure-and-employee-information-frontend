@@ -6,6 +6,7 @@ import { App as AntdApp } from 'antd';
 import AntdConfigProvider from '@/providers/antdProvider';
 import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
+import UserSessionRefresher from '@/providers/UserSessionRefresher';
 import RecaptchaProvider from '@/components/recaptcha';
 import { PWAProvider } from '@/providers/PWAProvider';
 import { NotificationSocketProvider } from '@/providers/NotificationSocketProvider';
@@ -348,6 +349,7 @@ export default function RootLayout({
                   <AntdApp>
                     <NotificationSocketProvider>
                       <RecaptchaProvider>
+                        <UserSessionRefresher />
                         <ConditionalNav>{children}</ConditionalNav>
                         <ChatBotButton />
                       </RecaptchaProvider>
