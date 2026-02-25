@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Form, Select } from 'antd';
+import { Button, Form, Modal, Select } from 'antd';
 import { useGetJobInformation } from '@/store/server/features/recruitment/jobs/query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CustomDrawerLayout from '@/components/common/customDrawer';
@@ -37,42 +37,34 @@ const TransferTalentPoolToCandidateModal: React.FC<
     onConfirm(fullData);
   };
   return (
-    <CustomDrawerLayout
+    <Modal
+      title="Add to Candidates"
       data-cy="talent-acquisition-talent-pool-modal-reonboard"
       open={visible}
-      onClose={onCancel}
-      modalHeader={
-        <div
-          id="talent-acquisition-talent-pool-modal-header-reonboard"
-          data-cy="talent-acquisition-talent-pool-modal-header-reonboard"
-          className="flex justify-start  text-xl font-extrabold text-gray-800"
-        >
-          Re-onboard
-        </div>
-      }
-      width="40%"
+      onCancel={onCancel}
       footer={
         <div
           id="talent-acquisition-talent-pool-modal-footer-reonboard"
           data-cy="talent-acquisition-talent-pool-modal-footer-reonboard"
-          className="flex justify-center items-center space-x-5 p-2"
+          className="flex justify-end gap-2"
         >
           <Button
+            type="default"
             id="talent-acquisition-talent-pool-button-reonboard-cancel"
             data-cy="talent-acquisition-talent-pool-button-reonboard-cancel"
             onClick={onCancel}
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300 "
+            className="h-8"
           >
             Cancel
           </Button>
           <Button
+            type="primary"
             id="talent-acquisition-talent-pool-button-reonboard-submit"
             data-cy="talent-acquisition-talent-pool-button-reonboard-submit"
-            className=" p-4 px-10 h-10"
-            type="primary"
+            className="h-8"
             onClick={handleFinish}
           >
-            Re-onboard
+            Add to Candidates
           </Button>
         </div>
       }
@@ -159,7 +151,7 @@ const TransferTalentPoolToCandidateModal: React.FC<
           </Select>
         </Form.Item>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 
