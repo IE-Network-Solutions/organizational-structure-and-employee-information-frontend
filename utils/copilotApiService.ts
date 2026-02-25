@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { AZURE_APP_SERVICE } from './constants';
 
 /** User-facing error messages for consistent Copilot UX */
 export const COPILOT_ERROR_MESSAGES = {
@@ -68,17 +69,8 @@ export function normalizeCopilotError(error: unknown): string {
   return COPILOT_ERROR_MESSAGES.UNEXPECTED;
 }
 
-// Azure App Service URL for copilot (used by server-side proxy)
-// Use dev for local/testing; set NEXT_PUBLIC_AZURE_APP_SERVICE to prod for production
-const AZURE_APP_SERVICE_URL =
-  process.env.NEXT_PUBLIC_AZURE_APP_SERVICE ||
-  'https://selamnew-copilot-dev-dbdcc9ahe7eqgbez.eastus-01.azurewebsites.net';
-
-// In the browser we call our API route to avoid CORS; the server proxies to Azure
-const getCopilotUrl = () =>
-  typeof window !== 'undefined'
-    ? '/api/copilot'
-    : `${AZURE_APP_SERVICE_URL}/copilot`;
+// Returns the full Azure App Service URL for copilot from constants (env variable)
+const getCopilotUrl = () => AZURE_APP_SERVICE || '';
 
 interface CopilotChatRequest {
   prompt: string;
@@ -153,8 +145,8 @@ export function normalizeCopilotResponse(
   const intent = typeof p.intent === 'string' ? p.intent : undefined;
   const backend_errors = Array.isArray(p.backend_errors)
     ? (p.backend_errors as string[]).filter(
-        (e): e is string => typeof e === 'string',
-      )
+      (e): e is string => typeof e === 'string',
+    )
     : undefined;
 
   if (!success || errorStr) {
