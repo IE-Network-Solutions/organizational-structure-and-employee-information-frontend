@@ -42,7 +42,7 @@ const NAV_ITEMS = [
 
 const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
   const { tabButton, setTabButton } = useSettingStore();
-  const [activeKey, setActiveKey] = useState('4');
+  const [activeKey, setActiveKey] = useState('1');
 
   const { data: permissionData } = useGetPermissions(1, 1);
   const { data: groupPermissionData } = useGetPermissionGroups(1, 1);
