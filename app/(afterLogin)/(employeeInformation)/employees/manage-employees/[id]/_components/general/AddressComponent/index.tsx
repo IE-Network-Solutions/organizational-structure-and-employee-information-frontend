@@ -75,27 +75,26 @@ const AddressComponent = ({
       titleMap[key] ||
       key
         .split(/_|(?=[A-Z])/)
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
         .join(' ')
     );
   };
 
-  const customLabel = (field: any) =>
-    field.label || getLabel(field.fieldName);
+  const customLabel = (field: any) => field.label || getLabel(field.fieldName);
 
   // Get all fields from allFields (including default and custom)
   const allFieldKeys = Object.keys(allFields);
-  
-  // Separate default fields and custom fields
-  const defaultFieldKeys = Object.keys(defaultFields);
-  const customFieldNames = addressFields.map((field: any) => field.fieldName);
-  
+
   // Create items for all fields
   const allItems = allFieldKeys.map((key) => {
     // Check if it's a custom field
-    const customField = addressFields.find((field: any) => field.fieldName === key);
+    const customField = addressFields.find(
+      (field: any) => field.fieldName === key,
+    );
     const isCustomField = !!customField;
-    
+
     return {
       label: isCustomField ? customLabel(customField) : getLabel(key),
       value: getDisplayValue(key, allFields[key]),
@@ -108,17 +107,42 @@ const AddressComponent = ({
   const leftItems = allItems.slice(0, midPoint);
   const rightItems = allItems.slice(midPoint);
 
-  const FieldBlock = ({ label, value, dataCy }: { label: string; value: string; dataCy: string }) => (
+  const FieldBlock = ({
+    label,
+    value,
+    dataCy,
+  }: {
+    label: string;
+    value: string;
+    dataCy: string;
+  }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
-      <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">{label}</p>
-      <p className="text-base font-semibold text-gray-500 m-0">{value}</p>
+      <p
+        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        data-cy={`${dataCy}-label`}
+      >
+        {label}
+      </p>
+      <p
+        className="text-base font-semibold text-gray-500 m-0"
+        data-cy={`${dataCy}-value`}
+      >
+        {value}
+      </p>
     </div>
   );
 
   return (
     <Card
       loading={isLoading}
-      title={<span className="text-base font-bold text-gray-900">Address</span>}
+      title={
+        <span
+          className="text-base font-bold text-gray-900"
+          data-cy="address-card-title"
+        >
+          Address
+        </span>
+      }
       extra={
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}

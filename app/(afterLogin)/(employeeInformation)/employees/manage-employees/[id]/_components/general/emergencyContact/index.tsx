@@ -68,7 +68,9 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
 
   const getDisplayValue = (key: string, val: unknown): string => {
     if (key === 'nationality') {
-      return nationalities?.items?.find((item: any) => item.id === val)?.name || '-';
+      return (
+        nationalities?.items?.find((item: any) => item.id === val)?.name || '-'
+      );
     }
     if (key === 'gender' && val) {
       const s = String(val);
@@ -88,14 +90,17 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
       titleMap[key] ||
       key
         .split(/_|(?=[A-Z])/)
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
         .join(' ')
     );
   };
 
-  const fullName = `${allFields.firstName || ''} ${allFields.middleName || ''} ${allFields.lastName || ''}`.trim() || '-';
-  const customLabel = (field: any) =>
-    field.label || getLabel(field.fieldName);
+  const fullName =
+    `${allFields.firstName || ''} ${allFields.middleName || ''} ${allFields.lastName || ''}`.trim() ||
+    '-';
+  const customLabel = (field: any) => field.label || getLabel(field.fieldName);
   const leftItems: { label: string; value: string }[] = [
     { label: 'Full Name', value: fullName },
     { label: 'Gender', value: getDisplayValue('gender', allFields.gender) },
@@ -105,25 +110,56 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
     })),
   ];
   const rightItems: { label: string; value: string }[] = [
-    { label: 'Phone Number', value: getDisplayValue('phoneNumber', allFields.phoneNumber) },
-    { label: 'Nationality', value: getDisplayValue('nationality', allFields.nationality) },
+    {
+      label: 'Phone Number',
+      value: getDisplayValue('phoneNumber', allFields.phoneNumber),
+    },
+    {
+      label: 'Nationality',
+      value: getDisplayValue('nationality', allFields.nationality),
+    },
     ...emergencyContactFields.slice(1).map((field: any) => ({
       label: customLabel(field),
       value: getDisplayValue(field.fieldName, allFields[field.fieldName]),
     })),
   ];
 
-  const FieldBlock = ({ label, value, dataCy }: { label: string; value: string; dataCy: string }) => (
+  const FieldBlock = ({
+    label,
+    value,
+    dataCy,
+  }: {
+    label: string;
+    value: string;
+    dataCy: string;
+  }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
-      <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">{label}</p>
-      <p className="text-base font-semibold text-gray-500 m-0">{value}</p>
+      <p
+        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        data-cy={`${dataCy}-label`}
+      >
+        {label}
+      </p>
+      <p
+        className="text-base font-semibold text-gray-500 m-0"
+        data-cy={`${dataCy}-value`}
+      >
+        {value}
+      </p>
     </div>
   );
 
   return (
     <Card
       loading={isLoading}
-      title={<span className="text-base font-bold text-gray-900">Emergency Contact Information</span>}
+      title={
+        <span
+          className="text-base font-bold text-gray-900"
+          data-cy="emergency-contact-card-title"
+        >
+          Emergency Contact Information
+        </span>
+      }
       extra={
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}

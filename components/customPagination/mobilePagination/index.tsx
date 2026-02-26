@@ -65,7 +65,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   const getVisiblePages = () => {
     const pages: number[] = [];
     const maxVisible = Math.min(5, totalPages);
-    
+
     if (totalPages <= maxVisible) {
       // Show all pages if total is 5 or less
       for (let i = 1; i <= totalPages; i++) {
@@ -77,23 +77,20 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
         pages.push(i);
       }
     }
-    
+
     return pages;
   };
 
   const visiblePages = getVisiblePages();
 
   return (
-    <div
-      id={id}
-      data-cy={dataCy}
-      className="flex w-full px-2 py-2 rounded-lg"
-    >
+    <div id={id} data-cy={dataCy} className="flex w-full px-2 py-2 rounded-lg">
       <div
         data-cy="components-custompagination-mobilepagination-index-tsx-index-div-61"
         className="flex items-center justify-between gap-2 w-full"
       >
         <button
+          data-cy="components-custompagination-mobilepagination-index-tsx-index-button-11"
           onClick={handlePrevious}
           disabled={activeCurrentPage === 1}
           className={`flex items-center justify-center ${
@@ -105,8 +102,11 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
         >
           <LeftOutlined />
         </button>
-        
-        <div className="flex items-center gap-4">
+
+        <div
+          data-cy="components-custompagination-mobilepagination-index-tsx-index-div-71"
+          className="flex items-center gap-4"
+        >
           {visiblePages.map((page) => {
             const isActive = page === activeCurrentPage;
             return (
@@ -127,8 +127,9 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
             );
           })}
         </div>
-        
+
         <button
+          data-cy="components-custompagination-mobilepagination-index-tsx-index-button-12"
           onClick={handleNext}
           disabled={activeCurrentPage === totalPages}
           className={`flex items-center justify-center ${

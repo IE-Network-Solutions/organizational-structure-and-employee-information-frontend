@@ -26,7 +26,6 @@ import {
   CheckCircleOutlined,
   EditOutlined,
   DeleteOutlined,
-  DownOutlined,
   MoreOutlined,
 } from '@ant-design/icons';
 import {
@@ -638,7 +637,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
       bodyStyle={{ padding: 0 }}
       className="w-full border-none"
       id="probation-targets-card"
-      data-cy="probation-targets-card" 
+      data-cy="probation-targets-card"
     >
       <Collapse
         defaultActiveKey={probationTargets.map((target) => target.id)}
@@ -792,15 +791,17 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                         permissions: [Permissions.DeleteProbationTarget],
                       });
                       const items = [
-                        isMobile ? {
-                          key: 'add-task',
-                          label: 'Add Probation Task',
-                          icon: <PlusOutlined />,
-                          onClick: (e: any) => {
-                            e?.domEvent?.stopPropagation?.();
-                            handleAddTask(target.id);
-                          },
-                        } : null,
+                        isMobile
+                          ? {
+                              key: 'add-task',
+                              label: 'Add Probation Task',
+                              icon: <PlusOutlined />,
+                              onClick: (e: any) => {
+                                e?.domEvent?.stopPropagation?.();
+                                handleAddTask(target.id);
+                              },
+                            }
+                          : null,
                         canEditTarget
                           ? {
                               key: 'edit-target',

@@ -11,7 +11,8 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { FaPlus } from 'react-icons/fa';
-import SaveAltIcon from '@mui/icons-material/SaveAlt';import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import dayjs from 'dayjs';
 import { Inbox } from 'lucide-react';
 
@@ -73,8 +74,14 @@ const Documents = ({ id }: { id: string }) => {
               data-cy={`documents-card-${doc.id}`}
               bodyStyle={{ padding: '16px' }}
             >
-              <div className="flex justify-between items-center">
-                <div className="flex-1">
+              <div
+                className="flex justify-between items-center"
+                data-cy={`documents-card-header-${doc.id}`}
+              >
+                <div
+                  className="flex-1"
+                  data-cy={`documents-card-content-${doc.id}`}
+                >
                   <p
                     className="text-base font-semibold text-gray-900 m-0 mb-1"
                     id={`documents-card-name-${doc.id}`}
@@ -102,8 +109,8 @@ const Documents = ({ id }: { id: string }) => {
                       size="small"
                       icon={
                         <SaveAltIcon
-                            className="text-gray-600"
-                            style={{ fontSize: '16px' }}
+                          className="text-gray-600"
+                          style={{ fontSize: '16px' }}
                           id={`documents-download-icon-${doc.id}`}
                           data-cy={`documents-download-icon-${doc.id}`}
                         />
@@ -166,11 +173,12 @@ const Documents = ({ id }: { id: string }) => {
   };
 
   return (
-    <div
-      id="documents-container"
-      data-cy="documents-container"
-    >
-      <Row gutter={[24, 24]} id="documents-main-row" data-cy="documents-main-row">
+    <div id="documents-container" data-cy="documents-container">
+      <Row
+        gutter={[24, 24]}
+        id="documents-main-row"
+        data-cy="documents-main-row"
+      >
         {/* Left Column - Upload Document */}
         <Col
           xs={24}
@@ -185,14 +193,21 @@ const Documents = ({ id }: { id: string }) => {
           >
             <Card
               title={
-                <span className="text-base font-bold text-gray-900">
+                <span
+                  className="text-base font-bold text-gray-900"
+                  data-cy="documents-upload-card-title"
+                >
                   Upload Document
                 </span>
               }
               className="rounded-lg border border-gray-200"
               id="documents-upload-card"
               data-cy="documents-upload-card"
-              headStyle={{ borderBottom: 'none', paddingBottom: '10px', paddingTop: '10px' }}
+              headStyle={{
+                borderBottom: 'none',
+                paddingBottom: '10px',
+                paddingTop: '10px',
+              }}
             >
               <Form
                 form={form}
@@ -237,9 +252,7 @@ const Documents = ({ id }: { id: string }) => {
                       id="documents-upload-icon"
                       data-cy="documents-upload-icon"
                     >
-                      <Inbox
-                        className="text-gray-400 w-10 h-10"
-                      />
+                      <Inbox className="text-gray-400 w-10 h-10" />
                     </p>
                     <p
                       className="ant-upload-text text-base font-medium text-gray-700 mb-2"
@@ -288,7 +301,10 @@ const Documents = ({ id }: { id: string }) => {
         >
           <Card
             title={
-              <span className="text-base font-bold text-gray-900">
+              <span
+                className="text-base font-bold text-gray-900"
+                data-cy="documents-list-card-title"
+              >
                 Documents
               </span>
             }

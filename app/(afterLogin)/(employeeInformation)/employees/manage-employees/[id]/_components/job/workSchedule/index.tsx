@@ -1,17 +1,6 @@
 'use client';
 import React, { useEffect } from 'react';
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Row,
-  Select,
-  Switch,
-  Table,
-  TableProps,
-  TimePicker,
-} from 'antd';
+import { Button, Card, Col, Form, Row, Select, Switch, TimePicker } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {
@@ -26,11 +15,6 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-interface DataType {
-  key: string;
-  workingDay: React.ReactNode;
-  time: React.ReactNode;
-}
 
 const { Option } = Select;
 const WorkScheduleComponent: React.FC = () => {
@@ -82,29 +66,35 @@ const WorkScheduleComponent: React.FC = () => {
     setWorkSchedule(value);
     // CRITICAL: Update the form field value so it's included in form submission
     form.setFieldValue('workScheduleId', value);
-    
+
     // Update daily schedule when schedule changes
     if (selectedValue?.detail) {
-      const scheduleData = selectedValue.detail.map((day: any, index: number) => {
-        const decimalHour = day.duration || 0;
-        const hours = Math.floor(decimalHour);
-        const minutes = Math.round((decimalHour % 1) * 60);
-        const startTime = day.startTime 
-          ? dayjs(day.startTime, 'HH:mm') 
-          : (hours > 0 ? dayjs().startOf('day').add(hours, 'hour').add(minutes, 'minute') : null);
-        const endTime = day.endTime 
-          ? dayjs(day.endTime, 'HH:mm') 
-          : (startTime ? startTime.add(decimalHour, 'hour') : null);
-        
-        return {
-          key: index,
-          day: day.dayOfWeek || day.day || '',
-          workDay: day.workDay || day.workday || false,
-          startTime: startTime,
-          endTime: endTime,
-          duration: day.duration || 0,
-        };
-      });
+      const scheduleData = selectedValue.detail.map(
+        (day: any, index: number) => {
+          const decimalHour = day.duration || 0;
+          const hours = Math.floor(decimalHour);
+          const minutes = Math.round((decimalHour % 1) * 60);
+          const startTime = day.startTime
+            ? dayjs(day.startTime, 'HH:mm')
+            : hours > 0
+              ? dayjs().startOf('day').add(hours, 'hour').add(minutes, 'minute')
+              : null;
+          const endTime = day.endTime
+            ? dayjs(day.endTime, 'HH:mm')
+            : startTime
+              ? startTime.add(decimalHour, 'hour')
+              : null;
+
+          return {
+            key: index,
+            day: day.dayOfWeek || day.day || '',
+            workDay: day.workDay || day.workday || false,
+            startTime: startTime,
+            endTime: endTime,
+            duration: day.duration || 0,
+          };
+        },
+      );
       setDailySchedule(scheduleData);
     }
   };
@@ -156,36 +146,44 @@ const WorkScheduleComponent: React.FC = () => {
 
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
-    
+
     // Initialize daily schedule when entering edit mode
-    const scheduleToUse = selectedWorkSchedule || workSchedules?.items?.find(
-      (schedule: any) => schedule.id === workSchedule
-    );
-    
+    const scheduleToUse =
+      selectedWorkSchedule ||
+      workSchedules?.items?.find(
+        (schedule: any) => schedule.id === workSchedule,
+      );
+
     if (scheduleToUse?.detail) {
-      const scheduleData = scheduleToUse.detail.map((day: any, index: number) => {
-        const decimalHour = day.duration || 0;
-        const hours = Math.floor(decimalHour);
-        const minutes = Math.round((decimalHour % 1) * 60);
-        const startTime = day.startTime 
-          ? dayjs(day.startTime, 'HH:mm') 
-          : (hours > 0 ? dayjs().startOf('day').add(hours, 'hour').add(minutes, 'minute') : null);
-        const endTime = day.endTime 
-          ? dayjs(day.endTime, 'HH:mm') 
-          : (startTime ? startTime.add(decimalHour, 'hour') : null);
-        
-        return {
-          key: index,
-          day: day.dayOfWeek || day.day || '',
-          workDay: day.workDay || day.workday || false,
-          startTime: startTime,
-          endTime: endTime,
-          duration: day.duration || 0,
-        };
-      });
+      const scheduleData = scheduleToUse.detail.map(
+        (day: any, index: number) => {
+          const decimalHour = day.duration || 0;
+          const hours = Math.floor(decimalHour);
+          const minutes = Math.round((decimalHour % 1) * 60);
+          const startTime = day.startTime
+            ? dayjs(day.startTime, 'HH:mm')
+            : hours > 0
+              ? dayjs().startOf('day').add(hours, 'hour').add(minutes, 'minute')
+              : null;
+          const endTime = day.endTime
+            ? dayjs(day.endTime, 'HH:mm')
+            : startTime
+              ? startTime.add(decimalHour, 'hour')
+              : null;
+
+          return {
+            key: index,
+            day: day.dayOfWeek || day.day || '',
+            workDay: day.workDay || day.workday || false,
+            startTime: startTime,
+            endTime: endTime,
+            duration: day.duration || 0,
+          };
+        },
+      );
       setDailySchedule(scheduleData);
     }
-    
+
     if (workSchedule) {
       workscheduleChangeHandler(workSchedule);
     }
@@ -197,11 +195,12 @@ const WorkScheduleComponent: React.FC = () => {
   };
 
   // Calculate total working days and hours for edit form
-  const editTotalWorkingDays = dailySchedule.filter((day) => day.workDay).length;
+  const editTotalWorkingDays = dailySchedule.filter(
+    (day) => day.workDay,
+  ).length;
   const editTotalWorkingHours = dailySchedule.reduce((total, day) => {
-    return total + (day.workDay ? (day.duration || 0) : 0);
+    return total + (day.workDay ? day.duration || 0 : 0);
   }, 0);
- 
 
   useEffect(() => {
     const employeeDataInfo = {
@@ -210,7 +209,7 @@ const WorkScheduleComponent: React.FC = () => {
         (e: any) => e.isPositionActive === true,
       )?.workScheduleId,
     };
-    
+
     // CRITICAL: Don't update state when in edit mode - let user's selection persist
     // Only update state when NOT in edit mode (displaying saved data)
     if (!edit.workSchedule) {
@@ -219,9 +218,12 @@ const WorkScheduleComponent: React.FC = () => {
       // Update selectedWorkSchedule to match the new workScheduleId from employeeData
       if (employeeDataInfo?.workScheduleId && workSchedules?.items) {
         const newSelectedSchedule = workSchedules.items.find(
-          (schedule: any) => schedule.id === employeeDataInfo.workScheduleId
+          (schedule: any) => schedule.id === employeeDataInfo.workScheduleId,
         );
-        if (newSelectedSchedule && newSelectedSchedule.id !== selectedWorkSchedule?.id) {
+        if (
+          newSelectedSchedule &&
+          newSelectedSchedule.id !== selectedWorkSchedule?.id
+        ) {
           setSelectedWorkSchedule(newSelectedSchedule);
         }
       }
@@ -233,41 +235,57 @@ const WorkScheduleComponent: React.FC = () => {
     }
 
     // Initialize daily schedule - use selectedWorkSchedule if available, otherwise use employeeData
-    const scheduleToUse = selectedWorkSchedule || (employeeDataInfo?.workScheduleId && workSchedules?.items?.find(
-      (schedule: any) => schedule.id === employeeDataInfo.workScheduleId
-    ));
-    
+    const scheduleToUse =
+      selectedWorkSchedule ||
+      (employeeDataInfo?.workScheduleId &&
+        workSchedules?.items?.find(
+          (schedule: any) => schedule.id === employeeDataInfo.workScheduleId,
+        ));
+
     if (scheduleToUse?.detail) {
-      const scheduleData = scheduleToUse.detail.map((day: any, index: number) => ({
-        key: index,
-        day: day.dayOfWeek || day.day || '',
-        workDay: day.workDay || day.workday || false,
-        startTime: day.startTime ? dayjs(day.startTime, 'HH:mm') : null,
-        endTime: day.endTime ? dayjs(day.endTime, 'HH:mm') : null,
-        duration: day.duration || 0,
-      }));
+      const scheduleData = scheduleToUse.detail.map(
+        (day: any, index: number) => ({
+          key: index,
+          day: day.dayOfWeek || day.day || '',
+          workDay: day.workDay || day.workday || false,
+          startTime: day.startTime ? dayjs(day.startTime, 'HH:mm') : null,
+          endTime: day.endTime ? dayjs(day.endTime, 'HH:mm') : null,
+          duration: day.duration || 0,
+        }),
+      );
       setDailySchedule(scheduleData);
     }
-  }, [form, employeeData, setWorkSchedule, selectedWorkSchedule, workSchedules, edit.workSchedule]);
+  }, [
+    form,
+    employeeData,
+    setWorkSchedule,
+    selectedWorkSchedule,
+    workSchedules,
+    edit.workSchedule,
+  ]);
 
   // Find the active job's work schedule
   const activeJob = employeeData?.employeeJobInformation?.find(
     (e: any) => e.isPositionActive === true,
   );
   const activeWorkScheduleId = activeJob?.workScheduleId;
-  
+
   // Try to get work schedule from selectedWorkSchedule first (if in edit mode), then from workSchedules list
   // Only use selectedWorkSchedule when in edit mode; otherwise use the schedule from employeeData
-  const activeWorkSchedule = edit.workSchedule 
-    ? (selectedWorkSchedule || workSchedules?.items?.find(
+  const activeWorkSchedule = edit.workSchedule
+    ? selectedWorkSchedule ||
+      workSchedules?.items?.find(
         (schedule: any) => schedule.id === activeWorkScheduleId,
-      ))
+      )
     : workSchedules?.items?.find(
         (schedule: any) => schedule.id === activeWorkScheduleId,
       );
 
   // Calculate total working hours per week (only for working days)
-  const workingDays = activeWorkSchedule?.detail?.filter((day: any) => day.workDay === true || day.workday === true) || [];
+  const workingDays =
+    activeWorkSchedule?.detail?.filter(
+      (day: any) => day.workDay === true || day.workday === true,
+    ) || [];
   const totalWorkingHours = workingDays.reduce((total: number, day: any) => {
     // Use duration field (which is in decimal hours) or hours field if available
     const dayHours = day.duration ?? day.hours ?? 0;
@@ -276,19 +294,22 @@ const WorkScheduleComponent: React.FC = () => {
   }, 0);
 
   // Calculate daily working hours (average) - round to 1 decimal place
-  const dailyWorkingHours = workingDays.length > 0 && totalWorkingHours > 0
-    ? Number((totalWorkingHours / workingDays.length).toFixed(1))
-    : 0;
+  const dailyWorkingHours =
+    workingDays.length > 0 && totalWorkingHours > 0
+      ? Number((totalWorkingHours / workingDays.length).toFixed(1))
+      : 0;
 
-  const workingHours: { day: string; hours: number }[] =
-    activeWorkSchedule?.detail?.map((day: any) => ({
-      day: day.dayOfWeek || '',
-      hours: day.hours || 0,
-    })) || [];
   return (
     <Card
       loading={isLoading}
-      title={<span className="text-base font-bold text-gray-900">Work Schedule</span>}
+      title={
+        <span
+          className="text-base font-bold text-gray-900"
+          data-cy="job-work-schedule-card-title"
+        >
+          Work Schedule
+        </span>
+      }
       extra={
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}
@@ -325,9 +346,21 @@ const WorkScheduleComponent: React.FC = () => {
               data-cy="job-work-schedule-display-col-left"
               className="flex flex-col"
             >
-              <div className="mb-5" id="job-work-schedule-current-schedule" data-cy="job-work-schedule-current-schedule">
-                <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Current Schedule</p>
-                <p className="text-base font-semibold text-gray-500 m-0">
+              <div
+                className="mb-5"
+                id="job-work-schedule-current-schedule"
+                data-cy="job-work-schedule-current-schedule"
+              >
+                <p
+                  className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                  data-cy="job-work-schedule-current-schedule-label"
+                >
+                  Current Schedule
+                </p>
+                <p
+                  className="text-base font-semibold text-gray-500 m-0"
+                  data-cy="job-work-schedule-current-schedule-value"
+                >
                   {activeJob?.workSchedule?.name || '-'}
                 </p>
               </div>
@@ -338,10 +371,26 @@ const WorkScheduleComponent: React.FC = () => {
               data-cy="job-work-schedule-display-col-right"
               className="flex flex-col"
             >
-              <div className="mb-5" id="job-work-schedule-daily-hours" data-cy="job-work-schedule-daily-hours">
-                <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Daily Working hours</p>
-                <p className="text-base font-semibold text-gray-500 m-0">
-                  {dailyWorkingHours > 0 ? `${dailyWorkingHours} hours` : (activeWorkSchedule ? '0 hours' : '-')}
+              <div
+                className="mb-5"
+                id="job-work-schedule-daily-hours"
+                data-cy="job-work-schedule-daily-hours"
+              >
+                <p
+                  className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                  data-cy="job-work-schedule-daily-hours-label"
+                >
+                  Daily Working hours
+                </p>
+                <p
+                  className="text-base font-semibold text-gray-500 m-0"
+                  data-cy="job-work-schedule-daily-hours-value"
+                >
+                  {dailyWorkingHours > 0
+                    ? `${dailyWorkingHours} hours`
+                    : activeWorkSchedule
+                      ? '0 hours'
+                      : '-'}
                 </p>
               </div>
             </Col>
@@ -357,10 +406,26 @@ const WorkScheduleComponent: React.FC = () => {
               data-cy="job-work-schedule-total-col"
               className="flex flex-col"
             >
-              <div className="mb-5" id="job-work-schedule-total-working-hours" data-cy="job-work-schedule-total-working-hours">
-                <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Total Working Hours</p>
-                <p className="text-base font-semibold text-gray-500 m-0">
-                  {totalWorkingHours > 0 ? `${Math.round(totalWorkingHours)} Hours` : (activeWorkSchedule ? '0 Hours' : '-')}
+              <div
+                className="mb-5"
+                id="job-work-schedule-total-working-hours"
+                data-cy="job-work-schedule-total-working-hours"
+              >
+                <p
+                  className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                  data-cy="job-work-schedule-total-hours-label"
+                >
+                  Total Working Hours
+                </p>
+                <p
+                  className="text-base font-semibold text-gray-500 m-0"
+                  data-cy="job-work-schedule-total-hours-value"
+                >
+                  {totalWorkingHours > 0
+                    ? `${Math.round(totalWorkingHours)} Hours`
+                    : activeWorkSchedule
+                      ? '0 Hours'
+                      : '-'}
                 </p>
               </div>
             </Col>
@@ -377,18 +442,38 @@ const WorkScheduleComponent: React.FC = () => {
             id="job-work-schedule-edit-header"
             data-cy="job-work-schedule-edit-header"
           >
-              <div className="flex items-center gap-3">
-              <span className="text-base font-semibold text-gray-900">Work Schedule</span>
-              <div className="flex gap-2">
-                <div className="px-3 py-1 bg-gray-100 rounded text-sm font-medium text-gray-700">
+            <div
+              className="flex items-center gap-3"
+              data-cy="job-work-schedule-edit-summary-row"
+            >
+              <span
+                className="text-base font-semibold text-gray-900"
+                data-cy="job-work-schedule-edit-title"
+              >
+                Work Schedule
+              </span>
+              <div
+                className="flex gap-2"
+                data-cy="job-work-schedule-edit-badges"
+              >
+                <div
+                  className="px-3 py-1 bg-gray-100 rounded text-sm font-medium text-gray-700"
+                  data-cy="job-work-schedule-edit-days-badge"
+                >
                   {editTotalWorkingDays} Days
                 </div>
-                <div className="px-3 py-1 bg-gray-100 rounded text-sm font-medium text-gray-700">
+                <div
+                  className="px-3 py-1 bg-gray-100 rounded text-sm font-medium text-gray-700"
+                  data-cy="job-work-schedule-edit-hours-badge"
+                >
                   {Math.round(editTotalWorkingHours)} Hours
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div
+              className="flex gap-2"
+              data-cy="job-work-schedule-edit-actions"
+            >
               <Button
                 type="default"
                 onClick={handleCancelEdit}
@@ -424,7 +509,20 @@ const WorkScheduleComponent: React.FC = () => {
               name="workScheduleId"
               id="workScheduleId"
               data-cy="job-work-schedule-edit-form-item"
-              label={<span className="text-sm font-medium text-gray-700">Work Schedule Category <span className="text-red-500">*</span></span>}
+              label={
+                <span
+                  className="text-sm font-medium text-gray-700"
+                  data-cy="job-work-schedule-edit-form-label"
+                >
+                  Work Schedule Category{' '}
+                  <span
+                    className="text-red-500"
+                    data-cy="job-work-schedule-edit-form-required"
+                  >
+                    *
+                  </span>
+                </span>
+              }
               rules={[
                 {
                   required: true,
@@ -456,46 +554,73 @@ const WorkScheduleComponent: React.FC = () => {
             </Form.Item>
 
             {/* Working Days Section */}
-            <div className="mb-6">
-              <label className="text-sm font-medium text-gray-700 mb-3 block">Working Days</label>
-              <div className="flex gap-2 flex-wrap">
-                {dailySchedule.length > 0 ? dailySchedule.map((day, index) => {
-                  const dayName = day.day || '';
-                  const abbreviated = dayName.length > 3 ? dayName.substring(0, 3) : dayName;
-                  return (
-                    <button
-                      key={day.key || index}
-                      type="button"
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 ${day.workDay ? 'border border-[#1d4ed8]' : ''}`}
-                      id={`job-work-schedule-day-btn-${index}`}
-                      data-cy={`job-work-schedule-day-btn-${index}`}
-                    >
-                      {abbreviated}
-                    </button>
-                  );
-                }) : (
-                  <div className="text-sm text-gray-500">No schedule data available. Please select a work schedule category.</div>
+            <div
+              className="mb-6"
+              data-cy="job-work-schedule-working-days-section"
+            >
+              <label
+                className="text-sm font-medium text-gray-700 mb-3 block"
+                data-cy="job-work-schedule-working-days-label"
+              >
+                Working Days
+              </label>
+              <div
+                className="flex gap-2 flex-wrap"
+                data-cy="job-work-schedule-working-days-buttons"
+              >
+                {dailySchedule.length > 0 ? (
+                  dailySchedule.map((day, index) => {
+                    const dayName = day.day || '';
+                    const abbreviated =
+                      dayName.length > 3 ? dayName.substring(0, 3) : dayName;
+                    return (
+                      <button
+                        key={day.key || index}
+                        type="button"
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 ${day.workDay ? 'border border-[#1d4ed8]' : ''}`}
+                        id={`job-work-schedule-day-btn-${index}`}
+                        data-cy={`job-work-schedule-day-btn-${index}`}
+                      >
+                        {abbreviated}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div
+                    className="text-sm text-gray-500"
+                    data-cy="job-work-schedule-no-data"
+                  >
+                    No schedule data available. Please select a work schedule
+                    category.
+                  </div>
                 )}
               </div>
             </div>
 
             {/* Daily Schedule Section */}
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-3 block">Daily Schedule</label>
-              <div className="space-y-4">
+            <div data-cy="job-work-schedule-daily-section">
+              <label
+                className="text-sm font-medium text-gray-700 mb-3 block"
+                data-cy="job-work-schedule-daily-label"
+              >
+                Daily Schedule
+              </label>
+              <div className="space-y-4" data-cy="job-work-schedule-daily-list">
                 {dailySchedule.map((day, index) => {
-                  const hours = day.workDay ? (day.duration || 0) : 0;
+                  const hours = day.workDay ? day.duration || 0 : 0;
                   return (
                     <div
                       key={index}
                       className={`flex items-center gap-4 p-4 rounded-lg border ${
-                        day.workDay ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50'
+                        day.workDay
+                          ? 'border-gray-200 bg-white'
+                          : 'border-gray-100 bg-gray-50'
                       }`}
                       id={`job-work-schedule-day-row-${index}`}
                       data-cy={`job-work-schedule-day-row-${index}`}
                     >
                       <Switch
-                      disabled
+                        disabled
                         checked={day.workDay}
                         onChange={(checked) => {
                           const updated = [...dailySchedule];
@@ -505,10 +630,16 @@ const WorkScheduleComponent: React.FC = () => {
                         id={`job-work-schedule-switch-${index}`}
                         data-cy={`job-work-schedule-switch-${index}`}
                       />
-                      <span className="text-sm font-medium text-gray-700 min-w-[80px]">
+                      <span
+                        className="text-sm font-medium text-gray-700 min-w-[80px]"
+                        data-cy={`job-work-schedule-day-name-${index}`}
+                      >
                         {day.day || ''}
                       </span>
-                      <div className="flex items-center gap-2 flex-1">
+                      <div
+                        className="flex items-center gap-2 flex-1"
+                        data-cy={`job-work-schedule-day-times-${index}`}
+                      >
                         <TimePicker
                           value={day.startTime}
                           format="HH:mm"
@@ -529,7 +660,12 @@ const WorkScheduleComponent: React.FC = () => {
                           id={`job-work-schedule-start-time-${index}`}
                           data-cy={`job-work-schedule-start-time-${index}`}
                         />
-                        <span className="text-gray-400">-</span>
+                        <span
+                          className="text-gray-400"
+                          data-cy={`job-work-schedule-time-separator-${index}`}
+                        >
+                          -
+                        </span>
                         <TimePicker
                           value={day.endTime}
                           format="HH:mm"
@@ -559,7 +695,9 @@ const WorkScheduleComponent: React.FC = () => {
                           id={`job-work-schedule-hours-${index}`}
                           data-cy={`job-work-schedule-hours-${index}`}
                         >
-                          {hours > 0 ? `${Math.round(hours * 10) / 10} Hours` : '0 Hours'}
+                          {hours > 0
+                            ? `${Math.round(hours * 10) / 10} Hours`
+                            : '0 Hours'}
                         </div>
                       </div>
                     </div>

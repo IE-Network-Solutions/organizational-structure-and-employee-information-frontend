@@ -42,11 +42,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
 
   const { setIsEmploymentFormVisible } = useOffboardingStore();
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
-  const {
-    data: employeeData,
-    refetch: refetchEmployee,
-    isLoading,
-  } = useGetEmployee(id);
+  const { data: employeeData, refetch: refetchEmployee } = useGetEmployee(id);
 
   const { mutate: sendResignationID } = useResignedEmployee();
 
@@ -135,10 +131,16 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         menuItems.push({
           key: 'initiate-resignation',
           label: 'Initiate Resignation',
-          icon: <RemoveCircleOutlineIcon className="text-red-500" style={{ fontSize: '18px' }} />,
+          icon: (
+            <RemoveCircleOutlineIcon
+              className="text-red-500"
+              style={{ fontSize: '18px' }}
+            />
+          ),
           onClick: () => {
             Modal.confirm({
-              title: 'Are you sure you want to Initiate the resignation process?',
+              title:
+                'Are you sure you want to Initiate the resignation process?',
               okText: 'Confirm',
               cancelText: 'Cancel',
               onOk: () => handleConfirmResignation(activeJob?.id),
@@ -150,7 +152,12 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         menuItems.push({
           key: 'end-employment',
           label: 'End Employment',
-          icon: <RemoveCircleOutlineIcon className="text-red-500" style={{ fontSize: '18px' }} />,
+          icon: (
+            <RemoveCircleOutlineIcon
+              className="text-red-500"
+              style={{ fontSize: '18px' }}
+            />
+          ),
           onClick: handleEndEmploymentClick,
           disabled: offboardingTermination?.isActive,
         });
@@ -163,7 +170,12 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         menuItems.push({
           key: 'deactivate',
           label: 'Deactivate Employee',
-          icon: <PersonOffIcon className="text-red-500" style={{ fontSize: '18px' }} />,
+          icon: (
+            <PersonOffIcon
+              className="text-red-500"
+              style={{ fontSize: '18px' }}
+            />
+          ),
           onClick: () => {
             Modal.confirm({
               title: 'Are you sure you want to Deactivate Employee?',
@@ -177,7 +189,12 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         menuItems.push({
           key: 'reactivate',
           label: 'ReActivate Employee',
-          icon: <PersonOffIcon className="text-black" style={{ fontSize: '18px' }} />,
+          icon: (
+            <PersonOffIcon
+              className="text-black"
+              style={{ fontSize: '18px' }}
+            />
+          ),
           onClick: handleRehireClick,
         });
       }
@@ -229,11 +246,10 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   ];
 
   // Memoize menu items to avoid recalculating on every render
-  const menuItems = useMemo(() => buildMenuItems(), [
-    employeeData,
-    offboardingTermination,
-    resignationSubmittedDate,
-  ]);
+  const menuItems = useMemo(
+    () => buildMenuItems(),
+    [employeeData, offboardingTermination, resignationSubmittedDate],
+  );
 
   return (
     <div
@@ -256,7 +272,10 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         >
           <MdKeyboardArrowLeft className="text-lg sm:text-2xl text-black" />
         </Button>
-        <div className="flex-1 flex flex-col gap-1">
+        <div
+          className="flex-1 flex flex-col gap-1"
+          data-cy="employee-detail-header-content"
+        >
           <h4
             className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900"
             id="employee-detail-title"
@@ -268,10 +287,24 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
             className="text-xs sm:text-sm"
             items={[
               {
-                title: <span className="text-gray-500">Employee</span>,
+                title: (
+                  <span
+                    className="text-gray-500"
+                    data-cy="employee-detail-breadcrumb-employee"
+                  >
+                    Employee
+                  </span>
+                ),
               },
               {
-                title: <Link className="text-gray-600" href="/employees/manage-employees">Employee Management</Link>,
+                title: (
+                  <Link
+                    className="text-gray-600"
+                    href="/employees/manage-employees"
+                  >
+                    Employee Management
+                  </Link>
+                ),
               },
             ]}
             data-cy="manage-employees-breadcrumb"
@@ -292,28 +325,28 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           </Button>
         </Dropdown>
       </div>
-      
-          <div
-            id="employee-detail-basic-info-wrapper"
-            data-cy="employee-detail-basic-info-wrapper"
-          >
-            <BasicInfo id={id} data-cy="employee-detail-basic-info" />
-          </div>
-          {/* <Card
+
+      <div
+        id="employee-detail-basic-info-wrapper"
+        data-cy="employee-detail-basic-info-wrapper"
+      >
+        <BasicInfo id={id} data-cy="employee-detail-basic-info" />
+      </div>
+      {/* <Card
             id="employee-detail-tabs-card"
             data-cy="employee-detail-tabs-card"
           > */}
-          <div>
-            <Tabs
-              activeKey={activeTab}
-              onChange={setActiveTab}
-              items={items}
-              tabBarGutter={16}
-              size="small"
-              tabBarStyle={{ textAlign: 'center' }}
-              data-cy="employee-detail-tabs"
-            />
-          </div>
+      <div data-cy="employee-detail-tabs-wrapper">
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={items}
+          tabBarGutter={16}
+          size="small"
+          tabBarStyle={{ textAlign: 'center' }}
+          data-cy="employee-detail-tabs"
+        />
+      </div>
       <OffboardingFormControl
         userId={id}
         data-cy="employee-detail-offboarding-form-control"

@@ -10,10 +10,8 @@ import JobTimeLineForm from '../allFormData/jobTimeLineForm';
 import DocumentUploadForm from '../allFormData/documentUploadForm';
 import CustomFieldsForm from '../allFormData/customFieldsForm';
 import ButtonContinue from '../allFormData/SaveAndContinueButton';
-import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
-
 
 const AddEmployeeModal = (props: any) => {
   const [form] = Form.useForm();
@@ -46,14 +44,20 @@ const AddEmployeeModal = (props: any) => {
   }, [isSuccess, setTempAllowances]);
 
   const modalHeader = (
-    <div>
-    <h2 className="text-2xl font-bold text-gray-800 mb-1">
-      Add New Employee
-    </h2>
-    <p className="text-sm text-gray-500">
-      Please Fill in all the information correctly.
-    </p>
-  </div>
+    <div data-cy="add-employee-modal-header-div">
+      <h2
+        data-cy="add-employee-modal-header-h2"
+        className="text-2xl font-bold text-gray-800 mb-1"
+      >
+        Add New Employee
+      </h2>
+      <p
+        data-cy="add-employee-modal-header-p"
+        className="text-sm text-gray-500"
+      >
+        Please Fill in all the information correctly.
+      </p>
+    </div>
   );
 
   const handleCreateUser = async () => {
@@ -82,7 +86,6 @@ const AddEmployeeModal = (props: any) => {
     }
   };
 
- 
   function handleCancel() {
     props?.onClose();
     setTempAllowances([]);
@@ -91,10 +94,8 @@ const AddEmployeeModal = (props: any) => {
     setCurrent(0);
   }
 
-  
-
   return (
-    <> 
+    <>
       {open && (
         <Modal
           open={open}
@@ -102,12 +103,11 @@ const AddEmployeeModal = (props: any) => {
           title={modalHeader}
           data-cy="user-sidebar-drawer"
           footer={null}
-          className='w-full max-w-screen-md'
+          className="w-full max-w-screen-md"
           zIndex={10002}
         >
-
-          <div className="my-6">
-            <style>{`
+          <div data-cy="user-sidebar-steps-container" className="my-6">
+            <style data-cy="user-sidebar-steps-style">{`
               .ant-steps-item-title {
                 white-space: nowrap !important;
               }
@@ -115,23 +115,22 @@ const AddEmployeeModal = (props: any) => {
                 color: #1e40af !important;
               }
             `}</style>
-            
-              <Steps
-              responsive={false}
-                current={current}
-                labelPlacement="vertical"
-                progressDot
-                className="px-4 mx-auto max-w-5xl hidden sm:flex"
-                items={[
-                  { title: 'Personal Information' },
-                  { title: 'Employee Information' },
-                  { title: 'Documentation' },
-                  { title: 'Custom Fields' },
-                ]}
-                data-cy="user-sidebar-steps"
-              />
-          </div>
 
+            <Steps
+              responsive={false}
+              current={current}
+              labelPlacement="vertical"
+              progressDot
+              className="px-4 mx-auto max-w-5xl hidden sm:flex"
+              items={[
+                { title: 'Personal Information' },
+                { title: 'Employee Information' },
+                { title: 'Documentation' },
+                { title: 'Custom Fields' },
+              ]}
+              data-cy="user-sidebar-steps"
+            />
+          </div>
 
           <Form
             form={form}
@@ -220,7 +219,7 @@ const AddEmployeeModal = (props: any) => {
           </Form>
         </Modal>
       )}
-    
+
       <CustomModal
         visible={isSuccessModalVisible}
         onClose={() => {
@@ -229,7 +228,7 @@ const AddEmployeeModal = (props: any) => {
         text="You have successfully added new employee"
         route=""
         data-cy="user-sidebar-success-modal"
-      />  
+      />
     </>
   );
 };

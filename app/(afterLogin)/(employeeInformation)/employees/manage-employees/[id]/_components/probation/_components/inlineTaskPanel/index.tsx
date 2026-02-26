@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Form, Input, Button, Select, Card, Space, Modal } from 'antd';
-import { CloseOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useCreateProbationTaskBulk,
@@ -208,11 +208,18 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
   if (!isVisible) return null;
   return (
-    <Modal 
-    open={isVisible} 
-    onCancel={handleClose} 
-    footer={null}
-    title={<div className="text-lg font-medium">Add New Task</div>}
+    <Modal
+      open={isVisible}
+      onCancel={handleClose}
+      footer={null}
+      title={
+        <div
+          className="text-lg font-medium"
+          data-cy="probation-inline-panel-title"
+        >
+          Add New Task
+        </div>
+      }
     >
       {/* Task Forms */}
       <Form
@@ -529,7 +536,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
           </Button>
         </Space>
       </div>
-    {/* </div> */}
+      {/* </div> */}
     </Modal>
   );
 };

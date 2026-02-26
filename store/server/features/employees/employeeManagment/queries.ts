@@ -56,7 +56,6 @@ const getAllUsersWithOutPagination = async () => {
   });
 };
 
-
 const getEmployeeStatus = async () => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -70,12 +69,9 @@ const getEmployeeStatus = async () => {
   });
 };
 
-
 export const useGetEmployeeStatus = () => {
   return useQuery<any>('employeeStatus', getEmployeeStatus);
 };
-
-
 
 /**
  * Function to fetch a filtered list of employees.

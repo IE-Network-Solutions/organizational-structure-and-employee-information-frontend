@@ -6,7 +6,6 @@ import {
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Select, DatePicker, Radio, Button, Row, Col } from 'antd';
-import { Modal } from 'antd';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -36,8 +35,7 @@ const EmployeeSearch: React.FC = () => {
   const { data: EmployeeBranches } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: EmploymentTypes } = useGetEmployementTypes();
-  const { isMobileFilterVisible, setIsMobileFilterVisible } =
-    useEmployeeManagementStore();
+  const { setIsMobileFilterVisible } = useEmployeeManagementStore();
 
   const handleSearchEmployee = async (
     value: string | boolean,
@@ -119,7 +117,6 @@ const EmployeeSearch: React.FC = () => {
                 </Option>
               ))}
             </Select>
-
           </Col>
           <Col span={12}>
             <Select
@@ -147,7 +144,6 @@ const EmployeeSearch: React.FC = () => {
                 </Option>
               ))}
             </Select>
-
           </Col>
         </Row>
 
@@ -241,7 +237,9 @@ const EmployeeSearch: React.FC = () => {
               data-cy={`datePickerJoinedDate${searchParams.joinedDate}`}
               placeholder="Joined Date"
               value={
-                searchParams.joinedDate ? dayjs(searchParams.joinedDate) : undefined
+                searchParams.joinedDate
+                  ? dayjs(searchParams.joinedDate)
+                  : undefined
               }
               onChange={handleJoinedDateChange}
               className="w-full h-10 rounded-lg border-gray-200"
@@ -350,10 +348,20 @@ const EmployeeSearch: React.FC = () => {
   };
 
   return (
-    <div className="p-2 min-w-[320px]">
-      <div className="mb-4">
-        <h3 className="text-base font-semibold mb-4 px-1">Filter</h3>
-        <p className="text-sm font-semibold mb-4 px-1">Select all Filters</p>
+    <div data-cy="employee-search-container" className="p-2 min-w-[320px]">
+      <div data-cy="employee-search-container" className="mb-4">
+        <h3
+          data-cy="employee-search-title"
+          className="text-base font-semibold mb-4 px-1"
+        >
+          Filter
+        </h3>
+        <p
+          data-cy="employee-search-description"
+          className="text-sm font-semibold mb-4 px-1"
+        >
+          Select all Filters
+        </p>
         {Filters}
       </div>
       <div

@@ -8,7 +8,15 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
-import { Button, Popover, Input, Tag, Tooltip, Breadcrumb, Divider } from 'antd';
+import {
+  Button,
+  Popover,
+  Input,
+  Tag,
+  Tooltip,
+  Breadcrumb,
+  Divider,
+} from 'antd';
 import {
   useEmployeeBranches,
   useEmployeeDepartments,
@@ -29,10 +37,6 @@ import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import SearchIcon from '@mui/icons-material/Search';
-
-
-
-
 
 const ManageEmployees: React.FC<any> = () => {
   const {
@@ -191,17 +195,32 @@ const ManageEmployees: React.FC<any> = () => {
         >
           <CustomBreadcrumb
             title="Employee Management"
-            subtitle={<Breadcrumb
-              items={[
-                {
-                  title: <span className="text-xs sm:text-sm">Employee</span>,
-                },
-                {
-                  title: <Link className="text-xs sm:text-sm" href="/employees/manage-employees">Employee Management</Link>,
-                },
-
-              ]}
-            />}
+            subtitle={
+              <Breadcrumb
+                items={[
+                  {
+                    title: (
+                      <span
+                        className="text-xs sm:text-sm"
+                        data-cy="manage-employees-breadcrumb-employee"
+                      >
+                        Employee
+                      </span>
+                    ),
+                  },
+                  {
+                    title: (
+                      <Link
+                        className="text-xs sm:text-sm"
+                        href="/employees/manage-employees"
+                      >
+                        Employee Management
+                      </Link>
+                    ),
+                  },
+                ]}
+              />
+            }
             data-cy="manage-employees-breadcrumb"
           />
           <div
@@ -273,9 +292,7 @@ const ManageEmployees: React.FC<any> = () => {
                   id="downloadUserButton"
                   data-cy="manage-employees-download-trigger-btn"
                   className="h-10 w-10 sm:w-auto"
-                  icon={
-                    <SaveAltIcon />
-                  }
+                  icon={<SaveAltIcon />}
                 >
                   <span
                     className="hidden sm:inline"
@@ -312,7 +329,6 @@ const ManageEmployees: React.FC<any> = () => {
                       id="manage-employees-create-icon"
                       data-cy="manage-employees-create-icon"
                     />
-
                   }
                   onClick={showDrawer}
                   loading={isLoading || subscriptionLoading}
@@ -332,8 +348,14 @@ const ManageEmployees: React.FC<any> = () => {
           </div>
         </div>
         <Divider size="large" />
-        <div className="px-3 sm:px-6 mb-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div
+          className="px-3 sm:px-6 mb-6"
+          data-cy="manage-employees-stats-section"
+        >
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            data-cy="manage-employees-stats-grid"
+          >
             <StatsCard
               icon={<GroupsIcon />}
               title="Total Employees"
@@ -354,7 +376,9 @@ const ManageEmployees: React.FC<any> = () => {
               icon={<BusinessIcon />}
               title="Active Departments"
               value={EmployeeStatus?.activeDepartments?.value || 0}
-              change={EmployeeStatus?.activeDepartments?.changeSinceLastMonth || 0}
+              change={
+                EmployeeStatus?.activeDepartments?.changeSinceLastMonth || 0
+              }
               id="stats-active-departments"
               data-cy="stats-active-departments"
             />
@@ -368,7 +392,10 @@ const ManageEmployees: React.FC<any> = () => {
             />
           </div>
         </div>
-        <div className="border border-gray-200 rounded-lg mx-6 ">
+        <div
+          className="border border-gray-200 rounded-lg mx-6 "
+          data-cy="manage-employees-table-section"
+        >
           <div
             className="w-full h-auto"
             id="manage-employees-content"
@@ -383,14 +410,17 @@ const ManageEmployees: React.FC<any> = () => {
                 placeholder="Search employee"
                 className="h-8 rounded-lg border border-gray-400"
                 style={{ width: 300 }}
-                suffix={<SearchIcon className="text-gray-400" fontSize="small" />}
+                suffix={
+                  <SearchIcon className="text-gray-400" fontSize="small" />
+                }
                 allowClear
-                onChange={(e) => setSearchParams('employee_name', e.target.value)}
+                onChange={(e) =>
+                  setSearchParams('employee_name', e.target.value)
+                }
                 value={searchParams.employee_name}
                 id="manage-employees-search-input"
                 data-cy="manage-employees-search-input"
               />
-
 
               <div
                 className="flex items-center gap-2 flex-wrap bg-blue-600"
@@ -433,26 +463,32 @@ const ManageEmployees: React.FC<any> = () => {
                   className="h-8 px-6 rounded-lg bg-blue-600 border-gray-300 flex items-center gap-2"
                   id="manage-employees-filter-toggle-btn"
                   data-cy="manage-employees-filter-toggle-btn"
-                  icon={<FilterAltOutlinedIcon className="text-gray-600" fontSize='small' />}
+                  icon={
+                    <FilterAltOutlinedIcon
+                      className="text-gray-600"
+                      fontSize="small"
+                    />
+                  }
                 >
                   <span
                     id="manage-employees-filter-toggle-btn-text"
                     data-cy="manage-employees-filter-toggle-btn-text"
-                    className='text-gray-600 text-sm'
+                    className="text-gray-600 text-sm"
                   >
                     Filter
                   </span>
                 </Button>
               </Popover>
-
             </div>
-            <div className="overflow-x-auto">
+            <div
+              className="overflow-x-auto"
+              data-cy="manage-employees-table-wrapper"
+            >
               <UserTable />
             </div>
           </div>
         </div>
       </BlockWrapper>
-
     </div>
   );
 };

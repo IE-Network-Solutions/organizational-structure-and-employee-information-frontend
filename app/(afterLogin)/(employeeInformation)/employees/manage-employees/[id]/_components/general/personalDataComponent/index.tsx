@@ -14,11 +14,7 @@ import ChangePasswordModal from './_components/changePasswordModal';
 import { useModalStore } from '@/store/uistate/features/authentication/changePasswordModal';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-function PersonalDataComponent({
-  id,
-}: {
-  id: string;
-}) {
+function PersonalDataComponent({ id }: { id: string }) {
   const { setEdit, edit } = useEmployeeManagementStore();
   const { openModal } = useModalStore();
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -32,7 +28,14 @@ function PersonalDataComponent({
     <>
       <Card
         loading={isLoading}
-        title={<span className="text-base font-bold text-gray-900">Personal Information</span>}
+        title={
+          <span
+            className="text-base font-bold text-gray-900"
+            data-cy="personal-data-card-title"
+          >
+            Personal Information
+          </span>
+        }
         extra={
           <PermissionWrapper
             permissions={[Permissions.UpdateEmployeeDetails]}
@@ -74,27 +77,69 @@ function PersonalDataComponent({
                 data-cy="personal-data-display-col-1"
                 className="flex flex-col gap-5"
               >
-                <div id="personal-data-display-full-name" data-cy="personal-data-display-full-name">
-                  <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Full Name</p>
-                  <p className="text-base font-semibold text-gray-500 m-0">
-                    {`${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim() || '-'}
+                <div
+                  id="personal-data-display-full-name"
+                  data-cy="personal-data-display-full-name"
+                >
+                  <p
+                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    data-cy="personal-data-full-name-label"
+                  >
+                    Full Name
+                  </p>
+                  <p
+                    className="text-base font-semibold text-gray-500 m-0"
+                    data-cy="personal-data-full-name-value"
+                  >
+                    {`${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim() ||
+                      '-'}
                   </p>
                 </div>
-                <div id="personal-data-display-gender" data-cy="personal-data-display-gender">
-                  <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Gender</p>
-                  <p className="text-base font-semibold text-gray-500 m-0">
+                <div
+                  id="personal-data-display-gender"
+                  data-cy="personal-data-display-gender"
+                >
+                  <p
+                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    data-cy="personal-data-gender-label"
+                  >
+                    Gender
+                  </p>
+                  <p
+                    className="text-base font-semibold text-gray-500 m-0"
+                    data-cy="personal-data-gender-value"
+                  >
                     {employeeData?.employeeInformation?.gender
-                      ? String(employeeData.employeeInformation.gender).charAt(0).toUpperCase() +
-                        String(employeeData.employeeInformation.gender).slice(1).toLowerCase()
+                      ? String(employeeData.employeeInformation.gender)
+                          .charAt(0)
+                          .toUpperCase() +
+                        String(employeeData.employeeInformation.gender)
+                          .slice(1)
+                          .toLowerCase()
                       : '-'}
                   </p>
                 </div>
-                <div id="personal-data-display-marital-status" data-cy="personal-data-display-marital-status">
-                  <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Marital Status</p>
-                  <p className="text-base font-semibold text-gray-500 m-0">
+                <div
+                  id="personal-data-display-marital-status"
+                  data-cy="personal-data-display-marital-status"
+                >
+                  <p
+                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    data-cy="personal-data-marital-status-label"
+                  >
+                    Marital Status
+                  </p>
+                  <p
+                    className="text-base font-semibold text-gray-500 m-0"
+                    data-cy="personal-data-marital-status-value"
+                  >
                     {employeeData?.employeeInformation?.maritalStatus
-                      ? String(employeeData.employeeInformation.maritalStatus).charAt(0) +
-                        String(employeeData.employeeInformation.maritalStatus).slice(1).toLowerCase()
+                      ? String(
+                          employeeData.employeeInformation.maritalStatus,
+                        ).charAt(0) +
+                        String(employeeData.employeeInformation.maritalStatus)
+                          .slice(1)
+                          .toLowerCase()
                       : '-'}
                   </p>
                 </div>
@@ -118,25 +163,63 @@ function PersonalDataComponent({
                 data-cy="personal-data-display-col-2"
                 className="flex flex-col gap-5"
               >
-                <div id="personal-data-display-date-of-birth" data-cy="personal-data-display-date-of-birth">
-                  <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Date of Birth</p>
-                  <p className="text-base font-semibold text-gray-500 m-0">
+                <div
+                  id="personal-data-display-date-of-birth"
+                  data-cy="personal-data-display-date-of-birth"
+                >
+                  <p
+                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    data-cy="personal-data-dob-label"
+                  >
+                    Date of Birth
+                  </p>
+                  <p
+                    className="text-base font-semibold text-gray-500 m-0"
+                    data-cy="personal-data-dob-value"
+                  >
                     {employeeData?.employeeInformation?.dateOfBirth
-                      ? dayjs(employeeData.employeeInformation.dateOfBirth).format('DD MMMM, YYYY')
+                      ? dayjs(
+                          employeeData.employeeInformation.dateOfBirth,
+                        ).format('DD MMMM, YYYY')
                       : '-'}
                   </p>
                 </div>
-                <div id="personal-data-display-nationality" data-cy="personal-data-display-nationality">
-                  <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Nationality</p>
-                  <p className="text-base font-semibold text-gray-500 m-0">
-                    {employeeData?.employeeInformation?.nationality?.name || '-'}
+                <div
+                  id="personal-data-display-nationality"
+                  data-cy="personal-data-display-nationality"
+                >
+                  <p
+                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    data-cy="personal-data-nationality-label"
+                  >
+                    Nationality
+                  </p>
+                  <p
+                    className="text-base font-semibold text-gray-500 m-0"
+                    data-cy="personal-data-nationality-value"
+                  >
+                    {employeeData?.employeeInformation?.nationality?.name ||
+                      '-'}
                   </p>
                 </div>
-                <div id="personal-data-display-joined-date" data-cy="personal-data-display-joined-date">
-                  <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Joined Date</p>
-                  <p className="text-base font-semibold text-gray-500 m-0">
+                <div
+                  id="personal-data-display-joined-date"
+                  data-cy="personal-data-display-joined-date"
+                >
+                  <p
+                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    data-cy="personal-data-joined-date-label"
+                  >
+                    Joined Date
+                  </p>
+                  <p
+                    className="text-base font-semibold text-gray-500 m-0"
+                    data-cy="personal-data-joined-date-value"
+                  >
                     {employeeData?.employeeInformation?.joinedDate
-                      ? dayjs(employeeData.employeeInformation.joinedDate).format('DD MMMM, YYYY')
+                      ? dayjs(
+                          employeeData.employeeInformation.joinedDate,
+                        ).format('DD MMMM, YYYY')
                       : '-'}
                   </p>
                 </div>

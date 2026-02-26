@@ -86,45 +86,40 @@ function General({ id }: { id: string }) {
 
   return (
     <>
-    <Row gutter={16} >
-      <Col lg={12} sm={24} xs={24}>
-        <PersonalDataComponent
-          id={id}
-          data-cy="general-personal-data-component"
-        />
-        <AddressComponent
-        mergedFields={mergedFields}
-        id={id}
-        handleSaveChanges={handleSaveChanges}
-        data-cy="general-address-component"
-      />
-       <AdditionalInformation
-        mergedFields={mergedFields}
-        id={id}
-        handleSaveChanges={handleSaveChanges}
-        data-cy="general-additional-information-component"
-      />
-
-      </Col>
-      <Col lg={12} sm={24} xs={24}>
-        <EmergencyContact
-          mergedFields={mergedFields}
-          id={id}
-          handleSaveChanges={handleSaveChanges}
-          data-cy="general-emergency-contact-component"
-        />
-         <BankInformationComponent
-        mergedFields={mergedFields}
-        id={id}
-        handleSaveChanges={handleSaveChanges}
-        data-cy="general-bank-information-component"
-      />
-      </Col>
-    </Row>
-    
-      
-     
-     
+      <Row gutter={16}>
+        <Col lg={12} sm={24} xs={24}>
+          <PersonalDataComponent
+            id={id}
+            data-cy="general-personal-data-component"
+          />
+          <AddressComponent
+            mergedFields={mergedFields}
+            id={id}
+            handleSaveChanges={handleSaveChanges}
+            data-cy="general-address-component"
+          />
+          <AdditionalInformation
+            mergedFields={mergedFields}
+            id={id}
+            handleSaveChanges={handleSaveChanges}
+            data-cy="general-additional-information-component"
+          />
+        </Col>
+        <Col lg={12} sm={24} xs={24}>
+          <EmergencyContact
+            mergedFields={mergedFields}
+            id={id}
+            handleSaveChanges={handleSaveChanges}
+            data-cy="general-emergency-contact-component"
+          />
+          <BankInformationComponent
+            mergedFields={mergedFields}
+            id={id}
+            handleSaveChanges={handleSaveChanges}
+            data-cy="general-bank-information-component"
+          />
+        </Col>
+      </Row>
     </>
   );
 }

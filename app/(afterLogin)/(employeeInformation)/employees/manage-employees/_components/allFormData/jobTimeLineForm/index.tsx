@@ -6,11 +6,7 @@ import {
 } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
-import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
-import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
-import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { JobActionStatus } from '@/types/enumTypes';
 import {
   Button,
@@ -21,16 +17,12 @@ import {
   Input,
   InputNumber,
   Modal,
-  Popconfirm,
-  Radio,
   Row,
   Select,
   Space,
-  Switch,
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { AiOutlineReload } from 'react-icons/ai';
 import { IoInformationCircleOutline } from 'react-icons/io5';
 import { PlusOutlined } from '@ant-design/icons';
 import { useCreatePosition } from '@/store/server/features/employees/positions/mutation';
@@ -55,7 +47,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
   const actualForm = formProp || form;
   const {
     selectedDepartmentId,
-    switchValue,
     setSwitchValue,
     setSelectedDepartmentId,
     tempAllowances,
@@ -71,21 +62,13 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
   const { data: positions, refetch: positionRefetch } = useGetAllPositions();
 
   const { data: department } = useGetDepartmentLead(selectedDepartmentId);
-  const { data: workSchedulesData } = useGetWorkSchedules();
-  const { data: rolesWithPermission } = useGetRolesWithPermission();
-  const { data: groupPermissionData } = useGetPermissionGroupsWithOutPagination();
-  const {
-    setSelectedRoleOnOption,
-    setSelectedRoleOnList,
-  } = useSettingStore();
-  const { setSelectedPermissions } = useEmployeeManagementStore();
 
-  const workSchedules = workSchedulesData?.items ?? [];
-  const basicGroupPermissionId =
-    groupPermissionData?.items?.filter((item: any) => item.isBasic) ?? [];
-  const basicGroupPermissions = basicGroupPermissionId.flatMap(
-    (item: any) => item.permissions ?? [],
-  );
+  // const workSchedules = workSchedulesData?.items ?? [];
+  // const basicGroupPermissionId =
+  //   groupPermissionData?.items?.filter((item: any) => item.isBasic) ?? [];
+  // const basicGroupPermissions = basicGroupPermissionId.flatMap(
+  //   (item: any) => item.permissions ?? [],
+  // );
 
   const {
     mutate: handleCreatePosition,
@@ -99,7 +82,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
   const { data: employeeAllowances } =
     useGetEmployeeAllowances(employeeIdFromParams);
   const { setIsAllowanceOpen, isAllowanceOpen } = useCompensationSettingStore();
-  const [contractType, setContractType] = useState<string>('Permanent');
+  const [contractType] = useState<string>('Permanent');
   const [wasAllowanceOpen, setWasAllowanceOpen] = useState<boolean>(false);
 
   // Populate employee allowances in form when modal opens
@@ -144,9 +127,9 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
     }
   }, [isAddEmployeeJobInfoModalVisible, employeeAllowances, actualForm]);
 
-  const handleContractTypeChange = (e: any) => {
-    setContractType(e.target.value);
-  };
+  // const handleContractTypeChange = (e: any) => {
+  //   setContractType(e.target.value);
+  // };
 
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartmentId(value);
@@ -154,13 +137,13 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
     actualForm.setFieldValue('departmentLeadOrNot', false);
   };
 
-  const handleTeamLeadChange = (checked: boolean) => {
-    if (checked && department?.length > 0) {
-      return;
-    }
-    setSwitchValue(checked);
-    actualForm.setFieldValue('departmentLeadOrNot', checked);
-  };
+  // const handleTeamLeadChange = (checked: boolean) => {
+  //   if (checked && department?.length > 0) {
+  //     return;
+  //   }
+  //   setSwitchValue(checked);
+  //   actualForm.setFieldValue('departmentLeadOrNot', checked);
+  // };
 
   const handleTeamLeadConfirm = () => {
     setSwitchValue(true);
@@ -172,22 +155,22 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
     actualForm.setFieldValue('departmentLeadOrNot', false);
   };
 
-  const onRoleChangeHandler = (value: string) => {
-    const selectedRole = rolesWithPermission?.find(
-      (role: any) => role.id === value,
-    );
-    setSelectedRoleOnList(selectedRole);
-    setSelectedRoleOnOption(value);
-    const rolePermissions =
-      selectedRole?.permissions?.map((item: any) => item.id) || [];
-    const newPermissions = Array.from(
-      new Set([
-        ...rolePermissions,
-        ...(basicGroupPermissions?.map((perm: any) => perm.id) ?? []),
-      ]),
-    );
-    setSelectedPermissions(newPermissions);
-  };
+  // const onRoleChangeHandler = (value: string) => {
+  //   const selectedRole = rolesWithPermission?.find(
+  //     (role: any) => role.id === value,
+  //   );
+  //   setSelectedRoleOnList(selectedRole);
+  //   setSelectedRoleOnOption(value);
+  //   const rolePermissions =
+  //     selectedRole?.permissions?.map((item: any) => item.id) || [];
+  //   const newPermissions = Array.from(
+  //     new Set([
+  //       ...rolePermissions,
+  //       ...(basicGroupPermissions?.map((perm: any) => perm.id) ?? []),
+  //     ]),
+  //   );
+  //   setSelectedPermissions(newPermissions);
+  // };
 
   useEffect(() => {
     if (department?.length > 0) {
@@ -332,7 +315,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               id="job-timeline-effective-start-date-info-text"
               data-cy="job-timeline-effective-start-date-info-text"
             >
-              The effective start date cannot be before the employee&apos;s last position start date.
+              The effective start date cannot be before the employee&apos;s last
+              position start date.
             </div>
           </div>
         </Col>
@@ -484,10 +468,10 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               data-cy="job-timeline-role-select"
             />
           </Form.Item> */}
-                      <RolePermissionForm
-                  form={actualForm}
-                  data-cy="user-sidebar-role-permission-form"
-                />
+          <RolePermissionForm
+            form={actualForm}
+            data-cy="user-sidebar-role-permission-form"
+          />
         </Col>
       </Row>
 
@@ -523,7 +507,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 <Button
                   type="text"
                   size="small"
-                 
                   onClick={() => {
                     positionRefetch();
                   }}
@@ -691,7 +674,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
         gutter={16}
         id="job-timeline-department-row"
         data-cy="job-timeline-department-row"
-        className='mb-2'
+        className="mb-2"
       >
         <Col
           xs={24}
@@ -720,7 +703,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 <Button
                   type="text"
                   size="small"
-                 
                   onClick={() => {
                     departmentsRefetch();
                   }}
@@ -766,7 +748,10 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               </span>
             }
             rules={[
-              { required: true, message: 'Please select if user is Team Lead or manager' },
+              {
+                required: true,
+                message: 'Please select if user is Team Lead or manager',
+              },
             ]}
           >
             <Select
@@ -793,13 +778,19 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                         className="text-xs sm:text-sm leading-relaxed"
                         data-cy="job-timeline-member-confirm-description"
                       >
-                        <div className="mb-2">
+                        <div
+                          data-cy="job-timeline-member-confirm-description-text-department"
+                          className="mb-2"
+                        >
                           This department already has a team lead:
                         </div>
-                        <div className="font-medium text-blue-600 mb-2">
+                        <div
+                          data-cy="job-timeline-member-confirm-description-text-name"
+                          className="font-medium text-blue-600 mb-2"
+                        >
                           {department[0]?.firstName} {department[0]?.lastName}
                         </div>
-                        <div>
+                        <div data-cy="job-timeline-member-confirm-description-text">
                           Do you want to update the team lead to the current
                           employee?
                         </div>
@@ -877,16 +868,13 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 <Button
                   type="text"
                   size="small"
-                  
                   onClick={() => {
                     branchOfficeRefetch();
                   }}
                 />
               </div>
             }
-            rules={[
-              { required: true, message: 'Please select office' },
-            ]}
+            rules={[{ required: true, message: 'Please select office' }]}
           >
             <Select
               allowClear

@@ -96,9 +96,19 @@ function TemplateTaskDraggable({
       id={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
       data-cy={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
     >
-      <div className="font-medium text-gray-800">{item.title}</div>
+      <div
+        className="font-medium text-gray-800"
+        data-cy={`offboarding-template-draggable-title-${toSlug(item.id ?? index)}`}
+      >
+        {item.title}
+      </div>
       {item.description && (
-        <div className="text-sm text-gray-500 mt-1">{item.description}</div>
+        <div
+          className="text-sm text-gray-500 mt-1"
+          data-cy={`offboarding-template-draggable-description-${toSlug(item.id ?? index)}`}
+        >
+          {item.description}
+        </div>
       )}
     </div>
   );
@@ -156,6 +166,7 @@ function DroppableArea({
         transition: 'background-color 0.2s',
         ...(isOver ? { backgroundColor: '#FFFFFF' } : {}),
       }}
+      data-cy={`offboarding-droppable-${id}`}
     >
       {children}
     </div>
@@ -169,7 +180,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     taskToDelete,
     setTaskToDelete,
     setIsAddTaskModalVisible,
-    setIsTaskTemplateVisible,
     setIsDeleteModalVisible,
   } = useOffboardingStore();
 
@@ -260,7 +270,10 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
       data-cy="offboarding-tasks-container"
     >
       <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-        <div className="flex flex-col sm:flex-row gap-4 w-full">
+        <div
+          className="flex flex-col sm:flex-row gap-4 w-full"
+          data-cy="offboarding-tasks-dnd-layout"
+        >
           {/* Left panel: Core Offboarding Tasks */}
           <Card
             title="Core Offboarding Tasks"
@@ -446,14 +459,16 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                           {task.title}
                         </span>
                         {task.approver && (
-                          <span className="flex items-center gap-2 text-sm text-gray-500">
+                          <span
+                            className="flex items-center gap-2 text-sm text-gray-500"
+                            data-cy={`offboarding-task-approver-${taskSlug}`}
+                          >
                             <Avatar
                               size="small"
                               icon={<UserOutlined />}
                               className="flex-shrink-0"
                             />
-                            {task.approver.firstName ||
-                            task.approver.lastName
+                            {task.approver.firstName || task.approver.lastName
                               ? `${task.approver.firstName || ''} ${task.approver.middleName || ''} ${task.approver.lastName || ''}`.trim()
                               : 'Approver Person'}
                           </span>

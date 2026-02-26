@@ -9,8 +9,6 @@ import {
   Table,
   Modal,
   Select,
-  Switch,
-  TimePicker,
   Dropdown,
   MenuProps,
   InputNumber,
@@ -24,7 +22,6 @@ import { MoreOutlined } from '@ant-design/icons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
-import BasicSalary from './basicSalary';
 import { LuPencil } from 'react-icons/lu';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -37,10 +34,12 @@ import { useUpdateEmployee } from '@/store/server/features/employees/employeeDet
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
-import { useGetDepartmentLead, useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import {
+  useGetDepartmentLead,
+  useGetDepartments,
+} from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
-import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import { JobActionStatus } from '@/types/enumTypes';
 import CloseIcon from '@mui/icons-material/Close';
@@ -52,17 +51,19 @@ function Job({ id }: { id: string }) {
   const userId = params.id as string;
   const { userId: loggedInUserId } = useAuthenticationStore();
   const { isLoading, data: employeeData, refetch } = useGetEmployee(userId);
-  const { setIsAddEmployeeJobInfoModalVisible, selectedDepartmentId } = useEmployeeManagementStore();
+  const {
+    setIsAddEmployeeJobInfoModalVisible,
+    selectedDepartmentId,
+    setSelectedWorkSchedule,
+  } = useEmployeeManagementStore();
 
   // API queries for form options
   const { data: departmentData } = useGetDepartments();
   const { data: employementType } = useGetEmployementTypes();
   const { data: branchOfficeData } = useGetBranches();
   const { data: positions } = useGetAllPositions();
-  const { data: workSchedules } = useGetWorkSchedules();
   const { data: basicSalaryData } = useGetBasicSalaryById(userId);
   const { data: department } = useGetDepartmentLead(selectedDepartmentId);
-
 
   // Sort job information with active jobs at the top
   const sortedJobInformation = useMemo(() => {
@@ -91,14 +92,13 @@ function Job({ id }: { id: string }) {
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   const { mutate: updateEmployeeJobInformation, isLoading: isUpdating } =
     useUpdateEmployeeJobInformation();
-    const { mutate: updateBasicSalary, isLoading: updateLoading } =
+  const { mutate: updateBasicSalary, isLoading: updateLoading } =
     useUpdateBasicSalary();
   const [isEditing, setIsEditing] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [isJobHistoryModalVisible, setIsJobHistoryModalVisible] = useState(false);
+  const [isJobHistoryModalVisible, setIsJobHistoryModalVisible] =
+    useState(false);
   const [selectedJobRecord, setSelectedJobRecord] = useState<any>(null);
-  const [selectedWorkSchedule, setSelectedWorkSchedule] = useState<any>(null);
-  const downloadJobInfoRef = React.useRef<any>(null);
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
 
@@ -112,13 +112,13 @@ function Job({ id }: { id: string }) {
   const handleJobEditClick = (record: any) => {
     setSelectedJobRecord(record);
     setSelectedWorkSchedule(record.workSchedule);
-    
+
     // Find the matching basic salary for this job record
     const matchingSalary = basicSalaryData?.find(
-      (salary: any) => salary.jobInfoId === record.id
+      (salary: any) => salary.jobInfoId === record.id,
     );
     const currentSalary = matchingSalary?.basicSalary || null;
-    
+
     editForm.setFieldsValue({
       effectiveStartDate: dayjs(record.effectiveStartDate),
       positionId: record.positionId,
@@ -175,7 +175,7 @@ function Job({ id }: { id: string }) {
     // Find the basic salary record for this job (same as basicSalaryModal uses jobInfoId)
     const matchingSalary = Array.isArray(basicSalaryData)
       ? basicSalaryData.find(
-          (salary: any) => salary.jobInfoId === selectedJobRecord.id
+          (salary: any) => salary.jobInfoId === selectedJobRecord.id,
         )
       : null;
 
@@ -203,7 +203,7 @@ function Job({ id }: { id: string }) {
             handleEditModalClose();
             handleJobInfoUpdated();
           },
-        }
+        },
       );
     };
 
@@ -221,12 +221,12 @@ function Job({ id }: { id: string }) {
     );
   };
 
-  const handleWorkScheduleChange = (value: string) => {
-    const selectedValue = workSchedules?.items?.find(
-      (schedule) => schedule.id === value,
-    );
-    setSelectedWorkSchedule(selectedValue || null);
-  };
+  // const handleWorkScheduleChange = (value: string) => {
+  //   const selectedValue = workSchedules?.items?.find(
+  //     (schedule) => schedule.id === value,
+  //   );
+  //   setSelectedWorkSchedule(selectedValue || null);
+  // };
 
   // Function to disable dates before creation date
   const disabledDate = (current: dayjs.Dayjs) => {
@@ -244,7 +244,9 @@ function Job({ id }: { id: string }) {
   };
 
   const handleEditJobInformation = () => {
-    const activeJob = sortedJobInformation.find((job: any) => job.isPositionActive);
+    const activeJob = sortedJobInformation.find(
+      (job: any) => job.isPositionActive,
+    );
     if (activeJob) {
       handleJobEditClick(activeJob);
     }
@@ -252,12 +254,13 @@ function Job({ id }: { id: string }) {
 
   const handleDownloadJobInformation = () => {
     // Trigger download by clicking the download button
-    const downloadBtn = document.querySelector('[data-cy="job-download-btn"]') as HTMLElement;
+    const downloadBtn = document.querySelector(
+      '[data-cy="job-download-btn"]',
+    ) as HTMLElement;
     if (downloadBtn) {
       downloadBtn.click();
     }
   };
-
 
   const columns = [
     {
@@ -282,16 +285,13 @@ function Job({ id }: { id: string }) {
       render: (basicSalary: string, record: any) => {
         // Find the matching basic salary record by jobInfoId
         const matchingSalary = basicSalaryData?.find(
-          (salary: any) => salary.jobInfoId === record.id
+          (salary: any) => salary.jobInfoId === record.id,
         );
         const salaryValue = matchingSalary?.basicSalary;
-        return (
-          <>{salaryValue ? Number(salaryValue).toLocaleString() : '-'}</>
-        );
+        return <>{salaryValue ? Number(salaryValue).toLocaleString() : '-'}</>;
       },
     },
-    
-   
+
     {
       title: 'Department',
       dataIndex: 'department',
@@ -300,14 +300,13 @@ function Job({ id }: { id: string }) {
         <>{record?.department?.name ?? '-'}</>
       ),
     },
-    
+
     {
       title: 'Job Status',
       dataIndex: 'jobAction',
       key: 'jobAction',
       render: (text: string) => (text ? text : '-'),
     },
-   
   ];
 
   const menuItems: MenuProps['items'] = [
@@ -342,474 +341,732 @@ function Job({ id }: { id: string }) {
 
   return (
     <>
-    <Row gutter={16}>
-      <Col lg={12} sm={24} xs={24}>
-      <Card
-        loading={isLoading}
-        title={<span className="text-base font-bold text-gray-900">Employment Information</span>}
-        extra={
-          <button
-            type="button"
-            onClick={handleEditClick}
-            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-            id="job-employment-edit-btn"
-            data-cy="job-employment-edit-btn"
-          >
-            <LuPencil className="text-gray-700" />
-          </button>
-        }
-        className="employment-information-card rounded-lg border border-gray-200 my-6 mt-0"
-        id="job-employment-card"
-        data-cy="job-employment-card"
-        headStyle={{ borderBottom: 'none' }}
-      >
-        {isEditing ? (
-          <Form
-            onFinish={editJoinedDate}
-            form={form}
-            layout="inline"
-            id="job-joined-date-form"
-            data-cy="job-joined-date-form"
-          >
-            <Form.Item
-              name="joinedDate"
-              id="job-joined-date-form-item"
-              data-cy="job-joined-date-form-item"
-              rules={[
-                { required: true, message: 'Please select a date!' },
-              ]}
-            >
-              <DatePicker
-                format="YYYY-MM-DD"
-                id="job-joined-date-datepicker"
-                data-cy="job-joined-date-datepicker"
-              />
-            </Form.Item>
-            <Form.Item
-              id="job-joined-date-submit-form-item"
-              data-cy="job-joined-date-submit-form-item"
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-                id="job-joined-date-submit-btn"
-                data-cy="job-joined-date-submit-btn"
+      <Row gutter={16}>
+        <Col lg={12} sm={24} xs={24}>
+          <Card
+            loading={isLoading}
+            title={
+              <span
+                className="text-base font-bold text-gray-900"
+                data-cy="job-employment-card-title"
               >
-                Save
-              </Button>
-            </Form.Item>
-          </Form>
-        ) : (
-          <Row
-            gutter={[24, 0]}
-            id="job-employment-row"
-            data-cy="job-employment-row"
-          >
-            <Col lg={12} id="job-employment-col-left" data-cy="job-employment-col-left" className="flex flex-col">
-              <div className="mb-5" id="job-employment-service-year" data-cy="job-employment-service-year">
-                <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Service Year</p>
-                <p className="text-base font-semibold text-gray-500 m-0">
-                  {employeeData?.employeeInformation?.joinedDate ? (() => {
-                    const months = dayjs().diff(
-                      dayjs(employeeData?.employeeInformation?.joinedDate),
-                      'months',
-                    );
-                    const years = Math.floor(months / 12);
-                    const remainingMonths = months % 12;
-                    const parts = [];
-                    if (years > 0) {
-                      parts.push(`${years} ${years === 1 ? 'Year' : 'Years'}`);
-                    }
-                    if (remainingMonths > 0) {
-                      parts.push(`${remainingMonths} ${remainingMonths === 1 ? 'Month' : 'Months'}`);
-                    }
-                    return parts.length > 0 ? parts.join(', ') : '-';
-                  })() : '-'}
-                </p>
-              </div>
-            </Col>
-            <Col lg={12} id="job-employment-col-right" data-cy="job-employment-col-right" className="flex flex-col">
-              <div className="mb-5" id="job-employment-joined-date" data-cy="job-employment-joined-date">
-                <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Joined Date</p>
-                <p className="text-base font-semibold text-gray-500 m-0">
-                  {dayjs(employeeData?.employeeInformation?.joinedDate)?.format(
-                    'DD MMMM, YYYY',
-                  ) || '-'}
-                </p>
-              </div>
-            </Col>
-          </Row>
-        )}
-      </Card>
-      <WorkScheduleComponent data-cy="job-work-schedule" />
-      </Col>
-      <Col lg={12} sm={24} xs={24}>
-
-      <Card
-        loading={isLoading}
-        className="job-information-card rounded-lg border border-gray-200 my-6 mt-0"
-        title={
-          isEditModalVisible ? (
-            <div className="flex items-center justify-between w-full pr-0">
-              <span className="text-base font-bold text-gray-900">Job Information</span>
-              <div className="flex gap-2">
-                <Button
-                  type="text"
-                  icon={<CloseIcon className="text-red-500" />}
-                  onClick={handleEditModalClose}
-                  className="border border-red-500 bg-white rounded-lg p-2 h-8 w-8 flex items-center justify-center hover:bg-red-50"
-                  id="job-edit-inline-close-btn"
-                  data-cy="job-edit-inline-close-btn"
-                />
-                <Button
-                  type="text"
-                  icon={<CheckIcon className="text-white" />}
-                  onClick={() => editForm.submit()}
-                  className=" bg-[#1d4ed8] rounded-lg p-2 h-8 w-8 flex items-center justify-center hover:bg-blue-50"
-                  loading={isUpdating || updateLoading}
-                  id="job-edit-inline-save-btn"
-                  data-cy="job-edit-inline-save-btn"
-                />
-              </div>
-            </div>
-          ) : (
-            <span className="text-base font-bold text-gray-900">Job Information</span>
-          )
-        }
-        extra={
-          !isEditModalVisible ? (
-            <div
-              className="flex justify-center items-center gap-3"
-              id="job-information-extra"
-              data-cy="job-information-extra"
-            >
-              <AccessGuard
-                permissions={[Permissions.UpdateEmployeeJobInformation]}
-                id="job-information-add-guard"
-                data-cy="job-information-add-guard"
+                Employment Information
+              </span>
+            }
+            extra={
+              <button
+                type="button"
+                onClick={handleEditClick}
+                className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+                id="job-employment-edit-btn"
+                data-cy="job-employment-edit-btn"
               >
-                <div id="job-information-dropdown" data-cy="job-information-dropdown">
-                  <Dropdown
-                    menu={{ items: menuItems }}
-                    trigger={['click']}
-                    placement="bottomRight"
-                  >
-                    <button
-                      type="button"
-                      className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-                      id="job-information-menu-btn"
-                      data-cy="job-information-menu-btn"
-                    >
-                      <MoreOutlined className="text-black" />
-                    </button>
-                  </Dropdown>
-                </div>
-              </AccessGuard>
-            </div>
-          ) : null
-        }
-        id="job-information-card"
-        data-cy="job-information-card"
-        headStyle={{ borderBottom: 'none' }}
-      >
-        {isEditModalVisible && selectedJobRecord ? (
-          <Form
-            form={editForm}
-            onFinish={editJobInformation}
-            layout="vertical"
-            id="job-edit-form"
-            data-cy="job-edit-form"
+                <LuPencil className="text-gray-700" />
+              </button>
+            }
+            className="employment-information-card rounded-lg border border-gray-200 my-6 mt-0"
+            id="job-employment-card"
+            data-cy="job-employment-card"
+            headStyle={{ borderBottom: 'none' }}
           >
-            <Row gutter={24}>
-              <Col xs={24} sm={12}>
+            {isEditing ? (
+              <Form
+                onFinish={editJoinedDate}
+                form={form}
+                layout="inline"
+                id="job-joined-date-form"
+                data-cy="job-joined-date-form"
+              >
                 <Form.Item
-                  className="font-semibold text-xs"
-                  name="title"
-                  id="job-edit-title-form-item"
-                  data-cy="job-edit-title-form-item"
-                  label={<span className="mb-1 font-semibold text-xs">Title *</span>}
-                  rules={[{ required: true, message: 'Please enter title' }]}
-                >
-                  <Input placeholder="Enter title" id="job-edit-title-input" data-cy="job-edit-title-input" readOnly />
-                </Form.Item>
-                <Form.Item
-                  className="font-semibold text-xs"
-                  name="basicSalary"
-                  id="job-edit-salary-form-item"
-                  data-cy="job-edit-salary-form-item"
-                  label={<span className="mb-1 font-semibold text-xs">Salary *</span>}
-                  rules={[
-                    { required: true, message: 'Please enter salary' },
-                    { type: 'number', min: 0, message: 'Salary must be a positive number' },
-                  ]}
-                >
-                  <InputNumber
-                    className="w-full"
-                    placeholder="Enter salary"
-                    min={0}
-                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={(value) => value?.replace(/,/g, '') as any}
-                    id="job-edit-salary-input"
-                    data-cy="job-edit-salary-input"
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="font-semibold text-xs"
-                  name="employementTypeId"
-                  id="job-edit-type-form-item"
-                  data-cy="job-edit-type-form-item"
-                  label={<span className="mb-1 font-semibold text-xs">Type *</span>}
-                  rules={[{ required: true, message: 'Please select type' }]}
-                >
-                  <Select
-                    allowClear
-                    showSearch
-                    optionFilterProp="label"
-                    placeholder="Select"
-                    id="job-edit-type-select"
-                    data-cy="job-edit-type-select"
-                    options={employementType?.items?.map((type: any) => ({ value: type?.id, label: type?.name || '' }))}
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="font-semibold text-xs"
-                  name="jobAction"
-                  id="job-edit-status-form-item"
-                  data-cy="job-edit-status-form-item"
-                  label={<span className="mb-1 font-semibold text-xs">Status *</span>}
-                  rules={[{ required: true, message: 'Please select status' }]}
-                >
-                  <Select
-                    allowClear
-                    showSearch
-                    optionFilterProp="label"
-                    placeholder="Select"
-                    id="job-edit-status-select"
-                    data-cy="job-edit-status-select"
-                    options={JobActionStatus?.map((status: any) => ({ value: status?.id, label: status?.name || '' }))}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12}>
-                <Form.Item
-                  className="font-semibold text-xs"
-                  name="effectiveStartDate"
-                  id="job-edit-joined-date-form-item"
-                  data-cy="job-edit-joined-date-form-item"
-                  label={<span className="mb-1 font-semibold text-xs">Joined Date *</span>}
-                  rules={[{ required: true, message: 'Please select joined date' }]}
+                  name="joinedDate"
+                  id="job-joined-date-form-item"
+                  data-cy="job-joined-date-form-item"
+                  rules={[{ required: true, message: 'Please select a date!' }]}
                 >
                   <DatePicker
-                    className="w-full"
                     format="YYYY-MM-DD"
-                    disabledDate={disabledDate}
-                    id="job-edit-joined-date-datepicker"
-                    data-cy="job-edit-joined-date-datepicker"
+                    id="job-joined-date-datepicker"
+                    data-cy="job-joined-date-datepicker"
                   />
                 </Form.Item>
                 <Form.Item
-                  className="font-semibold text-xs"
-                  name="positionId"
-                  id="job-edit-position-form-item"
-                  data-cy="job-edit-position-form-item"
-                  label={<span className="mb-1 font-semibold text-xs">Position *</span>}
-                  rules={[{ required: true, message: 'Please select position' }]}
+                  id="job-joined-date-submit-form-item"
+                  data-cy="job-joined-date-submit-form-item"
                 >
-                  <Select
-                    showSearch
-                    optionFilterProp="label"
-                    placeholder="Select"
-                    allowClear
-                    id="job-edit-position-select"
-                    data-cy="job-edit-position-select"
-                    onChange={(value) => {
-                      const selectedPosition = positions?.items?.find((pos: any) => pos.id === value);
-                      if (selectedPosition) editForm.setFieldValue('title', selectedPosition.name);
-                    }}
-                    options={positions?.items?.map((position: any) => ({ value: position?.id, label: position?.name || '' }))}
-                  />
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    id="job-joined-date-submit-btn"
+                    data-cy="job-joined-date-submit-btn"
+                  >
+                    Save
+                  </Button>
                 </Form.Item>
-                <Form.Item
-                  className="w-full font-semibold text-xs"
-                  name="departmentLeadOrNot"
-                  id="job-edit-member-form-item"
-                  data-cy="job-edit-member-form-item"
-                  initialValue={false}
-                  label={<span className="mb-1 font-semibold text-xs">Member</span>}
-                  rules={[{ required: true, message: 'Please select if user is Team Lead or manager' }]}
+              </Form>
+            ) : (
+              <Row
+                gutter={[24, 0]}
+                id="job-employment-row"
+                data-cy="job-employment-row"
+              >
+                <Col
+                  lg={12}
+                  id="job-employment-col-left"
+                  data-cy="job-employment-col-left"
+                  className="flex flex-col"
                 >
-                  <Select
-                    allowClear
-                    placeholder="Select"
-                    options={[
-                      { value: false, label: 'Member' },
-                      { value: true, label: 'Team Lead' },
-                    ]}
-                    onChange={(value) => {
-                      const isLead = value === true;
-                      if (isLead && department?.length > 0) {
-                        Modal.confirm({
-                          title: <div className="font-semibold" data-cy="job-timeline-member-confirm-title">Team Lead Confirmation</div>,
-                          content: (
-                            <div className="text-xs sm:text-sm leading-relaxed" data-cy="job-timeline-member-confirm-description">
-                              <div className="mb-2">This department already has a team lead:</div>
-                              <div className="font-medium text-blue-600 mb-2">{department[0]?.firstName} {department[0]?.lastName}</div>
-                              <div>Do you want to update the team lead to the current employee?</div>
-                            </div>
-                          ),
-                          okText: 'Yes',
-                          cancelText: 'No',
-                        });
+                  <div
+                    className="mb-5"
+                    id="job-employment-service-year"
+                    data-cy="job-employment-service-year"
+                  >
+                    <p
+                      className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                      data-cy="job-employment-service-year-label"
+                    >
+                      Service Year
+                    </p>
+                    <p
+                      className="text-base font-semibold text-gray-500 m-0"
+                      data-cy="job-employment-service-year-value"
+                    >
+                      {employeeData?.employeeInformation?.joinedDate
+                        ? (() => {
+                            const months = dayjs().diff(
+                              dayjs(
+                                employeeData?.employeeInformation?.joinedDate,
+                              ),
+                              'months',
+                            );
+                            const years = Math.floor(months / 12);
+                            const remainingMonths = months % 12;
+                            const parts = [];
+                            if (years > 0) {
+                              parts.push(
+                                `${years} ${years === 1 ? 'Year' : 'Years'}`,
+                              );
+                            }
+                            if (remainingMonths > 0) {
+                              parts.push(
+                                `${remainingMonths} ${remainingMonths === 1 ? 'Month' : 'Months'}`,
+                              );
+                            }
+                            return parts.length > 0 ? parts.join(', ') : '-';
+                          })()
+                        : '-'}
+                    </p>
+                  </div>
+                </Col>
+                <Col
+                  lg={12}
+                  id="job-employment-col-right"
+                  data-cy="job-employment-col-right"
+                  className="flex flex-col"
+                >
+                  <div
+                    className="mb-5"
+                    id="job-employment-joined-date"
+                    data-cy="job-employment-joined-date"
+                  >
+                    <p
+                      className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                      data-cy="job-employment-joined-date-label"
+                    >
+                      Joined Date
+                    </p>
+                    <p
+                      className="text-base font-semibold text-gray-500 m-0"
+                      data-cy="job-employment-joined-date-value"
+                    >
+                      {dayjs(
+                        employeeData?.employeeInformation?.joinedDate,
+                      )?.format('DD MMMM, YYYY') || '-'}
+                    </p>
+                  </div>
+                </Col>
+              </Row>
+            )}
+          </Card>
+          <WorkScheduleComponent data-cy="job-work-schedule" />
+        </Col>
+        <Col lg={12} sm={24} xs={24}>
+          <Card
+            loading={isLoading}
+            className="job-information-card rounded-lg border border-gray-200 my-6 mt-0"
+            title={
+              isEditModalVisible ? (
+                <div
+                  className="flex items-center justify-between w-full pr-0"
+                  data-cy="job-information-edit-title-row"
+                >
+                  <span
+                    className="text-base font-bold text-gray-900"
+                    data-cy="job-information-edit-title"
+                  >
+                    Job Information
+                  </span>
+                  <div
+                    className="flex gap-2"
+                    data-cy="job-information-edit-actions"
+                  >
+                    <Button
+                      type="text"
+                      icon={<CloseIcon className="text-red-500" />}
+                      onClick={handleEditModalClose}
+                      className="border border-red-500 bg-white rounded-lg p-2 h-8 w-8 flex items-center justify-center hover:bg-red-50"
+                      id="job-edit-inline-close-btn"
+                      data-cy="job-edit-inline-close-btn"
+                    />
+                    <Button
+                      type="text"
+                      icon={<CheckIcon className="text-white" />}
+                      onClick={() => editForm.submit()}
+                      className=" bg-[#1d4ed8] rounded-lg p-2 h-8 w-8 flex items-center justify-center hover:bg-blue-50"
+                      loading={isUpdating || updateLoading}
+                      id="job-edit-inline-save-btn"
+                      data-cy="job-edit-inline-save-btn"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <span
+                  className="text-base font-bold text-gray-900"
+                  data-cy="job-information-card-title"
+                >
+                  Job Information
+                </span>
+              )
+            }
+            extra={
+              !isEditModalVisible ? (
+                <div
+                  className="flex justify-center items-center gap-3"
+                  id="job-information-extra"
+                  data-cy="job-information-extra"
+                >
+                  <AccessGuard
+                    permissions={[Permissions.UpdateEmployeeJobInformation]}
+                    id="job-information-add-guard"
+                    data-cy="job-information-add-guard"
+                  >
+                    <div
+                      id="job-information-dropdown"
+                      data-cy="job-information-dropdown"
+                    >
+                      <Dropdown
+                        menu={{ items: menuItems }}
+                        trigger={['click']}
+                        placement="bottomRight"
+                      >
+                        <button
+                          type="button"
+                          className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+                          id="job-information-menu-btn"
+                          data-cy="job-information-menu-btn"
+                        >
+                          <MoreOutlined className="text-black" />
+                        </button>
+                      </Dropdown>
+                    </div>
+                  </AccessGuard>
+                </div>
+              ) : null
+            }
+            id="job-information-card"
+            data-cy="job-information-card"
+            headStyle={{ borderBottom: 'none' }}
+          >
+            {isEditModalVisible && selectedJobRecord ? (
+              <Form
+                form={editForm}
+                onFinish={editJobInformation}
+                layout="vertical"
+                id="job-edit-form"
+                data-cy="job-edit-form"
+              >
+                <Row gutter={24}>
+                  <Col xs={24} sm={12}>
+                    <Form.Item
+                      className="font-semibold text-xs"
+                      name="title"
+                      id="job-edit-title-form-item"
+                      data-cy="job-edit-title-form-item"
+                      label={
+                        <span
+                          className="mb-1 font-semibold text-xs"
+                          data-cy="job-edit-title-label"
+                        >
+                          Title *
+                        </span>
                       }
-                    }}
-                    id="job-edit-member-select"
-                    data-cy="job-edit-member-select"
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="font-semibold text-xs"
-                  name="departmentId"
-                  id="job-edit-department-form-item"
-                  data-cy="job-edit-department-form-item"
-                  label={<span className="mb-1 font-semibold text-xs">Department *</span>}
-                  rules={[{ required: true, message: 'Please select department' }]}
+                      rules={[
+                        { required: true, message: 'Please enter title' },
+                      ]}
+                    >
+                      <Input
+                        placeholder="Enter title"
+                        id="job-edit-title-input"
+                        data-cy="job-edit-title-input"
+                        readOnly
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      className="font-semibold text-xs"
+                      name="basicSalary"
+                      id="job-edit-salary-form-item"
+                      data-cy="job-edit-salary-form-item"
+                      label={
+                        <span
+                          className="mb-1 font-semibold text-xs"
+                          data-cy="job-edit-salary-label"
+                        >
+                          Salary *
+                        </span>
+                      }
+                      rules={[
+                        { required: true, message: 'Please enter salary' },
+                        {
+                          type: 'number',
+                          min: 0,
+                          message: 'Salary must be a positive number',
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        className="w-full"
+                        placeholder="Enter salary"
+                        min={0}
+                        formatter={(value) =>
+                          `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        }
+                        parser={(value) => value?.replace(/,/g, '') as any}
+                        id="job-edit-salary-input"
+                        data-cy="job-edit-salary-input"
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      className="font-semibold text-xs"
+                      name="employementTypeId"
+                      id="job-edit-type-form-item"
+                      data-cy="job-edit-type-form-item"
+                      label={
+                        <span
+                          className="mb-1 font-semibold text-xs"
+                          data-cy="job-edit-type-label"
+                        >
+                          Type *
+                        </span>
+                      }
+                      rules={[
+                        { required: true, message: 'Please select type' },
+                      ]}
+                    >
+                      <Select
+                        allowClear
+                        showSearch
+                        optionFilterProp="label"
+                        placeholder="Select"
+                        id="job-edit-type-select"
+                        data-cy="job-edit-type-select"
+                        options={employementType?.items?.map((type: any) => ({
+                          value: type?.id,
+                          label: type?.name || '',
+                        }))}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      className="font-semibold text-xs"
+                      name="jobAction"
+                      id="job-edit-status-form-item"
+                      data-cy="job-edit-status-form-item"
+                      label={
+                        <span
+                          className="mb-1 font-semibold text-xs"
+                          data-cy="job-edit-status-label"
+                        >
+                          Status *
+                        </span>
+                      }
+                      rules={[
+                        { required: true, message: 'Please select status' },
+                      ]}
+                    >
+                      <Select
+                        allowClear
+                        showSearch
+                        optionFilterProp="label"
+                        placeholder="Select"
+                        id="job-edit-status-select"
+                        data-cy="job-edit-status-select"
+                        options={JobActionStatus?.map((status: any) => ({
+                          value: status?.id,
+                          label: status?.name || '',
+                        }))}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} sm={12}>
+                    <Form.Item
+                      className="font-semibold text-xs"
+                      name="effectiveStartDate"
+                      id="job-edit-joined-date-form-item"
+                      data-cy="job-edit-joined-date-form-item"
+                      label={
+                        <span
+                          className="mb-1 font-semibold text-xs"
+                          data-cy="job-edit-joined-date-label"
+                        >
+                          Joined Date *
+                        </span>
+                      }
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please select joined date',
+                        },
+                      ]}
+                    >
+                      <DatePicker
+                        className="w-full"
+                        format="YYYY-MM-DD"
+                        disabledDate={disabledDate}
+                        id="job-edit-joined-date-datepicker"
+                        data-cy="job-edit-joined-date-datepicker"
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      className="font-semibold text-xs"
+                      name="positionId"
+                      id="job-edit-position-form-item"
+                      data-cy="job-edit-position-form-item"
+                      label={
+                        <span
+                          className="mb-1 font-semibold text-xs"
+                          data-cy="job-edit-position-label"
+                        >
+                          Position *
+                        </span>
+                      }
+                      rules={[
+                        { required: true, message: 'Please select position' },
+                      ]}
+                    >
+                      <Select
+                        showSearch
+                        optionFilterProp="label"
+                        placeholder="Select"
+                        allowClear
+                        id="job-edit-position-select"
+                        data-cy="job-edit-position-select"
+                        onChange={(value) => {
+                          const selectedPosition = positions?.items?.find(
+                            (pos: any) => pos.id === value,
+                          );
+                          if (selectedPosition)
+                            editForm.setFieldValue(
+                              'title',
+                              selectedPosition.name,
+                            );
+                        }}
+                        options={positions?.items?.map((position: any) => ({
+                          value: position?.id,
+                          label: position?.name || '',
+                        }))}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      className="w-full font-semibold text-xs"
+                      name="departmentLeadOrNot"
+                      id="job-edit-member-form-item"
+                      data-cy="job-edit-member-form-item"
+                      initialValue={false}
+                      label={
+                        <span
+                          className="mb-1 font-semibold text-xs"
+                          data-cy="job-edit-member-label"
+                        >
+                          Member
+                        </span>
+                      }
+                      rules={[
+                        {
+                          required: true,
+                          message:
+                            'Please select if user is Team Lead or manager',
+                        },
+                      ]}
+                    >
+                      <Select
+                        allowClear
+                        placeholder="Select"
+                        options={[
+                          { value: false, label: 'Member' },
+                          { value: true, label: 'Team Lead' },
+                        ]}
+                        onChange={(value) => {
+                          const isLead = value === true;
+                          if (isLead && department?.length > 0) {
+                            Modal.confirm({
+                              title: (
+                                <div
+                                  className="font-semibold"
+                                  data-cy="job-timeline-member-confirm-title"
+                                >
+                                  Team Lead Confirmation
+                                </div>
+                              ),
+                              content: (
+                                <div
+                                  className="text-xs sm:text-sm leading-relaxed"
+                                  data-cy="job-timeline-member-confirm-description"
+                                >
+                                  <div
+                                    className="mb-2"
+                                    data-cy="job-timeline-member-confirm-text-1"
+                                  >
+                                    This department already has a team lead:
+                                  </div>
+                                  <div
+                                    className="font-medium text-blue-600 mb-2"
+                                    data-cy="job-timeline-member-confirm-name"
+                                  >
+                                    {department[0]?.firstName}{' '}
+                                    {department[0]?.lastName}
+                                  </div>
+                                  <div data-cy="job-timeline-member-confirm-text-2">
+                                    Do you want to update the team lead to the
+                                    current employee?
+                                  </div>
+                                </div>
+                              ),
+                              okText: 'Yes',
+                              cancelText: 'No',
+                            });
+                          }
+                        }}
+                        id="job-edit-member-select"
+                        data-cy="job-edit-member-select"
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      className="font-semibold text-xs"
+                      name="departmentId"
+                      id="job-edit-department-form-item"
+                      data-cy="job-edit-department-form-item"
+                      label={
+                        <span
+                          className="mb-1 font-semibold text-xs"
+                          data-cy="job-edit-department-label"
+                        >
+                          Department *
+                        </span>
+                      }
+                      rules={[
+                        { required: true, message: 'Please select department' },
+                      ]}
+                    >
+                      <Select
+                        allowClear
+                        showSearch
+                        optionFilterProp="label"
+                        placeholder="Select"
+                        id="job-edit-department-select"
+                        data-cy="job-edit-department-select"
+                        options={departmentData?.map((department: any) => ({
+                          value: department?.id,
+                          label: department?.name || '',
+                        }))}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row
+                  gutter={16}
+                  id="job-edit-branch-row"
+                  data-cy="job-edit-branch-row"
                 >
-                  <Select
-                    allowClear
-                    showSearch
-                    optionFilterProp="label"
-                    placeholder="Select"
-                    id="job-edit-department-select"
-                    data-cy="job-edit-department-select"
-                    options={departmentData?.map((department: any) => ({ value: department?.id, label: department?.name || '' }))}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16} id="job-edit-branch-row" data-cy="job-edit-branch-row">
-              <Col xs={12} sm={12} id="job-edit-branch-col" data-cy="job-edit-branch-col">
-                <Form.Item
-                  className="w-full font-semibold text-xs"
-                  name="branchId"
-                  id="job-edit-branch-form-item"
-                  data-cy="job-edit-branch-form-item"
-                  label={<span className="mb-1 font-semibold text-xs">Branch Office *</span>}
-                  rules={[{ required: true, message: 'Please select a branch office' }]}
-                >
-                  <Select
-                    allowClear
-                    showSearch
-                    optionFilterProp="label"
-                    placeholder="Select a branch office"
-                    id="job-edit-branch-select"
-                    data-cy="job-edit-branch-select"
-                    options={branchOfficeData?.items?.map((branch: any) => ({ value: branch?.id, label: branch?.name || '' }))}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Form>
-        ) : (
-        (() => {
-          const activeJob = sortedJobInformation.find((job: any) => job.isPositionActive);
-          if (!activeJob) {
-            return (
-              <div className="text-center text-gray-500 py-8">
-                No active job information available
-              </div>
-            );
-          }
+                  <Col
+                    xs={12}
+                    sm={12}
+                    id="job-edit-branch-col"
+                    data-cy="job-edit-branch-col"
+                  >
+                    <Form.Item
+                      className="w-full font-semibold text-xs"
+                      name="branchId"
+                      id="job-edit-branch-form-item"
+                      data-cy="job-edit-branch-form-item"
+                      label={
+                        <span
+                          className="mb-1 font-semibold text-xs"
+                          data-cy="job-edit-branch-label"
+                        >
+                          Branch Office *
+                        </span>
+                      }
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please select a branch office',
+                        },
+                      ]}
+                    >
+                      <Select
+                        allowClear
+                        showSearch
+                        optionFilterProp="label"
+                        placeholder="Select a branch office"
+                        id="job-edit-branch-select"
+                        data-cy="job-edit-branch-select"
+                        options={branchOfficeData?.items?.map(
+                          (branch: any) => ({
+                            value: branch?.id,
+                            label: branch?.name || '',
+                          }),
+                        )}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Form>
+            ) : (
+              (() => {
+                const activeJob = sortedJobInformation.find(
+                  (job: any) => job.isPositionActive,
+                );
+                if (!activeJob) {
+                  return (
+                    <div
+                      className="text-center text-gray-500 py-8"
+                      data-cy="job-information-empty"
+                    >
+                      No active job information available
+                    </div>
+                  );
+                }
 
-          // Find the matching basic salary for the active job
-          const matchingSalary = basicSalaryData?.find(
-            (salary: any) => salary.jobInfoId === activeJob.id
-          );
-          const currentSalary = matchingSalary?.basicSalary || null;
-          const manager = employeeData?.reportingTo || employeeData?.delegatedTo;
-          const managerName = manager
-            ? `${manager.firstName || ''} ${manager.middleName || ''} ${manager.lastName || ''}`.trim()
-            : '-';
+                // Find the matching basic salary for the active job
+                const matchingSalary = basicSalaryData?.find(
+                  (salary: any) => salary.jobInfoId === activeJob.id,
+                );
+                const currentSalary = matchingSalary?.basicSalary || null;
+                const manager =
+                  employeeData?.reportingTo || employeeData?.delegatedTo;
+                const managerName = manager
+                  ? `${manager.firstName || ''} ${manager.middleName || ''} ${manager.lastName || ''}`.trim()
+                  : '-';
 
-          const FieldBlock = ({ label, value, dataCy }: { label: string; value: string; dataCy: string }) => (
-            <div className="mb-5" id={dataCy} data-cy={dataCy}>
-              <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">{label}</p>
-              <p className="text-base font-semibold text-gray-500 m-0">{value}</p>
-            </div>
-          );
+                const FieldBlock = ({
+                  label,
+                  value,
+                  dataCy,
+                }: {
+                  label: string;
+                  value: string;
+                  dataCy: string;
+                }) => (
+                  <div className="mb-5" id={dataCy} data-cy={dataCy}>
+                    <p
+                      className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                      data-cy={`${dataCy}-label`}
+                    >
+                      {label}
+                    </p>
+                    <p
+                      className="text-base font-semibold text-gray-500 m-0"
+                      data-cy={`${dataCy}-value`}
+                    >
+                      {value}
+                    </p>
+                  </div>
+                );
 
-          return (
-            <Row gutter={[24, 0]} id="job-information-display-row" data-cy="job-information-display-row">
-              <Col
-                lg={12}
-                xs={12}
-                sm={12}
-                id="job-information-display-col-left"
-                data-cy="job-information-display-col-left"
-                className="flex flex-col"
-              >
-                <FieldBlock
-                  label="Title"
-                  value={activeJob?.position?.name || '-'}
-                  dataCy="job-information-title"
-                />
-                <FieldBlock
-                  label="Salary"
-                  value={currentSalary ? Number(currentSalary).toLocaleString() : '-'}
-                  dataCy="job-information-salary"
-                />
-                <FieldBlock
-                  label="Type"
-                  value={activeJob?.employementType?.name || '-'}
-                  dataCy="job-information-type"
-                />
-                <FieldBlock
-                  label="Status"
-                  value={activeJob?.jobAction || '-'}
-                  dataCy="job-information-status"
-                />
-                <FieldBlock
-                  label="Office"
-                  value={activeJob?.branch?.name || '-'}
-                  dataCy="job-information-office"
-                />
-              </Col>
-              <Col
-                lg={12}
-                xs={12}
-                sm={12}
-                id="job-information-display-col-right"
-                data-cy="job-information-display-col-right"
-                className="flex flex-col"
-              >
-                <FieldBlock
-                  label="Effective Date"
-                  value={activeJob?.effectiveStartDate
-                    ? dayjs(activeJob.effectiveStartDate).format('DD MMM YYYY')
-                    : '-'}
-                  dataCy="job-information-effective-date"
-                />
-                <FieldBlock
-                  label="Position"
-                  value={activeJob?.position?.name || '-'}
-                  dataCy="job-information-position"
-                />
-                <FieldBlock
-                  label="Manager"
-                  value={managerName}
-                  dataCy="job-information-manager"
-                />
-                <FieldBlock
-                  label="Department"
-                  value={activeJob?.department?.name || '-'}
-                  dataCy="job-information-department"
-                />
-              </Col>
-            </Row>
-          );
-        })() )}
-      </Card>
-      {/* <BasicSalary id={userId} data-cy="job-basic-salary" /> */}
-      </Col>
+                return (
+                  <Row
+                    gutter={[24, 0]}
+                    id="job-information-display-row"
+                    data-cy="job-information-display-row"
+                  >
+                    <Col
+                      lg={12}
+                      xs={12}
+                      sm={12}
+                      id="job-information-display-col-left"
+                      data-cy="job-information-display-col-left"
+                      className="flex flex-col"
+                    >
+                      <FieldBlock
+                        label="Title"
+                        value={activeJob?.position?.name || '-'}
+                        dataCy="job-information-title"
+                      />
+                      <FieldBlock
+                        label="Salary"
+                        value={
+                          currentSalary
+                            ? Number(currentSalary).toLocaleString()
+                            : '-'
+                        }
+                        dataCy="job-information-salary"
+                      />
+                      <FieldBlock
+                        label="Type"
+                        value={activeJob?.employementType?.name || '-'}
+                        dataCy="job-information-type"
+                      />
+                      <FieldBlock
+                        label="Status"
+                        value={activeJob?.jobAction || '-'}
+                        dataCy="job-information-status"
+                      />
+                      <FieldBlock
+                        label="Office"
+                        value={activeJob?.branch?.name || '-'}
+                        dataCy="job-information-office"
+                      />
+                    </Col>
+                    <Col
+                      lg={12}
+                      xs={12}
+                      sm={12}
+                      id="job-information-display-col-right"
+                      data-cy="job-information-display-col-right"
+                      className="flex flex-col"
+                    >
+                      <FieldBlock
+                        label="Effective Date"
+                        value={
+                          activeJob?.effectiveStartDate
+                            ? dayjs(activeJob.effectiveStartDate).format(
+                                'DD MMM YYYY',
+                              )
+                            : '-'
+                        }
+                        dataCy="job-information-effective-date"
+                      />
+                      <FieldBlock
+                        label="Position"
+                        value={activeJob?.position?.name || '-'}
+                        dataCy="job-information-position"
+                      />
+                      <FieldBlock
+                        label="Manager"
+                        value={managerName}
+                        dataCy="job-information-manager"
+                      />
+                      <FieldBlock
+                        label="Department"
+                        value={activeJob?.department?.name || '-'}
+                        dataCy="job-information-department"
+                      />
+                    </Col>
+                  </Row>
+                );
+              })()
+            )}
+          </Card>
+          {/* <BasicSalary id={userId} data-cy="job-basic-salary" /> */}
+        </Col>
       </Row>
 
       <CreateEmployeeJobInformation
@@ -817,17 +1074,22 @@ function Job({ id }: { id: string }) {
         onJobInfoUpdated={handleJobInfoUpdated}
         data-cy="job-create-job-info"
       />
-      <DownloadJobInformation
-                id={id}
-                data-cy="job-information-download"
-              />
+      <DownloadJobInformation id={id} data-cy="job-information-download" />
 
       {/* Edit Job Information Modal */}
       <Modal
         title={
-          <div className="flex items-center justify-between w-full pr-8">
-            <span className="text-lg font-semibold">Job Information</span>
-            <div className="flex gap-2">
+          <div
+            className="flex items-center justify-between w-full pr-8"
+            data-cy="job-edit-modal-title-row"
+          >
+            <span
+              className="text-lg font-semibold"
+              data-cy="job-edit-modal-title"
+            >
+              Job Information
+            </span>
+            <div className="flex gap-2" data-cy="job-edit-modal-actions">
               <Button
                 type="text"
                 icon={<CloseIcon className="text-red-500" />}
@@ -873,13 +1135,14 @@ function Job({ id }: { id: string }) {
                 id="job-edit-title-form-item"
                 data-cy="job-edit-title-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-modal-title-label"
+                  >
                     Title
                   </span>
                 }
-                rules={[
-                  { required: true, message: 'Please enter title' },
-                ]}
+                rules={[{ required: true, message: 'Please enter title' }]}
               >
                 <Input
                   placeholder="Enter title"
@@ -896,13 +1159,20 @@ function Job({ id }: { id: string }) {
                 id="job-edit-salary-form-item"
                 data-cy="job-edit-salary-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-modal-salary-label"
+                  >
                     Salary
                   </span>
                 }
                 rules={[
                   { required: true, message: 'Please enter salary' },
-                  { type: 'number', min: 0, message: 'Salary must be a positive number' },
+                  {
+                    type: 'number',
+                    min: 0,
+                    message: 'Salary must be a positive number',
+                  },
                 ]}
               >
                 <InputNumber
@@ -925,13 +1195,14 @@ function Job({ id }: { id: string }) {
                 id="job-edit-type-form-item"
                 data-cy="job-edit-type-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-modal-type-label"
+                  >
                     Type *
                   </span>
                 }
-                rules={[
-                  { required: true, message: 'Please select type' },
-                ]}
+                rules={[{ required: true, message: 'Please select type' }]}
               >
                 <Select
                   allowClear
@@ -954,13 +1225,14 @@ function Job({ id }: { id: string }) {
                 id="job-edit-status-form-item"
                 data-cy="job-edit-status-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-modal-status-label"
+                  >
                     Status *
                   </span>
                 }
-                rules={[
-                  { required: true, message: 'Please select status' },
-                ]}
+                rules={[{ required: true, message: 'Please select status' }]}
               >
                 <Select
                   allowClear
@@ -986,7 +1258,10 @@ function Job({ id }: { id: string }) {
                 id="job-edit-joined-date-form-item"
                 data-cy="job-edit-joined-date-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-modal-joined-date-label"
+                  >
                     Joined Date
                   </span>
                 }
@@ -1010,13 +1285,14 @@ function Job({ id }: { id: string }) {
                 id="job-edit-position-form-item"
                 data-cy="job-edit-position-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-modal-position-label"
+                  >
                     Position
                   </span>
                 }
-                rules={[
-                  { required: true, message: 'Please select position' },
-                ]}
+                rules={[{ required: true, message: 'Please select position' }]}
               >
                 <Select
                   showSearch
@@ -1027,7 +1303,7 @@ function Job({ id }: { id: string }) {
                   data-cy="job-edit-position-select"
                   onChange={(value) => {
                     const selectedPosition = positions?.items?.find(
-                      (pos: any) => pos.id === value
+                      (pos: any) => pos.id === value,
                     );
                     if (selectedPosition) {
                       editForm.setFieldValue('title', selectedPosition.name);
@@ -1042,78 +1318,88 @@ function Job({ id }: { id: string }) {
 
               {/* Manager */}
               <Form.Item
-            className="w-full font-semibold text-xs"
-            name="departmentLeadOrNot"
-            id="memberType"
-            data-cy="memberType"
-            initialValue={false}
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                id="job-timeline-member-label"
-                data-cy="job-timeline-member-label"
-              >
-                Member
-              </span>
-            }
-            rules={[
-              { required: true, message: 'Please select if user is Team Lead or manager' },
-            ]}
-          >
-            <Select
-              allowClear
-              placeholder="Select"
-              options={[
-                { value: false, label: 'Member' },
-                { value: true, label: 'Team Lead' },
-              ]}
-              onChange={(value) => {
-                const isLead = value === true;
-                if (isLead && department?.length > 0) {
-                  Modal.confirm({
-                    title: (
-                      <div
-                        className="font-semibold"
-                        data-cy="job-timeline-member-confirm-title"
-                      >
-                        Team Lead Confirmation
-                      </div>
-                    ),
-                    content: (
-                      <div
-                        className="text-xs sm:text-sm leading-relaxed"
-                        data-cy="job-timeline-member-confirm-description"
-                      >
-                        <div className="mb-2">
-                          This department already has a team lead:
-                        </div>
-                        <div className="font-medium text-blue-600 mb-2">
-                          {department[0]?.firstName} {department[0]?.lastName}
-                        </div>
-                        <div>
-                          Do you want to update the team lead to the current
-                          employee?
-                        </div>
-                      </div>
-                    ),
-                    okText: 'Yes',
-                    cancelText: 'No',
-                    onOk: () => {
-                      // handleTeamLeadConfirm();
-                    },
-                    onCancel: () => {
-                      // handleTeamLeadCancel();
-                    },
-                  });
-                } else {
-                  // setSwitchValue(isLead);
-                  // actualForm.setFieldValue('departmentLeadOrNot', isLead);
+                className="w-full font-semibold text-xs"
+                name="departmentLeadOrNot"
+                id="memberType"
+                data-cy="memberType"
+                initialValue={false}
+                label={
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    id="job-timeline-member-label"
+                    data-cy="job-timeline-member-label"
+                  >
+                    Member
+                  </span>
                 }
-              }}
-              id="job-timeline-member-select"
-              data-cy="job-timeline-member-select"
-            />
-          </Form.Item>
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select if user is Team Lead or manager',
+                  },
+                ]}
+              >
+                <Select
+                  allowClear
+                  placeholder="Select"
+                  options={[
+                    { value: false, label: 'Member' },
+                    { value: true, label: 'Team Lead' },
+                  ]}
+                  onChange={(value) => {
+                    const isLead = value === true;
+                    if (isLead && department?.length > 0) {
+                      Modal.confirm({
+                        title: (
+                          <div
+                            className="font-semibold"
+                            data-cy="job-timeline-member-confirm-title"
+                          >
+                            Team Lead Confirmation
+                          </div>
+                        ),
+                        content: (
+                          <div
+                            className="text-xs sm:text-sm leading-relaxed"
+                            data-cy="job-timeline-member-confirm-description"
+                          >
+                            <div
+                              className="mb-2"
+                              data-cy="job-timeline-member-confirm-text-1"
+                            >
+                              This department already has a team lead:
+                            </div>
+                            <div
+                              className="font-medium text-blue-600 mb-2"
+                              data-cy="job-timeline-member-confirm-name"
+                            >
+                              {department[0]?.firstName}{' '}
+                              {department[0]?.lastName}
+                            </div>
+                            <div data-cy="job-timeline-member-confirm-text-2">
+                              Do you want to update the team lead to the current
+                              employee?
+                            </div>
+                          </div>
+                        ),
+                        okText: 'Yes',
+                        cancelText: 'No',
+                        onOk: () => {
+                          // handleTeamLeadConfirm();
+                        },
+                        onCancel: () => {
+                          // handleTeamLeadCancel();
+                        },
+                      });
+                    } else {
+                      // setSwitchValue(isLead);
+                      // actualForm.setFieldValue('departmentLeadOrNot', isLead);
+                    }
+                  }}
+                  id="job-timeline-member-select"
+                  data-cy="job-timeline-member-select"
+                />
+              </Form.Item>
 
               {/* Department */}
               <Form.Item
@@ -1122,7 +1408,10 @@ function Job({ id }: { id: string }) {
                 id="job-edit-department-form-item"
                 data-cy="job-edit-department-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    data-cy="job-edit-modal-department-label"
+                  >
                     Department
                   </span>
                 }
@@ -1152,7 +1441,12 @@ function Job({ id }: { id: string }) {
             id="job-edit-branch-row"
             data-cy="job-edit-branch-row"
           >
-            <Col xs={12} sm={12} id="job-edit-branch-col" data-cy="job-edit-branch-col">
+            <Col
+              xs={12}
+              sm={12}
+              id="job-edit-branch-col"
+              data-cy="job-edit-branch-col"
+            >
               <Form.Item
                 className="w-full font-semibold text-xs"
                 name={'branchId'}
@@ -1184,7 +1478,6 @@ function Job({ id }: { id: string }) {
                 />
               </Form.Item>
             </Col>
-            
           </Row>
         </Form>
       </Modal>
@@ -1198,15 +1491,15 @@ function Job({ id }: { id: string }) {
           footer={null}
           width={700}
         >
-        <Table
-          dataSource={sortedJobInformation}
-          columns={columns}
-          className="w-full overflow-auto"
-          pagination={{ hideOnSinglePage: true }}
-          rowKey="id"
-          id="job-history-table"
-          data-cy="job-history-table"
-        />
+          <Table
+            dataSource={sortedJobInformation}
+            columns={columns}
+            className="w-full overflow-auto"
+            pagination={{ hideOnSinglePage: true }}
+            rowKey="id"
+            id="job-history-table"
+            data-cy="job-history-table"
+          />
         </Modal>
       </div>
     </>

@@ -31,7 +31,9 @@ function formatServiceYear(joinedDate: string | null | undefined): string {
   return `${years} year${years !== 1 ? 's' : ''}, ${months} month${months !== 1 ? 's' : ''}`;
 }
 
-function formatAddress(addresses: Record<string, unknown> | null | undefined): string {
+function formatAddress(
+  addresses: Record<string, unknown> | null | undefined,
+): string {
   if (!addresses || typeof addresses !== 'object') return '-';
   const parts = [
     (addresses as any).subCity,
@@ -224,7 +226,6 @@ function BasicInfo({ id }: { id: string }) {
         >
           <Avatar
             size={48}
-
             src={getDisplayImageUrl()}
             className="relative z-0"
             data-cy="basic-info-avatar"
@@ -253,13 +254,17 @@ function BasicInfo({ id }: { id: string }) {
             </>
           ) : null}
         </div>
-        <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+        <div
+          className="flex-1 min-w-0 flex flex-col gap-0.5"
+          data-cy="basic-info-name-block"
+        >
           <h5
             id="basic-info-name"
             data-cy="basic-info-name"
             className="text-base font-bold text-gray-900 m-0"
           >
-            {employeeData?.firstName} {employeeData?.middleName} </h5>
+            {employeeData?.firstName} {employeeData?.middleName}{' '}
+          </h5>
           <p
             id="basic-info-email-text"
             data-cy="basic-info-email-text"
@@ -268,7 +273,10 @@ function BasicInfo({ id }: { id: string }) {
             {employeeData?.email}
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div
+          className="flex items-center gap-2 shrink-0"
+          data-cy="basic-info-status-block"
+        >
           <Tag
             className={`m-0 ${
               isActive
@@ -304,28 +312,60 @@ function BasicInfo({ id }: { id: string }) {
         data-cy="basic-info-details-row"
       >
         <div id="basic-info-joined" data-cy="basic-info-joined">
-          <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Joined at</p>
-          <p className="text-sm font-semibold text-gray-900 m-0">
-            {joinedDate
-              ? dayjs(joinedDate).format('DD MMMM, YYYY')
-              : '-'}
+          <p
+            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            data-cy="basic-info-joined-label"
+          >
+            Joined at
+          </p>
+          <p
+            className="text-sm font-semibold text-gray-900 m-0"
+            data-cy="basic-info-joined-value"
+          >
+            {joinedDate ? dayjs(joinedDate).format('DD MMMM, YYYY') : '-'}
           </p>
         </div>
         <div id="basic-info-address" data-cy="basic-info-address">
-          <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Address</p>
-          <p className="text-sm font-semibold text-gray-900 m-0">
+          <p
+            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            data-cy="basic-info-address-label"
+          >
+            Address
+          </p>
+          <p
+            className="text-sm font-semibold text-gray-900 m-0"
+            data-cy="basic-info-address-value"
+          >
             {formatAddress(addresses)}
           </p>
         </div>
         <div id="basic-info-service-year" data-cy="basic-info-service-year">
-          <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Service Year</p>
-          <p className="text-sm font-semibold text-gray-900 m-0">
+          <p
+            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            data-cy="basic-info-service-year-label"
+          >
+            Service Year
+          </p>
+          <p
+            className="text-sm font-semibold text-gray-900 m-0"
+            data-cy="basic-info-service-year-value"
+          >
             {formatServiceYear(joinedDate)}
           </p>
         </div>
         <div id="basic-info-office" data-cy="basic-info-office">
-          <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">Office</p>
-          <p className="text-sm font-semibold text-gray-900 m-0">{officeName}</p>
+          <p
+            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            data-cy="basic-info-office-label"
+          >
+            Office
+          </p>
+          <p
+            className="text-sm font-semibold text-gray-900 m-0"
+            data-cy="basic-info-office-value"
+          >
+            {officeName}
+          </p>
         </div>
       </div>
 

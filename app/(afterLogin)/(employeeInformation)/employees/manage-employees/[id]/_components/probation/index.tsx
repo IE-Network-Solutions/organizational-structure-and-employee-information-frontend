@@ -195,10 +195,16 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
         id="probation-create-target-wrapper"
         data-cy="probation-create-target-wrapper"
       >
-        <h2 className="text-lg font-semibold text-gray-900 m-0">
+        <h2
+          className="text-lg font-semibold text-gray-900 m-0"
+          data-cy="probation-onboarding-tasks-title"
+        >
           On-boarding Tasks
         </h2>
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3"
+          data-cy="probation-header-actions"
+        >
           <span
             className="inline-flex items-center px-3 py-1 rounded border border-amber-200 bg-amber-50/80 text-gray-800 text-sm font-medium"
             id="probation-total-weight"

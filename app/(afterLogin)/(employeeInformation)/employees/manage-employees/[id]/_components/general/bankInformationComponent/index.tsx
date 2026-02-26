@@ -77,13 +77,14 @@ const BankInformationComponent = ({
       titleMap[key] ||
       key
         .split(/_|(?=[A-Z])/)
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
         .join(' ')
     );
   };
 
-  const customLabel = (field: any) =>
-    field.label || getLabel(field.fieldName);
+  const customLabel = (field: any) => field.label || getLabel(field.fieldName);
 
   // Get all default fields (show all, even if empty)
   const defaultFieldKeys = Object.keys(defaultFields);
@@ -108,17 +109,42 @@ const BankInformationComponent = ({
   const leftItems = allItems.slice(0, midPoint);
   const rightItems = allItems.slice(midPoint);
 
-  const FieldBlock = ({ label, value, dataCy }: { label: string; value: string; dataCy: string }) => (
+  const FieldBlock = ({
+    label,
+    value,
+    dataCy,
+  }: {
+    label: string;
+    value: string;
+    dataCy: string;
+  }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
-      <p className="text-xs text-gray-500 font-medium m-0 mb-0.5">{label}</p>
-      <p className="text-base font-semibold text-gray-500 m-0">{value}</p>
+      <p
+        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        data-cy={`${dataCy}-label`}
+      >
+        {label}
+      </p>
+      <p
+        className="text-base font-semibold text-gray-500 m-0"
+        data-cy={`${dataCy}-value`}
+      >
+        {value}
+      </p>
     </div>
   );
 
   return (
     <Card
       loading={isLoading}
-      title={<span className="text-base font-bold text-gray-900">Bank Information</span>}
+      title={
+        <span
+          className="text-base font-bold text-gray-900"
+          data-cy="bank-information-card-title"
+        >
+          Bank Information
+        </span>
+      }
       extra={
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}

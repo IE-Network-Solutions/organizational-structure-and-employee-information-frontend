@@ -87,9 +87,7 @@ const UserTable = () => {
   const MAX_NAME_LENGTH = 20;
   const data = allFilterData?.items?.map((item: any) => {
     const fullName =
-      item?.firstName +
-      ' ' +
-      (item?.middleName ? item?.middleName : '')
+      item?.firstName + ' ' + (item?.middleName ? item?.middleName : '');
     const shortEmail = item?.email;
     const displayName =
       fullName.length > MAX_NAME_LENGTH
@@ -128,17 +126,17 @@ const UserTable = () => {
                 src={
                   item?.profileImage && typeof item?.profileImage === 'string'
                     ? (() => {
-                      try {
-                        const parsed = JSON.parse(item.profileImage);
-                        return parsed.url && parsed.url.startsWith('http')
-                          ? parsed.url
-                          : Avatar;
-                      } catch {
-                        return item.profileImage.startsWith('http')
-                          ? item.profileImage
-                          : Avatar;
-                      }
-                    })()
+                        try {
+                          const parsed = JSON.parse(item.profileImage);
+                          return parsed.url && parsed.url.startsWith('http')
+                            ? parsed.url
+                            : Avatar;
+                        } catch {
+                          return item.profileImage.startsWith('http')
+                            ? item.profileImage
+                            : Avatar;
+                        }
+                      })()
                     : Avatar
                 }
                 alt="Description of image"
@@ -163,31 +161,52 @@ const UserTable = () => {
           </div>
         </Tooltip>
       ),
-      job_title: <span className='text-black text-xs font-medium'> {item?.employeeJobInformation[0]?.position?.name
-        ? item?.employeeJobInformation[0]?.position?.name
-        : '-'}</span>,
-      department: <span className='text-black text-xs font-medium'> {item?.employeeJobInformation[0]?.department?.name
-        ? item?.employeeJobInformation[0]?.department?.name
-        : '-'}</span>,
+      job_title: (
+        <span
+          data-cy="user-table-employee-job-title-span"
+          className="text-black text-xs font-medium"
+        >
+          {' '}
+          {item?.employeeJobInformation[0]?.position?.name
+            ? item?.employeeJobInformation[0]?.position?.name
+            : '-'}
+        </span>
+      ),
+      department: (
+        <span
+          data-cy="user-table-employee-department-span"
+          className="text-black text-xs font-medium"
+        >
+          {' '}
+          {item?.employeeJobInformation[0]?.department?.name
+            ? item?.employeeJobInformation[0]?.department?.name
+            : '-'}
+        </span>
+      ),
       employee_status: (
-        <div className="pr-2">
+        <div data-cy="user-table-employee-status-div" className="pr-2">
           {userTypeButton(
             item?.employeeJobInformation[0]?.employementType?.name,
           )}
         </div>
       ),
       account: (
-        <div className="pr-2">
+        <div data-cy="user-table-employee-account-div" className="pr-2">
           {userTypeButton(!item?.deletedAt ? 'Active' : 'InActive')}
         </div>
       ),
       role: (
-        <div className="pr-2">
-          <span className="text-black text-xs font-medium">{item?.role?.name ? item?.role?.name : ' - '}</span>
+        <div data-cy="user-table-employee-role-div" className="pr-2">
+          <span
+            data-cy="user-table-employee-role-span"
+            className="text-black text-xs font-medium"
+          >
+            {item?.role?.name ? item?.role?.name : ' - '}
+          </span>
         </div>
       ),
     };
-  })
+  });
 
   const onPageChange = (page: number, pageSize?: number) => {
     setUserCurrentPage(page);
@@ -202,7 +221,11 @@ const UserTable = () => {
       id="user-table-container"
       data-cy="user-table-container"
     >
-      <div id="user-table-wrapper" data-cy="user-table-wrapper" className="user-table-wrapper">
+      <div
+        id="user-table-wrapper"
+        data-cy="user-table-wrapper"
+        className="user-table-wrapper"
+      >
         <Table
           className="w-full cursor-pointer"
           columns={columns}
@@ -214,10 +237,10 @@ const UserTable = () => {
           onRow={
             hasAccess
               ? (record) => ({
-                onClick: () => {
-                  router.push(`manage-employees/${record?.key}`);
-                },
-              })
+                  onClick: () => {
+                    router.push(`manage-employees/${record?.key}`);
+                  },
+                })
               : undefined
           }
         />

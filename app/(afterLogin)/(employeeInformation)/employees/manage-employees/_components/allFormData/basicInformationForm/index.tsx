@@ -15,7 +15,6 @@ import {
   Popover,
 } from 'antd';
 import { CloseOutlined, InboxOutlined } from '@ant-design/icons';
-import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateEmail, validateName } from '@/utils/validation';
 import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
@@ -30,8 +29,6 @@ const BasicInformationForm = ({ form }: any) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { profileFileList, setBirthDate, setProfileFileList } =
     useEmployeeManagementStore();
-  const { data: nationalities, isLoading: isLoadingNationality } =
-    useGetNationalities();
 
   type FileInfo = {
     file: UploadFile; // File being uploaded
@@ -100,7 +97,13 @@ const BasicInformationForm = ({ form }: any) => {
                 id="basic-info-upload-label"
                 data-cy="basic-info-upload-label"
               >
-                Upload Avatar <span className="text-gray-400">(optional)</span>
+                Upload Avatar{' '}
+                <span
+                  data-cy="basic-info-upload-label-span"
+                  className="text-gray-400"
+                >
+                  (optional)
+                </span>
               </span>
             }
             // style={{ textAlign: 'center' }}
@@ -114,16 +117,24 @@ const BasicInformationForm = ({ form }: any) => {
               onOpenChange={setIsPopoverOpen}
               placement="bottomRight"
               content={
-                <div 
+                <div
                   className="p-1 w-[450px]"
                   id="avatar-popover-container"
                   data-cy="avatar-popover-container"
                 >
                   {/* Header */}
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-gray-700 font-semibold text-sm">Upload Profile</span>
-                    <CloseOutlined 
-                      className="text-gray-400 cursor-pointer text-xs" 
+                  <div
+                    data-cy="avatar-popover-header-div"
+                    className="flex justify-between items-center mb-4"
+                  >
+                    <span
+                      data-cy="avatar-popover-header-title"
+                      className="text-gray-700 font-semibold text-sm"
+                    >
+                      Upload Profile
+                    </span>
+                    <CloseOutlined
+                      className="text-gray-400 cursor-pointer text-xs"
                       onClick={() => setIsPopoverOpen(false)}
                       id="avatar-popover-close"
                       data-cy="avatar-popover-close"
@@ -180,15 +191,27 @@ const BasicInformationForm = ({ form }: any) => {
                       maxCount={1}
                       showUploadList={false}
                     >
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <div className="p-3 bg-white border border-blue-600 rounded-lg">
+                      <div
+                        data-cy="avatar-popover-upload-hint-div"
+                        className="flex flex-col items-center justify-center space-y-3"
+                      >
+                        <div
+                          data-cy="avatar-popover-upload-hint-icon-div"
+                          className="p-3 bg-white border border-blue-600 rounded-lg"
+                        >
                           <InboxOutlined className="text-blue-600 text-3xl" />
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">
+                        <div data-cy="avatar-popover-upload-hint-div">
+                          <p
+                            data-cy="avatar-popover-upload-hint"
+                            className="text-sm font-medium text-gray-700"
+                          >
                             Click or drag file to this area to upload
                           </p>
-                          <p className="text-xs text-gray-400">
+                          <p
+                            data-cy="avatar-popover-upload-hint"
+                            className="text-xs text-gray-400"
+                          >
                             Support for a single or bulk upload.
                           </p>
                         </div>
@@ -197,8 +220,11 @@ const BasicInformationForm = ({ form }: any) => {
                   )}
 
                   {/* Footer */}
-                  <div className="flex justify-end mt-4 gap-2">
-                    <Button 
+                  <div
+                    data-cy="avatar-popover-footer-div"
+                    className="flex justify-end mt-4 gap-2"
+                  >
+                    <Button
                       className="px-6 rounded-lg text-xs font-semibold"
                       onClick={() => setIsPopoverOpen(false)}
                       id="avatar-popover-cancel"
@@ -206,8 +232,8 @@ const BasicInformationForm = ({ form }: any) => {
                     >
                       Cancel
                     </Button>
-                    <Button 
-                      type="primary" 
+                    <Button
+                      type="primary"
                       className="px-6 rounded-lg bg-blue-700 text-xs font-semibold"
                       onClick={() => setIsPopoverOpen(false)}
                       id="avatar-popover-upload"
@@ -219,7 +245,7 @@ const BasicInformationForm = ({ form }: any) => {
                 </div>
               }
             >
-              <div 
+              <div
                 className="flex items-center justify-center bg-gray-300 rounded-full p-2 border border-gray-300 w-16 h-16 cursor-pointer relative overflow-visible"
                 id="avatar-trigger-circle"
                 data-cy="avatar-trigger-circle"
@@ -234,13 +260,14 @@ const BasicInformationForm = ({ form }: any) => {
                     preview={false}
                   />
                 ) : (
-                  <PersonOutlinedIcon style={{ fontSize: '32px', color: '#6b7280' }} />
+                  <PersonOutlinedIcon
+                    style={{ fontSize: '32px', color: '#6b7280' }}
+                  />
                 )}
                 {/* The X button to remove image outside popover if needed, 
                     but per image it shows the placeholder icon */}
               </div>
             </Popover>
-                
           </Form.Item>
         </Col>
       </Row>
