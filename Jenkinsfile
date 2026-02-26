@@ -19,7 +19,7 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
-                        if (branchName.contains('develop')) {
+                        if (branchName.contains('develop-redesign-branch')) {
                             env.REMOTE_SERVER = REMOTE_SERVER_TEST
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
                             env.SECRET_KEY = 'peptest'
