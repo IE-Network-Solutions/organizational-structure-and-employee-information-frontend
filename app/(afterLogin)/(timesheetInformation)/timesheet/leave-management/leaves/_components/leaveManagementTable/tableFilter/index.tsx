@@ -100,11 +100,17 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
     setFilterPopoverOpen(false);
   };
 
-  /* Figma filter modal width (node 2623-3958): 424px on desktop; full width in modal on mobile */
+  /* Figma filter modal width (node 2623-3958): 424px on desktop; full width in modal on mobile.
+   * Use maxHeight + overflow-y-auto so when table has no/few rows the popover isn't clipped
+   * and Start Date, End Date and actions stay visible (scrollable if needed). */
   const filterContent = (
     <div
-      className="box-border overflow-visible relative px-4 py-3"
-      style={isMobile ? undefined : { width: 424 }}
+      className="box-border relative px-4 py-3 overflow-y-auto overflow-x-hidden"
+      style={
+        isMobile
+          ? undefined
+          : { width: 424, maxHeight: 'min(480px, calc(100vh - 120px))' }
+      }
       id="time-attendance-leave-management-filter-popover-content"
       data-cy="time-attendance-leave-management-filter-popover-content"
     >
@@ -454,9 +460,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               offset: [0, 4],
               overflow: { adjustX: true, adjustY: true },
             }}
-            getPopupContainer={() =>
-              document.getElementById(FILTER_ROOT_ID) ?? document.body
-            }
+            getPopupContainer={() => document.body}
             data-cy="time-attendance-leave-management-filter-popover"
           >
             <Button
