@@ -203,7 +203,7 @@ export default function MyTimesheetAttendancePagination({
           className="mr-2 text-base text-[#718096]"
           data-cy="my-timesheet-attendance-pagination-go-to-label"
         >
-          Go to
+          Go to :
         </span>
         <Input
           type="text"

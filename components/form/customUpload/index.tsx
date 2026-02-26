@@ -23,6 +23,9 @@ interface CustomUploadProps extends UploadProps {
   mode?: 'default' | 'draggable' | 'dragWithLink';
   icon?: ReactNode;
   title?: ReactNode;
+  dragTitleClassName?: string;
+  dragSubtitleClassName?: string;
+  showDragSubtitle?: boolean;
   setIsLoading?: Dispatch<SetStateAction<boolean>>;
   onAddLink?: (link: string) => void;
   value?: UploadFile[];
@@ -36,6 +39,9 @@ const CustomUpload: FC<CustomUploadProps> = ({
   mode = 'default',
   icon = <FaRegImage size={24} />,
   title = 'Upload Your Certification',
+  dragTitleClassName = 'text-xs text-gray-900 font-semibold',
+  dragSubtitleClassName = 'text-xs text-gray-500',
+  showDragSubtitle = true,
   value,
   onChange,
   maxCount = 1, // Enforce single file for both video and attachment
@@ -171,16 +177,18 @@ const CustomUpload: FC<CustomUploadProps> = ({
               </div>
               <div
                 data-cy="components-form-customupload-index-tsx-index-div-161"
-                className="text-xs text-gray-900 font-semibold"
+                className={dragTitleClassName}
               >
                 {title}
               </div>
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-162"
-                className="text-xs text-gray-500"
-              >
-                or drag and drop it here
-              </div>
+              {showDragSubtitle && (
+                <div
+                  data-cy="components-form-customupload-index-tsx-index-div-162"
+                  className={dragSubtitleClassName}
+                >
+                  or drag and drop it here
+                </div>
+              )}
             </div>
           </Upload.Dragger>
         </div>

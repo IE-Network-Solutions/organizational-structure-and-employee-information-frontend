@@ -1,34 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import HistoryTableFilter from './tableFilter';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Table } from 'antd';
-import { TbFileDownload } from 'react-icons/tb';
-import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import { Button, Table, Tag } from 'antd';
 import {
   useGetLeaveRequest,
   useGetSingleApproval,
 } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { CommonObject } from '@/types/commons/commonObject';
-import {
-  LeaveRequest,
-  LeaveRequestStatus,
-  LeaveRequestStatusBadgeTheme,
-} from '@/types/timesheet/settings';
-import { DATE_FORMAT } from '@/utils/constants';
+import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
 import dayjs from 'dayjs';
-import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import usePagination from '@/utils/usePagination';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
-import { formatLinkToUploadFile } from '@/helpers/formatTo';
-import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { FaPlus } from 'react-icons/fa';
 import { AiOutlineReload } from 'react-icons/ai';
+import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
 
 const HistoryTable = () => {
   const { userId } = useAuthenticationStore();
@@ -61,7 +51,6 @@ const HistoryTable = () => {
     { page, limit, orderBy, orderDirection },
     { filter },
   );
-  const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
   const { data: approverLog } = useGetSingleApproval(
     leaveRequestSidebarData ?? '',
   );
@@ -82,6 +71,8 @@ const HistoryTable = () => {
       setIsLoading(false);
     }
   }, [approverLog, isLoading, leaveRequestSidebarData]);
+  const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
+
   useEffect(() => {
     if (data && data.items) {
       setTableData(() =>
@@ -93,12 +84,12 @@ const HistoryTable = () => {
           createdAt: item?.createdAt
             ? dayjs(item?.createdAt).format('YYYY-MM-DD')
             : '-',
-
           leaveType: item.leaveType
             ? typeof item.leaveType === 'string'
               ? ''
               : item.leaveType.title
             : '-',
+          reason: item.justificationNote ?? '-',
           justificationDocument: item.justificationDocument,
           status: item.status,
           action: item,
@@ -107,161 +98,98 @@ const HistoryTable = () => {
     }
   }, [data]);
 
+  const statusTagConfig: Record<
+    LeaveRequestStatus,
+    { color: string; label: string }
+  > = {
+    [LeaveRequestStatus.PENDING]: { color: 'orange', label: 'Pending' },
+    [LeaveRequestStatus.APPROVED]: { color: 'blue', label: 'Approved' },
+    [LeaveRequestStatus.DECLINED]: { color: 'red', label: 'Rejected' },
+  };
+
+  const openDetail = (item: LeaveRequest) => {
+    isShowDetail(true);
+    setLeaveRequestSidebarData(item.id);
+    setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId ?? null);
+  };
+
   const columns: TableColumnsType<any> = [
-    {
-      title: 'From',
-      dataIndex: 'startAt',
-      key: 'startAt',
-      sorter: true,
-      render: (date: string) => (
-        <div
-          data-cy="my-timesheet-components-historytable-index-tsx-index-div-117"
-          className="text-sm text-gray-900 py-4"
-        >
-          {dayjs(date).format(DATE_FORMAT)}
-        </div>
-      ),
-    },
-    {
-      title: 'To',
-      dataIndex: 'endAt',
-      key: 'endAt',
-      sorter: true,
-      render: (date: string) => (
-        <div
-          data-cy="my-timesheet-components-historytable-index-tsx-index-div-128"
-          className="text-sm text-gray-900 py-4"
-        >
-          {dayjs(date).format(DATE_FORMAT)}
-        </div>
-      ),
-    },
-    {
-      title: 'Total',
-      dataIndex: 'days',
-      key: 'days',
-      sorter: true,
-      render: (text: string) => (
-        <div
-          data-cy="my-timesheet-components-historytable-index-tsx-index-div-139"
-          className="text-sm text-gray-900 py-4"
-        >
-          {text} Days
-        </div>
-      ),
-    },
     {
       title: 'Type',
       dataIndex: 'leaveType',
       key: 'leaveType',
       sorter: true,
-      responsive: ['sm'],
-      render: (text: string) => (
-        <div
-          data-cy="my-timesheet-components-historytable-index-tsx-index-div-149"
-          className="text-sm text-gray-900 py-4"
+      render: (text: string, record: { action?: LeaveRequest }) => (
+        <button
+          type="button"
+          onClick={() => record.action && openDetail(record.action)}
+          className="text-sm text-primary hover:underline py-4 text-left w-full cursor-pointer"
+          data-cy="time-attendance-leave-requests-table-type"
         >
+          {text}
+        </button>
+      ),
+    },
+    {
+      title: 'Start Date',
+      dataIndex: 'startAt',
+      key: 'startAt',
+      sorter: true,
+      render: (date: string) => (
+        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-leave-requests-table-start-date">
+          {date ? dayjs(date).format(DATE_DISPLAY_FORMAT) : '-'}
+        </div>
+      ),
+    },
+    {
+      title: 'End Date',
+      dataIndex: 'endAt',
+      key: 'endAt',
+      sorter: true,
+      render: (date: string) => (
+        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-leave-requests-table-end-date">
+          {date ? dayjs(date).format(DATE_DISPLAY_FORMAT) : '-'}
+        </div>
+      ),
+    },
+    {
+      title: 'Days',
+      dataIndex: 'days',
+      key: 'days',
+      sorter: true,
+      render: (text: number) => (
+        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-leave-requests-table-days">
           {text}
         </div>
       ),
     },
     {
-      title: 'Requested At',
-      dataIndex: 'createdAt',
-    },
-    {
-      title: 'Attachment',
-      dataIndex: 'justificationDocument',
-      key: 'justificationDocument',
-      sorter: true,
-      responsive: ['sm'],
-      render: (link: string) =>
-        link ? (
-          <a
-            href={link}
-            target="_blank"
-            className="flex justify-between items-center text-gray-900 py-4"
-            id="time-attendance-history-table-row-attachment-link"
-            data-cy={`time-attendance-history-table-row-${formatLinkToUploadFile(link).name}-attachment-link`}
-          >
-            <div
-              id={`time-attendance-history-table-row-${formatLinkToUploadFile(link).name}-attachment-name`}
-              data-cy={`time-attendance-history-table-row-${formatLinkToUploadFile(link).name}-attachment-name`}
-            >
-              {formatLinkToUploadFile(link).name}
-            </div>
-            <TbFileDownload
-              size={14}
-              data-cy="time-attendance-history-table-row-attachment-download-icon"
-            />
-          </a>
-        ) : (
-          <div
-            className="py-4"
-            id="time-attendance-history-table-row-attachment-empty"
-            data-cy="time-attendance-history-table-row-attachment-empty"
-          >
-            -
-          </div>
-        ),
+      title: 'Reason',
+      dataIndex: 'reason',
+      key: 'reason',
+      render: (text: string) => (
+        <div className="text-sm text-gray-900 py-4 max-w-[200px] truncate" data-cy="time-attendance-leave-requests-table-reason" title={text}>
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      responsive: ['sm'],
-      render: (text: LeaveRequestStatus) => (
-        <div
-          className="py-4"
-          id="time-attendance-history-table-row-status-container"
-          data-cy="time-attendance-history-table-row-status-container"
-        >
-          <StatusBadge
-            theme={LeaveRequestStatusBadgeTheme[text]}
-            data-cy="time-attendance-history-table-row-status-badge"
-          >
-            {text}
-          </StatusBadge>
-        </div>
-      ),
-    },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-      width: 80,
-      render: (item: LeaveRequest) => (
-        <div
-          className="py-4"
-          id="time-attendance-history-table-row-actions-container"
-          data-cy="time-attendance-history-table-row-actions-container"
-        >
-          <ActionButtons
-            id={item?.id ?? null}
-            disableDelete={
-              item.status === LeaveRequestStatus.APPROVED ||
-              item.status === LeaveRequestStatus.DECLINED
-            }
-            disableEdit={
-              item.status === LeaveRequestStatus.APPROVED ||
-              item.status === LeaveRequestStatus.DECLINED
-            }
-            onEdit={() => {
-              setLeaveRequestSidebarData(item.id);
-              setIsLoading(true);
-            }}
-            onDelete={() => {
-              deleteLeaveRequest(item.id);
-            }}
-            onDetail={() => {
-              isShowDetail(true);
-              setLeaveRequestSidebarData(item.id);
-              setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId);
-            }}
-            data-cy="time-attendance-history-table-row-action-buttons"
-          />
-        </div>
-      ),
+      render: (text: LeaveRequestStatus) => {
+        const config = statusTagConfig[text] ?? {
+          color: 'default',
+          label: text,
+        };
+        return (
+          <div className="py-4" data-cy="time-attendance-leave-requests-table-status">
+            <Tag color={config.color} data-cy="time-attendance-history-table-row-status-tag">
+              {config.label}
+            </Tag>
+          </div>
+        );
+      },
     },
   ];
 
@@ -287,21 +215,21 @@ const HistoryTable = () => {
 
   return (
     <div
-      className="bg-white p-5 sm:p-6 rounded-lg"
+      className="bg-white p-5 px-3 sm:p-6 rounded-lg"
       id="time-attendance-history-table-container"
       data-cy="time-attendance-history-table-container"
     >
       <div
-        className="flex items-center justify-between mb-6"
+        className="mb-4"
         id="time-attendance-history-table-header-container"
         data-cy="time-attendance-history-table-header-container"
       >
         <div
-          className="text-sm sm:text-2xl font-bold text-gray-900"
+          className="text-sm sm:text-xl font-bold text-gray-900 mb-4"
           id="time-attendance-history-table-title"
           data-cy="time-attendance-history-table-title"
         >
-          Leave History
+          Leave Requests
           <Button
             type="text"
             size="small"
@@ -317,111 +245,75 @@ const HistoryTable = () => {
             data-cy="time-attendance-history-table-refresh-button"
           />
         </div>
+      </div>
 
+      <div
+        className="rounded-lg border border-gray-200 overflow-hidden"
+        id="time-attendance-history-table-bordered-wrapper"
+        data-cy="time-attendance-history-table-bordered-wrapper"
+      >
+        {/* Toolbar: Filter Type + Date range (all screens); New Request on desktop only (mobile: in layout header) */}
         <div
-          className="flex "
-          id="time-attendance-history-table-actions-container"
-          data-cy="time-attendance-history-table-actions-container"
+          className="flex flex-wrap items-center gap-3 p-3 sm:p-4"
+          id="time-attendance-history-table-toolbar"
+          data-cy="time-attendance-history-table-toolbar"
         >
-          {/* Mobile View Icons */}
-          <div
-            className="sm:hidden flex items-center"
-            id="time-attendance-history-table-mobile-actions"
-            data-cy="time-attendance-history-table-mobile-actions"
-          >
-            <div
-              id="time-attendance-history-table-mobile-filter-container"
-              data-cy="time-attendance-history-table-mobile-filter-container"
-              className="h-10 flex "
-            >
-              <HistoryTableFilter
-                onChange={onFilterChange}
-                data-cy="time-attendance-history-table-mobile-filter"
-              />
-            </div>
-            <div
-              data-cy="my-timesheet-components-historytable-index-tsx-index-div-326"
-              className=""
-            >
-              <AccessGuard
-                data-cy="time-attendance-history-table-mobile-add-button-access-guard"
-                permissions={[Permissions.SubmitLeaveRequest]}
-              >
-                <Button
-                  size="large"
-                  type="primary"
-                  className="h-10 w-10 flex items-center justify-center ml-3"
-                  onClick={() => isShow(true)}
-                  id="time-attendance-history-table-mobile-add-button"
-                  data-cy="time-attendance-history-table-mobile-add-button"
-                >
-                  <span
-                    data-cy="my-timesheet-components-historytable-index-tsx-index-span-339"
-                    className="text-xl font-medium text-white"
-                  >
-                    +
-                  </span>
-                </Button>
-              </AccessGuard>
-            </div>
+          <div className="flex-1 min-w-0">
+            <HistoryTableFilter
+              onChange={onFilterChange}
+              data-cy="time-attendance-history-table-filter"
+            />
           </div>
+          <AccessGuard
+            data-cy="time-attendance-history-table-add-button-access-guard"
+            permissions={[Permissions.SubmitLeaveRequest]}
+          >
+            <Button
+              size="large"
+              type="primary"
+              icon={<FaPlus />}
+              className="hidden sm:flex h-10 items-center justify-center shrink-0"
+              onClick={() => isShow(true)}
+              id="time-attendance-history-table-new-request-button"
+              data-cy="time-attendance-history-table-new-request-button"
+            >
+              <span className="inline">New Request</span>
+            </Button>
+          </AccessGuard>
+        </div>
 
-          {/* Desktop View */}
-          <div
-            className="hidden sm:block"
-            id="time-attendance-history-table-desktop-actions"
-            data-cy="time-attendance-history-table-desktop-actions"
-          >
-            <AccessGuard
-              data-cy="time-attendance-history-table-desktop-add-button-access-guard"
-              permissions={[Permissions.SubmitLeaveRequest]}
-            >
-              <Button
-                size="large"
-                type="primary"
-                icon={<FaPlus />}
-                className="h-12 px-5 flex items-center justify-center"
-                onClick={() => isShow(true)}
-                id="time-attendance-history-table-desktop-add-button"
-                data-cy="time-attendance-history-table-desktop-add-button"
-              >
-                <span
-                  data-cy="my-timesheet-components-historytable-index-tsx-index-span-364"
-                  className="hidden sm:inline"
-                >
-                  Add New Request
-                </span>
-              </Button>
-            </AccessGuard>
-          </div>
+        <div className="border-t border-gray-200">
+          <Table
+            className="leave-table"
+            columns={columns}
+            loading={isFetching}
+            dataSource={tableData}
+            pagination={false}
+            onChange={(_pagination, _filters, sorter: any) => {
+              setOrderDirection(sorter['order']);
+              setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+            }}
+            scroll={{ x: 'max-content' }}
+            id="time-attendance-history-table"
+            data-cy="time-attendance-history-table"
+          />
+          <MyTimesheetAttendancePagination
+            current={page}
+            total={data?.meta?.totalItems ?? 0}
+            pageSize={limit}
+            onChange={(newPage, newPageSize) => {
+              setPage(newPage);
+              setLimit(newPageSize);
+            }}
+            onShowSizeChange={(newPageSize) => {
+              setLimit(newPageSize);
+              setPage(1);
+            }}
+            id="time-attendance-leave-requests-pagination"
+            data-cy="time-attendance-leave-requests-pagination"
+          />
         </div>
       </div>
-      <div
-        className="hidden sm:block"
-        id="time-attendance-history-table-filter-container"
-        data-cy="time-attendance-history-table-filter-container"
-      >
-        <HistoryTableFilter
-          onChange={onFilterChange}
-          data-cy="time-attendance-history-table-desktop-filter"
-        />
-      </div>
-      <Table
-        className="mt-6 leave-table"
-        columns={columns}
-        loading={isFetching}
-        dataSource={tableData}
-        pagination={DefaultTablePagination(data?.meta?.totalItems)}
-        onChange={(pagination, filters, sorter: any) => {
-          setPage(pagination.current ?? 1);
-          setLimit(pagination.pageSize ?? 10);
-          setOrderDirection(sorter['order']);
-          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-        }}
-        scroll={{ x: 'max-content' }}
-        id="time-attendance-history-table"
-        data-cy="time-attendance-history-table"
-      />
     </div>
   );
 };

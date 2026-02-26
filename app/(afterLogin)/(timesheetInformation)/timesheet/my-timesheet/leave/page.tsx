@@ -1,18 +1,27 @@
 'use client';
 
-import { Typography } from 'antd';
-
-const { Title } = Typography;
+import LeaveBalance from '../_components/leaveBalance';
+import HistoryTable from '../_components/historyTable';
 
 export default function LeavePage() {
   return (
     <div
       id="time-attendance-my-timesheet-leave-page"
       data-cy="time-attendance-my-timesheet-leave-page"
+      className="space-y-6"
     >
-      <Title level={5} className="!mb-0 !text-gray-700">
-        Leave content will go here (Leave Balance cards, Leave Requests table).
-      </Title>
+      <section
+        id="time-attendance-my-timesheet-leave-balance-section"
+        data-cy="time-attendance-my-timesheet-leave-balance-section"
+      >
+        <LeaveBalance />
+      </section>
+      <section
+        id="time-attendance-my-timesheet-leave-requests-section"
+        data-cy="time-attendance-my-timesheet-leave-requests-section"
+      >
+        <HistoryTable />
+      </section>
     </div>
   );
 }

@@ -1,12 +1,9 @@
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Col, DatePicker, Form, Input, Row, Select, Space, Spin } from 'antd';
+import { Checkbox, Col, DatePicker, Form, Input, Modal, Row, Select, Space, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import CustomRadio from '@/components/form/customRadio';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { formatLinkToUploadFile, formatToOptions } from '@/helpers/formatTo';
 import { DATE_FORMAT } from '@/utils/constants';
@@ -15,6 +12,7 @@ import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
 import React, { useEffect, useState } from 'react';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import CustomUpload from '@/components/form/customUpload';
+import { InboxOutlined } from '@ant-design/icons';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useAllApproval } from '@/store/server/features/approver/queries';
@@ -167,19 +165,19 @@ const LeaveRequestSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
+      className: 'h-8 text-sm !px-3 !py-0',
+      size: 'middle',
       onClick: () => onClose(),
       disabled: isLoadingRequest || isLoading,
       id: 'time-attendance-leave-request-sidebar-cancel-button',
       'data-cy': 'time-attendance-leave-request-sidebar-cancel-button',
     },
     {
-      label: leaveRequest ? 'Update' : 'Add',
+      label: leaveRequest ? 'Update' : 'Submit Request',
       key: 'create',
       className:
-        'h-[40px] sm:h-[56px] text-base bg-[#2563eb] border-[#2563eb] text-white hover:bg-[#1d4ed8] hover:border-[#1d4ed8] disabled:bg-[#2563eb] disabled:border-[#2563eb] disabled:text-white disabled:opacity-100 disabled:cursor-not-allowed',
-      size: 'large',
+        'h-8 text-sm !px-3 !py-0 bg-[#2563eb] border-[#2563eb] text-white hover:bg-[#1d4ed8] hover:border-[#1d4ed8] disabled:bg-[#2563eb] disabled:border-[#2563eb] disabled:text-white disabled:opacity-100 disabled:cursor-not-allowed',
+      size: 'middle',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
       disabled: hasNoApprover && !leaveRequest,
@@ -244,11 +242,9 @@ const LeaveRequestSidebar = () => {
   const typeOptions = () =>
     formatToOptions(leaveTypesData?.items ?? [], 'title', 'id');
 
-  const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
-  const onChangeIsHalfDay = (isHalf: any) => {
-    form.setFieldValue('isHalfDay', !!isHalf);
-  };
+  const itemClass =
+    'text-xs [&_.ant-form-item-label]:mb-1.5 [&_.ant-form-item-label]:font-normal';
+  const controlClass = 'w-full';
 
   const validateDates = () => {
     const startDate = form.getFieldValue('startDate');
@@ -266,32 +262,44 @@ const LeaveRequestSidebar = () => {
   };
 
   return (
-    isShowLeaveRequestSidebar && (
-      <>
-        <CustomDrawerLayout
-          data-cy="time-attendance-leave-request-sidebar-container"
-          open={isShowLeaveRequestSidebar}
-          onClose={onClose}
-          modalHeader={
-            <CustomDrawerHeader data-cy="time-attendance-leave-request-sidebar-header">
-              {leaveRequest ? 'Update' : 'Add New'} Leave Request
-            </CustomDrawerHeader>
-          }
-          footer={
-            <div
-              className="p-6 sm:p-0"
-              id="time-attendance-leave-request-sidebar-footer"
-              data-cy="time-attendance-leave-request-sidebar-footer"
-            >
-              <CustomDrawerFooterButton
-                data-cy="time-attendance-leave-request-sidebar-footer-button"
-                buttons={footerModalItems}
-              />
-            </div>
-          }
-          width="400px"
+    <Modal
+      open={isShowLeaveRequestSidebar}
+      onCancel={onClose}
+      title={
+        <div>
+          <div className="text-base font-semibold">
+            {leaveRequest ? 'Update Leave Request' : 'New Leave Request'}
+          </div>
+          {!leaveRequest && (
+            <p className="text-sm font-normal text-gray-500 mt-1 mb-0">
+              Fill in the details to submit a new leave request.
+            </p>
+          )}
+        </div>
+      }
+      footer={
+        <div
+          className="flex justify-end gap-2 !pt-0 [&_.flex]:!py-0"
+          id="time-attendance-leave-request-sidebar-footer"
+          data-cy="time-attendance-leave-request-sidebar-footer"
         >
-          <Spin
+          <CustomDrawerFooterButton
+            data-cy="time-attendance-leave-request-sidebar-footer-button"
+            buttons={footerModalItems}
+          />
+        </div>
+      }
+      width={520}
+      centered
+      destroyOnClose
+      data-cy="time-attendance-leave-request-sidebar-container"
+      id="time-attendance-leave-request-sidebar-container"
+      styles={{
+        body: { paddingTop: 8 },
+        footer: { paddingTop: 0, marginTop: 0 },
+      }}
+    >
+      <Spin
             spinning={isLoading || isLoadingRequest}
             data-cy="time-attendance-leave-request-sidebar-spin"
           >
@@ -320,8 +328,9 @@ const LeaveRequestSidebar = () => {
                 >
                   <Select
                     className={controlClass}
+                    size="middle"
                     options={typeOptions()}
-                    placeholder="Select Type"
+                    placeholder="Select Leave Type"
                     disabled={
                       leaveRequest?.status === LeaveRequestStatus.APPROVED
                     }
@@ -338,19 +347,19 @@ const LeaveRequestSidebar = () => {
                 </Form.Item>
                 <Form.Item
                   name="isHalfday"
+                  valuePropName="checked"
                   className={itemClass}
                   id="time-attendance-leave-request-sidebar-half-day"
                   data-cy="time-attendance-leave-request-sidebar-half-day"
                 >
-                  <CustomRadio
-                    label="Half Day"
-                    initialValue={leaveRequest?.isHalfday}
+                  <Checkbox
                     disabled={
                       leaveRequest?.status === LeaveRequestStatus.APPROVED
                     }
-                    onChange={onChangeIsHalfDay}
-                    data-cy="time-attendance-leave-request-sidebar-half-day-radio"
-                  />
+                    data-cy="time-attendance-leave-request-sidebar-half-day-checkbox"
+                  >
+                    Half Date
+                  </Checkbox>
                 </Form.Item>
                 <Row
                   data-cy="time-attendance-leave-request-sidebar-date-row"
@@ -373,6 +382,7 @@ const LeaveRequestSidebar = () => {
                     >
                       <DatePicker
                         className={controlClass}
+                        size="middle"
                         onChange={handleChange}
                         disabled={
                           leaveRequest?.status === LeaveRequestStatus.APPROVED
@@ -400,6 +410,7 @@ const LeaveRequestSidebar = () => {
                     >
                       <DatePicker
                         className={controlClass}
+                        size="middle"
                         onChange={handleChange}
                         disabled={
                           leaveRequest?.status === LeaveRequestStatus.APPROVED
@@ -413,58 +424,36 @@ const LeaveRequestSidebar = () => {
                 </Row>
                 <Form.Item
                   name="note"
-                  label="Note"
+                  label="Reason"
+                  rules={[{ required: true, message: 'Required' }]}
                   className={itemClass}
-                  id="time-attendance-leave-request-sidebar-note"
-                  data-cy="time-attendance-leave-request-sidebar-note"
+                  id="time-attendance-leave-request-sidebar-reason"
+                  data-cy="time-attendance-leave-request-sidebar-reason"
                 >
-                  <Input
-                    className={controlClass}
+                  <Input.TextArea
+                    rows={4}
+                    size="middle"
+                    className="w-full"
+                    placeholder="Reason"
                     disabled={
                       leaveRequest?.status === LeaveRequestStatus.APPROVED
                     }
-                    id="time-attendance-leave-request-sidebar-note-input"
-                    data-cy="time-attendance-leave-request-sidebar-note-input"
+                    id="time-attendance-leave-request-sidebar-reason-input"
+                    data-cy="time-attendance-leave-request-sidebar-reason-input"
                   />
                 </Form.Item>
-                <Form.Item
-                  name="attachment"
-                  label="Attachment"
-                  valuePropName="fileList"
-                  className={itemClass}
-                  id="time-attendance-leave-request-sidebar-attachment"
-                  data-cy="time-attendance-leave-request-sidebar-attachment"
-                  getValueFromEvent={(e) => {
-                    return Array.isArray(e) ? e : e && e.fileList;
-                  }}
-                >
-                  <CustomUpload
-                    className="w-full "
-                    accept=".pdf,.docx,.png,.jpeg,.jpg"
-                    name="attachment"
-                    listType="text"
-                    maxCount={1}
-                    setIsLoading={setIsLoading}
-                    data-cy="time-attendance-leave-request-sidebar-attachment-upload"
-                  />
-                </Form.Item>
-                <div
-                  className="text-xs font-medium text-gray-600 text-start mb-3"
-                  id="time-attendance-leave-request-sidebar-attachment-hint"
-                  data-cy="time-attendance-leave-request-sidebar-attachment-hint"
-                >
-                  Max file size : 5MB. File format : pdf, docx, epub, and jpeg
-                </div>
                 <Form.Item
                   name="delegatee"
-                  label="Delegated Employee"
+                  label="Delegate"
+                  rules={[{ required: true, message: 'Required' }]}
                   className={itemClass}
                   id="time-attendance-leave-request-sidebar-delegatee"
                   data-cy="time-attendance-leave-request-sidebar-delegatee"
                 >
                   <Select
                     showSearch
-                    placeholder="Select a person"
+                    size="middle"
+                    placeholder="Select Delegate"
                     className={controlClass}
                     allowClear
                     filterOption={(input: any, option: any) =>
@@ -473,7 +462,6 @@ const LeaveRequestSidebar = () => {
                         .includes(input.toLowerCase())
                     }
                     options={employeeData?.items?.map((item: any) => ({
-                      //  ...item,
                       value: item?.id,
                       label:
                         item?.firstName +
@@ -484,6 +472,32 @@ const LeaveRequestSidebar = () => {
                     }))}
                     id="time-attendance-leave-request-sidebar-delegatee-select"
                     data-cy="time-attendance-leave-request-sidebar-delegatee-select"
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="attachment"
+                  label="Attachment (optional)"
+                  valuePropName="fileList"
+                  className={itemClass}
+                  id="time-attendance-leave-request-sidebar-attachment"
+                  data-cy="time-attendance-leave-request-sidebar-attachment"
+                  getValueFromEvent={(e) => {
+                    return Array.isArray(e) ? e : e && e.fileList;
+                  }}
+                >
+                  <CustomUpload
+                    className="w-full"
+                    accept=".pdf,.docx,.png,.jpeg,.jpg"
+                    name="attachment"
+                    mode="draggable"
+                    maxCount={1}
+                    icon={<InboxOutlined style={{ fontSize: 40 }} className="text-primary" />}
+                    title="Click or drag file to this area to upload"
+                    dragTitleClassName="font-normal text-sm text-gray-700"
+                    dragSubtitleClassName="font-normal text-sm text-gray-500"
+                    showDragSubtitle={false}
+                    setIsLoading={setIsLoading}
+                    data-cy="time-attendance-leave-request-sidebar-attachment-upload"
                   />
                 </Form.Item>
                 {showApproverMessage && (
@@ -505,9 +519,7 @@ const LeaveRequestSidebar = () => {
               </Space.Compact>
             </Form>
           </Spin>
-        </CustomDrawerLayout>
-      </>
-    )
+    </Modal>
   );
 };
 
