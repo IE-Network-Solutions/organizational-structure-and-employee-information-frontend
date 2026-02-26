@@ -1,6 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-export const ORG_AND_EMP_URL = 'http://localhost:8020/api/v1';
+export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;
 
