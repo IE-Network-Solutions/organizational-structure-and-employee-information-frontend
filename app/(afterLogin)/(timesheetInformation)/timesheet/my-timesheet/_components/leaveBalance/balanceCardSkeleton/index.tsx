@@ -8,17 +8,48 @@ const LeaveBalanceCardSkeleton = () => {
       style={{ backgroundColor: '#F9FAFB' }}
       data-cy="time-attendance-leave-balance-card-skeleton"
     >
-      <div className="flex justify-between items-start gap-2">
-        <div className="flex-1 min-w-0">
+      <div
+        className="flex justify-between items-start gap-2"
+        data-cy="time-attendance-leave-balance-card-skeleton-header"
+      >
+        <div
+          className="flex-1 min-w-0"
+          data-cy="time-attendance-leave-balance-card-skeleton-header-left"
+        >
           <Skeleton active title={{ width: '70%' }} paragraph={false} />
-          <Skeleton active title={{ width: '40%' }} paragraph={false} className="!mt-1" />
+          <Skeleton
+            active
+            title={{ width: '40%' }}
+            paragraph={false}
+            className="!mt-1"
+          />
         </div>
-        <Skeleton active title={{ width: 48 }} paragraph={false} className="shrink-0" />
+        <Skeleton
+          active
+          title={{ width: 48 }}
+          paragraph={false}
+          className="shrink-0"
+        />
       </div>
-      <div className="flex justify-between gap-2 mt-3">
-        <Skeleton.Button active block className="!flex-1 !min-w-0 !h-12 !rounded-lg" />
-        <Skeleton.Button active block className="!flex-1 !min-w-0 !h-12 !rounded-lg" />
-        <Skeleton.Button active block className="!flex-1 !min-w-0 !h-12 !rounded-lg" />
+      <div
+        className="flex justify-between gap-2 mt-3"
+        data-cy="time-attendance-leave-balance-card-skeleton-stats"
+      >
+        <Skeleton.Button
+          active
+          block
+          className="!flex-1 !min-w-0 !h-12 !rounded-lg"
+        />
+        <Skeleton.Button
+          active
+          block
+          className="!flex-1 !min-w-0 !h-12 !rounded-lg"
+        />
+        <Skeleton.Button
+          active
+          block
+          className="!flex-1 !min-w-0 !h-12 !rounded-lg"
+        />
       </div>
     </div>
   );

@@ -1,13 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Popconfirm, Table, Input, Avatar, Spin, Card } from 'antd';
 import {
-  LeaveRequestStatus,
-  LeaveRequestStatusBadgeTheme,
-} from '@/types/timesheet/settings';
-import StatusBadge from '@/components/common/statusBadge/statusBadge';
+  Button,
+  Input,
+  Popconfirm,
+  Table,
+  Spin,
+  Card,
+  Select,
+  Tag,
+} from 'antd';
+import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetAllApproveLeaveRequest,
@@ -17,22 +22,20 @@ import {
   useSetRejectLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { UserOutlined } from '@ant-design/icons';
 import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet/myTimesheet/currentApproval';
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 import dayjs from 'dayjs';
-import { AiOutlineReload } from 'react-icons/ai';
-import CustomPagination from '@/components/customPagination';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
 import { usePathname } from 'next/navigation';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+
+const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 
 const ApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage, setPageSize } =
     useCurrentLeaveApprovalStore();
   const { allPageSize, allUserCurrentPage } = useAllCurrentLeaveApprovedStore();
-  const { isMobile, isTablet } = useIsMobile();
   const pathname = usePathname();
 
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -48,9 +51,31 @@ const ApprovalTable = () => {
     useSetRejectLeaveRequest();
   const { mutate: finalAllApproval } = useSetAllFinalApproveLeaveRequest();
 
+  const [searchEmployee, setSearchEmployee] = useState<string>('');
+  const [filterStatus, setFilterStatus] = useState<string>('');
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  const { data: allUsersData } = useGetAllUsers();
+  const userOptions = useMemo(
+    () =>
+      (allUsersData?.items ?? []).map((user: any) => ({
+        label: [user?.firstName, user?.middleName, user?.lastName]
+          .filter(Boolean)
+          .join(' '),
+        value: user?.id ?? '',
+      })),
+    [allUsersData?.items],
+  );
+
+  const statusFilterOptions = [
+    { label: 'Pending', value: LeaveRequestStatus.PENDING },
+    { label: 'Approved', value: LeaveRequestStatus.APPROVED },
+    { label: 'Rejected', value: LeaveRequestStatus.DECLINED },
+  ];
+
   useEffect(() => {
     setUserCurrentPage(1);
-    setPageSize(5);
+    setPageSize(10);
   }, [pathname]);
 
   const {
@@ -58,6 +83,15 @@ const ApprovalTable = () => {
     isLoading: isLoadingApproval,
     refetch,
   } = useGetApprovalLeaveRequest(userId, userCurrentPage, pageSize);
+
+  const rawItems = approvalData?.items ?? [];
+  const filteredItems = useMemo(() => {
+    return rawItems.filter((item: any) => {
+      const matchStatus = !filterStatus.trim() || item?.status === filterStatus;
+      const matchSearch = !searchEmployee || item?.userId === searchEmployee;
+      return matchStatus && matchSearch;
+    });
+  }, [rawItems, searchEmployee, filterStatus]);
   const finalApproval: any = (e: {
     leaveRequestId: string;
     status: string;
@@ -106,116 +140,146 @@ const ApprovalTable = () => {
   };
 
   const cancel: any = () => {};
-  const allFilterData = approvalData?.items?.map((item: any, index: number) => {
-    return {
-      key: index,
-      createdAt: item?.createdAt
-        ? dayjs(item?.createdAt).format('YYYY-MM-DD')
-        : '-',
-      userId: item?.userId,
-      startAt: item?.startAt,
-      endAt: item?.endAt,
-      days: item?.days,
-      leaveType: item?.leaveType?.title,
-      status: item?.status,
-      action: (
-        <div
-          className="flex gap-4 "
-          id={`time-attendance-approval-table-row-${index}-actions-container`}
-          data-cy={`time-attendance-approval-table-row-${index}-actions-container`}
-        >
-          {item?.nextApprover?.[0]?.userId === userId && (
-            <Popconfirm
-              title="Approve Request"
-              description="Are you sure to approve this leave request?"
-              onConfirm={() => {
-                confirm({
-                  approvalWorkflowId: item?.approvalWorkflowId,
-                  stepOrder: item?.nextApprover?.[0]?.stepOrder,
-                  requestId: item?.id,
-                  approvedUserId: userId,
-                  approverRoleId: userRollId,
-                  action: 'Approved',
-                  tenantId: tenantId,
-                });
-              }}
-              onCancel={cancel}
-              okText="Approve"
-              cancelText="Cancel"
-              disabled={
-                isLoadingApproval ||
-                isLoadingEditApprover ||
-                allApproveIsLoading ||
-                allRejectIsLoading
-              }
-              data-cy={`time-attendance-approval-table-row-${index}-approve-popconfirm`}
+  const isPending = (item: any) => item?.nextApprover?.[0]?.userId === userId;
+  const allFilterData = useMemo(
+    () =>
+      filteredItems.map((item: any, index: number) => {
+        const pending = isPending(item);
+        return {
+          key: item?.id ?? index,
+          id: item?.id,
+          userId: item?.userId,
+          startAt: item?.startAt,
+          endAt: item?.endAt,
+          days: item?.days,
+          leaveType: item?.leaveType?.title,
+          status: item?.status,
+          action: (
+            <div
+              className="flex gap-4"
+              id={`time-attendance-approval-table-row-${index}-actions-container`}
+              data-cy={`time-attendance-approval-table-row-${index}-actions-container`}
             >
-              <Button
-                type="primary"
-                id={`time-attendance-approval-table-row-${index}-approve-button`}
-                data-cy={`time-attendance-approval-table-row-${index}-approve-button`}
-              >
-                Approve
-              </Button>
-            </Popconfirm>
-          )}
-          <Popconfirm
-            title="Reject Request"
-            description={
-              <>
-                <p data-cy="my-timesheet-components-approvaltable-index-tsx-index-p-166">
-                  Are you sure you want to reject this leave request?
-                </p>
-                <Input
-                  placeholder="Add a comment"
-                  value={rejectComment}
-                  onChange={(e) => setRejectComment(e.target.value)}
-                  style={{ marginTop: 8 }}
-                  id={`time-attendance-approval-table-row-${index}-reject-comment-input`}
-                  data-cy={`time-attendance-approval-table-row-${index}-reject-comment-input`}
-                />
-              </>
-            }
-            onConfirm={() => {
-              reject({
-                approvalWorkflowId: item?.approvalWorkflowId,
-                stepOrder: item?.nextApprover?.[0]?.stepOrder,
-                requestId: item?.id,
-                approvedUserId: userId,
-                approverRoleId: userRollId,
-                action: 'Rejected',
-                tenantId: tenantId,
-                comment: {
-                  comment: rejectComment,
-                  commentedBy: userId,
-                  tenantId: tenantId,
-                },
-              });
-            }}
-            onCancel={cancel}
-            okText="Reject"
-            cancelText="Cancel"
-            okButtonProps={{ disabled: !rejectComment }}
-            disabled={
-              isLoadingApproval ||
-              isLoadingEditApprover ||
-              allApproveIsLoading ||
-              allRejectIsLoading
-            }
-            data-cy={`time-attendance-approval-table-row-${index}-reject-popconfirm`}
-          >
-            <Button
-              danger
-              id={`time-attendance-approval-table-row-${index}-reject-button`}
-              data-cy={`time-attendance-approval-table-row-${index}-reject-button`}
-            >
-              Reject
-            </Button>
-          </Popconfirm>
-        </div>
-      ),
-    };
-  });
+              {pending ? (
+                <>
+                  <Popconfirm
+                    title="Approve Request"
+                    description="Are you sure to approve this leave request?"
+                    onConfirm={() => {
+                      confirm({
+                        approvalWorkflowId: item?.approvalWorkflowId,
+                        stepOrder: item?.nextApprover?.[0]?.stepOrder,
+                        requestId: item?.id,
+                        approvedUserId: userId,
+                        approverRoleId: userRollId,
+                        action: 'Approved',
+                        tenantId: tenantId,
+                      });
+                    }}
+                    onCancel={cancel}
+                    okText="Approve"
+                    cancelText="Cancel"
+                    disabled={
+                      isLoadingApproval ||
+                      isLoadingEditApprover ||
+                      allApproveIsLoading ||
+                      allRejectIsLoading
+                    }
+                    data-cy={`time-attendance-approval-table-row-${index}-approve-popconfirm`}
+                  >
+                    <Button
+                      type="primary"
+                      id={`time-attendance-approval-table-row-${index}-approve-button`}
+                      data-cy={`time-attendance-approval-table-row-${index}-approve-button`}
+                    >
+                      Approve
+                    </Button>
+                  </Popconfirm>
+                  <Popconfirm
+                    title="Reject Request"
+                    description={
+                      <>
+                        <p data-cy="my-timesheet-components-approvaltable-index-tsx-index-p-166">
+                          Are you sure you want to reject this leave request?
+                        </p>
+                        <Input
+                          placeholder="Add a comment"
+                          value={rejectComment}
+                          onChange={(e) => setRejectComment(e.target.value)}
+                          style={{ marginTop: 8 }}
+                          id={`time-attendance-approval-table-row-${index}-reject-comment-input`}
+                          data-cy={`time-attendance-approval-table-row-${index}-reject-comment-input`}
+                        />
+                      </>
+                    }
+                    onConfirm={() => {
+                      reject({
+                        approvalWorkflowId: item?.approvalWorkflowId,
+                        stepOrder: item?.nextApprover?.[0]?.stepOrder,
+                        requestId: item?.id,
+                        approvedUserId: userId,
+                        approverRoleId: userRollId,
+                        action: 'Rejected',
+                        tenantId: tenantId,
+                        comment: {
+                          comment: rejectComment,
+                          commentedBy: userId,
+                          tenantId: tenantId,
+                        },
+                      });
+                    }}
+                    onCancel={cancel}
+                    okText="Reject"
+                    cancelText="Cancel"
+                    okButtonProps={{ disabled: !rejectComment }}
+                    disabled={
+                      isLoadingApproval ||
+                      isLoadingEditApprover ||
+                      allApproveIsLoading ||
+                      allRejectIsLoading
+                    }
+                    data-cy={`time-attendance-approval-table-row-${index}-reject-popconfirm`}
+                  >
+                    <Button
+                      danger
+                      id={`time-attendance-approval-table-row-${index}-reject-button`}
+                      data-cy={`time-attendance-approval-table-row-${index}-reject-button`}
+                    >
+                      Reject
+                    </Button>
+                  </Popconfirm>
+                </>
+              ) : (
+                <Tag
+                  color={
+                    item?.status === LeaveRequestStatus.APPROVED
+                      ? 'success'
+                      : 'error'
+                  }
+                  id={`time-attendance-approval-table-row-${index}-status-tag`}
+                  data-cy={`time-attendance-approval-table-row-${index}-status-tag`}
+                >
+                  {item?.status === LeaveRequestStatus.APPROVED
+                    ? 'Approved'
+                    : 'Rejected'}
+                </Tag>
+              )}
+            </div>
+          ),
+        };
+      }),
+    [
+      filteredItems,
+      userId,
+      userRollId,
+      tenantId,
+      rejectComment,
+      isLoadingApproval,
+      isLoadingEditApprover,
+      allApproveIsLoading,
+      allRejectIsLoading,
+    ],
+  );
   const EmpRender = ({ userId }: any) => {
     const {
       isLoading,
@@ -225,55 +289,25 @@ const ApprovalTable = () => {
 
     if (isLoading)
       return (
-        <div data-cy="my-timesheet-components-approvaltable-index-tsx-index-div-224">
-          ...
+        <div data-cy="time-attendance-approval-table-employee-loading">
+          <span data-cy="time-attendance-approval-table-employee-loading-placeholder">
+            ...
+          </span>
         </div>
       );
-    if (isError) return <>-</>;
+    if (isError)
+      return (
+        <span data-cy="time-attendance-approval-table-employee-error">-</span>
+      );
 
     return employeeData ? (
       <div
-        className="flex items-center gap-1.5"
+        className="text-sm text-gray-900"
         id={`time-attendance-approval-table-employee-${userId}-container`}
         data-cy={`time-attendance-approval-table-employee-${userId}-container`}
       >
-        <div
-          className="mx-1 text-sm"
-          id={`time-attendance-approval-table-employee-${userId}-id`}
-          data-cy={`time-attendance-approval-table-employee-${userId}-id`}
-        >
-          {employeeData?.employeeInformation?.employeeAttendanceId}
-        </div>
-        <Avatar
-          size={24}
-          icon={
-            <UserOutlined
-              data-cy={`time-attendance-approval-table-employee-${userId}-avatar-icon`}
-            />
-          }
-          data-cy={`time-attendance-approval-table-employee-${userId}-avatar`}
-        />
-        <div
-          className="flex-1"
-          id={`time-attendance-approval-table-employee-${userId}-info`}
-          data-cy={`time-attendance-approval-table-employee-${userId}-info`}
-        >
-          <div
-            className="text-xs text-gray-900 flex gap-2"
-            id={`time-attendance-approval-table-employee-${userId}-name`}
-            data-cy={`time-attendance-approval-table-employee-${userId}-name`}
-          >
-            {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
-            {employeeData?.lastName || '-'}
-          </div>
-          <div
-            className="text-[10px] leading-4 text-gray-600"
-            id={`time-attendance-approval-table-employee-${userId}-email`}
-            data-cy={`time-attendance-approval-table-employee-${userId}-email`}
-          >
-            {employeeData?.email}
-          </div>
-        </div>
+        {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
+        {employeeData?.lastName || '-'}
       </div>
     ) : (
       '-'
@@ -281,49 +315,46 @@ const ApprovalTable = () => {
   };
   const columns: TableColumnsType<any> = [
     {
-      title: 'Employee Name',
+      title: 'Employee',
       dataIndex: 'userId',
-      key: 'createdBy',
+      key: 'userId',
       render: (text: string) => <EmpRender userId={text} />,
     },
     {
-      title: 'Requested At',
-      dataIndex: 'createdAt',
-    },
-    {
-      title: 'From',
-      dataIndex: 'startAt',
-    },
-    {
-      title: 'To',
-      dataIndex: 'endAt',
-    },
-    {
-      title: 'Total',
-      dataIndex: 'days',
-    },
-
-    {
       title: 'Type',
       dataIndex: 'leaveType',
+      key: 'leaveType',
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      render: (text: LeaveRequestStatus) => (
-        <StatusBadge
-          data-cy={`time-attendance-approval-table-status-badge-${text}`}
-          theme={LeaveRequestStatusBadgeTheme[text]}
-        >
-          {text}
-        </StatusBadge>
-      ),
+      title: 'Start Date',
+      dataIndex: 'startAt',
+      key: 'startAt',
+      render: (val: string) =>
+        val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-',
+    },
+    {
+      title: 'End Date',
+      dataIndex: 'endAt',
+      key: 'endAt',
+      render: (val: string) =>
+        val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-',
+    },
+    {
+      title: 'Days',
+      dataIndex: 'days',
+      key: 'days',
     },
     {
       title: 'Action',
       dataIndex: 'action',
+      key: 'action',
     },
   ];
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
+  };
   const onPageChange = (page: number) => {
     setUserCurrentPage(page);
   };
@@ -368,79 +399,41 @@ const ApprovalTable = () => {
     });
   };
   return (
-    <>
-      {approvalData?.items?.length > 0 ? (
-        <Card
-          loading={isLoadingApproval}
-          id="time-attendance-approval-table-card"
-          data-cy="time-attendance-approval-table-card"
+    <Card
+      loading={isLoadingApproval}
+      id="time-attendance-approval-table-card"
+      data-cy="time-attendance-approval-table-card"
+      className="border-gray-300"
+      bodyStyle={{ padding: '0', paddingTop: 16 }}
+    >
+      <div
+        className="flex flex-wrap items-center justify-between gap-3 mb-3 mx-3"
+        id="time-attendance-approval-table-toolbar"
+        data-cy="time-attendance-approval-table-toolbar"
+      >
+        <Select
+          placeholder="Search Employee"
+          showSearch
+          allowClear
+          options={userOptions}
+          value={searchEmployee || undefined}
+          onChange={(v) => setSearchEmployee(v ?? '')}
+          filterOption={(input, option) =>
+            (option?.label ?? '')
+              .toString()
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          className="min-w-[280px]"
+          id="time-attendance-approval-table-search-employee"
+          data-cy="time-attendance-approval-table-search-employee"
+        />
+        <div
+          className="flex flex-wrap items-center gap-2"
+          data-cy="time-attendance-approval-table-toolbar-actions"
         >
-          <div
-            className="flex items-center mb-2 px-3"
-            id="time-attendance-approval-table-header-container"
-            data-cy="time-attendance-approval-table-header-container"
-          >
-            <div
-              className="text-2xl font-bold text-gray-900"
-              id="time-attendance-approval-table-title"
-              data-cy="time-attendance-approval-table-title"
-            >
-              Waiting for my approval
-              <Button
-                type="text"
-                size="small"
-                icon={
-                  <AiOutlineReload
-                    data-cy="time-attendance-approval-table-refresh-button-icon"
-                    size={14}
-                    className="text-gray-600"
-                  />
-                }
-                onClick={() => refetch()}
-                id="time-attendance-approval-table-refresh-button"
-                data-cy="time-attendance-approval-table-refresh-button"
-              />
-            </div>
-          </div>
-          <div
-            className="flex items-center sm:justify-end justify-between mb-2 px-3 sm:px-0"
-            id="time-attendance-approval-table-actions-container"
-            data-cy="time-attendance-approval-table-actions-container"
-          >
-            <div
-              className="flex items-center gap-4 mb-2"
-              id="time-attendance-approval-table-actions-buttons"
-              data-cy="time-attendance-approval-table-actions-buttons"
-            >
-              <Popconfirm
-                title="All Approve Request"
-                description="Are you sure to approve all leave request?"
-                onConfirm={() => {
-                  onAllApproveRequest();
-                }}
-                onCancel={cancel}
-                okText="Approve All"
-                cancelText="Cancel"
-                data-cy="time-attendance-approval-table-approve-all-popconfirm"
-              >
-                <Button
-                  disabled={
-                    isLoadingApproval ||
-                    isLoadingEditApprover ||
-                    allApproveIsLoading ||
-                    allRejectIsLoading
-                  }
-                  type="primary"
-                  id="time-attendance-approval-table-approve-all-button"
-                  data-cy="time-attendance-approval-table-approve-all-button"
-                >
-                  <Spin
-                    data-cy="time-attendance-approval-table-approve-all-spin"
-                    spinning={allApproveIsLoading}
-                  />
-                  Approve All
-                </Button>
-              </Popconfirm>
+          {selectedRowKeys.length > 0 && (
+            <>
               <Popconfirm
                 title="All Reject Request"
                 description="Are you sure to reject all leave request?"
@@ -470,51 +463,86 @@ const ApprovalTable = () => {
                   Reject All
                 </Button>
               </Popconfirm>
-            </div>
-          </div>
-          <Table
-            columns={columns}
-            loading={
-              isLoadingApproval ||
-              isLoadingEditApprover ||
-              allApproveIsLoading ||
-              allRejectIsLoading
-            }
-            dataSource={allFilterData}
-            pagination={false}
-            scroll={{ x: 'min-content' }}
-            id="time-attendance-approval-table"
-            data-cy="time-attendance-approval-table"
-          />
-          {isMobile || isTablet ? (
-            <CustomMobilePagination
-              totalResults={approvalData?.meta?.totalItems ?? 0}
-              pageSize={pageSize}
-              onChange={onPageChange}
-              onShowSizeChange={(newPageSize) => {
-                setPageSize(newPageSize);
-                setUserCurrentPage(1);
-              }}
-              data-cy="time-attendance-approval-table-mobile-pagination"
-            />
-          ) : (
-            <CustomPagination
-              current={userCurrentPage}
-              total={approvalData?.meta?.totalItems ?? 0}
-              pageSize={pageSize}
-              onChange={onPageChange}
-              onShowSizeChange={(newPageSize) => {
-                setPageSize(newPageSize);
-                setUserCurrentPage(1);
-              }}
-              data-cy="time-attendance-approval-table-pagination"
-            />
+              <Popconfirm
+                title="All Approve Request"
+                description="Are you sure to approve all leave request?"
+                onConfirm={() => {
+                  onAllApproveRequest();
+                }}
+                onCancel={cancel}
+                okText="Approve All"
+                cancelText="Cancel"
+                data-cy="time-attendance-approval-table-approve-all-popconfirm"
+              >
+                <Button
+                  disabled={
+                    isLoadingApproval ||
+                    isLoadingEditApprover ||
+                    allApproveIsLoading ||
+                    allRejectIsLoading
+                  }
+                  type="primary"
+                  id="time-attendance-approval-table-approve-all-button"
+                  data-cy="time-attendance-approval-table-approve-all-button"
+                >
+                  <Spin
+                    data-cy="time-attendance-approval-table-approve-all-spin"
+                    spinning={allApproveIsLoading}
+                  />
+                  Approve All
+                </Button>
+              </Popconfirm>
+            </>
           )}
-        </Card>
-      ) : (
-        ''
-      )}
-    </>
+          <Select
+            placeholder="Filter by status"
+            allowClear
+            options={[
+              { label: 'All statuses', value: '' },
+              ...statusFilterOptions,
+            ]}
+            value={filterStatus || undefined}
+            onChange={(v) => setFilterStatus(v ?? '')}
+            className="min-w-[160px]"
+            id="time-attendance-approval-table-filter-status"
+            data-cy="time-attendance-approval-table-filter-status"
+          />
+        </div>
+      </div>
+      <Table
+        rowSelection={rowSelection}
+        columns={columns}
+        loading={
+          isLoadingApproval ||
+          isLoadingEditApprover ||
+          allApproveIsLoading ||
+          allRejectIsLoading
+        }
+        dataSource={allFilterData}
+        pagination={false}
+        scroll={{ x: 'min-content' }}
+        locale={{ emptyText: 'No leave requests' }}
+        id="time-attendance-approval-table"
+        data-cy="time-attendance-approval-table"
+      />
+      <div
+        className="mx-3"
+        data-cy="time-attendance-approval-table-pagination-wrapper"
+      >
+        <MyTimesheetAttendancePagination
+          current={userCurrentPage}
+          total={approvalData?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={(newPageSize) => {
+            setPageSize(newPageSize);
+            setUserCurrentPage(1);
+          }}
+          id="time-attendance-approval-table-pagination"
+          data-cy="time-attendance-approval-table-pagination"
+        />
+      </div>
+    </Card>
   );
 };
 

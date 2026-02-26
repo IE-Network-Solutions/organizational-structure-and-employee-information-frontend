@@ -6,7 +6,10 @@ import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
-import { AttendanceRecord, AttendanceRecordType } from '@/types/timesheet/attendance';
+import {
+  AttendanceRecord,
+  AttendanceRecordType,
+} from '@/types/timesheet/attendance';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 
 const { Text } = Typography;
@@ -85,7 +88,10 @@ export default function RecentAttendanceCard() {
       data-cy="my-timesheet-overview-recent-attendance-card"
       id="my-timesheet-overview-recent-attendance-card"
     >
-      <div className="mb-1 shrink-0" data-cy="my-timesheet-overview-recent-attendance-header">
+      <div
+        className="mb-1 shrink-0"
+        data-cy="my-timesheet-overview-recent-attendance-header"
+      >
         <span
           className="block text-lg font-semibold text-gray-900"
           data-cy="my-timesheet-overview-recent-attendance-title"
@@ -100,7 +106,10 @@ export default function RecentAttendanceCard() {
           View All
         </Link>
       </div>
-      <div className="flex-1 min-h-0 overflow-y-auto pt-2 pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
+      <div
+        className="flex-1 min-h-0 overflow-y-auto pt-2 pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0"
+        data-cy="my-timesheet-overview-recent-attendance-list-container"
+      >
         <List
           loading={isFetching}
           dataSource={items}
@@ -108,37 +117,40 @@ export default function RecentAttendanceCard() {
           data-cy="my-timesheet-overview-recent-attendance-list"
           className="[&_.ant-list-item]:!py-1.5 [&_.ant-list-item]:!px-0"
           renderItem={(record) => (
-          <List.Item
-            className="!border-0 !border-b-0 !p-0"
-            data-cy={`my-timesheet-overview-recent-attendance-item-${record.id}`}
-          >
-            <div
-              className="flex w-full items-center justify-between rounded-md border border-gray-200 p-3"
-              data-cy={`my-timesheet-overview-recent-attendance-row-${record.id}`}
+            <List.Item
+              className="!border-0 !border-b-0 !p-0"
+              data-cy={`my-timesheet-overview-recent-attendance-item-${record.id}`}
             >
-              <div className="min-w-0 flex-1" data-cy={`my-timesheet-overview-recent-attendance-row-content-${record.id}`}>
-                <Text
-                  className="block text-gray-900 text-sm mb-1"
-                  data-cy={`my-timesheet-overview-recent-attendance-row-date-${record.id}`}
-                >
-                  {dayjs(record.createdAt).format(DATE_FORMAT)}
-                </Text>
-                <Text
-                  className="block   text-xs"
-                  data-cy={`my-timesheet-overview-recent-attendance-row-time-${record.id}`}
-                >
-                  {renderTimeDisplay(record)}
-                </Text>
-              </div>
               <div
-                className="shrink-0 flex flex-wrap justify-end gap-1"
-                data-cy={`my-timesheet-overview-recent-attendance-row-status-${record.id}`}
+                className="flex w-full items-center justify-between rounded-md border border-gray-200 p-3"
+                data-cy={`my-timesheet-overview-recent-attendance-row-${record.id}`}
               >
-                {renderStatus(record)}
+                <div
+                  className="min-w-0 flex-1"
+                  data-cy={`my-timesheet-overview-recent-attendance-row-content-${record.id}`}
+                >
+                  <Text
+                    className="block text-gray-900 text-sm mb-1"
+                    data-cy={`my-timesheet-overview-recent-attendance-row-date-${record.id}`}
+                  >
+                    {dayjs(record.createdAt).format(DATE_FORMAT)}
+                  </Text>
+                  <Text
+                    className="block   text-xs"
+                    data-cy={`my-timesheet-overview-recent-attendance-row-time-${record.id}`}
+                  >
+                    {renderTimeDisplay(record)}
+                  </Text>
+                </div>
+                <div
+                  className="shrink-0 flex flex-wrap justify-end gap-1"
+                  data-cy={`my-timesheet-overview-recent-attendance-row-status-${record.id}`}
+                >
+                  {renderStatus(record)}
+                </div>
               </div>
-            </div>
-          </List.Item>
-        )}
+            </List.Item>
+          )}
         />
       </div>
     </Card>

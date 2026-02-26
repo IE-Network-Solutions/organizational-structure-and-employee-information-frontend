@@ -1,5 +1,16 @@
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import { Checkbox, Col, DatePicker, Form, Input, Modal, Row, Select, Space, Spin } from 'antd';
+import {
+  Checkbox,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Spin,
+} from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -266,12 +277,18 @@ const LeaveRequestSidebar = () => {
       open={isShowLeaveRequestSidebar}
       onCancel={onClose}
       title={
-        <div>
-          <div className="text-base font-semibold">
+        <div data-cy="time-attendance-leave-request-sidebar-title-container">
+          <div
+            className="text-base font-semibold"
+            data-cy="time-attendance-leave-request-sidebar-title"
+          >
             {leaveRequest ? 'Update Leave Request' : 'New Leave Request'}
           </div>
           {!leaveRequest && (
-            <p className="text-sm font-normal text-gray-500 mt-1 mb-0">
+            <p
+              className="text-sm font-normal text-gray-500 mt-1 mb-0"
+              data-cy="time-attendance-leave-request-sidebar-description"
+            >
               Fill in the details to submit a new leave request.
             </p>
           )}
@@ -300,225 +317,224 @@ const LeaveRequestSidebar = () => {
       }}
     >
       <Spin
-            spinning={isLoading || isLoadingRequest}
-            data-cy="time-attendance-leave-request-sidebar-spin"
+        spinning={isLoading || isLoadingRequest}
+        data-cy="time-attendance-leave-request-sidebar-spin"
+      >
+        <Form
+          layout="vertical"
+          requiredMark={CustomLabel}
+          form={form}
+          autoComplete="off"
+          onFinish={onFinish}
+          id="time-attendance-leave-request-sidebar-form"
+          data-cy="time-attendance-leave-request-sidebar-form"
+        >
+          <Space.Compact
+            direction="vertical"
+            className="w-full px-3 sm:px-0 "
+            id="time-attendance-leave-request-sidebar-form-fields"
+            data-cy="time-attendance-leave-request-sidebar-form-fields"
           >
-            <Form
-              layout="vertical"
-              requiredMark={CustomLabel}
-              form={form}
-              autoComplete="off"
-              onFinish={onFinish}
-              id="time-attendance-leave-request-sidebar-form"
-              data-cy="time-attendance-leave-request-sidebar-form"
+            <Form.Item
+              name="type"
+              label="Leave Type"
+              rules={[{ required: true, message: 'Required' }]}
+              className={itemClass}
+              id="time-attendance-leave-request-sidebar-type"
+              data-cy="time-attendance-leave-request-sidebar-type"
             >
-              <Space.Compact
-                direction="vertical"
-                className="w-full px-3 sm:px-0 "
-                id="time-attendance-leave-request-sidebar-form-fields"
-                data-cy="time-attendance-leave-request-sidebar-form-fields"
+              <Select
+                className={controlClass}
+                size="middle"
+                options={typeOptions()}
+                placeholder="Select Leave Type"
+                disabled={leaveRequest?.status === LeaveRequestStatus.APPROVED}
+                suffixIcon={
+                  <MdKeyboardArrowDown
+                    data-cy="time-attendance-leave-request-sidebar-type-select-icon"
+                    size={16}
+                    className="text-gray-900"
+                  />
+                }
+                id="time-attendance-leave-request-sidebar-type-select"
+                data-cy="time-attendance-leave-request-sidebar-type-select"
+              />
+            </Form.Item>
+            <Form.Item
+              name="isHalfday"
+              valuePropName="checked"
+              className={itemClass}
+              id="time-attendance-leave-request-sidebar-half-day"
+              data-cy="time-attendance-leave-request-sidebar-half-day"
+            >
+              <Checkbox
+                disabled={leaveRequest?.status === LeaveRequestStatus.APPROVED}
+                data-cy="time-attendance-leave-request-sidebar-half-day-checkbox"
+              >
+                Half Date
+              </Checkbox>
+            </Form.Item>
+            <Row
+              data-cy="time-attendance-leave-request-sidebar-date-row"
+              gutter={16}
+            >
+              <Col
+                data-cy="time-attendance-leave-request-sidebar-start-date-column"
+                span={12}
               >
                 <Form.Item
-                  name="type"
-                  label="Leave Type"
-                  rules={[{ required: true, message: 'Required' }]}
+                  name="startDate"
+                  label="Start Date "
+                  rules={[
+                    { required: true, message: 'Required' },
+                    { validator: validateDates },
+                  ]}
                   className={itemClass}
-                  id="time-attendance-leave-request-sidebar-type"
-                  data-cy="time-attendance-leave-request-sidebar-type"
+                  id="time-attendance-leave-request-sidebar-start-date"
+                  data-cy="time-attendance-leave-request-sidebar-start-date"
                 >
-                  <Select
+                  <DatePicker
                     className={controlClass}
                     size="middle"
-                    options={typeOptions()}
-                    placeholder="Select Leave Type"
+                    onChange={handleChange}
                     disabled={
                       leaveRequest?.status === LeaveRequestStatus.APPROVED
                     }
-                    suffixIcon={
-                      <MdKeyboardArrowDown
-                        data-cy="time-attendance-leave-request-sidebar-type-select-icon"
-                        size={16}
-                        className="text-gray-900"
-                      />
-                    }
-                    id="time-attendance-leave-request-sidebar-type-select"
-                    data-cy="time-attendance-leave-request-sidebar-type-select"
+                    format={DATE_FORMAT}
+                    id="time-attendance-leave-request-sidebar-start-date-picker"
+                    data-cy="time-attendance-leave-request-sidebar-start-date-picker"
                   />
                 </Form.Item>
+              </Col>
+              <Col
+                span={12}
+                data-cy="time-attendance-leave-request-sidebar-end-date-column"
+              >
                 <Form.Item
-                  name="isHalfday"
-                  valuePropName="checked"
+                  name="endDate"
+                  label="End Date"
+                  rules={[
+                    { required: true, message: 'Required' },
+                    { validator: validateDates },
+                  ]}
                   className={itemClass}
-                  id="time-attendance-leave-request-sidebar-half-day"
-                  data-cy="time-attendance-leave-request-sidebar-half-day"
+                  id="time-attendance-leave-request-sidebar-end-date"
+                  data-cy="time-attendance-leave-request-sidebar-end-date"
                 >
-                  <Checkbox
-                    disabled={
-                      leaveRequest?.status === LeaveRequestStatus.APPROVED
-                    }
-                    data-cy="time-attendance-leave-request-sidebar-half-day-checkbox"
-                  >
-                    Half Date
-                  </Checkbox>
-                </Form.Item>
-                <Row
-                  data-cy="time-attendance-leave-request-sidebar-date-row"
-                  gutter={16}
-                >
-                  <Col
-                    data-cy="time-attendance-leave-request-sidebar-start-date-column"
-                    span={12}
-                  >
-                    <Form.Item
-                      name="startDate"
-                      label="Start Date "
-                      rules={[
-                        { required: true, message: 'Required' },
-                        { validator: validateDates },
-                      ]}
-                      className={itemClass}
-                      id="time-attendance-leave-request-sidebar-start-date"
-                      data-cy="time-attendance-leave-request-sidebar-start-date"
-                    >
-                      <DatePicker
-                        className={controlClass}
-                        size="middle"
-                        onChange={handleChange}
-                        disabled={
-                          leaveRequest?.status === LeaveRequestStatus.APPROVED
-                        }
-                        format={DATE_FORMAT}
-                        id="time-attendance-leave-request-sidebar-start-date-picker"
-                        data-cy="time-attendance-leave-request-sidebar-start-date-picker"
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col
-                    span={12}
-                    data-cy="time-attendance-leave-request-sidebar-end-date-column"
-                  >
-                    <Form.Item
-                      name="endDate"
-                      label="End Date"
-                      rules={[
-                        { required: true, message: 'Required' },
-                        { validator: validateDates },
-                      ]}
-                      className={itemClass}
-                      id="time-attendance-leave-request-sidebar-end-date"
-                      data-cy="time-attendance-leave-request-sidebar-end-date"
-                    >
-                      <DatePicker
-                        className={controlClass}
-                        size="middle"
-                        onChange={handleChange}
-                        disabled={
-                          leaveRequest?.status === LeaveRequestStatus.APPROVED
-                        }
-                        format={DATE_FORMAT}
-                        id="time-attendance-leave-request-sidebar-end-date-picker"
-                        data-cy="time-attendance-leave-request-sidebar-end-date-picker"
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Form.Item
-                  name="note"
-                  label="Reason"
-                  rules={[{ required: true, message: 'Required' }]}
-                  className={itemClass}
-                  id="time-attendance-leave-request-sidebar-reason"
-                  data-cy="time-attendance-leave-request-sidebar-reason"
-                >
-                  <Input.TextArea
-                    rows={4}
-                    size="middle"
-                    className="w-full"
-                    placeholder="Reason"
-                    disabled={
-                      leaveRequest?.status === LeaveRequestStatus.APPROVED
-                    }
-                    id="time-attendance-leave-request-sidebar-reason-input"
-                    data-cy="time-attendance-leave-request-sidebar-reason-input"
-                  />
-                </Form.Item>
-                <Form.Item
-                  name="delegatee"
-                  label="Delegate"
-                  rules={[{ required: true, message: 'Required' }]}
-                  className={itemClass}
-                  id="time-attendance-leave-request-sidebar-delegatee"
-                  data-cy="time-attendance-leave-request-sidebar-delegatee"
-                >
-                  <Select
-                    showSearch
-                    size="middle"
-                    placeholder="Select Delegate"
+                  <DatePicker
                     className={controlClass}
-                    allowClear
-                    filterOption={(input: any, option: any) =>
-                      (option?.label ?? '')
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
+                    size="middle"
+                    onChange={handleChange}
+                    disabled={
+                      leaveRequest?.status === LeaveRequestStatus.APPROVED
                     }
-                    options={employeeData?.items?.map((item: any) => ({
-                      value: item?.id,
-                      label:
-                        item?.firstName +
-                        ' ' +
-                        item?.middleName +
-                        ' ' +
-                        item?.lastName,
-                    }))}
-                    id="time-attendance-leave-request-sidebar-delegatee-select"
-                    data-cy="time-attendance-leave-request-sidebar-delegatee-select"
+                    format={DATE_FORMAT}
+                    id="time-attendance-leave-request-sidebar-end-date-picker"
+                    data-cy="time-attendance-leave-request-sidebar-end-date-picker"
                   />
                 </Form.Item>
-                <Form.Item
-                  name="attachment"
-                  label="Attachment (optional)"
-                  valuePropName="fileList"
-                  className={itemClass}
-                  id="time-attendance-leave-request-sidebar-attachment"
-                  data-cy="time-attendance-leave-request-sidebar-attachment"
-                  getValueFromEvent={(e) => {
-                    return Array.isArray(e) ? e : e && e.fileList;
-                  }}
+              </Col>
+            </Row>
+            <Form.Item
+              name="note"
+              label="Reason"
+              rules={[{ required: true, message: 'Required' }]}
+              className={itemClass}
+              id="time-attendance-leave-request-sidebar-reason"
+              data-cy="time-attendance-leave-request-sidebar-reason"
+            >
+              <Input.TextArea
+                rows={4}
+                size="middle"
+                className="w-full"
+                placeholder="Reason"
+                disabled={leaveRequest?.status === LeaveRequestStatus.APPROVED}
+                id="time-attendance-leave-request-sidebar-reason-input"
+                data-cy="time-attendance-leave-request-sidebar-reason-input"
+              />
+            </Form.Item>
+            <Form.Item
+              name="delegatee"
+              label="Delegate"
+              rules={[{ required: true, message: 'Required' }]}
+              className={itemClass}
+              id="time-attendance-leave-request-sidebar-delegatee"
+              data-cy="time-attendance-leave-request-sidebar-delegatee"
+            >
+              <Select
+                showSearch
+                size="middle"
+                placeholder="Select Delegate"
+                className={controlClass}
+                allowClear
+                filterOption={(input: any, option: any) =>
+                  (option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={employeeData?.items?.map((item: any) => ({
+                  value: item?.id,
+                  label:
+                    item?.firstName +
+                    ' ' +
+                    item?.middleName +
+                    ' ' +
+                    item?.lastName,
+                }))}
+                id="time-attendance-leave-request-sidebar-delegatee-select"
+                data-cy="time-attendance-leave-request-sidebar-delegatee-select"
+              />
+            </Form.Item>
+            <Form.Item
+              name="attachment"
+              label="Attachment (optional)"
+              valuePropName="fileList"
+              className={itemClass}
+              id="time-attendance-leave-request-sidebar-attachment"
+              data-cy="time-attendance-leave-request-sidebar-attachment"
+              getValueFromEvent={(e) => {
+                return Array.isArray(e) ? e : e && e.fileList;
+              }}
+            >
+              <CustomUpload
+                className="w-full"
+                accept=".pdf,.docx,.png,.jpeg,.jpg"
+                name="attachment"
+                mode="draggable"
+                maxCount={1}
+                icon={
+                  <InboxOutlined
+                    style={{ fontSize: 40 }}
+                    className="text-primary"
+                  />
+                }
+                title="Click or drag file to this area to upload"
+                dragTitleClassName="font-normal text-sm text-gray-700"
+                dragSubtitleClassName="font-normal text-sm text-gray-500"
+                showDragSubtitle={false}
+                setIsLoading={setIsLoading}
+                data-cy="time-attendance-leave-request-sidebar-attachment-upload"
+              />
+            </Form.Item>
+            {showApproverMessage && (
+              <div
+                className="mt-6 mb-4 px-5 py-4 bg-white rounded-xl border-2 border-orange-200 shadow-md"
+                id="time-attendance-leave-request-sidebar-approver-message"
+                data-cy="time-attendance-leave-request-sidebar-approver-message"
+              >
+                <p
+                  className="text-base font-medium text-gray-800 m-0 leading-relaxed"
+                  id="time-attendance-leave-request-sidebar-approver-message-text"
+                  data-cy="time-attendance-leave-request-sidebar-approver-message-text"
                 >
-                  <CustomUpload
-                    className="w-full"
-                    accept=".pdf,.docx,.png,.jpeg,.jpg"
-                    name="attachment"
-                    mode="draggable"
-                    maxCount={1}
-                    icon={<InboxOutlined style={{ fontSize: 40 }} className="text-primary" />}
-                    title="Click or drag file to this area to upload"
-                    dragTitleClassName="font-normal text-sm text-gray-700"
-                    dragSubtitleClassName="font-normal text-sm text-gray-500"
-                    showDragSubtitle={false}
-                    setIsLoading={setIsLoading}
-                    data-cy="time-attendance-leave-request-sidebar-attachment-upload"
-                  />
-                </Form.Item>
-                {showApproverMessage && (
-                  <div
-                    className="mt-6 mb-4 px-5 py-4 bg-white rounded-xl border-2 border-orange-200 shadow-md"
-                    id="time-attendance-leave-request-sidebar-approver-message"
-                    data-cy="time-attendance-leave-request-sidebar-approver-message"
-                  >
-                    <p
-                      className="text-base font-medium text-gray-800 m-0 leading-relaxed"
-                      id="time-attendance-leave-request-sidebar-approver-message-text"
-                      data-cy="time-attendance-leave-request-sidebar-approver-message-text"
-                    >
-                      You lack approver please contact your team lead for more
-                      information
-                    </p>
-                  </div>
-                )}
-              </Space.Compact>
-            </Form>
-          </Spin>
+                  You lack approver please contact your team lead for more
+                  information
+                </p>
+              </div>
+            )}
+          </Space.Compact>
+        </Form>
+      </Spin>
     </Modal>
   );
 };

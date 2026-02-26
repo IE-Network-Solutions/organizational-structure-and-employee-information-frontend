@@ -1,8 +1,6 @@
 'use client';
 
-import { Typography } from 'antd';
-
-const { Title } = Typography;
+import ApprovalTable from '../_components/approvalTable';
 
 export default function MyApprovalsPage() {
   return (
@@ -10,9 +8,7 @@ export default function MyApprovalsPage() {
       id="time-attendance-my-timesheet-my-approvals-page"
       data-cy="time-attendance-my-timesheet-my-approvals-page"
     >
-      <Title level={5} className="!mb-0 !text-gray-700">
-        My Approvals content will go here (approval table, search, filter).
-      </Title>
+      <ApprovalTable />
     </div>
   );
 }

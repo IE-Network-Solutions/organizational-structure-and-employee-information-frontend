@@ -109,7 +109,11 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
 
   const exportMenuItems: MenuProps['items'] = [
     { key: 'pdf', label: 'Export as PDF', onClick: () => handleExport('PDF') },
-    { key: 'excel', label: 'Export as Excel', onClick: () => handleExport('EXCEL') },
+    {
+      key: 'excel',
+      label: 'Export as Excel',
+      onClick: () => handleExport('EXCEL'),
+    },
   ];
 
   // Table columns (default: full set including Location, Over-time)
@@ -292,7 +296,10 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       dataIndex: 'startAt',
       key: 'startAt',
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-attendance-table-row-clock-in-div">
+        <div
+          className="text-sm text-gray-900 py-4"
+          data-cy="time-attendance-attendance-table-row-clock-in-div"
+        >
           {date ? dayjs(date).format('HH:mm') : '-'}
         </div>
       ),
@@ -302,7 +309,10 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       dataIndex: 'endAt',
       key: 'endAt',
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-attendance-table-row-clock-out-div">
+        <div
+          className="text-sm text-gray-900 py-4"
+          data-cy="time-attendance-attendance-table-row-clock-out-div"
+        >
           {date ? dayjs(date).format('HH:mm') : '-'}
         </div>
       ),
@@ -311,10 +321,14 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       title: 'Total Hours',
       dataIndex: 'totalTime',
       key: 'totalTime',
-      render: (_: unknown, record: AttendanceRecord) => {
+      render: (unused: unknown, record: AttendanceRecord) => {
+        void unused;
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(record);
         return (
-          <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-attendance-table-row-total-time-div">
+          <div
+            className="text-sm text-gray-900 py-4"
+            data-cy="time-attendance-attendance-table-row-total-time-div"
+          >
             {record.startAt && record.endAt
               ? `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)}`
               : '-'}
@@ -325,10 +339,14 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
     {
       title: 'Total Break',
       key: 'totalBreak',
-      render: (_: unknown, record: AttendanceRecord) => {
+      render: (unused: unknown, record: AttendanceRecord) => {
+        void unused;
         const breakMs = calculateAttendanceRecordToTotalBreakTimeMs(record);
         return (
-          <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-attendance-table-row-total-break-div">
+          <div
+            className="text-sm text-gray-900 py-4"
+            data-cy="time-attendance-attendance-table-row-total-break-div"
+          >
             {breakMs > 0
               ? `${timeToHour(breakMs)}:${timeToLastMinute(breakMs)}`
               : '-'}
@@ -340,11 +358,18 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (_: unknown, record: AttendanceRecord) => {
+      render: (unused: unknown, record: AttendanceRecord) => {
+        void unused;
         const statuses = formatToAttendanceStatuses(record);
         return (
-          <div className="py-4" data-cy="time-attendance-attendance-table-row-status-container">
-            <Space wrap data-cy="time-attendance-attendance-table-row-status-space">
+          <div
+            className="py-4"
+            data-cy="time-attendance-attendance-table-row-status-container"
+          >
+            <Space
+              wrap
+              data-cy="time-attendance-attendance-table-row-status-space"
+            >
               {statuses.map((status) => (
                 <Tag
                   color={ATTENDANCE_STATUS_TAG_COLOR[status.status]}
@@ -362,7 +387,8 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
     },
   ];
 
-  const columns = variant === 'myTimesheet' ? myTimesheetColumns : defaultColumns;
+  const columns =
+    variant === 'myTimesheet' ? myTimesheetColumns : defaultColumns;
 
   const onFilterChange = (val: CommonObject) => {
     const nFilter: Partial<AttendanceRequestBody['filter']> = { ...userFilter };
@@ -461,14 +487,18 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
             data-cy="time-attendance-attendance-table-desktop-filter"
           />
           {variant === 'myTimesheet' && (
-            <Dropdown menu={{ items: exportMenuItems }} trigger={['click']} placement="bottomRight">
+            <Dropdown
+              menu={{ items: exportMenuItems }}
+              trigger={['click']}
+              placement="bottomRight"
+            >
               <Button
                 type="primary"
                 ghost={true}
-                icon={<PiExportLight  size={16} />}
+                icon={<PiExportLight size={16} />}
                 data-cy="my-timesheet-attendance-export-button"
                 id="my-timesheet-attendance-export-button"
-                className='border-gray-300 text-gray-500 font-medium hover:text-primary hover:border-primary'
+                className="border-gray-300 text-gray-500 font-medium hover:text-primary hover:border-primary"
               >
                 Export
               </Button>

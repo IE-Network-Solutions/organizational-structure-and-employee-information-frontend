@@ -136,7 +136,10 @@ const HistoryTable = () => {
       key: 'startAt',
       sorter: true,
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-leave-requests-table-start-date">
+        <div
+          className="text-sm text-gray-900 py-4"
+          data-cy="time-attendance-leave-requests-table-start-date"
+        >
           {date ? dayjs(date).format(DATE_DISPLAY_FORMAT) : '-'}
         </div>
       ),
@@ -147,7 +150,10 @@ const HistoryTable = () => {
       key: 'endAt',
       sorter: true,
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-leave-requests-table-end-date">
+        <div
+          className="text-sm text-gray-900 py-4"
+          data-cy="time-attendance-leave-requests-table-end-date"
+        >
           {date ? dayjs(date).format(DATE_DISPLAY_FORMAT) : '-'}
         </div>
       ),
@@ -158,7 +164,10 @@ const HistoryTable = () => {
       key: 'days',
       sorter: true,
       render: (text: number) => (
-        <div className="text-sm text-gray-900 py-4" data-cy="time-attendance-leave-requests-table-days">
+        <div
+          className="text-sm text-gray-900 py-4"
+          data-cy="time-attendance-leave-requests-table-days"
+        >
           {text}
         </div>
       ),
@@ -168,7 +177,11 @@ const HistoryTable = () => {
       dataIndex: 'reason',
       key: 'reason',
       render: (text: string) => (
-        <div className="text-sm text-gray-900 py-4 max-w-[200px] truncate" data-cy="time-attendance-leave-requests-table-reason" title={text}>
+        <div
+          className="text-sm text-gray-900 py-4 max-w-[200px] truncate"
+          data-cy="time-attendance-leave-requests-table-reason"
+          title={text}
+        >
           {text || '-'}
         </div>
       ),
@@ -183,8 +196,14 @@ const HistoryTable = () => {
           label: text,
         };
         return (
-          <div className="py-4" data-cy="time-attendance-leave-requests-table-status">
-            <Tag color={config.color} data-cy="time-attendance-history-table-row-status-tag">
+          <div
+            className="py-4"
+            data-cy="time-attendance-leave-requests-table-status"
+          >
+            <Tag
+              color={config.color}
+              data-cy="time-attendance-history-table-row-status-tag"
+            >
               {config.label}
             </Tag>
           </div>
@@ -258,7 +277,10 @@ const HistoryTable = () => {
           id="time-attendance-history-table-toolbar"
           data-cy="time-attendance-history-table-toolbar"
         >
-          <div className="flex-1 min-w-0">
+          <div
+            className="flex-1 min-w-0"
+            data-cy="time-attendance-history-table-filter-wrapper"
+          >
             <HistoryTableFilter
               onChange={onFilterChange}
               data-cy="time-attendance-history-table-filter"
@@ -277,19 +299,29 @@ const HistoryTable = () => {
               id="time-attendance-history-table-new-request-button"
               data-cy="time-attendance-history-table-new-request-button"
             >
-              <span className="inline">New Request</span>
+              <span
+                className="inline"
+                data-cy="time-attendance-history-table-new-request-button-label"
+              >
+                New Request
+              </span>
             </Button>
           </AccessGuard>
         </div>
 
-        <div className="border-t border-gray-200">
+        <div
+          className="border-t border-gray-200"
+          data-cy="time-attendance-history-table-container"
+        >
           <Table
             className="leave-table"
             columns={columns}
             loading={isFetching}
             dataSource={tableData}
             pagination={false}
-            onChange={(_pagination, _filters, sorter: any) => {
+            onChange={(paginationUnused, filtersUnused, sorter: any) => {
+              void paginationUnused;
+              void filtersUnused;
               setOrderDirection(sorter['order']);
               setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
             }}

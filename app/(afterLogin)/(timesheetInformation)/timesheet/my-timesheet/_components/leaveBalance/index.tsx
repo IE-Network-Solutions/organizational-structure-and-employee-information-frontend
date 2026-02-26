@@ -20,7 +20,7 @@ const LeaveBalance = () => {
   const [swiper, setSwiper] = useState<SwiperType>();
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
-  const { data, isLoading } = useGetLeaveBalance(userId, '');
+  const { data } = useGetLeaveBalance(userId, '');
   const { isMobile } = useIsMobile();
 
   const filteredItems =
@@ -76,11 +76,19 @@ const LeaveBalance = () => {
                   1920: { slidesPerView: 3.5 },
                 }}
               >
-                {Array.from({ length: SKELETON_CARD_COUNT }).map((_, i) => (
-                  <SwiperSlide key={i} data-cy={`time-attendance-leave-balance-skeleton-slide-${i}`}>
-                    <LeaveBalanceCardSkeleton />
-                  </SwiperSlide>
-                ))}
+                {Array.from({ length: SKELETON_CARD_COUNT }).map(
+                  (unusedSlide, i) => {
+                    void unusedSlide;
+                    return (
+                      <SwiperSlide
+                        key={i}
+                        data-cy={`time-attendance-leave-balance-skeleton-slide-${i}`}
+                      >
+                        <LeaveBalanceCardSkeleton />
+                      </SwiperSlide>
+                    );
+                  },
+                )}
               </Swiper>
             ) : (
               <Swiper
@@ -113,7 +121,9 @@ const LeaveBalance = () => {
                   >
                     <LeaveBalanceCard
                       title={item?.leaveType?.title ?? ''}
-                      available={parseFloat((item.totalBalance ?? 0).toFixed(1))}
+                      available={parseFloat(
+                        (item.totalBalance ?? 0).toFixed(1),
+                      )}
                       entitled={item?.entitledDays ?? item?.entitled ?? 0}
                       used={item?.usedDays ?? item?.utilized ?? 0}
                       carried={item?.carriedOver ?? item?.carried ?? 0}

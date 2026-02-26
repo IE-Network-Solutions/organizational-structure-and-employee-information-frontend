@@ -60,15 +60,12 @@ function getOngoingBreak(
 export default function CurrentTimeCard() {
   const [currentTime, setCurrentTime] = useState(dayjs());
   const { userId } = useAuthenticationStore();
-  const {
-    checkStatus,
-    currentAttendance,
-    setCurrentAttendance,
-    breakTypes,
-  } = useMyTimesheetStore();
+  const { checkStatus, currentAttendance, setCurrentAttendance, breakTypes } =
+    useMyTimesheetStore();
 
-  const { data: currentAttendanceData, isFetching } =
-    useGetCurrentAttendance(userId ?? '');
+  const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance(
+    userId ?? '',
+  );
   const { mutate: setCurrentAttendanceMutation, isLoading } =
     useSetCurrentAttendance();
 
@@ -85,16 +82,13 @@ export default function CurrentTimeCard() {
 
   const getCoords = (callback: (position: GeolocationPosition) => void) => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        callback,
-        () => {
-          NotificationMessage.error({
-            message: 'No access to geolocation',
-            description:
-              'To check-in/check-out we need to have access to geolocation.',
-          });
-        },
-      );
+      navigator.geolocation.getCurrentPosition(callback, () => {
+        NotificationMessage.error({
+          message: 'No access to geolocation',
+          description:
+            'To check-in/check-out we need to have access to geolocation.',
+        });
+      });
     } else {
       NotificationMessage.error({
         message: 'No access to geolocation',
@@ -177,7 +171,10 @@ export default function CurrentTimeCard() {
         className="flex flex-col gap-4"
         data-cy="my-timesheet-overview-current-time-card-content"
       >
-        <div className="flex flex-row items-center justify-between gap-4">
+        <div
+          className="flex flex-row items-center justify-between gap-4"
+          data-cy="my-timesheet-overview-current-time-card-row"
+        >
           <div data-cy="my-timesheet-overview-current-time-card-left">
             <Text
               className="block text-gray-400 text-sm font-medium mb-1"
@@ -199,101 +196,106 @@ export default function CurrentTimeCard() {
             </Text>
           </div>
 
-          <div className="shrink-0 self-center" data-cy="my-timesheet-overview-current-time-card-actions">
-          {!hasCheckedOutToday && checkStatus === CheckStatus.notStarted && (
-            <AccessGuard
-              permissions={[Permissions.CheckInRemotely]}
-              data-cy="my-timesheet-overview-check-in-guard"
-            >
-              <Button
-                type="primary"
-                size="large"
-                icon={<CiLogin size={20} />}
-                loading={loading}
-                onClick={handleCheckIn}
-                data-cy="my-timesheet-overview-check-in-button"
-                id="my-timesheet-overview-check-in-button"
-                className="px-8 py-6 text-lg font-medium"
+          <div
+            className="shrink-0 self-center"
+            data-cy="my-timesheet-overview-current-time-card-actions"
+          >
+            {!hasCheckedOutToday && checkStatus === CheckStatus.notStarted && (
+              <AccessGuard
+                permissions={[Permissions.CheckInRemotely]}
+                data-cy="my-timesheet-overview-check-in-guard"
               >
-                Check In
-              </Button>
-            </AccessGuard>
-          )}
-
-          {!hasCheckedOutToday && checkStatus === CheckStatus.started && (
-            <AccessGuard
-              permissions={[Permissions.CheckOutRemotely]}
-              data-cy="my-timesheet-overview-check-out-guard"
-            >
-              <Space
-                direction="vertical"
-                size="middle"
-                className="w-full sm:w-auto"
-                data-cy="my-timesheet-overview-current-time-card-started-actions"
-              >
-                {currentBreakByTime && (
-                  <Button
-                    type="primary"
-                    ghost
-                    size="large"
-                    icon={<RiCupLine size={20} />}
-                    loading={loading}
-                    onClick={() => handleBreakStart(currentBreakByTime.id ?? '')}
-                    data-cy="my-timesheet-overview-break-start-button"
-                    id="my-timesheet-overview-break-start-button"
-                    className="!border-primary !text-primary hover:!bg-primary/10 px-8 py-6 text-lg font-medium"
-                  >
-                    {currentBreakByTime.title} Start
-                  </Button>
-                )}
                 <Button
                   type="primary"
                   size="large"
                   icon={<CiLogin size={20} />}
                   loading={loading}
-                  onClick={handleCheckOut}
-                  data-cy="my-timesheet-overview-check-out-button"
-                  id="my-timesheet-overview-check-out-button"
+                  onClick={handleCheckIn}
+                  data-cy="my-timesheet-overview-check-in-button"
+                  id="my-timesheet-overview-check-in-button"
                   className="px-8 py-6 text-lg font-medium"
                 >
-                  Check Out
+                  Check In
                 </Button>
-              </Space>
-            </AccessGuard>
-          )}
+              </AccessGuard>
+            )}
 
-          {!hasCheckedOutToday && checkStatus === CheckStatus.breaking && (
-            <AccessGuard
-              permissions={[Permissions.CheckInRemotely]}
-              data-cy="my-timesheet-overview-end-break-guard"
-            >
-              <div
-                className="flex flex-col items-end gap-2"
-                data-cy="my-timesheet-overview-current-time-card-breaking-actions"
+            {!hasCheckedOutToday && checkStatus === CheckStatus.started && (
+              <AccessGuard
+                permissions={[Permissions.CheckOutRemotely]}
+                data-cy="my-timesheet-overview-check-out-guard"
               >
-                {ongoingBreak && (
-                  <Text
-                    className="text-gray-500 text-sm"
-                    data-cy="my-timesheet-overview-on-break-status"
+                <Space
+                  direction="vertical"
+                  size="middle"
+                  className="w-full sm:w-auto"
+                  data-cy="my-timesheet-overview-current-time-card-started-actions"
+                >
+                  {currentBreakByTime && (
+                    <Button
+                      type="primary"
+                      ghost
+                      size="large"
+                      icon={<RiCupLine size={20} />}
+                      loading={loading}
+                      onClick={() =>
+                        handleBreakStart(currentBreakByTime.id ?? '')
+                      }
+                      data-cy="my-timesheet-overview-break-start-button"
+                      id="my-timesheet-overview-break-start-button"
+                      className="!border-primary !text-primary hover:!bg-primary/10 px-8 py-6 text-lg font-medium"
+                    >
+                      {currentBreakByTime.title} Start
+                    </Button>
+                  )}
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<CiLogin size={20} />}
+                    loading={loading}
+                    onClick={handleCheckOut}
+                    data-cy="my-timesheet-overview-check-out-button"
+                    id="my-timesheet-overview-check-out-button"
+                    className="px-8 py-6 text-lg font-medium"
                   >
-                    On {ongoingBreak.title} - Timer Running
-                  </Text>
-                )}
-                <Button
-                type="primary"
-                size="large"
-                icon={<CiAlarmOn  size={20} />}
-                loading={loading}
-                onClick={handleCheckIn}
-                data-cy="my-timesheet-overview-end-break-button"
-                id="my-timesheet-overview-end-break-button"
-                className="px-8 py-6 text-lg font-medium"
+                    Check Out
+                  </Button>
+                </Space>
+              </AccessGuard>
+            )}
+
+            {!hasCheckedOutToday && checkStatus === CheckStatus.breaking && (
+              <AccessGuard
+                permissions={[Permissions.CheckInRemotely]}
+                data-cy="my-timesheet-overview-end-break-guard"
               >
-                End Break
-              </Button>
-              </div>
-            </AccessGuard>
-          )}
+                <div
+                  className="flex flex-col items-end gap-2"
+                  data-cy="my-timesheet-overview-current-time-card-breaking-actions"
+                >
+                  {ongoingBreak && (
+                    <Text
+                      className="text-gray-500 text-sm"
+                      data-cy="my-timesheet-overview-on-break-status"
+                    >
+                      On {ongoingBreak.title} - Timer Running
+                    </Text>
+                  )}
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<CiAlarmOn size={20} />}
+                    loading={loading}
+                    onClick={handleCheckIn}
+                    data-cy="my-timesheet-overview-end-break-button"
+                    id="my-timesheet-overview-end-break-button"
+                    className="px-8 py-6 text-lg font-medium"
+                  >
+                    End Break
+                  </Button>
+                </div>
+              </AccessGuard>
+            )}
           </div>
         </div>
 

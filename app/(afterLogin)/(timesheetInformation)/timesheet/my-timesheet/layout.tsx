@@ -1,10 +1,13 @@
 'use client';
 
 import { FC, ReactNode, useEffect } from 'react';
-import { Tabs, Breadcrumb } from 'antd';
+import { Tabs, Breadcrumb, Button } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
 import type { TabsProps } from 'antd';
+import { FaPlus } from 'react-icons/fa';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedArea/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
@@ -12,6 +15,7 @@ import ViewAttendanceSidebar from './_components/viewAttendanceSidebar';
 import CheckOutSidebar from './_components/checkOutSidebar';
 import LeaveRequestSidebar from './_components/leaveRequestSidebar';
 import LeaveRequestDetail from './_components/leaveRequestDetail';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const MY_TIMESHEET_BASE = '/timesheet/my-timesheet';
 
@@ -22,7 +26,13 @@ interface MyTimesheetLayoutProps {
 const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { setLeaveTypes, setAllowedAreas, setBreakTypes } = useMyTimesheetStore();
+  const { isMobile } = useIsMobile();
+  const {
+    setLeaveTypes,
+    setAllowedAreas,
+    setBreakTypes,
+    setIsShowLeaveRequestSidebar,
+  } = useMyTimesheetStore();
 
   const { data: leaveTypesData } = useGetLeaveTypes();
   const { data: allowAreasData } = useGetAllowedAreas();
@@ -136,37 +146,59 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
           data-cy="time-attendance-my-timesheet-header-container"
           id="time-attendance-my-timesheet-header-container"
         >
-          <h3
-            className="text-gray-900 text-2xl font-bold mb-0"
-            data-cy="time-attendance-my-timesheet-page-title"
-            id="time-attendance-my-timesheet-page-title"
+          <div
+            className="flex flex-wrap items-start justify-between gap-3"
+            data-cy="time-attendance-my-timesheet-header-actions"
           >
-            My Timesheet
-          </h3>
-          <Breadcrumb
-            className="mt-2 mb-4"
-            items={[
-              {
-                title: (
-                  <a
-                    href="/timesheet"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      router.push('/timesheet');
-                    }}
-                    data-cy="time-attendance-my-timesheet-breadcrumb-timesheet-link"
-                  >
-                    Time and Attendance
-                  </a>
-                ),
-              },
-              {
-                title: 'My Timesheet',
-              },
-            ]}
-            data-cy="time-attendance-my-timesheet-breadcrumb"
-            id="time-attendance-my-timesheet-breadcrumb"
-          />
+            <div data-cy="time-attendance-my-timesheet-header-title-area">
+              <h3
+                className="text-gray-900 text-xl sm:text-2xl font-bold mb-0"
+                data-cy="time-attendance-my-timesheet-page-title"
+                id="time-attendance-my-timesheet-page-title"
+              >
+                My Timesheet
+              </h3>
+              <Breadcrumb
+                className="mt-2 mb-4"
+                items={[
+                  {
+                    title: (
+                      <a
+                        href="/timesheet"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          router.push('/timesheet');
+                        }}
+                        data-cy="time-attendance-my-timesheet-breadcrumb-timesheet-link"
+                      >
+                        Time and Attendance
+                      </a>
+                    ),
+                  },
+                  {
+                    title: 'My Timesheet',
+                  },
+                ]}
+                data-cy="time-attendance-my-timesheet-breadcrumb"
+                id="time-attendance-my-timesheet-breadcrumb"
+              />
+            </div>
+            {activeKey === 'leave' && isMobile && (
+              <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<FaPlus />}
+                  onClick={() => setIsShowLeaveRequestSidebar(true)}
+                  className="shrink-0 h-10"
+                  id="time-attendance-my-timesheet-new-request-button"
+                  data-cy="time-attendance-my-timesheet-new-request-button"
+                >
+                  New Request
+                </Button>
+              </AccessGuard>
+            )}
+          </div>
         </div>
 
         <div
@@ -174,7 +206,10 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
           data-cy="time-attendance-my-timesheet-tabs-container"
           id="time-attendance-my-timesheet-tabs-container"
         >
-          <div className="px-4 pr-4 sm:pr-6" data-cy="time-attendance-my-timesheet-tabs-wrapper">
+          <div
+            className="px-4 pr-4 sm:pr-6"
+            data-cy="time-attendance-my-timesheet-tabs-wrapper"
+          >
             <Tabs
               activeKey={activeKey}
               onChange={handleTabChange}

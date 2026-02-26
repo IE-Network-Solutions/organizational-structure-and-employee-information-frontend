@@ -71,10 +71,6 @@ const LeaveRequestDetail = () => {
   );
   const [form] = Form.useForm();
 
-  const userData = (id: string) => {
-    const user = employeeData?.items?.find((item: any) => item.id === id);
-    return `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim();
-  };
   const userImage = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user?.profileImage;
@@ -340,15 +336,26 @@ const LeaveRequestDetail = () => {
           data-cy="time-attendance-leave-request-detail-content-spin"
         >
           {/* Title: leave type name; subtitle: X Days + status tag */}
-          <div className="mb-6">
+          <div
+            className="mb-6"
+            data-cy="time-attendance-leave-request-detail-header-section"
+          >
             <h2
               className="text-xl font-bold text-gray-900 mb-1"
               data-cy="time-attendance-leave-request-detail-header"
             >
               {leaveTypeTitle || 'Leave Request'}
             </h2>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-gray-500">{daysLabel}</span>
+            <div
+              className="flex items-center gap-2 flex-wrap"
+              data-cy="time-attendance-leave-request-detail-days-and-status"
+            >
+              <span
+                className="text-sm text-gray-500"
+                data-cy="time-attendance-leave-request-detail-days-label"
+              >
+                {daysLabel}
+              </span>
               <Tag
                 color={statusConfig.color}
                 data-cy="time-attendance-leave-request-detail-status-tag"
@@ -363,17 +370,26 @@ const LeaveRequestDetail = () => {
             className="mb-1"
             data-cy="time-attendance-leave-request-detail-approval-stages"
           >
-            <div className="text-sm font-semibold text-gray-900">
+            <div
+              className="text-sm font-semibold text-gray-900"
+              data-cy="time-attendance-leave-request-detail-approval-stages-title"
+            >
               Approval Stages
             </div>
             {isLogDataLoading ? (
-              <div className="flex items-center gap-2">
-                {Array.from({ length: 4 }).map((_, idx) => (
-                  <ApprovalStatusCardSkeleton
-                    key={`skeleton-${idx}`}
-                    dataCyPrefix={`time-attendance-leave-request-detail-approval-skeleton-${idx}`}
-                  />
-                ))}
+              <div
+                className="flex items-center gap-2"
+                data-cy="time-attendance-leave-request-detail-approval-stages-skeleton"
+              >
+                {Array.from({ length: 4 }).map((unusedPlaceholder, idx) => {
+                  void unusedPlaceholder;
+                  return (
+                    <ApprovalStatusCardSkeleton
+                      key={`skeleton-${idx}`}
+                      dataCyPrefix={`time-attendance-leave-request-detail-approval-skeleton-${idx}`}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div
@@ -391,7 +407,6 @@ const LeaveRequestDetail = () => {
                     );
                     return idx >= 0 ? idx : sortedApprovalData.length;
                   })()}
-
                 >
                   {sortedApprovalData.map((step: ApprovalRecord) => {
                     const displayUserId =
@@ -403,10 +418,10 @@ const LeaveRequestDetail = () => {
                           ? 'error'
                           : 'process';
                     // Red border for rejected; gray for finished/current
-                  
+
                     return (
                       <Steps.Step
-                      className='m-0 p-0'
+                        className="m-0 p-0"
                         key={step.stepOrder}
                         status={stepStatus}
                         icon={
@@ -435,9 +450,15 @@ const LeaveRequestDetail = () => {
                 className="mb-6 p-4 rounded-lg border-2 border-red-200 bg-red-50"
                 data-cy="time-attendance-leave-request-detail-rejection-reason"
               >
-                <div className="flex items-start gap-3">
+                <div
+                  className="flex items-start gap-3"
+                  data-cy="time-attendance-leave-request-detail-rejection-reason-content"
+                >
                   {rejectionUserId && (
-                    <div className="rounded-full w-10 h-10 shrink-0 ring-2 ring-red-500 overflow-hidden bg-gray-100 flex items-center justify-center">
+                    <div
+                      className="rounded-full w-10 h-10 shrink-0 ring-2 ring-red-500 overflow-hidden bg-gray-100 flex items-center justify-center"
+                      data-cy="time-attendance-leave-request-detail-rejection-avatar"
+                    >
                       <Avatar
                         size={40}
                         src={userImage(String(rejectionUserId))}
@@ -446,11 +467,17 @@ const LeaveRequestDetail = () => {
                       />
                     </div>
                   )}
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900 mb-1">
+                  <div data-cy="time-attendance-leave-request-detail-rejection-reason-text">
+                    <div
+                      className="text-sm font-semibold text-gray-900 mb-1"
+                      data-cy="time-attendance-leave-request-detail-rejection-reason-label"
+                    >
                       Rejection Reason
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div
+                      className="text-sm text-gray-700"
+                      data-cy="time-attendance-leave-request-detail-rejection-reason-body"
+                    >
                       {rejectionComment || 'No reason provided.'}
                     </div>
                   </div>

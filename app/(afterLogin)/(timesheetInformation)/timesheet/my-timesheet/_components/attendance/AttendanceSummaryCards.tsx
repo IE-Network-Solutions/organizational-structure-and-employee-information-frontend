@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
-import { MdOutlineWarningAmber } from 'react-icons/md';
 import { CiCalendar } from 'react-icons/ci';
 import { AiOutlineExclamationCircle } from 'react-icons/ai';
 
@@ -57,7 +56,7 @@ export default function AttendanceSummaryCards() {
           className="flex items-start justify-between gap-3"
           data-cy="my-timesheet-attendance-summary-late-content"
         >
-          <div>
+          <div data-cy="my-timesheet-attendance-summary-late-stats">
             <div
               className="text-4xl font-bold text-red-600"
               data-cy="my-timesheet-attendance-summary-late-count"
@@ -95,7 +94,7 @@ export default function AttendanceSummaryCards() {
           className="flex items-start justify-between gap-3"
           data-cy="my-timesheet-attendance-summary-absents-content"
         >
-          <div>
+          <div data-cy="my-timesheet-attendance-summary-absents-stats">
             <div
               className="text-4xl font-bold text-red-600"
               data-cy="my-timesheet-attendance-summary-absents-count"

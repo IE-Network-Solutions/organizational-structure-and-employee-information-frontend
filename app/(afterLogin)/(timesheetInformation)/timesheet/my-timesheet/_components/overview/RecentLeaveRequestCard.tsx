@@ -81,7 +81,10 @@ export default function RecentLeaveRequestCard() {
           New
         </Button>
       </div>
-      <div className="flex-1 min-h-0 overflow-y-auto pt-2 pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0">
+      <div
+        className="flex-1 min-h-0 overflow-y-auto pt-2 pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0"
+        data-cy="my-timesheet-overview-recent-leave-list-container"
+      >
         <List
           loading={isFetching}
           dataSource={items}
@@ -89,40 +92,43 @@ export default function RecentLeaveRequestCard() {
           data-cy="my-timesheet-overview-recent-leave-list"
           className="[&_.ant-list-item]:!py-1.5 [&_.ant-list-item]:!px-0"
           renderItem={(item: LeaveRequest) => (
-          <List.Item
-            className="!border-0 !border-b-0 !p-0"
-            data-cy={`my-timesheet-overview-recent-leave-item-${item.id}`}
-          >
-            <div
-              className="flex w-full items-center justify-between gap-2 rounded-md border border-gray-200 p-3"
-              data-cy={`my-timesheet-overview-recent-leave-row-${item.id}`}
+            <List.Item
+              className="!border-0 !border-b-0 !p-0"
+              data-cy={`my-timesheet-overview-recent-leave-item-${item.id}`}
             >
-              <div className="min-w-0 flex-1" data-cy={`my-timesheet-overview-recent-leave-row-content-${item.id}`}>
-                <Text
-                  className="block text-gray-900 text-sm font-medium mb-1"
-                  data-cy={`my-timesheet-overview-recent-leave-row-type-${item.id}`}
-                >
-                  {typeof item.leaveType === 'object' && item.leaveType?.title
-                    ? item.leaveType.title
-                    : '—'}
-                </Text>
-                <Text
-                  className="block text-gray-600 text-xs"
-                  data-cy={`my-timesheet-overview-recent-leave-row-dates-${item.id}`}
-                >
-                  {dayjs(item.startAt).format(DATE_FORMAT)} -{' '}
-                  {dayjs(item.endAt).format(DATE_FORMAT)}
-                </Text>
-              </div>
-              <Tag
-                color={LEAVE_STATUS_TAG_COLOR[item.status]}
-                data-cy={`my-timesheet-overview-recent-leave-status-${item.status}`}
+              <div
+                className="flex w-full items-center justify-between gap-2 rounded-md border border-gray-200 p-3"
+                data-cy={`my-timesheet-overview-recent-leave-row-${item.id}`}
               >
-                {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-              </Tag>
-            </div>
-          </List.Item>
-        )}
+                <div
+                  className="min-w-0 flex-1"
+                  data-cy={`my-timesheet-overview-recent-leave-row-content-${item.id}`}
+                >
+                  <Text
+                    className="block text-gray-900 text-sm font-medium mb-1"
+                    data-cy={`my-timesheet-overview-recent-leave-row-type-${item.id}`}
+                  >
+                    {typeof item.leaveType === 'object' && item.leaveType?.title
+                      ? item.leaveType.title
+                      : '—'}
+                  </Text>
+                  <Text
+                    className="block text-gray-600 text-xs"
+                    data-cy={`my-timesheet-overview-recent-leave-row-dates-${item.id}`}
+                  >
+                    {dayjs(item.startAt).format(DATE_FORMAT)} -{' '}
+                    {dayjs(item.endAt).format(DATE_FORMAT)}
+                  </Text>
+                </div>
+                <Tag
+                  color={LEAVE_STATUS_TAG_COLOR[item.status]}
+                  data-cy={`my-timesheet-overview-recent-leave-status-${item.status}`}
+                >
+                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                </Tag>
+              </div>
+            </List.Item>
+          )}
         />
       </div>
     </Card>
