@@ -1,9 +1,9 @@
 'use client';
-import CustomBreadcrumb from '@/components/common/breadCramp';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import WhatYouNeed from '../jobs/[id]/_components/candidateSearch/whatYouNeed';
 import CustomButton from '@/components/common/buttons/customButton';
-import { FaPlus } from 'react-icons/fa';
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import CreateCandidate from '../jobs/[id]/_components/createCandidate';
 import SearchOptions from '../jobs/[id]/_components/candidateSearch/candidateSearchOptions';
@@ -13,6 +13,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { IoIosShareAlt } from 'react-icons/io';
 import { usePathname } from 'next/navigation';
+import { Button } from 'antd';
 
 const AllCandidates: React.FC = () => {
   const {
@@ -42,22 +43,38 @@ const AllCandidates: React.FC = () => {
   const onClose = () => {
     setCreateJobDrawer(false);
   };
+
+  const [showFilters, setShowFilters] = useState(false);
+
   return (
     <div
       id="talent-acquisition-candidate-page-div-container"
       data-cy="talent-acquisition-candidate-page-div-container"
-      className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6"
+      className="h-auto w-full p-4 sm:p-6"
     >
       <div
         id="talent-acquisition-candidate-page-div-header"
         data-cy="talent-acquisition-candidate-page-div-header"
         className="flex flex-wrap justify-between items-center"
       >
-        <CustomBreadcrumb
+        <div
+          className="grow shrink basis-0 flex flex-col justify-start items-start gap-1 py-4"
+          id="talent-acquisition-candidate-page-breadcrumb"
           data-cy="talent-acquisition-candidate-page-breadcrumb"
-          title="Candidates"
-          subtitle="All who applied"
-        />
+        >
+          <h1
+            className="text-gray-900 text-3xl font-bold leading-tight m-0"
+            data-cy="talent-acquisition-candidate-page-title"
+          >
+            Candidates
+          </h1>
+          <p
+            className="text-gray-500 text-sm font-normal leading-snug m-0"
+            data-cy="talent-acquisition-candidate-page-breadcrumb-trail"
+          >
+            Talent Acquisition / Candidates
+          </p>
+        </div>
         <div
           id="talent-acquisition-candidate-page-div-buttons"
           data-cy="talent-acquisition-candidate-page-div-buttons"
@@ -110,7 +127,7 @@ const AllCandidates: React.FC = () => {
               }
               id="createUserButton"
               data-cy="talent-acquisition-candidate-button-add"
-              icon={<FaPlus className="md:mr-0 ml-2" />}
+              icon={<PersonAddOutlinedIcon className="md:mr-0 ml-2" fontSize="medium" />}
               onClick={showDrawer}
               className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
             />
@@ -124,10 +141,56 @@ const AllCandidates: React.FC = () => {
       <div
         id="talent-acquisition-candidate-page-div-table"
         data-cy="talent-acquisition-candidate-page-div-table"
-        className="w-full h-auto bg-white p-2 px-4 rounded-lg"
+        className="mt-6 w-full h-auto bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
       >
-        <SearchOptions data-cy="talent-acquisition-candidate-page-search-options" />
-        <AllCandidateTable data-cy="talent-acquisition-candidate-page-table" />
+        <div
+          className="px-4 py-4 border-b border-gray-100 bg-white"
+          id="talent-acquisition-candidate-page-table-toolbar"
+          data-cy="talent-acquisition-candidate-page-table-toolbar"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div
+              className="flex-1 min-w-0 max-w-md"
+              id="talent-acquisition-candidate-page-search-wrap"
+              data-cy="talent-acquisition-candidate-page-search-wrap"
+            >
+              <WhatYouNeed
+                placeholder="Search candidate"
+                pill
+                className="w-full"
+              />
+            </div>
+            <Button
+              type="default"
+              icon={<FilterListOutlinedIcon fontSize="small" />}
+              onClick={() => setShowFilters(!showFilters)}
+              className="rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800 shrink-0"
+              id="talent-acquisition-candidate-page-filter-button"
+              data-cy="talent-acquisition-candidate-page-filter-button"
+            >
+              Filter
+            </Button>
+          </div>
+          {showFilters && (
+            <div
+              className="mt-4 pt-4 border-t border-gray-100"
+              id="talent-acquisition-candidate-page-filter-row"
+              data-cy="talent-acquisition-candidate-page-filter-row"
+            >
+              <SearchOptions
+                embedded
+                data-cy="talent-acquisition-candidate-page-search-options"
+              />
+            </div>
+          )}
+        </div>
+        <div
+          className="px-4 pb-4"
+          id="talent-acquisition-candidate-page-table-container"
+          data-cy="talent-acquisition-candidate-page-table-container"
+        >
+          <AllCandidateTable data-cy="talent-acquisition-candidate-page-table" />
+        </div>
       </div>
     </div>
   );

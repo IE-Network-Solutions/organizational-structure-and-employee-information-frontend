@@ -1200,6 +1200,16 @@ h6 {
   width: 30px !important;
 }
 
+/* Candidate table action dropdown: white panel, normal-weight text */
+.talent-acquisition-candidate-table-action-dropdown.ant-dropdown
+  .ant-dropdown-menu {
+  font-weight: normal;
+}
+.talent-acquisition-candidate-table-action-dropdown
+  .ant-dropdown-menu-item {
+  font-weight: normal;
+}
+
 /* Override Ant Design's mobile styles */
 @media (max-width: 768px) {
   .action-button-edit,

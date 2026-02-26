@@ -6,11 +6,12 @@ import {
   CandidateData,
   useCandidateState,
 } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Dropdown, Select, Table, TableColumnsType } from 'antd';
+import { Dropdown, Table, TableColumnsType, Tag } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
-import { FaEye } from 'react-icons/fa';
-import { FaEllipsisVertical } from 'react-icons/fa6';
+import { EyeOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import CandidateDetail from '../../../jobs/[id]/_components/candidateDetail/page';
 import DeleteCandidate from '../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../_components/modals/editCandidate';
@@ -19,11 +20,12 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { SiGmail } from 'react-icons/si';
 import { TableRowSelection } from 'antd/es/table/interface';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
@@ -48,49 +50,164 @@ const AllCandidateTable: React.FC = () => {
 
   const columns: TableColumnsType<CandidateData> = [
     {
-      title: 'Name',
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="talent-acquisition-candidate-column-title-name"
+        >
+          Name
+        </span>
+      ),
       dataIndex: 'candidateName',
+      key: 'candidateName',
       sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
+      render: (text: string) => (
+        <div
+          className="text-sm text-gray-700"
+          data-cy="talent-acquisition-candidate-cell-name"
+        >
+          {text ?? '--'}
+        </div>
+      ),
     },
     {
-      title: 'Phone Number',
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="talent-acquisition-candidate-column-title-phone"
+        >
+          Phone Number
+        </span>
+      ),
       dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
       ellipsis: true,
+      render: (text: string) => (
+        <div
+          className="text-sm text-gray-700"
+          data-cy="talent-acquisition-candidate-cell-phone"
+        >
+          {text ?? '--'}
+        </div>
+      ),
     },
     {
-      title: 'CGPA',
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="talent-acquisition-candidate-column-title-cgpa"
+        >
+          CGPA
+        </span>
+      ),
       dataIndex: 'cgpa',
+      key: 'cgpa',
       sorter: (a: any, b: any) => a.cgpa - b.cgpa,
+      render: (text: string | number) => (
+        <div
+          className="text-sm text-gray-700"
+          data-cy="talent-acquisition-candidate-cell-cgpa"
+        >
+          {text ?? '--'}
+        </div>
+      ),
     },
-    // {
-    //   title: 'Internal/ External',
-    //   dataIndex: 'internal_external',
-    //   sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
-    // },
     {
-      title: 'CV',
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="talent-acquisition-candidate-column-title-cv"
+        >
+          CV
+        </span>
+      ),
       dataIndex: 'cv',
+      key: 'cv',
     },
     {
-      title: 'Applied/ Created Date',
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="talent-acquisition-candidate-column-title-created"
+        >
+          Applied/ Created Date
+        </span>
+      ),
       dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (text: string) => (
+        <div
+          className="text-sm text-gray-700"
+          data-cy="talent-acquisition-candidate-cell-created"
+        >
+          {text ?? '--'}
+        </div>
+      ),
     },
     {
-      title: 'Date of Graduation',
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="talent-acquisition-candidate-column-title-graduation"
+        >
+          Date of Graduation
+        </span>
+      ),
       dataIndex: 'graduateYear',
+      key: 'graduateYear',
+      render: (text: string) => (
+        <div
+          className="text-sm text-gray-700"
+          data-cy="talent-acquisition-candidate-cell-graduation"
+        >
+          {text ?? '--'}
+        </div>
+      ),
     },
-
     {
-      title: 'Email',
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="talent-acquisition-candidate-column-title-email"
+        >
+          Email
+        </span>
+      ),
       dataIndex: 'LinkedInURL',
+      key: 'LinkedInURL',
     },
     {
-      title: 'Stages',
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="talent-acquisition-candidate-column-title-stages"
+        >
+          Stages
+        </span>
+      ),
       dataIndex: 'stages',
+      key: 'stages',
     },
     {
-      title: 'Action',
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="talent-acquisition-candidate-column-title-action"
+        >
+          Action
+        </span>
+      ),
       dataIndex: 'action',
+      key: 'action',
     },
   ];
   const {
@@ -146,25 +263,41 @@ const AllCandidateTable: React.FC = () => {
   };
 
   const data = candidateList?.items?.map((item: any, index: any) => {
-    const items = [
+    const editDeleteItems = [
       {
         key: 'edit',
         label: 'Edit',
+        icon: <EditOutlinedIcon fontSize="small" />,
         onClick: () => handleMenuClick('edit', item),
         permissions: [Permissions.UpdateCandidate],
       },
       {
         key: 'delete',
         label: 'Delete',
+        icon: <DeleteOutlineOutlinedIcon fontSize="small" />,
         onClick: () => handleMenuClick('delete', item),
         permissions: [Permissions.DeleteCandidate],
       },
     ];
 
-    const filteredItems = items.filter((item) => {
-      const { permissions } = item;
-      return AccessGuard.checkAccess({ permissions: permissions });
-    });
+    const filteredEditDelete = editDeleteItems.filter((entry) =>
+      AccessGuard.checkAccess({ permissions: entry.permissions }),
+    );
+
+    const actionMenuItems = [
+      {
+        key: 'view',
+        label: 'View Detail',
+        icon: <EyeOutlined />,
+        onClick: () => handleCandidateDetail(item),
+      },
+      ...filteredEditDelete.map(({ key, label, icon, onClick }) => ({
+        key,
+        label,
+        icon,
+        onClick,
+      })),
+    ];
 
     return {
       key: index,
@@ -184,12 +317,10 @@ const AllCandidateTable: React.FC = () => {
           href={item?.resumeUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-semibold cursor-pointer flex items-center gap-2"
-          title={item?.documentName ?? 'CV.pdf'}
+          className="inline-flex items-center justify-center text-primary hover:text-[#4096FF] transition-colors"
+          title={item?.documentName ?? 'Download CV'}
         >
-          {item?.documentName?.length > 8
-            ? `${item.documentName.slice(0, 8)}...`
-            : (item?.documentName ?? 'CV.pdf')}
+          <SaveAltIcon fontSize="small" />
         </a>
       ),
 
@@ -201,16 +332,16 @@ const AllCandidateTable: React.FC = () => {
         <div
           id="talent-acquisition-candidate-table-div-email"
           data-cy="talent-acquisition-candidate-table-div-email"
-          className="flex justify-center"
+          className="flex items-center"
         >
           <a
             id={`talent-acquisition-candidate-table-link-email-${item?.id}`}
             data-cy={`talent-acquisition-candidate-table-link-email-${item?.id}`}
-            href={`mailto:${item?.email}`}
-            title="Send Email"
-            className="text-blue-600 hover:text-blue-800 transition-colors"
+            href={item?.email ? `mailto:${item.email}` : undefined}
+            title={item?.email ?? ''}
+            className="text-primary hover:text-[#4096FF] transition-colors text-sm break-all"
           >
-            <SiGmail size={20} />
+            {item?.email ?? '--'}
           </a>
         </div>
       ),
@@ -219,62 +350,64 @@ const AllCandidateTable: React.FC = () => {
           id="talent-acquisition-candidate-table-div-stages"
           data-cy="talent-acquisition-candidate-table-div-stages"
         >
-          <Select
-            id={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
-            data-cy={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
-            defaultValue={item?.jobCandidate?.map(
-              (e: any) => e?.applicantStatusStage?.title ?? '--',
-            )}
-            // style={{ width: 120 }}
-            className="w-full"
-            onChange={(value) =>
-              handleStageChange(
-                value,
-                item?.jobCandidate?.map((e: any) => e?.id),
-              )
-            }
+          <Dropdown
+            trigger={['click']}
+            placement="bottomLeft"
+            menu={{
+              items:
+                statusStage?.items?.map((stage: any) => ({
+                  key: stage.id,
+                  label: stage.title,
+                  onClick: () =>
+                    handleStageChange(
+                      stage.id,
+                      item?.jobCandidate?.map((e: any) => e?.id),
+                    ),
+                })) ?? [],
+            }}
           >
-            {statusStage?.items?.map((stage: any) => (
-              <Select.Option
-                key={stage.id}
-                value={stage.id}
-                id={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
-                data-cy={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
-              >
-                {stage.title}
-              </Select.Option>
-            ))}
-          </Select>
+            <Tag
+              id={`talent-acquisition-candidate-table-tag-stage-${item?.id}`}
+              data-cy={`talent-acquisition-candidate-table-tag-stage-${item?.id}`}
+              className="inline-flex items-center justify-center cursor-pointer border border-solid transition-colors px-3 py-0.5 text-xs font-normal"
+              style={{
+                borderRadius: 6,
+                backgroundColor: '#E6F0FF',
+                color: '#1677FF',
+                borderColor: '#B3CCFF',
+              }}
+            >
+              {item?.jobCandidate?.[0]?.applicantStatusStage?.title ?? '--'}
+            </Tag>
+          </Dropdown>
         </div>
       ),
       action: (
         <div
           id="talent-acquisition-candidate-table-div-action"
           data-cy="talent-acquisition-candidate-table-div-action"
-          className="flex items-center justify-between gap-4 text-white"
+          className="flex items-center justify-start"
         >
-          <Button
-            id={`editUserButton${item?.id}`}
-            data-cy={`talent-acquisition-candidate-table-button-view-${item?.id}`}
-            disabled={item?.deletedAt !== null}
-            className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
-            onClick={() => handleCandidateDetail(item)}
-          >
-            <FaEye />
-          </Button>
           <Dropdown
-            data-cy={`talent-acquisition-candidate-table-dropdown-${item?.id}`}
-            menu={{
-              items: filteredItems.map(({ label, key, onClick }) => ({
-                label,
-                key,
-                onClick,
-              })),
-            }}
+            menu={{ items: actionMenuItems }}
             trigger={['click']}
             placement="bottomRight"
+            overlayClassName="talent-acquisition-candidate-table-action-dropdown"
+            overlayStyle={{
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              borderRadius: 8,
+            }}
+            data-cy={`talent-acquisition-candidate-table-dropdown-${item?.id}`}
           >
-            <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
+            <button
+              type="button"
+              disabled={item?.deletedAt !== null}
+              className="cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-gray-50 flex items-center justify-center hover:border-gray-400 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              data-cy={`talent-acquisition-candidate-table-action-${item?.id}`}
+              id={`talent-acquisition-candidate-table-action-${item?.id}`}
+            >
+              <MoreHorizIcon className="text-[20px] text-gray-600" />
+            </button>
           </Dropdown>
         </div>
       ),
@@ -302,17 +435,24 @@ const AllCandidateTable: React.FC = () => {
       id="talent-acquisition-candidate-table-div-container"
       data-cy="talent-acquisition-candidate-table-div-container"
     >
-      <Table
-        id="talent-acquisition-candidate-table-table"
-        data-cy="talent-acquisition-candidate-table-table"
-        className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isResponseLoading}
-        pagination={false}
-        scroll={{ x: 1000 }}
-        rowSelection={rowSelection} // Enable selection
-      />
+      <div
+        className="flex overflow-x-auto scrollbar-none w-full bg-white"
+        id="talent-acquisition-candidate-table-scroll-wrapper"
+        data-cy="talent-acquisition-candidate-table-scroll-wrapper"
+      >
+        <Table
+          id="talent-acquisition-candidate-table-table"
+          data-cy="talent-acquisition-candidate-table-table"
+          className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold"
+          rowClassName={() => 'h-[60px]'}
+          columns={columns}
+          dataSource={data}
+          loading={isResponseLoading}
+          pagination={false}
+          scroll={{ x: 'max-content' }}
+          rowSelection={rowSelection}
+        />
+      </div>
 
       {isMobile || isTablet ? (
         <CustomMobilePagination

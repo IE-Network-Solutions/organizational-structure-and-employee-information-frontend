@@ -4,7 +4,17 @@ import { Input } from 'antd';
 import React from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 
-const WhatYouNeed: React.FC = () => {
+interface WhatYouNeedProps {
+  placeholder?: string;
+  className?: string;
+  pill?: boolean;
+}
+
+const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
+  placeholder = 'Search what you need',
+  className = 'w-full',
+  pill = false,
+}) => {
   const { searchParams, setSearchParams } = useCandidateState();
 
   const handleSearchCandidate = async (
@@ -28,14 +38,18 @@ const WhatYouNeed: React.FC = () => {
     <div
       id="talent-acquisition-what-you-need-div-container"
       data-cy="talent-acquisition-what-you-need-div-container"
-      className="w-full"
+      className={className}
     >
       <Input
         id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
         data-cy="talent-acquisition-job-candidate-search-input"
-        placeholder="Search what you need"
+        placeholder={placeholder}
         onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
-        className="w-full h-14"
+        className={
+          pill
+            ? 'w-full h-10 rounded-full border-gray-300'
+            : 'w-full h-14'
+        }
         allowClear
         suffix={<AiOutlineSearch className="text-gray-400" />}
       />
