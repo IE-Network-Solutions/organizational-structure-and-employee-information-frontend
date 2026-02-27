@@ -50,7 +50,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
       data-cy={`okr-achieve-form-container-${index}`}
       className={`relative mb-4 ${isBasic ? 'bg-white border border-gray-200 rounded-lg p-6' : 'border border-gray-200 rounded-lg p-6'}`}
     >
-      <div className="absolute top-2 right-2" style={{ zIndex: 10 }}>
+      <div className="absolute top-2 right-2" style={{ zIndex: 10 }} data-cy={`okr-achieve-form-remove-wrapper-${index}`}>
         <KeyResultRemoveButton
           onClick={() => removeKeyResult(index)}
           title="Remove Key Result"
@@ -149,7 +149,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 aria-label="Deadline"
               />
             </Form.Item>
-            <Form.Item className="mb-0" label={<span className="opacity-0 select-none">Save</span>}>
+            <Form.Item className="mb-0" label={<span className="opacity-0 select-none" data-cy={`okr-achieve-save-label-spacer-${index}`}>Save</span>}>
               <Button
                 type="primary"
                 className="bg-okr-primary hover:bg-blue-800 text-white h-10 px-6 rounded-lg font-medium"
@@ -191,7 +191,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 data-cy={`okr-achieve-desktop-top-row-${index}`}
                 className={ADVANCED_WRAPPER_CLASS}
               >
-                <div className={`${ADVANCED_ROW_CLASS} items-end`}>
+                <div className={`${ADVANCED_ROW_CLASS} items-end`} data-cy={`okr-achieve-desktop-advanced-row-${index}`}>
                   <Form.Item
                     className="flex-1 mb-0"
                     name="title"
@@ -261,7 +261,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                       aria-label="Deadline"
                     />
                   </Form.Item>
-                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none">Save</span>}>
+                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none" data-cy={`okr-achieve-save-label-spacer-${index}`}>Save</span>}>
                     <Button
                       type="primary"
                       className="bg-okr-primary hover:bg-blue-800 text-white h-10 rounded-lg font-medium"
@@ -292,7 +292,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
         {isMobile && (
           <>
             {isCardView ? (
-              <div className="mt-4 mx-4">
+              <div className="mt-4 mx-4" data-cy={`okr-achieve-mobile-card-wrapper-${index}`}>
                 <KeyResultSavedCard
                   weight={keyItem.weight ?? 0}
                   title={keyItem.title ?? ''}
@@ -379,7 +379,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                       aria-label="Deadline"
                     />
                   </Form.Item>
-                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none">Save</span>}>
+                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none" data-cy={`okr-achieve-save-label-spacer-${index}`}>Save</span>}>
                     <Button
                       type="primary"
                       className="bg-okr-primary hover:bg-blue-800 text-white h-10 rounded-lg font-medium px-4"

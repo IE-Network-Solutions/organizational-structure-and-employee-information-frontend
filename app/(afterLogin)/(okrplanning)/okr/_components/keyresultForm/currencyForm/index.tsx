@@ -54,7 +54,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
       data-cy={`okr-currency-form-container-${index}`}
       className={`relative mb-4 ${isBasic ? 'bg-gray-50 rounded-xl border-none p-6' : 'border border-gray-200 rounded-lg p-6'}`}
     >
-      <div className="absolute top-2 right-2" style={{ zIndex: 10 }}>
+      <div className="absolute top-2 right-2" style={{ zIndex: 10 }} data-cy={`okr-currency-remove-wrapper-${index}`}>
         <KeyResultRemoveButton
           onClick={() => removeKeyResult(index)}
           title="Remove Key Result"
@@ -130,7 +130,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 data-cy={`okr-currency-desktop-top-row-${index}`}
                 className={ADVANCED_WRAPPER_CLASS}
               >
-                <div className={`${ADVANCED_ROW_CLASS} items-end`}>
+                <div className={`${ADVANCED_ROW_CLASS} items-end`} data-cy={`okr-currency-desktop-advanced-row-${index}`}>
                   <Form.Item
                     className="flex-1 mb-0"
                     name={`key_name_${index}`}
@@ -197,7 +197,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       aria-label="Deadline"
                     />
                   </Form.Item>
-                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none">Save</span>}>
+                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none" data-cy={`okr-currency-save-label-spacer-${index}`}>Save</span>}>
                     <Button
                       type="primary"
                       className="bg-okr-primary hover:bg-blue-800 text-white h-10 rounded-lg font-medium"
@@ -271,19 +271,19 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         {isMobile && (
           <>
             {isCardView ? (
-              <div className="mt-4 mx-4">
+              <div className="mt-4 mx-4" data-cy={`okr-currency-mobile-card-wrapper-${index}`}>
                 <div
                   id={`okr-currency-mobile-saved-card-${index}`}
                   data-cy={`okr-currency-mobile-saved-card-${index}`}
                   className="border border-gray-200 rounded-lg p-3 flex flex-col gap-3"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex flex-col gap-2 flex-1 min-w-0">
-                      <span className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block">
+                  <div className="flex items-start justify-between" data-cy={`okr-currency-mobile-saved-card-header-${index}`}>
+                    <div className="flex flex-col gap-2 flex-1 min-w-0" data-cy={`okr-currency-mobile-saved-card-content-${index}`}>
+                      <span className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block" data-cy={`okr-currency-mobile-saved-card-weight-${index}`}>
                         Weight {keyItem.weight ?? 0}%
                       </span>
-                      <p className="text-sm font-semibold text-gray-900 truncate">
-                        {keyItem.title ? keyItem.title : <span className="text-gray-400 italic">Untitled key result</span>}
+                      <p className="text-sm font-semibold text-gray-900 truncate" data-cy={`okr-currency-mobile-saved-card-title-${index}`}>
+                        {keyItem.title ? keyItem.title : <span className="text-gray-400 italic" data-cy={`okr-currency-mobile-saved-card-untitled-${index}`}>Untitled key result</span>}
                       </p>
                     </div>
                     <Tooltip title="Edit">
@@ -307,12 +307,12 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       </button>
                     </Tooltip>
                   </div>
-                  <div className="flex flex-row flex-wrap gap-2 pt-1 border-t border-gray-100">
-                    <span className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block">
-                      Initial Value : <span className="font-semibold text-gray-900">${Number(keyItem.initialValue ?? 0).toLocaleString()}</span>
+                  <div className="flex flex-row flex-wrap gap-2 pt-1 border-t border-gray-100" data-cy={`okr-currency-mobile-saved-card-values-${index}`}>
+                    <span className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block" data-cy={`okr-currency-mobile-saved-card-initial-label-${index}`}>
+                      Initial Value : <span className="font-semibold text-gray-900" data-cy={`okr-currency-mobile-saved-card-initial-value-${index}`}>${Number(keyItem.initialValue ?? 0).toLocaleString()}</span>
                     </span>
-                    <span className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block">
-                      Target Value : <span className="font-semibold text-gray-900">${Number(keyItem.targetValue ?? 0).toLocaleString()}</span>
+                    <span className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block" data-cy={`okr-currency-mobile-saved-card-target-label-${index}`}>
+                      Target Value : <span className="font-semibold text-gray-900" data-cy={`okr-currency-mobile-saved-card-target-value-${index}`}>${Number(keyItem.targetValue ?? 0).toLocaleString()}</span>
                     </span>
                   </div>
                 </div>
@@ -429,7 +429,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       aria-label="Deadline"
                     />
                   </Form.Item>
-                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none">Save</span>}>
+                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none" data-cy={`okr-currency-save-label-spacer-${index}`}>Save</span>}>
                     <Button
                       type="primary"
                       className="bg-okr-primary hover:bg-blue-800 text-white h-10 rounded-lg font-medium px-4"

@@ -7,8 +7,6 @@ import {
   Input,
   InputNumber,
   Select,
-  Dropdown,
-  Menu,
   Modal,
   Tooltip,
 } from 'antd';
@@ -332,17 +330,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     addKeyResult(key, metricTypeId);
   };
 
-  const handleAddKeyResult = () => {
-    // If isBasic is true, directly add "Achieve or Not" metric type
-    if (isBasic) {
-      const metricType = metrics?.items?.find(
-        (metric: any) => metric.name === 'Achieve',
-      );
-      const metricTypeId = metricType?.id || '';
-      addKeyResult('Achieved', metricTypeId);
-    }
-  };
-
   /** Pre-fill inline form when opening for edit (basic mode). */
   useEffect(() => {
     if (!isBasic || !showInlineKeyResultForm || editingKeyResultIndex == null) return;
@@ -405,7 +392,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       data-cy="okr-drawer-key-result-inline-form"
       className="bg-white border border-gray-200 rounded-lg p-6"
     >
-      <div className="flex flex-row flex-wrap gap-4 items-end">
+      <div className="flex flex-row flex-wrap gap-4 items-end" data-cy="okr-drawer-key-result-inline-form-row">
         <Form.Item
           name="krTitle"
           label={
@@ -515,24 +502,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     </div>
   );
 
-  const keyResultMenu = (
-    <Menu
-      id="okr-drawer-keyresult-menu"
-      data-cy="okr-drawer-keyresult-menu"
-      onClick={handleAddKeyResultType}
-    >
-      {keyResultTypes.map((type) => (
-        <Menu.Item
-          id="okr-drawer-keyresult-menu-item"
-          data-cy="okr-drawer-keyresult-menu-item"
-          key={type.value}
-        >
-          {type.label}
-        </Menu.Item>
-      ))}
-    </Menu>
-  );
-
   return (
     <Modal
       data-cy="okr-drawer-modal"
@@ -581,7 +550,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           >
             Please select objective alignment to add objective
           </p>
-          <div className="border-b border-gray-200 mt-4" />
+          <div className="border-b border-gray-200 mt-4" data-cy="okr-drawer-objective-section-divider" />
         </div>
 
         {isMobile ? (
@@ -596,13 +565,13 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               className="h-11 mb-8"
               name="title"
               label={
-                <span className="text-sm font-medium text-gray-700">
-                  Objective <span className="text-red-500">*</span>{' '}
+                <span className="text-sm font-medium text-gray-700" data-cy="okr-drawer-mobile-objective-label">
+                  Objective <span className="text-red-500" data-cy="okr-drawer-mobile-objective-required">*</span>{' '}
                   <Tooltip
                     title={
-                      <div className="py-1">
-                        <div className="font-bold text-gray-900 mb-1">Objective name</div>
-                        <div className="text-sm text-gray-700 leading-relaxed">
+                      <div className="py-1" data-cy="okr-drawer-objective-tooltip">
+                        <div className="font-bold text-gray-900 mb-1" data-cy="okr-drawer-objective-tooltip-title">Objective name</div>
+                        <div className="text-sm text-gray-700 leading-relaxed" data-cy="okr-drawer-objective-tooltip-content">
                           These are objective names they can be given or are automatically selected when you select your alignment
                         </div>
                       </div>
@@ -644,13 +613,13 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 className="h-11 w-full mb-0"
                 name="allignedKeyResultId"
                 label={
-                  <span className="text-sm font-medium text-gray-700">
-                    Alignment <span className="text-red-500">*</span>{' '}
+                  <span className="text-sm font-medium text-gray-700" data-cy="okr-drawer-mobile-alignment-label">
+                    Alignment <span className="text-red-500" data-cy="okr-drawer-mobile-alignment-required">*</span>{' '}
                     <Tooltip
                       title={
-                        <div className="py-1">
-                          <div className="font-bold text-gray-900 mb-1">Alignment</div>
-                          <div className="text-sm text-gray-700 leading-relaxed">
+                        <div className="py-1" data-cy="okr-drawer-alignment-tooltip">
+                          <div className="font-bold text-gray-900 mb-1" data-cy="okr-drawer-alignment-tooltip-title">Alignment</div>
+                          <div className="text-sm text-gray-700 leading-relaxed" data-cy="okr-drawer-alignment-tooltip-content">
                             These are objectives of your direct supervisor it mandatory you align with your direct supervisor
                           </div>
                         </div>
@@ -661,7 +630,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       <QuestionCircleOutlined className="text-gray-400 cursor-help" />
                     </Tooltip>
                     {!reportsToId && (
-                      <span className="text-gray-400 text-xs ml-1">(optional)</span>
+                      <span className="text-gray-400 text-xs ml-1" data-cy="okr-drawer-alignment-optional">(optional)</span>
                     )}
                   </span>
                 }
@@ -705,8 +674,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 className="h-11 w-full mb-0"
                 name="ObjectiveDeadline"
                 label={
-                  <span className="text-sm font-medium text-gray-700">
-                    Deadline <span className="text-red-500">*</span>{' '}
+                  <span className="text-sm font-medium text-gray-700" data-cy="okr-drawer-mobile-deadline-label">
+                    Deadline <span className="text-red-500" data-cy="okr-drawer-mobile-deadline-required">*</span>{' '}
                     <Tooltip title="Set the objective deadline">
                       <QuestionCircleOutlined className="text-gray-400 cursor-help" />
                     </Tooltip>
@@ -752,13 +721,13 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               className="h-11 mb-10 flex-1"
               name="title"
               label={
-                <span className="text-sm font-medium text-gray-700">
-                  Objective <span className="text-red-500">*</span>{' '}
+                <span className="text-sm font-medium text-gray-700" data-cy="okr-drawer-desktop-objective-label">
+                  Objective <span className="text-red-500" data-cy="okr-drawer-desktop-objective-required">*</span>{' '}
                   <Tooltip
                     title={
-                      <div className="py-1">
-                        <div className="font-bold text-gray-900 mb-1">Objective name</div>
-                        <div className="text-sm text-gray-700 leading-relaxed">
+                      <div className="py-1" data-cy="okr-drawer-desktop-objective-tooltip">
+                        <div className="font-bold text-gray-900 mb-1" data-cy="okr-drawer-desktop-objective-tooltip-title">Objective name</div>
+                        <div className="text-sm text-gray-700 leading-relaxed" data-cy="okr-drawer-desktop-objective-tooltip-content">
                           These are objective names they can be given or are automatically selected when you select your alignment
                         </div>
                       </div>
@@ -795,13 +764,13 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               className="h-11 mb-10 w-1/4"
               name="allignedKeyResultId"
               label={
-                <span className="text-sm font-medium text-gray-700">
-                  Alignment <span className="text-red-500">*</span>{' '}
+                <span className="text-sm font-medium text-gray-700" data-cy="okr-drawer-desktop-alignment-label">
+                  Alignment <span className="text-red-500" data-cy="okr-drawer-desktop-alignment-required">*</span>{' '}
                   <Tooltip
                     title={
-                      <div className="py-1">
-                        <div className="font-bold text-gray-900 mb-1">Alignment</div>
-                        <div className="text-sm text-gray-700 leading-relaxed">
+                      <div className="py-1" data-cy="okr-drawer-desktop-alignment-tooltip">
+                        <div className="font-bold text-gray-900 mb-1" data-cy="okr-drawer-desktop-alignment-tooltip-title">Alignment</div>
+                        <div className="text-sm text-gray-700 leading-relaxed" data-cy="okr-drawer-desktop-alignment-tooltip-content">
                           These are objectives of your direct supervisor it mandatory you align with your direct supervisor
                         </div>
                       </div>
@@ -812,7 +781,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     <QuestionCircleOutlined className="text-gray-400 cursor-help" />
                   </Tooltip>
                   {!reportsToId && (
-                    <span className="text-gray-400 text-xs ml-1">(optional)</span>
+                    <span className="text-gray-400 text-xs ml-1" data-cy="okr-drawer-desktop-alignment-optional">(optional)</span>
                   )}
                 </span>
               }
@@ -895,8 +864,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             data-cy="okr-drawer-key-result-section-header"
             className="mt-8 mb-6"
           >
-            <div className="flex justify-between items-start">
-              <div>
+            <div className="flex justify-between items-start" data-cy="okr-drawer-key-result-section-header-row">
+              <div data-cy="okr-drawer-key-result-section-header-text">
                 <h2
                   id="okr-drawer-key-result-section-title"
                   data-cy="okr-drawer-key-result-section-title"
@@ -966,7 +935,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 </Button>
               )}
             </div>
-            <div className="border-b border-gray-200 mt-4" />
+            <div className="border-b border-gray-200 mt-4" data-cy="okr-drawer-key-result-section-divider" />
           </div>
 
           {/* Basic mode: inline form at top only when ADDING a new KR (not when editing) */}
@@ -976,6 +945,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               layout="vertical"
               requiredMark={false}
               className="mt-5"
+              data-cy="okr-drawer-inline-key-result-form"
             >
               {renderBasicKrFormContent()}
             </Form>
@@ -988,10 +958,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               data-cy="okr-drawer-metric-selector"
               className="border border-gray-200 rounded-lg p-4 mb-6 flex flex-nowrap md:flex-wrap items-center gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0"
             >
-              <span className="text-sm text-gray-600 mr-2 flex-shrink-0 whitespace-nowrap">
+              <span className="text-sm text-gray-600 mr-2 flex-shrink-0 whitespace-nowrap" data-cy="okr-drawer-metric-selector-label">
                 Please Select a Key Result Metric :
               </span>
-              <div className="flex flex-nowrap items-center gap-3 flex-shrink-0">
+              <div className="flex flex-nowrap items-center gap-3 flex-shrink-0" data-cy="okr-drawer-metric-selector-pills">
                 {keyResultTypes.map((type) => (
                   <button
                     key={type.value}
@@ -1047,6 +1017,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       layout="vertical"
                       requiredMark={false}
                       className="mb-3"
+                      data-cy={`okr-drawer-edit-key-result-form-${index}`}
                     >
                       {renderBasicKrFormContent()}
                     </Form>
@@ -1057,8 +1028,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       data-cy={`okr-drawer-saved-kr-${index}`}
                       className="mb-3 rounded-lg border border-gray-200 bg-white shadow-sm p-4"
                     >
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
+                      <div className="flex items-start justify-between gap-3 mb-2" data-cy={`okr-drawer-saved-kr-header-${index}`}>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 shrink-0" data-cy={`okr-drawer-saved-kr-weight-${index}`}>
                           Weight {keyItem?.weight ?? 0}%
                         </span>
                         <Tooltip title="Edit">
@@ -1076,10 +1047,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                           </button>
                         </Tooltip>
                       </div>
-                      <p className="text-base font-bold text-gray-900 leading-snug break-words">
+                      <p className="text-base font-bold text-gray-900 leading-snug break-words" data-cy={`okr-drawer-saved-kr-title-${index}`}>
                         {keyItem?.title?.trim()
                           ? keyItem.title
-                          : <span className="text-gray-400 italic font-normal">Untitled key result</span>}
+                          : <span className="text-gray-400 italic font-normal" data-cy={`okr-drawer-saved-kr-untitled-${index}`}>Untitled key result</span>}
                       </p>
                     </div>
                   )
