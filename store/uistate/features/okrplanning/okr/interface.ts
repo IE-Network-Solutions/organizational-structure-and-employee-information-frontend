@@ -37,11 +37,13 @@ export interface KeyResult {
   key_type: string;
   metricTypeId: string;
   metricType?: MetricType;
+  previousMetricTypeId?: string;
   title: string;
   weight: number;
   deadline: any;
   progress?: number;
   initialValue: number;
+  currentValue?: number;
   targetValue: number | string;
   milestones: Milestone[];
   isAISuggestion?: boolean;

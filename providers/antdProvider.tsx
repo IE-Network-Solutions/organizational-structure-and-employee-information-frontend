@@ -4,8 +4,8 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
   const theme: ThemeConfig = {
     token: {
-      // Font Family - SF Pro Text with fallbacks
-      fontFamily: `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`,
+      // Font Family - Calibre with fallbacks
+      fontFamily: `'Calibre', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`,
 
       // Typography - Base Text Styles
       fontSize: 14, // Base font size
@@ -29,7 +29,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       lineHeightHeading5: 1.5, // H5 line height (24px / 16px)
 
       // Brand Colors - Primary (Blue Palette)
-      colorPrimary: '#1890FF', // Primary-7: Main primary color
+      colorPrimary: '#1E40AF', // Primary-7: Main primary color
       colorPrimaryBg: '#E6F7FF', // Primary-3: Default state background
       colorPrimaryBgHover: '#BAE7FF', // Primary-4: Hover background
       colorPrimaryBorder: '#91D5FF', // Primary-5: Border color

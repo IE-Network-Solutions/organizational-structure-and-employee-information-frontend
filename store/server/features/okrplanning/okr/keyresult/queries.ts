@@ -7,6 +7,16 @@ import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL } from '@/utils/constants';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
+
+export interface PreviousMetricResponse {
+  previousMetricTypeId: string;
+  previousMetricTypeName: string;
+  progress: number;
+  targetValue: number;
+  initialValue: number;
+  currentValue: number;
+}
+
 type ResponseData = {
   items: KeyResult[];
 };
@@ -177,3 +187,35 @@ export const useGetKeyResult = (id: string) =>
     keepPreviousData: true,
     enabled: !!id, // Only run query when ID is provided
   });
+
+/**
+ * Get previous (first Advanced) metric data for a KR that was converted to Basic.
+ * Returns null on 404 or when no previous metric exists.
+ */
+const getPreviousMetric = async (
+  id: string,
+): Promise<PreviousMetricResponse | null> => {
+  const token = await getCurrentToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
+  try {
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/key-results/${id}/previous-metric`,
+      method: 'GET',
+      headers,
+    });
+    return response as PreviousMetricResponse;
+  } catch (error: any) {
+    if (error?.response?.status === 404) return null;
+    throw error;
+  }
+};
+
+export const useGetPreviousMetric = (id: string | null, enabled: boolean) =>
+  useQuery<PreviousMetricResponse | null>(
+    ['keyResultPreviousMetric', id],
+    () => (id ? getPreviousMetric(id) : Promise.resolve(null)),
+    { enabled: !!id && enabled },
+  );

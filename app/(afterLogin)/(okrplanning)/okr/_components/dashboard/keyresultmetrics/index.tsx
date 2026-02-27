@@ -1,5 +1,10 @@
+<<<<<<< PPII-2051-okr-page
 import { Dropdown, Menu, Progress, Select } from 'antd';
 import { FC } from 'react';
+=======
+import { Dropdown, Menu, Progress, Select, Tooltip } from 'antd';
+import { FC, useState } from 'react';
+>>>>>>> develop-redesign-branch
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore, useKeyResultMetricsStore } from '@/store/uistate/features/okrplanning/okr';
@@ -12,7 +17,13 @@ import {
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
+<<<<<<< PPII-2051-okr-page
 import { DownOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+=======
+import { DownOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import RecentModesTimelineModal from '../../recentModesTimelineModal';
+import { useQueryClient } from 'react-query';
+>>>>>>> develop-redesign-branch
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -33,6 +44,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   objectiveUserId,
   isInActiveSession = true,
 }) => {
+<<<<<<< PPII-2051-okr-page
   const {
     editModalKeyResultId,
     deleteModalKeyResultId,
@@ -41,6 +53,12 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     openDeleteModal,
     closeDeleteModal,
   } = useKeyResultMetricsStore();
+=======
+  const [open, setOpen] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openTimelineModal, setOpenTimelineModal] = useState(false);
+  const queryClient = useQueryClient();
+>>>>>>> develop-redesign-branch
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
 
   const isEditModalOpen = editModalKeyResultId === String(keyResult?.id ?? '');
@@ -190,6 +208,15 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         >
           {`${keyResult?.title} ${getMetricName(keyResult.metricType.name)}`}
         </h2>
+        {keyResult?.previousMetricTypeId && (
+          <Tooltip title="Recent modes timeline">
+            <InfoCircleOutlined
+              className="text-blue-500 cursor-pointer hover:text-blue-600"
+              onClick={() => setOpenTimelineModal(true)}
+              data-cy={`okr-key-result-timeline-info-${keyResult?.id}`}
+            />
+          </Tooltip>
+        )}
         {keyResult?.isClosed === false &&
           Number(keyResult?.progress) === 0 &&
           menu && (
@@ -433,6 +460,15 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         open={isEditModalOpen}
         onClose={onClose}
         keyResult={keyResultValue}
+      />
+      <RecentModesTimelineModal
+        open={openTimelineModal}
+        onClose={() => setOpenTimelineModal(false)}
+        keyResult={keyResult}
+        onRestoreSuccess={() => {
+          queryClient.invalidateQueries('ObjectiveInformation');
+          queryClient.refetchQueries('ObjectiveDashboard');
+        }}
       />
       <DeleteModal
         open={isDeleteModalOpen}

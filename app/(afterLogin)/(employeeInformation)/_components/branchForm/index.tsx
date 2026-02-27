@@ -1,6 +1,15 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Form, Input, Button, Space, Modal, FormInstance } from 'antd';
+import {
+  Form,
+  Input,
+  Button,
+  Space,
+  Modal,
+  FormInstance,
+  Row,
+  Col,
+} from 'antd';
 import { Branch } from '@/store/server/features/organizationStructure/branchs/interface';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
@@ -25,7 +34,11 @@ const BranchForm: React.FC<{
   useEffect(() => {
     if (editingBranch?.id) {
       form?.setFieldsValue({
-        ...editingBranch,
+        name: editingBranch.name || '',
+        description: editingBranch.description || '',
+        location: editingBranch.location || '',
+        contactNumber: editingBranch.contactNumber || '',
+        contactEmail: editingBranch.contactEmail || '',
       });
     } else {
       form?.resetFields();
@@ -58,7 +71,7 @@ const BranchForm: React.FC<{
       open={formOpen}
       footer={
         <div
-          style={{ textAlign: 'center' }}
+          style={{ textAlign: 'right' }}
           id={`branch-form-footer-${modalSlug}`}
           data-cy={`branch-form-footer-${modalSlug}`}
         >
@@ -95,7 +108,7 @@ const BranchForm: React.FC<{
               }
               onClick={handleSubmit}
             >
-              {editingBranch ? 'Update' : 'Create'}
+              {editingBranch ? 'Edit' : 'Create'}
             </Button>
           </Space>
         </div>
@@ -107,10 +120,21 @@ const BranchForm: React.FC<{
         form={form}
         id={`branch-form-${modalSlug}`}
         data-cy={`branch-form-${modalSlug}`}
+        requiredMark={false}
       >
         <Form.Item
           name="name"
-          label="Branch Name"
+          label={
+            <span data-cy={`branch-form-name-label-${modalSlug}`}>
+              Branch Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`branch-form-name-required-${modalSlug}`}
+              >
+                *
+              </span>
+            </span>
+          }
           rules={[{ required: true, message: 'Please enter the branch name' }]}
           id={`branch-form-name-item-${modalSlug}`}
           data-cy={`branch-form-name-item-${modalSlug}`}
@@ -138,7 +162,17 @@ const BranchForm: React.FC<{
         </Form.Item>
         <Form.Item
           name="location"
-          label="Location"
+          label={
+            <span data-cy={`branch-form-location-label-${modalSlug}`}>
+              Location{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`branch-form-location-required-${modalSlug}`}
+              >
+                *
+              </span>
+            </span>
+          }
           rules={[{ required: true, message: 'Please enter the location' }]}
           id={`branch-form-location-item-${modalSlug}`}
           data-cy={`branch-form-location-item-${modalSlug}`}
@@ -150,48 +184,73 @@ const BranchForm: React.FC<{
             data-cy={`branch-form-location-input-${modalSlug}`}
           />
         </Form.Item>
-        <Form.Item
-          name="contactNumber"
-          label="Contact Number"
-          rules={[
-            {
-              required: true,
-              message: 'Please enter the contact number',
-            },
-          ]}
-          id={`branch-form-contact-number-item-${modalSlug}`}
-          data-cy={`branch-form-contact-number-item-${modalSlug}`}
-        >
-          <PhoneInput
-            defaultCountry="et"
-            inputClassName="ant-input"
-            data-cy={`branch-form-contact-number-input-${modalSlug}`}
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="contactEmail"
-          label="Contact Email"
-          rules={[
-            {
-              required: true,
-              message: 'Please enter the contact email',
-            },
-            {
-              type: 'email',
-              message: 'Please enter a valid email address',
-            },
-          ]}
-          id={`branch-form-contact-email-item-${modalSlug}`}
-          data-cy={`branch-form-contact-email-item-${modalSlug}`}
-        >
-          <Input
-            size="large"
-            placeholder="Enter contact email"
-            id={`branch-form-contact-email-input-${modalSlug}`}
-            data-cy={`branch-form-contact-email-input-${modalSlug}`}
-          />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              name="contactNumber"
+              label={
+                <span data-cy={`branch-form-contact-number-label-${modalSlug}`}>
+                  Contact Number{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`branch-form-contact-number-required-${modalSlug}`}
+                  >
+                    *
+                  </span>
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter the contact number',
+                },
+              ]}
+              id={`branch-form-contact-number-item-${modalSlug}`}
+              data-cy={`branch-form-contact-number-item-${modalSlug}`}
+            >
+              <PhoneInput
+                defaultCountry="et"
+                inputClassName="ant-input"
+                data-cy={`branch-form-contact-number-input-${modalSlug}`}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="contactEmail"
+              label={
+                <span data-cy={`branch-form-contact-email-label-${modalSlug}`}>
+                  Contact Email{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`branch-form-contact-email-required-${modalSlug}`}
+                  >
+                    *
+                  </span>
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter the contact email',
+                },
+                {
+                  type: 'email',
+                  message: 'Please enter a valid email address',
+                },
+              ]}
+              id={`branch-form-contact-email-item-${modalSlug}`}
+              data-cy={`branch-form-contact-email-item-${modalSlug}`}
+            >
+              <Input
+                size="large"
+                placeholder="Enter contact email"
+                id={`branch-form-contact-email-input-${modalSlug}`}
+                data-cy={`branch-form-contact-email-input-${modalSlug}`}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
       </Form>
     </Modal>
   );
