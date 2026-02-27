@@ -622,6 +622,7 @@ const EmployeeOKRTable: React.FC = () => {
               onCancel={() => setIsFilterModalOpen(false)}
               title={mobileModalHeader}
               closable={false}
+              wrapClassName="okr-mobile-filter-sheet"
               footer={
                 <div
                   id="employee-okr-mobile-filter-modal-footer"
@@ -632,7 +633,7 @@ const EmployeeOKRTable: React.FC = () => {
                     id="employee-okr-mobile-filter-reset-button"
                     data-cy="employee-okr-mobile-filter-reset-button"
                     onClick={handleReset}
-                    className="px-6 rounded-lg text-sm text-gray-700 border-gray-300"
+                    className="px-6 rounded-lg text-sm text-gray-700 border border-gray-300 bg-white hover:bg-gray-50"
                   >
                     Reset
                   </Button>
@@ -648,8 +649,8 @@ const EmployeeOKRTable: React.FC = () => {
                 </div>
               }
               className="md:hidden"
-              width={520}
-              centered
+              width="100%"
+              style={{ maxWidth: '100%', paddingBottom: 0 }}
             >
               <FilterContent />
             </Modal>
@@ -657,16 +658,24 @@ const EmployeeOKRTable: React.FC = () => {
         )}
       </div>
 
-      <Table
-        id="okr-employee-okr-table"
-        data-cy="okr-employee-okr-table"
-        columns={columns}
-        dataSource={filteredDataSource}
-        pagination={false}
-        loading={isLoading}
-        scroll={{ y: 400 }} // Add vertical scrolling with fixed height
-        rowKey="id" // Ensure each row has a unique key
-      />
+      <div
+        className={isMobile || isTablet ? 'overflow-x-auto' : ''}
+        style={isMobile || isTablet ? { WebkitOverflowScrolling: 'touch' } : undefined}
+      >
+        <Table
+          id="okr-employee-okr-table"
+          data-cy="okr-employee-okr-table"
+          columns={columns}
+          dataSource={filteredDataSource}
+          pagination={false}
+          loading={isLoading}
+          scroll={{
+            y: 400,
+            ...(isMobile || isTablet ? { x: 'max-content' } : {}),
+          }}
+          rowKey="id"
+        />
+      </div>
 
       {isMobile || isTablet ? (
         <CustomMobilePagination

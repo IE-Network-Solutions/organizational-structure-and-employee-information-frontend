@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Select, Modal, Button, Popover } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
@@ -8,8 +8,9 @@ import {
   useGetActiveFiscalYears,
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useOKRStore, useSearchFilterStore } from '@/store/uistate/features/okrplanning/okr';
 import CustomButton from '@/components/common/buttons/customButton';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { LuSettings2 } from 'react-icons/lu';
 
 const { Option } = Select;
@@ -20,7 +21,13 @@ interface OkrSearchProps {
 }
 
 const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': dataCy }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const {
+    isFilterModalOpen: isModalOpen,
+    openFilterModal,
+    closeFilterModal,
+    setFilterModalOpen,
+  } = useSearchFilterStore();
+  const { isMobile, isTablet } = useIsMobile();
   const {
     searchObjParams,
     setSearchObjParams,
@@ -158,122 +165,26 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
     setSessionIds([]);
     handleFilter('', 'metricTypeId');
     handleFilter('', 'userId');
+    handleFilter('', 'departmentId');
   };
 
   const MobileFilterContent = () => (
     <div
       id="mobile-filter-content"
       data-cy="okr-mobile-filter-content"
-      className="flex flex-col"
+      className="flex flex-col gap-4"
     >
-      {/* First Row: Fiscal Year and Session */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        {/* Fiscal Year */}
-        <div
-          id="mobile-fiscal-year-field"
-          data-cy="okr-mobile-fiscal-year-field"
-          className="flex flex-col gap-2"
-        >
-          <label
-            id="mobile-fiscal-year-label"
-            data-cy="okr-mobile-fiscal-year-label"
-            className="text-sm text-gray-700"
-          >
-            Fiscal Year <span className="text-red-500">*</span>
-          </label>
-          <Select
-            loading={fyLoading}
-            value={fiscalYearId}
-            id="mobile-fiscal-year-select"
-            data-cy="okr-mobile-fiscal-year-select"
-            placeholder="Filter by Fiscal Year"
-            onChange={(value) => setFiscalYearId(value)}
-            allowClear
-            showSearch
-            className="w-full h-14"
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              (option?.children as any)
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          >
-            {getAllFiscalYears?.items?.map((item: any) => (
-              <Select.Option
-                data-cy={`okr-mobile-fiscal-year-select-option-${item?.id}`}
-                key={item?.id}
-                value={item?.id}
-              >
-                {item?.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </div>
-
-        {/* Session */}
-        <div
-          id="mobile-session-field"
-          data-cy="okr-mobile-session-field"
-          className="flex flex-col gap-2"
-        >
-          <label
-            id="mobile-session-label"
-            data-cy="okr-mobile-session-label"
-            className="text-sm text-gray-700"
-          >
-            Session <span className="text-red-500">*</span>
-          </label>
-          <Select
-            loading={fyLoading}
-            value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
-            id="mobile-session-select"
-            data-cy="okr-mobile-session-select"
-            placeholder="Filter by Session"
-            className="w-full h-14 overflow-y-auto text-[10px]"
-            allowClear
-            showSearch
-            onChange={(value: any) => {
-              if (okrTab == 4) {
-                setSessionIds(
-                  Array.isArray(value) ? value : value ? [value] : [],
-                );
-              } else {
-                setSessionIds(value ? [value] : []);
-              }
-            }}
-            mode={okrTab == 4 ? 'multiple' : undefined}
-            filterOption={(input, option) =>
-              (option?.children as any)
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          >
-            {getAllFiscalYears?.items
-              ?.find((fy: any) => fy.id === fiscalYearId)
-              ?.sessions?.map((session: any) => (
-                <Option
-                  data-cy={`okr-mobile-session-select-option-${session?.id}`}
-                  key={session.id}
-                  value={session.id}
-                >
-                  {session.name}
-                </Option>
-              ))}
-          </Select>
-        </div>
-      </div>
-
-      {/* Employee Filter */}
+      {/* Employee – full width, label above (same fields as desktop) */}
       {String(okrTab) !== '1' && (
         <div
           id="mobile-employee-field"
           data-cy="okr-mobile-employee-field"
-          className="flex flex-col gap-2 mb-4"
+          className="flex flex-col gap-2"
         >
           <label
             id="mobile-employee-label"
             data-cy="okr-mobile-employee-label"
-            className="text-sm text-gray-700"
+            className="text-sm font-medium text-gray-700"
           >
             Employee <span className="text-red-500">*</span>
           </label>
@@ -281,9 +192,10 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
             id="mobile-employee-select"
             data-cy="okr-mobile-employee-select"
             showSearch
-            placeholder="Select a person"
-            className="w-full h-14"
+            placeholder="Input"
+            className="w-full h-12 rounded-lg"
             allowClear
+            getPopupContainer={(node) => node.parentElement ?? document.body}
             value={searchObjParams.userId}
             onChange={(value) => handleFilter(value, 'userId')}
             filterOption={(input: any, option: any) =>
@@ -305,26 +217,165 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
         </div>
       )}
 
-      {/* Second Row: Metric Type */}
+      {/* Department – full width (same as desktop when tab != 1) */}
+      {String(okrTab) !== '1' && (
+        <div
+          id="mobile-department-field"
+          data-cy="okr-mobile-department-field"
+          className="flex flex-col gap-2"
+        >
+          <label
+            id="mobile-department-label"
+            data-cy="okr-mobile-department-label"
+            className="text-sm font-medium text-gray-700"
+          >
+            Department <span className="text-red-500">*</span>
+          </label>
+          <Select
+            id="mobile-department-select"
+            data-cy="okr-mobile-department-select"
+            placeholder="Select"
+            className="w-full h-12 rounded-lg"
+            allowClear
+            showSearch
+            value={searchObjParams.departmentId}
+            onChange={(value) => handleFilter(value, 'departmentId')}
+            filterOption={(input, option) =>
+              (option?.children as any)
+                ?.toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
+            {DepartmentWithUsers?.map((dept: any) => (
+              <Option
+                data-cy={`okr-mobile-department-select-option-${dept?.id}`}
+                key={dept.id}
+                value={dept.id}
+              >
+                {dept.name}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      )}
+
+      {/* Fiscal Year – full width */}
+      <div
+        id="mobile-fiscal-year-field"
+        data-cy="okr-mobile-fiscal-year-field"
+        className="flex flex-col gap-2"
+      >
+        <label
+          id="mobile-fiscal-year-label"
+          data-cy="okr-mobile-fiscal-year-label"
+          className="text-sm font-medium text-gray-700"
+        >
+          Fiscal Year <span className="text-red-500">*</span>
+        </label>
+        <Select
+          loading={fyLoading}
+          value={fiscalYearId}
+          id="mobile-fiscal-year-select"
+          data-cy="okr-mobile-fiscal-year-select"
+          placeholder="Select"
+          onChange={(value) => setFiscalYearId(value)}
+          allowClear
+          showSearch
+          getPopupContainer={(node) => node.parentElement ?? document.body}
+          className="w-full h-12 rounded-lg"
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            (option?.children as any)
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+        >
+          {getAllFiscalYears?.items?.map((item: any) => (
+            <Select.Option
+              data-cy={`okr-mobile-fiscal-year-select-option-${item?.id}`}
+              key={item?.id}
+              value={item?.id}
+            >
+              {item?.name}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+
+      {/* Session – full width */}
+      <div
+        id="mobile-session-field"
+        data-cy="okr-mobile-session-field"
+        className="flex flex-col gap-2"
+      >
+        <label
+          id="mobile-session-label"
+          data-cy="okr-mobile-session-label"
+          className="text-sm font-medium text-gray-700"
+        >
+          Session <span className="text-red-500">*</span>
+        </label>
+        <Select
+          loading={fyLoading}
+          value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
+          id="mobile-session-select"
+          data-cy="okr-mobile-session-select"
+          placeholder="Select"
+          className="w-full h-12 rounded-lg overflow-y-auto"
+          allowClear
+          showSearch
+          getPopupContainer={(node) => node.parentElement ?? document.body}
+          onChange={(value: any) => {
+            if (okrTab == 4) {
+              setSessionIds(
+                Array.isArray(value) ? value : value ? [value] : [],
+              );
+            } else {
+              setSessionIds(value ? [value] : []);
+            }
+          }}
+          mode={okrTab == 4 ? 'multiple' : undefined}
+          filterOption={(input, option) =>
+            (option?.children as any)
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+        >
+          {getAllFiscalYears?.items
+            ?.find((fy: any) => fy.id === fiscalYearId)
+            ?.sessions?.map((session: any) => (
+              <Option
+                data-cy={`okr-mobile-session-select-option-${session?.id}`}
+                key={session.id}
+                value={session.id}
+              >
+                {session.name}
+              </Option>
+            ))}
+        </Select>
+      </div>
+
+      {/* Metric Type – full width (same as desktop when tab != 4) */}
       {okrTab != 4 && (
         <div
           id="mobile-metric-type-field"
           data-cy="okr-mobile-metric-type-field"
-          className="flex flex-col gap-2 mb-4"
+          className="flex flex-col gap-2"
         >
           <label
             id="mobile-metric-type-label"
             data-cy="okr-mobile-metric-type-label"
-            className="text-sm text-gray-700"
+            className="text-sm font-medium text-gray-700"
           >
             Metric Type <span className="text-red-500">*</span>
           </label>
           <Select
             id="mobile-metric-type-select"
             data-cy="okr-mobile-metric-type-select"
-            placeholder="Filter by Metric Type"
-            className="w-full h-14"
+            placeholder="Select"
+            className="w-full h-12 rounded-lg"
             allowClear
+            getPopupContainer={(node) => node.parentElement ?? document.body}
             value={searchObjParams.metricTypeId}
             onChange={(value) => handleFilter(value, 'metricTypeId')}
           >
@@ -370,7 +421,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
           id="filter-save-button"
           data-cy="okr-filter-save-button"
           type="primary"
-          onClick={() => setIsModalOpen(false)}
+          onClick={closeFilterModal}
           className="px-6 rounded-lg text-sm bg-okr-primary border-okr-primary"
         >
           Save Filter
@@ -404,7 +455,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
       <button
         id="filter-popover-close-button"
         data-cy="okr-filter-popover-close-button"
-        onClick={() => setIsModalOpen(false)}
+        onClick={closeFilterModal}
         className="text-gray-400 hover:text-gray-600 transition-colors p-1"
         aria-label="Close filter"
       >
@@ -438,7 +489,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
       <button
         id="filter-modal-close-button"
         data-cy="okr-filter-modal-close-button"
-        onClick={() => setIsModalOpen(false)}
+        onClick={closeFilterModal}
         className="text-gray-400 hover:text-gray-600 transition-colors p-1"
         aria-label="Close modal"
       >
@@ -448,33 +499,91 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
   );
 
   if (embedded) {
+    const isMobileView = isMobile || isTablet;
     return (
       <div
         id="okr-filter-button-wrapper"
         data-cy={dataCy || 'okr-filter-button-wrapper'}
         className="w-full sm:w-auto flex justify-end"
       >
-        <Popover
-          content={filterPopoverContent}
-          title={filterPopoverTitle}
-          trigger="click"
-          open={isModalOpen}
-          onOpenChange={(visible) => setIsModalOpen(visible)}
-          placement="bottomRight"
-          overlayClassName="okr-filter-popover"
-          overlayStyle={{ width: 500 }}
-          arrow={false}
-        >
-          <Button
-            id="desktop-filter-button"
-            data-cy="okr-desktop-filter-button"
-            type="default"
-            className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            icon={<LuSettings2 size={16} />}
+        {isMobileView ? (
+          <>
+            <Button
+              id="desktop-filter-button"
+              data-cy="okr-desktop-filter-button"
+              type="default"
+              onClick={openFilterModal}
+              className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              icon={<LuSettings2 size={16} />}
+            >
+              Filter
+            </Button>
+            <Modal
+              data-cy="okr-mobile-filter-modal"
+              open={isModalOpen}
+              onCancel={closeFilterModal}
+              afterClose={() => {
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+              }}
+              destroyOnClose
+              title={mobileModalHeader}
+              closable={false}
+              wrapClassName="okr-mobile-filter-sheet"
+              width="100%"
+              style={{ maxWidth: '100%', paddingBottom: 0 }}
+              footer={
+                <div
+                  id="mobile-filter-modal-footer"
+                  data-cy="okr-mobile-filter-modal-footer"
+                  className="flex justify-end gap-3 pt-4"
+                >
+                  <Button
+                    id="mobile-filter-reset-button"
+                    data-cy="okr-mobile-filter-reset-button"
+                    onClick={handleReset}
+                    className="px-6 rounded-lg text-sm text-gray-700 border border-gray-300 bg-white hover:bg-gray-50"
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    id="mobile-filter-save-button"
+                    data-cy="okr-mobile-filter-save-button"
+                    type="primary"
+                    onClick={closeFilterModal}
+                    className="px-6 rounded-lg text-sm bg-okr-primary border-okr-primary"
+                  >
+                    Save Filter
+                  </Button>
+                </div>
+              }
+            >
+              <MobileFilterContent data-cy="okr-mobile-filter-content" />
+            </Modal>
+          </>
+        ) : (
+          <Popover
+            content={filterPopoverContent}
+            title={filterPopoverTitle}
+            trigger="click"
+            open={isModalOpen}
+            onOpenChange={(visible) => setFilterModalOpen(visible)}
+            placement="bottomRight"
+            overlayClassName="okr-filter-popover"
+            overlayStyle={{ width: 500 }}
+            arrow={false}
           >
-            Filter
-          </Button>
-        </Popover>
+            <Button
+              id="desktop-filter-button"
+              data-cy="okr-desktop-filter-button"
+              type="default"
+              className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              icon={<LuSettings2 size={16} />}
+            >
+              Filter
+            </Button>
+          </Popover>
+        )}
       </div>
     );
   }
@@ -719,7 +828,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
               data-cy="okr-mobile-filter-button"
               type="default"
               size="small"
-              onClick={() => setIsModalOpen(true)}
+              onClick={openFilterModal}
               className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
               title=""
               icon={
@@ -735,9 +844,15 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
         <Modal
           data-cy="okr-mobile-filter-modal"
           open={isModalOpen}
-          onCancel={() => setIsModalOpen(false)}
+          onCancel={closeFilterModal}
+          afterClose={() => {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+          }}
+          destroyOnClose
           title={mobileModalHeader}
           closable={false}
+          wrapClassName="okr-mobile-filter-sheet"
           footer={
             <div
               id="mobile-filter-modal-footer"
@@ -748,7 +863,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
                 id="mobile-filter-reset-button"
                 data-cy="okr-mobile-filter-reset-button"
                 onClick={handleReset}
-                className="px-6 rounded-lg text-sm text-gray-700 border-gray-300"
+                className="px-6 rounded-lg text-sm text-gray-700 border border-gray-300 bg-white hover:bg-gray-50"
               >
                 Reset
               </Button>
@@ -756,7 +871,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
                 id="mobile-filter-save-button"
                 data-cy="okr-mobile-filter-save-button"
                 type="primary"
-                onClick={() => setIsModalOpen(false)}
+                onClick={closeFilterModal}
                 className="px-6 rounded-lg text-sm bg-okr-primary border-okr-primary"
               >
                 Save Filter
@@ -764,8 +879,8 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
             </div>
           }
           className="md:hidden"
-          width={520}
-          centered
+          width="100%"
+          style={{ maxWidth: '100%', paddingBottom: 0 }}
         >
           <MobileFilterContent data-cy="okr-mobile-filter-content" />
         </Modal>

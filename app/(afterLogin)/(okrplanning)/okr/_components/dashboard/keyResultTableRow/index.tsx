@@ -11,7 +11,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useIsBasicOkr } from '../../../_utils/okrMode';
 import { IoIosMore } from 'react-icons/io';
 import { IoCheckmarkCircle } from 'react-icons/io5';
-import { DownOutlined } from '@ant-design/icons';
+import { DownOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Select } from 'antd';
 
 const { Option } = Select;
@@ -65,9 +65,21 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
 
   const menu = canEditDelete ? (
     <Menu
+      className="okr-actions-menu"
       items={[
-        { key: '1', label: 'Edit', onClick: showDrawer },
-        { key: '2', label: 'Delete', onClick: showDeleteModal },
+        {
+          key: '1',
+          icon: <EditOutlined className="text-gray-700" />,
+          label: 'Edit Key Result',
+          onClick: showDrawer,
+        },
+        {
+          key: '2',
+          icon: <DeleteOutlined className="text-red-500" />,
+          label: 'Delete Key Result',
+          danger: true,
+          onClick: showDeleteModal,
+        },
       ]}
     />
   ) : null;
@@ -180,8 +192,8 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           </div>
         </td>
         <td className="px-6 py-4 whitespace-nowrap min-w-[56px]">
-          {canEditDelete && keyResult?.isClosed === false && menu ? (
-            <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
+          {canEditDelete && keyResult?.isClosed === false && Number(keyResult?.progress ?? 0) === 0 && menu ? (
+            <Dropdown overlay={menu} trigger={['click']} placement="bottomRight" overlayClassName="okr-actions-dropdown">
               <button
                 type="button"
                 className="text-gray-400 hover:text-gray-600 border border-gray-200 rounded p-1"

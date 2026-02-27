@@ -177,7 +177,7 @@ export function KeyResultSavedCard({
       className="border border-gray-200 rounded-lg p-3 flex items-start justify-between"
     >
       <div className="flex flex-col gap-2 flex-1 min-w-0">
-        <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded w-fit">
+        <span className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block">
           Weight {weight}%
         </span>
         <p className="text-sm font-medium text-gray-900 truncate">

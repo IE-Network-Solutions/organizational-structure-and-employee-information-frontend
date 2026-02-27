@@ -96,6 +96,10 @@ export interface OKRFormProps {
   keyResults?: KeyResult;
   /** When true, on mobile render the form inline (e.g. inside OKR Create Objective bottom sheet) instead of card + separate drawer */
   embedInOkrSheet?: boolean;
+  /** When true, weight input is disabled (e.g. in Edit KR modal) */
+  disableWeightEdit?: boolean;
+  /** Called when Save succeeds (e.g. to collapse inline edit back to card view) */
+  onSaveSuccess?: () => void;
 }
 export interface ObjectiveProps {
   objective: Objective;

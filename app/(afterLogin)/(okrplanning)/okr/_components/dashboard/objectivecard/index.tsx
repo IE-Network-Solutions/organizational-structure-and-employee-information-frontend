@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Avatar, Dropdown, Menu } from 'antd';
 import { PiCalendarBold } from 'react-icons/pi';
 import KeyResultTableRow from '../keyResultTableRow';
 import EditObjective from '../editObjective';
-import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useOKRStore, useObjectiveBasicStore } from '@/store/uistate/features/okrplanning/okr';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteObjective } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import {
   defaultObjective,
   ObjectiveProps,
 } from '@/store/uistate/features/okrplanning/okr/interface';
-import { EllipsisOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -20,10 +20,22 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { setObjectiveValue, objectiveValue, keyResultId, objectiveId } =
     useOKRStore();
   const { userId } = useAuthenticationStore();
-  const [open, setOpen] = useState(false);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [expanded, setExpanded] = useState(true);
+  const {
+    editObjectiveModalObjectiveId,
+    deleteModalObjectiveId,
+    expandedObjectiveIds,
+    openEditObjective,
+    closeEditObjective,
+    openDeleteModal,
+    closeDeleteModal,
+    toggleExpanded,
+  } = useObjectiveBasicStore();
   const { mutate: deleteObjective } = useDeleteObjective();
+
+  const objectiveIdStr = String(objective?.id ?? '');
+  const open = editObjectiveModalObjectiveId === objectiveIdStr;
+  const isDeleteModalOpen = deleteModalObjectiveId === objectiveIdStr;
+  const expanded = expandedObjectiveIds[objectiveIdStr] ?? true;
   const { isMobile } = useIsMobile();
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
 
@@ -36,21 +48,21 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     !activeSessionId || objective?.sessionId === activeSessionId;
 
   const showDeleteModal = () => {
-    setOpenDeleteModal(true);
+    openDeleteModal(objectiveIdStr);
     setObjectiveValue(objective);
   };
   const onCloseDeleteModal = () => {
-    setOpenDeleteModal(false);
+    closeDeleteModal();
     setObjectiveValue(defaultObjective);
   };
 
   const showDrawer = () => {
-    setOpen(true);
+    openEditObjective(objectiveIdStr);
     setObjectiveValue(objective);
   };
 
   const onClose = () => {
-    setOpen(false);
+    closeEditObjective();
     setObjectiveValue(defaultObjective);
   };
 
@@ -61,9 +73,21 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const menu =
     isOwner && isInActiveSession ? (
       <Menu
+        className="okr-actions-menu"
         items={[
-          { key: '1', label: 'Edit', onClick: showDrawer },
-          { key: '2', label: 'Delete', onClick: showDeleteModal },
+          {
+            key: '1',
+            icon: <EditOutlined className="text-gray-700" />,
+            label: 'Edit OKR',
+            onClick: showDrawer,
+          },
+          {
+            key: '2',
+            icon: <DeleteOutlined className="text-red-500" />,
+            label: 'Delete OKR',
+            danger: true,
+            onClick: showDeleteModal,
+          },
         ]}
       />
     ) : null;
@@ -128,7 +152,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                       <div className="flex items-center gap-2 min-w-0">
                         <button
                           type="button"
-                          onClick={() => setExpanded(!expanded)}
+                          onClick={() => toggleExpanded(objectiveIdStr)}
                           className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 text-gray-400 transition-colors w-8 h-8 flex items-center justify-center flex-shrink-0 sm:absolute sm:left-0 sm:top-0"
                           data-cy={`okr-objective-expand-${objective?.id}`}
                         >
@@ -146,11 +170,12 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           {objective?.title}
                         </h2>
                       </div>
-                      {objective?.isClosed === false && menu && (
+                      {objective?.isClosed === false && Number(objective?.objectiveProgress ?? 0) !== 100 && menu && (
                         <Dropdown
                           overlay={menu}
                           trigger={['click']}
                           placement="bottomRight"
+                          overlayClassName="okr-actions-dropdown"
                         >
                           <button
                             type="button"
@@ -195,15 +220,16 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         </div>
                       </div>
                     )}
-                    {objective?.isClosed === false && menu && (
-                      <Dropdown
-                        overlay={menu}
-                        trigger={['click']}
-                        placement="bottomRight"
-                      >
-                        <button
-                          type="button"
-                          className="hidden sm:flex text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 items-center justify-center flex-shrink-0"
+                    {objective?.isClosed === false && Number(objective?.objectiveProgress ?? 0) !== 100 && menu && (
+                        <Dropdown
+                          overlay={menu}
+                          trigger={['click']}
+                          placement="bottomRight"
+                          overlayClassName="okr-actions-dropdown"
+                        >
+                          <button
+                            type="button"
+                            className="hidden sm:flex text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 items-center justify-center flex-shrink-0"
                           data-cy={`okr-objective-menu-button-${objective?.id}`}
                         >
                           <EllipsisOutlined />
@@ -285,7 +311,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       />
       <DeleteModal
         data-cy={`okr-objective-card-delete-modal-${objective?.id}`}
-        open={openDeleteModal}
+        open={isDeleteModalOpen}
         onConfirm={() => handleDeleteObjective(objectiveValue.id as string)}
         onCancel={onCloseDeleteModal}
       />

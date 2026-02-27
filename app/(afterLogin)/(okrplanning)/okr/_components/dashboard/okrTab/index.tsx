@@ -41,7 +41,7 @@ export default function OkrTab({ filterComponent, 'data-cy': dataCy }: OkrTabPro
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
   const isBasicOkr = useIsBasicOkr();
-  const departmentId = userData?.employeeJobInformation[0]?.departmentId;
+  const departmentId = userData?.employeeJobInformation?.[0]?.departmentId;
   const users =
     departmentUsers
       ?.find((i: any) => i.id === departmentId)

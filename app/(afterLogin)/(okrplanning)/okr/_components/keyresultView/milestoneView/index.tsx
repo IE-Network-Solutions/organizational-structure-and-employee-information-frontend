@@ -18,6 +18,7 @@ import {
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+import { isKeyResultLockedForWeightEdit } from '@/app/(afterLogin)/(okrplanning)/okr/_utils/keyResultGuards';
 
 const MilestoneView: React.FC<OKRProps> = ({
   keyValue,
@@ -40,6 +41,7 @@ const MilestoneView: React.FC<OKRProps> = ({
   } = useOKRStore();
 
   const { data: metrics } = useGetMetrics();
+  const disableWeightEdit = isKeyResultLockedForWeightEdit(keyValue);
 
   // Sync form values with milestone data
   useEffect(() => {
@@ -497,7 +499,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
+                disabled={isEdit || disableWeightEdit}
                 data-cy={`okr-key-result-view-milestone-desktop-weight-input-${index}`}
               />
             </Form.Item>
@@ -666,7 +668,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
+                disabled={isEdit || disableWeightEdit}
                 data-cy={`okr-key-result-view-milestone-mobile-weight-input-${index}`}
               />
             </Form.Item>

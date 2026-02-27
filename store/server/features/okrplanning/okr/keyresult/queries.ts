@@ -37,8 +37,9 @@ const getKeyResultByUser = async (
 
         // If we get a proper response with items, return it
         if (response && (response.items || Array.isArray(response))) {
-          return response;
+          return Array.isArray(response) ? { items: response } : { items: response.items ?? [] };
         }
+        return { items: [] };
       } catch (encryptionError) {}
 
       // Fallback: try with skipEncryption if the above fails
@@ -57,8 +58,11 @@ const getKeyResultByUser = async (
         if (response && response.data && typeof response.data === 'string') {
           return { items: [] };
         }
-
-        return response;
+        // Normalize: API may return message/other shape when no data
+        if (response && (response.items || Array.isArray(response))) {
+          return Array.isArray(response) ? { items: response } : { items: response.items ?? [] };
+        }
+        return { items: [] };
       } catch (fallbackError) {
         throw fallbackError;
       }
@@ -71,15 +75,16 @@ const getKeyResultByUser = async (
 };
 
 export const useGetUserKeyResult = (
-  postId: number | string,
+  postId: number | string | undefined | null,
   fiscalYearId?: string,
   sessionId?: string,
 ) =>
   useQuery<ResponseData>(
     ['ObjectiveInformation', postId, fiscalYearId, sessionId],
-    () => getKeyResultByUser(postId, fiscalYearId, sessionId),
+    () => getKeyResultByUser(postId as number | string, fiscalYearId, sessionId),
     {
       keepPreviousData: true,
+      enabled: !!postId, // Only fetch when we have a user id (e.g. reportsToId)
     },
   );
 
@@ -119,6 +124,48 @@ const getKeyResult = async (id: string) => {
     throw error;
   }
 };
+
+const getKeyResultFromPlanning = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
+  try {
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/key-results/${id}`,
+      method: 'GET',
+      headers,
+    });
+    if (response && typeof response === 'object') return response;
+  } catch {
+    try {
+      const response = await crudRequest({
+        url: `${OKR_AND_PLANNING_URL}/key-results/${id}`,
+        method: 'GET',
+        headers,
+        skipEncryption: true,
+      });
+      if (response && response.data && typeof response.data === 'string')
+        return {};
+      return response ?? {};
+    } catch {
+      return {};
+    }
+  }
+  return {};
+};
+
+/**
+ * Custom hook to get key result by ID (from OKR planning API)
+ * Use this when editing key results to ensure full data including deadline
+ */
+export const useGetKeyResultForEdit = (id: string, enabled = true) =>
+  useQuery<KeyResult>(
+    ['keyResultForEdit', id],
+    () => getKeyResultFromPlanning(id),
+    { keepPreviousData: true, enabled: !!id && enabled },
+  );
 
 /**
  * Custom hook to get key result by ID

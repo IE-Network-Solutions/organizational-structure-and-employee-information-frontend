@@ -1,8 +1,8 @@
 import { Dropdown, Menu, Progress, Select } from 'antd';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
-import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useOKRStore, useKeyResultMetricsStore } from '@/store/uistate/features/okrplanning/okr';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
 import {
@@ -12,7 +12,7 @@ import {
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
-import { DownOutlined } from '@ant-design/icons';
+import { DownOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -33,9 +33,18 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   objectiveUserId,
   isInActiveSession = true,
 }) => {
-  const [open, setOpen] = useState(false);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const {
+    editModalKeyResultId,
+    deleteModalKeyResultId,
+    openEditModal,
+    closeEditModal,
+    openDeleteModal,
+    closeDeleteModal,
+  } = useKeyResultMetricsStore();
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
+
+  const isEditModalOpen = editModalKeyResultId === String(keyResult?.id ?? '');
+  const isDeleteModalOpen = deleteModalKeyResultId === String(keyResult?.id ?? '');
   const { mutate: updateKeyResult } = useUpdateKeyResult();
   const { userId } = useAuthenticationStore();
   const isBasicOkr = useIsBasicOkr();
@@ -49,38 +58,42 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   const canEditDelete =
     (myOkr || objectiveUserId === userId) && isInActiveSession;
   const showDeleteModal = () => {
-    setOpenDeleteModal(true);
+    openDeleteModal(String(keyResult?.id ?? ''));
     setKeyResultValue(keyResult);
     setKeyResultId(keyResult?.id);
     setObjectiveId(keyResult?.objectiveId);
   };
 
   const onCloseDeleteModal = () => {
-    setOpenDeleteModal(false);
+    closeDeleteModal();
     setKeyResultValue([]);
   };
 
   const showDrawer = () => {
-    setOpen(true);
+    openEditModal(String(keyResult?.id ?? ''));
     setKeyResultValue(keyResult);
   };
 
   const onClose = () => {
-    setOpen(false);
+    closeEditModal();
   };
 
   // Only show edit/delete menu if user can edit/delete this key result
   const menu = canEditDelete ? (
     <Menu
+      className="okr-actions-menu"
       items={[
         {
           key: '1',
-          label: 'Edit',
+          icon: <EditOutlined className="text-gray-700" />,
+          label: 'Edit Key Result',
           onClick: showDrawer,
         },
         {
           key: '2',
-          label: 'Delete',
+          icon: <DeleteOutlined className="text-red-500" />,
+          label: 'Delete Key Result',
+          danger: true,
           onClick: showDeleteModal,
         },
       ]}
@@ -185,6 +198,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
               overlay={menu}
               trigger={['click']}
               placement="bottomRight"
+              overlayClassName="okr-actions-dropdown"
             >
               <IoIosMore
                 id={`key-result-menu-button-${keyResult?.id}`}
@@ -416,12 +430,12 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
 
       <EditKeyResult
         data-cy={`okr-key-result-metrics-edit-key-result-${keyResult?.id}`}
-        open={open}
+        open={isEditModalOpen}
         onClose={onClose}
         keyResult={keyResultValue}
       />
       <DeleteModal
-        open={openDeleteModal}
+        open={isDeleteModalOpen}
         onConfirm={() => handleKeyResultDelete(keyResultValue.id)}
         onCancel={onCloseDeleteModal}
         data-cy={`okr-key-result-delete-modal-${keyResult?.id}`}

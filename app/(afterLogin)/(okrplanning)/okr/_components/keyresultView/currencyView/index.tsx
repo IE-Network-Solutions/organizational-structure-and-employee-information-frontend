@@ -16,6 +16,7 @@ import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+import { isKeyResultLockedForWeightEdit } from '@/app/(afterLogin)/(okrplanning)/okr/_utils/keyResultGuards';
 
 const CurrencyView: React.FC<OKRProps> = ({
   keyValue,
@@ -31,6 +32,7 @@ const CurrencyView: React.FC<OKRProps> = ({
   } = useOKRStore();
 
   const { data: metrics } = useGetMetrics();
+  const disableWeightEdit = isKeyResultLockedForWeightEdit(keyValue);
 
   const handleChange = (value: any, field: string) => {
     if (isEdit) {
@@ -218,7 +220,7 @@ const CurrencyView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
+                disabled={isEdit || disableWeightEdit}
                 data-cy={`${viewPrefix}-desktop-weight-input`}
               />
             </Form.Item>
@@ -382,7 +384,7 @@ const CurrencyView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
+                disabled={isEdit || disableWeightEdit}
                 data-cy={`${viewPrefix}-mobile-weight-input`}
               />
             </Form.Item>

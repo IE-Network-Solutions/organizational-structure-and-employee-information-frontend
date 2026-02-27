@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Drawer } from 'antd';
 import { EditOutlined, ThunderboltFilled } from '@ant-design/icons';
 import MilestoneForm from './milestoneForm';
@@ -7,6 +7,7 @@ import CurrencyForm from './currencyForm';
 import NumericForm from './numericForm';
 import PercentageForm from './percentageForm';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
+import { useKeyResultFormStore } from '@/store/uistate/features/okrplanning/okr';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 // Define type for keyItem prop
@@ -20,26 +21,30 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
   removeKeyResult,
   addKeyResultValue,
   embedInOkrSheet = false,
+  disableWeightEdit,
+  onSaveSuccess,
 }) => {
   const { isMobile } = useIsMobile();
   const renderInline = !isMobile || embedInOkrSheet;
   const isNewKeyResult =
     !keyItem?.title || String(keyItem.title).trim().length === 0;
-  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(
-    isMobile && !embedInOkrSheet && isNewKeyResult,
-  );
+  const storeKey = `keyresult-form-${keyItem?.id ?? 'new'}-${index}`;
+  const setSheetOpen = useKeyResultFormStore((s) => s.setSheetOpen);
+  const isSheetOpen =
+    useKeyResultFormStore((s) => s.sheetOpenByKey[storeKey]) ??
+    (isMobile && !embedInOkrSheet && isNewKeyResult);
 
   useEffect(() => {
     if (!isMobile || embedInOkrSheet) {
-      setIsSheetOpen(false);
+      setSheetOpen(storeKey, false);
     }
-  }, [isMobile, embedInOkrSheet]);
+  }, [isMobile, embedInOkrSheet, storeKey, setSheetOpen]);
 
   useEffect(() => {
     if (isMobile && !embedInOkrSheet && isNewKeyResult) {
-      setIsSheetOpen(true);
+      setSheetOpen(storeKey, true);
     }
-  }, [isMobile, embedInOkrSheet, isNewKeyResult]);
+  }, [isMobile, embedInOkrSheet, isNewKeyResult, storeKey, setSheetOpen]);
 
   const metricLabel = useMemo(() => {
     if (keyItem?.key_type === 'Achieved') return 'Achieve or Not';
@@ -62,6 +67,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           updateKeyResult={updateKeyResult}
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
+          disableWeightEdit={disableWeightEdit}
         />
       );
     }
@@ -76,6 +82,8 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           updateKeyResult={updateKeyResult}
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
+          disableWeightEdit={disableWeightEdit}
+          onSaveSuccess={onSaveSuccess}
         />
       );
     }
@@ -90,6 +98,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           updateKeyResult={updateKeyResult}
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
+          disableWeightEdit={disableWeightEdit}
         />
       );
     }
@@ -104,6 +113,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           updateKeyResult={updateKeyResult}
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
+          disableWeightEdit={disableWeightEdit}
         />
       );
     }
@@ -118,6 +128,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           updateKeyResult={updateKeyResult}
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
+          disableWeightEdit={disableWeightEdit}
         />
       );
     }
@@ -168,7 +179,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
             id={`okr-key-result-mobile-open-button-${index}`}
             data-cy={`okr-key-result-mobile-open-button-${index}`}
             className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white shadow-sm hover:shadow-md transition-shadow flex items-center justify-between text-left"
-            onClick={() => setIsSheetOpen(true)}
+            onClick={() => setSheetOpen(storeKey, true)}
           >
             <div className="min-w-0">
               <p className="text-xs text-okr-primary font-medium">
@@ -197,7 +208,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
             }
             placement="bottom"
             open={isSheetOpen}
-            onClose={() => setIsSheetOpen(false)}
+            onClose={() => setSheetOpen(storeKey, false)}
             height="85vh"
             destroyOnClose={false}
             className="md:hidden"
