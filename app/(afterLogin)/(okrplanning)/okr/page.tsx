@@ -53,7 +53,7 @@ const OKR: React.FC<any> = () => {
     searchObjParams?.metricTypeId,
   );
 
-  const { isMobile, isTablet } = useIsMobile();
+  const { isMobile } = useIsMobile();
 
   function handleDownload() {
     if (okrTab == 1) {
@@ -135,18 +135,19 @@ const OKR: React.FC<any> = () => {
           <nav
             aria-label="Breadcrumb"
             className="flex text-sm font-medium text-gray-500 mt-1"
+            data-cy="okr-breadcrumb-nav"
           >
-            <ol className="flex items-center space-x-2">
-              <li>
-                <a className="hover:text-okr-primary transition-colors" href="#">
+            <ol className="flex items-center space-x-2" data-cy="okr-breadcrumb-list">
+              <li data-cy="okr-breadcrumb-item-okr">
+                <a className="hover:text-okr-primary transition-colors" href="#" data-cy="okr-breadcrumb-link">
                   OKR
                 </a>
               </li>
-              <li>
-                <span className="text-gray-400">/</span>
+              <li data-cy="okr-breadcrumb-item-separator">
+                <span className="text-gray-400" data-cy="okr-breadcrumb-separator">/</span>
               </li>
-              <li>
-                <span className="text-gray-900">Objectives</span>
+              <li data-cy="okr-breadcrumb-item-objectives">
+                <span className="text-gray-900" data-cy="okr-breadcrumb-current">Objectives</span>
               </li>
             </ol>
           </nav>
