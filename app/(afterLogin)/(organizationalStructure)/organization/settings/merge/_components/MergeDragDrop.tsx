@@ -132,17 +132,20 @@ const MergeDragDrop: React.FC = () => {
   );
 
   // Compute depth (level) of a department in the org tree; root = 1
-  const getDepartmentLevel = useCallback((tree: any, id: string, depth = 1): number => {
-    if (!tree) return 1;
-    if (tree.id === id) return depth;
-    if (tree.department?.length) {
-      for (const child of tree.department) {
-        const found = getDepartmentLevel(child, id, depth + 1);
-        if (found > 0) return found;
+  const getDepartmentLevel = useCallback(
+    (tree: any, id: string, depth = 1): number => {
+      if (!tree) return 1;
+      if (tree.id === id) return depth;
+      if (tree.department?.length) {
+        for (const child of tree.department) {
+          const found = getDepartmentLevel(child, id, depth + 1);
+          if (found > 0) return found;
+        }
       }
-    }
-    return 0;
-  }, []);
+      return 0;
+    },
+    [],
+  );
 
   // Build merge data
   useEffect(() => {
@@ -157,7 +160,8 @@ const MergeDragDrop: React.FC = () => {
       );
 
       if (destinationDept && sourceDept) {
-        const level = getDepartmentLevel(orgStructureData, destinationTeam.id) || 3;
+        const level =
+          getDepartmentLevel(orgStructureData, destinationTeam.id) || 3;
 
         // API expects department: []; teamLeader added at submit time
         const mergePayload = {
