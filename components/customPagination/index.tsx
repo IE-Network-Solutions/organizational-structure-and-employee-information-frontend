@@ -35,6 +35,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   };
 
   const totalPages = Math.ceil(total / pageSize);
+  const { isMobile } = useIsMobile();
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
@@ -51,7 +52,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               isMobile ? 'w-10 h-10' : 'w-8 h-8'
             } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
               current === i
-                ? 'bg-[#F8F8F8] text-[#111827] '
+                ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af]  '
                 : 'bg-white text-[#111827] hover:bg-gray-100'
             }`}
             data-cy="pagination-page-button"
@@ -73,7 +74,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             isMobile ? 'w-10 h-10' : 'w-8 h-8'
           } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
             current === 1
-              ? 'bg-[#F8F8F8] text-[#111827]'
+              ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af]'
               : 'bg-white text-[#111827] hover:bg-gray-100'
           }`}
           data-cy="pagination-page-button"
@@ -118,7 +119,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               isMobile ? 'w-10 h-10' : 'w-8 h-8'
             } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
               current === i
-                ? 'bg-[#F8F8F8] text-[#111827] '
+                ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af] '
                 : 'bg-white text-[#111827] hover:bg-gray-100'
             }`}
             data-cy="pagination-page-button"
@@ -148,7 +149,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => handlePageChange(totalPages)}
           className={`w-8 h-8 flex items-center justify-center  rounded-[10px] ${
             current === totalPages
-              ? 'bg-[#F8F8F8] text-[#111827] '
+              ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af] '
               : 'bg-white text-[#111827]  hover:bg-gray-100'
           }`}
           data-cy="pagination-page-button"
@@ -161,7 +162,6 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     return pageNumbers;
   };
 
-  const { isMobile } = useIsMobile();
   return (
     <div
       id={id}
@@ -206,7 +206,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         }`}
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-        {!isMobile && (
+        {/* {!isMobile && (
           <span
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
             className="mr-2 text-xs text-[#718096]"
@@ -215,7 +215,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
             entries
           </span>
-        )}
+        )} */}
 
         {/* Mobile info - more compact */}
         {isMobile && (
