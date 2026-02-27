@@ -16,7 +16,7 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
   // ...rest
 }) => (
   <div
-    className={`grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex py-3 ${isRecognition ? 'bg-white' : ''}`}
+    className={`grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex py-2 ${isRecognition ? 'bg-white' : ''}`}
     data-cy="custom-breadcrumb"
   >
     <div

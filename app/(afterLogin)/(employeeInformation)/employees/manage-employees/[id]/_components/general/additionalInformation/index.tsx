@@ -7,11 +7,12 @@ import {
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
-import { InfoLine } from '../../common/infoLine';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateField } from '../../../../_components/formValidator';
+import dayjs from 'dayjs';
+
 const { Option } = Select;
 
 function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
@@ -207,12 +208,99 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
     educationalStatusMaster: 'Educational Status Master',
     pensionNumber: 'Pension Number',
     tinNumber: 'TIN',
+    maritalStatus: 'Marital Status',
+    joinedDate: 'Joined Date',
   };
+
+  const getDisplayValue = (key: string, val: unknown): string => {
+    if (key === 'nationality') {
+      return (
+        nationalities?.items?.find((item: any) => item.id === val)?.name || '-'
+      );
+    }
+    if (val === null || val === undefined || val === '') return '-';
+    const str = String(val);
+    if (dayjs(str, ['YYYY-MM-DD', 'DD/MM/YYYY'], true).isValid()) {
+      return dayjs(str).format('DD MMMM, YYYY');
+    }
+    return str;
+  };
+
+  const getLabel = (key: string, customLabel?: string): string => {
+    if (customLabel) return customLabel;
+    return (
+      titleMap[key] ||
+      key
+        .split(/_|(?=[A-Z])/)
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(' ')
+    );
+  };
+
+  const customLabel = (field: any) =>
+    field.label || getLabel(field.fieldName) + ' (Custom)';
+
+  // Get all fields from allFields (including custom)
+  const allFieldKeys = Object.keys(allFields);
+
+  // Create items for all fields
+  const allItems = allFieldKeys.map((key) => {
+    // Check if it's a custom field
+    const customField = additionalInformationFields.find(
+      (field: any) => field.fieldName === key,
+    );
+    const isCustomField = !!customField;
+
+    return {
+      label: isCustomField ? customLabel(customField) : getLabel(key),
+      value: getDisplayValue(key, allFields[key]),
+      key,
+    };
+  });
+
+  // Split into two columns - distribute evenly
+  const midPoint = Math.ceil(allItems.length / 2);
+  const leftItems = allItems.slice(0, midPoint);
+  const rightItems = allItems.slice(midPoint);
+
+  const FieldBlock = ({
+    label,
+    value,
+    dataCy,
+  }: {
+    label: string;
+    value: string;
+    dataCy: string;
+  }) => (
+    <div className="mb-5" id={dataCy} data-cy={dataCy}>
+      <p
+        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        data-cy={`${dataCy}-label`}
+      >
+        {label}
+      </p>
+      <p
+        className="text-base font-semibold text-gray-500 m-0"
+        data-cy={`${dataCy}-value`}
+      >
+        {value}
+      </p>
+    </div>
+  );
 
   return (
     <Card
       loading={isLoading}
-      title="Additional Information"
+      title={
+        <span
+          className="text-base font-bold text-gray-900"
+          data-cy="additional-information-card-title"
+        >
+          Additional Information
+        </span>
+      }
       extra={
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}
@@ -220,52 +308,59 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
           id={id}
           data-cy="additional-information-edit-guard"
         >
-          <LuPencil
-            className="cursor-pointer"
+          <button
+            type="button"
             onClick={() => handleEditChange('additionalInformation')}
+            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
             id="additional-information-edit-icon"
             data-cy="additional-information-edit-icon"
-          />
+          >
+            <LuPencil size={16} className="text-black" />
+          </button>
         </AccessGuard>
       }
-      className="my-6"
+      className="additional-information-card rounded-lg border border-gray-200 my-6"
       id="additional-information-card"
       data-cy="additional-information-card"
+      headStyle={{ borderBottom: 'none' }}
     >
       {edit.additionalInformation ? (
         <AdditionalInformationForm data-cy="additional-information-form" />
       ) : (
         <Row
-          gutter={[16, 24]}
+          gutter={[24, 0]}
           id="additional-information-display-row"
           data-cy="additional-information-display-row"
         >
           <Col
-            lg={16}
-            id="additional-information-display-col"
-            data-cy="additional-information-display-col"
+            lg={12}
+            id="additional-information-display-col-left"
+            data-cy="additional-information-display-col-left"
+            className="flex flex-col"
           >
-            {Object.entries(allFields).map(([key, val]) => {
-              const displayValue =
-                key === 'nationality'
-                  ? nationalities?.items?.find((item) => item.id === val)
-                      ?.name || '-'
-                  : val?.toString() || '-';
-              const title =
-                titleMap[key] ||
-                key
-                  .split('_')
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(' ');
-              return (
-                <InfoLine
-                  key={key}
-                  title={title}
-                  value={displayValue}
-                  data-cy={`additional-information-display-${key}`}
-                />
-              );
-            })}
+            {leftItems.map((item) => (
+              <FieldBlock
+                key={item.key}
+                label={item.label}
+                value={item.value}
+                dataCy={`additional-information-display-${item.key}`}
+              />
+            ))}
+          </Col>
+          <Col
+            lg={12}
+            id="additional-information-display-col-right"
+            data-cy="additional-information-display-col-right"
+            className="flex flex-col"
+          >
+            {rightItems.map((item) => (
+              <FieldBlock
+                key={item.key}
+                label={item.label}
+                value={item.value}
+                dataCy={`additional-information-display-${item.key}-right`}
+              />
+            ))}
           </Col>
         </Row>
       )}
