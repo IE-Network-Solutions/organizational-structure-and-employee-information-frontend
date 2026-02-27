@@ -81,14 +81,13 @@ const Permission: React.FC<any> = () => {
         id="settings-permission-filters"
         data-cy="settings-permission-filters"
       >
-       <Input
-                className="w-full h-10"
-                placeholder="Search permission"
-                allowClear
-                onChange={(e) => handleSearchChange(e.target.value, 'name')}
-                data-cy="settings-permission-search-input"
-              />
-            
+        <Input
+          className="w-full h-10"
+          placeholder="Search permission"
+          allowClear
+          onChange={(e) => handleSearchChange(e.target.value, 'name')}
+          data-cy="settings-permission-search-input"
+        />
       </div>
       <div
         className="mb-4"
@@ -117,25 +116,35 @@ const Permission: React.FC<any> = () => {
           {columnChunks.map((chunk, colIndex) => (
             <Col key={colIndex} xs={24} sm={24} md={8} lg={8}>
               <div className="flex flex-col gap-2">
-                {chunk.map((item: { id?: string; name?: string; slug?: string }, index: number) => (
-                  <div
-                    key={item?.id ?? item?.slug ?? `${colIndex}-${index}`}
-                    className="text-gray-800 py-1"
-                    data-cy={`settings-permission-item-${item?.id ?? item?.slug}`}
-                  >
-                    {item?.name ?? 'N/A'}
-                  </div>
-                ))}
+                {chunk.map(
+                  (
+                    item: { id?: string; name?: string; slug?: string },
+                    index: number,
+                  ) => (
+                    <div
+                      key={item?.id ?? item?.slug ?? `${colIndex}-${index}`}
+                      className="text-gray-800 py-1"
+                      data-cy={`settings-permission-item-${item?.id ?? item?.slug}`}
+                    >
+                      {item?.name ?? 'N/A'}
+                    </div>
+                  ),
+                )}
               </div>
             </Col>
           ))}
         </Row>
       )}
-      {!(permissionLoading || isSearching) && items.length === 0 && displayData !== undefined && (
-        <div className="py-8 text-center text-gray-500" data-cy="settings-permission-empty">
-          No permissions found
-        </div>
-      )}
+      {!(permissionLoading || isSearching) &&
+        items.length === 0 &&
+        displayData !== undefined && (
+          <div
+            className="py-8 text-center text-gray-500"
+            data-cy="settings-permission-empty"
+          >
+            No permissions found
+          </div>
+        )}
       {isMobile || isTablet ? (
         <CustomMobilePagination
           totalResults={displayData?.meta?.totalItems ?? 0}

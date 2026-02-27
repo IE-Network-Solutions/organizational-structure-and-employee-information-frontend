@@ -3,7 +3,10 @@ import React, { useMemo, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import EditAndDeleteButtonCard from './editDeleteButtonCard';
 import { EmptyImage } from '@/components/emptyIndicator';
-import { useGetRoles, useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
+import {
+  useGetRoles,
+  useGetRolesWithPermission,
+} from '@/store/server/features/employees/settings/role/queries';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
@@ -29,7 +32,8 @@ const RoleComponent: React.FC = () => {
 
   // Create a map of role IDs to their permission/group counts from the full data
   const roleCountsMap = useMemo(() => {
-    const map: Record<string, { permissionCount: number; groupCount: number }> = {};
+    const map: Record<string, { permissionCount: number; groupCount: number }> =
+      {};
     if (rolesWithPermissionsData && Array.isArray(rolesWithPermissionsData)) {
       rolesWithPermissionsData.forEach((role: any) => {
         const permissions = role?.permissions ?? [];

@@ -18,7 +18,6 @@ import { EmploymentTypeInfo } from '@/store/server/features/employees/employeeMa
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 
-
 const { Title } = Typography;
 
 const RolePermissionNewButton: FC = () => {
@@ -72,10 +71,8 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   const { isMobile } = useIsMobile();
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [editingEmploymentType, setEditingEmploymentType] =
-  React.useState<EmploymentTypeInfo | null>(null);
-  const { setOpen } =
-    EmployeTypeManagementStore();
-
+    React.useState<EmploymentTypeInfo | null>(null);
+  const { setOpen } = EmployeTypeManagementStore();
 
   const showDrawer = () => {
     setIsEditMode(false);
@@ -241,8 +238,6 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           <Divider className="!my-0 !mt-4 !border-gray-200" />
         </div>
 
-
-
         <div
           className=""
           id={`settings-layout-body-${layoutSlug}`}
@@ -261,42 +256,38 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                 paddingRight: 0,
               }}
               tabBarExtraContent={
-              getActiveKey() === 'employementType' ? (
-                <AccessGuard
-                permissions={[Permissions.CreateEmploymentType]}
-                id="settings-employment-type-add-btn-guard"
-               data-cy="settings-employment-type-add-btn-guard"
-          >
-                  <Button
-                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                    icon={
-                      <FaPlus
-                        data-cy="org-settings-branches-add-btn-icon"
-                        id="org-settings-branches-add-btn-icon"
-                      />
-                    }
-                    type="primary"
-                    onClick={showDrawer}
-
-                    data-cy="org-settings-branches-add-btn"
-                    id="org-settings-branches-add-btn"
+                getActiveKey() === 'employementType' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateEmploymentType]}
+                    id="settings-employment-type-add-btn-guard"
+                    data-cy="settings-employment-type-add-btn-guard"
                   >
-                    {!isMobile && 'Add Type'}
-                  </Button>
-                 </AccessGuard>
-              ) : getActiveKey() === 'rolePermission' ? (
-                <RolePermissionNewButton />
-              ) : null
-            }
+                    <Button
+                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      icon={
+                        <FaPlus
+                          data-cy="org-settings-branches-add-btn-icon"
+                          id="org-settings-branches-add-btn-icon"
+                        />
+                      }
+                      type="primary"
+                      onClick={showDrawer}
+                      data-cy="org-settings-branches-add-btn"
+                      id="org-settings-branches-add-btn"
+                    >
+                      {!isMobile && 'Add Type'}
+                    </Button>
+                  </AccessGuard>
+                ) : getActiveKey() === 'rolePermission' ? (
+                  <RolePermissionNewButton />
+                ) : null
+              }
               className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
               data-cy="org-settings-tabs"
               id="org-settings-tabs"
             />
           </div>
-          <div
-            className="px-4 "
-            data-cy="settings-content-wrapper"
-          >
+          <div className="px-4 " data-cy="settings-content-wrapper">
             {children}
           </div>
         </div>

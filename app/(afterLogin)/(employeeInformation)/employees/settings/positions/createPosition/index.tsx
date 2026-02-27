@@ -43,96 +43,95 @@ const CreatePosition: React.FC = () => {
   };
 
   return (
-   <div className="border border-gray-200 rounded-lg">
-        <Form
-          form={form}
-          layout="vertical"
-          onValuesChange={() => {
-            handleAddJobStateUpdate(form.getFieldsValue());
-          }}
-          onFinish={() => {
-            handleSubmit();
-          }}
-          id={`settings-position-create-form-${drawerSlug}`}
-          data-cy={`settings-position-create-form-${drawerSlug}`}
-          className="p-4"
-        >
-          <Form.Item
-            id="positionTitle"
-            name="name"
-            label={
-              <span
-                className="text-md my-2 font-semibold text-gray-700"
-                data-cy="create-position-name-label"
-              >
-                Position Name
-              </span>
-            }
-            rules={[
-              {
-                required: true,
-                message: 'Please input the position name!',
-              },
-            ]}
-            data-cy="settings-position-create-name-item"
-          >
-            <Input
-              size="large"
-              placeholder="Job title"
-              className="text-sm w-full  h-10"
-              allowClear
-              id={`settings-position-create-name-input-${drawerSlug}`}
-              data-cy={`settings-position-create-name-input-${drawerSlug}`}
-            />
-          </Form.Item>
-          <Form.Item
-            id="positionDescription"
-            name="description"
-            label={
-              <span
-                className="text-lg my-2 font-semibold text-gray-700"
-                id="settings-position-create-description-label"
-                data-cy="settings-position-create-description-label"
-              >
-                Position Description
-              </span>
-            }
-            rules={[
-              {
-                required: true,
-                message: 'Please input the position description!',
-              },
-            ]}
-            data-cy="settings-position-create-description-item"
-          >
-            <TextArea
-              className="h-12"
-              rows={4}
-              placeholder="Job description"
-              allowClear
-              id={`settings-position-create-description-input-${drawerSlug}`}
-              data-cy={`settings-position-create-description-input-${drawerSlug}`}
-            />
-          </Form.Item>
-          <div
-            className="flex justify-end w-full bg-[#fff] space-x-5 p-4 "
-            id={`settings-position-create-footer-${drawerSlug}`}
-            data-cy={`settings-position-create-footer-${drawerSlug}`}
-          >
-           
-            <Button
-              className="h-8 text-base"
-              type="primary"
-              onClick={() => form.submit()}
-              id={`settings-position-create-submit-${drawerSlug}`}
-              data-cy={`settings-position-create-submit-${drawerSlug}`}
+    <div className="border border-gray-200 rounded-lg">
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={() => {
+          handleAddJobStateUpdate(form.getFieldsValue());
+        }}
+        onFinish={() => {
+          handleSubmit();
+        }}
+        id={`settings-position-create-form-${drawerSlug}`}
+        data-cy={`settings-position-create-form-${drawerSlug}`}
+        className="p-4"
+      >
+        <Form.Item
+          id="positionTitle"
+          name="name"
+          label={
+            <span
+              className="text-md my-2 font-semibold text-gray-700"
+              data-cy="create-position-name-label"
             >
-              Submit
-            </Button>
-          </div>
-        </Form>
+              Position Name
+            </span>
+          }
+          rules={[
+            {
+              required: true,
+              message: 'Please input the position name!',
+            },
+          ]}
+          data-cy="settings-position-create-name-item"
+        >
+          <Input
+            size="large"
+            placeholder="Job title"
+            className="text-sm w-full  h-10"
+            allowClear
+            id={`settings-position-create-name-input-${drawerSlug}`}
+            data-cy={`settings-position-create-name-input-${drawerSlug}`}
+          />
+        </Form.Item>
+        <Form.Item
+          id="positionDescription"
+          name="description"
+          label={
+            <span
+              className="text-lg my-2 font-semibold text-gray-700"
+              id="settings-position-create-description-label"
+              data-cy="settings-position-create-description-label"
+            >
+              Position Description
+            </span>
+          }
+          rules={[
+            {
+              required: true,
+              message: 'Please input the position description!',
+            },
+          ]}
+          data-cy="settings-position-create-description-item"
+        >
+          <TextArea
+            className="h-12"
+            rows={4}
+            placeholder="Job description"
+            allowClear
+            id={`settings-position-create-description-input-${drawerSlug}`}
+            data-cy={`settings-position-create-description-input-${drawerSlug}`}
+          />
+        </Form.Item>
+        <div
+          className="flex justify-end w-full bg-[#fff] space-x-5 p-4 "
+          id={`settings-position-create-footer-${drawerSlug}`}
+          data-cy={`settings-position-create-footer-${drawerSlug}`}
+        >
+          <Button
+            className="h-8 text-base"
+            type="primary"
+            onClick={() => form.submit()}
+            id={`settings-position-create-submit-${drawerSlug}`}
+            data-cy={`settings-position-create-submit-${drawerSlug}`}
+          >
+            Submit
+          </Button>
         </div>
-  )
+      </Form>
+    </div>
+  );
 };
 
 export default CreatePosition;

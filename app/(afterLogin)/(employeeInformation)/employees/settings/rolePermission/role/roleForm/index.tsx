@@ -48,12 +48,8 @@ const ListOfRoles = () => {
 
   const createRoleMutation = useAddRole();
   const updateRoleMutation = useUpdateRole();
-  const {
-    setSelectedRole,
-    currentModal,
-    selectedRole,
-    setCurrentModal,
-  } = useSettingStore();
+  const { setSelectedRole, currentModal, selectedRole, setCurrentModal } =
+    useSettingStore();
 
   const { data: rolePermissionsData, refetch } = useGetRole(selectedRole);
   const { data: permissionData } = useGetPermissionsWithOutPagination();
@@ -84,7 +80,8 @@ const ListOfRoles = () => {
 
   const filteredGroupPermissions = useMemo(() => {
     if (!groupsList) return [];
-    if (selectedGroupFilter === 'all' || !selectedGroupFilter) return groupsList;
+    if (selectedGroupFilter === 'all' || !selectedGroupFilter)
+      return groupsList;
     return groupsList.filter(
       (group: any) =>
         group.name?.toLowerCase() === selectedGroupFilter?.toLowerCase(),
@@ -102,7 +99,9 @@ const ListOfRoles = () => {
     const groupPermissionIds = group.permissions?.map((p: any) => p.id) || [];
     return (
       groupPermissionIds.length > 0 &&
-      groupPermissionIds.every((id: string) => selectedPermissionIds.includes(id))
+      groupPermissionIds.every((id: string) =>
+        selectedPermissionIds.includes(id),
+      )
     );
   };
 
@@ -322,7 +321,10 @@ const ListOfRoles = () => {
 
     if (currentStep === 1) {
       return (
-        <div className="pt-2 p-4" data-cy="settings-role-select-permissions-step">
+        <div
+          className="pt-2 p-4"
+          data-cy="settings-role-select-permissions-step"
+        >
           <div className="mb-3">
             {selectedPermissionIds.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -471,8 +473,9 @@ const ListOfRoles = () => {
                   >
                     <div className="space-y-3 pt-2 border-t border-gray-100">
                       {permissionsToShow.map((permission: any) => {
-                        const isChecked =
-                          selectedPermissionIds.includes(permission.id);
+                        const isChecked = selectedPermissionIds.includes(
+                          permission.id,
+                        );
                         return (
                           <div
                             key={permission.id}

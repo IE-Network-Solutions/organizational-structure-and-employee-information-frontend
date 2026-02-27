@@ -1,5 +1,14 @@
 'use client';
-import { Button, Spin, Card, Row, Col, Dropdown, MenuProps, Typography } from 'antd';
+import {
+  Button,
+  Spin,
+  Card,
+  Row,
+  Col,
+  Dropdown,
+  MenuProps,
+  Typography,
+} from 'antd';
 import React from 'react';
 import { FaPlus, FaUser } from 'react-icons/fa';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -101,7 +110,6 @@ const EmploymentType = () => {
       id={`settings-${pageSlug}-container`}
       data-cy={`settings-${pageSlug}-container`}
     >
-
       <EmployementTypeSideDrawer
         onClose={onClose}
         editingEmploymentType={editingEmploymentType}
@@ -229,7 +237,6 @@ const EmploymentType = () => {
                       }
                       headStyle={{ borderBottom: 'none' }}
                     >
-                      
                       <p className="text-sm text-gray-500 px-4 text-wrap">
                         {record.description || 'No description provided'}
                       </p>

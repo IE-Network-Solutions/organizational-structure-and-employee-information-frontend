@@ -104,14 +104,20 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
                   <Icon className="w-5 h-5" />
                 </span>
                 <div className="flex-1 min-w-0">
-                  <div className={`font-semibold text-gray-800 truncate ${
-                    isActive ? 'text-[#1E40AF]' : 'text-gray-500'
-                  }`}>
+                  <div
+                    className={`font-semibold text-gray-800 truncate ${
+                      isActive ? 'text-[#1E40AF]' : 'text-gray-500'
+                    }`}
+                  >
                     {label}
                   </div>
-                  <div className={`text-xs text-gray-500 truncate ${
-                    isActive ? 'text-[#1E40AF]' : 'text-gray-500'
-                  }`}>{subtext}</div>
+                  <div
+                    className={`text-xs text-gray-500 truncate ${
+                      isActive ? 'text-[#1E40AF]' : 'text-gray-500'
+                    }`}
+                  >
+                    {subtext}
+                  </div>
                 </div>
                 <span
                   className={`shrink-0 font-semibold ${

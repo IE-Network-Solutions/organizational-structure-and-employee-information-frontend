@@ -1,7 +1,18 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Form, Input, Modal, Button, Steps, Checkbox, Input as AntInput, Tag, Collapse, Switch } from 'antd';
+import {
+  Form,
+  Input,
+  Modal,
+  Button,
+  Steps,
+  Checkbox,
+  Input as AntInput,
+  Tag,
+  Collapse,
+  Switch,
+} from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { MdOutlineGrid4X4 } from 'react-icons/md';
 import {
@@ -54,7 +65,6 @@ const GroupPermission = () => {
   const groupsList = groupsData?.items ?? [];
   const groupCount = groupsList.length;
 
-
   const groupIdToName = useMemo(() => {
     const map: Record<string, string> = {};
     groupsList.forEach((g: { id: string; name: string }) => {
@@ -67,12 +77,12 @@ const GroupPermission = () => {
     const groupPermissionIds = group.permissions?.map((p: any) => p.id) || [];
     if (checked) {
       const updatedPermissions = Array.from(
-        new Set([...selectedPermissionIds, ...groupPermissionIds])
+        new Set([...selectedPermissionIds, ...groupPermissionIds]),
       );
       setSelectedPermissionIds(updatedPermissions);
     } else {
       const updatedPermissions = selectedPermissionIds.filter(
-        (id: string) => !groupPermissionIds.includes(id)
+        (id: string) => !groupPermissionIds.includes(id),
       );
       setSelectedPermissionIds(updatedPermissions);
     }
@@ -102,20 +112,22 @@ const GroupPermission = () => {
     }
   }, [currentModal]);
 
-   // Filter group permissions based on selected filter
-   const filteredGroupPermissions = useMemo(() => {
+  // Filter group permissions based on selected filter
+  const filteredGroupPermissions = useMemo(() => {
     if (!groupsList) return [];
-    if (selectedGroupFilter === 'all' || !selectedGroupFilter) return groupsList;
-    return groupsList?.filter((group: any) =>
-      group.name.toLowerCase() === selectedGroupFilter.toLowerCase()
+    if (selectedGroupFilter === 'all' || !selectedGroupFilter)
+      return groupsList;
+    return groupsList?.filter(
+      (group: any) =>
+        group.name.toLowerCase() === selectedGroupFilter.toLowerCase(),
     );
   }, [groupsList, selectedGroupFilter]);
 
-   // Get selected permissions count for a group
-   const getGroupSelectedCount = (group: any) => {
+  // Get selected permissions count for a group
+  const getGroupSelectedCount = (group: any) => {
     const groupPermissionIds = group.permissions?.map((p: any) => p.id) || [];
     const selectedCount = selectedPermissionIds.filter((id: string) =>
-      groupPermissionIds.includes(id)
+      groupPermissionIds.includes(id),
     ).length;
     return selectedCount;
   };
@@ -125,7 +137,9 @@ const GroupPermission = () => {
     const groupPermissionIds = group.permissions?.map((p: any) => p.id) || [];
     return (
       groupPermissionIds.length > 0 &&
-      groupPermissionIds.every((id: string) => selectedPermissionIds.includes(id))
+      groupPermissionIds.every((id: string) =>
+        selectedPermissionIds.includes(id),
+      )
     );
   };
 
@@ -138,14 +152,16 @@ const GroupPermission = () => {
     return <AppsIcon className="text-gray-600" />;
   };
 
-    // Handle individual permission toggle
-    const handlePermissionToggle = (permissionId: string, checked: boolean) => {
-      if (checked) {
-        setSelectedPermissionIds((prev) => [...prev, permissionId]);
-      } else {
-        setSelectedPermissionIds((prev) => prev.filter((id: string) => id !== permissionId));
-      }
-    };
+  // Handle individual permission toggle
+  const handlePermissionToggle = (permissionId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedPermissionIds((prev) => [...prev, permissionId]);
+    } else {
+      setSelectedPermissionIds((prev) =>
+        prev.filter((id: string) => id !== permissionId),
+      );
+    }
+  };
 
   const filteredPermissions = useMemo(() => {
     let list = permissionsList;
@@ -217,28 +233,33 @@ const GroupPermission = () => {
       ]);
       return;
     }
-    form.validateFields().then((values) => {
-      const payload = {
-        ...values,
-        permissionIds: selectedPermissionIds,
-        permissions: selectedPermissionIds,
-      };
-      if (isEdit) {
-        updatePermissionGroupMutation(payload as any, {
-          onSuccess: () => {
-            handleCancel();
-          },
-        });
-      } else {
-        createPermissionGroupMutation(payload as unknown as GroupPermissionkey, {
-          onSuccess: () => {
-            handleCancel();
-          },
-        });
-      }
-    }).catch(() => {});
+    form
+      .validateFields()
+      .then((values) => {
+        const payload = {
+          ...values,
+          permissionIds: selectedPermissionIds,
+          permissions: selectedPermissionIds,
+        };
+        if (isEdit) {
+          updatePermissionGroupMutation(payload as any, {
+            onSuccess: () => {
+              handleCancel();
+            },
+          });
+        } else {
+          createPermissionGroupMutation(
+            payload as unknown as GroupPermissionkey,
+            {
+              onSuccess: () => {
+                handleCancel();
+              },
+            },
+          );
+        }
+      })
+      .catch(() => {});
   };
-
 
   const removePermission = (id: string) => {
     setSelectedPermissionIds((prev) => prev.filter((x) => x !== id));
@@ -264,11 +285,7 @@ const GroupPermission = () => {
           )}
           <Form.Item
             name="name"
-            label={
-              <span className="text-gray-700 font-medium">
-                Name
-              </span>
-            }
+            label={<span className="text-gray-700 font-medium">Name</span>}
             rules={[{ required: true, message: 'Enter group name!' }]}
           >
             <Input
@@ -303,150 +320,161 @@ const GroupPermission = () => {
               className="rounded-lg mb-3"
               data-cy="settings-group-permission-search"
             />
-                              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-
-                              <Tag
-                      className={`cursor-pointer inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 border ${
-                        selectedGroupFilter === 'all'
-                          ? 'border-[#1d4ed8] text-[#1d4ed8] bg-white'
-                          : 'border-gray-300 text-gray-700 bg-white'
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+              <Tag
+                className={`cursor-pointer inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 border ${
+                  selectedGroupFilter === 'all'
+                    ? 'border-[#1d4ed8] text-[#1d4ed8] bg-white'
+                    : 'border-gray-300 text-gray-700 bg-white'
+                }`}
+                onClick={() => setSelectedGroupFilter('all')}
+              >
+                <span
+                  className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
+                    selectedGroupFilter === 'all'
+                      ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
+                      : 'bg-gray-100 border border-gray-300 text-gray-600'
+                  }`}
+                >
+                  {groupsList.length || 0}
+                </span>
+                All Groups
+              </Tag>
+              {groupsList.map((group: any) => {
+                const isSelected =
+                  selectedGroupFilter === group.name.toLowerCase();
+                return (
+                  <Tag
+                    key={group.id}
+                    className={`cursor-pointer inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 border ${
+                      isSelected
+                        ? 'border-[#1d4ed8] text-[#1d4ed8] bg-white'
+                        : 'border-gray-300 text-gray-700 bg-white'
+                    }`}
+                    onClick={() =>
+                      setSelectedGroupFilter(group.name.toLowerCase())
+                    }
+                  >
+                    <span
+                      className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
+                        isSelected
+                          ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
+                          : 'bg-gray-100 border border-gray-300 text-gray-600'
                       }`}
-                      onClick={() => setSelectedGroupFilter('all')}
                     >
-                      <span
-                        className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
-                          selectedGroupFilter === 'all'
-                            ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
-                            : 'bg-gray-100 border border-gray-300 text-gray-600'
-                        }`}
-                      >
-                        {groupsList.length || 0}
-                      </span>
-                      All Groups
-                    </Tag>
-            {groupsList.map((group: any) => {
-                      const isSelected = selectedGroupFilter === group.name.toLowerCase();
-                      return (
-                        <Tag
-                          key={group.id}
-                          className={`cursor-pointer inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 border ${
-                            isSelected
-                              ? 'border-[#1d4ed8] text-[#1d4ed8] bg-white'
-                              : 'border-gray-300 text-gray-700 bg-white'
-                          }`}
-                          onClick={() => setSelectedGroupFilter(group.name.toLowerCase())}
-                        >
-                          <span
-                            className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
-                              isSelected
-                                ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
-                                : 'bg-gray-100 border border-gray-300 text-gray-600'
-                            }`}
-                          >
-                            {group.permissions?.length || 0}
-                          </span>
-                          {group.name}
-                        </Tag>
-                      );
-                    })}
-                    </div>
+                      {group.permissions?.length || 0}
+                    </span>
+                    {group.name}
+                  </Tag>
+                );
+              })}
+            </div>
           </div>
           <div
-                className="max-h-96 overflow-y-auto"
-                id="role-permission-collapse"
-                data-cy="role-permission-collapse"
-              >
-                <Collapse
-                  ghost
-                  bordered={false}
-                  expandIcon={() => null}
-                  className="role-permission-collapse [&_.ant-collapse-item]:border [&_.ant-collapse-item]:border-gray-200 [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:bg-gray-50 [&_.ant-collapse-item]:mb-3 [&_.ant-collapse-header]:px-4 [&_.ant-collapse-header]:py-3 [&_.ant-collapse-content]:bg-white [&_.ant-collapse-content-box]:px-4 [&_.ant-collapse-content-box]:pb-4 [&_.ant-collapse-content-box]:pt-0"
-                >
-                  {filteredGroupPermissions.map((group: any) => {
-                    const selectedCount = getGroupSelectedCount(group);
-                    const totalCount = group.permissions?.length || 0;
-                    const isFullySelected = isGroupFullySelected(group);
-                    const groupPermissions = group.permissions || [];
-                    const permissionsToShow = permissionSearch
-                      ? groupPermissions.filter(
-                          (p: any) =>
-                            p.name?.toLowerCase().includes(permissionSearch.toLowerCase()) ||
-                            p.description?.toLowerCase().includes(permissionSearch.toLowerCase())
-                        )
-                      : groupPermissions;
-                    if (permissionsToShow.length === 0) return null;
-                    return (
-                      <Collapse.Panel
-                        key={group.id}
-                        header={
-                          <div className="flex items-center gap-3 flex-1 pr-2">
-                            <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0">
-                              {getGroupIcon(group.name)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-gray-900 m-0">
-                                {group.name}
-                              </p>
-                              <p className="text-xs text-gray-500 m-0">
-                                {selectedCount} of {totalCount} Selected
-                              </p>
+            className="max-h-96 overflow-y-auto"
+            id="role-permission-collapse"
+            data-cy="role-permission-collapse"
+          >
+            <Collapse
+              ghost
+              bordered={false}
+              expandIcon={() => null}
+              className="role-permission-collapse [&_.ant-collapse-item]:border [&_.ant-collapse-item]:border-gray-200 [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:bg-gray-50 [&_.ant-collapse-item]:mb-3 [&_.ant-collapse-header]:px-4 [&_.ant-collapse-header]:py-3 [&_.ant-collapse-content]:bg-white [&_.ant-collapse-content-box]:px-4 [&_.ant-collapse-content-box]:pb-4 [&_.ant-collapse-content-box]:pt-0"
+            >
+              {filteredGroupPermissions.map((group: any) => {
+                const selectedCount = getGroupSelectedCount(group);
+                const totalCount = group.permissions?.length || 0;
+                const isFullySelected = isGroupFullySelected(group);
+                const groupPermissions = group.permissions || [];
+                const permissionsToShow = permissionSearch
+                  ? groupPermissions.filter(
+                      (p: any) =>
+                        p.name
+                          ?.toLowerCase()
+                          .includes(permissionSearch.toLowerCase()) ||
+                        p.description
+                          ?.toLowerCase()
+                          .includes(permissionSearch.toLowerCase()),
+                    )
+                  : groupPermissions;
+                if (permissionsToShow.length === 0) return null;
+                return (
+                  <Collapse.Panel
+                    key={group.id}
+                    header={
+                      <div className="flex items-center gap-3 flex-1 pr-2">
+                        <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0">
+                          {getGroupIcon(group.name)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 m-0">
+                            {group.name}
+                          </p>
+                          <p className="text-xs text-gray-500 m-0">
+                            {selectedCount} of {totalCount} Selected
+                          </p>
+                        </div>
+                      </div>
+                    }
+                    extra={
+                      <span onClick={(e) => e.stopPropagation()}>
+                        <Switch
+                          checked={isFullySelected}
+                          onChange={(checked) =>
+                            handleGroupToggle(group, checked)
+                          }
+                          id={`permission-group-switch-${group.id}`}
+                          data-cy={`permission-group-switch-${group.id}`}
+                          className={`${isFullySelected ? 'bg-[#1d4ed8]' : ''}`}
+                        />
+                      </span>
+                    }
+                    id={`permission-group-panel-${group.id}`}
+                    data-cy={`permission-group-panel-${group.id}`}
+                  >
+                    <div className="space-y-3 pt-2 border-t border-gray-100">
+                      {permissionsToShow.map((permission: any) => {
+                        const isChecked = selectedPermissionIds.includes(
+                          permission.id,
+                        );
+                        return (
+                          <div
+                            key={permission.id}
+                            className="flex items-start gap-3 py-2 hover:bg-gray-50 rounded px-1 -mx-1"
+                            id={`permission-item-${permission.id}`}
+                            data-cy={`permission-item-${permission.id}`}
+                          >
+                            <Checkbox
+                              checked={isChecked}
+                              onChange={(e) =>
+                                handlePermissionToggle(
+                                  permission.id,
+                                  e.target.checked,
+                                )
+                              }
+                              id={`permission-checkbox-${permission.id}`}
+                              data-cy={`permission-checkbox-${permission.id}`}
+                              className="pt-0.5"
+                            />
+                            <div className="flex-1">
+                              <span className="text-sm font-medium text-gray-900">
+                                {permission.name}
+                              </span>
+                              {permission.description && (
+                                <p className="text-xs text-gray-500 m-0 mt-0.5">
+                                  {permission.description}
+                                </p>
+                              )}
                             </div>
                           </div>
-                        }
-                        extra={
-                          <span onClick={(e) => e.stopPropagation()}>
-                            <Switch
-                              checked={isFullySelected}
-                              onChange={(checked) => handleGroupToggle(group, checked)}
-                              id={`permission-group-switch-${group.id}`}
-                              data-cy={`permission-group-switch-${group.id}`}
-                              className={`${isFullySelected ? 'bg-[#1d4ed8]' : ''}`}
-                            />
-                          </span>
-                        }
-                        id={`permission-group-panel-${group.id}`}
-                        data-cy={`permission-group-panel-${group.id}`}
-                      >
-                        <div className="space-y-3 pt-2 border-t border-gray-100">
-                          {permissionsToShow.map((permission: any) => {
-                            const isChecked = selectedPermissionIds.includes(
-                              permission.id
-                            );
-                            return (
-                              <div
-                                key={permission.id}
-                                className="flex items-start gap-3 py-2 hover:bg-gray-50 rounded px-1 -mx-1"
-                                id={`permission-item-${permission.id}`}
-                                data-cy={`permission-item-${permission.id}`}
-                              >
-                                <Checkbox
-                                  checked={isChecked}
-                                  onChange={(e) =>
-                                    handlePermissionToggle(permission.id, e.target.checked)
-                                  }
-                                  id={`permission-checkbox-${permission.id}`}
-                                  data-cy={`permission-checkbox-${permission.id}`}
-                                  className="pt-0.5"
-                                />
-                                <div className="flex-1">
-                                  <span className="text-sm font-medium text-gray-900">
-                                    {permission.name}
-                                  </span>
-                                  {permission.description && (
-                                    <p className="text-xs text-gray-500 m-0 mt-0.5">
-                                      {permission.description}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </Collapse.Panel>
-                    );
-                  })}
-                </Collapse>
-              </div>
+                        );
+                      })}
+                    </div>
+                  </Collapse.Panel>
+                );
+              })}
+            </Collapse>
+          </div>
         </div>
       );
     }
@@ -543,19 +571,22 @@ const GroupPermission = () => {
         id="settings-group-permission-actions"
         data-cy="settings-group-permission-actions"
       >
-          {isStep0 && (
-            <Button
-              onClick={handleCancel}
-              data-cy="settings-group-permission-cancel-btn"
-            >
-              Cancel
-            </Button>
-          )}
-          {(isStep1 || isStep2) && (
-            <Button onClick={handleBack} data-cy="settings-group-permission-back-btn">
-              Back
-            </Button>
-          )}
+        {isStep0 && (
+          <Button
+            onClick={handleCancel}
+            data-cy="settings-group-permission-cancel-btn"
+          >
+            Cancel
+          </Button>
+        )}
+        {(isStep1 || isStep2) && (
+          <Button
+            onClick={handleBack}
+            data-cy="settings-group-permission-back-btn"
+          >
+            Back
+          </Button>
+        )}
         {isStep0 || isStep1 ? (
           <Button type="primary" onClick={handleContinue}>
             Continue
@@ -607,8 +638,8 @@ const GroupPermission = () => {
         id="settings-group-permission-form"
         data-cy="settings-group-permission-form"
       >
-        <div className='border border-gray-200 rounded-md'>
-        {renderStepContent()}
+        <div className="border border-gray-200 rounded-md">
+          {renderStepContent()}
         </div>
         {renderFooter()}
       </Form>

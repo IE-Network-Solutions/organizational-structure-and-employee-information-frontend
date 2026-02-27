@@ -4,7 +4,12 @@ import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
-export type FieldTypeValue = 'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox';
+export type FieldTypeValue =
+  | 'input'
+  | 'datePicker'
+  | 'select'
+  | 'toggle'
+  | 'checkbox';
 
 interface DraggableFieldTypeCardProps {
   id: string;
@@ -13,11 +18,17 @@ interface DraggableFieldTypeCardProps {
   fieldType: FieldTypeValue;
 }
 
-const DraggableFieldTypeCard: React.FC<DraggableFieldTypeCardProps> = ({ id, label, description, fieldType }) => {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id,
-    data: { type: 'fieldType', fieldType, label },
-  });
+const DraggableFieldTypeCard: React.FC<DraggableFieldTypeCardProps> = ({
+  id,
+  label,
+  description,
+  fieldType,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id,
+      data: { type: 'fieldType', fieldType, label },
+    });
 
   const style = {
     transform: CSS.Translate.toString(transform),

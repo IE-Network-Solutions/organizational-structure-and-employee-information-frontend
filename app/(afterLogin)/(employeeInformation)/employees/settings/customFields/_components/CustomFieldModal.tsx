@@ -7,7 +7,12 @@ import { useAddEmployeeInformationForm } from '@/store/server/features/employees
 
 const { Option } = Select;
 
-export type FieldTypeValue = 'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox';
+export type FieldTypeValue =
+  | 'input'
+  | 'datePicker'
+  | 'select'
+  | 'toggle'
+  | 'checkbox';
 
 interface FormFieldPayload {
   id: string;
@@ -52,7 +57,11 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
     };
 
     const formData = customEmployeeInformationForm;
-    const hasExistingForm = formData && typeof formData === 'object' && Array.isArray(formData?.form) && formData.form.length >= 1;
+    const hasExistingForm =
+      formData &&
+      typeof formData === 'object' &&
+      Array.isArray(formData?.form) &&
+      formData.form.length >= 1;
 
     if (!hasExistingForm) {
       try {
@@ -65,7 +74,9 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
       return;
     }
 
-    const fieldExists = formData.form.some((f: any) => (f.fieldName || f.field?.fieldName) === newField.fieldName);
+    const fieldExists = formData.form.some(
+      (f: any) => (f.fieldName || f.field?.fieldName) === newField.fieldName,
+    );
     if (fieldExists) {
       message.error(`The field ${newField.fieldName} already exists!`);
       return;
@@ -112,7 +123,11 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
           id="settings-custom-field-name"
           data-cy="settings-custom-field-name"
         >
-          <Input placeholder="Input" id="settings-custom-field-name-input" data-cy="settings-custom-field-name-input" />
+          <Input
+            placeholder="Input"
+            id="settings-custom-field-name-input"
+            data-cy="settings-custom-field-name-input"
+          />
         </Form.Item>
 
         <Form.Item
@@ -122,7 +137,12 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
           id="settings-custom-field-validation"
           data-cy="settings-custom-field-validation"
         >
-          <Select placeholder="Select" allowClear id="settings-custom-field-validation-select" data-cy="settings-custom-field-validation-select">
+          <Select
+            placeholder="Select"
+            allowClear
+            id="settings-custom-field-validation-select"
+            data-cy="settings-custom-field-validation-select"
+          >
             <Option value="text">Text</Option>
             <Option value="number">Number</Option>
             <Option value="email">Email</Option>
@@ -132,17 +152,37 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
           </Select>
         </Form.Item>
 
-        <Form.Item label="Active" name="isActive" valuePropName="checked" id="settings-custom-field-active" data-cy="settings-custom-field-active">
-          <Switch id="settings-custom-field-active-switch" data-cy="settings-custom-field-active-switch" />
+        <Form.Item
+          label="Active"
+          name="isActive"
+          valuePropName="checked"
+          id="settings-custom-field-active"
+          data-cy="settings-custom-field-active"
+        >
+          <Switch
+            id="settings-custom-field-active-switch"
+            data-cy="settings-custom-field-active-switch"
+          />
         </Form.Item>
-        <p className="text-xs text-gray-500 -mt-2 mb-4">If the field is active it will show.</p>
+        <p className="text-xs text-gray-500 -mt-2 mb-4">
+          If the field is active it will show.
+        </p>
 
         <Form.Item className="mb-0">
           <div className="flex justify-end gap-2 pt-2">
-            <Button onClick={handleCancel} id="settings-custom-field-cancel" data-cy="settings-custom-field-cancel">
+            <Button
+              onClick={handleCancel}
+              id="settings-custom-field-cancel"
+              data-cy="settings-custom-field-cancel"
+            >
               Cancel
             </Button>
-            <Button type="primary" htmlType="submit" id="settings-custom-field-create" data-cy="settings-custom-field-create">
+            <Button
+              type="primary"
+              htmlType="submit"
+              id="settings-custom-field-create"
+              data-cy="settings-custom-field-create"
+            >
               Create Field
             </Button>
           </div>

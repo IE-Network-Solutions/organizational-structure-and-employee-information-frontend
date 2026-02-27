@@ -124,7 +124,6 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
         </div>
       }
       width={500}
-      
       data-cy={`employment-type-modal-${drawerSlug}`}
     >
       <Form
@@ -170,7 +169,8 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
               id={`employment-type-description-label-${drawerSlug}`}
               data-cy={`employment-type-description-label-${drawerSlug}`}
             >
-              Description <span className="font-normal text-gray-500">(optional)</span>
+              Description{' '}
+              <span className="font-normal text-gray-500">(optional)</span>
             </span>
           }
           name="description"

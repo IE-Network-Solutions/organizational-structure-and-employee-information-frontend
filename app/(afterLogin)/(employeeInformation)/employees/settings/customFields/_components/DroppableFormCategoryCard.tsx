@@ -62,7 +62,9 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
         onClick={() => setExpanded(!expanded)}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setExpanded(!expanded)}
+        onKeyDown={(e) =>
+          (e.key === 'Enter' || e.key === ' ') && setExpanded(!expanded)
+        }
         aria-expanded={expanded}
       >
         <div className="flex items-center gap-3">
@@ -92,7 +94,9 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
                 data-cy={`settings-category-field-${formTitle}-${i}`}
               >
                 <span className="font-medium text-gray-700">{f.name}</span>
-                <span className="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600">{f.validation} Validation</span>
+                <span className="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600">
+                  {f.validation} Validation
+                </span>
               </li>
             ))}
           </ul>

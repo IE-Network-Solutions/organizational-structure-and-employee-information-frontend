@@ -74,19 +74,18 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
             data-cy={`settings-group-permission-card-menu-wrapper-${props?.item?.id}`}
           >
             <div className="border border-[#d9d9d9] rounded-md">
-            <button
-              id={props?.item?.id}
-              className=" text-gray-600 hover:text-gray-800"
-              onClick={() => props?.handleButtonClick(props?.item?.id)}
-              data-cy={`settings-group-permission-card-menu-btn-${props?.item?.id}`}
-            >
-              <MoreHorizIcon
-                data-cy={`settings-group-permission-card-menu-btn-icon-${props?.item?.id}`}
-                id={`settings-group-permission-card-menu-btn-icon-${props?.item?.id}`}
-              />
-            </button>
+              <button
+                id={props?.item?.id}
+                className=" text-gray-600 hover:text-gray-800"
+                onClick={() => props?.handleButtonClick(props?.item?.id)}
+                data-cy={`settings-group-permission-card-menu-btn-${props?.item?.id}`}
+              >
+                <MoreHorizIcon
+                  data-cy={`settings-group-permission-card-menu-btn-icon-${props?.item?.id}`}
+                  id={`settings-group-permission-card-menu-btn-icon-${props?.item?.id}`}
+                />
+              </button>
             </div>
-         
 
             {props?.visibleEditCardId === props?.item?.id && (
               <AccessGuard
