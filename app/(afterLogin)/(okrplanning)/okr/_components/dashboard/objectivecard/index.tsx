@@ -226,6 +226,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           trigger={['click']}
                           placement="bottomRight"
                           overlayClassName="okr-actions-dropdown"
+                          data-cy={`okr-objective-menu-dropdown-desktop-${objective?.id}`}
                         >
                           <button
                             type="button"

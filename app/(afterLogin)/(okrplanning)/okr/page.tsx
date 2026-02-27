@@ -125,7 +125,7 @@ const OKR: React.FC<any> = () => {
         data-cy="okr-page-div-header"
         className={`flex justify-between items-start mb-6 ${isMobile ? 'mx-5 mt-6' : ''}`}
       >
-        <div>
+        <div data-cy="okr-page-header-content">
           <h1
             data-cy="okr-breadcrumb"
             className="text-2xl font-bold text-gray-900"

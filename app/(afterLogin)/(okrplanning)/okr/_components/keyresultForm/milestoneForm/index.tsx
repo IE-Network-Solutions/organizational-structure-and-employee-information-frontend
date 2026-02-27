@@ -83,6 +83,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   const handleEditMilestone = (mIndex: number) => {
     if (mIndex <= 0 || mIndex >= milestones.length) return;
     const moved = milestones[mIndex];
+    //eslint-disable-next-line
     let rest = milestones.filter((_unused: any, i: number) => i !== mIndex);
     // When moving a saved milestone to the top, drop the current top row if it's empty
     // so we don't get an "Untitled milestone" card

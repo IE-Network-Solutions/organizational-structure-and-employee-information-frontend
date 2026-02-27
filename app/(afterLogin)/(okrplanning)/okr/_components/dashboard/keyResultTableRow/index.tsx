@@ -143,6 +143,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
         <td className="px-6 py-4 whitespace-nowrap" data-cy={`okr-key-result-table-row-indicator-${keyResult?.id}`}>
           <div className="flex items-center space-x-1" data-cy={`okr-key-result-table-row-indicator-wrap-${keyResult?.id}`}>
             {keyResult?.metricType?.name === 'Milestone' &&
+            //eslint-disable-next-line
               Array.from({ length: totalMilestones }).map((_, i) => (
                 <div
                   key={i}

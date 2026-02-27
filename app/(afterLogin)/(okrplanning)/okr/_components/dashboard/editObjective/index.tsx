@@ -1029,6 +1029,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                     setObjectiveValue({
                       ...objectiveValue,
                       keyResults: objectiveValue.keyResults.filter(
+                        //eslint-disable-next-line
                         (_: any, i: number) => i !== idx,
                       ),
                     });
