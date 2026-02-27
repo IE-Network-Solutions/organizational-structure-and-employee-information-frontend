@@ -72,13 +72,13 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
             className="mb-0"
             rules={[{ validator: validateDateRange }]}
           >
-            <DatePicker.RangePicker
+            {/* <DatePicker.RangePicker
               className="w-full h-[40px]"
               separator={'-'}
               format={DATE_FORMAT}
               id="time-attendance-history-table-filter-date-range-picker"
               data-cy="time-attendance-history-table-filter-date-range-picker"
-            />
+            /> */}
           </Form.Item>
         </Col>
         <Col xs={24} md={8}>

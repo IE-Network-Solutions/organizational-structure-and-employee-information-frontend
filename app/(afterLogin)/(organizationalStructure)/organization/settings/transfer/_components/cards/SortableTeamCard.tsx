@@ -40,6 +40,7 @@ const SortableTeamCard: React.FC<SortableTeamCardProps> = ({
         department={department}
         isDragging={isDragging}
         onRemove={onRemove}
+        data-cy={`transfer-sortable-team-card-${department.id}`}
       />
     </div>
   );

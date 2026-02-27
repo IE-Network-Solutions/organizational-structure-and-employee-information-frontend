@@ -648,7 +648,7 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         onClick={generatePDF}
         aria-label="Download Work Experience Certificate"
         disabled={isGenerating}
-        className="relative"
+        className="relative hidden"
         id="job-download-btn"
         data-cy="job-download-btn"
       >
