@@ -11,11 +11,16 @@ const TransferDragDrop = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-500">Loading transfer interface...</div>
+      <div
+        className="flex items-center justify-center min-h-[400px]"
+        data-cy="transfer-page-loading-container"
+      >
+        <div className="text-gray-500" data-cy="transfer-page-loading-text">
+          Loading transfer interface...
+        </div>
       </div>
     ),
-  }
+  },
 );
 
 const TransferPage = () => {

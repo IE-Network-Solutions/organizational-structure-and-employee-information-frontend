@@ -1,7 +1,106 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Calibre font family - local OTF files */
+@font-face {
+  font-family: 'Calibre';
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url('/calibre/Calibre-Thin.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: italic;
+  font-weight: 100;
+  font-display: swap;
+  src: url('/calibre/Calibre-ThinItalic.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/calibre/Calibre-Light.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/calibre/Calibre-LightItalic.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/calibre/Calibre-Regular.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/calibre/Calibre-RegularItalic.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/calibre/Calibre-Medium.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/calibre/Calibre-MediumItalic.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/calibre/Calibre-Semibold.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/calibre/Calibre-SemiboldItalic.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/calibre/Calibre-Bold.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/calibre/Calibre-BoldItalic.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/calibre/Calibre-Black.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Calibre';
+  font-style: italic;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/calibre/Calibre-BlackItalic.otf') format('opentype');
+}
 
 /* Hide scrollbar for webkit browsers */
 .hide-scrollbar::-webkit-scrollbar {
@@ -38,14 +137,6 @@
   color: #1890ff !important;
 }
 
-@font-face {
-  font-family: 'Manrope', sans-serif;
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
-}
-
 /* Hide scrollbar while maintaining scroll functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -67,6 +158,7 @@ html,
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Calibre', sans-serif;
 }
 
 h1 {
@@ -204,7 +296,7 @@ h6 {
 
 .ql-container.ql-snow {
   border: none !important;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Calibre', sans-serif;
   @apply text-gray-900 font-medium text-sm;
 }
 
@@ -362,7 +454,7 @@ h6 {
 
 .ql-editor {
   min-height: 150px;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Calibre', sans-serif;
   font-size: 16px;
 }
 
@@ -377,7 +469,7 @@ h6 {
   border-top: none !important;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Calibre', sans-serif;
   @apply text-gray-900 font-medium text-sm;
 }
 
@@ -404,7 +496,7 @@ h6 {
 
 .ql-mention-list-item {
   padding: 8px 12px;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Calibre', sans-serif;
 }
 
 .ql-mention-list-item.selected {

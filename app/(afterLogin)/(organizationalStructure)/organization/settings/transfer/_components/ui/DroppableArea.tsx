@@ -20,14 +20,14 @@ interface DroppableAreaProps {
   };
 }
 
-const DroppableArea: React.FC<DroppableAreaProps> = ({ 
-  id, 
-  children, 
-  className = '', 
-  isEmpty, 
-  placeholder, 
-  onDragOver, 
-  mobileSelectProps 
+const DroppableArea: React.FC<DroppableAreaProps> = ({
+  id,
+  children,
+  className = '',
+  isEmpty,
+  placeholder,
+  onDragOver,
+  mobileSelectProps,
 }) => {
   const { setNodeRef, isOver } = useDroppable({
     id,
@@ -44,12 +44,16 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
       ref={setNodeRef}
       className={`${className} ${isOver ? 'bg-blue-50 border-blue-400' : ''}`}
       style={{ position: 'relative', minHeight: isEmpty ? '130px' : 'auto' }}
+      data-cy={`transfer-droppable-area-${id}`}
     >
       {/* Mobile-only searchable select input - shown regardless of items */}
       {mobileSelectProps && (
-        <div className="lg:hidden mb-4">
+        <div
+          className="lg:hidden mb-4"
+          data-cy="transfer-droppable-area-mobile-select-container"
+        >
           <Select
-            placeholder={mobileSelectProps.placeholder || "Select department"}
+            placeholder={mobileSelectProps.placeholder || 'Select department'}
             allowClear
             showSearch
             size="large"
@@ -68,14 +72,18 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
           />
         </div>
       )}
-      
+
       {isEmpty && (
-        <div 
+        <div
           className="w-full h-[130px] flex flex-col items-center justify-center"
           style={{ pointerEvents: 'none', userSelect: 'none' }}
+          data-cy="transfer-droppable-area-empty-placeholder"
         >
-          <FolderIcon  />
-          <p className="text-gray-400 text-sm m-0">
+          <FolderIcon data-cy="transfer-droppable-area-empty-icon" />
+          <p
+            className="text-gray-400 text-sm m-0"
+            data-cy="transfer-droppable-area-empty-text"
+          >
             {placeholder}
           </p>
         </div>

@@ -1,6 +1,9 @@
 'use client';
 import React from 'react';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import DroppableArea from '../ui/DroppableArea';
 import SortableTeamCard from '../cards/SortableTeamCard';
 import TransferButton from '../ui/TransferButton';
@@ -44,12 +47,20 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
   setIsDestinationOver,
 }) => {
   return (
-    <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 relative pt-4 lg:pt-[60px] items-center justify-center w-full">
+    <div
+      className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 relative pt-4 lg:pt-[60px] items-center justify-center w-full"
+      data-cy="transfer-expanded-state-container"
+    >
       {/* Left Dashed Box - Source Teams */}
-      <div className="w-full max-w-[350px] lg:max-w-none lg:flex-1 relative z-10 flex flex-col items-center lg:items-stretch" data-cy="transfer-source-teams-panel">
+      <div
+        className="w-full max-w-[350px] lg:max-w-none lg:flex-1 relative z-10 flex flex-col items-center lg:items-stretch"
+        data-cy="transfer-source-teams-panel"
+      >
         <div
           className={`border-2 rounded-lg p-4 bg-gray-50 w-full flex flex-col justify-center ${
-            sourceTeams.length > 0 || isSourceOver ? 'border-solid border-primary' : 'border-dashed border-gray-400'
+            sourceTeams.length > 0 || isSourceOver
+              ? 'border-solid border-primary'
+              : 'border-dashed border-gray-400'
           }`}
           style={{ minHeight: '130px' }}
           data-cy="transfer-source-teams-container"
@@ -61,7 +72,7 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
             placeholder="Drag the team you want to transfer from"
             onDragOver={setIsSourceOver}
             mobileSelectProps={{
-              placeholder: "Select department",
+              placeholder: 'Select department',
               value: null,
               options: availableDepartments.map((dept: Department) => ({
                 value: dept.id,
@@ -69,13 +80,15 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
               })),
               onChange: (value) => {
                 if (value) {
-                  const dept = availableDepartments.find((d: Department) => d.id === value);
+                  const dept = availableDepartments.find(
+                    (d: Department) => d.id === value,
+                  );
                   if (dept && !sourceTeams.find((t) => t.id === dept.id)) {
                     setSourceTeams([...sourceTeams, dept]);
                   }
                 }
               },
-              dataCy: "transfer-mobile-source-select",
+              dataCy: 'transfer-mobile-source-select',
             }}
           >
             {sourceTeams.length > 0 && (
@@ -92,11 +105,12 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
                 ))}
               </SortableContext>
             )}
-            
+
             {sourceTeams.length > 0 && (
-              <div 
+              <div
                 className="text-center mb-3 mt-3"
                 style={{ pointerEvents: 'none', userSelect: 'none' }}
+                data-cy="transfer-add-another-team-container"
               >
                 <button
                   type="button"
@@ -122,10 +136,15 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
       />
 
       {/* Right Dashed Box - Destination Team */}
-      <div className="w-full max-w-[350px] lg:max-w-none lg:flex-1 relative z-10 flex flex-col items-center lg:items-stretch" data-cy="transfer-destination-panel">
+      <div
+        className="w-full max-w-[350px] lg:max-w-none lg:flex-1 relative z-10 flex flex-col items-center lg:items-stretch"
+        data-cy="transfer-destination-panel"
+      >
         <div
           className={`border-2 rounded-lg p-4 bg-gray-50 w-full flex flex-col justify-center ${
-            destinationTeam || isDestinationOver ? 'border-solid border-primary' : 'border-dashed border-gray-400'
+            destinationTeam || isDestinationOver
+              ? 'border-solid border-primary'
+              : 'border-dashed border-gray-400'
           }`}
           style={{ minHeight: '130px' }}
           data-cy="transfer-destination-container"
@@ -137,22 +156,28 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
             placeholder="Drag the team you want to transfer to"
             onDragOver={setIsDestinationOver}
             mobileSelectProps={{
-              placeholder: "Select department",
+              placeholder: 'Select department',
               value: destinationTeam?.id || null,
               options: [
-                ...(destinationTeam ? [{
-                  value: destinationTeam.id,
-                  label: destinationTeam.name,
-                }] : []),
+                ...(destinationTeam
+                  ? [
+                      {
+                        value: destinationTeam.id,
+                        label: destinationTeam.name,
+                      },
+                    ]
+                  : []),
                 ...availableDepartments.map((dept: Department) => ({
                   value: dept.id,
                   label: dept.name,
-                }))
+                })),
               ],
               onChange: (value) => {
                 if (value) {
-                  const dept = availableDepartments.find((d: Department) => d.id === value) ||
-                              filteredDepartments.find((d: any) => d.id === value);
+                  const dept =
+                    availableDepartments.find(
+                      (d: Department) => d.id === value,
+                    ) || filteredDepartments.find((d: any) => d.id === value);
                   if (dept) {
                     setDestinationTeam({
                       id: dept.id,
@@ -165,11 +190,14 @@ const ExpandedStateView: React.FC<ExpandedStateViewProps> = ({
                   setDestinationTeam(null);
                 }
               },
-              dataCy: "transfer-mobile-destination-select",
+              dataCy: 'transfer-mobile-destination-select',
             }}
           >
             {destinationTeam && (
-              <SortableContext items={[destinationTeam.id]} strategy={verticalListSortingStrategy}>
+              <SortableContext
+                items={[destinationTeam.id]}
+                strategy={verticalListSortingStrategy}
+              >
                 <SortableTeamCard
                   key={destinationTeam.id}
                   department={destinationTeam}

@@ -236,7 +236,8 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
       // Priority 1: If we have stored form values (returning from next step), restore them
       if (Object.keys(fiscalYearFormValues).length > 0) {
         form.setFieldsValue(fiscalYearFormValues);
-        const calType = fiscalYearFormValues.fiscalYearCalenderId || calendarType || '';
+        const calType =
+          fiscalYearFormValues.fiscalYearCalenderId || calendarType || '';
         setCalendarType(calType);
         // Ensure form field is set if calendarType exists
         if (calType && !fiscalYearFormValues.fiscalYearCalenderId) {
@@ -379,7 +380,14 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
         requiredMark={(label, { required }) => (
           <>
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && (
+              <span
+                className="text-red-500 ml-1"
+                data-cy="org-settings-fiscal-year-drawer-form-required-astrix"
+              >
+                *
+              </span>
+            )}
           </>
         )}
         className="flex flex-col [&_.ant-form-item-label]:pb-1 [&_.ant-form-item]:mb-2"
@@ -520,7 +528,6 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                       placeholder="Select date"
                     />
                   </Form.Item>
-                  
                 </Col>
                 <Col
                   xs={24}
@@ -583,20 +590,36 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
               >
                 <Radio.Group
                   onChange={(e) => handleValuesChange(e.target.value)}
-                  value={calendarType || form.getFieldValue('fiscalYearCalenderId')}
+                  value={
+                    calendarType || form.getFieldValue('fiscalYearCalenderId')
+                  }
                   disabled={isEditMode}
                   className="w-full mt-2 [&_.ant-radio-wrapper]:!h-auto [&_.ant-radio-wrapper]:!py-2 [&_.ant-radio-wrapper]:!px-3 [&_.ant-radio-wrapper]:!border [&_.ant-radio-wrapper]:!border-gray-300 [&_.ant-radio-wrapper]:!rounded-md [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:!w-full [&_.ant-radio-wrapper]:!flex [&_.ant-radio-wrapper]:!items-start [&_.ant-radio-wrapper:hover]:!border-primary [&_.ant-radio-wrapper-checked]:!border-primary [&_.ant-radio-wrapper-checked]:!bg-transparent [&_.ant-radio]:!mr-2 [&_.ant-radio]:!mt-0"
                   data-cy="org-settings-fiscal-year-calendar-input-value"
                   id="org-settings-fiscal-year-calendar-input-value"
                 >
-                  <div className="flex flex-col gap-1">
+                  <div
+                    className="flex flex-col gap-1"
+                    data-cy="org-settings-fiscal-year-calendar-radio-group-container"
+                  >
                     <Radio
                       value="Year"
                       data-cy="org-settings-fiscal-year-calendar-input-option-monthly"
                     >
-                      <div className="flex flex-col">
-                        <span className="font-medium text-sm">Monthly</span>
-                        <span className="text-xs text-gray-500 mt-1">
+                      <div
+                        className="flex flex-col"
+                        data-cy="org-settings-fiscal-year-calendar-input-option-monthly-content"
+                      >
+                        <span
+                          className="font-medium text-sm"
+                          data-cy="org-settings-fiscal-year-calendar-input-option-monthly-title"
+                        >
+                          Monthly
+                        </span>
+                        <span
+                          className="text-xs text-gray-500 mt-1"
+                          data-cy="org-settings-fiscal-year-calendar-input-option-monthly-description"
+                        >
                           The fiscal year will be divided through out 12 months
                         </span>
                       </div>
@@ -605,9 +628,20 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                       value="Quarter"
                       data-cy="org-settings-fiscal-year-calendar-input-option-quarterly"
                     >
-                      <div className="flex flex-col">
-                        <span className="font-medium text-sm">Quarterly</span>
-                        <span className="text-xs text-gray-500 mt-1">
+                      <div
+                        className="flex flex-col"
+                        data-cy="org-settings-fiscal-year-calendar-input-option-quarterly-content"
+                      >
+                        <span
+                          className="font-medium text-sm"
+                          data-cy="org-settings-fiscal-year-calendar-input-option-quarterly-title"
+                        >
+                          Quarterly
+                        </span>
+                        <span
+                          className="text-xs text-gray-500 mt-1"
+                          data-cy="org-settings-fiscal-year-calendar-input-option-quarterly-description"
+                        >
                           The fiscal year will be divided through out 3 months
                         </span>
                       </div>
@@ -616,9 +650,20 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                       value="Semester"
                       data-cy="org-settings-fiscal-year-calendar-input-option-bianual"
                     >
-                      <div className="flex flex-col">
-                        <span className="font-medium text-sm">Biannual</span>
-                        <span className="text-xs text-gray-500 mt-1">
+                      <div
+                        className="flex flex-col"
+                        data-cy="org-settings-fiscal-year-calendar-input-option-bianual-content"
+                      >
+                        <span
+                          className="font-medium text-sm"
+                          data-cy="org-settings-fiscal-year-calendar-input-option-bianual-title"
+                        >
+                          Biannual
+                        </span>
+                        <span
+                          className="text-xs text-gray-500 mt-1"
+                          data-cy="org-settings-fiscal-year-calendar-input-option-bianual-description"
+                        >
                           The fiscal year will be divided through out 6 months
                         </span>
                       </div>
