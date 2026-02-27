@@ -1,20 +1,14 @@
 'use client';
 
 import React, { FC, ReactNode } from 'react';
-import { IoMdSettings } from 'react-icons/io';
-import { FaUser } from 'react-icons/fa';
 import Link from 'next/link';
 import { Typography, Breadcrumb, Divider, Tabs, Button } from 'antd';
-import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { SidebarMenuItem } from '@/types/sidebarMenu';
-import SidebarMenu from '@/components/sidebarMenu';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname, useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { EmploymentTypeInfo } from '@/store/server/features/employees/employeeManagment/employmentType/interface';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 
@@ -69,96 +63,14 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   const router = useRouter();
   const layoutSlug = toSlug(pathname || 'settings-layout');
   const { isMobile } = useIsMobile();
-  const [isEditMode, setIsEditMode] = React.useState(false);
-  const [editingEmploymentType, setEditingEmploymentType] =
-    React.useState<EmploymentTypeInfo | null>(null);
-  const { setOpen } = EmployeTypeManagementStore();
+  const { setOpen, setIsEditMode, setEditingEmploymentType } =
+    EmployeTypeManagementStore();
 
   const showDrawer = () => {
     setIsEditMode(false);
     setEditingEmploymentType(null);
     setOpen(true);
   };
-
-  // Sidebar Menu Items
-  const menuItems = new SidebarMenuItem([
-    {
-      item: {
-        key: 'employementType',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/employees/settings/employementType') ? 'lg:ml-4' : ''}`}
-            id="settings-menu-employment-type"
-            data-cy="settings-menu-employment-type"
-          >
-            <FaUser
-              className={`hidden lg:block ${pathname.includes('/employees/settings/employementType') ? 'text-[#1677FF]' : ''}`}
-              data-cy="settings-menu-employment-type-icon"
-              id="settings-menu-employment-type-icon"
-            />
-            <p
-              id="settings-menu-employment-type-label"
-              data-cy="settings-menu-employment-type-label"
-            >
-              Employment Type
-            </p>
-          </div>
-        ),
-      },
-      link: '/employees/settings/employementType',
-    },
-
-    {
-      item: {
-        key: 'rolePermission',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/employees/settings/rolePermission') ? 'lg:ml-4' : ''}`}
-            id="settings-menu-role-permission"
-            data-cy="settings-menu-role-permission"
-          >
-            <IoMdSettings
-              className={`hidden lg:block ${pathname.includes('/employees/settings/rolePermission') ? 'text-[#1677FF]' : ''}`}
-              data-cy="settings-menu-role-permission-icon"
-              id="settings-menu-role-permission-icon"
-            />
-            <p
-              id="settings-menu-role-permission-label"
-              data-cy="settings-menu-role-permission-label"
-            >
-              Role Permission
-            </p>
-          </div>
-        ),
-      },
-      link: '/employees/settings/rolePermission',
-    },
-    {
-      item: {
-        key: 'positions',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/employees/settings/positions') ? 'lg:ml-4' : ''}`}
-            id="settings-menu-positions"
-            data-cy="settings-menu-positions"
-          >
-            <IoMdSettings
-              className={`hidden lg:block ${pathname.includes('/employees/settings/positions') ? 'text-[#1677FF]' : ''}`}
-              data-cy="settings-menu-positions-icon"
-              id="settings-menu-positions-icon"
-            />
-            <p
-              id="settings-menu-positions-label"
-              data-cy="settings-menu-positions-label"
-            >
-              Positions
-            </p>
-          </div>
-        ),
-      },
-      link: '/employees/settings/positions',
-    },
-  ]);
 
   const getActiveKey = () => {
     if (pathname.includes('/employementType')) return 'employementType';
@@ -239,12 +151,14 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         </div>
 
         <div
-          className=""
           id={`settings-layout-body-${layoutSlug}`}
           data-cy={`settings-layout-body-${layoutSlug}`}
         >
           {/* <SidebarMenu menuItems={menuItems} data-cy="settings-sidebar-menu" /> */}
-          <div className="px-4 pr-6 mb-4">
+          <div
+            data-cy="settings-layout-tabs-container"
+            className="px-4 pr-6 mb-4"
+          >
             <Tabs
               activeKey={getActiveKey()}
               onChange={handleTabChange}

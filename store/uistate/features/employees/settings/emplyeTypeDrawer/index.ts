@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { EmploymentTypeInfo } from '@/store/server/features/employees/employeeManagment/employmentType/interface';
 
 interface EmployeType {
   id: string;
@@ -16,6 +17,12 @@ export interface EmployeTypeUseState {
   setPageSize: (pageSize: number) => void;
   page: number;
   setPage: (page: number) => void;
+  isEditMode: boolean;
+  setIsEditMode: (isEditMode: boolean) => void;
+  editingEmploymentType: EmploymentTypeInfo | null;
+  setEditingEmploymentType: (
+    editingEmploymentType: EmploymentTypeInfo | null,
+  ) => void;
 }
 
 export const EmployeTypeManagementStore = create<EmployeTypeUseState>(
@@ -41,5 +48,11 @@ export const EmployeTypeManagementStore = create<EmployeTypeUseState>(
           description: '',
         },
       }),
+    isEditMode: false,
+    setIsEditMode: (isEditMode: boolean) => set({ isEditMode }),
+    editingEmploymentType: null,
+    setEditingEmploymentType: (
+      editingEmploymentType: EmploymentTypeInfo | null,
+    ) => set({ editingEmploymentType }),
   }),
 );

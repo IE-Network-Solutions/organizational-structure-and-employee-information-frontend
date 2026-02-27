@@ -52,7 +52,7 @@ const SettingsPage = () => {
   };
   return (
     <div
-      className="p-5 rounded-2xl  h-full"
+      className="rounded-2xl  h-full"
       id="settings-role-permission-container"
       data-cy="settings-role-permission-container"
     >

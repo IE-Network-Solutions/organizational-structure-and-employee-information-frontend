@@ -31,9 +31,30 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AppsIcon from '@mui/icons-material/Apps';
 
 const STEP_TITLES = [
-  { title: <span>Name Group</span> },
-  { title: <span className="text-nowrap">Select Permissions</span> },
-  { title: <span>Finalize</span> },
+  {
+    title: (
+      <span data-cy="settings-group-permission-name-group-step-title">
+        Name Group
+      </span>
+    ),
+  },
+  {
+    title: (
+      <span
+        data-cy="settings-group-permission-select-permissions-step-title"
+        className="text-nowrap"
+      >
+        Select Permissions
+      </span>
+    ),
+  },
+  {
+    title: (
+      <span data-cy="settings-group-permission-finalize-step-title">
+        Finalize
+      </span>
+    ),
+  },
 ];
 
 const GroupPermission = () => {
@@ -63,7 +84,6 @@ const GroupPermission = () => {
   const isEdit = currentModal === 'editModal';
   const permissionsList: PermissionType[] = allPermissionsData?.items ?? [];
   const groupsList = groupsData?.items ?? [];
-  const groupCount = groupsList.length;
 
   const groupIdToName = useMemo(() => {
     const map: Record<string, string> = {};
@@ -162,22 +182,6 @@ const GroupPermission = () => {
       );
     }
   };
-
-  const filteredPermissions = useMemo(() => {
-    let list = permissionsList;
-    const term = permissionSearch.trim().toLowerCase();
-    if (term) {
-      list = list.filter(
-        (p) =>
-          p.name?.toLowerCase().includes(term) ||
-          p.description?.toLowerCase().includes(term),
-      );
-    }
-    if (selectedGroupFilter) {
-      list = list.filter((p) => p.permissionGroupId === selectedGroupFilter);
-    }
-    return list;
-  }, [permissionsList, permissionSearch, selectedGroupFilter]);
 
   const selectedPermissionsGrouped = useMemo(() => {
     const map: Record<string, PermissionType[]> = {};
@@ -285,7 +289,14 @@ const GroupPermission = () => {
           )}
           <Form.Item
             name="name"
-            label={<span className="text-gray-700 font-medium">Name</span>}
+            label={
+              <span
+                data-cy="settings-group-permission-name-label"
+                className="text-gray-700 font-medium"
+              >
+                Name
+              </span>
+            }
             rules={[{ required: true, message: 'Enter group name!' }]}
           >
             <Input
@@ -309,7 +320,10 @@ const GroupPermission = () => {
     if (currentStep === 1) {
       return (
         <div className="pt-2" data-cy="settings-group-permission-select-step">
-          <div className="mb-3">
+          <div
+            data-cy="settings-group-permission-search-container"
+            className="mb-3"
+          >
             <AntInput
               placeholder="Search Permission"
               suffix={<SearchOutlined className="text-gray-400" />}
@@ -320,7 +334,10 @@ const GroupPermission = () => {
               className="rounded-lg mb-3"
               data-cy="settings-group-permission-search"
             />
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+            <div
+              data-cy="settings-group-permission-groups-container"
+              className="flex gap-2 overflow-x-auto scrollbar-hide pb-1"
+            >
               <Tag
                 className={`cursor-pointer inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 border ${
                   selectedGroupFilter === 'all'
@@ -330,6 +347,7 @@ const GroupPermission = () => {
                 onClick={() => setSelectedGroupFilter('all')}
               >
                 <span
+                  data-cy="settings-group-permission-all-groups-count"
                   className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
                     selectedGroupFilter === 'all'
                       ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
@@ -356,6 +374,7 @@ const GroupPermission = () => {
                     }
                   >
                     <span
+                      data-cy="settings-group-permission-group-count"
                       className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
                         isSelected
                           ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
@@ -402,22 +421,40 @@ const GroupPermission = () => {
                   <Collapse.Panel
                     key={group.id}
                     header={
-                      <div className="flex items-center gap-3 flex-1 pr-2">
-                        <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0">
+                      <div
+                        data-cy="settings-group-permission-group-header-container"
+                        className="flex items-center gap-3 flex-1 pr-2"
+                      >
+                        <div
+                          data-cy="settings-group-permission-group-icon-container"
+                          className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0"
+                        >
                           {getGroupIcon(group.name)}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 m-0">
+                        <div
+                          data-cy="settings-group-permission-group-content"
+                          className="flex-1 min-w-0"
+                        >
+                          <p
+                            data-cy="settings-group-permission-group-name"
+                            className="text-sm font-semibold text-gray-900 m-0"
+                          >
                             {group.name}
                           </p>
-                          <p className="text-xs text-gray-500 m-0">
+                          <p
+                            data-cy="settings-group-permission-group-selected-count"
+                            className="text-xs text-gray-500 m-0"
+                          >
                             {selectedCount} of {totalCount} Selected
                           </p>
                         </div>
                       </div>
                     }
                     extra={
-                      <span onClick={(e) => e.stopPropagation()}>
+                      <span
+                        data-cy="settings-group-permission-group-switch-container"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Switch
                           checked={isFullySelected}
                           onChange={(checked) =>
@@ -432,7 +469,10 @@ const GroupPermission = () => {
                     id={`permission-group-panel-${group.id}`}
                     data-cy={`permission-group-panel-${group.id}`}
                   >
-                    <div className="space-y-3 pt-2 border-t border-gray-100">
+                    <div
+                      data-cy="settings-group-permission-items-container"
+                      className="space-y-3 pt-2 border-t border-gray-100"
+                    >
                       {permissionsToShow.map((permission: any) => {
                         const isChecked = selectedPermissionIds.includes(
                           permission.id,
@@ -456,12 +496,21 @@ const GroupPermission = () => {
                               data-cy={`permission-checkbox-${permission.id}`}
                               className="pt-0.5"
                             />
-                            <div className="flex-1">
-                              <span className="text-sm font-medium text-gray-900">
+                            <div
+                              data-cy="settings-group-permission-item-content"
+                              className="flex-1"
+                            >
+                              <span
+                                data-cy="settings-group-permission-name"
+                                className="text-sm font-medium text-gray-900"
+                              >
                                 {permission.name}
                               </span>
                               {permission.description && (
-                                <p className="text-xs text-gray-500 m-0 mt-0.5">
+                                <p
+                                  data-cy="settings-group-permission-description"
+                                  className="text-xs text-gray-500 m-0 mt-0.5"
+                                >
                                   {permission.description}
                                 </p>
                               )}
@@ -481,13 +530,28 @@ const GroupPermission = () => {
 
     // Step 2: Finalize
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-        <div className="space-y-4">
+      <div
+        data-cy="settings-group-permission-finalize-content"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2"
+      >
+        <div
+          data-cy="settings-group-permission-finalize-form-content"
+          className="space-y-4"
+        >
           <Form.Item
             name="name"
             label={
-              <span className="text-gray-700 font-medium">
-                Name <span className="text-red-500">*</span>
+              <span
+                data-cy="settings-group-permission-name-label"
+                className="text-gray-700 font-medium"
+              >
+                Name{' '}
+                <span
+                  data-cy="settings-group-permission-name-required-label"
+                  className="text-red-500"
+                >
+                  *
+                </span>
               </span>
             }
             rules={[{ required: true, message: 'Enter group name!' }]}
@@ -507,9 +571,18 @@ const GroupPermission = () => {
             />
           </Form.Item>
         </div>
-        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50/50">
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-semibold text-gray-800">
+        <div
+          data-cy="settings-group-permission-selected-permissions-content"
+          className="border border-gray-200 rounded-lg p-4 bg-gray-50/50"
+        >
+          <div
+            data-cy="settings-group-permission-selected-permissions-container"
+            className="flex items-center justify-between mb-3"
+          >
+            <span
+              data-cy="settings-group-permission-selected-permissions-label"
+              className="font-semibold text-gray-800"
+            >
               Selected Permissions
             </span>
             <span
@@ -519,21 +592,39 @@ const GroupPermission = () => {
               {selectedPermissionIds.length} Selected
             </span>
           </div>
-          <div className="max-h-[200px] overflow-y-auto space-y-3">
+          <div
+            data-cy="settings-group-permission-selected-permissions-list-container"
+            className="max-h-[200px] overflow-y-auto space-y-3"
+          >
             {Object.entries(selectedPermissionsGrouped).map(
               ([groupId, perms]) => (
-                <div key={groupId}>
-                  <div className="flex items-center gap-2 text-xs font-medium text-gray-600 mb-1">
+                <div
+                  key={groupId}
+                  data-cy="settings-group-permission-group-item"
+                >
+                  <div
+                    data-cy="settings-group-permission-group-name"
+                    className="flex items-center gap-2 text-xs font-medium text-gray-600 mb-1"
+                  >
                     <MdOutlineGrid4X4 className="w-4 h-4" />
                     {groupIdToName[groupId] ?? 'Other'}
                   </div>
-                  <ul className="space-y-1">
+                  <ul
+                    data-cy="settings-group-permission-list"
+                    className="space-y-1"
+                  >
                     {perms.map((p) => (
                       <li
                         key={p.id}
+                        data-cy="settings-group-permission-list-item"
                         className="flex items-center justify-between text-sm py-1 px-2 rounded hover:bg-gray-100"
                       >
-                        <span className="text-gray-800">{p.name ?? 'N/A'}</span>
+                        <span
+                          data-cy="settings-group-permission-name"
+                          className="text-gray-800"
+                        >
+                          {p.name ?? 'N/A'}
+                        </span>
                         <button
                           type="button"
                           onClick={() => removePermission(p.id)}
@@ -550,7 +641,10 @@ const GroupPermission = () => {
               ),
             )}
             {selectedPermissionIds.length === 0 && (
-              <div className="py-4 text-center text-gray-500 text-sm">
+              <div
+                data-cy="settings-group-permission-no-permissions-selected"
+                className="py-4 text-center text-gray-500 text-sm"
+              >
                 No permissions selected
               </div>
             )}
@@ -616,14 +710,14 @@ const GroupPermission = () => {
           {modalTitle}
         </span>
       }
-      width={currentStep === 2 ? 720 : 560}
       open={currentModal === 'createModal' || currentModal === 'editModal'}
       footer={null}
       onCancel={handleCancel}
       data-cy="settings-group-permission-modal"
-      destroyOnClose
+      zIndex={10002}
     >
       <Steps
+        responsive={false}
         labelPlacement="vertical"
         current={currentStep}
         size="small"
@@ -638,7 +732,10 @@ const GroupPermission = () => {
         id="settings-group-permission-form"
         data-cy="settings-group-permission-form"
       >
-        <div className="border border-gray-200 rounded-md">
+        <div
+          data-cy="settings-group-permission-form-content"
+          className="border border-gray-200 rounded-md"
+        >
           {renderStepContent()}
         </div>
         {renderFooter()}

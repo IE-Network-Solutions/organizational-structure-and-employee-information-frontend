@@ -90,7 +90,10 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
           id={`employment-type-modal-header-${drawerSlug}`}
           data-cy={`employment-type-modal-header-${drawerSlug}`}
         >
-          <span className="text-base font-bold text-gray-800">
+          <span
+            data-cy="settings-employment-type-modal-header-label"
+            className="text-base font-bold text-gray-800"
+          >
             {isEditMode ? 'Edit Employment Type' : 'Create Employment Type'}
           </span>
         </div>
@@ -170,7 +173,12 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
               data-cy={`employment-type-description-label-${drawerSlug}`}
             >
               Description{' '}
-              <span className="font-normal text-gray-500">(optional)</span>
+              <span
+                data-cy="settings-employment-type-modal-description-optional-label"
+                className="font-normal text-gray-500"
+              >
+                (optional)
+              </span>
             </span>
           }
           name="description"

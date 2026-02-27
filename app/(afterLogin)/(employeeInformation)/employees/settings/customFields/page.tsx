@@ -130,10 +130,16 @@ const CustomFieldsPage: React.FC = () => {
               id="settings-custom-fields-field-types-card"
               data-cy="settings-custom-fields-field-types-card"
             >
-              <p className="text-gray-500 text-xs mb-4">
+              <p
+                data-cy="settings-custom-fields-field-types-description"
+                className="text-gray-500 text-xs mb-4"
+              >
                 Drag a field type to a form category to add a custom field.
               </p>
-              <div className="flex flex-col gap-3">
+              <div
+                data-cy="settings-custom-fields-field-types-list"
+                className="flex flex-col gap-3"
+              >
                 {FIELD_TYPES.map((ft) => (
                   <DraggableFieldTypeCard
                     key={ft.id}
@@ -153,10 +159,16 @@ const CustomFieldsPage: React.FC = () => {
               id="settings-custom-fields-form-categories-card"
               data-cy="settings-custom-fields-form-categories-card"
             >
-              <p className="text-gray-500 text-xs mb-4">
+              <p
+                data-cy="settings-custom-fields-form-categories-description"
+                className="text-gray-500 text-xs mb-4"
+              >
                 Drop a field type here to add it to the category.
               </p>
-              <div className="flex flex-col gap-4">
+              <div
+                data-cy="settings-custom-fields-form-categories-list"
+                className="flex flex-col gap-4"
+              >
                 {FORM_CATEGORIES.map((cat) => {
                   const formItem = items.find(
                     (item: any) => item.formTitle?.trim() === cat.formTitle,

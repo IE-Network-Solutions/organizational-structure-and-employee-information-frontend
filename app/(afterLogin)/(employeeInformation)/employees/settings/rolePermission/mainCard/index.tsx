@@ -1,6 +1,5 @@
 'use client';
 
-import React, { useState } from 'react';
 import GroupPermissionComponent from '../groupPermission';
 import RoleComponent from '../role';
 import Permission from '../permission';
@@ -11,6 +10,7 @@ import { useGetRoles } from '@/store/server/features/employees/settings/role/que
 import LockIcon from '@mui/icons-material/Lock';
 import GridViewIcon from '@mui/icons-material/GridView';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface OnChange {
   onChange: (key: string) => void;
@@ -41,8 +41,8 @@ const NAV_ITEMS = [
 ];
 
 const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
-  const { tabButton, setTabButton } = useSettingStore();
-  const [activeKey, setActiveKey] = useState('1');
+  const { setTabButton, activeKey, setActiveKey } = useSettingStore();
+  const { isMobile } = useIsMobile();
 
   const { data: permissionData } = useGetPermissions(1, 1);
   const { data: groupPermissionData } = useGetPermissionGroups(1, 1);
@@ -71,7 +71,10 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
       id="settings-role-permission-tabs-container"
       data-cy="settings-role-permission-tabs-container"
     >
-      <div className="flex gap-4 flex-col lg:flex-row">
+      <div
+        data-cy="settings-role-permission-tabs-content-container"
+        className="flex gap-4 flex-col lg:flex-row"
+      >
         {/* Left navigation sidebar */}
         <nav
           className="flex lg:flex-col flex-row gap-2 lg:w-80 shrink-0  rounded-2xl p-2 lg:p-3 border border-gray-200"
@@ -79,7 +82,8 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
           data-cy="settings-role-permission-tabs"
           role="tablist"
         >
-          {NAV_ITEMS.map(({ key, label, subtext, Icon }) => {
+          {NAV_ITEMS.map((item) => {
+            const { key, label, subtext, Icon: IconComponent } = item;
             const isActive = activeKey === key;
             return (
               <button
@@ -97,29 +101,36 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
                 data-cy={`settings-role-permission-tab-${key}`}
               >
                 <span
+                  data-cy="settings-role-permission-tab-icon"
                   className={`shrink-0 flex items-center justify-center w-9 h-9 rounded-lg ${
                     isActive ? 'text-[#1E40AF]' : 'text-gray-500'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <IconComponent className="w-5 h-5" />
                 </span>
-                <div className="flex-1 min-w-0">
+                <div
+                  data-cy="settings-role-permission-tab-content"
+                  className="flex-1 min-w-0"
+                >
                   <div
+                    data-cy="settings-role-permission-tab-label"
                     className={`font-semibold text-gray-800 truncate ${
                       isActive ? 'text-[#1E40AF]' : 'text-gray-500'
                     }`}
                   >
-                    {label}
+                    {!isMobile && label}
                   </div>
                   <div
+                    data-cy="settings-role-permission-tab-subtext"
                     className={`text-xs text-gray-500 truncate ${
                       isActive ? 'text-[#1E40AF]' : 'text-gray-500'
                     }`}
                   >
-                    {subtext}
+                    {!isMobile && subtext}
                   </div>
                 </div>
                 <span
+                  data-cy="settings-role-permission-tab-count"
                   className={`shrink-0 font-semibold ${
                     isActive ? 'text-blue-600' : 'text-gray-700'
                   }`}
@@ -132,7 +143,10 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
         </nav>
 
         {/* Right content panel */}
-        <div className="flex-1 min-w-0 border border-gray-200 rounded-2xl p-4 lg:p-5">
+        <div
+          data-cy="settings-role-permission-content-container"
+          className="flex-1 min-w-0 border border-gray-200 rounded-2xl p-4 lg:p-5"
+        >
           {activeKey === '1' && (
             <div
               id="settings-role-permission-tab-permission"

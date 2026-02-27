@@ -4,16 +4,10 @@ import React from 'react';
 import PositionCards from './positionCards';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import CreatePosition from './createPosition';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 
 const Positions: React.FC = () => {
-  const { setOpenPositionDrawer, searchTerm, setSearchTerm } =
-    usePositionState();
+  const { searchTerm, setSearchTerm } = usePositionState();
 
-  const showDrawer = () => {
-    setOpenPositionDrawer(true);
-  };
   return (
     <div
       className="w-full h-auto"

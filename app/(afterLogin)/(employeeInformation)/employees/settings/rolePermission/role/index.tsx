@@ -77,7 +77,7 @@ const RoleComponent: React.FC = () => {
       id="settings-role-card"
       data-cy="settings-role-card"
     >
-      <div className="mb-4">
+      <div data-cy="settings-role-search-container" className="mb-4">
         <Input
           placeholder="Search Roles"
           suffix={<SearchOutlined className="text-gray-400" />}

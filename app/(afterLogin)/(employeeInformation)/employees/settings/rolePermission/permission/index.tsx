@@ -103,7 +103,10 @@ const Permission: React.FC<any> = () => {
         </span>
       </div>
       {(permissionLoading || isSearching) && (
-        <div className="flex justify-center py-8">
+        <div
+          data-cy="settings-permission-loading-container"
+          className="flex justify-center py-8"
+        >
           <Spin size="large" data-cy="settings-permission-loading" />
         </div>
       )}
@@ -115,7 +118,10 @@ const Permission: React.FC<any> = () => {
         >
           {columnChunks.map((chunk, colIndex) => (
             <Col key={colIndex} xs={24} sm={24} md={8} lg={8}>
-              <div className="flex flex-col gap-2">
+              <div
+                data-cy="settings-permission-table-column-container"
+                className="flex flex-col gap-2"
+              >
                 {chunk.map(
                   (
                     item: { id?: string; name?: string; slug?: string },

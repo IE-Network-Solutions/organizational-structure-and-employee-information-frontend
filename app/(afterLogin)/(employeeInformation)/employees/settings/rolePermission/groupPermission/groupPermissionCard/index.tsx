@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Card } from 'antd';
-import { IoMdMore } from 'react-icons/io';
 import { GroupPermissionkey } from '@/types/dashboard/adminManagement';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import KebabMenu from '@/components/common/kebabMenu';
@@ -50,7 +49,10 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
         id={`settings-group-permission-wrapper`}
         data-cy={`settings-group-permission-wrapper`}
       >
-        <div className="flex-1 min-w-0">
+        <div
+          data-cy="settings-group-permission-card-name-content"
+          className="flex-1 min-w-0"
+        >
           <p
             className="font-bold truncate text-xs text-gray-900 mb-2"
             id={`settings-group-permission-card-name-${props?.item?.id}`}
@@ -73,7 +75,10 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
             id={`settings-group-permission-card-menu-wrapper-${props?.item?.id}`}
             data-cy={`settings-group-permission-card-menu-wrapper-${props?.item?.id}`}
           >
-            <div className="border border-[#d9d9d9] rounded-md">
+            <div
+              data-cy="settings-group-permission-card-menu-wrapper"
+              className="border border-[#d9d9d9] rounded-md"
+            >
               <button
                 id={props?.item?.id}
                 className=" text-gray-600 hover:text-gray-800"

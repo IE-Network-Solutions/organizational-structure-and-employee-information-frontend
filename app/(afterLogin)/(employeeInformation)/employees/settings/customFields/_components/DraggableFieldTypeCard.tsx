@@ -45,11 +45,28 @@ const DraggableFieldTypeCard: React.FC<DraggableFieldTypeCardProps> = ({
       id={`settings-draggable-field-type-${id}`}
       data-cy={`settings-draggable-field-type-${id}`}
     >
-      <div className="flex items-start gap-3">
-        <span className="text-blue-600 mt-0.5" aria-hidden />
-        <div>
-          <p className="font-medium text-sm text-gray-900 m-0">{label}</p>
-          <p className="text-xs text-gray-500 m-0 mt-1">{description}</p>
+      <div
+        data-cy="settings-draggable-field-type-content"
+        className="flex items-start gap-3"
+      >
+        <span
+          data-cy="settings-draggable-field-type-icon"
+          className="text-blue-600 mt-0.5"
+          aria-hidden
+        />
+        <div data-cy="settings-draggable-field-type-content-container">
+          <p
+            data-cy="settings-draggable-field-type-label"
+            className="font-medium text-sm text-gray-900 m-0"
+          >
+            {label}
+          </p>
+          <p
+            data-cy="settings-draggable-field-type-description"
+            className="text-xs text-gray-500 m-0 mt-1"
+          >
+            {description}
+          </p>
         </div>
       </div>
     </div>

@@ -30,9 +30,20 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AppsIcon from '@mui/icons-material/Apps';
 
 const ROLE_STEP_TITLES = [
-  { title: <span>Name Role</span> },
-  { title: <span className="text-nowrap">Select Permission</span> },
-  { title: <span>Finalize</span> },
+  {
+    title: <span data-cy="settings-role-name-role-step-title">Name Role</span>,
+  },
+  {
+    title: (
+      <span
+        data-cy="settings-role-select-permission-step-title"
+        className="text-nowrap"
+      >
+        Select Permission
+      </span>
+    ),
+  },
+  { title: <span data-cy="settings-role-finalize-step-title">Finalize</span> },
 ];
 
 const ListOfRoles = () => {
@@ -279,7 +290,7 @@ const ListOfRoles = () => {
                 id="settings-role-name-label"
                 data-cy="settings-role-name-label"
               >
-                Name <span className="text-red-500">*</span>
+                Name  
               </p>
             }
             rules={[{ required: true, message: 'Enter group name!' }]}
@@ -304,6 +315,7 @@ const ListOfRoles = () => {
                 Description
               </p>
             }
+            rules={[{ required: true, message: 'Enter role description!' }]}
             id="settings-role-description-item"
             data-cy="settings-role-description-item"
           >
@@ -325,9 +337,15 @@ const ListOfRoles = () => {
           className="pt-2 p-4"
           data-cy="settings-role-select-permissions-step"
         >
-          <div className="mb-3">
+          <div
+            data-cy="settings-role-selected-permissions-container"
+            className="mb-3"
+          >
             {selectedPermissionIds.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div
+                data-cy="settings-role-selected-permissions-list"
+                className="flex flex-wrap items-center gap-2 mb-3"
+              >
                 {firstThreeSelected.map((p) => (
                   <Tag
                     key={p.id}
@@ -357,7 +375,10 @@ const ListOfRoles = () => {
               className="rounded-lg mb-3"
               data-cy="settings-role-permission-search"
             />
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+            <div
+              data-cy="settings-role-filter-groups-container"
+              className="flex gap-2 overflow-x-auto scrollbar-hide pb-1"
+            >
               <Tag
                 className={`cursor-pointer inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 border ${
                   selectedGroupFilter === 'all'
@@ -368,6 +389,7 @@ const ListOfRoles = () => {
                 data-cy="settings-role-filter-all-groups"
               >
                 <span
+                  data-cy="settings-role-filter-all-groups-count"
                   className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
                     selectedGroupFilter === 'all'
                       ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
@@ -395,6 +417,7 @@ const ListOfRoles = () => {
                     data-cy={`settings-role-filter-group-${group.id}`}
                   >
                     <span
+                      data-cy="settings-role-filter-group-count"
                       className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
                         isSelected
                           ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
@@ -441,22 +464,40 @@ const ListOfRoles = () => {
                   <Collapse.Panel
                     key={group.id}
                     header={
-                      <div className="flex items-center gap-3 flex-1 pr-2">
-                        <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0">
+                      <div
+                        data-cy="settings-role-permission-group-header-container"
+                        className="flex items-center gap-3 flex-1 pr-2"
+                      >
+                        <div
+                          data-cy="settings-role-permission-group-icon-container"
+                          className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0"
+                        >
                           {getGroupIcon(group.name)}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 m-0">
+                        <div
+                          data-cy="settings-role-permission-group-content"
+                          className="flex-1 min-w-0"
+                        >
+                          <p
+                            data-cy="settings-role-permission-group-name"
+                            className="text-sm font-semibold text-gray-900 m-0"
+                          >
                             {group.name}
                           </p>
-                          <p className="text-xs text-gray-500 m-0">
+                          <p
+                            data-cy="settings-role-permission-group-selected-count"
+                            className="text-xs text-gray-500 m-0"
+                          >
                             {selectedCount} of {totalCount} Selected
                           </p>
                         </div>
                       </div>
                     }
                     extra={
-                      <span onClick={(e) => e.stopPropagation()}>
+                      <span
+                        data-cy="settings-role-permission-group-switch-container"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Switch
                           checked={isFullySelected}
                           onChange={(checked) =>
@@ -471,7 +512,10 @@ const ListOfRoles = () => {
                     id={`settings-role-permission-group-panel-${group.id}`}
                     data-cy={`settings-role-permission-group-panel-${group.id}`}
                   >
-                    <div className="space-y-3 pt-2 border-t border-gray-100">
+                    <div
+                      data-cy="settings-role-permission-group-items-container"
+                      className="space-y-3 pt-2 border-t border-gray-100"
+                    >
                       {permissionsToShow.map((permission: any) => {
                         const isChecked = selectedPermissionIds.includes(
                           permission.id,
@@ -495,12 +539,21 @@ const ListOfRoles = () => {
                               data-cy={`settings-role-permission-checkbox-${permission.id}`}
                               className="pt-0.5"
                             />
-                            <div className="flex-1">
-                              <span className="text-sm font-medium text-gray-900">
+                            <div
+                              data-cy="settings-role-permission-item-content"
+                              className="flex-1"
+                            >
+                              <span
+                                data-cy="settings-role-permission-item-name"
+                                className="text-sm font-medium text-gray-900"
+                              >
                                 {permission.name}
                               </span>
                               {permission.description && (
-                                <p className="text-xs text-gray-500 m-0 mt-0.5">
+                                <p
+                                  data-cy="settings-role-permission-item-description"
+                                  className="text-xs text-gray-500 m-0 mt-0.5"
+                                >
                                   {permission.description}
                                 </p>
                               )}
@@ -520,13 +573,22 @@ const ListOfRoles = () => {
 
     // Step 2: Finalize
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 p-4">
-        <div className="space-y-4">
+      <div
+        data-cy="settings-role-finalize-content"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 p-4"
+      >
+        <div
+          data-cy="settings-role-finalize-form-content"
+          className="space-y-4"
+        >
           <Form.Item
             name="name"
             label={
-              <span className="text-gray-700 font-medium">
-                Name <span className="text-red-500">*</span>
+              <span
+                data-cy="settings-role-name-label-finalize"
+                className="text-gray-700 font-medium"
+              >
+                Name
               </span>
             }
             rules={[{ required: true, message: 'Enter group name!' }]}
@@ -546,9 +608,18 @@ const ListOfRoles = () => {
             />
           </Form.Item>
         </div>
-        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50/50">
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-semibold text-gray-800">
+        <div
+          data-cy="settings-role-selected-permissions-content"
+          className="border border-gray-200 rounded-lg p-4 bg-gray-50/50"
+        >
+          <div
+            data-cy="settings-role-selected-permissions-header-container"
+            className="flex items-center justify-between mb-3"
+          >
+            <span
+              data-cy="settings-role-selected-permissions-label"
+              className="font-semibold text-gray-800"
+            >
               Selected Permissions
             </span>
             <span
@@ -558,28 +629,48 @@ const ListOfRoles = () => {
               {selectedPermissionIds.length} Selected
             </span>
           </div>
-          <div className="max-h-[220px] overflow-y-auto space-y-3">
+          <div
+            data-cy="settings-role-selected-permissions-list-container"
+            className="max-h-[220px] overflow-y-auto space-y-3"
+          >
             {Object.entries(selectedPermissionsGrouped).map(
               ([groupId, perms]) => (
                 <div
+                  data-cy="settings-role-selected-permission-group-item"
                   key={groupId}
                   className="border border-gray-200 rounded-lg bg-white px-3 py-3"
                 >
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="flex h-7 w-7 items-center justify-center rounded bg-gray-100">
+                  <div
+                    data-cy="settings-role-selected-permission-group-header-container"
+                    className="flex items-center gap-3 mb-3"
+                  >
+                    <span
+                      data-cy="settings-role-selected-permission-group-icon-container"
+                      className="flex h-7 w-7 items-center justify-center rounded bg-gray-100"
+                    >
                       <MdOutlineGrid4X4 className="w-4 h-4 text-gray-600" />
                     </span>
-                    <span className="text-sm font-semibold text-gray-800">
+                    <span
+                      data-cy="settings-role-selected-permission-group-name"
+                      className="text-sm font-semibold text-gray-800"
+                    >
                       {groupIdToName[groupId] ?? 'Other'}
                     </span>
                   </div>
-                  <ul className="space-y-2">
+                  <ul
+                    data-cy="settings-role-selected-permission-group-list"
+                    className="space-y-2"
+                  >
                     {perms.map((p) => (
                       <li
+                        data-cy="settings-role-selected-permission-item"
                         key={p.id}
                         className="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5"
                       >
-                        <span className="text-xs font-medium text-gray-800">
+                        <span
+                          data-cy="settings-role-selected-permission-name"
+                          className="text-xs font-medium text-gray-800"
+                        >
                           {p.name ?? 'N/A'}
                         </span>
                         <button
@@ -598,7 +689,10 @@ const ListOfRoles = () => {
               ),
             )}
             {selectedPermissionIds.length === 0 && (
-              <div className="py-4 text-center text-gray-500 text-sm">
+              <div
+                data-cy="settings-role-no-permissions-selected"
+                className="py-4 text-center text-gray-500 text-sm"
+              >
                 No permissions selected
               </div>
             )}
@@ -679,17 +773,17 @@ const ListOfRoles = () => {
   return (
     <div data-cy="settings-role-modal-container">
       <Modal
-        className="w-3/4 md:w-1/4 lg:w-1/2 xl:w-1/2"
         title={modalTitle}
-        style={{ top: '10vh' }}
         open={true}
         footer={null}
         onCancel={handleCancel}
-        width={currentStep === 2 ? 720 : 560}
         data-cy="settings-role-modal"
-        destroyOnClose
+        zIndex={10002}
+        styles={{ body: { padding: 0 } }}
+
       >
         <Steps
+        responsive={false}
           labelPlacement="vertical"
           current={currentStep}
           size="small"
@@ -702,10 +796,12 @@ const ListOfRoles = () => {
           form={form}
           name="basic"
           layout="vertical"
-          className="p-4 sm:p-2 md:p-4 lg:p-6"
           data-cy="settings-role-form"
         >
-          <div className="border border-gray-200 rounded-md">
+          <div
+            data-cy="settings-role-form-content"
+            className="border border-gray-200 rounded-md"
+          >
             {renderStepContent()}
           </div>
           {renderFooter()}

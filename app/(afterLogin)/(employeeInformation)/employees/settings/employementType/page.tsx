@@ -10,7 +10,6 @@ import {
   Typography,
 } from 'antd';
 import React from 'react';
-import { FaPlus, FaUser } from 'react-icons/fa';
 import { Pencil, Trash2 } from 'lucide-react';
 import { MoreOutlined } from '@ant-design/icons';
 import EmployementTypeSideDrawer from './_components/employementTypeSideDrawer';
@@ -32,25 +31,26 @@ const toSlug = (value: string | number | null | undefined) =>
     .replace(/(^-|-$)/g, '');
 
 const EmploymentType = () => {
-  const { setOpen, pageSize, setPageSize, setPage, page } =
-    EmployeTypeManagementStore();
+  const {
+    setOpen,
+    pageSize,
+    setPageSize,
+    setPage,
+    page,
+    isEditMode,
+    setIsEditMode,
+    editingEmploymentType,
+    setEditingEmploymentType,
+  } = EmployeTypeManagementStore();
   const { data: employeTypeData, isLoading } = useGetEmployementTypes(
     page,
     pageSize,
   );
   const deleteEmployeeType = useDeleteEmployeeType() as any;
   const { isMobile, isTablet } = useIsMobile();
-  const [editingEmploymentType, setEditingEmploymentType] =
-    React.useState<EmploymentTypeInfo | null>(null);
-  const [isEditMode, setIsEditMode] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [employmentTypeToDelete, setEmploymentTypeToDelete] =
     React.useState<EmploymentTypeInfo | null>(null);
-  const showDrawer = () => {
-    setIsEditMode(false);
-    setEditingEmploymentType(null);
-    setOpen(true);
-  };
 
   const handleEdit = (record: EmploymentTypeInfo) => {
     setEditingEmploymentType(record);
@@ -161,7 +161,9 @@ const EmploymentType = () => {
                           data-cy={`employment-type-edit-menu-item-${record.__slug}`}
                         >
                           <Pencil size={14} className="text-gray-600" />
-                          <span>Edit</span>
+                          <span data-cy="settings-employment-type-edit-menu-item-label">
+                            Edit
+                          </span>
                         </div>
                       </AccessGuard>
                     ),
@@ -181,7 +183,9 @@ const EmploymentType = () => {
                           data-cy={`employment-type-delete-menu-item-${record.__slug}`}
                         >
                           <Trash2 size={14} />
-                          <span>Delete</span>
+                          <span data-cy="settings-employment-type-delete-menu-item-label">
+                            Delete
+                          </span>
                         </div>
                       </AccessGuard>
                     ),
@@ -237,7 +241,10 @@ const EmploymentType = () => {
                       }
                       headStyle={{ borderBottom: 'none' }}
                     >
-                      <p className="text-sm text-gray-500 px-4 text-wrap">
+                      <p
+                        data-cy="settings-employment-type-description"
+                        className="text-sm text-gray-500 px-4 text-wrap"
+                      >
                         {record.description || 'No description provided'}
                       </p>
                     </Card>
@@ -246,7 +253,10 @@ const EmploymentType = () => {
               })}
             </Row>
             {isMobile || isTablet ? (
-              <div className="mt-4">
+              <div
+                data-cy="settings-employment-type-mobile-pagination-container"
+                className="mt-4"
+              >
                 <CustomMobilePagination
                   totalResults={employeTypeData?.meta?.totalItems ?? 0}
                   pageSize={pageSize}
@@ -256,7 +266,10 @@ const EmploymentType = () => {
                 />
               </div>
             ) : (
-              <div className="mt-4">
+              <div
+                data-cy="settings-employment-type-pagination-container"
+                className="mt-4"
+              >
                 <CustomPagination
                   current={page}
                   total={employeTypeData?.meta?.totalItems ?? 0}

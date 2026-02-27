@@ -1,8 +1,5 @@
 'use client';
-
-import React, { useMemo } from 'react';
 import { Card } from 'antd';
-import { IoMdMore } from 'react-icons/io';
 import { RolePermissionCardProps } from '@/types/dashboard/adminManagement';
 import KebabMenu from '@/components/common/kebabMenu';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
@@ -72,7 +69,10 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
         id={`settings-role-card-name-wrapper-${props?.item?.id}`}
         data-cy={`settings-role-card-name-wrapper-${props?.item?.id}`}
       >
-        <div className="flex-1 min-w-0">
+        <div
+          data-cy="settings-role-card-name-content"
+          className="flex-1 min-w-0"
+        >
           <p
             className="font-bold overflow-hidden text-gray-900"
             id={`settings-role-card-name-${props?.item?.id}`}
@@ -80,7 +80,10 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
           >
             {props?.item?.name}
           </p>
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div
+            data-cy="settings-role-card-permissions-groups-container"
+            className="flex flex-wrap gap-2 mt-3"
+          >
             <span
               className="inline-flex items-center p-2 rounded-md text-xs font-medium bg-gray-50 text-gray-600 border border-[#d9d9d9]"
               id={`settings-role-card-permissions-pill-${props?.item?.id}`}
@@ -102,7 +105,10 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
           id={`settings-role-card-menu-wrapper-${props?.item?.id}`}
           data-cy={`settings-role-card-menu-wrapper-${props?.item?.id}`}
         >
-          <div className="border border-[#d9d9d9] rounded-md">
+          <div
+            data-cy="settings-role-card-menu-wrapper"
+            className="border border-[#d9d9d9] rounded-md"
+          >
             <button
               id={`cardIdComponent${props?.item?.id}`}
               className="text-gray-600 hover:text-gray-800"

@@ -107,6 +107,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
       footer={null}
       destroyOnClose
       data-cy="settings-custom-field-modal"
+      zIndex={10002}
     >
       <Form
         form={form}
@@ -164,12 +165,18 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             data-cy="settings-custom-field-active-switch"
           />
         </Form.Item>
-        <p className="text-xs text-gray-500 -mt-2 mb-4">
+        <p
+          data-cy="settings-custom-field-active-description"
+          className="text-xs text-gray-500 -mt-2 mb-4"
+        >
           If the field is active it will show.
         </p>
 
         <Form.Item className="mb-0">
-          <div className="flex justify-end gap-2 pt-2">
+          <div
+            data-cy="settings-custom-field-buttons-container"
+            className="flex justify-end gap-2 pt-2"
+          >
             <Button
               onClick={handleCancel}
               id="settings-custom-field-cancel"

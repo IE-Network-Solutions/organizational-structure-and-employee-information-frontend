@@ -94,7 +94,9 @@ const PositionCards: React.FC = () => {
                     data-cy={`settings-position-edit-menu-item-${positionSlug}`}
                   >
                     <Pencil size={14} className="text-gray-600" />
-                    <span>Edit</span>
+                    <span data-cy="settings-position-edit-menu-item-label">
+                      Edit
+                    </span>
                   </div>
                 </AccessGuard>
               ),
@@ -114,7 +116,9 @@ const PositionCards: React.FC = () => {
                     data-cy={`settings-position-delete-menu-item-${positionSlug}`}
                   >
                     <Trash2 size={14} />
-                    <span>Delete</span>
+                    <span data-cy="settings-position-delete-menu-item-label">
+                      Delete
+                    </span>
                   </div>
                 </AccessGuard>
               ),

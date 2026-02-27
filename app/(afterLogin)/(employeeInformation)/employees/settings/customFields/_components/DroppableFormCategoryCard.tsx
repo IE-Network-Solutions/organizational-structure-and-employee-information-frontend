@@ -51,13 +51,14 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-lg border-2 transition-all duration-200 ${
+      className={`rounded-lg border-1 transition-all duration-200 ${
         isOver ? 'bg-blue-50 border-blue-400' : 'border-gray-200 bg-white'
       } ${isHighlighted ? 'ring-2 ring-primary border-primary bg-primary/5' : ''}`}
       id={`settings-droppable-category-${formTitle}`}
       data-cy={`settings-droppable-category-${formTitle}`}
     >
       <div
+        data-cy="settings-category-header-container"
         className="flex items-center justify-between p-4 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
         role="button"
@@ -67,14 +68,31 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
         }
         aria-expanded={expanded}
       >
-        <div className="flex items-center gap-3">
-          <span className="flex items-center justify-center w-8 h-8 rounded bg-gray-100">
+        <div
+          data-cy="settings-category-label-container"
+          className="flex items-center gap-3"
+        >
+          <span
+            data-cy="settings-category-icon"
+            className="flex items-center justify-center w-8 h-8 rounded bg-gray-100"
+          >
             {iconMap[icon] ?? iconMap.document}
           </span>
-          <span className="font-medium text-gray-900">{label}</span>
+          <span
+            data-cy="settings-category-label"
+            className="font-medium text-gray-900"
+          >
+            {label}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <div
+          data-cy="settings-category-fields-count-container"
+          className="flex items-center gap-2"
+        >
+          <span
+            data-cy="settings-category-fields-count"
+            className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+          >
             {fieldCount} Fields Added
           </span>
           {expanded ? (
@@ -85,16 +103,30 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
         </div>
       </div>
       {expanded && displayFields.length > 0 && (
-        <div className="px-4 pb-4 pt-0 border-t border-gray-100">
-          <ul className="mt-3 space-y-2">
+        <div
+          data-cy="settings-category-fields-container"
+          className="px-4 pb-4 pt-0 border-t border-gray-100"
+        >
+          <ul
+            data-cy="settings-category-fields-list"
+            className="mt-3 space-y-2"
+          >
             {displayFields.map((f, i) => (
               <li
                 key={i}
                 className="flex items-center justify-between text-sm py-2 px-3 rounded bg-gray-50"
                 data-cy={`settings-category-field-${formTitle}-${i}`}
               >
-                <span className="font-medium text-gray-700">{f.name}</span>
-                <span className="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600">
+                <span
+                  data-cy="settings-category-field-name"
+                  className="font-medium text-gray-700"
+                >
+                  {f.name}
+                </span>
+                <span
+                  data-cy="settings-category-field-validation"
+                  className="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600"
+                >
                   {f.validation} Validation
                 </span>
               </li>

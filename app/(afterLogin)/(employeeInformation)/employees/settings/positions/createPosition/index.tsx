@@ -1,4 +1,3 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useCreatePosition } from '@/store/server/features/employees/positions/mutation';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { useDebounce } from '@/utils/useDebounce';
@@ -14,24 +13,13 @@ const toSlug = (value: string | number | null | undefined) =>
 
 const CreatePosition: React.FC = () => {
   const [form] = Form.useForm();
-  const { openPositionDrawer, setOpenPositionDrawer, setFormValues } =
-    usePositionState();
+  const { setOpenPositionDrawer, setFormValues } = usePositionState();
   const { mutate: handleCreatePosition } = useCreatePosition();
   const handleCloseDrawer = () => {
     setOpenPositionDrawer(false);
   };
 
   const drawerSlug = toSlug('create-position-drawer');
-
-  const addPositionDrawerHeader = (
-    <div
-      className="flex justify-start text-xl font-extrabold text-gray-800"
-      id={`settings-position-create-header-${drawerSlug}`}
-      data-cy={`settings-position-create-header-${drawerSlug}`}
-    >
-      Add New Position
-    </div>
-  );
 
   const handleAddJobStateUpdate = useDebounce(setFormValues, 1500);
 
@@ -43,7 +31,10 @@ const CreatePosition: React.FC = () => {
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg">
+    <div
+      data-cy="settings-position-create-drawer"
+      className="border border-gray-200 rounded-lg"
+    >
       <Form
         form={form}
         layout="vertical"
