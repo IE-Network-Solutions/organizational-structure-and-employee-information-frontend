@@ -6,10 +6,10 @@ import {
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
-import { InfoLine } from '../../common/infoLine';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { validateField } from '../../../../_components/formValidator';
+import dayjs from 'dayjs';
 
 const AddressComponent = ({
   mergedFields,
@@ -55,12 +55,94 @@ const AddressComponent = ({
 
   const titleMap: Record<string, string> = {
     phoneNumber: 'Phone Number',
+    country: 'Country',
+    city: 'City',
+    subCity: 'Sub City',
   };
+
+  const getDisplayValue = (key: string, val: unknown): string => {
+    if (val === null || val === undefined || val === '') return '-';
+    const str = String(val);
+    if (dayjs(str, ['YYYY-MM-DD', 'DD/MM/YYYY'], true).isValid()) {
+      return dayjs(str).format('DD MMMM, YYYY');
+    }
+    return str;
+  };
+
+  const getLabel = (key: string, customLabel?: string): string => {
+    if (customLabel) return customLabel;
+    return (
+      titleMap[key] ||
+      key
+        .split(/_|(?=[A-Z])/)
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(' ')
+    );
+  };
+
+  const customLabel = (field: any) => field.label || getLabel(field.fieldName);
+
+  // Get all fields from allFields (including default and custom)
+  const allFieldKeys = Object.keys(allFields);
+
+  // Create items for all fields
+  const allItems = allFieldKeys.map((key) => {
+    // Check if it's a custom field
+    const customField = addressFields.find(
+      (field: any) => field.fieldName === key,
+    );
+    const isCustomField = !!customField;
+
+    return {
+      label: isCustomField ? customLabel(customField) : getLabel(key),
+      value: getDisplayValue(key, allFields[key]),
+      key,
+    };
+  });
+
+  // Split into two columns - distribute evenly
+  const midPoint = Math.ceil(allItems.length / 2);
+  const leftItems = allItems.slice(0, midPoint);
+  const rightItems = allItems.slice(midPoint);
+
+  const FieldBlock = ({
+    label,
+    value,
+    dataCy,
+  }: {
+    label: string;
+    value: string;
+    dataCy: string;
+  }) => (
+    <div className="mb-5" id={dataCy} data-cy={dataCy}>
+      <p
+        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        data-cy={`${dataCy}-label`}
+      >
+        {label}
+      </p>
+      <p
+        className="text-base font-semibold text-gray-500 m-0"
+        data-cy={`${dataCy}-value`}
+      >
+        {value}
+      </p>
+    </div>
+  );
 
   return (
     <Card
       loading={isLoading}
-      title="Address"
+      title={
+        <span
+          className="text-base font-bold text-gray-900"
+          data-cy="address-card-title"
+        >
+          Address
+        </span>
+      }
       extra={
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}
@@ -68,17 +150,21 @@ const AddressComponent = ({
           id={id}
           data-cy="address-edit-guard"
         >
-          <LuPencil
-            className="cursor-pointer"
+          <button
+            type="button"
             onClick={() => handleEditChange('addresses')}
+            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
             id="address-edit-icon"
             data-cy="address-edit-icon"
-          />
+          >
+            <LuPencil size={16} className="text-black" />
+          </button>
         </AccessGuard>
       }
-      className="my-6"
+      className="address-card rounded-lg border border-gray-200 my-6"
       id="address-card"
       data-cy="address-card"
+      headStyle={{ borderBottom: 'none' }}
     >
       {edit.addresses ? (
         <Form
@@ -180,23 +266,37 @@ const AddressComponent = ({
         </Form>
       ) : (
         <Row
-          gutter={[16, 24]}
+          gutter={[24, 0]}
           id="address-display-row"
           data-cy="address-display-row"
         >
-          <Col lg={16} id="address-display-col" data-cy="address-display-col">
-            {Object.entries(allFields).map(([key, val]) => (
-              <InfoLine
-                key={key}
-                title={(
-                  titleMap[key] ||
-                  key
-                    .split('_')
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ')
-                ).replace('address', '')}
-                value={val?.toString() || '-'}
-                data-cy={`address-display-${key}-info-line`}
+          <Col
+            lg={12}
+            id="address-display-col-left"
+            data-cy="address-display-col-left"
+            className="flex flex-col"
+          >
+            {leftItems.map((item) => (
+              <FieldBlock
+                key={item.key}
+                label={item.label}
+                value={item.value}
+                dataCy={`address-display-${item.key}`}
+              />
+            ))}
+          </Col>
+          <Col
+            lg={12}
+            id="address-display-col-right"
+            data-cy="address-display-col-right"
+            className="flex flex-col"
+          >
+            {rightItems.map((item) => (
+              <FieldBlock
+                key={item.key}
+                label={item.label}
+                value={item.value}
+                dataCy={`address-display-${item.key}-right`}
               />
             ))}
           </Col>
