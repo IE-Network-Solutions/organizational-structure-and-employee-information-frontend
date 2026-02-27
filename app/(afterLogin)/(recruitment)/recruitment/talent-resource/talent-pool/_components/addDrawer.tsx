@@ -83,6 +83,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           </Button>
         </div>
       }
+      zIndex={10002}
     >
       <div
         data-cy="talent-acquisition-talent-pool-drawer-body"

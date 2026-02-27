@@ -9,6 +9,7 @@ import {
   Button,
   Input,
   Dropdown,
+  Form,
 } from 'antd';
 import { Option } from 'antd/es/mentions';
 import dayjs from 'dayjs';
@@ -26,7 +27,8 @@ import { useRouter } from 'next/navigation';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { DATE_FORMAT } from '@/utils/constants';
 
 // Type definitions
 interface Department {
@@ -115,6 +117,10 @@ const InternTable = ({ onEdit }: InternTableProps) => {
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
 
   const { setCurrentPage, setPageSize } = useInternStore();
+  const [mobileStartDate, setMobileStartDate] = useState<dayjs.Dayjs | null>(
+    null,
+  );
+  const [mobileEndDate, setMobileEndDate] = useState<dayjs.Dayjs | null>(null);
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -391,11 +397,30 @@ const InternTable = ({ onEdit }: InternTableProps) => {
   const handleResetFilters = () => {
     setSearchParams('dateRange', '');
     setSearchParams('selectedDepartment', '');
+    setMobileStartDate(null);
+    setMobileEndDate(null);
     setCurrentPage(1);
   };
 
   const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
   const inputClassName = 'w-full h-10 rounded-md border-gray-300';
+
+  // Keep mobile date pickers in sync with the stored dateRange string
+  useEffect(() => {
+    if (searchParams.dateRange) {
+      const [start, end] = searchParams.dateRange
+        .split(' to ')
+        .map((date: string) => dayjs(date)) as [
+        dayjs.Dayjs | null,
+        dayjs.Dayjs | null,
+      ];
+      setMobileStartDate(start);
+      setMobileEndDate(end);
+    } else {
+      setMobileStartDate(null);
+      setMobileEndDate(null);
+    }
+  }, [searchParams.dateRange]);
 
   const filterInternContent = (
     <div
@@ -473,29 +498,92 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             span={24}
             data-cy="talent-acquisition-talent-roaster-table-col-date"
           >
-            <label
-              data-cy="talent-acquisition-intern-table-filter-label-date"
-              className={labelClassName}
-            >
-              Date
-            </label>
-            <RangePicker
-              id={`inputDateRange`}
-              data-cy="talent-acquisition-intern-table-date-picker"
-              onChange={(dates) => handleSearchByDateRange(dates)}
-              value={
-                searchParams.dateRange
-                  ? (searchParams.dateRange
-                      .split(' to ')
-                      .map((date: string) => dayjs(date)) as any)
-                  : null
-              }
-              className={inputClassName}
-              allowClear
-              getPopupContainer={(triggerNode) =>
-                triggerNode.parentElement || document.body
-              }
-            />
+            {!isMobile && (
+              <>
+                <label
+                  data-cy="talent-acquisition-intern-table-filter-label-date"
+                  className={labelClassName}
+                >
+                  Date
+                </label>
+                <RangePicker
+                  id={`inputDateRange`}
+                  data-cy="talent-acquisition-intern-table-date-picker"
+                  onChange={(dates) => handleSearchByDateRange(dates)}
+                  value={
+                    searchParams.dateRange
+                      ? (searchParams.dateRange
+                          .split(' to ')
+                          .map((date: string) => dayjs(date)) as any)
+                      : null
+                  }
+                  className={inputClassName}
+                  allowClear
+                />
+              </>
+            )}
+
+            {isMobile && (
+              <>
+                <Form.Item
+                  name="startDate"
+                  id="talent-acquisition-intern-table-filter-mobile-start-date"
+                  data-cy="talent-acquisition-intern-table-filter-mobile-start-date"
+                >
+                  <label
+                    data-cy="talent-acquisition-intern-table-filter-label-start-date"
+                    className={labelClassName}
+                  >
+                    Start Date
+                  </label>
+                  <DatePicker
+                    className="w-full h-[40px]"
+                    placeholder="Start Date"
+                    format={DATE_FORMAT}
+                    value={mobileStartDate}
+                    onChange={(date) => {
+                      setMobileStartDate(date);
+                      const start = date;
+                      const end = mobileEndDate;
+                      handleSearchByDateRange(
+                        start && end ? [start, end] : null,
+                      );
+                    }}
+                    id="talent-acquisition-intern-table-filter-mobile-start-date-picker"
+                    data-cy="talent-acquisition-intern-table-filter-mobile-start-date-picker"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="endDate"
+                  id="talent-acquisition-intern-table-filter-mobile-end-date"
+                  data-cy="talent-acquisition-intern-table-filter-mobile-end-date"
+                >
+                  <label
+                    data-cy="talent-acquisition-intern-table-filter-label-end-date"
+                    className={labelClassName}
+                  >
+                    End Date
+                  </label>
+                  <DatePicker
+                    className="w-full h-[40px]"
+                    placeholder="End Date"
+                    format={DATE_FORMAT}
+                    value={mobileEndDate}
+                    onChange={(date) => {
+                      setMobileEndDate(date);
+                      const start = mobileStartDate;
+                      const end = date;
+                      handleSearchByDateRange(
+                        start && end ? [start, end] : null,
+                      );
+                    }}
+                    id="talent-acquisition-intern-table-filter-mobile-end-date-picker"
+                    data-cy="talent-acquisition-intern-table-filter-mobile-end-date-picker"
+                  />
+                </Form.Item>
+              </>
+            )}
           </Col>
         </Row>
       </div>

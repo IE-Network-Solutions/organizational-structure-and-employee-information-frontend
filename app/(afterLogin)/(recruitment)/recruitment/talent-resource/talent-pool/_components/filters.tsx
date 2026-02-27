@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
-import { Button, Col, DatePicker, Dropdown, Input, Row, Select } from 'antd';
+import React, { useState, useEffect } from 'react';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Dropdown,
+  Form,
+  Input,
+  Row,
+  Select,
+} from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
 import {
@@ -9,6 +18,7 @@ import {
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { DATE_FORMAT } from '@/utils/constants';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -20,6 +30,10 @@ const Filters = () => {
   const { data: stageList } = useGetStages();
   const { isMobile } = useIsMobile();
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
+  const [mobileStartDate, setMobileStartDate] = useState<dayjs.Dayjs | null>(
+    null,
+  );
+  const [mobileEndDate, setMobileEndDate] = useState<dayjs.Dayjs | null>(null);
 
   const handleSearchCandidate = async (
     value: string | boolean,
@@ -59,8 +73,28 @@ const Filters = () => {
     setSearchParams('date_range', '');
     setSearchParams('talentPoolCategory', '');
     setSearchParams('stages', '');
+    // Also clear local mobile date picker state so UI resets correctly on mobile
+    setMobileStartDate(null);
+    setMobileEndDate(null);
     setCurrentPage(1);
   };
+
+  // Keep mobile date pickers in sync with the stored date_range string
+  useEffect(() => {
+    if (searchParams.date_range) {
+      const [start, end] = searchParams.date_range
+        .split(' to ')
+        .map((date: string) => dayjs(date)) as [
+        dayjs.Dayjs | null,
+        dayjs.Dayjs | null,
+      ];
+      setMobileStartDate(start);
+      setMobileEndDate(end);
+    } else {
+      setMobileStartDate(null);
+      setMobileEndDate(null);
+    }
+  }, [searchParams.date_range]);
 
   const filterDropdownContent = (
     <div
@@ -174,32 +208,96 @@ const Filters = () => {
             span={24}
             data-cy="talent-acquisition-talent-pool-filter-col-date"
           >
-            <label
-              data-cy="talent-acquisition-talent-pool-filter-label-date"
-              className={labelClassName}
-            >
-              Date
-            </label>
-            <RangePicker
-              id={`inputDateRange${searchParams.date_range}`}
-              data-cy="talent-acquisition-talent-pool-filter-date-picker"
-              onChange={(dates: any) => handleSearchByDateRange(dates)}
-              value={
-                searchParams.date_range
-                  ? (searchParams.date_range
-                      .split(' to ')
-                      .map((date: string) => dayjs(date)) as [
-                      dayjs.Dayjs | null,
-                      dayjs.Dayjs | null,
-                    ])
-                  : null
-              }
-              className={inputClassName}
-              allowClear
-              getPopupContainer={(triggerNode) =>
-                (triggerNode as any).parentElement || document.body
-              }
-            />
+            {!isMobile && (
+              <label
+                data-cy="talent-acquisition-talent-pool-filter-label-date"
+                className={labelClassName}
+              >
+                Date
+              </label>
+            )}
+            {!isMobile && (
+              <RangePicker
+                size="small"
+                id={`inputDateRange${searchParams.date_range}`}
+                data-cy="talent-acquisition-talent-pool-filter-date-picker"
+                onChange={(dates: any) => handleSearchByDateRange(dates)}
+                value={
+                  searchParams.date_range
+                    ? (searchParams.date_range
+                        .split(' to ')
+                        .map((date: string) => dayjs(date)) as [
+                        dayjs.Dayjs | null,
+                        dayjs.Dayjs | null,
+                      ])
+                    : null
+                }
+                className={inputClassName}
+                allowClear
+              />
+            )}
+
+            {isMobile && (
+              <>
+                <Form.Item
+                  name="startDate"
+                  id="time-attendance-history-table-filter-mobile-start-date"
+                  data-cy="time-attendance-history-table-filter-mobile-start-date"
+                >
+                  <label
+                    data-cy="talent-acquisition-talent-pool-filter-start-date"
+                    className={labelClassName}
+                  >
+                    Start Date
+                  </label>
+                  <DatePicker
+                    className="w-full h-[40px]"
+                    placeholder="Start Date"
+                    format={DATE_FORMAT}
+                    value={mobileStartDate}
+                    onChange={(date) => {
+                      setMobileStartDate(date);
+                      const start = date;
+                      const end = mobileEndDate;
+                      handleSearchByDateRange(
+                        start && end ? [start, end] : null,
+                      );
+                    }}
+                    id="time-attendance-history-table-filter-mobile-start-date-picker"
+                    data-cy="time-attendance-history-table-filter-mobile-start-date-picker"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="endDate"
+                  id="time-attendance-history-table-filter-mobile-end-date"
+                  data-cy="time-attendance-history-table-filter-mobile-end-date"
+                >
+                  <label
+                    data-cy="talent-acquisition-talent-pool-filter-end-date"
+                    className={labelClassName}
+                  >
+                    End Date
+                  </label>
+                  <DatePicker
+                    className="w-full h-[40px]"
+                    placeholder="End Date"
+                    format={DATE_FORMAT}
+                    value={mobileEndDate}
+                    onChange={(date) => {
+                      setMobileEndDate(date);
+                      const start = mobileStartDate;
+                      const end = date;
+                      handleSearchByDateRange(
+                        start && end ? [start, end] : null,
+                      );
+                    }}
+                    id="time-attendance-history-table-filter-mobile-end-date-picker"
+                    data-cy="time-attendance-history-table-filter-mobile-end-date-picker"
+                  />
+                </Form.Item>
+              </>
+            )}
           </Col>
         </Row>
       </div>

@@ -61,12 +61,13 @@ const TransferTalentPoolToCandidateModal: React.FC<
             id="talent-acquisition-talent-pool-button-reonboard-submit"
             data-cy="talent-acquisition-talent-pool-button-reonboard-submit"
             className="h-8"
-            onClick={handleFinish}
+            onClick={() => form.submit()}
           >
             Add to Candidates
           </Button>
         </div>
       }
+      zIndex={10002}
     >
       <Form
         id="talent-acquisition-talent-pool-form-reonboard"
