@@ -104,7 +104,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                       >
                         <div
                           data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-99"
-                          className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight"
+                          className="text-center text-base font-bold leading-normal tracking-tight"
                         >
                           {buttonTitle}
                         </div>
