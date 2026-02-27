@@ -192,7 +192,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                       {objective?.daysLeft} Days Left
                     </div>
                   </div>
-                  <div className="flex items-start sm:items-center justify-end gap-3 flex-shrink-0 order-2 sm:ml-auto">
+                  <div className="flex items-start sm:items-center justify-end gap-3 flex-shrink-0 order-2 sm:ml-auto" data-cy={`okr-objective-card-actions-${objective?.id}`}>
                     {!myOkr && objective?.user && (
                       <div
                         className="flex items-center gap-3"
@@ -230,9 +230,9 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           <button
                             type="button"
                             className="hidden sm:flex text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 items-center justify-center flex-shrink-0"
-                          data-cy={`okr-objective-menu-button-${objective?.id}`}
-                        >
-                          <EllipsisOutlined />
+                            data-cy={`okr-objective-menu-button-desktop-${objective?.id}`}
+                          >
+                            <EllipsisOutlined data-cy={`okr-objective-menu-icon-desktop-${objective?.id}`} />
                         </button>
                       </Dropdown>
                     )}

@@ -90,32 +90,6 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     setObjectiveValue(defaultObjective);
   };
 
-  // Calculate objective progress based on key result statuses
-  const calculateObjectiveProgress = (): {
-    progress: number;
-    status: string;
-  } => {
-    const objectiveProgress = Number(objective?.objectiveProgress) || 0;
-
-    if (objectiveProgress === 0) {
-      return { progress: 0, status: '0% On Progress' };
-    }
-
-    if (objectiveProgress === 100) {
-      return { progress: 100, status: 'Completed' };
-    }
-
-    if (objectiveProgress > 0 && objectiveProgress < 100) {
-      return {
-        progress: objectiveProgress,
-        status: `${objectiveProgress}% On Progress`,
-      };
-    }
-
-    // Default fallback
-    return { progress: 0, status: '0% On Progress' };
-  };
-
   // Owner-only menu - only show if objective is in active session
   const menu =
     isOwner && isInActiveSession ? (
@@ -288,6 +262,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           <button
                             type="button"
                             className="sm:hidden text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 flex items-center justify-center flex-shrink-0"
+                            data-cy={`okr-objective-basic-menu-button-mobile-${objective?.id}`}
                           >
                             <EllipsisOutlined className="text-lg" />
                           </button>
@@ -319,12 +294,12 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             `${objective.user.firstName?.[0] || ''}${objective.user.lastName?.[0] || ''}`.toUpperCase()}
                         </Avatar>
                         <div className="text-left sm:text-right" data-cy={`okr-objective-basic-assignee-info-${objective?.id}`}>
-                          <p className="text-xs sm:text-sm font-semibold text-gray-900">
+                          <p className="text-xs sm:text-sm font-semibold text-gray-900" data-cy={`okr-objective-basic-assignee-name-${objective?.id}`}>
                             {[objective.user.firstName, objective.user.middleName, objective.user.lastName]
                               .filter(Boolean)
                               .join(' ')}
                           </p>
-                          <p className="text-[11px] sm:text-xs text-gray-500">
+                          <p className="text-[11px] sm:text-xs text-gray-500" data-cy={`okr-objective-basic-assignee-dept-${objective?.id}`}>
                             {objective.user?.employeeJobInformation?.[0]?.department?.name ||
                               objective.user?.employeeJobInformation?.[0]?.position?.name ||
                               '-'}
@@ -344,7 +319,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           type="button"
                           className="hidden sm:flex text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 items-center justify-center flex-shrink-0"
                           id={`objective-basic-menu-button-${objective?.id}`}
-                          data-cy={`okr-objective-basic-menu-button-${objective?.id}`}
+                          data-cy={`okr-objective-basic-menu-button-desktop-${objective?.id}`}
                         >
                           <EllipsisOutlined className="text-lg" />
                         </button>
@@ -413,6 +388,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                       type="button"
                       onClick={handleCheckboxClick}
                       disabled={!canToggle}
+                      data-cy={`okr-key-result-basic-checkbox-${keyResult.id}`}
                       className={`relative z-10 flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                         canToggle ? 'cursor-pointer' : 'cursor-default'
                       } ${

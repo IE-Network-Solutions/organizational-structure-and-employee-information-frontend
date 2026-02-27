@@ -947,7 +947,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               className="mt-5"
               data-cy="okr-drawer-inline-key-result-form"
             >
-              {renderBasicKrFormContent()}
+              <div data-cy="okr-drawer-inline-key-result-form-content">
+                {renderBasicKrFormContent()}
+              </div>
             </Form>
           )}
 
@@ -1019,7 +1021,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       className="mb-3"
                       data-cy={`okr-drawer-edit-key-result-form-${index}`}
                     >
-                      {renderBasicKrFormContent()}
+                      <div data-cy={`okr-drawer-edit-key-result-form-content-${index}`}>
+                        {renderBasicKrFormContent()}
+                      </div>
                     </Form>
                   ) : (
                     <div

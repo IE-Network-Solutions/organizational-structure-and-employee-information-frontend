@@ -455,8 +455,8 @@ export default function OkrTab({ filterComponent, 'data-cy': dataCy }: OkrTabPro
   return (
     <div id="okr-tab-container" data-cy={dataCy || 'okr-tab-container'}>
       {activeKey !== '4' && <OkrProgress data-cy="okr-progress" />}
-      <div className="flex justify-between items-center gap-3 border-b border-gray-200 mb-6">
-        <div className="flex space-x-6 flex-1 min-w-0 overflow-x-auto pb-px">
+      <div className="flex justify-between items-center gap-3 border-b border-gray-200 mb-6" data-cy="okr-tab-header">
+        <div className="flex space-x-6 flex-1 min-w-0 overflow-x-auto pb-px" data-cy="okr-tab-list">
           {visibleTabs.map((tab) => (
             <button
               key={tab.key}
