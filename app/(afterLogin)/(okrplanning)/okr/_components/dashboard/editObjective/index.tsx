@@ -466,20 +466,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       .catch(() => {});
   };
 
-  const getCurrentTotalWeight = () => {
-    const existingWeight =
-      objectiveValue.keyResults?.reduce(
-        (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-        0,
-      ) || 0;
-    const newWeight =
-      objective?.keyResults?.reduce(
-        (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-        0,
-      ) || 0;
-    return existingWeight + newWeight;
-  };
-
   /** Advanced mode: merged list (existing first, then new). */
   const existingKRs = objectiveValue?.keyResults ?? [];
   const newKRs = objective?.keyResults ?? [];
@@ -556,7 +542,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           >
             Please select objective alignment to add objective.
           </p>
-          <div className="border-b border-gray-200 mt-4" />
+          <div className="border-b border-gray-200 mt-4" data-cy="okr-edit-objective-section-divider" />
         </div>
 
         {isMobile ? (
@@ -775,8 +761,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           data-cy="okr-edit-objective-key-result-section-header"
           className="mt-8 mb-4"
         >
-          <div className="flex justify-between items-center">
-            <div>
+          <div className="flex justify-between items-center" data-cy="okr-edit-objective-key-result-header-row">
+            <div data-cy="okr-edit-objective-key-result-header-text">
               <h2
                 id="okr-edit-objective-key-result-section-title"
                 data-cy="okr-edit-objective-key-result-section-title"
@@ -864,7 +850,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               )}
             </div>
           </div>
-          <div className="border-b border-gray-200 mt-4" />
+          <div className="border-b border-gray-200 mt-4" data-cy="okr-edit-objective-key-result-section-divider" />
         </div>
 
         {/* Basic mode: inline add-KR form (same layout as Create modal) */}
@@ -880,7 +866,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               data-cy="okr-edit-objective-add-kr-inline-form"
               className="bg-white border border-gray-200 rounded-lg p-6"
             >
-              <div className="flex flex-row flex-wrap gap-4 items-end">
+              <div className="flex flex-row flex-wrap gap-4 items-end" data-cy="okr-edit-objective-add-kr-form-row">
                 <Form.Item
                   name="krTitle"
                   label={
@@ -988,10 +974,10 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             data-cy="okr-edit-objective-metric-selector"
             className="border border-gray-200 rounded-lg p-4 mb-6 flex flex-nowrap md:flex-wrap items-center gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0"
           >
-            <span className="text-sm text-gray-600 mr-2 flex-shrink-0 whitespace-nowrap">
+            <span className="text-sm text-gray-600 mr-2 flex-shrink-0 whitespace-nowrap" data-cy="okr-edit-objective-metric-selector-label">
               Please Select a Key Result Metric :
             </span>
-            <div className="flex flex-nowrap items-center gap-3 flex-shrink-0">
+            <div className="flex flex-nowrap items-center gap-3 flex-shrink-0" data-cy="okr-edit-objective-metric-selector-pills">
               {keyResultTypes.map((type) => (
                 <button
                   key={type.value}
@@ -1082,8 +1068,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                       label={getMetricLabel(kr)}
                       data-cy={`okr-edit-objective-kr-card-badge-${listIndex}`}
                     />
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                    <div className="flex flex-wrap gap-2 mb-2" data-cy={`okr-edit-objective-kr-card-meta-${listIndex}`}>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200" data-cy={`okr-edit-objective-kr-card-weight-${listIndex}`}>
                         Weight {kr?.weight ?? 0}%
                       </span>
                       {(kr?.metricType?.name === 'Numeric' ||
@@ -1093,21 +1079,21 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                         kr?.key_type === 'Currency' ||
                         kr?.key_type === 'Percentage') && (
                         <>
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200" data-cy={`okr-edit-objective-kr-card-initial-${listIndex}`}>
                             Initial Value : {kr?.initialValue ?? 0}
                           </span>
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200" data-cy={`okr-edit-objective-kr-card-target-${listIndex}`}>
                             Target Value : {kr?.targetValue ?? 0}
                           </span>
                         </>
                       )}
                     </div>
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="text-base font-bold text-gray-900 leading-snug break-words flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3" data-cy={`okr-edit-objective-kr-card-content-${listIndex}`}>
+                      <p className="text-base font-bold text-gray-900 leading-snug break-words flex-1 min-w-0" data-cy={`okr-edit-objective-kr-card-title-${listIndex}`}>
                         {kr?.title?.trim() ? (
                           kr.title
                         ) : (
-                          <span className="text-gray-400 italic font-normal">
+                          <span className="text-gray-400 italic font-normal" data-cy={`okr-edit-objective-kr-card-untitled-${listIndex}`}>
                             Untitled key result
                           </span>
                         )}

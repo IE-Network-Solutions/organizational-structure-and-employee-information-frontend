@@ -116,8 +116,6 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     return { progress: 0, status: '0% On Progress' };
   };
 
-  const { status } = calculateObjectiveProgress();
-
   // Owner-only menu - only show if objective is in active session
   const menu =
     isOwner && isInActiveSession ? (
@@ -227,16 +225,16 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         data-cy={`okr-objective-basic-card-container-${objective?.id}`}
         className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
       >
-        <div className={expanded ? 'p-6 pb-2' : 'p-6'}>
-          <div className="flex items-start justify-between">
-            <div className="w-full">
-              <div className="flex-1 min-w-0">
+        <div className={expanded ? 'p-6 pb-2' : 'p-6'} data-cy={`okr-objective-basic-card-body-${objective?.id}`}>
+          <div className="flex items-start justify-between" data-cy={`okr-objective-basic-card-inner-${objective?.id}`}>
+            <div className="w-full" data-cy={`okr-objective-basic-card-main-${objective?.id}`}>
+              <div className="flex-1 min-w-0" data-cy={`okr-objective-basic-card-content-${objective?.id}`}>
                 <div
                   id={`okr-objective-basic-header-${objective?.id}`}
                   data-cy={`okr-objective-basic-header-${objective?.id}`}
                   className="flex items-center justify-between sm:justify-start gap-2 mb-3 pl-10"
                 >
-                  <div className="flex-1 sm:flex-none min-w-0">
+                  <div className="flex-1 sm:flex-none min-w-0" data-cy={`okr-objective-basic-progress-cell-${objective?.id}`}>
                     <span
                       className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 whitespace-nowrap"
                       data-cy={`okr-objective-progress-badge-${objective?.id}`}
@@ -245,8 +243,8 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                       Objective Progress
                     </span>
                   </div>
-                  <div className="flex-1 sm:flex-none min-w-0 flex justify-end sm:justify-start">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white">
+                  <div className="flex-1 sm:flex-none min-w-0 flex justify-end sm:justify-start" data-cy={`okr-objective-basic-kr-count-cell-${objective?.id}`}>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white" data-cy={`okr-objective-basic-kr-count-badge-${objective?.id}`}>
                       {completedKeyResults} - {totalKeyResults} Key Results
                       Done
                     </span>
@@ -257,8 +255,8 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     className="max-w-3xl min-w-0 order-1"
                     data-cy={`okr-objective-basic-title-wrapper-${objective?.id}`}
                   >
-                    <div className="relative flex items-center justify-between gap-2 mb-2 sm:pl-10">
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div className="relative flex items-center justify-between gap-2 mb-2 sm:pl-10" data-cy={`okr-objective-basic-title-row-${objective?.id}`}>
+                      <div className="flex items-center gap-2 min-w-0" data-cy={`okr-objective-basic-title-flex-${objective?.id}`}>
                         <button
                           type="button"
                           onClick={() => toggleExpanded(objectiveIdStr)}
@@ -296,7 +294,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         </Dropdown>
                       )}
                     </div>
-                    <div className="flex items-center text-sm text-gray-500 pl-10">
+                    <div className="flex items-center text-sm text-gray-500 pl-10" data-cy={`okr-objective-basic-days-left-${objective?.id}`}>
                       <PiCalendarBold className="mr-2 text-lg text-gray-400" />
                       <span
                         id={`objective-basic-status-${objective?.id}`}
@@ -320,7 +318,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           {!objective.user.profileImage &&
                             `${objective.user.firstName?.[0] || ''}${objective.user.lastName?.[0] || ''}`.toUpperCase()}
                         </Avatar>
-                        <div className="text-left sm:text-right">
+                        <div className="text-left sm:text-right" data-cy={`okr-objective-basic-assignee-info-${objective?.id}`}>
                           <p className="text-xs sm:text-sm font-semibold text-gray-900">
                             {[objective.user.firstName, objective.user.middleName, objective.user.lastName]
                               .filter(Boolean)
@@ -365,13 +363,13 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
             data-cy={`okr-objective-basic-key-results-${objective?.id}`}
             className="mt-0 border-t border-gray-200 overflow-x-auto"
           >
-            <div className="min-w-[600px]">
-              <div className="bg-gray-50 px-6 py-3">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <div className="min-w-[600px]" data-cy={`okr-objective-basic-key-results-table-${objective?.id}`}>
+              <div className="bg-gray-50 px-6 py-3" data-cy={`okr-objective-basic-key-results-header-${objective?.id}`}>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider" data-cy={`okr-objective-basic-key-results-header-label-${objective?.id}`}>
                   Key Result
                 </div>
               </div>
-              <div className="divide-y divide-gray-200 bg-white">
+              <div className="divide-y divide-gray-200 bg-white" data-cy={`okr-objective-basic-key-results-list-${objective?.id}`}>
               {objective?.keyResults?.map((keyResult: any) => {
                 const statusInfo = getKeyResultStatus(keyResult);
                 const keyResultMenu = getKeyResultMenu(keyResult);
@@ -457,6 +455,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             isAchieved ? 'bg-green-500' : 'bg-red-500'
                           }`}
                           aria-hidden
+                          data-cy={`okr-key-result-basic-strikethrough-${keyResult.id}`}
                         />
                       )}
                     </div>
@@ -469,6 +468,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white ${
                             isAchieved ? 'bg-green-500' : 'bg-red-500'
                           }`}
+                          data-cy={`okr-key-result-basic-status-icon-${keyResult.id}`}
                         >
                           {isAchieved ? (
                             <CheckOutlined className="text-xs" />
@@ -494,6 +494,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           <button
                             type="button"
                             className="text-gray-400 hover:text-gray-600 border border-gray-200 rounded p-1"
+                            data-cy={`okr-key-result-basic-actions-button-${keyResult.id}`}
                           >
                             <EllipsisOutlined
                               id={`key-result-basic-menu-button-${keyResult.id}`}

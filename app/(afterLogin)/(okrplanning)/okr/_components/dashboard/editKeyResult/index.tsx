@@ -25,7 +25,6 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
   const { mutate: updateKeyResult, isLoading } = useUpdateKeyResult();
   const {
     keyResultValue,
-    objectiveValue,
     handleSingleKeyResultChange,
   } = useOKRStore();
   const { isEditing, setIsEditing, resetEditKeyResult } = useEditKeyResultStore();
@@ -249,7 +248,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           >
             Please update your key result below.
           </p>
-          <div className="border-b border-gray-200 mt-4" />
+          <div className="border-b border-gray-200 mt-4" data-cy="okr-edit-key-result-section-divider" />
         </div>
 
         <div
@@ -268,27 +267,27 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
                 label={getMetricLabel(kr)}
                 data-cy="okr-edit-key-result-kr-card-badge"
               />
-              <div className="flex flex-wrap gap-2 mb-2">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+              <div className="flex flex-wrap gap-2 mb-2" data-cy="okr-edit-key-result-kr-card-meta">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200" data-cy="okr-edit-key-result-kr-card-weight">
                   Weight {kr?.weight ?? 0}%
                 </span>
                 {isNumericType(kr) && (
                   <>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200" data-cy="okr-edit-key-result-kr-card-initial">
                       Initial Value : {kr?.initialValue ?? 0}
                     </span>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200" data-cy="okr-edit-key-result-kr-card-target">
                       Target Value : {kr?.targetValue ?? 0}
                     </span>
                   </>
                 )}
               </div>
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-base font-bold text-gray-900 leading-snug break-words flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-3" data-cy="okr-edit-key-result-kr-card-content">
+                <p className="text-base font-bold text-gray-900 leading-snug break-words flex-1 min-w-0" data-cy="okr-edit-key-result-kr-card-title">
                   {kr?.title?.trim() ? (
                     kr.title
                   ) : (
-                    <span className="text-gray-400 italic font-normal">
+                    <span className="text-gray-400 italic font-normal" data-cy="okr-edit-key-result-kr-card-untitled">
                       Untitled key result
                     </span>
                   )}

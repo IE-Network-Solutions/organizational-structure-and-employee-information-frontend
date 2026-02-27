@@ -13,10 +13,7 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
-import {
-  useGetActiveFiscalYears,
-  useGetAllFiscalYears,
-} from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 
 const { Option } = Select;
 
@@ -153,7 +150,6 @@ const EmployeeOKRTable: React.FC = () => {
   const { isMobile, isTablet } = useIsMobile();
   const { data: getAllFiscalYears, isLoading: fyLoading } =
     useGetAllFiscalYears();
-  const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { data: Departments } = useGetUserDepartment();
   const { data: allUsers } = useGetAllUsers();
 
@@ -266,7 +262,7 @@ const EmployeeOKRTable: React.FC = () => {
           data-cy="employee-okr-fiscal-year-label"
           className="text-sm text-gray-700"
         >
-          Fiscal Year <span className="text-red-500">*</span>
+          Fiscal Year <span className="text-red-500" data-cy="employee-okr-fiscal-year-required">*</span>
         </label>
         <Select
           loading={fyLoading}
@@ -308,7 +304,7 @@ const EmployeeOKRTable: React.FC = () => {
           data-cy="employee-okr-session-label"
           className="text-sm text-gray-700"
         >
-          Session <span className="text-red-500">*</span>
+          Session <span className="text-red-500" data-cy="employee-okr-session-required">*</span>
         </label>
         <Select
           loading={fyLoading}
@@ -356,7 +352,7 @@ const EmployeeOKRTable: React.FC = () => {
           data-cy="employee-okr-employee-label"
           className="text-sm text-gray-700"
         >
-          Employee <span className="text-red-500">*</span>
+          Employee <span className="text-red-500" data-cy="employee-okr-employee-required">*</span>
         </label>
         <Select
           id="employee-okr-employee-select"
@@ -466,7 +462,7 @@ const EmployeeOKRTable: React.FC = () => {
       data-cy="employee-okr-filter-popover-header"
       className="flex justify-between items-start"
     >
-      <div>
+      <div data-cy="employee-okr-filter-popover-header-content">
         <h3
           id="employee-okr-filter-popover-title"
           data-cy="employee-okr-filter-popover-title"
@@ -500,7 +496,7 @@ const EmployeeOKRTable: React.FC = () => {
       data-cy="employee-okr-filter-modal-header"
       className="flex justify-between items-start pb-4"
     >
-      <div>
+      <div data-cy="employee-okr-filter-modal-header-content">
         <h3
           id="employee-okr-filter-modal-title"
           data-cy="employee-okr-filter-modal-title"
@@ -661,6 +657,7 @@ const EmployeeOKRTable: React.FC = () => {
       <div
         className={isMobile || isTablet ? 'overflow-x-auto' : ''}
         style={isMobile || isTablet ? { WebkitOverflowScrolling: 'touch' } : undefined}
+        data-cy="employee-okr-table-wrapper"
       >
         <Table
           id="okr-employee-okr-table"

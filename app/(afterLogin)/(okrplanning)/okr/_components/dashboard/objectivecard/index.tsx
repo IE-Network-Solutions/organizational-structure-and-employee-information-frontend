@@ -126,12 +126,12 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         data-cy={`okr-objective-card-wrapper-${objective?.id}`}
         className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
       >
-        <div className={`${expanded ? 'p-6 pb-2' : 'p-6'}`}>
-          <div className="flex items-start justify-between">
-            <div className="w-full">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between sm:justify-start gap-2 mb-3 pl-10">
-                  <div className="flex-1 sm:flex-none min-w-0">
+        <div className={`${expanded ? 'p-6 pb-2' : 'p-6'}`} data-cy={`okr-objective-card-body-${objective?.id}`}>
+          <div className="flex items-start justify-between" data-cy={`okr-objective-card-inner-${objective?.id}`}>
+            <div className="w-full" data-cy={`okr-objective-card-main-${objective?.id}`}>
+              <div className="flex-1 min-w-0" data-cy={`okr-objective-card-content-${objective?.id}`}>
+                <div className="flex items-center justify-between sm:justify-start gap-2 mb-3 pl-10" data-cy={`okr-objective-card-header-${objective?.id}`}>
+                  <div className="flex-1 sm:flex-none min-w-0" data-cy={`okr-objective-card-progress-cell-${objective?.id}`}>
                     <span
                       className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 whitespace-nowrap"
                       data-cy={`okr-objective-progress-badge-${objective?.id}`}
@@ -140,16 +140,16 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                       Objective Progress
                     </span>
                   </div>
-                  <div className="flex-1 sm:flex-none min-w-0 flex justify-end sm:justify-start">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white">
+                  <div className="flex-1 sm:flex-none min-w-0 flex justify-end sm:justify-start" data-cy={`okr-objective-card-kr-count-cell-${objective?.id}`}>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white" data-cy={`okr-objective-card-kr-count-badge-${objective?.id}`}>
                       {completedKeyResults} - {totalKeyResults} Key Results Done
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4">
-                  <div className="max-w-3xl min-w-0 order-1">
-                    <div className="relative flex items-center justify-between gap-2 mb-2 sm:pl-10">
-                      <div className="flex items-center gap-2 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4" data-cy={`okr-objective-card-row-${objective?.id}`}>
+                  <div className="max-w-3xl min-w-0 order-1" data-cy={`okr-objective-card-title-section-${objective?.id}`}>
+                    <div className="relative flex items-center justify-between gap-2 mb-2 sm:pl-10" data-cy={`okr-objective-card-title-row-${objective?.id}`}>
+                      <div className="flex items-center gap-2 min-w-0" data-cy={`okr-objective-card-title-flex-${objective?.id}`}>
                         <button
                           type="button"
                           onClick={() => toggleExpanded(objectiveIdStr)}
@@ -206,13 +206,13 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           {!objective.user.profileImage &&
                             `${objective.user.firstName?.[0] || ''}${objective.user.lastName?.[0] || ''}`.toUpperCase()}
                         </Avatar>
-                        <div className="text-left sm:text-right">
-                          <p className="text-xs sm:text-sm font-semibold text-gray-900">
+                        <div className="text-left sm:text-right" data-cy={`okr-objective-card-assignee-info-${objective?.id}`}>
+                          <p className="text-xs sm:text-sm font-semibold text-gray-900" data-cy={`okr-objective-card-assignee-name-${objective?.id}`}>
                             {[objective.user.firstName, objective.user.middleName, objective.user.lastName]
                               .filter(Boolean)
                               .join(' ')}
                           </p>
-                          <p className="text-[11px] sm:text-xs text-gray-500">
+                          <p className="text-[11px] sm:text-xs text-gray-500" data-cy={`okr-objective-card-assignee-dept-${objective?.id}`}>
                             {objective.user?.employeeJobInformation?.[0]?.department?.name ||
                               objective.user?.employeeJobInformation?.[0]?.position?.name ||
                               '-'}
@@ -244,47 +244,53 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         </div>
 
         {expanded && objective?.keyResults?.length > 0 && (
-          <div className="mt-4 border-t border-gray-200 overflow-x-auto">
-            <table className="min-w-[900px] w-full table-auto divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
+          <div className="mt-4 border-t border-gray-200 overflow-x-auto" data-cy={`okr-objective-card-key-results-${objective?.id}`}>
+            <table className="min-w-[900px] w-full table-auto divide-y divide-gray-200" data-cy={`okr-objective-card-key-results-table-${objective?.id}`}>
+              <thead className="bg-gray-50" data-cy={`okr-objective-card-key-results-thead-${objective?.id}`}>
+                <tr data-cy={`okr-objective-card-key-results-header-row-${objective?.id}`}>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-semibold text-gray-900 tracking-wider min-w-[280px]"
+                    data-cy={`okr-objective-card-th-key-result-${objective?.id}`}
                   >
                     Key Result
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider w-[120px] whitespace-nowrap"
+                    data-cy={`okr-objective-card-th-metrics-${objective?.id}`}
                   >
                     Metrics
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider w-[90px] whitespace-nowrap"
+                    data-cy={`okr-objective-card-th-weight-${objective?.id}`}
                   >
                     Weight
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider w-[110px] whitespace-nowrap"
+                    data-cy={`okr-objective-card-th-milestone-${objective?.id}`}
                   >
                     Milestone
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider w-[220px] whitespace-nowrap"
+                    data-cy={`okr-objective-card-th-progress-${objective?.id}`}
                   >
                     Progress
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 w-[56px] whitespace-nowrap"
+                    data-cy={`okr-objective-card-th-actions-${objective?.id}`}
                   />
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200 text-sm">
+              <tbody className="bg-white divide-y divide-gray-200 text-sm" data-cy={`okr-objective-card-key-results-tbody-${objective?.id}`}>
                 {objective.keyResults.map((keyResult: any) => (
                   <KeyResultTableRow
                     key={keyResult.id}
