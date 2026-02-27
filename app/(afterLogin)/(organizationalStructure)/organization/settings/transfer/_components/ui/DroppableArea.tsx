@@ -42,6 +42,7 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
   return (
     <div
       ref={setNodeRef}
+      id="transfer-droppable-area"
       className={`${className} ${isOver ? 'bg-blue-50 border-blue-400' : ''}`}
       style={{ position: 'relative', minHeight: isEmpty ? '130px' : 'auto' }}
       data-cy={`transfer-droppable-area-${id}`}
@@ -76,6 +77,7 @@ const DroppableArea: React.FC<DroppableAreaProps> = ({
       {isEmpty && (
         <div
           className="w-full h-[130px] flex flex-col items-center justify-center"
+          id="transfer-droppable-area-empty-div"
           style={{ pointerEvents: 'none', userSelect: 'none' }}
           data-cy="transfer-droppable-area-empty-placeholder"
         >

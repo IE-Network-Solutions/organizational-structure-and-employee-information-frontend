@@ -45,6 +45,7 @@ const AvailableTeamsPanel: React.FC<AvailableTeamsPanelProps> = ({
 
       <DroppableArea
         id="available-teams"
+        data-cy="available-teams"
         className="max-h-[300px] overflow-y-auto w-full p-4 rounded-lg border-2 scrollbar-hide"
         isEmpty={false}
       >
@@ -54,6 +55,7 @@ const AvailableTeamsPanel: React.FC<AvailableTeamsPanelProps> = ({
             department={dept}
             index={index}
             getTeamColor={getTeamColor}
+            data-cy={`transfer-available-team-${dept.id}`}
           />
         ))}
       </DroppableArea>
