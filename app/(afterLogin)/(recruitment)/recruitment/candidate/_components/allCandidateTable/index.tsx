@@ -12,7 +12,6 @@ import React from 'react';
 import { EyeOutlined } from '@ant-design/icons';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import CandidateDetail from '../../../jobs/[id]/_components/candidateDetail/page';
 import DeleteCandidate from '../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../_components/modals/moveToTalentPool';
@@ -26,8 +25,10 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { useRouter } from 'next/navigation';
 
 const AllCandidateTable: React.FC = () => {
+  const router = useRouter();
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
 
@@ -154,27 +155,6 @@ const AllCandidateTable: React.FC = () => {
         <span
           className="text-base"
           style={{ fontWeight: 600 }}
-          data-cy="talent-acquisition-candidate-column-title-graduation"
-        >
-          Date of Graduation
-        </span>
-      ),
-      dataIndex: 'graduateYear',
-      key: 'graduateYear',
-      render: (text: string) => (
-        <div
-          className="text-sm text-gray-700"
-          data-cy="talent-acquisition-candidate-cell-graduation"
-        >
-          {text ?? '--'}
-        </div>
-      ),
-    },
-    {
-      title: (
-        <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
           data-cy="talent-acquisition-candidate-column-title-email"
         >
           Email
@@ -216,7 +196,6 @@ const AllCandidateTable: React.FC = () => {
     searchParams,
     setCurrentPage,
     setPageSize,
-    setCandidateDetailDrawer,
     setSelectedCandidate,
     setSelectedCandidateID,
     setEditCandidateModal,
@@ -257,9 +236,9 @@ const AllCandidateTable: React.FC = () => {
   };
 
   const handleCandidateDetail = (candidate: any) => {
-    setSelectedCandidate(candidate);
-    setSelectedCandidateID(candidate?.id);
-    setCandidateDetailDrawer(true);
+    if (candidate?.id) {
+      router.push(`/recruitment/candidate/${candidate.id}`);
+    }
   };
 
   const data = candidateList?.items?.map((item: any, index: any) => {
@@ -325,9 +304,6 @@ const AllCandidateTable: React.FC = () => {
       ),
 
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
-      graduateYear: item?.graduateYear
-        ? dayjs(item.graduateYear).format('DD MMMM YYYY')
-        : '--',
       LinkedInURL: (
         <div
           id="talent-acquisition-candidate-table-div-email"
@@ -402,11 +378,11 @@ const AllCandidateTable: React.FC = () => {
             <button
               type="button"
               disabled={item?.deletedAt !== null}
-              className="cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-gray-50 flex items-center justify-center hover:border-gray-400 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="cursor-pointer text-gray-500 hover:text-gray-700 px-0.5 py-0.5 border border-gray-300 rounded-md bg-white flex items-center justify-center hover:border-[#4096FF] disabled:opacity-50 disabled:cursor-not-allowed"
               data-cy={`talent-acquisition-candidate-table-action-${item?.id}`}
               id={`talent-acquisition-candidate-table-action-${item?.id}`}
             >
-              <MoreHorizIcon className="text-[20px] text-gray-600" />
+              <MoreHorizIcon className="text-[16px] text-gray-600" />
             </button>
           </Dropdown>
         </div>
@@ -443,7 +419,7 @@ const AllCandidateTable: React.FC = () => {
         <Table
           id="talent-acquisition-candidate-table-table"
           data-cy="talent-acquisition-candidate-table-table"
-          className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold"
+          className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table-tbody_.ant-table-row]:cursor-pointer"
           rowClassName={() => 'h-[60px]'}
           columns={columns}
           dataSource={data}
@@ -451,6 +427,18 @@ const AllCandidateTable: React.FC = () => {
           pagination={false}
           scroll={{ x: 'max-content' }}
           rowSelection={rowSelection}
+          onRow={(record) => ({
+            onClick: (e) => {
+              const target = e.target as HTMLElement;
+              if (
+                record?.id &&
+                !target.closest('button') &&
+                !target.closest('.ant-dropdown')
+              ) {
+                router.push(`/recruitment/candidate/${record.id}`);
+              }
+            },
+          })}
         />
       </div>
 
@@ -472,7 +460,6 @@ const AllCandidateTable: React.FC = () => {
           onShowSizeChange={onSizeChange}
         />
       )}
-      <CandidateDetail data-cy="talent-acquisition-candidate-table-candidate-detail" />
       <DeleteCandidate data-cy="talent-acquisition-candidate-table-delete-candidate" />
       <EditCandidate data-cy="talent-acquisition-candidate-table-edit-candidate" />
       <MoveToTalentPool data-cy="talent-acquisition-candidate-table-move-to-talent-pool" />
