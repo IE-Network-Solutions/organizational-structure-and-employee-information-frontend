@@ -23,9 +23,8 @@ const CandidateDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
   const candidateId = typeof params?.id === 'string' ? params.id : '';
-  const { data: selectedCandidate, isLoading } = useGetCandidateById(
-    candidateId,
-  );
+  const { data: selectedCandidate, isLoading } =
+    useGetCandidateById(candidateId);
   const { data: statusStages } = useGetStages();
   const queryClient = useQueryClient();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
@@ -77,10 +76,15 @@ const CandidateDetailPage: React.FC = () => {
   if (!candidateId) {
     return (
       <div
-        className="p-4 sm:p-6"
+        className="px-2 sm:px-6 py-4 sm:py-6"
         data-cy="talent-acquisition-candidate-detail-page-missing-id"
       >
-        <p className="text-gray-500">Invalid candidate.</p>
+        <p
+          className="text-gray-500"
+          data-cy="talent-acquisition-candidate-detail-page-invalid-message"
+        >
+          Invalid candidate.
+        </p>
         <Link
           href="/recruitment/candidate"
           className="text-primary hover:underline"
@@ -95,13 +99,25 @@ const CandidateDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <div
-        className="p-4 sm:p-6"
+        className="px-2 sm:px-6 py-4 sm:py-6"
         data-cy="talent-acquisition-candidate-detail-page-loading"
       >
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-48 bg-gray-200 rounded" />
-          <div className="h-4 w-full bg-gray-200 rounded" />
-          <div className="h-32 w-full bg-gray-200 rounded" />
+        <div
+          className="animate-pulse space-y-4"
+          data-cy="talent-acquisition-candidate-detail-page-loading-skeleton"
+        >
+          <div
+            className="h-8 w-48 bg-gray-200 rounded"
+            data-cy="talent-acquisition-candidate-detail-page-loading-line-1"
+          />
+          <div
+            className="h-4 w-full bg-gray-200 rounded"
+            data-cy="talent-acquisition-candidate-detail-page-loading-line-2"
+          />
+          <div
+            className="h-32 w-full bg-gray-200 rounded"
+            data-cy="talent-acquisition-candidate-detail-page-loading-line-3"
+          />
         </div>
       </div>
     );
@@ -110,10 +126,15 @@ const CandidateDetailPage: React.FC = () => {
   if (!selectedCandidate) {
     return (
       <div
-        className="p-4 sm:p-6"
+        className="px-2 sm:px-6 py-4 sm:py-6"
         data-cy="talent-acquisition-candidate-detail-page-not-found"
       >
-        <p className="text-gray-500">Candidate not found.</p>
+        <p
+          className="text-gray-500"
+          data-cy="talent-acquisition-candidate-detail-page-not-found-message"
+        >
+          Candidate not found.
+        </p>
         <Button
           type="link"
           onClick={() => router.push('/recruitment/candidate')}
@@ -131,15 +152,18 @@ const CandidateDetailPage: React.FC = () => {
 
   return (
     <div
-      className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4"
+      className="w-full px-2 sm:px-6 py-4 sm:py-6 space-y-4"
       id="talent-acquisition-candidate-detail-page"
       data-cy="talent-acquisition-candidate-detail-page"
     >
       <div
-        className="flex flex-col gap-2 mb-4"
+        className="flex flex-col gap-2 mb-2 sm:mb-4"
         data-cy="talent-acquisition-candidate-detail-page-header-top"
       >
-        <div className="flex items-center gap-2">
+        <div
+          className="flex flex-wrap items-center gap-2"
+          data-cy="talent-acquisition-candidate-detail-page-header-actions"
+        >
           <Button
             type="text"
             icon={<KeyboardArrowLeftIcon className="text-lg" />}
@@ -148,7 +172,14 @@ const CandidateDetailPage: React.FC = () => {
             data-cy="talent-acquisition-candidate-detail-page-back"
           />
           <CustomBreadcrumb
-            title="Candidate Detail"
+            title={
+              <span
+                className="text-base sm:text-lg"
+                data-cy="talent-acquisition-candidate-detail-page-breadcrumb-title"
+              >
+                Candidate Detail
+              </span>
+            }
             subtitle="Talent Acquisition / Candidates"
           />
         </div>
@@ -159,15 +190,24 @@ const CandidateDetailPage: React.FC = () => {
         className={cardClassName}
         data-cy="talent-acquisition-candidate-detail-page-card-header"
       >
-        <div className="p-4 sm:p-6">
+        <div
+          className="p-4 sm:p-6"
+          data-cy="talent-acquisition-candidate-detail-page-card-inner"
+        >
           <div
             className="flex flex-col gap-4"
             data-cy="talent-acquisition-candidate-detail-page-header"
           >
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex flex-col gap-2 min-w-0">
+            <div
+              className="flex flex-wrap items-start justify-between gap-3 sm:gap-4"
+              data-cy="talent-acquisition-candidate-detail-page-header-row"
+            >
+              <div
+                className="flex flex-col gap-2 min-w-0 flex-1"
+                data-cy="talent-acquisition-candidate-detail-page-header-left"
+              >
                 <h1
-                  className="text-xl sm:text-2xl font-bold text-gray-900 m-0"
+                  className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 m-0 break-words"
                   data-cy="talent-acquisition-candidate-detail-page-header-name"
                 >
                   {selectedCandidate.fullName}
@@ -178,7 +218,7 @@ const CandidateDetailPage: React.FC = () => {
                   suffixIcon={
                     <KeyboardArrowDownOutlinedIcon className="text-gray-400 text-sm" />
                   }
-                  className="w-[180px] [&_.ant-select-selector]:!border-gray-200 hover:[&_.ant-select-selector]:!border-[#4096FF] [&_.ant-select-selection-item]:text-gray-800 hover:[&_.ant-select-selection-item]:text-[#4096FF]"
+                  className="w-full sm:w-[180px] [&_.ant-select-selector]:!border-gray-200 hover:[&_.ant-select-selector]:!border-[#4096FF] [&_.ant-select-selection-item]:text-gray-800 hover:[&_.ant-select-selection-item]:text-[#4096FF]"
                   options={statusStages?.items?.map((stage: any) => ({
                     value: stage.id,
                     label: stage.title,
@@ -187,41 +227,53 @@ const CandidateDetailPage: React.FC = () => {
                   data-cy="talent-acquisition-candidate-detail-page-status-select"
                 />
               </div>
-              <div className="flex items-center gap-1 shrink-0">
+              <div
+                className="flex items-center gap-0.5 sm:gap-1 shrink-0"
+                data-cy="talent-acquisition-candidate-detail-page-nav-buttons"
+              >
                 <Button
                   type="text"
-                  icon={<KeyboardArrowLeftIcon className="text-xl" />}
+                  icon={
+                    <KeyboardArrowLeftIcon className="!text-xs sm:!text-sm" />
+                  }
                   disabled={!prevCandidateId}
                   onClick={() =>
                     prevCandidateId &&
                     router.push(`/recruitment/candidate/${prevCandidateId}`)
                   }
-                  className="!flex items-center justify-center p-0 h-8 w-8 min-w-[32px] rounded-full bg-white border border-gray-200 text-gray-800 hover:border-[#4096FF] [&_.ant-btn-icon]:flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center disabled:opacity-50"
+                  className="!flex !items-center !justify-center !p-0 !h-6 !w-6 !min-h-6 !min-w-6 !max-h-6 !max-w-6 sm:!h-8 sm:!w-8 sm:!min-h-8 sm:!min-w-8 sm:!max-h-8 sm:!max-w-8 !rounded-full !border !border-gray-200 !bg-white text-gray-800 hover:!border-[#4096FF] hover:!text-[#4096FF] !shadow-none [&_.ant-btn-icon]:!flex [&_.ant-btn-icon]:!items-center [&_.ant-btn-icon]:!justify-center disabled:!opacity-50"
                   data-cy="talent-acquisition-candidate-detail-page-prev"
                 />
                 <Button
                   type="text"
-                  icon={<KeyboardArrowRightIcon className="text-xl" />}
+                  icon={
+                    <KeyboardArrowRightIcon className="!text-xs sm:!text-sm" />
+                  }
                   disabled={!nextCandidateId}
                   onClick={() =>
                     nextCandidateId &&
                     router.push(`/recruitment/candidate/${nextCandidateId}`)
                   }
-                  className="!flex items-center justify-center p-0 h-8 w-8 min-w-[32px] rounded-full bg-white border border-gray-200 text-gray-800 hover:border-[#4096FF] [&_.ant-btn-icon]:flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center disabled:opacity-50"
+                  className="!flex !items-center !justify-center !p-0 !h-6 !w-6 !min-h-6 !min-w-6 !max-h-6 !max-w-6 sm:!h-8 sm:!w-8 sm:!min-h-8 sm:!min-w-8 sm:!max-h-8 sm:!max-w-8 !rounded-full !border !border-gray-200 !bg-white text-gray-800 hover:!border-[#4096FF] hover:!text-[#4096FF] !shadow-none [&_.ant-btn-icon]:!flex [&_.ant-btn-icon]:!items-center [&_.ant-btn-icon]:!justify-center disabled:!opacity-50"
                   data-cy="talent-acquisition-candidate-detail-page-next"
                 />
               </div>
             </div>
 
             <div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 border-t border-gray-100"
+              className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-3 sm:gap-4 pt-2 border-t border-gray-100"
               data-cy="talent-acquisition-candidate-detail-page-info-grid"
             >
               <div
                 className="flex flex-col gap-0.5"
                 data-cy="talent-acquisition-candidate-detail-page-header-email"
               >
-                <span className="text-xs text-gray-400">Email</span>
+                <span
+                  className="text-xs text-gray-400"
+                  data-cy="talent-acquisition-candidate-detail-page-email-label"
+                >
+                  Email
+                </span>
                 <a
                   href={
                     selectedCandidate.email
@@ -229,6 +281,7 @@ const CandidateDetailPage: React.FC = () => {
                       : undefined
                   }
                   className="text-sm text-gray-800 hover:text-primary break-all"
+                  data-cy="talent-acquisition-candidate-detail-page-email-value"
                 >
                   {selectedCandidate.email ?? '—'}
                 </a>
@@ -237,8 +290,16 @@ const CandidateDetailPage: React.FC = () => {
                 className="flex flex-col gap-0.5"
                 data-cy="talent-acquisition-candidate-detail-page-header-phone"
               >
-                <span className="text-xs text-gray-400">Phone Number</span>
-                <span className="text-sm text-gray-800">
+                <span
+                  className="text-xs text-gray-400"
+                  data-cy="talent-acquisition-candidate-detail-page-phone-label"
+                >
+                  Phone Number
+                </span>
+                <span
+                  className="text-sm text-gray-800"
+                  data-cy="talent-acquisition-candidate-detail-page-phone-value"
+                >
                   {selectedCandidate.phone ?? '—'}
                 </span>
               </div>
@@ -246,8 +307,16 @@ const CandidateDetailPage: React.FC = () => {
                 className="flex flex-col gap-0.5"
                 data-cy="talent-acquisition-candidate-detail-page-header-job"
               >
-                <span className="text-xs text-gray-400">Job</span>
-                <span className="text-sm text-gray-800">
+                <span
+                  className="text-xs text-gray-400"
+                  data-cy="talent-acquisition-candidate-detail-page-job-label"
+                >
+                  Job
+                </span>
+                <span
+                  className="text-sm text-gray-800"
+                  data-cy="talent-acquisition-candidate-detail-page-job-value"
+                >
                   {selectedCandidate.jobCandidate
                     ?.map((item: any) => item?.jobInformation?.jobTitle)
                     .filter(Boolean)
@@ -258,8 +327,16 @@ const CandidateDetailPage: React.FC = () => {
                 className="flex flex-col gap-0.5"
                 data-cy="talent-acquisition-candidate-detail-page-header-cgpa"
               >
-                <span className="text-xs text-gray-400">CGPA</span>
-                <span className="text-sm text-gray-800">
+                <span
+                  className="text-xs text-gray-400"
+                  data-cy="talent-acquisition-candidate-detail-page-cgpa-label"
+                >
+                  CGPA
+                </span>
+                <span
+                  className="text-sm text-gray-800"
+                  data-cy="talent-acquisition-candidate-detail-page-cgpa-value"
+                >
                   {selectedCandidate.CGPA ?? '—'}
                 </span>
               </div>
@@ -268,15 +345,21 @@ const CandidateDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Section 2: CV (file name, size, download) */}
+      {/* Section 2: CV (file name on left, download icon on right) */}
       <div
-        className="bg-white rounded-lg  overflow-hidden"
+        className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm"
         data-cy="talent-acquisition-candidate-detail-page-cv-section"
       >
-        <div className="p-4 sm:p-6 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-col gap-0.5">
+        <div
+          className="p-4 sm:p-6 flex flex-row items-center justify-between gap-3"
+          data-cy="talent-acquisition-candidate-detail-page-cv-inner"
+        >
+          <div
+            className="flex flex-col gap-0.5 min-w-0 flex-1"
+            data-cy="talent-acquisition-candidate-detail-page-cv-left"
+          >
             <span
-              className="text-base font-semibold text-gray-900"
+              className="text-base font-semibold text-gray-900 truncate"
               data-cy="talent-acquisition-candidate-detail-page-cv-filename"
             >
               {cvFileName ?? 'No CV uploaded'}
@@ -287,11 +370,17 @@ const CandidateDetailPage: React.FC = () => {
               href={selectedCandidate.resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-[#4096FF] hover:text-[#4096FF] text-sm font-medium"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-[#4096FF] hover:text-[#4096FF] text-sm font-medium shrink-0"
               data-cy="talent-acquisition-candidate-detail-page-cv-download"
+              title="Download"
             >
               <SaveAltOutlinedIcon className="text-lg" />
-              Download
+              <span
+                className="hidden sm:inline"
+                data-cy="talent-acquisition-candidate-detail-page-cv-download-text"
+              >
+                Download
+              </span>
             </a>
           )}
         </div>
@@ -302,7 +391,10 @@ const CandidateDetailPage: React.FC = () => {
         className={cardClassName}
         data-cy="talent-acquisition-candidate-detail-page-cover-letter-card"
       >
-        <div className="p-4 sm:p-6">
+        <div
+          className="p-4 sm:p-6"
+          data-cy="talent-acquisition-candidate-detail-page-cover-letter-inner"
+        >
           <h2
             className="text-base font-bold text-gray-900 mb-3"
             data-cy="talent-acquisition-candidate-detail-page-cover-letter-title"

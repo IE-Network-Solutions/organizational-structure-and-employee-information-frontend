@@ -2,7 +2,8 @@ import { useMoveToTalentPool } from '@/store/server/features/recruitment/candida
 import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/candidate/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Checkbox, Form, Modal, Select } from 'antd';
+import { Button, Form, Modal, Select } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
 
@@ -73,70 +74,55 @@ const MoveToTalentPool: React.FC = () => {
     setSelectedCandidate(selectedOptions);
   };
 
+  const handleCancel = () => {
+    setMoveToTalentPoolModal(false);
+    form.resetFields();
+    setSelectedCandidate([]);
+    setSelectedRowKeys([]);
+  };
+
   return (
     moveToTalentPoolModal && (
       <Modal
         data-cy="talent-acquisition-move-talent-pool-modal"
         open={moveToTalentPoolModal}
-        onOk={handleSubmit}
-        onCancel={() => setMoveToTalentPoolModal(false)}
-        centered
-        confirmLoading={isLoading}
-        width={700}
-        footer={
+        onCancel={handleCancel}
+        footer={null}
+        width={630}
+        title={
           <div
-            id="talent-acquisition-move-talent-pool-div-footer"
-            data-cy="talent-acquisition-move-talent-pool-div-footer"
-            className="w-full flex justify-center gap-4"
+            id="talent-acquisition-move-talent-pool-div-header"
+            data-cy="talent-acquisition-move-talent-pool-div-header"
+            className="flex flex-col"
           >
-            <Button
-              id="talent-acquisition-move-talent-pool-button-cancel"
-              data-cy="talent-acquisition-move-talent-pool-button-cancel"
-              key="cancel"
-              className="p-6"
-              onClick={() => {
-                setMoveToTalentPoolModal(false);
-                form.resetFields();
-                setSelectedCandidate([]);
-                setSelectedRowKeys([]);
-              }}
+            <span
+              className="text-lg font-bold text-gray-900"
+              data-cy="talent-acquisition-move-talent-pool-modal-title"
             >
-              Cancel
-            </Button>
-            <Button
-              id="talent-acquisition-move-talent-pool-button-add"
-              data-cy="talent-acquisition-move-talent-pool-button-add"
-              key="submit"
-              type="primary"
-              className="p-6"
-              onClick={handleSubmit}
-              loading={isLoading}
-            >
-              Add
-            </Button>
+              Move to Talent Pool
+            </span>
           </div>
         }
+        maskClosable={false}
+        destroyOnClose
+        styles={{
+          body: {
+            backgroundColor: '#FFFFFF',
+            padding: 32,
+          },
+        }}
+        zIndex={10002}
       >
-        <div
-          id="talent-acquisition-move-talent-pool-div-title"
-          data-cy="talent-acquisition-move-talent-pool-div-title"
-          className="text-xl font-bold text-start py-2"
+        <Form
+          id="talent-acquisition-move-talent-pool-form"
+          data-cy="talent-acquisition-move-talent-pool-form"
+          form={form}
+          layout="vertical"
         >
-          Move to Talent Pool?
-        </div>
-        <div
-          id="talent-acquisition-move-talent-pool-div-form-container"
-          data-cy="talent-acquisition-move-talent-pool-div-form-container"
-          className="mb-20"
-        >
-          <Form
-            id="talent-acquisition-move-talent-pool-form"
-            data-cy="talent-acquisition-move-talent-pool-form"
-            form={form}
-            // onFinish={() => {
-            //   handleSubmit();
-            // }}
-            layout="vertical"
+          <div
+            id="talent-acquisition-move-talent-pool-div-form-container"
+            data-cy="talent-acquisition-move-talent-pool-div-form-container"
+            className="bg-white border border-[#D9D9D9] rounded-lg px-4 py-2"
           >
             <Form.Item
               id="jobCandidateInformationId"
@@ -145,15 +131,22 @@ const MoveToTalentPool: React.FC = () => {
               label={
                 <span
                   data-cy="-components-modals-movetotalentpool-index-tsx-index-span-146"
-                  className="text-md font-semibold text-gray-700 py-1"
+                  className="text-sm font-medium text-gray-700"
                 >
-                  Candidates
+                  Candidate{' '}
+                  <span
+                    className="text-red-500"
+                    aria-hidden
+                    data-cy="talent-acquisition-move-talent-pool-required-mark"
+                  >
+                    *
+                  </span>
                 </span>
               }
               rules={[
                 {
                   required: true,
-                  message: 'Please select talent pool category',
+                  message: 'Please select at least one candidate',
                 },
               ]}
             >
@@ -161,70 +154,41 @@ const MoveToTalentPool: React.FC = () => {
                 id="talent-acquisition-move-talent-pool-select-candidates"
                 data-cy="talent-acquisition-move-talent-pool-select-candidates"
                 mode="multiple"
-                className="text-sm w-full min-h-12"
-                placeholder="Select talent pool category"
+                className="text-sm w-full min-h-10"
+                placeholder="select candidate"
                 value={(Array.isArray(selectedCandidate)
                   ? selectedCandidate
                   : []
                 ).map((item: any) => item.id)}
                 onChange={handleChange}
-                tagRender={({ label, value }) => {
-                  const candidateArray = Array.isArray(selectedCandidate)
-                    ? selectedCandidate
-                    : [];
-                  const candidate = candidateArray.find(
-                    (item: any) => item.id === value,
-                  );
-
-                  return (
-                    <div
-                      id="talent-acquisition-move-talent-pool-div-candidate-option"
-                      data-cy="talent-acquisition-move-talent-pool-div-candidate-option"
-                      className="flex items-center gap-2 px-2 py-1 border rounded bg-gray-100 m-1"
+                tagRender={({ label, closable, onClose }) => (
+                  <span
+                    id="talent-acquisition-move-talent-pool-div-candidate-option"
+                    data-cy="talent-acquisition-move-talent-pool-div-candidate-option"
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-gray-100 border border-gray-200 text-sm text-gray-800 mr-1 mb-1"
+                  >
+                    <span
+                      data-cy="-components-modals-movetotalentpool-index-tsx-index-span-188"
+                      id="talent-acquisition-move-talent-pool-div-candidate-info"
                     >
-                      <Checkbox checked={true} />{' '}
-                      <div
-                        id="talent-acquisition-move-talent-pool-div-candidate-info"
-                        data-cy="talent-acquisition-move-talent-pool-div-candidate-info"
-                        className="flex flex-col"
-                      >
-                        <span data-cy="-components-modals-movetotalentpool-index-tsx-index-span-188">
-                          {label}
-                        </span>
-                        <span
-                          data-cy="-components-modals-movetotalentpool-index-tsx-index-span-189"
-                          className="text-gray-500 text-xs"
-                        >
-                          ({candidate?.phone})
-                        </span>{' '}
-                      </div>
-                    </div>
-                  );
-                }}
-                optionRender={(option) => {
-                  const candidateArray = Array.isArray(selectedCandidate)
-                    ? selectedCandidate
-                    : [];
-                  const isChecked = candidateArray.some(
-                    (item: any) => item.id === option.value,
-                  );
-
-                  return (
-                    <div
-                      id="talent-acquisition-move-talent-pool-div-option-item"
-                      data-cy="talent-acquisition-move-talent-pool-div-option-item"
-                      className="flex items-center cursor-pointer"
-                    >
-                      <Checkbox checked={isChecked} />
-                      <span
-                        data-cy="-components-modals-movetotalentpool-index-tsx-index-span-211"
-                        className="ml-2"
-                      >
-                        {option.label}
-                      </span>
-                    </div>
-                  );
-                }}
+                      {label}
+                    </span>
+                    {closable && (
+                      <CloseOutlined
+                        role="button"
+                        tabIndex={0}
+                        className="text-gray-400 hover:text-gray-600 cursor-pointer text-xs"
+                        onClick={onClose}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onClose();
+                          }
+                        }}
+                      />
+                    )}
+                  </span>
+                )}
               >
                 {(Array.isArray(selectedCandidate)
                   ? selectedCandidate
@@ -249,7 +213,7 @@ const MoveToTalentPool: React.FC = () => {
               label={
                 <span
                   data-cy="-components-modals-movetotalentpool-index-tsx-index-span-237"
-                  className="text-md font-semibold text-gray-700 py-1"
+                  className="text-sm font-medium text-gray-700"
                 >
                   Talent Pool Category
                 </span>
@@ -286,7 +250,7 @@ const MoveToTalentPool: React.FC = () => {
               label={
                 <span
                   data-cy="-components-modals-movetotalentpool-index-tsx-index-span-271"
-                  className="text-md font-semibold text-gray-700 py-1"
+                  className="text-sm font-medium text-gray-700"
                 >
                   Reason
                 </span>
@@ -298,10 +262,40 @@ const MoveToTalentPool: React.FC = () => {
                 data-cy="talent-acquisition-move-talent-pool-textarea-reason"
                 rows={3}
                 placeholder="Please provide your reason for moving to the talent pool."
+                className="text-sm"
               />
             </Form.Item>
-          </Form>
-        </div>
+          </div>
+
+          <Form.Item>
+            <div
+              id="talent-acquisition-move-talent-pool-div-footer"
+              data-cy="talent-acquisition-move-talent-pool-div-footer"
+              className="flex justify-end w-full bg-[#fff] px-0 pt-4 gap-3"
+            >
+              <Button
+                id="talent-acquisition-move-talent-pool-button-cancel"
+                data-cy="talent-acquisition-move-talent-pool-button-cancel"
+                onClick={handleCancel}
+                className="flex justify-center text-sm font-medium text-gray-800 bg-white px-3 h-8 hover:border-[#4096FF] border-gray-300 hover:text-[#4096FF]"
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                id="talent-acquisition-move-talent-pool-button-add"
+                data-cy="talent-acquisition-move-talent-pool-button-add"
+                type="primary"
+                className="flex justify-center text-sm font-medium text-white bg-primary px-3 h-8 border-none hover:bg-[#4096FF]"
+                onClick={handleSubmit}
+                loading={isLoading}
+                disabled={isLoading}
+              >
+                Add
+              </Button>
+            </div>
+          </Form.Item>
+        </Form>
       </Modal>
     )
   );

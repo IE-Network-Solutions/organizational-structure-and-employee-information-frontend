@@ -29,6 +29,9 @@ import { useRouter } from 'next/navigation';
 
 const AllCandidateTable: React.FC = () => {
   const router = useRouter();
+  const rowActionButtonRefs = React.useRef<
+    Record<string, HTMLButtonElement | null>
+  >({});
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
 
@@ -202,6 +205,7 @@ const AllCandidateTable: React.FC = () => {
     setEditCandidate,
     setDeleteCandidateId,
     setDeleteCandidateModal,
+    setDeleteTriggerRect,
     selectedRowKeys,
     setSelectedRowKeys,
   } = useCandidateState();
@@ -230,6 +234,21 @@ const AllCandidateTable: React.FC = () => {
       setEditCandidateModal(true);
       setSelectedCandidateID(candidate?.id);
     } else if (key === 'delete') {
+      const btn = candidate?.id
+        ? rowActionButtonRefs.current[candidate.id]
+        : null;
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        setDeleteTriggerRect({
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        });
+      } else {
+        setDeleteTriggerRect(null);
+      }
+      setSelectedCandidate(candidate);
       setDeleteCandidateId(candidate?.id);
       setDeleteCandidateModal(true);
     }
@@ -376,6 +395,9 @@ const AllCandidateTable: React.FC = () => {
             data-cy={`talent-acquisition-candidate-table-dropdown-${item?.id}`}
           >
             <button
+              ref={(el) => {
+                if (item?.id) rowActionButtonRefs.current[item.id] = el;
+              }}
               type="button"
               disabled={item?.deletedAt !== null}
               className="cursor-pointer text-gray-500 hover:text-gray-700 px-0.5 py-0.5 border border-gray-300 rounded-md bg-white flex items-center justify-center hover:border-[#4096FF] disabled:opacity-50 disabled:cursor-not-allowed"
