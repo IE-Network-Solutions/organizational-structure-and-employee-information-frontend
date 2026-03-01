@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { Modal, Select, Button, Space } from 'antd';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useQueryClient } from 'react-query';
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import { useDeleteOrgChart } from '@/store/server/features/organizationStructure/organizationalChart/mutation';
@@ -52,6 +53,7 @@ function excludeDescendants(
 
 export function DeleteDepartmentModal() {
   const queryClient = useQueryClient();
+  const { isMobile } = useIsMobile();
   const { data: orgStructureData } = useGetOrgCharts();
   const deleteMutation = useDeleteOrgChart();
 
@@ -121,12 +123,15 @@ export function DeleteDepartmentModal() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: 24,
+      padding: isMobile ? 12 : 24,
     },
     content: {
       borderRadius: 8,
       border: '1px solid var(--Colors-Base-Gray-3, #E5E7EB)',
       background: '#FFF',
+    },
+    body: {
+      padding: isMobile ? '16px' : '24px',
     },
   };
 
@@ -140,18 +145,24 @@ export function DeleteDepartmentModal() {
         styles={centeredModalStyles}
         footer={
           <Space>
-            <Button onClick={handleStep2Cancel}>Cancel</Button>
+            <Button
+              className="h-9 sm:h-10 px-4 sm:px-5"
+              onClick={handleStep2Cancel}
+            >
+              Cancel
+            </Button>
             <Button
               type="primary"
               danger
               loading={deleteMutation.isLoading}
               onClick={handleConfirmDelete}
+              className="h-9 sm:h-10 px-4 sm:px-5"
             >
               Delete
             </Button>
           </Space>
         }
-        width={420}
+        width={isMobile ? 'calc(100vw - 24px)' : 420}
         data-cy="org-structure-delete-department-confirm-modal"
       >
         <p
@@ -173,12 +184,18 @@ export function DeleteDepartmentModal() {
       styles={centeredModalStyles}
       footer={
         <Space>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button
+            className="h-9 sm:h-10 px-4 sm:px-5"
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
           {departmentTobeShiftedId ? (
             <Button
               type="primary"
               danger
               onClick={handleContinue}
+              className="h-9 sm:h-10 px-4 sm:px-5"
               style={{ backgroundColor: '#FF4D4F', borderColor: '#FF4D4F' }}
             >
               Continue
@@ -186,6 +203,7 @@ export function DeleteDepartmentModal() {
           ) : (
             <Button
               disabled
+              className="h-9 sm:h-10 px-4 sm:px-5"
               style={{
                 backgroundColor: '#fff',
                 borderColor: '#d9d9d9',
@@ -198,7 +216,7 @@ export function DeleteDepartmentModal() {
           )}
         </Space>
       }
-      width={520}
+      width={isMobile ? 'calc(100vw - 24px)' : 520}
       data-cy="org-structure-delete-department-modal"
     >
       <Space direction="vertical" style={{ width: '100%' }} size={16}>

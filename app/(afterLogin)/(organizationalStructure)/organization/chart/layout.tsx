@@ -4,6 +4,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
 import React, { RefObject, useRef, createContext, useContext } from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import type { UseReactFlowExportApi } from '@/hooks/export';
 
 type ChartLayoutContextValue = {
@@ -47,6 +48,7 @@ export default function ChartLayout({
   params: any;
 }) {
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
 
   const chartRef = useRef<HTMLDivElement>(null);
   const exportActionsRef = useRef<UseReactFlowExportApi | null>(null);
@@ -101,7 +103,7 @@ export default function ChartLayout({
       data-cy="org-structure-layout-provider"
     >
       <div
-        className="flex flex-col w-full"
+        className="flex flex-col w-full px-2 sm:px-6"
         data-cy="org-structure-layout"
         id="org-structure-layout"
       >
@@ -114,17 +116,24 @@ export default function ChartLayout({
           <Card
             data-cy="org-structure-card"
             id="org-structure-card"
-            className="w-full border-none"
+            className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-2 [&_.ant-card-head]:sm:px-6 [&_.ant-card-body]:px-0 [&_.ant-card-body]:sm:px-0"
             title={
               <CustomBreadcrumb
-                title="Organization structure"
-                subtitle="Organization / Org Structure"
+                title={
+                  <span
+                    className="text-lg sm:text-2xl font-bold text-gray-900"
+                    data-cy="org-structure-breadcrumb-title"
+                  >
+                    Organization Structure
+                  </span>
+                }
+                subtitle="Organization Structure / Org Structure"
                 data-cy="org-structure-breadcrumb"
               />
             }
             extra={
               <div
-                className="py-4 flex justify-center items-center gap-4"
+                className="py-2 sm:py-4 flex justify-center items-center shrink-0"
                 data-cy="org-structure-actions"
                 id="org-structure-actions"
               >
@@ -146,13 +155,10 @@ export default function ChartLayout({
                     ],
                   }}
                   trigger={['click']}
-                  placement="bottomRight"
+                  placement={isMobile ? 'bottomRight' : 'bottomRight'}
                   data-cy="org-structure-export-dropdown"
                   disabled={chartDownloadLoading}
                 >
-                  {/* <AccessGuard
-                    permissions={[Permissions.DownloadOrganizationStructure]}
-                  > */}
                   <Button
                     title="Download"
                     icon={
@@ -163,21 +169,20 @@ export default function ChartLayout({
                       />
                     }
                     type="default"
-                    className="h-10 w-[104px] rounded-lg border border-gray-300 text-gray-700 font-normal"
+                    className="h-10 w-10 sm:w-[104px] rounded-lg border border-gray-300 text-gray-700 font-normal flex items-center justify-center sm:justify-start gap-2"
                     data-cy="org-structure-download-btn"
                     id="org-structure-download-btn"
                     loading={chartDownloadLoading}
                     disabled={chartDownloadLoading}
                   >
                     <span
-                      className="font-normal"
+                      className="font-normal hidden sm:inline"
                       data-cy="org-structure-download-btn-span"
                       id="org-structure-download-btn-span"
                     >
                       {chartDownloadLoading ? 'Preparing…' : 'Download'}
                     </span>
                   </Button>
-                  {/* </AccessGuard> */}
                 </Dropdown>
               </div>
             }
@@ -222,9 +227,9 @@ export default function ChartLayout({
           {/* <OrgChartComponent /> */}
         </div>
 
-        {/* Page Content - minimal top padding so chart sits close to header */}
+        {/* Page Content - responsive padding matching talent resource */}
         <main
-          className="pt-0 px-4 pb-4 overflow-visible"
+          className="pt-0 px-2 sm:px-6 pb-4 overflow-visible"
           data-cy="org-structure-main-content"
           id="org-structure-main-content"
         >

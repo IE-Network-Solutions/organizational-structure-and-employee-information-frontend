@@ -35,7 +35,7 @@ const config: Config = {
         lightblue: '#d3e4f0',
       },
       fontFamily: {
-        sans: ['Manrope', 'sans-serif'],
+        sans: ['Calibre', 'sans-serif'],
       },
       height: {
         'half-vw': 'calc(50vw)',

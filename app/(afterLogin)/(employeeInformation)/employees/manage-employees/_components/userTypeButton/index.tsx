@@ -16,7 +16,7 @@ const userTypeButton = (val: string) => {
       <Button
         id="roleTypeAdmin"
         data-cy="roleTypeAdmin"
-        className="text-indigo-700 text-xs font-medium w-[90px] px-[30px] bg-white border border-indigo-700 hover:bg-indigo-50"
+        className="text-black text-xs font-medium w-[90px] px-[20px] bg-white border border-[#d9d9d9]"
       >
         Permanent
       </Button>
@@ -26,7 +26,7 @@ const userTypeButton = (val: string) => {
       <Button
         id="roleTypeSuper"
         data-cy="roleTypeProbation"
-        className="text-violet-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-violet-600 hover:bg-violet-50"
+        className="text-black text-xs font-medium w-[90px] px-[20px] bg-white border border-[#d9d9d9]"
       >
         PROBATION
       </Button>
@@ -49,6 +49,26 @@ const userTypeButton = (val: string) => {
         className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50"
       >
         Unknown
+      </Button>
+    );
+  } else if (val === 'Active') {
+    return (
+      <Button
+        id="roleTypeActive"
+        data-cy="roleTypeActive"
+        className="text-[#1677ff] text-xs font-medium w-[90px] px-[20px] bg-[#e6f4ff] border border-[#91caff]"
+      >
+        Active
+      </Button>
+    );
+  } else if (val === 'InActive') {
+    return (
+      <Button
+        id="roleTypeInActive"
+        data-cy="roleTypeInActive"
+        className="text-[#ff4d4f] text-xs font-medium w-[90px] px-[20px] bg-[#fff1f0] border border-[#ffccc7]"
+      >
+        InActive
       </Button>
     );
   } else {

@@ -117,7 +117,7 @@ const LeaveManagement = () => {
                 title={
                   <span
                     data-cy="timesheet-leave-management-leaves-page-tsx-page-span-118"
-                    className="text-black font-Manrope text-sm"
+                    className="text-black text-sm"
                   >
                     Send an email for leave approvers who have not taken action
                     on pending leave requests

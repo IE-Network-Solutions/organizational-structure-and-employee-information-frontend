@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, Button, Space, Modal, Popover } from 'antd';
+import { Form, Input, Select, Button, Modal, Popover, Row, Col } from 'antd';
 import { useQuery } from 'react-query';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import {
@@ -11,6 +11,7 @@ import {
 import { getOrgChart } from '@/store/server/features/organizationStructure/organizationalChart/query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
@@ -306,26 +307,45 @@ export function AddDepartmentModal() {
         }
       : { colour: '#4B0082' };
 
+  const { isMobile } = useIsMobile();
+
   return (
     <Modal
-      title={isEdit ? 'Edit Department' : 'Add Department'}
+      title={
+        <span
+          className="text-lg font-semibold text-gray-900"
+          data-cy="org-structure-department-modal-title"
+        >
+          {isEdit ? 'Edit Department' : 'Add Department'}
+        </span>
+      }
       open={open}
       onCancel={handleClose}
-      width={520}
+      closable
+      width={isMobile ? 'calc(100vw - 24px)' : 520}
       footer={null}
       destroyOnClose
       centered
+      className="[&_.ant-modal-content]:rounded-lg [&_.ant-modal-content]:shadow-lg [&_.ant-modal-header]:border-b [&_.ant-modal-header]:border-gray-100"
       styles={{
         wrapper: {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 24,
+          padding: isMobile ? 12 : 24,
         },
         content: {
           borderRadius: 8,
-          border: '1px solid var(--Colors-Base-Gray-3, #E5E7EB)',
+          border: '1px solid #E5E7EB',
           background: '#FFF',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        },
+        header: {
+          padding: '16px 24px',
+          borderBottom: '1px solid #f0f0f0',
+        },
+        body: {
+          padding: isMobile ? 16 : 24,
         },
       }}
       data-cy={
@@ -341,38 +361,42 @@ export function AddDepartmentModal() {
         initialValues={initialValues}
         data-cy="org-structure-department-form"
       >
-        <div
-          style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}
-          data-cy="org-structure-department-form-row"
-        >
-          <Form.Item
-            name="name"
-            label={
-              <>
-                Department / Team Name{' '}
-                <span
-                  style={{ color: '#ff4d4f' }}
-                  data-cy="org-structure-department-name-required"
-                >
-                  *
-                </span>
-              </>
-            }
-            rules={[
-              { required: true, message: 'Please enter the department name' },
-            ]}
-            style={{ flex: 1 }}
-          >
-            <Input
-              size="large"
-              placeholder="Enter department/ team name"
-              data-cy="org-structure-department-name"
-            />
-          </Form.Item>
-          <Form.Item name="colour" label="Colour">
-            <ColorPalettePicker />
-          </Form.Item>
-        </div>
+        <Row gutter={16} data-cy="org-structure-department-form-row">
+          <Col xs={16} sm={24} md={16} lg={16}>
+            <Form.Item
+              name="name"
+              label={
+                <>
+                  Department / Team Name{' '}
+                  <span
+                    style={{ color: '#ff4d4f' }}
+                    data-cy="org-structure-department-name-required"
+                  >
+                    *
+                  </span>
+                </>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter the department name',
+                },
+              ]}
+            >
+              <Input
+                size="large"
+                placeholder="Enter department/ team name"
+                className="w-full"
+                data-cy="org-structure-department-name"
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={8} sm={8} md={10} lg={8}>
+            <Form.Item name="colour" label="Colour">
+              <ColorPalettePicker />
+            </Form.Item>
+          </Col>
+        </Row>
 
         <Form.Item
           name="branchId"
@@ -392,6 +416,7 @@ export function AddDepartmentModal() {
           <Select
             size="large"
             placeholder="Select branch"
+            className="w-full"
             data-cy="org-structure-department-branch"
           >
             {branches?.items?.map((branch: any) => (
@@ -407,34 +432,37 @@ export function AddDepartmentModal() {
             size="large"
             rows={4}
             placeholder="Enter a brief description of the department"
+            className="w-full"
             data-cy="org-structure-department-description"
           />
         </Form.Item>
 
         <div
-          style={{ textAlign: 'right', marginTop: 24 }}
+          className="flex justify-end gap-3 mt-6"
           data-cy="org-structure-department-form-actions"
         >
-          <Space>
-            <Button
-              onClick={handleClose}
-              data-cy="org-structure-department-cancel"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              onClick={handleSubmit}
-              loading={loading}
-              data-cy={
-                isEdit
-                  ? 'org-structure-department-update'
-                  : 'org-structure-department-create'
-              }
-            >
-              {isEdit ? 'Update' : 'Create'}
-            </Button>
-          </Space>
+          <Button
+            onClick={handleClose}
+            size="large"
+            className="h-10 px-5 border-gray-300 text-gray-700 bg-white hover:border-gray-400 hover:text-gray-800"
+            data-cy="org-structure-department-cancel"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleSubmit}
+            loading={loading}
+            className="h-10 px-5"
+            data-cy={
+              isEdit
+                ? 'org-structure-department-update'
+                : 'org-structure-department-create'
+            }
+          >
+            {isEdit ? 'Update' : 'Create'}
+          </Button>
         </div>
       </Form>
     </Modal>

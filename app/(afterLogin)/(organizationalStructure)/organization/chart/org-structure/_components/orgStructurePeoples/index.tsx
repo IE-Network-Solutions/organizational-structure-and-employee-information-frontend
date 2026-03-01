@@ -107,7 +107,7 @@ function OrgFlowContent() {
   return (
     <OrgChartActionsProvider>
       <div
-        className="w-full h-[calc(100vh-280px)] min-h-[420px] bg-white overflow-visible"
+        className="w-full h-[calc(100vh-220px)] min-h-[280px] sm:h-[calc(100vh-280px)] sm:min-h-[420px] bg-white overflow-x-auto overflow-y-auto"
         ref={chartRef}
         data-cy="org-structure-chart-flow-container"
       >
@@ -184,12 +184,12 @@ function OrgChartComponentInner() {
 
   return (
     <div
-      className="pt-0 px-4 pb-8 sm:px-2 md:px-6 md:pb-8 lg:px-8 overflow-visible"
+      className="pt-0 px-2 pb-4 sm:px-4 sm:pb-8 md:px-6 lg:px-8 overflow-visible"
       data-cy="org-structure-tree-container"
       id="org-structure-tree-container"
     >
       <div
-        className="overflow-visible"
+        className="overflow-visible min-w-0"
         data-cy="org-structure-transform-component"
         id="org-structure-transform-component"
       >
