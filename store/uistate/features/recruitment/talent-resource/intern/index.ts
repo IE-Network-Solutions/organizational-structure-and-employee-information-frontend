@@ -20,6 +20,8 @@ interface InternState {
   documentFileList: any[];
   setDocumentFileList: (fileList: any[]) => void;
   removeDocument: (uid: string) => void;
+  isAddCandidateVisible: boolean;
+  setIsAddCandidateVisible: (value: boolean) => void;
 
   createInternDrawer: boolean;
   setCreateInternDrawer: (value: boolean) => void;
@@ -80,6 +82,9 @@ export const useInternStore = create<InternState>((set) => ({
         (file) => file.uid !== uid,
       ),
     })),
+
+  isAddCandidateVisible: false,
+  setIsAddCandidateVisible: (value) => set({ isAddCandidateVisible: value }),
 
   createInternDrawer: false,
   setCreateInternDrawer: (value) => set({ createInternDrawer: value }),

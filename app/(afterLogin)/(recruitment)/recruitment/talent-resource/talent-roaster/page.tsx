@@ -1,17 +1,8 @@
 'use client';
-
-import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Button, message } from 'antd';
-import { FaCopy, FaPlus } from 'react-icons/fa';
 import TalentRoasterTable from './_components/table';
 import CreateTalentRoaster from './_components/drawer';
 import { useTalentRoasterStore } from '@/store/uistate/features/recruitment/talent-resource/talent-roaster';
-import CustomButton from '@/components/common/buttons/customButton';
-import { IoIosShareAlt } from 'react-icons/io';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import AddToJobPipeline from './_components/modal';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { PUBLIC_DOMAIN } from '@/utils/constants';
 import { useGetAllJobs } from '@/store/server/features/recruitment/job/queries';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
@@ -47,28 +38,15 @@ const TalentRoasterPage = () => {
 
   const { searchParams } = useCandidateState();
 
-  const { isMobile, isTablet } = useIsMobile();
-  const { tenantId } = useAuthenticationStore();
-
   const handleEdit = (data: TalentRoasterItem) => {
     setCreateTalentRoasterDrawer(true);
     setEditData(data);
-  };
-
-  const handleCreate = () => {
-    setCreateTalentRoasterDrawer(true);
-    setEditData(null);
   };
 
   const onClose = () => {
     setCreateTalentRoasterDrawer(false);
     setEditData(null);
     return true;
-  };
-
-  const handleMoveToJobPipeline = () => {
-    setMoveToJobPipelineModal(true);
-    setSelectedTalentRoaster(selectedTalentRoaster);
   };
 
   const onCancel = () => {
@@ -81,37 +59,6 @@ const TalentRoasterPage = () => {
         (candidate: TalentRoasterItem) => candidate.id !== candidateId,
       ) || [];
     setSelectedTalentRoaster(updatedCandidates);
-  };
-
-  const handleCopyLink = () => {
-    if (!tenantId) {
-      message.error('Unable to generate link. Please try again.');
-      return;
-    }
-
-    const publicLink = `${PUBLIC_DOMAIN}/talent-roster/${tenantId}`;
-
-    navigator.clipboard
-      .writeText(publicLink)
-      .then(() => {
-        message.success('Public application link copied to clipboard!');
-      })
-      .catch(() => {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = publicLink;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          message.success('Public application link copied to clipboard!');
-        } catch (err) {
-          message.error(
-            'Failed to copy link. Please copy manually: ' + publicLink,
-          );
-        }
-        document.body.removeChild(textArea);
-      });
   };
 
   const { data: jobList } = useGetAllJobs(searchParams?.whatYouNeed || '');
@@ -164,89 +111,6 @@ const TalentRoasterPage = () => {
       data-cy="talent-acquisition-talent-roaster-page-div-container"
       className="h-auto w-full bg-white"
     >
-      <div
-        id="talent-acquisition-talent-roaster-page-div-header"
-        data-cy="talent-acquisition-talent-roaster-page-div-header"
-        className="flex flex-wrap justify-between items-center bg-white"
-      >
-        <CustomBreadcrumb
-          title="Talent Roster"
-          data-cy="talent-acquisition-talent-roaster-page-breadcrumb"
-          subtitle={
-            <>
-              <span
-                data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-177"
-                className="text-xs sm:text-xs"
-              >
-                Unassigned profiles for potential hiring.
-              </span>
-            </>
-          }
-        />
-        <div
-          id="talent-acquisition-talent-roaster-page-div-buttons"
-          data-cy="talent-acquisition-talent-roaster-page-div-buttons"
-          className="flex justify-between items-center rounded-lg w-fit h-10 px-3 gap-4"
-        >
-          {selectedTalentRoaster?.length > 0 && (
-            <div
-              id="talent-acquisition-talent-roaster-page-div-button-move-job"
-              data-cy="talent-acquisition-talent-roaster-page-div-button-move-job"
-              className="mr-4"
-            >
-              <CustomButton
-                title={
-                  !(isMobile || isTablet) && (
-                    <span
-                      data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-197"
-                      className="hidden sm:inline"
-                    >
-                      Move to Job
-                    </span>
-                  )
-                }
-                id="createUserButton"
-                data-cy="talent-acquisition-talent-roaster-button-move-job"
-                icon={<IoIosShareAlt className="md:mr-0 ml-2" size={20} />}
-                onClick={handleMoveToJobPipeline}
-                className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
-              />
-            </div>
-          )}
-          <Button
-            type="primary"
-            id="createUserButton"
-            data-cy="talent-acquisition-talent-roaster-button-new"
-            className="h-10 w-10 sm:w-auto"
-            icon={<FaPlus />}
-            onClick={handleCreate}
-          >
-            <span
-              data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-216"
-              className="hidden sm:inline"
-            >
-              New
-            </span>
-          </Button>
-          <Button
-            type="primary"
-            id="copyLinkButton"
-            data-cy="talent-acquisition-talent-roaster-button-copy-link"
-            className="h-10 w-10 sm:w-auto"
-            icon={<FaCopy />}
-            onClick={handleCopyLink}
-            title="Copy public application link"
-          >
-            <span
-              data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-227"
-              className="hidden sm:inline"
-            >
-              Copy Link
-            </span>
-          </Button>
-        </div>
-      </div>
-
       <div
         id="talent-acquisition-talent-roaster-page-div-content"
         data-cy="talent-acquisition-talent-roaster-page-div-content"
