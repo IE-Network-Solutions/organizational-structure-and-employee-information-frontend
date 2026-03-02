@@ -15,9 +15,7 @@ const Positions: React.FC = () => {
       data-cy="settings-positions-container"
     >
       <Row gutter={[16, 16]}>
-      <Col
-        className="sm:hidden"
-       xl={12} lg={12} md={12} sm={24} xs={24}>
+        <Col className="sm:hidden" xl={12} lg={12} md={12} sm={24} xs={24}>
           <div
             id="settings-positions-create"
             data-cy="settings-positions-create"
@@ -57,10 +55,14 @@ const Positions: React.FC = () => {
             </div>
           </Card>
         </Col>
-        <Col 
-        xl={12} lg={12} md={12} sm={24} xs={24}
-        className="hidden sm:block"
-        data-cy="settings-positions-create-col"
+        <Col
+          xl={12}
+          lg={12}
+          md={12}
+          sm={24}
+          xs={24}
+          className="hidden sm:block"
+          data-cy="settings-positions-create-col"
         >
           <div
             id="settings-positions-create"

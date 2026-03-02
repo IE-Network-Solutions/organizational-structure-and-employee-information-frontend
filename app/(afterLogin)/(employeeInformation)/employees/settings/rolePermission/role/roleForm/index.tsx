@@ -290,7 +290,7 @@ const ListOfRoles = () => {
                 id="settings-role-name-label"
                 data-cy="settings-role-name-label"
               >
-                Name  
+                Name
               </p>
             }
             rules={[{ required: true, message: 'Enter group name!' }]}
@@ -780,10 +780,9 @@ const ListOfRoles = () => {
         data-cy="settings-role-modal"
         zIndex={10002}
         styles={{ body: { padding: 0 } }}
-
       >
         <Steps
-        responsive={false}
+          responsive={false}
           labelPlacement="vertical"
           current={currentStep}
           size="small"

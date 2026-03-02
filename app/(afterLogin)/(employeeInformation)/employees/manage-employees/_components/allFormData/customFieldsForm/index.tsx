@@ -22,7 +22,11 @@ const CustomFieldsForm = () => {
 
       <Row gutter={[16, 16]}>
         {/* Address */}
-        <Col data-cy="employee-manage-custom-fields-form-address" lg={12} xs={24}>
+        <Col
+          data-cy="employee-manage-custom-fields-form-address"
+          lg={12}
+          xs={24}
+        >
           <EmployeeAddressForm />
         </Col>
         <Col
