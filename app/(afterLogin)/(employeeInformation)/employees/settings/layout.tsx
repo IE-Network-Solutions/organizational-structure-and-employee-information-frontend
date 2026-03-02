@@ -201,7 +201,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
               id="org-settings-tabs"
             />
           </div>
-          <div className="px-5 " data-cy="settings-content-wrapper">
+          <div className="sm:px-5 px-1" data-cy="settings-content-wrapper">
             {children}
           </div>
         </div>
