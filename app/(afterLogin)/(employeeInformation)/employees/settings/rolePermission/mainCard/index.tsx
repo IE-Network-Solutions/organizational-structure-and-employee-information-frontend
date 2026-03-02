@@ -102,7 +102,7 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
               >
                 <span
                   data-cy="settings-role-permission-tab-icon"
-                  className={`shrink-0 flex items-center justify-center w-9 h-9 rounded-lg ${
+                  className={`shrink-0 flex items-center justify-center w-5 h-5 rounded-lg ${
                     isActive ? 'text-[#1E40AF]' : 'text-gray-500'
                   }`}
                 >

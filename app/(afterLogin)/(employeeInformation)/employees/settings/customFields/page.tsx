@@ -132,7 +132,7 @@ const CustomFieldsPage: React.FC = () => {
             >
               <p
                 data-cy="settings-custom-fields-field-types-description"
-                className="text-gray-500 text-xs mb-4"
+                className="text-gray-500 text-xs mb-4 px-2"
               >
                 Drag a field type to a form category to add a custom field.
               </p>
@@ -161,7 +161,7 @@ const CustomFieldsPage: React.FC = () => {
             >
               <p
                 data-cy="settings-custom-fields-form-categories-description"
-                className="text-gray-500 text-xs mb-4"
+                className="text-gray-500 text-xs mb-4 px-2"
               >
                 Drop a field type here to add it to the category.
               </p>

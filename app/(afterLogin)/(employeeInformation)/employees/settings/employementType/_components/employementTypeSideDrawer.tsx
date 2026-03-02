@@ -128,6 +128,7 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
       }
       width={500}
       data-cy={`employment-type-modal-${drawerSlug}`}
+      zIndex={10002}
     >
       <Form
         form={form}

@@ -15,11 +15,22 @@ const Positions: React.FC = () => {
       data-cy="settings-positions-container"
     >
       <Row gutter={[16, 16]}>
+      <Col
+        className="sm:hidden"
+       xl={12} lg={12} md={12} sm={24} xs={24}>
+          <div
+            id="settings-positions-create"
+            data-cy="settings-positions-create"
+          >
+            <CreatePosition data-cy="settings-positions-create-form" />
+          </div>
+        </Col>
         <Col xl={12} lg={12} md={12} sm={24} xs={24}>
           <Card
             className="border border-gray-200 rounded-lg"
             id="settings-positions-card"
             data-cy="settings-positions-card"
+            bodyStyle={{ padding: 0 }}
           >
             <div
               className="p-4"
@@ -46,7 +57,11 @@ const Positions: React.FC = () => {
             </div>
           </Card>
         </Col>
-        <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+        <Col 
+        xl={12} lg={12} md={12} sm={24} xs={24}
+        className="hidden sm:block"
+        data-cy="settings-positions-create-col"
+        >
           <div
             id="settings-positions-create"
             data-cy="settings-positions-create"
