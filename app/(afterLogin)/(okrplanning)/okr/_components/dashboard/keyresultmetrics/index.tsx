@@ -14,7 +14,9 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
 import { DownOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-
+import { Tooltip } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import RecentModesTimelineModal from '../../recentModesTimelineModal';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -42,6 +44,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     closeEditModal,
     openDeleteModal,
     closeDeleteModal,
+    openTimelineModal,
+    setOpenTimelineModal,
   } = useKeyResultMetricsStore();
 
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
