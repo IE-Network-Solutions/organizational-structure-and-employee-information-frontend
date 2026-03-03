@@ -47,9 +47,13 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
     if (fieldType !== 'multiple_choice' && fieldType !== 'checkbox') {
       return [];
     }
-    const values = optionValues?.filter((v) => v != null && String(v).trim() !== '') ?? [];
+    const values =
+      optionValues?.filter((v) => v != null && String(v).trim() !== '') ?? [];
     if (values.length < 2) return [];
-    return values.map((value) => ({ id: uuidv4(), value: String(value).trim() }));
+    return values.map((value) => ({
+      id: uuidv4(),
+      value: String(value).trim(),
+    }));
   };
 
   const handleSubmit = () => {
@@ -119,12 +123,14 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{ fieldMode: 'active' }}
+        data-cy="custom-field-form"
       >
         <Form.Item
           name="fieldName"
           label="Field Name"
           rules={[{ required: true, message: 'Please enter field name' }]}
           required
+          data-cy="custom-field-input-name"
         >
           <Input
             placeholder="Input"
@@ -140,6 +146,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             { required: true, message: 'Please select field validation' },
           ]}
           required
+          data-cy="custom-field-select-validation"
         >
           <Select
             placeholder="Select"
@@ -155,7 +162,13 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
           Select a field validation type.
         </p>
 
-        <Form.Item noStyle shouldUpdate={(prev, curr) => prev?.fieldValidation !== curr?.fieldValidation}>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prev, curr) =>
+            prev?.fieldValidation !== curr?.fieldValidation
+          }
+          data-cy="custom-field-options-container"
+        >
           {() => {
             const fieldType = form.getFieldValue('fieldValidation');
             const showOptions =
@@ -179,7 +192,10 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
                 data-cy="custom-field-options-list"
               >
                 {(fields, { add, remove }) => (
-                  <div className="mb-4" data-cy="custom-field-options-container">
+                  <div
+                    className="mb-4"
+                    data-cy="custom-field-options-container"
+                  >
                     <p
                       className="text-sm font-medium text-gray-700 mb-2"
                       data-cy="custom-field-options-title"
@@ -207,6 +223,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
                                 message: 'Please input an option!',
                               },
                             ]}
+                            data-cy="custom-field-input-option"
                           >
                             <Input
                               placeholder="Option"
@@ -242,9 +259,15 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-primary cursor-pointer hover:opacity-90"
                           data-cy="custom-field-button-add-option"
                         >
-                          <PlusOutlined className="text-white text-lg" />
+                          <PlusOutlined
+                            className="text-white text-lg"
+                            data-cy="custom-field-button-add-option-icon"
+                          />
                         </div>
-                        <p className="text-xs font-light text-gray-400 mt-1">
+                        <p
+                          className="text-xs font-light text-gray-400 mt-1"
+                          data-cy="custom-field-options-add-text"
+                        >
                           + Add options
                         </p>
                       </div>
@@ -256,7 +279,11 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
           }}
         </Form.Item>
 
-        <Form.Item name="fieldMode" label={null}>
+        <Form.Item
+          name="fieldMode"
+          label={null}
+          data-cy="custom-field-field-mode"
+        >
           <Radio.Group className="w-full" data-cy="custom-field-radio-group">
             <div className="mb-3" data-cy="custom-field-radio-active-wrapper">
               <Radio value="active" data-cy="custom-field-radio-active">

@@ -101,14 +101,11 @@ const CustomFieldsCard: React.FC = () => {
         customFields?.items.map((templateItem: any, index: number) => {
           const form = templateItem?.form;
           const formFirst = Array.isArray(form) ? form[0] : form;
-          const firstQuestion =
-            templateItem?.questions?.[0] ?? formFirst;
+          const firstQuestion = templateItem?.questions?.[0] ?? formFirst;
           const fieldType = firstQuestion?.fieldType;
           const typeLabel = fieldTypeToLabel(fieldType);
           const displayTitle =
-            templateItem?.title ??
-            firstQuestion?.question ??
-            'Untitled';
+            templateItem?.title ?? firstQuestion?.question ?? 'Untitled';
 
           const menuItems: MenuProps['items'] = [
             canUpdate() && {

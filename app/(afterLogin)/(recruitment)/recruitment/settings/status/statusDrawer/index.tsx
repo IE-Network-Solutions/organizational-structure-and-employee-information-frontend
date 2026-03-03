@@ -115,10 +115,7 @@ const RecruitmentStatusDrawer: React.FC = () => {
           />
         </Form.Item>
 
-        <Form.Item
-          label="Description"
-          name="description"
-        >
+        <Form.Item label="Description" name="description">
           <Input.TextArea
             id="talent-acquisition-status-textarea-description"
             data-cy="talent-acquisition-status-textarea-description"
