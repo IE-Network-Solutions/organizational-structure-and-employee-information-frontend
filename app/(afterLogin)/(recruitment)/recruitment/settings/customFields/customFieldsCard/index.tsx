@@ -15,14 +15,12 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 
 function fieldTypeToLabel(fieldType: string | undefined): string {
-  if (!fieldType) return 'Textfield';
+  if (!fieldType) return 'Short text';
   const map: Record<string, string> = {
-    short_text: 'Textfield',
-    paragraph: 'Text Area',
-    multiple_choice: 'Radio box',
+    short_text: 'Short text',
+    paragraph: 'Paragraph',
+    multiple_choice: 'Multiple choice',
     checkbox: 'Checkbox',
-    dropdown: 'Dropdown',
-    radio: 'Radio box',
   };
   return map[fieldType] ?? fieldType;
 }
@@ -100,15 +98,16 @@ const CustomFieldsCard: React.FC = () => {
   return (
     <>
       {customFields?.items && customFields?.items?.length > 0 ? (
-        customFields?.items.map((questions: any, index: number) => {
-          const fieldType =
-            questions?.form?.[0]?.fieldType ??
-            questions?.questions?.[0]?.fieldType;
+        customFields?.items.map((templateItem: any, index: number) => {
+          const form = templateItem?.form;
+          const formFirst = Array.isArray(form) ? form[0] : form;
+          const firstQuestion =
+            templateItem?.questions?.[0] ?? formFirst;
+          const fieldType = firstQuestion?.fieldType;
           const typeLabel = fieldTypeToLabel(fieldType);
           const displayTitle =
-            questions?.title ??
-            questions?.form?.[0]?.question ??
-            questions?.questions?.[0]?.question ??
+            templateItem?.title ??
+            firstQuestion?.question ??
             'Untitled';
 
           const menuItems: MenuProps['items'] = [
@@ -116,14 +115,14 @@ const CustomFieldsCard: React.FC = () => {
               key: 'edit',
               label: 'Edit',
               icon: <Pencil size={14} />,
-              onClick: () => handleCustomFieldsModalOpen(questions),
+              onClick: () => handleCustomFieldsModalOpen(templateItem),
             },
             canDelete() && {
               key: 'delete',
               label: 'Delete',
               icon: <Trash2 size={14} />,
               danger: true,
-              onClick: () => handleDeleteModalOpen(questions),
+              onClick: () => handleDeleteModalOpen(templateItem),
             },
           ].filter(Boolean) as MenuProps['items'];
 
@@ -131,7 +130,7 @@ const CustomFieldsCard: React.FC = () => {
 
           return (
             <div
-              key={questions?.id ?? index}
+              key={templateItem?.id ?? index}
               className="recruitment-settings-card relative p-4"
               data-cy="recruitment-recruitment-settings-customfields-customfieldscard-index-tsx-div-85"
             >
@@ -149,7 +148,7 @@ const CustomFieldsCard: React.FC = () => {
                     <button
                       type="button"
                       className="recruitment-settings-more-btn p-1 text-gray-500"
-                      data-cy={`talent-acquisition-custom-fields-card-menu-${questions?.id}`}
+                      data-cy={`talent-acquisition-custom-fields-card-menu-${templateItem?.id}`}
                       aria-label="More options"
                     >
                       <MoreHorizontal size={18} />
@@ -159,13 +158,13 @@ const CustomFieldsCard: React.FC = () => {
               )}
               <h3
                 className="recruitment-settings-question-title text-[16px] font-normal pr-8"
-                data-cy={`talent-acquisition-custom-fields-card-title-${questions?.id}`}
+                data-cy={`talent-acquisition-custom-fields-card-title-${templateItem?.id}`}
               >
                 {displayTitle}
               </h3>
               <span
                 className="recruitment-settings-card-type-pill inline-block mt-2 px-2.5 py-0.5 rounded"
-                data-cy={`talent-acquisition-custom-fields-card-type-${questions?.id}`}
+                data-cy={`talent-acquisition-custom-fields-card-type-${templateItem?.id}`}
               >
                 {typeLabel}
               </span>

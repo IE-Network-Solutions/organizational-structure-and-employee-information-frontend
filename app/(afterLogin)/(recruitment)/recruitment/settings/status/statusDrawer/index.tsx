@@ -34,7 +34,8 @@ const RecruitmentStatusDrawer: React.FC = () => {
     form.validateFields().then((values) => {
       const payload = {
         title: values?.title,
-        description: values?.description,
+        level: values?.level,
+        description: values?.description ?? undefined,
         ...(isEditMode ? { updatedBy: userId } : { createdBy: userId }),
       };
       if (isEditMode) {
@@ -117,8 +118,6 @@ const RecruitmentStatusDrawer: React.FC = () => {
         <Form.Item
           label="Description"
           name="description"
-          rules={[{ required: true, message: 'Please enter description' }]}
-          required
         >
           <Input.TextArea
             id="talent-acquisition-status-textarea-description"
