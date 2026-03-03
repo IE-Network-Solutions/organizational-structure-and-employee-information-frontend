@@ -167,7 +167,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
                 initialValue={[]}
                 rules={[
                   {
-                    validator: async (_, names) => {
+                    validator: async (rule, names) => {
                       if (!names || names.length < 2) {
                         return Promise.reject(
                           new Error('At least 2 options are required'),
@@ -176,19 +176,27 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
                     },
                   },
                 ]}
+                data-cy="custom-field-options-list"
               >
                 {(fields, { add, remove }) => (
-                  <div className="mb-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">
+                  <div className="mb-4" data-cy="custom-field-options-container">
+                    <p
+                      className="text-sm font-medium text-gray-700 mb-2"
+                      data-cy="custom-field-options-title"
+                    >
                       Options
                     </p>
                     {fields.map((field) => (
                       <Form.Item
+                        data-cy={`custom-field-option-item-${field.key}`}
                         key={field.key}
                         required={false}
                         className="mb-2"
                       >
-                        <div className="flex items-center gap-3">
+                        <div
+                          className="flex items-center gap-3"
+                          data-cy={`custom-field-option-row-${field.key}`}
+                        >
                           {renderOptionInput(fieldType)}
                           <Form.Item
                             {...field}
@@ -216,7 +224,10 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
                         </div>
                       </Form.Item>
                     ))}
-                    <Form.Item className="mb-0">
+                    <Form.Item
+                      className="mb-0"
+                      data-cy="custom-field-options-add-form-item"
+                    >
                       <div
                         className="flex flex-col items-center justify-center py-2"
                         data-cy="custom-field-options-add-wrapper"
