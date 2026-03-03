@@ -35,7 +35,6 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   objectiveUserId,
   isInActiveSession = true,
 }) => {
-<<<<<<< PPII-2051-okr-page
   const {
     editModalKeyResultId,
     deleteModalKeyResultId,
@@ -44,12 +43,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     openDeleteModal,
     closeDeleteModal,
   } = useKeyResultMetricsStore();
-=======
-  const [open, setOpen] = useState(false);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [openTimelineModal, setOpenTimelineModal] = useState(false);
-  const queryClient = useQueryClient();
->>>>>>> develop-redesign-branch
+
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
 
   const isEditModalOpen = editModalKeyResultId === String(keyResult?.id ?? '');
