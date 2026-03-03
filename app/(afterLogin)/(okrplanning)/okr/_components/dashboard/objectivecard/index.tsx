@@ -299,7 +299,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     keyResult={keyResult}
                     myOkr={myOkr}
                     updatedKeyResults={updatedKeyResults}
-                    objectiveId={objective?.id}
+                    objectiveId={objective?.id ?? ''}
                     objectiveUserId={objective?.userId}
                     isInActiveSession={isInActiveSession}
                   />
