@@ -1,6 +1,7 @@
 
 import { Dropdown, Menu, Progress, Select } from 'antd';
 import { FC } from 'react';
+import { useQueryClient } from 'react-query';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore, useKeyResultMetricsStore } from '@/store/uistate/features/okrplanning/okr';
@@ -47,6 +48,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     openTimelineModal,
     setOpenTimelineModal,
   } = useKeyResultMetricsStore();
+
+  const queryClient = useQueryClient();
 
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
 
