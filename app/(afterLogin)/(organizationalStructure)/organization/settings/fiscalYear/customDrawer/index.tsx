@@ -1,3 +1,4 @@
+import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   useCreateFiscalYear,
   useUpdateFiscalYear,
@@ -25,8 +26,6 @@ interface FiscalYearDrawerProps {
   handleNextStep?: () => void;
 }
 const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
-  const { isMobile } = useIsMobile();
-  const queryClient = useQueryClient();
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
   const [form3] = Form.useForm();
