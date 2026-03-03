@@ -300,9 +300,10 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                               .join(' ')}
                           </p>
                           <p className="text-[11px] sm:text-xs text-gray-500" data-cy={`okr-objective-basic-assignee-dept-${objective?.id}`}>
-                            {objective.user?.employeeJobInformation?.[0]?.department?.name ||
-                              objective.user?.employeeJobInformation?.[0]?.position?.name ||
-                              '-'}
+                            {(() => {
+                              const job = objective.user?.employeeJobInformation?.[0] as { department?: { name: string }; position?: { name: string } } | undefined;
+                              return job?.department?.name || job?.position?.name || '-';
+                            })()}
                           </p>
                         </div>
                       </div>

@@ -9,6 +9,8 @@ export interface OKRProps {
 export interface JobInformation {
   id: string;
   departmentId: string;
+  department?: { name: string };
+  position?: { name: string };
 }
 export interface User {
   firstName: string;
