@@ -132,7 +132,6 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     name="title"
                     label={<KeyResultFieldLabel label="Key Result" tooltip={KEY_RESULT_TOOLTIP} />}
                     rules={[{ required: true, message: 'Please enter the Key Result name' }]}
-                    requiredMark={false}
                     id={`key-result-title-${index}`}
                     data-cy={`okr-percentage-desktop-title-item-${index}`}
                   >
@@ -151,7 +150,6 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     name="weight"
                     label={<KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />}
                     rules={[{ required: true, message: 'Weight required' }]}
-                    requiredMark={false}
                     id={`key-result-weight-${index}`}
                     data-cy={`okr-percentage-desktop-weight-item-${index}`}
                   >
@@ -173,7 +171,6 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     name={`dead_line_${index}`}
                     label={<KeyResultFieldLabel label="Deadline" tooltip={DEADLINE_TOOLTIP} />}
                     rules={[{ required: true, message: 'Deadline required' }]}
-                    requiredMark={false}
                     id={`key-result-deadline-${index}`}
                     data-cy={`okr-percentage-desktop-deadline-item-${index}`}
                   >
@@ -216,7 +213,6 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     name="initialValue"
                     label={<KeyResultFieldLabel label="Initial Value" tooltip="Starting percentage value" />}
                     rules={[{ required: true, message: 'Please enter the initial value' }]}
-                    requiredMark={false}
                     data-cy={`okr-percentage-desktop-initial-item-${index}`}
                   >
                     <InputNumber
@@ -240,7 +236,6 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     name="targetValue"
                     label={<KeyResultFieldLabel label="Target Value" tooltip="Target percentage value" />}
                     rules={[{ required: true, message: 'Please enter the target value' }]}
-                    requiredMark={false}
                     data-cy={`okr-percentage-desktop-target-item-${index}`}
                   >
                     <InputNumber

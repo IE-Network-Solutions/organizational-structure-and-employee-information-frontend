@@ -72,7 +72,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
         layout="vertical"
         initialValues={{
           ...keyItem,
-          weight: keyItem?.weight != null && keyItem?.weight !== '' ? Number(keyItem.weight) : keyItem?.weight,
+          weight: keyItem?.weight != null ? Number(keyItem.weight) : keyItem?.weight,
           [`dead_line_${index}`]: keyItem?.deadline ? dayjs(keyItem.deadline) : undefined,
         }}
         requiredMark={false}
@@ -233,7 +233,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                       suffix="%"
                       placeholder="Input"
                       aria-label="Weight"
-                      value={keyItem?.weight != null && keyItem?.weight !== '' ? Number(keyItem.weight) : keyItem?.weight}
+                      value={keyItem?.weight != null ? Number(keyItem.weight) : keyItem?.weight}
                       onChange={(value) => updateKeyResult(index, 'weight', value)}
                       disabled={disableWeightEdit}
                     />
@@ -301,7 +301,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                     // Sync form values with current keyItem data
                     form.setFieldsValue({
                       title: keyItem.title,
-                      weight: keyItem?.weight != null && keyItem?.weight !== '' ? Number(keyItem.weight) : keyItem?.weight,
+                      weight: keyItem?.weight != null ? Number(keyItem.weight) : keyItem?.weight,
                       [`dead_line_${index}`]: keyItem.deadline ? dayjs(keyItem.deadline) : null,
                     });
                   }}

@@ -136,7 +136,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     name={`key_name_${index}`}
                     label={<KeyResultFieldLabel label="Key Result" tooltip={KEY_RESULT_TOOLTIP} />}
                     rules={[{ required: true, message: 'Please enter the Key Result name' }]}
-                    requiredMark={false}
                     id={`key-result-name-${index}`}
                     data-cy={`okr-currency-desktop-title-item-${index}`}
                   >
@@ -155,7 +154,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     name={`weight_${index}`}
                     label={<KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />}
                     rules={[{ required: true, message: 'Weight required' }]}
-                    requiredMark={false}
                     id={`weight-input-${index}`}
                     data-cy={`okr-currency-desktop-weight-item-${index}`}
                   >
@@ -177,7 +175,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     name={`dead_line_${index}`}
                     label={<KeyResultFieldLabel label="Deadline" tooltip={DEADLINE_TOOLTIP} />}
                     rules={[{ required: true, message: 'Deadline required' }]}
-                    requiredMark={false}
                     id={`deadline-${index}`}
                     data-cy={`okr-currency-desktop-deadline-item-${index}`}
                   >
@@ -220,7 +217,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     name="initialValue"
                     label={<KeyResultFieldLabel label="Initial Value" tooltip="Starting currency value" />}
                     rules={[{ required: true, message: 'Please enter the initial value' }]}
-                    requiredMark={false}
                     data-cy={`okr-currency-desktop-initial-item-${index}`}
                   >
                     <InputNumber
@@ -243,7 +239,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     name="targetValue"
                     label={<KeyResultFieldLabel label="Target Value" tooltip="Target currency value" />}
                     rules={[{ required: true, message: 'Please enter the target value' }]}
-                    requiredMark={false}
                     data-cy={`okr-currency-desktop-target-item-${index}`}
                   >
                     <InputNumber

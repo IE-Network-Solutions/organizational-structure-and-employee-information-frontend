@@ -136,7 +136,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                     name="title"
                     label={<KeyResultFieldLabel label="Key Result" tooltip={KEY_RESULT_TOOLTIP} />}
                     rules={[{ required: true, message: 'Please enter the Key Result name' }]}
-                    requiredMark={false}
                     id={`key-result-title-${index}`}
                     data-cy={`okr-numeric-desktop-title-item-${index}`}
                   >
@@ -155,7 +154,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                     name="weight"
                     label={<KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />}
                     rules={[{ required: true, message: 'Weight required' }]}
-                    requiredMark={false}
                     id={`weight-input-${index}`}
                     data-cy={`okr-numeric-desktop-weight-item-${index}`}
                   >
@@ -177,7 +175,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                     name={`dead_line_${index}`}
                     label={<KeyResultFieldLabel label="Deadline" tooltip={DEADLINE_TOOLTIP} />}
                     rules={[{ required: true, message: 'Deadline required' }]}
-                    requiredMark={false}
                     id={`deadline-picker-${index}`}
                     data-cy={`okr-numeric-desktop-deadline-item-${index}`}
                   >
@@ -220,7 +217,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                     name="initialValue"
                     label={<KeyResultFieldLabel label="Initial Value" tooltip="Starting numeric value" />}
                     rules={[{ required: true, message: 'Please enter the initial value' }]}
-                    requiredMark={false}
                     data-cy={`okr-numeric-desktop-initial-item-${index}`}
                   >
                     <InputNumber
@@ -242,7 +238,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                     name="targetValue"
                     label={<KeyResultFieldLabel label="Target Value" tooltip="Target numeric value" />}
                     rules={[{ required: true, message: 'Please enter the target value' }]}
-                    requiredMark={false}
                     data-cy={`okr-numeric-desktop-target-item-${index}`}
                   >
                     <InputNumber
