@@ -13,13 +13,8 @@ import {
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
-<<<<<<< PPII-2051-okr-page
 import { DownOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-=======
-import { DownOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import RecentModesTimelineModal from '../../recentModesTimelineModal';
-import { useQueryClient } from 'react-query';
->>>>>>> develop-redesign-branch
+
 
 interface KPIMetricsProps {
   keyResult: any;
