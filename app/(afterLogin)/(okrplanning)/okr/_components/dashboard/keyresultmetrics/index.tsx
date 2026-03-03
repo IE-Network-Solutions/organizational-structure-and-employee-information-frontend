@@ -1,10 +1,6 @@
-<<<<<<< PPII-2051-okr-page
+
 import { Dropdown, Menu, Progress, Select } from 'antd';
 import { FC } from 'react';
-=======
-import { Dropdown, Menu, Progress, Select, Tooltip } from 'antd';
-import { FC, useState } from 'react';
->>>>>>> develop-redesign-branch
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore, useKeyResultMetricsStore } from '@/store/uistate/features/okrplanning/okr';
