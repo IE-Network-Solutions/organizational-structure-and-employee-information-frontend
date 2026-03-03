@@ -176,18 +176,19 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           trigger={['click']}
                           placement="bottomRight"
                           overlayClassName="okr-actions-dropdown"
+                          data-cy={`okr-objective-menu-dropdown-mobile-${objective?.id}`}
                         >
                           <button
                             type="button"
                             className="sm:hidden text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 flex items-center justify-center flex-shrink-0"
                             data-cy={`okr-objective-menu-button-${objective?.id}`}
                           >
-                            <EllipsisOutlined />
+                            <EllipsisOutlined data-cy={`okr-objective-menu-icon-mobile-${objective?.id}`} />
                           </button>
                         </Dropdown>
                       )}
                     </div>
-                    <div className="flex items-center text-sm text-gray-500 pl-10">
+                    <div className="flex items-center text-sm text-gray-500 pl-10" data-cy={`okr-objective-card-days-left-${objective?.id}`}>
                       <PiCalendarBold className="mr-2 text-lg text-gray-400" />
                       {objective?.daysLeft} Days Left
                     </div>

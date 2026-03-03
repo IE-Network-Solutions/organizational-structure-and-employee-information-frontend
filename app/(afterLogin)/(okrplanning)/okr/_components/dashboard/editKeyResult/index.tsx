@@ -312,6 +312,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
                   data-cy="okr-edit-key-result-form-inline"
                   keyItem={normalizedKeyItem}
                   index={0}
+                  // eslint-disable-next-line 
                   updateKeyResult={(_index, field, value) =>
                     handleSingleKeyResultChange(value, field as string)
                   }

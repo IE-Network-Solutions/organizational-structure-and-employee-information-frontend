@@ -825,8 +825,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               className="h-11 mb-10 w-1/5"
               name="ObjectiveDeadline"
               label={
-                <span className="text-sm font-medium text-gray-700">
-                  Deadline <span className="text-red-500">*</span>{' '}
+                <span className="text-sm font-medium text-gray-700" data-cy="okr-drawer-desktop-deadline-label">
+                  Deadline <span className="text-red-500" data-cy="okr-drawer-desktop-deadline-required">*</span>{' '}
                   <Tooltip title="Set the objective deadline">
                     <QuestionCircleOutlined className="text-gray-400 cursor-help" />
                   </Tooltip>
@@ -940,17 +940,19 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
           {/* Basic mode: inline form at top only when ADDING a new KR (not when editing) */}
           {isBasic && showInlineKeyResultForm && editingKeyResultIndex == null && (
-            <Form
-              form={krForm}
-              layout="vertical"
-              requiredMark={false}
-              className="mt-5"
-              data-cy="okr-drawer-inline-key-result-form"
-            >
-              <div data-cy="okr-drawer-inline-key-result-form-content">
-                {renderBasicKrFormContent()}
-              </div>
-            </Form>
+            <div data-cy="okr-drawer-inline-key-result-form-wrapper">
+              <Form
+                form={krForm}
+                layout="vertical"
+                requiredMark={false}
+                className="mt-5"
+                data-cy="okr-drawer-inline-key-result-form"
+              >
+                <div data-cy="okr-drawer-inline-key-result-form-content">
+                  {renderBasicKrFormContent()}
+                </div>
+              </Form>
+            </div>
           )}
 
           {/* Metric type pill selector – only for advanced; basic uses Achieve-only */}

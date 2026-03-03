@@ -158,6 +158,7 @@ export interface OKRState {
     field: string,
   ) => void;
   updateKeyResult: (index: number, field: keyof KeyResult, value: any) => void;
+  updateKeyResultFields: (index: number, fields: Partial<KeyResult>) => void;
   removeKeyResult: (index: number) => void;
   removeKeyResultValue: (index: number) => void;
   searchObjParams: SearchObjParams;

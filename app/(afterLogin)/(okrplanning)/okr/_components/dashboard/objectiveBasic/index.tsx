@@ -224,7 +224,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4" data-cy={`okr-objective-basic-title-actions-row-${objective?.id}`}>
                   <div
                     className="max-w-3xl min-w-0 order-1"
                     data-cy={`okr-objective-basic-title-wrapper-${objective?.id}`}
@@ -279,7 +279,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-start sm:items-center justify-end gap-3 flex-shrink-0 order-2 sm:ml-auto">
+                  <div className="flex items-start sm:items-center justify-end gap-3 flex-shrink-0 order-2 sm:ml-auto" data-cy={`okr-objective-basic-actions-cell-${objective?.id}`}>
                     {!myOkr && objective?.user && (
                       <div
                         className="flex items-center gap-3"
