@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Switch } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useUpdateOkrSetting } from '@/store/server/features/okrplanning/okr-setting/mutations';
 import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
 import OkrModeConfirmationModal from './_components/OkrModeConfirmationModal';
@@ -11,6 +12,7 @@ import OkrModeEffectsModal from './_components/OkrModeEffectsModal';
 
 const OkrTypePage = () => {
   const { okrMode, refetch } = useOkrSetting();
+  const setStoreOkrMode = useOKRStore((state) => state.setOkrMode);
   const { data: settingData, refetch: refetchSetting } = useGetOkrSetting();
   const { mutate: updateOkrSetting, isLoading: isUpdating } =
     useUpdateOkrSetting();
@@ -73,6 +75,7 @@ const OkrTypePage = () => {
         onSuccess: () => {
           setConfirmationModalOpen(false);
           setEffectsModalOpen(true);
+          setStoreOkrMode(targetMode); // Update store immediately so navbar and other UI reflect Basic/Advanced
           refetch();
           refetchSetting();
         },

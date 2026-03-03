@@ -82,10 +82,54 @@ const updateComment = async (
  * This hook handles the mutation to add a new post. On successful mutation,
  * it invalidates the "posts" query to refetch the latest data.
  */
+/** Build comment object for cache from API response and/or form variables */
+function toCommentForCache(
+  apiResponse: any,
+  variables: { reportId?: string; comment?: string; commentedBy?: string },
+) {
+  const now = new Date().toISOString();
+  return {
+    id: apiResponse?.id ?? `temp-${Date.now()}`,
+    createdAt: apiResponse?.createdAt ?? now,
+    updatedAt: apiResponse?.updatedAt ?? now,
+    deletedAt: apiResponse?.deletedAt ?? null,
+    createdBy: apiResponse?.createdBy ?? variables.commentedBy ?? '',
+    updatedBy: apiResponse?.updatedBy ?? null,
+    commentedBy: apiResponse?.commentedBy ?? variables.commentedBy ?? '',
+    comment: apiResponse?.comment ?? variables.comment ?? '',
+    tenantId: apiResponse?.tenantId ?? '',
+  };
+}
+
+function updateOkrReportsCaches(
+  queryClient: ReturnType<typeof useQueryClient>,
+  updater: (data: { items?: any[] }) => { items?: any[] } | undefined,
+) {
+  const queries = queryClient.getQueriesData<{ items?: any[] }>(['okrReports']);
+  queries.forEach(([queryKey, data]) => {
+    if (!data) return;
+    const updated = updater(data);
+    if (updated) queryClient.setQueryData(queryKey, updated);
+  });
+}
+
 export const useAddReportComment = () => {
   const queryClient = useQueryClient();
   return useMutation(addComment, {
-    onSuccess: () => {
+    onSuccess: (apiResponse: any, variables: any) => {
+      const reportId = variables?.reportId;
+      const newComment = toCommentForCache(apiResponse, variables ?? {});
+
+      updateOkrReportsCaches(queryClient, (data) => {
+        if (!data?.items || !Array.isArray(data.items)) return undefined;
+        const updatedItems = data.items.map((report: any) =>
+          String(report.id) === String(reportId)
+            ? { ...report, comments: [...(report.comments || []), newComment] }
+            : report,
+        );
+        return { ...data, items: updatedItems };
+      });
+
       queryClient.invalidateQueries('okrReports');
       queryClient.invalidateQueries('reportComments');
       NotificationMessage.success({
@@ -108,10 +152,20 @@ export const useAddReportComment = () => {
 export const useDeleteReportComment = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteComment, {
-    onSuccess: () => {
+    onSuccess: (responseData: any, commentId: string) => {
+      updateOkrReportsCaches(queryClient, (data) => {
+        if (!data?.items || !Array.isArray(data.items)) return undefined;
+        const updatedItems = data.items.map((report: any) => {
+          const comments = (report.comments || []).filter(
+            (c: any) => String(c.id) !== String(commentId),
+          );
+          return { ...report, comments };
+        });
+        return { ...data, items: updatedItems };
+      });
+
       queryClient.invalidateQueries('okrReports');
       queryClient.invalidateQueries('reportComments');
-
       NotificationMessage.success({
         message: 'comment Successfully deleted ',
         description: 'okr report comment deleted successfully',
@@ -126,10 +180,34 @@ export const useUpdateReportComment = () => {
     ({ id, updatedComment }: { id: string; updatedComment: CommentsData }) =>
       updateComment(id, updatedComment),
     {
-      onSuccess: () => {
+      onSuccess: (
+        responseData: any,
+        variables: { id: string; updatedComment: CommentsData },
+      ) => {
+        const commentId = variables.id;
+        const newText = variables.updatedComment?.comment;
+
+        updateOkrReportsCaches(queryClient, (data) => {
+          if (!data?.items || !Array.isArray(data.items)) return undefined;
+          const updatedItems = data.items.map((report: any) => {
+            const comments = report.comments || [];
+            const idx = comments.findIndex(
+              (c: any) => String(c.id) === String(commentId),
+            );
+            if (idx === -1) return report;
+            const updatedComments = [...comments];
+            updatedComments[idx] = {
+              ...updatedComments[idx],
+              comment: newText ?? updatedComments[idx].comment,
+              updatedAt: new Date().toISOString(),
+            };
+            return { ...report, comments: updatedComments };
+          });
+          return { ...data, items: updatedItems };
+        });
+
         queryClient.invalidateQueries('okrReports');
         queryClient.invalidateQueries('reportComments');
-
         NotificationMessage.success({
           message: 'comment Successfully updated ',
           description: 'okr report comment updated successfully',

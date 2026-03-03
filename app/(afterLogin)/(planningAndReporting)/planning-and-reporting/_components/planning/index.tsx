@@ -526,9 +526,7 @@ function Planning() {
                       isDataFromActiveSession(originalDataItem?.createdAt)
                     }
                     isApprovalLoading={isApprovalLoading}
-                    dateLabel={getDateLabel(
-                      originalDataItem?.createdAt ?? '',
-                    )}
+                    dateLabel={getDateLabel(originalDataItem?.createdAt ?? '')}
                   />
                 );
               })}

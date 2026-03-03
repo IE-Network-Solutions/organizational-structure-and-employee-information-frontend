@@ -39,6 +39,7 @@ import { useGetActiveFiscalYearsData } from '@/store/server/features/organizatio
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
 import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import dayjs from 'dayjs';
@@ -72,6 +73,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
+  const okrMode = useOKRStore((state) => state.okrMode);
   const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
@@ -857,6 +859,25 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
+  // Planning and Reporting link: Basic OKR -> /basic-okr/planning-and-reporting, Advanced -> /planning-and-reporting
+  const menuTreeData = React.useMemo(() => {
+    const planningKey =
+      okrMode === 'Basic'
+        ? '/basic-okr/planning-and-reporting'
+        : '/planning-and-reporting';
+    return treeData.map((item) => {
+      if (item.key !== '/okr-menu' || !item.children) return item;
+      return {
+        ...item,
+        children: item.children.map((child) =>
+          child.key === '/planning-and-reporting'
+            ? { ...child, key: planningKey }
+            : child,
+        ),
+      };
+    });
+  }, [okrMode]);
+
   const { data: departments, isLoading: departmentsLoading } =
     useGetDepartments();
   const { data: employeeData, isLoading: employeeDataLoading } =
@@ -957,7 +978,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setExpandedKeys([]);
       return;
     }
-    const parentKey = findParentMenuKey(pathname, treeData);
+    const parentKey = findParentMenuKey(pathname, menuTreeData);
     if (parentKey) {
       setExpandedKeys((prev) => {
         if (prev.length !== 1 || prev[0] !== parentKey) {
@@ -981,7 +1002,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return;
     }
 
-    const parentKey = findParentMenuKey(pathname, treeData);
+    const parentKey = findParentMenuKey(pathname, menuTreeData);
     if (parentKey && expandedKeys.length === 0) {
       setExpandedKeys([parentKey]);
     }
@@ -1075,7 +1096,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     } catch (error) {}
   };
 
-  const filteredMenuItems = treeData
+  const filteredMenuItems = menuTreeData
     .map((item) => {
       const hasAccess = AccessGuard.checkAccess({
         permissions: item.permissions,
