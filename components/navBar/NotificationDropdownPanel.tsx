@@ -15,6 +15,7 @@ import {
 } from '@/store/server/features/notification/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
+import { useCanAccessRoute } from '@/utils/routePermissions';
 import {
   EyeOutlined,
   FileTextOutlined,
@@ -70,12 +71,14 @@ function NotificationItem({
   onMarkAsRead,
   onClick,
   formatTime,
+  hasAccess,
 }: {
   item: NotificationType;
   unread: boolean;
   onMarkAsRead: (e: React.MouseEvent, id: string) => void;
   onClick: (item: NotificationType) => void;
   formatTime: (dateStr: string) => string;
+  hasAccess: boolean;
 }) {
   const IconComponent = getNotificationIcon(item);
   const themeClasses = getNotificationThemeClasses(item);
@@ -83,8 +86,10 @@ function NotificationItem({
       <div
         id={`notification-item-${toSlug(item.id)}`}
         data-cy={`notification-item-${toSlug(item.id)}`}
-      onClick={() => onClick(item)}
-      className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors border-l-2 ${themeClasses.border} ${themeClasses.hover} ${unread ? 'opacity-100' : 'opacity-70'}`}
+      onClick={() => hasAccess && onClick(item)}
+      role={hasAccess ? 'button' : undefined}
+      title={hasAccess ? undefined : "You don't have permission to view this page"}
+      className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-l-2 ${themeClasses.border} ${unread ? 'opacity-100' : 'opacity-70'} ${hasAccess ? `cursor-pointer ${themeClasses.hover}` : 'cursor-not-allowed opacity-80'}`}
     >
       <div className="flex-shrink-0 relative mt-0.5" data-cy={`notification-item-avatar-wrapper-${toSlug(item.id)}`}>
         <div
@@ -153,9 +158,16 @@ function NotificationItem({
   );
 }
 
+function getNotificationPath(item: NotificationType): string {
+  const routeStr =
+    item.route?.trim() || `/employees/notification?id=${item.id}`;
+  return routeStr.startsWith('/') ? routeStr : `/${routeStr}`;
+}
+
 export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } = {}) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const canAccessRoute = useCanAccessRoute();
   const userId = useAuthenticationStore.getState().userId ?? '';
   const tenantId = useAuthenticationStore.getState().tenantId ?? undefined;
   const [filter, setFilter] = useState<FilterType>('all');
@@ -280,9 +292,8 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
   };
 
   const handleItemClick = (item: NotificationType) => {
-    const routeStr =
-      item.route?.trim() || `/employees/notification?id=${item.id}`;
-    const path = routeStr.startsWith('/') ? routeStr : `/${routeStr}`;
+    const path = getNotificationPath(item);
+    if (!canAccessRoute(path)) return;
     if (isUnread(item)) markAsRead(item.id);
     router.push(path);
   };
@@ -454,6 +465,7 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
                         onMarkAsRead={handleMarkAsRead}
                         onClick={handleItemClick}
                         formatTime={formatTime}
+                        hasAccess={canAccessRoute(getNotificationPath(item))}
                       />
                     ))}
                   </div>
@@ -473,6 +485,7 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
                         onMarkAsRead={handleMarkAsRead}
                         onClick={handleItemClick}
                         formatTime={formatTime}
+                        hasAccess={canAccessRoute(getNotificationPath(item))}
                       />
                     ))}
                   </div>
@@ -489,6 +502,7 @@ export function NotificationDropdownPanel({ open: isOpen }: { open?: boolean } =
                   onMarkAsRead={handleMarkAsRead}
                   onClick={handleItemClick}
                   formatTime={formatTime}
+                  hasAccess={canAccessRoute(getNotificationPath(item))}
                 />
               ))}
             </div>
