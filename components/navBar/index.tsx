@@ -72,7 +72,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
-  const { userData } = useAuthenticationStore();
   const okrMode = useOKRStore((state) => state.okrMode);
   const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
