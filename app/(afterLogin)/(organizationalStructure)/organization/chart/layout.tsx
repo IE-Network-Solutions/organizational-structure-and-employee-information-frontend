@@ -25,7 +25,9 @@ export const useChartRef = () => {
 export const useChartExportActionsRef = () => {
   const context = useContext(ChartRefContext);
   if (!context) {
-    throw new Error('useChartExportActionsRef must be used within a ChartRefProvider');
+    throw new Error(
+      'useChartExportActionsRef must be used within a ChartRefProvider',
+    );
   }
   return context.exportActionsRef;
 };

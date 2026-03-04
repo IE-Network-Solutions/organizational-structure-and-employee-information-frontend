@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useChartRef, useChartExportActionsRef } from '../../layout';
 import { useReactFlowExport } from '@/hooks/export';
 

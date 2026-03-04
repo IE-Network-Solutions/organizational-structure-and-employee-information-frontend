@@ -85,7 +85,9 @@ interface DepartmentState {
   setUsersModalDepartmentId: (id: string | null) => void;
   setUsersModalAnchor: (anchor: { top: number; left: number } | null) => void;
   setUsersModalFlowPosition: (pos: { x: number; y: number } | null) => void;
-  setUsersModalScreenPosition: (pos: { top: number; left: number } | null) => void;
+  setUsersModalScreenPosition: (
+    pos: { top: number; left: number } | null,
+  ) => void;
   /** Delete department: two-step modal (choose shift-to → confirm) */
   deleteModalOpen: boolean;
   deleteStep: 1 | 2;

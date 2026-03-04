@@ -273,7 +273,9 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
                 toggleCollapse(data.id);
               } else {
                 const buttonEl = e.currentTarget as HTMLElement;
-                const cardEl = buttonEl.closest('.react-flow__node') as HTMLElement | null;
+                const cardEl = buttonEl.closest(
+                  '.react-flow__node',
+                ) as HTMLElement | null;
                 const verticalOffset = 0;
                 if (cardEl) {
                   const rect = cardEl.getBoundingClientRect();

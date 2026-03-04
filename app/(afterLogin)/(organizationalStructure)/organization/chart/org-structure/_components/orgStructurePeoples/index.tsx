@@ -21,7 +21,6 @@ import {
   VerticalEdge,
 } from './nodes';
 import { buildFlowFromTree } from './layout';
-import type { OrgNodeData } from './layout';
 import { useChartRef } from '../../../layout';
 import { OrgChartActionsProvider } from './OrgChartActionsContext';
 import {

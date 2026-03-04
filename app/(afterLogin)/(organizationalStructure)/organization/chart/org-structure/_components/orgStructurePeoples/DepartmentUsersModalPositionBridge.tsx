@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useReactFlow, useViewport } from '@xyflow/react';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 

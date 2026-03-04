@@ -184,10 +184,7 @@ export function DeleteDepartmentModal() {
       styles={centeredModalStyles}
       footer={
         <Space>
-          <Button
-            className="h-9 sm:h-10 px-4 sm:px-5"
-            onClick={handleClose}
-          >
+          <Button className="h-9 sm:h-10 px-4 sm:px-5" onClick={handleClose}>
             Cancel
           </Button>
           {departmentTobeShiftedId ? (

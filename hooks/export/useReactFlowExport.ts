@@ -67,9 +67,7 @@ export function useReactFlowExport(
           requestAnimationFrame(() => resolve());
         });
       });
-    } catch (err) {
-      console.error('[useReactFlowExport] exportFullView:', err);
-    }
+    } catch (err) {}
   }, [fitView]);
 
   const downloadPNG = useCallback(async (): Promise<void> => {
@@ -104,7 +102,6 @@ export function useReactFlowExport(
       document.body.removeChild(link);
       message.success('PNG download started.');
     } catch (err) {
-      console.error('[useReactFlowExport] downloadPNG:', err);
       message.error('Export failed. Please try again.');
     } finally {
       setLoading(false);
@@ -165,7 +162,6 @@ export function useReactFlowExport(
       pdf.save(PDF_FILENAME);
       message.success('PDF download started.');
     } catch (err) {
-      console.error('[useReactFlowExport] downloadPDF:', err);
       message.error('Export failed. Please try again.');
     } finally {
       setLoading(false);

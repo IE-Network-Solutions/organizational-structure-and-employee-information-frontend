@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useMemo, useRef, useEffect, useCallback, useState } from 'react';
+import React, {
+  useMemo,
+  useRef,
+  useEffect,
+  useCallback,
+  useState,
+} from 'react';
 import { Avatar, Typography, Spin } from 'antd';
 import { User } from 'lucide-react';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
@@ -95,7 +101,8 @@ export function DepartmentUsersModal() {
 
   /** Use screen position (sticks to node when chart moves) when set, else initial anchor */
   const position =
-    usersModalScreenPosition ?? (usersModalOpen && usersModalAnchor ? usersModalAnchor : null);
+    usersModalScreenPosition ??
+    (usersModalOpen && usersModalAnchor ? usersModalAnchor : null);
   const useAnchor = !!position;
   const cardRef = useRef<HTMLDivElement>(null);
   const { isMobile } = useIsMobile();
@@ -118,14 +125,25 @@ export function DepartmentUsersModal() {
     }
     const left = position.left + 4;
     const top = position.top;
-    const maxLeft = typeof window !== 'undefined' ? window.innerWidth - modalWidth - margin : 400;
+    const maxLeft =
+      typeof window !== 'undefined'
+        ? window.innerWidth - modalWidth - margin
+        : 400;
     const maxTop =
-      typeof window !== 'undefined' ? window.innerHeight - modalHeightEstimate - margin : 400;
+      typeof window !== 'undefined'
+        ? window.innerHeight - modalHeightEstimate - margin
+        : 400;
     setClampedPosition({
       left: Math.max(margin, Math.min(left, maxLeft)),
       top: Math.max(margin, Math.min(top, maxTop)),
     });
-  }, [position?.left, position?.top, useAnchor, modalWidth, modalHeightEstimate]);
+  }, [
+    position?.left,
+    position?.top,
+    useAnchor,
+    modalWidth,
+    modalHeightEstimate,
+  ]);
 
   useEffect(() => {
     if (!useAnchor) return;
@@ -142,8 +160,13 @@ export function DepartmentUsersModal() {
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [useAnchor, position?.left, position?.top, modalWidth, modalHeightEstimate]);
-
+  }, [
+    useAnchor,
+    position?.left,
+    position?.top,
+    modalWidth,
+    modalHeightEstimate,
+  ]);
 
   /** Close when clicking outside the card (no full-viewport overlay, so zoomed chart stays visible) */
   useEffect(() => {
@@ -159,7 +182,9 @@ export function DepartmentUsersModal() {
 
   /** Accent bar uses department color (from node borderColor) or fallback */
   const departmentNode = fullNodes.find(
-    (n) => n.id === usersModalDepartmentId && (n as { type?: string }).type === 'orgNode',
+    (n) =>
+      n.id === usersModalDepartmentId &&
+      (n as { type?: string }).type === 'orgNode',
   );
   const accentColor =
     (departmentNode as { data?: { borderColor?: string } } | undefined)?.data
@@ -258,10 +283,14 @@ export function DepartmentUsersModal() {
       className={`flex flex-col w-full fixed z-[1000] shadow-lg ${isMobile ? 'max-w-[140px]' : 'max-w-[180px]'}`}
       style={{
         top: useAnchor
-          ? (clampedPosition ? clampedPosition.top : position!.top)
+          ? clampedPosition
+            ? clampedPosition.top
+            : position!.top
           : '50%',
         left: useAnchor
-          ? (clampedPosition ? clampedPosition.left : position!.left + 4)
+          ? clampedPosition
+            ? clampedPosition.left
+            : position!.left + 4
           : '50%',
         ...(useAnchor ? {} : { transform: 'translate(-50%, -50%)' }),
       }}
