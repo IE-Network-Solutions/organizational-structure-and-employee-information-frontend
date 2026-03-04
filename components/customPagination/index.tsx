@@ -37,6 +37,16 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   const totalPages = Math.ceil(total / pageSize);
   const { isMobile } = useIsMobile();
 
+  const [goToPageValue, setGoToPageValue] = useState<string>('');
+
+  const handleGoToPage = () => {
+    const page = parseInt(goToPageValue, 10);
+    if (!Number.isNaN(page) && page >= 1 && page <= totalPages) {
+      handlePageChange(page);
+      setGoToPageValue('');
+    }
+  };
+
   const renderPageNumbers = () => {
     const pageNumbers = [];
     // Reduce visible pages on mobile for better UX

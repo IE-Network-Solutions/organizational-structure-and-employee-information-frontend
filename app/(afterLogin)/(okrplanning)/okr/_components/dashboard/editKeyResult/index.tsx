@@ -144,7 +144,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
       bodyStyle={{ padding: isMobile ? 12 : 32 }}
       style={{ top: isMobile ? 0 : 32, padding: 0, maxHeight: '95vh' }}
       maskClosable={false}
-      destroyOnClose
+      destroyOnHidden
       closable={false}
     >
       <Form

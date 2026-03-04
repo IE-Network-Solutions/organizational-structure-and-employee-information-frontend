@@ -1,28 +1,37 @@
 'use client';
 import { Card, Dropdown, Button } from 'antd';
-import { FaDownload } from 'react-icons/fa';
-import { BsThreeDotsVertical } from 'react-icons/bs';
+import { DownloadOutlined } from '@ant-design/icons';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
-import { useRouter } from 'next/navigation';
 import React, { RefObject, useRef, createContext, useContext } from 'react';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import type { UseReactFlowExportApi } from '@/hooks/export';
 
-// Create context for chart ref
-const ChartRefContext = createContext<RefObject<HTMLDivElement> | null>(null);
+type ChartLayoutContextValue = {
+  chartRef: RefObject<HTMLDivElement>;
+  exportActionsRef: React.MutableRefObject<UseReactFlowExportApi | null>;
+};
+
+const ChartRefContext = createContext<ChartLayoutContextValue | null>(null);
 
 export const useChartRef = () => {
   const context = useContext(ChartRefContext);
   if (!context) {
     throw new Error('useChartRef must be used within a ChartRefProvider');
   }
-  return context;
+  return context.chartRef;
 };
 
-// import { exportOrgStrucutreMenu, orgComposeAndMergeMenues } from '../menues/inex';
+export const useChartExportActionsRef = () => {
+  const context = useContext(ChartRefContext);
+  if (!context) {
+    throw new Error(
+      'useChartExportActionsRef must be used within a ChartRefProvider',
+    );
+  }
+  return context.exportActionsRef;
+};
 
-import {
-  exportOrgStrucutreMenu,
-  orgComposeAndMergeMenues,
-} from './org-structure/_components/menues/inex';
 import CustomDrawer from './org-structure/_components/customDrawer';
 import {
   useMergingDepartment,
@@ -33,8 +42,6 @@ import { useTransferStore } from '@/store/uistate/features/organizationStructure
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form } from 'antd';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 // Layout component definition
 export default function ChartLayout({
   children,
@@ -42,11 +49,15 @@ export default function ChartLayout({
   children: React.ReactNode;
   params: any;
 }) {
-  const router = useRouter();
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
 
   const chartRef = useRef<HTMLDivElement>(null);
+  const exportActionsRef = useRef<UseReactFlowExportApi | null>(null);
   const { setIsDeleteConfirmVisible } = useOrganizationStore();
+  const chartDownloadLoading = useOrganizationStore(
+    (s) => s.chartDownlaodLoading,
+  );
   const { transferDepartment, resetStore } = useTransferStore();
   const { mergeData } = useMergeStore();
   const { mutate: transferDepartments, isLoading: isTransferLoading } =
@@ -60,8 +71,6 @@ export default function ChartLayout({
     drawTitle,
     setDrawerVisible,
     setDepartmentTobeDeletedId,
-    selectedKey,
-    setSelectedKey,
   } = useOrganizationStore.getState();
 
   const { reset } = useDepartmentStore();
@@ -72,158 +81,114 @@ export default function ChartLayout({
     reset();
   };
 
-  // Handling menu click and navigation
-  const onMenuClick = (key: string) => {
-    setSelectedKey(key);
-    switch (key) {
-      case 'structure':
-        router.push('/organization/chart/org-structure');
-        break;
-      case 'chart':
-        router.push('/organization/chart/org-chart');
-        break;
-      default:
-        break;
+  const handleDownloadPNG = () => {
+    if (chartDownloadLoading) return;
+    if (exportActionsRef.current?.downloadPNG) {
+      exportActionsRef.current.downloadPNG();
+    } else {
+      exportToPDFOrJPEG(chartRef as RefObject<HTMLDivElement>, false);
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    if (chartDownloadLoading) return;
+    if (exportActionsRef.current?.downloadPDF) {
+      exportActionsRef.current.downloadPDF();
+    } else {
+      exportToPDFOrJPEG(chartRef as RefObject<HTMLDivElement>, true);
     }
   };
 
   return (
     <ChartRefContext.Provider
-      value={chartRef}
+      value={{ chartRef, exportActionsRef }}
       data-cy="org-structure-layout-provider"
     >
       <div
-        className="flex flex-col w-full"
+        className="flex flex-col w-full px-2 sm:px-6"
         data-cy="org-structure-layout"
         id="org-structure-layout"
       >
         {/* ORG Structure Section */}
         <div
-          className="w-full overflow-x-auto"
+          className="w-full overflow-visible"
           data-cy="org-structure-card-container"
           id="org-structure-card-container"
         >
           <Card
             data-cy="org-structure-card"
             id="org-structure-card"
-            className="w-full border-none"
+            className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-2 [&_.ant-card-head]:sm:px-6 [&_.ant-card-body]:px-0 [&_.ant-card-body]:sm:px-0"
             title={
-              <div
-                className="text-2xl font-bold"
-                data-cy="org-structure-title"
-                id="org-structure-title"
-              >
-                ORG Structure
-              </div>
+              <CustomBreadcrumb
+                title={
+                  <span
+                    className="text-lg sm:text-2xl font-bold text-gray-900"
+                    data-cy="org-structure-breadcrumb-title"
+                  >
+                    Organization Structure
+                  </span>
+                }
+                subtitle="Organization Structure / Org Structure"
+                data-cy="org-structure-breadcrumb"
+              />
             }
             extra={
               <div
-                className="py-4 flex justify-center items-center gap-4"
+                className="py-2 sm:py-4 flex justify-center items-center shrink-0"
                 data-cy="org-structure-actions"
                 id="org-structure-actions"
               >
                 <Dropdown
-                  overlay={exportOrgStrucutreMenu(
-                    chartRef as RefObject<HTMLDivElement>,
-                    exportToPDFOrJPEG,
-                  )}
+                  menu={{
+                    items: [
+                      {
+                        key: 'pdf',
+                        label: 'PDF',
+                        onClick: handleDownloadPDF,
+                        disabled: chartDownloadLoading,
+                      },
+                      {
+                        key: 'png',
+                        label: 'PNG',
+                        onClick: handleDownloadPNG,
+                        disabled: chartDownloadLoading,
+                      },
+                    ],
+                  }}
                   trigger={['click']}
-                  placement="bottomRight"
+                  placement={isMobile ? 'bottomRight' : 'bottomRight'}
                   data-cy="org-structure-export-dropdown"
+                  disabled={chartDownloadLoading}
                 >
-                  {/* <AccessGuard
-                    permissions={[Permissions.DownloadOrganizationStructure]}
-                  > */}
                   <Button
                     title="Download"
                     icon={
-                      <FaDownload
-                        size={16}
+                      <DownloadOutlined
+                        style={{ fontSize: 16 }}
                         data-cy="org-structure-download-btn-icon"
                         id="org-structure-download-btn-icon"
                       />
                     }
                     type="default"
-                    className="h-10 sm:h-14 w-10 sm:w-auto"
+                    className="h-10 w-10 sm:w-[104px] rounded-lg border border-gray-300 text-gray-700 font-normal flex items-center justify-center sm:justify-start gap-2"
                     data-cy="org-structure-download-btn"
                     id="org-structure-download-btn"
+                    loading={chartDownloadLoading}
+                    disabled={chartDownloadLoading}
                   >
                     <span
-                      className="hidden sm:inline"
+                      className="font-normal hidden sm:inline"
                       data-cy="org-structure-download-btn-span"
                       id="org-structure-download-btn-span"
                     >
-                      Download
+                      {chartDownloadLoading ? 'Preparing…' : 'Download'}
                     </span>
                   </Button>
-                  {/* </AccessGuard> */}
                 </Dropdown>
-                {selectedKey !== 'chart' && (
-                  <AccessGuard
-                    permissions={[Permissions.MergeDepartment]}
-                    data-cy="org-structure-actions-guard"
-                    id="org-structure-actions-guard"
-                  >
-                    <Dropdown
-                      overlay={orgComposeAndMergeMenues}
-                      trigger={['click']}
-                      placement="bottomRight"
-                      data-cy="org-structure-actions-dropdown"
-                    >
-                      <Button
-                        type="primary"
-                        className="w-10 sm:w-[68px] h-10 sm:h-14  rounded-lg flex items-center justify-center gap-2"
-                        data-cy="org-structure-actions-btn"
-                        id="org-structure-actions-btn"
-                      >
-                        <BsThreeDotsVertical
-                          size={24}
-                          data-cy="org-structure-actions-btn-icon"
-                          id="org-structure-actions-btn-icon"
-                        />
-                      </Button>
-                    </Dropdown>
-                  </AccessGuard>
-                )}
               </div>
             }
           >
-            <div
-              className="flex justify-end"
-              data-cy="org-structure-tabs-menu-container"
-              id="org-structure-tabs-menu-container"
-            >
-              <div
-                data-cy="org-structure-tabs-menu-container"
-                id="org-structure-tabs-menu-container"
-                className="flex justify-end bg-[#f5f5f5] shadow-md rounded-lg w-fit h-10 sm:h-12 py-[5px] px-[6px] gap-[14px] border-1"
-              >
-                <button
-                  data-cy="org-structure-tabs-menu-button"
-                  id="org-structure-tabs-menu-button"
-                  onClick={() => onMenuClick('structure')}
-                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
-                    selectedKey === 'structure'
-                      ? 'bg-white rounded-md shadow-sm border-1'
-                      : 'bg-transparent'
-                  }`}
-                >
-                  Org Chart
-                </button>
-                <button
-                  data-cy="org-structure-tabs-menu-button"
-                  id="org-structure-tabs-menu-button"
-                  onClick={() => onMenuClick('chart')}
-                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
-                    selectedKey === 'chart'
-                      ? 'bg-white rounded-md shadow-sm border-1'
-                      : 'bg-transparent'
-                  }`}
-                >
-                  Team View
-                </button>
-              </div>
-            </div>
             <CustomDrawer
               data-cy="org-structure-custom-drawer"
               loading={transferDepartment ? isTransferLoading : isLoading}
@@ -264,9 +229,9 @@ export default function ChartLayout({
           {/* <OrgChartComponent /> */}
         </div>
 
-        {/* Page Content */}
+        {/* Page Content - responsive padding matching talent resource */}
         <main
-          className="p-4"
+          className="pt-0 px-2 sm:px-6 pb-4 overflow-visible"
           data-cy="org-structure-main-content"
           id="org-structure-main-content"
         >

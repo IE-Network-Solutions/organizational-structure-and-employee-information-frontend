@@ -4162,6 +4162,7 @@ commondir@^1.0.1:
     file-saver "^2.0.5"
     firebase "^10.12.5"
     html-react-parser "^5.2.5"
+    html-to-image "^1.11.13"
     html2canvas "^1.4.1"
     idb-keyval "^6.2.1"
     jspdf "^2.5.2"
@@ -5532,6 +5533,11 @@ html-react-parser@^5.2.5:
     html-dom-parser "5.1.1"
     react-property "2.0.2"
     style-to-js "1.1.17"
+
+html-to-image@^1.11.13:
+  version "1.11.13"
+  resolved "https://registry.npmjs.org/html-to-image/-/html-to-image-1.11.13.tgz"
+  integrity sha512-cuOPoI7WApyhBElTTb9oqsawRvZ0rHhaHwghRLlTuffoD1B2aDemlCruLeZrUIIdvG7gs9xeELEPm6PhuASqrg==
 
 html2canvas@^1.0.0-rc.5, html2canvas@^1.4.1:
   version "1.4.1"

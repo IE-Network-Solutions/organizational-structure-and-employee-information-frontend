@@ -1,379 +1,211 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
-import { Tree, TreeNode } from 'react-organizational-chart';
-import { v4 as uuidv4 } from 'uuid';
-import { Department } from '@/types/dashboard/organization';
-import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
-import DepartmentForm from '@/app/(afterLogin)/(onboarding)/onboarding/_components/departmentForm.tsx';
-import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
+
+import React, { useMemo, useCallback, useRef, useEffect } from 'react';
 import {
-  useDeleteOrgChart,
-  useUpdateOrgChart,
-} from '@/store/server/features/organizationStructure/organizationalChart/mutation';
-import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
-import DeleteModal from '@/components/common/deleteModal';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import OrgChartSkeleton from '../loading/orgStructureLoading';
-import { DepartmentNode } from '../departmentNode';
-import { showDrawer } from '../menues/inex';
-import { useMergingDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
-import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
-import { Button, Form, Space } from 'antd';
+  ReactFlow,
+  applyNodeChanges,
+  applyEdgeChanges,
+  type Node,
+  type Edge,
+  type ReactFlowInstance,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import { useGetOrgChartsPeoples } from '@/store/server/features/organizationStructure/organizationalChart/query';
+import type { DepartmentUserTree } from '@/store/server/features/organizationStructure/organizationalChart/interface';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
-import { useRouter } from 'next/navigation';
+import OrgChartSkeleton from '../loading/orgStructureLoading';
+import {
+  OrgChartNode,
+  SpineNode,
+  HorizontalConnectorNode,
+  VerticalEdge,
+} from './nodes';
+import { buildFlowFromTree } from './layout';
 import { useChartRef } from '../../../layout';
+import { OrgChartActionsProvider } from './OrgChartActionsContext';
 import {
-  TransformWrapper,
-  TransformComponent,
-  ReactZoomPanPinchRef,
-} from 'react-zoom-pan-pinch';
-import {
-  ZoomInOutlined,
-  ZoomOutOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons';
+  AddDepartmentModal,
+  DepartmentUsersModal,
+  DeleteDepartmentModal,
+} from './modals';
+import { OrgChartExportBridge } from '../OrgChartExportBridge';
+import { DepartmentUsersModalPositionBridge } from './DepartmentUsersModalPositionBridge';
 
-const renderTreeNodes = (
-  data: Department[],
-  onEdit: (department: Department) => void,
-  onAdd: (parent: any) => void,
-  onDelete: (departmentId: string) => void,
-  isRoot = false,
-  setDepartmentTobeDeletedId: (departmentTobeDeletedId: string) => void,
-) =>
-  data.map((item) => {
-    return (
-      <TreeNode
-        key={item.id}
-        label={
-          <DepartmentNode
-            data={item}
-            onEdit={() => onEdit(item)}
-            onAdd={() => onAdd(item)}
-            onDelete={() => {
-              showDrawer('delete', 'Delete', 'Delete Department');
-              setDepartmentTobeDeletedId(item?.id);
-            }}
-            isRoot={isRoot}
-            data-cy="org-org-structure-components-orgstructurepeoples-index-departmentnode-1"
-          />
-        }
-        data-cy="org-org-structure-components-orgstructurepeoples-index-treenode-1"
-      >
-        {item.department &&
-          renderTreeNodes(
-            item.department,
-            onEdit,
-            onAdd,
-            onDelete,
-            (isRoot = false),
-            setDepartmentTobeDeletedId,
-          )}
-      </TreeNode>
-    );
-  });
+const nodeTypes = {
+  orgNode: OrgChartNode,
+  spine: SpineNode,
+  horizontalConnector: HorizontalConnectorNode,
+};
 
-const OrgChartComponent: React.FC = () => {
-  const [form] = Form.useForm();
-  const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+const edgeTypes = {
+  vertical: VerticalEdge,
+};
 
-  const {
-    isFormVisible,
-    setIsFormVisible,
-    selectedDepartment,
-    setSelectedDepartment,
-    parentId,
-    setParentId,
-    isDeleteConfirmVisible,
-    setIsDeleteConfirmVisible,
-  } = useOrganizationStore();
-  const { resetStore } = useTransferStore();
-
+function OrgFlowContent() {
   const chartRef = useChartRef();
+  const flowInstanceRef = useRef<ReactFlowInstance | null>(null);
+  const { data: userTreeData } = useGetOrgChartsPeoples();
 
-  const { data: orgStructureData, isLoading: orgStructureLoading } =
-    useGetOrgCharts();
-  const { mutate: updateDepartment, isLoading: updateDepartmentLoading } =
-    useUpdateOrgChart();
-  const { mutate: deleteDepartment, isLoading: deleteLoading } =
-    useDeleteOrgChart();
+  const built = useMemo(() => {
+    const root = userTreeData as DepartmentUserTree | null | undefined;
+    return buildFlowFromTree(root);
+  }, [userTreeData]);
 
-  const { isSuccess } = useMergingDepartment();
-
-  const [parent, setParrent] = useState<Department>();
-
-  const handleEdit = (department: Department) => {
-    setSelectedDepartment(department);
-    setIsFormVisible(true);
-  };
-
-  const handleAdd = (parent: any) => {
-    setParentId(parent?.id || '');
-    setParrent(parent);
-    setSelectedDepartment(null);
-    setIsFormVisible(true);
-  };
-
-  const handleDelete = () => {
-    setIsDeleteConfirmVisible(true);
-  };
-
-  const handleFormSubmit = (values: OrgChart) => {
-    if (selectedDepartment) {
-      updateDepartment(
-        {
-          id: selectedDepartment.id,
-          orgChart: { ...selectedDepartment, ...values },
-        },
-        {
-          onSuccess: () => {
-            setSelectedDepartment(null);
-            setIsFormVisible(false);
-            form.resetFields();
-          },
-        },
-      );
-    } else if (parentId) {
-      const newId = uuidv4();
-
-      const data = {
-        ...parent,
-        department: [...(parent?.department || []), { ...values, id: newId }],
-      };
-
-      updateDepartment(
-        {
-          id: parentId,
-          orgChart: data,
-        },
-        {
-          onSuccess: () => {
-            setSelectedDepartment(null);
-            setIsFormVisible(false);
-            form.resetFields();
-            setParentId('');
-          },
-        },
-      );
+  if (built.nodes.length > 0) {
+    const state = useDepartmentStore.getState();
+    if (state.fullNodes !== built.nodes || state.fullEdges !== built.edges) {
+      state.setFullGraph(built.nodes, built.edges);
     }
-  };
+  }
 
-  const handleDeleteConfirm = () => {
-    deleteDepartment({ departmentTobeDeletedId, departmentTobeShiftedId });
-    setIsDeleteConfirmVisible(false);
-  };
+  const nodes = useDepartmentStore((s) => s.nodes);
+  const edges = useDepartmentStore((s) => s.edges);
+  const setNodes = useDepartmentStore((s) => s.setNodes);
+  const setEdges = useDepartmentStore((s) => s.setEdges);
 
-  const {
-    setDrawerVisible,
-    setDepartmentTobeDeletedId,
-    departmentTobeDeletedId,
-    departmentTobeShiftedId,
-  } = useOrganizationStore.getState();
+  const onNodesChange = useCallback(
+    (changes: Parameters<typeof applyNodeChanges>[0]) => {
+      setNodes(
+        applyNodeChanges(
+          changes,
+          useDepartmentStore.getState().nodes as Parameters<
+            typeof applyNodeChanges
+          >[1],
+        ),
+      );
+    },
+    [setNodes],
+  );
+  const onEdgesChange = useCallback(
+    (changes: Parameters<typeof applyEdgeChanges>[0]) => {
+      setEdges(
+        applyEdgeChanges(
+          changes,
+          useDepartmentStore.getState().edges as Parameters<
+            typeof applyEdgeChanges
+          >[1],
+        ),
+      );
+    },
+    [setEdges],
+  );
 
-  const closeDrawer = () => {
-    setDrawerVisible(false);
-    form.resetFields();
-    reset();
-  };
-
-  const { data: departments } = useGetDepartments();
-  const { reset } = useDepartmentStore();
+  // When nodes load, fit the entire structure in view so the whole chart is visible on first load.
+  const fitWholeStructure = useCallback(() => {
+    const instance = flowInstanceRef.current;
+    if (!instance || nodes.length === 0) return;
+    instance.fitView({ padding: 0.12, duration: 0, maxZoom: 1.2 });
+  }, [nodes.length]);
 
   useEffect(() => {
-    if (departments?.length === 0) {
-      router.push('/onboarding');
-    }
-    if (isSuccess) {
-      closeDrawer();
-      resetStore();
-    }
-  }, [departments, isSuccess]);
-
-  const router = useRouter();
+    if (nodes.length === 0) return;
+    const timeoutId = setTimeout(fitWholeStructure, 350);
+    return () => clearTimeout(timeoutId);
+  }, [nodes.length, fitWholeStructure]);
 
   return (
+    <OrgChartActionsProvider>
+      <div
+        className="w-full h-[calc(100vh-220px)] min-h-[280px] sm:h-[calc(100vh-280px)] sm:min-h-[420px] bg-white overflow-x-auto overflow-y-auto"
+        ref={chartRef}
+        data-cy="org-structure-chart-flow-container"
+      >
+        <ReactFlow
+          nodes={nodes as Node[]}
+          edges={edges as Edge[]}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onInit={(instance) => {
+            flowInstanceRef.current = instance;
+            // Fit whole structure once viewport and nodes are ready (backup to effect)
+            setTimeout(() => {
+              const currentNodes = useDepartmentStore.getState().nodes;
+              if (currentNodes.length > 0) {
+                instance.fitView({ padding: 0.12, duration: 0, maxZoom: 1.2 });
+              }
+            }, 400);
+          }}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          minZoom={0.1}
+          maxZoom={1.5}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          elementsSelectable={true}
+          panOnDrag={true}
+          panOnScroll={true}
+          zoomOnScroll={true}
+          zoomOnPinch={true}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
+          proOptions={{ hideAttribution: true }}
+          className="bg-white"
+        >
+          <OrgChartExportBridge />
+          <DepartmentUsersModalPositionBridge />
+        </ReactFlow>
+        <AddDepartmentModal />
+        <DepartmentUsersModal />
+        <DeleteDepartmentModal />
+      </div>
+    </OrgChartActionsProvider>
+  );
+}
+
+const OrgChartComponent: React.FC = () => {
+  return (
     <div
-      className="w-full overflow-x-auto"
+      className="w-full overflow-visible"
       data-cy="org-structure-container"
       id="org-structure-container"
     >
       <div
-        className="w-full py-7 overflow-x-auto "
+        className="w-full pt-0 pb-7 overflow-visible"
         data-cy="org-structure-content"
         id="org-structure-content"
       >
-        {orgStructureLoading ? (
-          <OrgChartSkeleton
-            loading={orgStructureLoading}
-            data-cy="org-org-structure-components-orgstructurepeoples-index-orgchartskeleton-1"
-          />
-        ) : (
-          <div
-            className="p-4 sm:p-2 md:p-6 lg:p-8"
-            data-cy="org-structure-tree-container"
-            id="org-structure-tree-container"
-          >
-            <TransformWrapper
-              data-cy="org-structure-transform-wrapper"
-              initialScale={1}
-              initialPositionX={0}
-              initialPositionY={0}
-              minScale={0.1}
-              maxScale={2.5}
-              centerOnInit
-              wheel={{
-                wheelDisabled: true,
-                touchPadDisabled: false,
-              }}
-              panning={{
-                wheelPanning: true,
-                allowLeftClickPan: false,
-              }}
-              ref={transformRef}
-            >
-              {({
-                zoomIn,
-                zoomOut,
-                resetTransform,
-                setTransform,
-                centerView,
-              }) => {
-                const handleWheelZoom = (
-                  event: React.WheelEvent<HTMLDivElement>,
-                ) => {
-                  if (!event.ctrlKey) return;
-                  event.preventDefault();
-
-                  const currentState = transformRef.current?.state;
-                  if (!currentState) return;
-
-                  const zoomStep = event.deltaY < 0 ? 0.1 : -0.1;
-                  const nextScale = Math.min(
-                    2.5,
-                    Math.max(0.1, currentState.scale + zoomStep),
-                  );
-                  setTransform(
-                    currentState.positionX,
-                    currentState.positionY,
-                    nextScale,
-                  );
-                };
-
-                return (
-                  <>
-                    {/* The Actual Content to Magnify */}
-                    <div
-                      data-cy="org-structure-transform-component"
-                      id="org-structure-transform-component"
-                      onWheel={handleWheelZoom}
-                    >
-                      <TransformComponent
-                        data-cy="org-structure-transform-component-transform-component"
-                        wrapperStyle={{
-                          width: '100%',
-                          height: '100%',
-                        }}
-                      >
-                        <div
-                          id="org-structure-chart"
-                          data-cy="org-structure-chart"
-                          ref={chartRef}
-                        >
-                          <Tree
-                            label={
-                              <DepartmentNode
-                                data-cy="org-structure-department-node"
-                                data={{
-                                  id: orgStructureData?.id || '',
-                                  name: orgStructureData?.name || '',
-                                  department:
-                                    orgStructureData?.department || [],
-                                  branchId: orgStructureData?.branchId,
-                                  description: '',
-                                  collapsed: false,
-                                }}
-                                onEdit={() => {}}
-                                onAdd={() => handleAdd(orgStructureData)}
-                                onDelete={() => {}}
-                                isRoot={true}
-                              />
-                            }
-                            lineWidth={'1px'}
-                            lineColor={'#CBD5E0'}
-                            lineBorderRadius={'10px'}
-                            data-cy="org-org-structure-components-orgstructurepeoples-index-tree-1"
-                          >
-                            {renderTreeNodes(
-                              orgStructureData?.department || [],
-                              handleEdit,
-                              handleAdd,
-                              handleDelete,
-                              false,
-                              setDepartmentTobeDeletedId,
-                            )}
-                          </Tree>
-                        </div>
-                      </TransformComponent>
-                    </div>
-                    <div
-                      data-cy="org-structure-transform-component-buttons"
-                      id="org-structure-transform-component-buttons"
-                    >
-                      <Space
-                        data-cy="org-structure-transform-component-buttons-space"
-                        id="org-structure-transform-component-buttons-space"
-                      >
-                        <Button
-                          data-cy="org-structure-transform-component-buttons-zoom-in"
-                          id="org-structure-transform-component-buttons-zoom-in"
-                          icon={<ZoomInOutlined />}
-                          onClick={() => zoomIn()}
-                        />
-                        <Button
-                          data-cy="org-structure-transform-component-buttons-zoom-out"
-                          id="org-structure-transform-component-buttons-zoom-out"
-                          icon={<ZoomOutOutlined />}
-                          onClick={() => zoomOut()}
-                        />
-                        <Button
-                          data-cy="org-structure-transform-component-buttons-reload"
-                          id="org-structure-transform-component-buttons-reload"
-                          icon={<ReloadOutlined />}
-                          onClick={() => {
-                            resetTransform();
-                            // Also center the view after reset
-                            centerView(1);
-                          }}
-                        />
-                      </Space>
-                    </div>
-                  </>
-                );
-              }}
-            </TransformWrapper>
-          </div>
-        )}
-
-        <DepartmentForm
-          onClose={() => setIsFormVisible(false)}
-          open={isFormVisible}
-          submitAction={handleFormSubmit}
-          departmentData={selectedDepartment ?? undefined}
-          title={selectedDepartment ? 'Edit Department' : 'Add Department'}
-          loading={updateDepartmentLoading}
-          data-cy="org-structure-department-form"
-        />
-
-        <DeleteModal
-          open={isDeleteConfirmVisible}
-          onConfirm={handleDeleteConfirm}
-          onCancel={() => setIsDeleteConfirmVisible(false)}
-          loading={deleteLoading}
-          data-cy="org-structure-delete-modal"
-        />
+        <OrgChartComponentInner />
       </div>
     </div>
   );
 };
+
+function OrgChartComponentInner() {
+  const { isLoading } = useGetOrgChartsPeoples();
+
+  if (isLoading) {
+    return (
+      <OrgChartSkeleton
+        loading={isLoading}
+        data-cy="org-org-structure-components-orgstructurepeoples-index-orgchartskeleton-1"
+      />
+    );
+  }
+
+  return (
+    <div
+      className="pt-0 px-2 pb-4 sm:px-4 sm:pb-8 md:px-6 lg:px-8 overflow-visible"
+      data-cy="org-structure-tree-container"
+      id="org-structure-tree-container"
+    >
+      <div
+        className="overflow-visible min-w-0"
+        data-cy="org-structure-transform-component"
+        id="org-structure-transform-component"
+      >
+        <div
+          id="org-structure-chart"
+          data-cy="org-structure-chart"
+          className="w-full overflow-visible"
+        >
+          <OrgFlowContent />
+        </div>
+      </div>
+      <div
+        data-cy="org-structure-transform-component-buttons"
+        id="org-structure-transform-component-buttons"
+      />
+    </div>
+  );
+}
 
 export default OrgChartComponent;
