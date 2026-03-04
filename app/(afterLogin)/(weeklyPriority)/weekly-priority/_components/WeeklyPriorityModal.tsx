@@ -118,23 +118,23 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
 
     selectedTask == null
       ? createWeeklyPriorityBulkTask(
-        { tasks: checkedList },
-        {
-          onSuccess: () => {
-            setCheckedList([]);
-            onCancel();
+          { tasks: checkedList },
+          {
+            onSuccess: () => {
+              setCheckedList([]);
+              onCancel();
+            },
           },
-        },
-      )
+        )
       : updateWeeklyPriorityBulkTask(
-        { new: cleanedCheckedList, remove: uncheckedList },
-        {
-          onSuccess: () => {
-            setCheckedList([]);
-            onCancel();
+          { new: cleanedCheckedList, remove: uncheckedList },
+          {
+            onSuccess: () => {
+              setCheckedList([]);
+              onCancel();
+            },
           },
-        },
-      );
+        );
   };
 
   const handleClose = () => {
@@ -213,7 +213,10 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
         width={780}
         style={{ maxWidth: 'calc(100vw - 32px)' }}
         footer={
-          <div className="flex justify-end gap-2 md:gap-3 pt-4 md:pt-6 px-0 md:px-2" data-cy="weekly-priority-modal-footer">
+          <div
+            className="flex justify-end gap-2 md:gap-3 pt-4 md:pt-6 px-0 md:px-2"
+            data-cy="weekly-priority-modal-footer"
+          >
             <Button
               onClick={handleClose}
               className="h-[40px] md:h-[44px] px-4 md:px-8 text-[#374151] font-semibold border-gray-200 rounded-[10px] hover:text-[#111827] hover:border-gray-400 text-sm md:text-base"
@@ -237,40 +240,59 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
         className="pixel-perfect-modal"
         title={
           <div className="text-left" data-cy="weekly-priority-modal-title">
-            <div className="text-[18px] md:text-[20px] font-bold text-[#111827] leading-tight" data-cy="weekly-priority-modal-title-text">
+            <div
+              className="text-[18px] md:text-[20px] font-bold text-[#111827] leading-tight"
+              data-cy="weekly-priority-modal-title-text"
+            >
               {selectedTask == null ? 'Create Priority' : 'Update Priority'}
             </div>
-            <div className="text-[#6b7280] text-[13.5px] md:text-[14.5px] font-normal mt-1 md:mt-1.5 leading-relaxed" data-cy="weekly-priority-modal-subtitle">
+            <div
+              className="text-[#6b7280] text-[13.5px] md:text-[14.5px] font-normal mt-1 md:mt-1.5 leading-relaxed"
+              data-cy="weekly-priority-modal-subtitle"
+            >
               Select from your weekly plans to add priority
             </div>
           </div>
         }
       >
-        <div className="mt-4 border-t border-gray-100 -mx-4 md:-mx-6" data-cy="weekly-priority-modal-body">
+        <div
+          className="mt-4 border-t border-gray-100 -mx-4 md:-mx-6"
+          data-cy="weekly-priority-modal-body"
+        >
           {isLoading ? (
-            <div className="py-24 flex justify-center" data-cy="weekly-priority-modal-loading">
+            <div
+              className="py-24 flex justify-center"
+              data-cy="weekly-priority-modal-loading"
+            >
               <Spin size="large" data-cy="weekly-priority-modal-spin" />
             </div>
           ) : priorities?.length > 0 ? (
-            <div className="max-h-[460px] overflow-y-auto scrollbar-none" data-cy="weekly-priority-modal-priorities-list">
+            <div
+              className="max-h-[460px] overflow-y-auto scrollbar-none"
+              data-cy="weekly-priority-modal-priorities-list"
+            >
               {priorities?.map((priority) => {
-                const isChecked = checkedList.some((i) => i.taskId === priority.id);
+                const isChecked = checkedList.some(
+                  (i) => i.taskId === priority.id,
+                );
                 return (
                   <div
                     key={priority.id}
                     className={`priority-item-row py-3.5 md:py-4.5 px-4 md:px-6 flex items-center gap-4 md:gap-5 cursor-pointer ${isChecked ? 'selected' : ''}`}
-                    onClick={() => handleCheck(!isChecked, {
-                      taskId: priority.id,
-                      title: priority.task,
-                      planId: priority.planId || '',
-                      departmentId,
-                      userId,
-                      session,
-                      month,
-                      createdBy: userId,
-                      status: 'PENDING',
-                      failureReason: '',
-                    })}
+                    onClick={() =>
+                      handleCheck(!isChecked, {
+                        taskId: priority.id,
+                        title: priority.task,
+                        planId: priority.planId || '',
+                        departmentId,
+                        userId,
+                        session,
+                        month,
+                        createdBy: userId,
+                        status: 'PENDING',
+                        failureReason: '',
+                      })
+                    }
                     data-cy={`weekly-priority-modal-priority-item-${priority.id}`}
                   >
                     <Checkbox
@@ -293,7 +315,10 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
                       className="custom-pixel-checkbox flex-shrink-0"
                       data-cy={`weekly-priority-modal-priority-checkbox-${priority.id}`}
                     />
-                    <span className={`text-[15.5px] font-medium leading-normal transition-colors ${isChecked ? 'text-[#111827]' : 'text-[#374151]'}`} data-cy={`weekly-priority-modal-priority-text-${priority.id}`}>
+                    <span
+                      className={`text-[15.5px] font-medium leading-normal transition-colors ${isChecked ? 'text-[#111827]' : 'text-[#374151]'}`}
+                      data-cy={`weekly-priority-modal-priority-text-${priority.id}`}
+                    >
                       {priority.task}
                     </span>
                   </div>
@@ -302,7 +327,16 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
             </div>
           ) : (
             <div className="py-24" data-cy="weekly-priority-modal-empty">
-              <Empty description={<span className="text-gray-400 font-medium" data-cy="weekly-priority-modal-empty-text">Please add {planningType} plan first</span>} />
+              <Empty
+                description={
+                  <span
+                    className="text-gray-400 font-medium"
+                    data-cy="weekly-priority-modal-empty-text"
+                  >
+                    Please add {planningType} plan first
+                  </span>
+                }
+              />
             </div>
           )}
         </div>

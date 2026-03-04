@@ -1,8 +1,6 @@
 import React, { FC, useEffect } from 'react';
 import { Course } from '@/types/tna/course';
-import { Card } from 'antd';
-import { Spin } from 'antd';
-import Meta from 'antd/lib/card/Meta';
+import { Card, Spin } from 'antd';
 import ActionButton from '@/components/common/actionButton';
 import { classNames } from '@/utils/classNames';
 import { FaRegFile } from 'react-icons/fa6';
@@ -100,7 +98,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
               </div>
             )}
 
-            <Meta
+            <Card.Meta
               title={
                 <div
                   className="flex items-center gap-1"
