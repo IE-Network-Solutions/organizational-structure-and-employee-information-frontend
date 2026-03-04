@@ -1473,7 +1473,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
-            paddingRight: isMobile ? '4px' : '28px',
+            paddingRight: isMobile ? 0 : 24,
             paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
             background: '#fff',
