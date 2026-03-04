@@ -255,7 +255,7 @@ export const sendCopilotChatRequest = async (
 ): Promise<string> => {
   // Get fresh token from Firebase (force refresh to ensure it's valid)
   // forceRefresh=true ensures we always get a newly refreshed token
-  const token = await getCurrentToken(true);
+  const token = await getCurrentToken();
 
   // Get tenant, user and role from store (role used for copilot access: only owner allowed)
   const { tenantId, userId, loggedUserRole, userData } =
