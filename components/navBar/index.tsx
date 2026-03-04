@@ -19,8 +19,6 @@ import {
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
 import { Layout, Button, theme, Tree, Skeleton, Dropdown, message } from 'antd';
-
-const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { TbMessage2 } from 'react-icons/tb';
@@ -46,6 +44,8 @@ import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 
+const { Header, Content, Sider } = Layout;
+
 interface CustomMenuItem {
   key: string;
   icon?: React.ReactNode;
@@ -69,9 +69,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const { userId } = useAuthenticationStore();
+  const { userId, userData } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
-  const { userData } = useAuthenticationStore();
   const okrMode = useOKRStore((state) => state.okrMode);
   const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {

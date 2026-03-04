@@ -98,14 +98,17 @@ const Notifications = () => {
           data-cy={`notification-breadcrumb-${pageSlug}`}
         />
       </div>
-      <div id={`notification-latest-divider-${pageSlug}`} data-cy={`notification-latest-divider-${pageSlug}`}>
-      <Divider orientation="left" orientationMargin="20">
-        <CustomBreadcrumb
-          subtitle=""
-          title="Latest Notifications"
-          data-cy={`notification-latest-breadcrumb-${pageSlug}`}
-        />
-      </Divider>
+      <div
+        id={`notification-latest-divider-${pageSlug}`}
+        data-cy={`notification-latest-divider-${pageSlug}`}
+      >
+        <Divider orientation="left" orientationMargin="20">
+          <CustomBreadcrumb
+            subtitle=""
+            title="Latest Notifications"
+            data-cy={`notification-latest-breadcrumb-${pageSlug}`}
+          />
+        </Divider>
       </div>
       {isLoading ? (
         <Spin
@@ -135,7 +138,11 @@ const Notifications = () => {
                 <List.Item
                   key={item?.id}
                   className={`border-l-4 ${theme.border} ${hasAccess ? `cursor-pointer ${theme.hover}` : 'cursor-not-allowed opacity-80'}`}
-                  title={hasAccess ? undefined : "You don't have permission to view this page"}
+                  title={
+                    hasAccess
+                      ? undefined
+                      : "You don't have permission to view this page"
+                  }
                   actions={[
                     <Tooltip
                       key={item?.id}
@@ -213,14 +220,17 @@ const Notifications = () => {
       ) : (
         <EmptyImage data-cy={`notification-unread-empty-${pageSlug}`} />
       )}
-      <div id={`notification-previous-divider-${pageSlug}`} data-cy={`notification-previous-divider-${pageSlug}`}>
-      <Divider orientation="left" orientationMargin="20">
-        <CustomBreadcrumb
-          subtitle=""
-          title="Previous Notifications"
-          data-cy={`notification-previous-breadcrumb-${pageSlug}`}
-        />
-      </Divider>
+      <div
+        id={`notification-previous-divider-${pageSlug}`}
+        data-cy={`notification-previous-divider-${pageSlug}`}
+      >
+        <Divider orientation="left" orientationMargin="20">
+          <CustomBreadcrumb
+            subtitle=""
+            title="Previous Notifications"
+            data-cy={`notification-previous-breadcrumb-${pageSlug}`}
+          />
+        </Divider>
       </div>
       {isLoading ? (
         <Spin
@@ -250,7 +260,11 @@ const Notifications = () => {
                 <List.Item
                   onClick={() => handleNotificationClick(item)}
                   className={`border-l-4 ${theme.border} ${hasAccess ? `cursor-pointer ${theme.hover}` : 'cursor-not-allowed opacity-80'}`}
-                  title={hasAccess ? undefined : "You don't have permission to view this page"}
+                  title={
+                    hasAccess
+                      ? undefined
+                      : "You don't have permission to view this page"
+                  }
                   id={`notification-read-item-${itemSlug}`}
                   data-cy={`notification-read-item-${itemSlug}`}
                 >

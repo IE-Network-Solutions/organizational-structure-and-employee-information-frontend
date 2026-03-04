@@ -7,7 +7,6 @@ import type {
   NotificationType,
 } from './interface';
 
-
 function parseThemeFromRoute(routeStr: string): string | null {
   const s = (routeStr ?? '').trim();
   if (!s) return null;

@@ -86,8 +86,14 @@ const getTenantId = async (token: string) => {
  * Used to refresh permissions on route change so they come from Redis/backend, not localStorage.
  */
 export const fetchCurrentUserAndUpdateStore = async (): Promise<boolean> => {
-  const { token, localId, setTenantId, setUserId, setUserData, setLoggedUserRole } =
-    useAuthenticationStore.getState();
+  const {
+    token,
+    localId,
+    setTenantId,
+    setUserId,
+    setUserData,
+    setLoggedUserRole,
+  } = useAuthenticationStore.getState();
   if (!token || !localId) return false;
   try {
     const tokenToUse = token.length > 0 ? token : await getCurrentToken();
