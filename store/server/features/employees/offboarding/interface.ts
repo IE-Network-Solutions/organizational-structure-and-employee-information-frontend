@@ -20,7 +20,7 @@ export interface EmployeeOffBoardingTasks {
   approverId: string;
   description: string;
   title: string;
-  employeeeTerminationId: string;
+  employeTerminationId: string;
 }
 
 export interface EmployeeOffBoardingTemplateTasks {

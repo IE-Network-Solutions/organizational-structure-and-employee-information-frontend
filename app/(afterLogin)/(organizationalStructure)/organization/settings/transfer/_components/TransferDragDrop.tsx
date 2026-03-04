@@ -346,8 +346,8 @@ const TransferDragDrop: React.FC = () => {
     >
       <div
         className="bg-white"
-        data-cy="org-settings-transfer-container"
         id="org-settings-transfer-container"
+        data-cy="org-settings-transfer-container"
       >
         <div
           className="flex flex-col lg:flex-row items-center lg:items-start"
@@ -355,6 +355,7 @@ const TransferDragDrop: React.FC = () => {
         >
           {/* Left Panel - Available Teams */}
           <AvailableTeamsPanel
+            data-cy="org-settings-transfer-available-teams-panel"
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             availableDepartments={availableDepartments}
@@ -368,6 +369,7 @@ const TransferDragDrop: React.FC = () => {
           {/* Middle Section - Conditional Layout */}
           {sourceTeams.length === 0 && !destinationTeam ? (
             <InitialStateView
+              data-cy="org-settings-transfer-initial-state-view"
               availableDepartments={availableDepartments}
               isSourceOver={isSourceOver}
               setSourceTeams={setSourceTeams}
@@ -376,6 +378,7 @@ const TransferDragDrop: React.FC = () => {
             />
           ) : (
             <ExpandedStateView
+              data-cy="org-settings-transfer-expanded-state-view"
               sourceTeams={sourceTeams}
               destinationTeam={destinationTeam}
               availableDepartments={availableDepartments}

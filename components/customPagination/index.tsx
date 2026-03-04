@@ -35,15 +35,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   };
 
   const totalPages = Math.ceil(total / pageSize);
-  const [goToPageValue, setGoToPageValue] = useState<string>('');
-
-  const handleGoToPage = () => {
-    const page = parseInt(goToPageValue, 10);
-    if (page >= 1 && page <= totalPages) {
-      handlePageChange(page);
-      setGoToPageValue('');
-    }
-  };
+  const { isMobile } = useIsMobile();
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
@@ -60,8 +52,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               isMobile ? 'w-10 h-10' : 'w-8 h-8'
             } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
               current === i
-                ? 'bg-[#3636F0] border-[#3636F0] text-white'
-                : 'bg-white border-gray-100 text-[#111827] hover:bg-gray-50 hover:border-gray-200'
+                ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af]  '
+                : 'bg-white text-[#111827] hover:bg-gray-100'
             }`}
             data-cy="pagination-page-button"
           >
@@ -82,8 +74,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             isMobile ? 'w-10 h-10' : 'w-8 h-8'
           } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
             current === 1
-              ? 'bg-[#3636F0] border-[#3636F0] text-white'
-              : 'bg-white border-gray-100 text-[#111827] hover:bg-gray-50 hover:border-gray-200'
+              ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af]'
+              : 'bg-white text-[#111827] hover:bg-gray-100'
           }`}
           data-cy="pagination-page-button"
         >
@@ -127,8 +119,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               isMobile ? 'w-10 h-10' : 'w-8 h-8'
             } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
               current === i
-                ? 'bg-[#3636F0] border-[#3636F0] text-white'
-                : 'bg-white border-gray-100 text-[#111827] hover:bg-gray-50 hover:border-gray-200'
+                ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af] '
+                : 'bg-white text-[#111827] hover:bg-gray-100'
             }`}
             data-cy="pagination-page-button"
           >
@@ -157,8 +149,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => handlePageChange(totalPages)}
           className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
             current === totalPages
-              ? 'bg-[#3636F0] border-[#3636F0] text-white'
-              : 'bg-white border-gray-100 text-[#111827] hover:bg-gray-50 hover:border-gray-200'
+              ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af] '
+              : 'bg-white text-[#111827]  hover:bg-gray-100'
           }`}
           data-cy="pagination-page-button"
         >
@@ -170,7 +162,6 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     return pageNumbers;
   };
 
-  const { isMobile } = useIsMobile();
   return (
     <div
       id={id}
@@ -235,7 +226,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         }`}
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-        {!isMobile && (
+        {/* {!isMobile && (
           <span
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
             className="mr-2 text-xs text-[#718096]"
@@ -244,7 +235,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
             entries
           </span>
-        )}
+        )} */}
 
         {/* Mobile info - more compact */}
         {isMobile && (

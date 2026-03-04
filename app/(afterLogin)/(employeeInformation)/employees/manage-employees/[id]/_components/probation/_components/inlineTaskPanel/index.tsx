@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import { Form, Input, Button, Select, Card, Space } from 'antd';
-import { CloseOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Select, Card, Space, Modal } from 'antd';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useCreateProbationTaskBulk,
@@ -208,27 +208,19 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
   if (!isVisible) return null;
   return (
-    <div
-      className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 border border-gray-200 shadow-sm"
-      id={`probation-inline-panel-${panelSlug}`}
-      data-cy={`probation-inline-panel-${panelSlug}`}
+    <Modal
+      open={isVisible}
+      onCancel={handleClose}
+      footer={null}
+      title={
+        <div
+          className="text-lg font-medium"
+          data-cy="probation-inline-panel-title"
+        >
+          Add New Task
+        </div>
+      }
     >
-      {/* Close button */}
-      <div
-        className="flex justify-end mb-3 sm:mb-4"
-        id={`probation-inline-panel-close-${panelSlug}`}
-        data-cy={`probation-inline-panel-close-${panelSlug}`}
-      >
-        <Button
-          type="text"
-          icon={<CloseOutlined />}
-          onClick={handleClose}
-          className="w-8 h-8 p-0 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full"
-          id={`probation-inline-panel-close-btn-${panelSlug}`}
-          data-cy={`probation-inline-panel-close-btn-${panelSlug}`}
-        />
-      </div>
-
       {/* Task Forms */}
       <Form
         form={form}
@@ -255,9 +247,10 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                     <Card
                       key={field.key}
                       size="small"
-                      className="bg-white border-gray-200"
+                      className="bg-white"
                       id={`probation-inline-panel-task-card-${taskSlug}`}
                       data-cy={`probation-inline-panel-task-card-${taskSlug}`}
+                      bordered={false}
                     >
                       <div
                         className="flex justify-between items-center mb-2 sm:mb-3"
@@ -511,7 +504,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
         data-cy={`probation-inline-panel-actions-${panelSlug}`}
       >
         <Space
-          direction={isMobile ? 'vertical' : 'horizontal'}
+          direction={'horizontal'}
           size={isMobile ? 8 : 12}
           id={`probation-inline-panel-actions-space-${panelSlug}`}
           data-cy={`probation-inline-panel-actions-space-${panelSlug}`}
@@ -543,7 +536,8 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
           </Button>
         </Space>
       </div>
-    </div>
+      {/* </div> */}
+    </Modal>
   );
 };
 

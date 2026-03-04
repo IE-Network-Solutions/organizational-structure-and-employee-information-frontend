@@ -1,17 +1,17 @@
 import React from 'react';
 import { Card, Col, Input, Form, Row, Button, Select } from 'antd';
-
 import {
   EditState,
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LuPencil } from 'react-icons/lu';
-import { InfoLine } from '../../common/infoLine';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateField } from '../../../../_components/formValidator';
+import dayjs from 'dayjs';
+
 const { Option } = Select;
 
 function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
@@ -66,10 +66,100 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
     nationality: 'Nationality',
   };
 
+  const getDisplayValue = (key: string, val: unknown): string => {
+    if (key === 'nationality') {
+      return (
+        nationalities?.items?.find((item: any) => item.id === val)?.name || '-'
+      );
+    }
+    if (key === 'gender' && val) {
+      const s = String(val);
+      return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    }
+    if (val === null || val === undefined || val === '') return '-';
+    const str = String(val);
+    if (dayjs(str, ['YYYY-MM-DD', 'DD/MM/YYYY'], true).isValid()) {
+      return dayjs(str).format('DD MMMM, YYYY');
+    }
+    return str;
+  };
+
+  const getLabel = (key: string, customLabel?: string): string => {
+    if (customLabel) return customLabel;
+    return (
+      titleMap[key] ||
+      key
+        .split(/_|(?=[A-Z])/)
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(' ')
+    );
+  };
+
+  const fullName =
+    `${allFields.firstName || ''} ${allFields.middleName || ''} ${allFields.lastName || ''}`.trim() ||
+    '-';
+  const customLabel = (field: any) => field.label || getLabel(field.fieldName);
+  const leftItems: { label: string; value: string }[] = [
+    { label: 'Full Name', value: fullName },
+    { label: 'Gender', value: getDisplayValue('gender', allFields.gender) },
+    ...emergencyContactFields.slice(0, 1).map((field: any) => ({
+      label: customLabel(field),
+      value: getDisplayValue(field.fieldName, allFields[field.fieldName]),
+    })),
+  ];
+  const rightItems: { label: string; value: string }[] = [
+    {
+      label: 'Phone Number',
+      value: getDisplayValue('phoneNumber', allFields.phoneNumber),
+    },
+    {
+      label: 'Nationality',
+      value: getDisplayValue('nationality', allFields.nationality),
+    },
+    ...emergencyContactFields.slice(1).map((field: any) => ({
+      label: customLabel(field),
+      value: getDisplayValue(field.fieldName, allFields[field.fieldName]),
+    })),
+  ];
+
+  const FieldBlock = ({
+    label,
+    value,
+    dataCy,
+  }: {
+    label: string;
+    value: string;
+    dataCy: string;
+  }) => (
+    <div className="mb-5" id={dataCy} data-cy={dataCy}>
+      <p
+        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        data-cy={`${dataCy}-label`}
+      >
+        {label}
+      </p>
+      <p
+        className="text-base font-semibold text-gray-500 m-0"
+        data-cy={`${dataCy}-value`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+
   return (
     <Card
       loading={isLoading}
-      title="Emergency Contact"
+      title={
+        <span
+          className="text-base font-bold text-gray-900"
+          data-cy="emergency-contact-card-title"
+        >
+          Emergency Contact Information
+        </span>
+      }
       extra={
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}
@@ -77,17 +167,21 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
           id={id}
           data-cy="emergency-contact-edit-guard"
         >
-          <LuPencil
-            className="cursor-pointer"
+          <button
+            type="button"
             onClick={() => handleEditChange('emergencyContact')}
+            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
             id="emergency-contact-edit-icon"
             data-cy="emergency-contact-edit-icon"
-          />
+          >
+            <LuPencil size={16} className="text-black" />
+          </button>
         </AccessGuard>
       }
-      className="my-6"
+      className="emergency-contact-card rounded-lg border border-gray-200"
       id="emergency-contact-card"
       data-cy="emergency-contact-card"
+      headStyle={{ borderBottom: 'none' }}
     >
       {edit.emergencyContact ? (
         <Form
@@ -246,36 +340,41 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
         </Form>
       ) : (
         <Row
-          gutter={[16, 24]}
+          gutter={[24, 0]}
           id="emergency-contact-display-row"
           data-cy="emergency-contact-display-row"
         >
           <Col
-            lg={16}
-            id="emergency-contact-display-col"
-            data-cy="emergency-contact-display-col"
+            lg={12}
+            sm={24}
+            id="emergency-contact-display-col-left"
+            data-cy="emergency-contact-display-col-left"
+            className="flex flex-col"
           >
-            {Object.entries(allFields).map(([key, val]) => {
-              const displayValue =
-                key === 'nationality'
-                  ? nationalities?.items?.find((item) => item.id === val)
-                      ?.name || '-'
-                  : val?.toString() || '-';
-              const title =
-                titleMap[key] ||
-                key
-                  .split('_')
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(' ');
-              return (
-                <InfoLine
-                  key={key}
-                  title={title}
-                  value={displayValue}
-                  data-cy={`emergency-contact-display-${key}-info-line`}
-                />
-              );
-            })}
+            {leftItems.map((item, index) => (
+              <FieldBlock
+                key={item.label + index}
+                label={item.label}
+                value={item.value}
+                dataCy={`emergency-contact-display-${item.label.replace(/\s+/g, '-').toLowerCase()}`}
+              />
+            ))}
+          </Col>
+          <Col
+            lg={12}
+            sm={24}
+            id="emergency-contact-display-col-right"
+            data-cy="emergency-contact-display-col-right"
+            className="flex flex-col"
+          >
+            {rightItems.map((item, index) => (
+              <FieldBlock
+                key={item.label + index}
+                label={item.label}
+                value={item.value}
+                dataCy={`emergency-contact-display-${item.label.replace(/\s+/g, '-').toLowerCase()}-right`}
+              />
+            ))}
           </Col>
         </Row>
       )}
