@@ -38,30 +38,36 @@ const MoveToTalentPool: React.FC = () => {
   }, [selectedCandidate]);
 
   const handleSubmit = () => {
-    const formValues = form.getFieldsValue();
-    const candidateArray = Array.isArray(selectedCandidate)
-      ? selectedCandidate
-      : [];
+    form
+      .validateFields()
+      .then((formValues) => {
+        const candidateArray = Array.isArray(selectedCandidate)
+          ? selectedCandidate
+          : [];
 
-    const formattedValues = {
-      ...formValues,
-      createdBy: createdBy,
-      jobCandidateId: candidateArray
-        .map((candidate: any) => candidate?.jobCandidate?.[0]?.id)
-        .filter(Boolean), // Filter out undefined values
-      jobCandidateInformationId: candidateArray.map(
-        (candidate: any) => candidate.id,
-      ),
-    };
+        const formattedValues = {
+          ...formValues,
+          createdBy: createdBy,
+          jobCandidateId: candidateArray
+            .map((candidate: any) => candidate?.jobCandidate?.[0]?.id)
+            .filter(Boolean),
+          jobCandidateInformationId: candidateArray.map(
+            (candidate: any) => candidate.id,
+          ),
+        };
 
-    moveToTalentPool(formattedValues, {
-      onSuccess: () => {
-        form.resetFields();
-        setSelectedCandidate([]);
-        setSelectedRowKeys([]); // Clear table selection
-        setMoveToTalentPoolModal(false);
-      },
-    });
+        moveToTalentPool(formattedValues, {
+          onSuccess: () => {
+            form.resetFields();
+            setSelectedCandidate([]);
+            setSelectedRowKeys([]);
+            setMoveToTalentPoolModal(false);
+          },
+        });
+      })
+      .catch(() => {
+        // Validation errors are displayed by antd Form; no extra handling needed
+      });
   };
 
   const handleChange = (values: string[]) => {
