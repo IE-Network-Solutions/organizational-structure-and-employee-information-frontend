@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Form, Input, Select, Modal, Tooltip, Row, Col } from 'antd';
+import { Form, Input, Select, Modal, Tooltip, Row, Col, message } from 'antd';
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -63,10 +63,17 @@ const ScoringModal: React.FC = () => {
   }, [isUpdateSuccess, isCreateSuccess]);
 
   useEffect(() => {
-    if (scoringData && criteriaData) {
-      setFilteredUsers(
-        scoringData.userVpScoring.map((item: any) => item.userId),
-      );
+    if (scoringData && criteriaData && departmentData) {
+      const allUsers =
+        departmentData?.flatMap((dept: any) => dept.users || []) || [];
+
+      const preSelectedUsers = scoringData.userVpScoring
+        .map((item: any) =>
+          allUsers.find((user: any) => user.id === item.userId),
+        )
+        .filter(Boolean);
+
+      setFilteredUsers(preSelectedUsers);
       form.setFieldsValue({
         name: scoringData.name,
         totalPercentage: scoringData.totalPercentage,
@@ -111,7 +118,21 @@ const ScoringModal: React.FC = () => {
   }, [scoringData, criteriaData, form, departmentData]);
 
   useEffect(() => {
-    if (watchedDepartments) {
+    if (!departmentData) return;
+
+    const allUsers =
+      departmentData?.flatMap((dept: any) => dept.users || []) || [];
+
+    const scoringUsers =
+      currentId && scoringData
+        ? scoringData.userVpScoring
+            .map((item: any) =>
+              allUsers.find((user: any) => user.id === item.userId),
+            )
+            .filter(Boolean)
+        : [];
+
+    if (watchedDepartments && watchedDepartments.length > 0) {
       const allSelectedDepartmentUsers = watchedDepartments
         .flatMap((deptId: string) => {
           const department = departmentData?.find(
@@ -130,11 +151,28 @@ const ScoringModal: React.FC = () => {
             (job: any) => job.isPositionActive,
           )?.departmentLeadOrNot;
         });
-      setFilteredUsers(allSelectedDepartmentUsers);
+
+      const mergedUsers = [...allSelectedDepartmentUsers];
+      scoringUsers.forEach((su: any) => {
+        if (!mergedUsers.some((u: any) => u.id === su.id)) {
+          mergedUsers.push(su);
+        }
+      });
+
+      setFilteredUsers(mergedUsers);
+    } else if (scoringUsers.length > 0) {
+      // No departments selected but we are editing; at least show the existing users
+      setFilteredUsers(scoringUsers as any[]);
     } else {
       setFilteredUsers([]);
     }
-  }, [watchedDepartments, departmentData, userTypeFilter]);
+  }, [
+    watchedDepartments,
+    departmentData,
+    userTypeFilter,
+    currentId,
+    scoringData,
+  ]);
 
   const handleModalClose = () => {
     form.resetFields();
@@ -169,6 +207,11 @@ const ScoringModal: React.FC = () => {
   };
 
   const onFinish = async (values: any) => {
+    if (!values.users || values.users.length === 0) {
+      message.error('Please select at least one user.');
+      return;
+    }
+
     const mappedUsers = values.users.map((userId: string) => {
       const existingUser = scoringData?.userVpScoring?.find(
         (item: any) => item.userId === userId,
