@@ -222,7 +222,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               {milestones.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-6 border-2 border-dashed border-gray-300 rounded-lg" data-cy={`okr-milestone-mobile-empty-${index}`}>
                   <p className="text-sm text-gray-500 mb-4 text-center px-4" data-cy={`okr-milestone-mobile-empty-message-${index}`}>You have no milestones yet add one to get started</p>
-                  <Button id={`okr-milestone-mobile-add-${index}`} data-cy={`okr-milestone-mobile-add-${index}`} className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center" aria-label="Add Milestone" onClick={handleAddMilestone} type="primary">Add</Button>
+                  <Button id={`okr-milestone-mobile-add-empty-${index}`} data-cy={`okr-milestone-mobile-add-empty-${index}`} className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center" aria-label="Add Milestone" onClick={handleAddMilestone} type="primary">Add</Button>
                 </div>
               ) : (
                 <>
@@ -254,7 +254,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     </div>
                   ))}
                   <div className="flex flex-col items-center justify-center py-6 border-2 border-dashed border-gray-300 rounded-lg mt-2" data-cy={`okr-milestone-mobile-add-zone-${index}`}>
-                    <Button id={`okr-milestone-mobile-add-${index}`} data-cy={`okr-milestone-mobile-add-${index}`} className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center w-fit" aria-label="Add Milestone" onClick={handleAddMilestone} type="primary">Add</Button>
+                    <Button id={`okr-milestone-mobile-add-existing-${index}`} data-cy={`okr-milestone-mobile-add-existing-${index}`} className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center w-fit" aria-label="Add Milestone" onClick={handleAddMilestone} type="primary">Add</Button>
                   </div>
                 </>
               )}
@@ -284,7 +284,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               {milestones.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-6 border-2 border-dashed border-gray-300 rounded-lg" data-cy={`okr-milestone-desktop-empty-${index}`}>
                   <p className="text-sm text-gray-500 mb-4 text-center px-4" data-cy={`okr-milestone-desktop-empty-message-${index}`}>You have no milestones yet add one to get started</p>
-                  <Button id={`okr-milestone-desktop-add-${index}`} data-cy={`okr-milestone-desktop-add-${index}`} className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center w-fit" aria-label="Add Milestone" onClick={handleAddMilestone} type="primary">Add Milestone</Button>
+                  <Button id={`okr-milestone-desktop-add-empty-${index}`} data-cy={`okr-milestone-desktop-add-empty-${index}`} className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center w-fit" aria-label="Add Milestone" onClick={handleAddMilestone} type="primary">Add Milestone</Button>
                 </div>
               ) : (
                 <>
@@ -316,7 +316,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     </div>
                   ))}
                   <div className="flex flex-col items-center justify-center py-6 border-2 border-dashed border-gray-300 rounded-lg mt-2" data-cy={`okr-milestone-desktop-add-zone-${index}`}>
-                    <Button id={`okr-milestone-desktop-add-${index}`} data-cy={`okr-milestone-desktop-add-${index}`} className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center w-fit" aria-label="Add Milestone" onClick={handleAddMilestone} type="primary">Add Milestone</Button>
+                    <Button id={`okr-milestone-desktop-add-existing-${index}`} data-cy={`okr-milestone-desktop-add-existing-${index}`} className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center w-fit" aria-label="Add Milestone" onClick={handleAddMilestone} type="primary">Add Milestone</Button>
                   </div>
                 </>
               )}
@@ -325,13 +325,13 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
         ) : (
           /* ---- Advanced mode desktop layout ---- */
           <div
-            id={`okr-milestone-desktop-wrapper-${index}`}
-            data-cy={`okr-milestone-desktop-wrapper-${index}`}
+            id={`okr-milestone-desktop-advanced-wrapper-${index}`}
+            data-cy={`okr-milestone-desktop-advanced-wrapper-${index}`}
             className={ADVANCED_WRAPPER_CLASS}
           >
             <div
-              id={`okr-milestone-desktop-meta-row-${index}`}
-              data-cy={`okr-milestone-desktop-meta-row-${index}`}
+              id={`okr-milestone-desktop-advanced-meta-row-${index}`}
+              data-cy={`okr-milestone-desktop-advanced-meta-row-${index}`}
               className={ADVANCED_ROW_CLASS}
             >
               <Form.Item
@@ -340,11 +340,11 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                 label={<KeyResultFieldLabel label="Key Result" tooltip={KEY_RESULT_TOOLTIP} />}
                 rules={[{ required: true, message: 'Please enter the Key Result name' }]}
                 id={`key-result-title-${index}`}
-                data-cy={`okr-milestone-desktop-title-item-${index}`}
+                data-cy={`okr-milestone-desktop-advanced-title-item-${index}`}
               >
                 <Input
                   id={`okr-milestone-desktop-title-input-${index}`}
-                  data-cy={`okr-milestone-desktop-title-input-${index}`}
+                  data-cy={`okr-milestone-desktop-advanced-title-input-${index}`}
                   placeholder="Input"
                   aria-label="Key Result Name"
                   className={INPUT_CLASS}
@@ -359,11 +359,11 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                 label={<KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />}
                 rules={[{ required: true, message: 'Weight required' }, { type: 'number', message: 'Must be a number' }]}
                 id={`key-result-weight-${index}`}
-                data-cy={`okr-milestone-desktop-weight-item-${index}`}
+                data-cy={`okr-milestone-desktop-advanced-weight-item-${index}`}
               >
                 <InputNumber
                   id={`okr-milestone-desktop-weight-input-${index}`}
-                  data-cy={`okr-milestone-desktop-weight-input-${index}`}
+                  data-cy={`okr-milestone-desktop-advanced-weight-input-${index}`}
                   className={`w-full ${INPUT_CLASS}`}
                   min={0}
                   max={100}
@@ -380,10 +380,10 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                 label={<KeyResultFieldLabel label="Deadline" tooltip={DEADLINE_TOOLTIP} />}
                 rules={[{ required: true, message: 'Deadline required' }]}
                 id={`key-result-deadline-${index}`}
-                data-cy={`okr-milestone-desktop-deadline-item-${index}`}
+                data-cy={`okr-milestone-desktop-advanced-deadline-item-${index}`}
               >
                 <DatePicker
-                  data-cy={`okr-milestone-desktop-deadline-picker-${index}`}
+                  data-cy={`okr-milestone-desktop-advanced-deadline-picker-${index}`}
                   className={`w-full ${INPUT_CLASS}`}
                   placeholder="Select date"
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
@@ -400,8 +400,8 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             </div>
 
             <KeyResultSectionCard
-              id={`okr-milestone-desktop-list-${index}`}
-              data-cy={`okr-milestone-desktop-list-${index}`}
+              id={`okr-milestone-desktop-advanced-list-${index}`}
+              data-cy={`okr-milestone-desktop-advanced-list-${index}`}
               title="Milestones"
               badge={
                 <span
@@ -420,8 +420,8 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                 <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-gray-300 rounded-lg" id={`okr-milestone-desktop-add-wrapper-${index}`} data-cy={`okr-milestone-desktop-advanced-empty-${index}`}>
                   <p className="text-sm text-gray-500 mb-4" data-cy={`okr-milestone-desktop-advanced-empty-message-${index}`}>You have no milestones yet add one to get started</p>
                   <Button
-                    id={`okr-milestone-desktop-add-${index}`}
-                    data-cy={`okr-milestone-desktop-add-${index}`}
+                    id={`okr-milestone-desktop-advanced-add-empty-${index}`}
+                    data-cy={`okr-milestone-desktop-advanced-add-empty-${index}`}
                     className="bg-okr-primary hover:bg-blue-800 text-white font-medium rounded-lg h-10 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-okr-primary"
                     aria-label="Add Milestone"
                     onClick={handleAddMilestone}
@@ -444,14 +444,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   </div>
 
                   <div
-                    id={`okr-milestone-desktop-row-0-${index}`}
-                    data-cy={`okr-milestone-desktop-row-0-${index}`}
+                    id={`okr-milestone-desktop-advanced-row-0-${index}`}
+                    data-cy={`okr-milestone-desktop-advanced-row-0-${index}`}
                     className={`${ADVANCED_ROW_CLASS} items-center mb-3`}
                   >
-                    <Form.Item className="flex-1 mb-0" data-cy={`okr-milestone-desktop-title-item-0-${index}`}>
+                    <Form.Item className="flex-1 mb-0" data-cy={`okr-milestone-desktop-advanced-title-item-0-${index}`}>
                       <Input
-                        id={`okr-milestone-desktop-title-input-0-${index}`}
-                        data-cy={`okr-milestone-desktop-title-input-0-${index}`}
+                        id={`okr-milestone-desktop-advanced-title-input-0-${index}`}
+                        data-cy={`okr-milestone-desktop-advanced-title-input-0-${index}`}
                         className={INPUT_CLASS}
                         placeholder="Input"
                         value={milestones[0]?.title === '' ? undefined : milestones[0]?.title}
@@ -459,10 +459,10 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         onPressEnter={(e) => e.preventDefault()}
                       />
                     </Form.Item>
-                    <Form.Item className="w-32 mb-0" data-cy={`okr-milestone-desktop-weight-item-0-${index}`}>
+                    <Form.Item className="w-32 mb-0" data-cy={`okr-milestone-desktop-advanced-weight-item-0-${index}`}>
                       <InputNumber
-                        id={`okr-milestone-desktop-weight-input-0-${index}`}
-                        data-cy={`okr-milestone-desktop-weight-input-0-${index}`}
+                        id={`okr-milestone-desktop-advanced-weight-input-0-${index}`}
+                        data-cy={`okr-milestone-desktop-advanced-weight-input-0-${index}`}
                         className={`w-full ${INPUT_CLASS}`}
                         min={0}
                         max={100}
@@ -487,8 +487,8 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   {milestones.slice(1).map((milestone: any, mIndex: number) => (
                     <div
                       key={mIndex + 1}
-                      id={`okr-milestone-desktop-row-${mIndex + 1}-${index}`}
-                      data-cy={`okr-milestone-desktop-row-${mIndex + 1}-${index}`}
+                      id={`okr-milestone-desktop-advanced-row-${mIndex + 1}-${index}`}
+                      data-cy={`okr-milestone-desktop-advanced-row-${mIndex + 1}-${index}`}
                       className="border border-gray-200 rounded-lg p-3 mb-2 flex items-start justify-between"
                     >
                       <div className="flex flex-col gap-2 flex-1 min-w-0" data-cy={`okr-milestone-desktop-advanced-row-content-${mIndex + 1}-${index}`}>
@@ -508,7 +508,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                             type="button"
                             onClick={() => handleEditMilestone(mIndex + 1)}
                             className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-300"
-                            data-cy={`okr-milestone-desktop-edit-${mIndex + 1}-${index}`}
+                            data-cy={`okr-milestone-desktop-advanced-edit-${mIndex + 1}-${index}`}
                             aria-label="Edit milestone"
                           >
                             <EditOutlined className="text-xs" />
@@ -534,8 +534,8 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
 
                   <div className="flex flex-col items-center justify-center py-6 border-2 border-dashed border-gray-300 rounded-lg mt-3" id={`okr-milestone-desktop-add-wrapper-${index}`} data-cy={`okr-milestone-desktop-advanced-add-zone-${index}`}>
                     <Button
-                      id={`okr-milestone-desktop-add-${index}`}
-                      data-cy={`okr-milestone-desktop-add-${index}`}
+                      id={`okr-milestone-desktop-advanced-add-existing-${index}`}
+                      data-cy={`okr-milestone-desktop-advanced-add-existing-${index}`}
                       className="bg-okr-primary hover:bg-blue-800 text-white font-medium rounded-lg h-10 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-okr-primary"
                       aria-label="Add Milestone"
                       onClick={handleAddMilestone}
