@@ -243,7 +243,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded w-fit" data-cy={`okr-milestone-mobile-row-weight-${mIndex + 1}-${index}`}>Weight {milestone.weight}%</span>
                         <span className="text-sm font-medium text-gray-900 truncate block" data-cy={`okr-milestone-mobile-row-title-${mIndex + 1}-${index}`}>{milestone.title || 'Untitled milestone'}</span>
                       </div>
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-1" data-cy={`okr-milestone-mobile-row-actions-${mIndex + 1}-${index}`}>
                         <button type="button" onClick={() => handleEditMilestone(mIndex + 1)} title="Edit Milestone" aria-label="Edit Milestone" className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50" data-cy={`okr-milestone-mobile-edit-${mIndex + 1}-${index}`}>
                           <EditOutlined className="text-xs" />
                         </button>
@@ -405,11 +405,10 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               title="Milestones"
               badge={
                 <span
-                  className={`text-xs font-medium px-3 py-1 rounded-full border ${
-                    milestoneWeightSum === 100
+                  className={`text-xs font-medium px-3 py-1 rounded-full border ${milestoneWeightSum === 100
                       ? 'border-green-300 text-green-600 bg-green-50'
                       : 'border-blue-300 text-okr-primary bg-blue-50'
-                  }`}
+                    }`}
                   data-cy={`okr-milestone-desktop-badge-${index}`}
                 >
                   Total Weight: {milestoneWeightSum}
