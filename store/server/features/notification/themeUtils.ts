@@ -66,9 +66,12 @@ const DEFAULT_THEME = {
 };
 
 /** Get theme-based classes for a notification (uses item.theme or theme from route) */
-export function getNotificationThemeClasses(
-  item: NotificationType,
-): { border: string; hover: string; bg: string; icon: string } {
+export function getNotificationThemeClasses(item: NotificationType): {
+  border: string;
+  hover: string;
+  bg: string;
+  icon: string;
+} {
   const theme = item.theme ?? parseThemeFromRoute(item.route ?? '');
   const key = (theme ?? '').toLowerCase();
   if (key && NOTIFICATION_THEME_CLASSES[key]) {
