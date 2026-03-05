@@ -12,7 +12,7 @@ const nextConfig = {
       'files.ienetworks.co',
       'example.com',
     ],
-     remotePatterns: [
+    remotePatterns: [
       {
         protocol: 'https',
         hostname: 'files.ienetworks.co',
@@ -41,8 +41,7 @@ const nextConfig = {
     TENANT_MGMT_URL: process.env.TENANT_BASE_URL,
     AI_BASE_URL: process.env.NEXT_PUBLIC_AI_BASE_URL,
     AI_REC_BASE_URL: process.env.NEXT_PUBLIC_AI_REC_BASE_URL,
-    NEXT_PUBLIC_ENCRYPTION_DISABLED:
-      process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED,
+    NEXT_PUBLIC_AZURE_APP_SERVICE: process.env.NEXT_PUBLIC_AZURE_APP_SERVICE,
   },
 };
 

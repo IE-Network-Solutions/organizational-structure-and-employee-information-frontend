@@ -499,6 +499,27 @@ h6 {
   transform: translateY(0) !important;
 }
 
+/* Copilot: Selamnew hand "something is cooking" animation */
+@keyframes copilotHandCooking {
+  0%,
+  100% {
+    transform: rotate(-6deg) scale(1);
+  }
+  25% {
+    transform: rotate(6deg) scale(1.05);
+  }
+  50% {
+    transform: rotate(-4deg) scale(1.02);
+  }
+  75% {
+    transform: rotate(5deg) scale(1.05);
+  }
+}
+
+.copilot-hand-cooking {
+  animation: copilotHandCooking 1.4s ease-in-out infinite;
+}
+
 /* Floating button animation */
 @keyframes floatPulse {
   0%,
