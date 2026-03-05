@@ -97,7 +97,8 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   };
 
   const handleRemoveMilestone = (mIndex: number) => {
-    const remaining = milestones.filter((_m: any, i: number) => i !== mIndex);
+    // eslint-disable-next-line
+    const remaining = milestones.filter((milestoneItem: any, i: number) => i !== mIndex);
     const redistributed = calculateAndDistributeWeights(remaining);
     setMilestones(redistributed);
   };
@@ -499,7 +500,10 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         </p>
                       </div>
                       <div className="flex items-start gap-2 flex-shrink-0 pt-0.5" data-cy={`okr-milestone-desktop-advanced-row-actions-${mIndex + 1}-${index}`}>
-                        <Tooltip title="Edit milestone">
+                        <Tooltip
+                          title="Edit milestone"
+                          data-cy={`okr-milestone-desktop-advanced-tooltip-edit-${mIndex + 1}-${index}`}
+                        >
                           <button
                             type="button"
                             onClick={() => handleEditMilestone(mIndex + 1)}
@@ -510,7 +514,10 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                             <EditOutlined className="text-xs" />
                           </button>
                         </Tooltip>
-                        <Tooltip title="Remove milestone">
+                        <Tooltip
+                          title="Remove milestone"
+                          data-cy={`okr-milestone-desktop-advanced-tooltip-remove-${mIndex + 1}-${index}`}
+                        >
                           <button
                             type="button"
                             onClick={() => handleRemoveMilestone(mIndex + 1)}
