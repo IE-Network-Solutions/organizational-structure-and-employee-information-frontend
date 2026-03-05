@@ -30,6 +30,7 @@ import { useAllApproval } from '@/store/server/features/approver/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { APPROVALTYPES } from '@/types/enumTypes';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
+import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 
 const LeaveRequestSidebar = () => {
   const {
@@ -49,6 +50,7 @@ const LeaveRequestSidebar = () => {
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetAllUsers();
   const { data: leaveTypesData } = useGetLeaveTypes();
+  const { data: leaveBalanceData } = useGetLeaveBalance(userId ?? '', '');
   const userData = employeeData?.items?.find((item: any) => item.id === userId);
 
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
@@ -81,6 +83,17 @@ const LeaveRequestSidebar = () => {
   const [showApproverMessage, setShowApproverMessage] = useState(false);
 
   const [form] = Form.useForm();
+
+  const selectedLeaveTypeId = Form.useWatch('type', form);
+  const leaveBalanceItems =
+    leaveBalanceData?.items?.items?.filter((item: any) => item.leaveType) ?? [];
+  const selectedBalance = leaveBalanceItems.find(
+    (item: any) => item?.leaveType?.id === selectedLeaveTypeId,
+  );
+  const availableDays =
+    selectedBalance != null
+      ? (selectedBalance.totalBalance ?? 0).toFixed(1)
+      : null;
 
   useEffect(() => {
     if (leaveRequestSidebarData) {
@@ -360,6 +373,14 @@ const LeaveRequestSidebar = () => {
                 data-cy="time-attendance-leave-request-sidebar-type-select"
               />
             </Form.Item>
+            {selectedLeaveTypeId && availableDays != null && (
+              <p
+                className="text-xs text-gray-500 -mt-1.5 mb-0"
+                data-cy="time-attendance-leave-request-sidebar-available-days"
+              >
+                Available {availableDays} days
+              </p>
+            )}
             <Form.Item
               name="isHalfday"
               valuePropName="checked"

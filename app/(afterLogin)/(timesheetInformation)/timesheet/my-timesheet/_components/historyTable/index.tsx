@@ -17,7 +17,6 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { FaPlus } from 'react-icons/fa';
-import { AiOutlineReload } from 'react-icons/ai';
 import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
 
 const HistoryTable = () => {
@@ -47,7 +46,7 @@ const HistoryTable = () => {
   } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<LeaveRequestBody['filter']>>(userFilter);
-  const { data, isFetching, refetch } = useGetLeaveRequest(
+  const { data, isFetching } = useGetLeaveRequest(
     { page, limit, orderBy, orderDirection },
     { filter },
   );
@@ -249,20 +248,6 @@ const HistoryTable = () => {
           data-cy="time-attendance-history-table-title"
         >
           Leave Requests
-          <Button
-            type="text"
-            size="small"
-            icon={
-              <AiOutlineReload
-                data-cy="time-attendance-history-table-refresh-button-icon"
-                size={14}
-                className="text-gray-600"
-              />
-            }
-            onClick={() => refetch()}
-            id="time-attendance-history-table-refresh-button"
-            data-cy="time-attendance-history-table-refresh-button"
-          />
         </div>
       </div>
 
@@ -329,21 +314,26 @@ const HistoryTable = () => {
             id="time-attendance-history-table"
             data-cy="time-attendance-history-table"
           />
-          <MyTimesheetAttendancePagination
-            current={page}
-            total={data?.meta?.totalItems ?? 0}
-            pageSize={limit}
-            onChange={(newPage, newPageSize) => {
-              setPage(newPage);
-              setLimit(newPageSize);
-            }}
-            onShowSizeChange={(newPageSize) => {
-              setLimit(newPageSize);
-              setPage(1);
-            }}
-            id="time-attendance-leave-requests-pagination"
-            data-cy="time-attendance-leave-requests-pagination"
-          />
+          <div
+            className="mx-3"
+            data-cy="time-attendance-history-table-pagination-wrapper"
+          >
+            <MyTimesheetAttendancePagination
+              current={page}
+              total={data?.meta?.totalItems ?? 0}
+              pageSize={limit}
+              onChange={(newPage, newPageSize) => {
+                setPage(newPage);
+                setLimit(newPageSize);
+              }}
+              onShowSizeChange={(newPageSize) => {
+                setLimit(newPageSize);
+                setPage(1);
+              }}
+              id="time-attendance-leave-requests-pagination"
+              data-cy="time-attendance-leave-requests-pagination"
+            />
+          </div>
         </div>
       </div>
     </div>

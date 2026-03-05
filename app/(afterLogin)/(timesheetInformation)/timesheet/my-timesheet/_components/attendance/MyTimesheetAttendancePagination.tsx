@@ -160,39 +160,52 @@ export default function MyTimesheetAttendancePagination({
       className="flex justify-between items-center py-6"
     >
       <div
-        className="flex items-center space-x-2"
-        data-cy="my-timesheet-attendance-pagination-controls"
+        className="flex items-center gap-4"
+        data-cy="my-timesheet-attendance-pagination-left"
       >
-        <button
-          onClick={() => current > 1 && handlePageChange(current - 1)}
-          disabled={current === 1}
-          data-cy="my-timesheet-attendance-pagination-prev-button"
-          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
-            current === 1
-              ? 'text-[#111827] border-gray-200 opacity-50'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
-          }`}
+        <span
+          className="text-sm text-gray-600 whitespace-nowrap"
+          data-cy="my-timesheet-attendance-pagination-page-of"
         >
-          <LeftOutlined className="text-xs" />
-        </button>
+          Page {current} of {totalPages}
+        </span>
         <div
           className="flex items-center space-x-2"
-          data-cy="my-timesheet-attendance-pagination-page-numbers"
+          data-cy="my-timesheet-attendance-pagination-controls"
         >
-          {renderPageNumbers()}
+          <button
+            onClick={() => current > 1 && handlePageChange(current - 1)}
+            disabled={current === 1}
+            data-cy="my-timesheet-attendance-pagination-prev-button"
+            className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
+              current === 1
+                ? 'text-[#111827] border-gray-200 opacity-50'
+                : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+            }`}
+          >
+            <LeftOutlined className="text-xs" />
+          </button>
+          <div
+            className="flex items-center space-x-2"
+            data-cy="my-timesheet-attendance-pagination-page-numbers"
+          >
+            {renderPageNumbers()}
+          </div>
+          <button
+            onClick={() =>
+              current < totalPages && handlePageChange(current + 1)
+            }
+            disabled={current === totalPages}
+            data-cy="my-timesheet-attendance-pagination-next-button"
+            className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
+              current === totalPages
+                ? 'text-[#111827] border-gray-200 opacity-50'
+                : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+            }`}
+          >
+            <RightOutlined className="text-xs" />
+          </button>
         </div>
-        <button
-          onClick={() => current < totalPages && handlePageChange(current + 1)}
-          disabled={current === totalPages}
-          data-cy="my-timesheet-attendance-pagination-next-button"
-          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
-            current === totalPages
-              ? 'text-[#111827] border-gray-200 opacity-50'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
-          }`}
-        >
-          <RightOutlined className="text-xs" />
-        </button>
       </div>
 
       <div

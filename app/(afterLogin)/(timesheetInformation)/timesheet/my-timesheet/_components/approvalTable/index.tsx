@@ -82,16 +82,27 @@ const ApprovalTable = () => {
     data: approvalData,
     isLoading: isLoadingApproval,
     refetch,
-  } = useGetApprovalLeaveRequest(userId, userCurrentPage, pageSize);
+  } = useGetApprovalLeaveRequest(
+    userId ?? '',
+    userCurrentPage,
+    pageSize,
+    searchEmployee || undefined,
+    filterStatus || undefined,
+  );
 
-  const rawItems = approvalData?.items ?? [];
-  const filteredItems = useMemo(() => {
-    return rawItems.filter((item: any) => {
-      const matchStatus = !filterStatus.trim() || item?.status === filterStatus;
-      const matchSearch = !searchEmployee || item?.userId === searchEmployee;
-      return matchStatus && matchSearch;
-    });
-  }, [rawItems, searchEmployee, filterStatus]);
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setUserCurrentPage(1);
+  }, [searchEmployee, filterStatus]);
+
+  // When page, page size, or filters change, refetch so the endpoint is called with the new params
+  useEffect(() => {
+    refetch();
+  }, [userCurrentPage, pageSize, searchEmployee, filterStatus, refetch]);
+
+  // Normalize response: support both { items, meta } and { data: { items, meta } }
+  const payload = approvalData?.data ?? approvalData;
+  const rawItems = payload?.items ?? approvalData?.items ?? [];
   const finalApproval: any = (e: {
     leaveRequestId: string;
     status: string;
@@ -143,7 +154,7 @@ const ApprovalTable = () => {
   const isPending = (item: any) => item?.nextApprover?.[0]?.userId === userId;
   const allFilterData = useMemo(
     () =>
-      filteredItems.map((item: any, index: number) => {
+      rawItems.map((item: any, index: number) => {
         const pending = isPending(item);
         return {
           key: item?.id ?? index,
@@ -269,7 +280,7 @@ const ApprovalTable = () => {
         };
       }),
     [
-      filteredItems,
+      rawItems,
       userId,
       userRollId,
       tenantId,
@@ -355,9 +366,35 @@ const ApprovalTable = () => {
     selectedRowKeys,
     onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
   };
-  const onPageChange = (page: number) => {
+  const onPageChange = (page: number, pageSizeUnused?: number) => {
+    void pageSizeUnused;
     setUserCurrentPage(page);
   };
+  // Real total from API only (no heuristic) so "Page X of Y" shows the true count
+  const meta = payload?.meta ?? approvalData?.meta;
+  const totalFromApi =
+    approvalData?.totalFromHeader ??
+    meta?.totalItems ??
+    meta?.total ??
+    meta?.totalCount ??
+    meta?.itemCount ??
+    payload?.totalItems ??
+    payload?.total ??
+    payload?.totalCount ??
+    payload?.totalElements ??
+    payload?.totalRecords ??
+    payload?.count ??
+    payload?.result?.total ??
+    payload?.data?.total ??
+    approvalData?.totalItems ??
+    approvalData?.total ??
+    approvalData?.totalCount ??
+    approvalData?.totalElements ??
+    approvalData?.totalRecords ??
+    (meta?.totalPages != null && meta.totalPages > 0
+      ? meta.totalPages * pageSize
+      : null);
+  const totalItems = totalFromApi ?? 0;
   const onAllApproveRequest = () => {
     const body: AllLeaveRequestApproveData = {
       userId: userId,
@@ -497,10 +534,7 @@ const ApprovalTable = () => {
           <Select
             placeholder="Filter by status"
             allowClear
-            options={[
-              { label: 'All statuses', value: '' },
-              ...statusFilterOptions,
-            ]}
+            options={statusFilterOptions}
             value={filterStatus || undefined}
             onChange={(v) => setFilterStatus(v ?? '')}
             className="min-w-[160px]"
@@ -531,7 +565,7 @@ const ApprovalTable = () => {
       >
         <MyTimesheetAttendancePagination
           current={userCurrentPage}
-          total={approvalData?.meta?.totalItems ?? 0}
+          total={totalItems}
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={(newPageSize) => {
