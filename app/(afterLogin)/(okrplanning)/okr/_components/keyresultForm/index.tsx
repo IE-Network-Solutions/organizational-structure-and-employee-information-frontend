@@ -210,7 +210,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
             open={isSheetOpen}
             onClose={() => setSheetOpen(storeKey, false)}
             height="85vh"
-            destroyOnClose={false}
+            destroyOnClose
             className="md:hidden"
             styles={{
               header: { borderBottom: '1px solid #e5e7eb' },

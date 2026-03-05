@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Button, DatePicker, Form, Input, InputNumber, Select, Tooltip } from 'antd';
-import { PlusOutlined, EditOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore, useMilestoneFormStore } from '@/store/uistate/features/okrplanning/okr';
@@ -94,6 +94,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
     }
     const reordered = [moved, ...rest];
     setMilestones(calculateAndDistributeWeights(reordered));
+  };
+
+  const handleRemoveMilestone = (mIndex: number) => {
+    const remaining = milestones.filter((_m: any, i: number) => i !== mIndex);
+    const redistributed = calculateAndDistributeWeights(remaining);
+    setMilestones(redistributed);
   };
 
   const milestoneWeightSum = milestones.reduce(
@@ -226,6 +232,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     <Form.Item className="w-24 mb-0" data-cy={`okr-milestone-mobile-weight-item-0-${index}`}>
                       <InputNumber id={`okr-milestone-mobile-weight-input-0-${index}`} data-cy={`okr-milestone-mobile-weight-input-0-${index}`} className="w-full h-10 rounded-lg text-base" min={0} max={100} placeholder="Weight" suffix="%" value={milestones[0]?.weight} onChange={(value) => handleMilestoneChange(0, 'weight', value)} />
                     </Form.Item>
+                    <button type="button" onClick={() => handleRemoveMilestone(0)} aria-label="Remove milestone" title="Remove milestone" className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50" data-cy={`okr-milestone-mobile-remove-0-${index}`}>
+                      <CloseOutlined className="text-xs" />
+                    </button>
                   </div>
                   {milestones.slice(1).map((milestone: any, mIndex: number) => (
                     <div key={mIndex + 1} id={`okr-milestone-mobile-row-${mIndex + 1}-${index}`} data-cy={`okr-milestone-mobile-row-${mIndex + 1}-${index}`} className="flex flex-row gap-2 items-start border border-gray-200 rounded-lg p-2">
@@ -233,9 +242,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded w-fit" data-cy={`okr-milestone-mobile-row-weight-${mIndex + 1}-${index}`}>Weight {milestone.weight}%</span>
                         <span className="text-sm font-medium text-gray-900 truncate block" data-cy={`okr-milestone-mobile-row-title-${mIndex + 1}-${index}`}>{milestone.title || 'Untitled milestone'}</span>
                       </div>
-                      <button type="button" onClick={() => handleEditMilestone(mIndex + 1)} title="Edit Milestone" aria-label="Edit Milestone" className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 pt-0.5" data-cy={`okr-milestone-mobile-edit-${mIndex + 1}-${index}`}>
-                        <EditOutlined className="text-xs" />
-                      </button>
+                      <div className="flex flex-col gap-1">
+                        <button type="button" onClick={() => handleEditMilestone(mIndex + 1)} title="Edit Milestone" aria-label="Edit Milestone" className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50" data-cy={`okr-milestone-mobile-edit-${mIndex + 1}-${index}`}>
+                          <EditOutlined className="text-xs" />
+                        </button>
+                        <button type="button" onClick={() => handleRemoveMilestone(mIndex + 1)} aria-label="Remove milestone" title="Remove milestone" className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50" data-cy={`okr-milestone-mobile-remove-${mIndex + 1}-${index}`}>
+                          <CloseOutlined className="text-xs" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <div className="flex flex-col items-center justify-center py-6 border-2 border-dashed border-gray-300 rounded-lg mt-2" data-cy={`okr-milestone-mobile-add-zone-${index}`}>
@@ -280,6 +294,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     <Form.Item className="w-24 mb-0" data-cy={`okr-milestone-desktop-weight-item-0-${index}`}>
                       <InputNumber id={`okr-milestone-desktop-weight-input-0-${index}`} data-cy={`okr-milestone-desktop-weight-input-0-${index}`} className="w-full h-10 rounded-lg text-base" min={0} max={100} placeholder="Weight" suffix="%" value={milestones[0]?.weight} onChange={(value) => handleMilestoneChange(0, 'weight', value)} />
                     </Form.Item>
+                    <button type="button" onClick={() => handleRemoveMilestone(0)} aria-label="Remove milestone" title="Remove milestone" className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50" data-cy={`okr-milestone-desktop-remove-0-${index}`}>
+                      <CloseOutlined className="text-xs" />
+                    </button>
                   </div>
                   {milestones.slice(1).map((milestone: any, mIndex: number) => (
                     <div key={mIndex + 1} id={`okr-milestone-desktop-row-${mIndex + 1}-${index}`} data-cy={`okr-milestone-desktop-row-${mIndex + 1}-${index}`} className="flex flex-row gap-2 items-start border border-gray-200 rounded-lg p-2">
@@ -287,9 +304,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded w-fit" data-cy={`okr-milestone-desktop-row-weight-${mIndex + 1}-${index}`}>Weight {milestone.weight}%</span>
                         <span className="text-sm font-medium text-gray-900 truncate" data-cy={`okr-milestone-desktop-row-title-${mIndex + 1}-${index}`}>{milestone.title || 'Untitled milestone'}</span>
                       </div>
-                      <div className="w-48 flex gap-2 items-start pt-0.5" id={`okr-milestone-desktop-actions-${mIndex + 1}-${index}`} data-cy={`okr-milestone-desktop-actions-${mIndex + 1}-${index}`}>
+                      <div className="flex gap-2 items-start pt-0.5" id={`okr-milestone-desktop-actions-${mIndex + 1}-${index}`} data-cy={`okr-milestone-desktop-actions-${mIndex + 1}-${index}`}>
                         <button type="button" onClick={() => handleEditMilestone(mIndex + 1)} title="Edit Milestone" aria-label="Edit Milestone" className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50" data-cy={`okr-milestone-desktop-edit-${mIndex + 1}-${index}`}>
                           <EditOutlined className="text-xs" />
+                        </button>
+                        <button type="button" onClick={() => handleRemoveMilestone(mIndex + 1)} aria-label="Remove milestone" title="Remove milestone" className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50" data-cy={`okr-milestone-desktop-remove-${mIndex + 1}-${index}`}>
+                          <CloseOutlined className="text-xs" />
                         </button>
                       </div>
                     </div>
@@ -451,7 +471,16 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         onChange={(value) => handleMilestoneChange(0, 'weight', value)}
                       />
                     </Form.Item>
-                    <div className="w-8" data-cy={`okr-milestone-desktop-advanced-row-0-spacer-${index}`} />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveMilestone(0)}
+                      aria-label="Remove milestone"
+                      title="Remove milestone"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-300"
+                      data-cy={`okr-milestone-desktop-advanced-remove-0-${index}`}
+                    >
+                      <CloseOutlined className="text-xs" />
+                    </button>
                   </div>
 
                   {milestones.slice(1).map((milestone: any, mIndex: number) => (
@@ -479,6 +508,17 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                             aria-label="Edit milestone"
                           >
                             <EditOutlined className="text-xs" />
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Remove milestone">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMilestone(mIndex + 1)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-300"
+                            data-cy={`okr-milestone-desktop-advanced-remove-${mIndex + 1}-${index}`}
+                            aria-label="Remove milestone"
+                          >
+                            <CloseOutlined className="text-xs" />
                           </button>
                         </Tooltip>
                       </div>

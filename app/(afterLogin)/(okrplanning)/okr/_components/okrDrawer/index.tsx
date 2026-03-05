@@ -18,7 +18,12 @@ import {
   WEIGHT_TOOLTIP,
   DEADLINE_TOOLTIP,
 } from '../keyresultForm/_ui';
-import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import {
+  useOKRStore,
+  useAchieveOrNotStore,
+  useMilestoneFormStore,
+  useKeyResultFormStore,
+} from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useCreateObjective } from '@/store/server/features/okrplanning/okr/objective/mutations';
@@ -60,6 +65,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const [showInlineKeyResultForm, setShowInlineKeyResultForm] = useState(false);
   const [editingKeyResultIndex, setEditingKeyResultIndex] = useState<number | null>(null);
   const isBasic = useIsBasicOkr();
+  const resetAchieveOrNot = useAchieveOrNotStore((s) => s.resetAchieveOrNot);
+  const resetMilestoneForm = useMilestoneFormStore((s) => s.resetMilestoneForm);
+  const resetKeyResultForm = useKeyResultFormStore((s) => s.resetKeyResultForm);
 
   const modalHeader = (
     <div
@@ -116,6 +124,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     setShowMetricSelector(false);
     setShowInlineKeyResultForm(false);
     setEditingKeyResultIndex(null);
+    resetAchieveOrNot();
+    resetMilestoneForm();
+    resetKeyResultForm();
     setObjectiveValue(buildEmptyObjective());
     setObjective(buildEmptyObjective());
   };
