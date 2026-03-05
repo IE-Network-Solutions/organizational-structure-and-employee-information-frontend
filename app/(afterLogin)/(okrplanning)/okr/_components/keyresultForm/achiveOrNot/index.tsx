@@ -1,7 +1,10 @@
 import React, { useEffect } from 'react';
 import { Button, Form, DatePicker, Input, InputNumber } from 'antd';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
-import { useOKRStore, useAchieveOrNotStore } from '@/store/uistate/features/okrplanning/okr';
+import {
+  useOKRStore,
+  useAchieveOrNotStore,
+} from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
@@ -31,7 +34,8 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
   const { objectiveValue } = useOKRStore();
   const { isMobile } = useIsMobile();
   const isBasic = useIsBasicOkr();
-  const disableWeightEdit = disableWeightEditProp ?? isKeyResultLockedForWeightEdit(keyItem);
+  const disableWeightEdit =
+    disableWeightEditProp ?? isKeyResultLockedForWeightEdit(keyItem);
   const cardViewKey = `${keyItem?.id ?? 'new'}-${index}`;
   const setCardView = useAchieveOrNotStore((s) => s.setCardView);
   const isCardView = useAchieveOrNotStore(
@@ -50,7 +54,11 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
       data-cy={`okr-achieve-form-container-${index}`}
       className={`relative mb-4 ${isBasic ? 'bg-white border border-gray-200 rounded-lg p-6' : 'border border-gray-200 rounded-lg p-6'}`}
     >
-      <div className="absolute top-2 right-2" style={{ zIndex: 10 }} data-cy={`okr-achieve-form-remove-wrapper-${index}`}>
+      <div
+        className="absolute top-2 right-2"
+        style={{ zIndex: 10 }}
+        data-cy={`okr-achieve-form-remove-wrapper-${index}`}
+      >
         <KeyResultRemoveButton
           onClick={() => removeKeyResult(index)}
           title="Remove Key Result"
@@ -62,7 +70,10 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
 
       {/* Advanced mode: "You Have Selected" badge */}
       {!isBasic && (
-        <KeyResultSelectedBadge label="Achieve or not" data-cy={`okr-achieve-selected-badge-${index}`} />
+        <KeyResultSelectedBadge
+          label="Achieve or not"
+          data-cy={`okr-achieve-selected-badge-${index}`}
+        />
       )}
 
       <Form
@@ -72,8 +83,11 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
         layout="vertical"
         initialValues={{
           ...keyItem,
-          weight: keyItem?.weight != null ? Number(keyItem.weight) : keyItem?.weight,
-          [`dead_line_${index}`]: keyItem?.deadline ? dayjs(keyItem.deadline) : undefined,
+          weight:
+            keyItem?.weight != null ? Number(keyItem.weight) : keyItem?.weight,
+          [`dead_line_${index}`]: keyItem?.deadline
+            ? dayjs(keyItem.deadline)
+            : undefined,
         }}
         requiredMark={false}
       >
@@ -87,8 +101,15 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             <Form.Item
               className="flex-1 min-w-[200px] mb-0"
               name="title"
-              label={<KeyResultFieldLabel label="Key Result" tooltip={KEY_RESULT_TOOLTIP} />}
-              rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+              label={
+                <KeyResultFieldLabel
+                  label="Key Result"
+                  tooltip={KEY_RESULT_TOOLTIP}
+                />
+              }
+              rules={[
+                { required: true, message: 'Please enter the Key Result name' },
+              ]}
               id={`key-result-name-${index}`}
               data-cy={`okr-achieve-desktop-title-item-${index}`}
             >
@@ -103,14 +124,17 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             <Form.Item
               className="w-28 mb-0"
               name="weight"
-              label={<KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />}
+              label={
+                <KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />
+              }
               rules={[
                 { required: true, message: 'Please enter the Weight' },
                 {
                   type: 'number',
                   min: 0,
                   max: 100,
-                  transform: (v: any) => (v != null && v !== '' ? Number(v) : v),
+                  transform: (v: any) =>
+                    v != null && v !== '' ? Number(v) : v,
                   message: 'Weight must be between 0 and 100',
                 },
               ]}
@@ -131,7 +155,12 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             <Form.Item
               className="w-44 mb-0"
               name={`dead_line_${index}`}
-              label={<KeyResultFieldLabel label="Deadline" tooltip={DEADLINE_TOOLTIP} />}
+              label={
+                <KeyResultFieldLabel
+                  label="Deadline"
+                  tooltip={DEADLINE_TOOLTIP}
+                />
+              }
               rules={[{ required: true, message: 'Please select a deadline' }]}
               id={`deadline-picker-${index}`}
               data-cy={`okr-achieve-desktop-deadline-item-${index}`}
@@ -144,12 +173,25 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 disabledDate={(current) => {
                   const startOfToday = dayjs().startOf('day');
                   const objectiveDeadline = dayjs(objectiveValue?.deadline);
-                  return current && (current < startOfToday || current > objectiveDeadline);
+                  return (
+                    current &&
+                    (current < startOfToday || current > objectiveDeadline)
+                  );
                 }}
                 aria-label="Deadline"
               />
             </Form.Item>
-            <Form.Item className="mb-0" label={<span className="opacity-0 select-none" data-cy={`okr-achieve-save-label-spacer-${index}`}>Save</span>}>
+            <Form.Item
+              className="mb-0"
+              label={
+                <span
+                  className="opacity-0 select-none"
+                  data-cy={`okr-achieve-save-label-spacer-${index}`}
+                >
+                  Save
+                </span>
+              }
+            >
               <Button
                 type="primary"
                 className="bg-okr-primary hover:bg-blue-800 text-white h-10 px-6 rounded-lg font-medium"
@@ -158,10 +200,26 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                     .validateFields()
                     .then((values) => {
                       // Sync form values to store before collapse (same as Create modal)
-                      updateKeyResult(index, 'title', (values.title ?? '').toString().trim());
-                      updateKeyResult(index, 'weight', values.weight != null && values.weight !== '' ? Number(values.weight) : values.weight);
+                      updateKeyResult(
+                        index,
+                        'title',
+                        (values.title ?? '').toString().trim(),
+                      );
+                      updateKeyResult(
+                        index,
+                        'weight',
+                        values.weight != null && values.weight !== ''
+                          ? Number(values.weight)
+                          : values.weight,
+                      );
                       const rawDeadline = values[`dead_line_${index}`];
-                      updateKeyResult(index, 'deadline', rawDeadline != null ? dayjs(rawDeadline).format('YYYY-MM-DD') : null);
+                      updateKeyResult(
+                        index,
+                        'deadline',
+                        rawDeadline != null
+                          ? dayjs(rawDeadline).format('YYYY-MM-DD')
+                          : null,
+                      );
                       onSaveSuccess?.();
                     })
                     .catch(() => {})
@@ -191,12 +249,25 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 data-cy={`okr-achieve-desktop-top-row-${index}`}
                 className={ADVANCED_WRAPPER_CLASS}
               >
-                <div className={`${ADVANCED_ROW_CLASS} items-end`} data-cy={`okr-achieve-desktop-advanced-row-${index}`}>
+                <div
+                  className={`${ADVANCED_ROW_CLASS} items-end`}
+                  data-cy={`okr-achieve-desktop-advanced-row-${index}`}
+                >
                   <Form.Item
                     className="flex-1 mb-0"
                     name="title"
-                    label={<KeyResultFieldLabel label="Key Result" tooltip={KEY_RESULT_TOOLTIP} />}
-                    rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+                    label={
+                      <KeyResultFieldLabel
+                        label="Key Result"
+                        tooltip={KEY_RESULT_TOOLTIP}
+                      />
+                    }
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please enter the Key Result name',
+                      },
+                    ]}
                     id={`key-result-name-${index}`}
                     data-cy={`okr-achieve-desktop-title-item-${index}`}
                   >
@@ -207,18 +278,26 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                       aria-label="Key Result Name"
                       className={INPUT_CLASS}
                       value={keyItem.title === '' ? undefined : keyItem.title}
-                      onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
+                      onChange={(e) =>
+                        updateKeyResult(index, 'title', e.target.value)
+                      }
                     />
                   </Form.Item>
                   <Form.Item
                     className="w-32 mb-0"
                     name="weight"
-                    label={<KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />}
+                    label={
+                      <KeyResultFieldLabel
+                        label="Weight"
+                        tooltip={WEIGHT_TOOLTIP}
+                      />
+                    }
                     rules={[
                       { required: true, message: 'Weight required' },
                       {
                         type: 'number',
-                        transform: (v: any) => (v != null && v !== '' ? Number(v) : v),
+                        transform: (v: any) =>
+                          v != null && v !== '' ? Number(v) : v,
                         message: 'Must be a number',
                       },
                     ]}
@@ -233,15 +312,26 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                       suffix="%"
                       placeholder="Input"
                       aria-label="Weight"
-                      value={keyItem?.weight != null ? Number(keyItem.weight) : keyItem?.weight}
-                      onChange={(value) => updateKeyResult(index, 'weight', value)}
+                      value={
+                        keyItem?.weight != null
+                          ? Number(keyItem.weight)
+                          : keyItem?.weight
+                      }
+                      onChange={(value) =>
+                        updateKeyResult(index, 'weight', value)
+                      }
                       disabled={disableWeightEdit}
                     />
                   </Form.Item>
                   <Form.Item
                     className="w-44 mb-0"
                     name={`dead_line_${index}`}
-                    label={<KeyResultFieldLabel label="Deadline" tooltip={DEADLINE_TOOLTIP} />}
+                    label={
+                      <KeyResultFieldLabel
+                        label="Deadline"
+                        tooltip={DEADLINE_TOOLTIP}
+                      />
+                    }
                     rules={[{ required: true, message: 'Deadline required' }]}
                     id={`deadline-picker-${index}`}
                     data-cy={`okr-achieve-desktop-deadline-item-${index}`}
@@ -254,14 +344,36 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                       format="YYYY-MM-DD"
                       disabledDate={(current) => {
                         const startOfToday = dayjs().startOf('day');
-                        const objectiveDeadline = dayjs(objectiveValue?.deadline);
-                        return current && (current < startOfToday || current > objectiveDeadline);
+                        const objectiveDeadline = dayjs(
+                          objectiveValue?.deadline,
+                        );
+                        return (
+                          current &&
+                          (current < startOfToday ||
+                            current > objectiveDeadline)
+                        );
                       }}
-                      onChange={(date) => updateKeyResult(index, 'deadline', date ? date.format('YYYY-MM-DD') : null)}
+                      onChange={(date) =>
+                        updateKeyResult(
+                          index,
+                          'deadline',
+                          date ? date.format('YYYY-MM-DD') : null,
+                        )
+                      }
                       aria-label="Deadline"
                     />
                   </Form.Item>
-                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none" data-cy={`okr-achieve-save-label-spacer-${index}`}>Save</span>}>
+                  <Form.Item
+                    className="mb-0"
+                    label={
+                      <span
+                        className="opacity-0 select-none"
+                        data-cy={`okr-achieve-save-label-spacer-${index}`}
+                      >
+                        Save
+                      </span>
+                    }
+                  >
                     <Button
                       type="primary"
                       className="bg-okr-primary hover:bg-blue-800 text-white h-10 rounded-lg font-medium"
@@ -269,10 +381,26 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                         form
                           .validateFields()
                           .then((values) => {
-                            updateKeyResult(index, 'title', (values.title ?? '').toString().trim());
-                            updateKeyResult(index, 'weight', values.weight != null && values.weight !== '' ? Number(values.weight) : values.weight);
+                            updateKeyResult(
+                              index,
+                              'title',
+                              (values.title ?? '').toString().trim(),
+                            );
+                            updateKeyResult(
+                              index,
+                              'weight',
+                              values.weight != null && values.weight !== ''
+                                ? Number(values.weight)
+                                : values.weight,
+                            );
                             const rawDeadline = values[`dead_line_${index}`];
-                            updateKeyResult(index, 'deadline', rawDeadline != null ? dayjs(rawDeadline).format('YYYY-MM-DD') : null);
+                            updateKeyResult(
+                              index,
+                              'deadline',
+                              rawDeadline != null
+                                ? dayjs(rawDeadline).format('YYYY-MM-DD')
+                                : null,
+                            );
                             setCardView(cardViewKey, true);
                           })
                           .catch(() => {});
@@ -292,7 +420,10 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
         {isMobile && (
           <>
             {isCardView ? (
-              <div className="mt-4 mx-4" data-cy={`okr-achieve-mobile-card-wrapper-${index}`}>
+              <div
+                className="mt-4 mx-4"
+                data-cy={`okr-achieve-mobile-card-wrapper-${index}`}
+              >
                 <KeyResultSavedCard
                   weight={keyItem.weight ?? 0}
                   title={keyItem.title ?? ''}
@@ -301,8 +432,13 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                     // Sync form values with current keyItem data
                     form.setFieldsValue({
                       title: keyItem.title,
-                      weight: keyItem?.weight != null ? Number(keyItem.weight) : keyItem?.weight,
-                      [`dead_line_${index}`]: keyItem.deadline ? dayjs(keyItem.deadline) : null,
+                      weight:
+                        keyItem?.weight != null
+                          ? Number(keyItem.weight)
+                          : keyItem?.weight,
+                      [`dead_line_${index}`]: keyItem.deadline
+                        ? dayjs(keyItem.deadline)
+                        : null,
                     });
                   }}
                   id={`okr-achieve-mobile-saved-card-${index}`}
@@ -318,8 +454,18 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 <Form.Item
                   className="mb-0"
                   name="title"
-                  label={<KeyResultFieldLabel label="Key Result" tooltip={KEY_RESULT_TOOLTIP} />}
-                  rules={[{ required: true, message: 'Please enter the Key Result name' }]}
+                  label={
+                    <KeyResultFieldLabel
+                      label="Key Result"
+                      tooltip={KEY_RESULT_TOOLTIP}
+                    />
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please enter the Key Result name',
+                    },
+                  ]}
                   id={`key-result-name-mobile-${index}`}
                   data-cy={`okr-achieve-mobile-title-item-${index}`}
                 >
@@ -331,16 +477,26 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                     className="h-10 rounded-lg text-base"
                   />
                 </Form.Item>
-                <div id={`okr-achieve-mobile-meta-row-${index}`} data-cy={`okr-achieve-mobile-meta-row-${index}`} className="flex gap-2 items-end">
+                <div
+                  id={`okr-achieve-mobile-meta-row-${index}`}
+                  data-cy={`okr-achieve-mobile-meta-row-${index}`}
+                  className="flex gap-2 items-end"
+                >
                   <Form.Item
                     className="flex-1 mb-0"
                     name="weight"
-                    label={<KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />}
+                    label={
+                      <KeyResultFieldLabel
+                        label="Weight"
+                        tooltip={WEIGHT_TOOLTIP}
+                      />
+                    }
                     rules={[
                       { required: true, message: 'Please enter the Weight' },
                       {
                         type: 'number',
-                        transform: (v: any) => (v != null && v !== '' ? Number(v) : v),
+                        transform: (v: any) =>
+                          v != null && v !== '' ? Number(v) : v,
                         message: 'Weight must be a number',
                       },
                     ]}
@@ -357,12 +513,19 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                       aria-label="Weight"
                       disabled={disableWeightEdit}
                     />
-                </Form.Item>
-                <Form.Item
-                  className="flex-1 mb-0"
-                  name={`dead_line_${index}`}
-                    label={<KeyResultFieldLabel label="Deadline" tooltip={DEADLINE_TOOLTIP} />}
-                    rules={[{ required: true, message: 'Please select a deadline' }]}
+                  </Form.Item>
+                  <Form.Item
+                    className="flex-1 mb-0"
+                    name={`dead_line_${index}`}
+                    label={
+                      <KeyResultFieldLabel
+                        label="Deadline"
+                        tooltip={DEADLINE_TOOLTIP}
+                      />
+                    }
+                    rules={[
+                      { required: true, message: 'Please select a deadline' },
+                    ]}
                     id={`deadline-picker-mobile-${index}`}
                     data-cy={`okr-achieve-mobile-deadline-item-${index}`}
                   >
@@ -373,13 +536,29 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                       format="YYYY-MM-DD"
                       disabledDate={(current) => {
                         const startOfToday = dayjs().startOf('day');
-                        const objectiveDeadline = dayjs(objectiveValue?.deadline);
-                        return current && (current < startOfToday || current > objectiveDeadline);
+                        const objectiveDeadline = dayjs(
+                          objectiveValue?.deadline,
+                        );
+                        return (
+                          current &&
+                          (current < startOfToday ||
+                            current > objectiveDeadline)
+                        );
                       }}
                       aria-label="Deadline"
                     />
                   </Form.Item>
-                  <Form.Item className="mb-0" label={<span className="opacity-0 select-none" data-cy={`okr-achieve-save-label-spacer-${index}`}>Save</span>}>
+                  <Form.Item
+                    className="mb-0"
+                    label={
+                      <span
+                        className="opacity-0 select-none"
+                        data-cy={`okr-achieve-save-label-spacer-${index}`}
+                      >
+                        Save
+                      </span>
+                    }
+                  >
                     <Button
                       type="primary"
                       className="bg-okr-primary hover:bg-blue-800 text-white h-10 rounded-lg font-medium px-4"
@@ -387,11 +566,29 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                         form
                           .validateFields()
                           .then((values) => {
-                            updateKeyResult(index, 'title', (values.title ?? '').toString().trim());
-                            updateKeyResult(index, 'weight', values.weight != null && values.weight !== '' ? Number(values.weight) : values.weight);
+                            updateKeyResult(
+                              index,
+                              'title',
+                              (values.title ?? '').toString().trim(),
+                            );
+                            updateKeyResult(
+                              index,
+                              'weight',
+                              values.weight != null && values.weight !== ''
+                                ? Number(values.weight)
+                                : values.weight,
+                            );
                             const rawDeadline = values[`dead_line_${index}`];
-                            updateKeyResult(index, 'deadline', rawDeadline != null ? dayjs(rawDeadline).format('YYYY-MM-DD') : null);
-                            onSaveSuccess ? onSaveSuccess() : setCardView(cardViewKey, true);
+                            updateKeyResult(
+                              index,
+                              'deadline',
+                              rawDeadline != null
+                                ? dayjs(rawDeadline).format('YYYY-MM-DD')
+                                : null,
+                            );
+                            onSaveSuccess
+                              ? onSaveSuccess()
+                              : setCardView(cardViewKey, true);
                           })
                           .catch(() => {});
                       }}

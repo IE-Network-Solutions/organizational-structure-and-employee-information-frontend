@@ -1,9 +1,18 @@
 import React from 'react';
 import { Avatar, Menu, Dropdown } from 'antd';
-import { EllipsisOutlined, CheckOutlined, CloseOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import {
+  EllipsisOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
 import { PiCalendarBold } from 'react-icons/pi';
-import { useOKRStore, useObjectiveBasicStore } from '@/store/uistate/features/okrplanning/okr';
+import {
+  useOKRStore,
+  useObjectiveBasicStore,
+} from '@/store/uistate/features/okrplanning/okr';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteObjective } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import {
@@ -199,16 +208,31 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         data-cy={`okr-objective-basic-card-container-${objective?.id}`}
         className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
       >
-        <div className={expanded ? 'p-6 pb-2' : 'p-6'} data-cy={`okr-objective-basic-card-body-${objective?.id}`}>
-          <div className="flex items-start justify-between" data-cy={`okr-objective-basic-card-inner-${objective?.id}`}>
-            <div className="w-full" data-cy={`okr-objective-basic-card-main-${objective?.id}`}>
-              <div className="flex-1 min-w-0" data-cy={`okr-objective-basic-card-content-${objective?.id}`}>
+        <div
+          className={expanded ? 'p-6 pb-2' : 'p-6'}
+          data-cy={`okr-objective-basic-card-body-${objective?.id}`}
+        >
+          <div
+            className="flex items-start justify-between"
+            data-cy={`okr-objective-basic-card-inner-${objective?.id}`}
+          >
+            <div
+              className="w-full"
+              data-cy={`okr-objective-basic-card-main-${objective?.id}`}
+            >
+              <div
+                className="flex-1 min-w-0"
+                data-cy={`okr-objective-basic-card-content-${objective?.id}`}
+              >
                 <div
                   id={`okr-objective-basic-header-${objective?.id}`}
                   data-cy={`okr-objective-basic-header-${objective?.id}`}
                   className="flex items-center justify-between sm:justify-start gap-2 mb-3 pl-10"
                 >
-                  <div className="flex-1 sm:flex-none min-w-0" data-cy={`okr-objective-basic-progress-cell-${objective?.id}`}>
+                  <div
+                    className="flex-1 sm:flex-none min-w-0"
+                    data-cy={`okr-objective-basic-progress-cell-${objective?.id}`}
+                  >
                     <span
                       className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 whitespace-nowrap"
                       data-cy={`okr-objective-progress-badge-${objective?.id}`}
@@ -217,20 +241,34 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                       Objective Progress
                     </span>
                   </div>
-                  <div className="flex-1 sm:flex-none min-w-0 flex justify-end sm:justify-start" data-cy={`okr-objective-basic-kr-count-cell-${objective?.id}`}>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white" data-cy={`okr-objective-basic-kr-count-badge-${objective?.id}`}>
-                      {completedKeyResults} - {totalKeyResults} Key Results
-                      Done
+                  <div
+                    className="flex-1 sm:flex-none min-w-0 flex justify-end sm:justify-start"
+                    data-cy={`okr-objective-basic-kr-count-cell-${objective?.id}`}
+                  >
+                    <span
+                      className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white"
+                      data-cy={`okr-objective-basic-kr-count-badge-${objective?.id}`}
+                    >
+                      {completedKeyResults} - {totalKeyResults} Key Results Done
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4" data-cy={`okr-objective-basic-title-actions-row-${objective?.id}`}>
+                <div
+                  className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4"
+                  data-cy={`okr-objective-basic-title-actions-row-${objective?.id}`}
+                >
                   <div
                     className="max-w-3xl min-w-0 order-1"
                     data-cy={`okr-objective-basic-title-wrapper-${objective?.id}`}
                   >
-                    <div className="relative flex items-center justify-between gap-2 mb-2 sm:pl-10" data-cy={`okr-objective-basic-title-row-${objective?.id}`}>
-                      <div className="flex items-center gap-2 min-w-0" data-cy={`okr-objective-basic-title-flex-${objective?.id}`}>
+                    <div
+                      className="relative flex items-center justify-between gap-2 mb-2 sm:pl-10"
+                      data-cy={`okr-objective-basic-title-row-${objective?.id}`}
+                    >
+                      <div
+                        className="flex items-center gap-2 min-w-0"
+                        data-cy={`okr-objective-basic-title-flex-${objective?.id}`}
+                      >
                         <button
                           type="button"
                           onClick={() => toggleExpanded(objectiveIdStr)}
@@ -251,25 +289,30 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           {objective?.title}
                         </h2>
                       </div>
-                      {objective?.isClosed === false && Number(objective?.objectiveProgress ?? 0) !== 100 && menu && (
-                        <Dropdown
-                          data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
-                          overlay={menu}
-                          trigger={['click']}
-                          placement="bottomRight"
-                          overlayClassName="okr-actions-dropdown"
-                        >
-                          <button
-                            type="button"
-                            className="sm:hidden text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 flex items-center justify-center flex-shrink-0"
-                            data-cy={`okr-objective-basic-menu-button-mobile-${objective?.id}`}
+                      {objective?.isClosed === false &&
+                        Number(objective?.objectiveProgress ?? 0) !== 100 &&
+                        menu && (
+                          <Dropdown
+                            data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
+                            overlay={menu}
+                            trigger={['click']}
+                            placement="bottomRight"
+                            overlayClassName="okr-actions-dropdown"
                           >
-                            <EllipsisOutlined className="text-lg" />
-                          </button>
-                        </Dropdown>
-                      )}
+                            <button
+                              type="button"
+                              className="sm:hidden text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 flex items-center justify-center flex-shrink-0"
+                              data-cy={`okr-objective-basic-menu-button-mobile-${objective?.id}`}
+                            >
+                              <EllipsisOutlined className="text-lg" />
+                            </button>
+                          </Dropdown>
+                        )}
                     </div>
-                    <div className="flex items-center text-sm text-gray-500 pl-10" data-cy={`okr-objective-basic-days-left-${objective?.id}`}>
+                    <div
+                      className="flex items-center text-sm text-gray-500 pl-10"
+                      data-cy={`okr-objective-basic-days-left-${objective?.id}`}
+                    >
                       <PiCalendarBold className="mr-2 text-lg text-gray-400" />
                       <span
                         id={`objective-basic-status-${objective?.id}`}
@@ -279,7 +322,10 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-start sm:items-center justify-end gap-3 flex-shrink-0 order-2 sm:ml-auto" data-cy={`okr-objective-basic-actions-cell-${objective?.id}`}>
+                  <div
+                    className="flex items-start sm:items-center justify-end gap-3 flex-shrink-0 order-2 sm:ml-auto"
+                    data-cy={`okr-objective-basic-actions-cell-${objective?.id}`}
+                  >
                     {!myOkr && objective?.user && (
                       <div
                         className="flex items-center gap-3"
@@ -293,22 +339,47 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           {!objective.user.profileImage &&
                             `${objective.user.firstName?.[0] || ''}${objective.user.lastName?.[0] || ''}`.toUpperCase()}
                         </Avatar>
-                        <div className="text-left sm:text-right" data-cy={`okr-objective-basic-assignee-info-${objective?.id}`}>
-                          <p className="text-xs sm:text-sm font-semibold text-gray-900" data-cy={`okr-objective-basic-assignee-name-${objective?.id}`}>
-                            {[objective.user.firstName, objective.user.middleName, objective.user.lastName]
+                        <div
+                          className="text-left sm:text-right"
+                          data-cy={`okr-objective-basic-assignee-info-${objective?.id}`}
+                        >
+                          <p
+                            className="text-xs sm:text-sm font-semibold text-gray-900"
+                            data-cy={`okr-objective-basic-assignee-name-${objective?.id}`}
+                          >
+                            {[
+                              objective.user.firstName,
+                              objective.user.middleName,
+                              objective.user.lastName,
+                            ]
                               .filter(Boolean)
                               .join(' ')}
                           </p>
-                          <p className="text-[11px] sm:text-xs text-gray-500" data-cy={`okr-objective-basic-assignee-dept-${objective?.id}`}>
+                          <p
+                            className="text-[11px] sm:text-xs text-gray-500"
+                            data-cy={`okr-objective-basic-assignee-dept-${objective?.id}`}
+                          >
                             {(() => {
-                              const job = objective.user?.employeeJobInformation?.[0] as { department?: { name: string }; position?: { name: string } } | undefined;
-                              return job?.department?.name || job?.position?.name || '-';
+                              const job = objective.user
+                                ?.employeeJobInformation?.[0] as
+                                | {
+                                    department?: { name: string };
+                                    position?: { name: string };
+                                  }
+                                | undefined;
+                              return (
+                                job?.department?.name ||
+                                job?.position?.name ||
+                                '-'
+                              );
                             })()}
                           </p>
                         </div>
                       </div>
                     )}
-                    {objective?.isClosed === false && Number(objective?.objectiveProgress ?? 0) !== 100 && menu && (
+                    {objective?.isClosed === false &&
+                      Number(objective?.objectiveProgress ?? 0) !== 100 &&
+                      menu && (
                         <Dropdown
                           data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
                           overlay={menu}
@@ -316,16 +387,16 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                           placement="bottomRight"
                           overlayClassName="okr-actions-dropdown"
                         >
-                        <button
-                          type="button"
-                          className="hidden sm:flex text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 items-center justify-center flex-shrink-0"
-                          id={`objective-basic-menu-button-${objective?.id}`}
-                          data-cy={`okr-objective-basic-menu-button-desktop-${objective?.id}`}
-                        >
-                          <EllipsisOutlined className="text-lg" />
-                        </button>
-                      </Dropdown>
-                    )}
+                          <button
+                            type="button"
+                            className="hidden sm:flex text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 items-center justify-center flex-shrink-0"
+                            id={`objective-basic-menu-button-${objective?.id}`}
+                            data-cy={`okr-objective-basic-menu-button-desktop-${objective?.id}`}
+                          >
+                            <EllipsisOutlined className="text-lg" />
+                          </button>
+                        </Dropdown>
+                      )}
                   </div>
                 </div>
               </div>
@@ -339,152 +410,165 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
             data-cy={`okr-objective-basic-key-results-${objective?.id}`}
             className="mt-0 border-t border-gray-200 overflow-x-auto"
           >
-            <div className="min-w-[600px]" data-cy={`okr-objective-basic-key-results-table-${objective?.id}`}>
-              <div className="bg-gray-50 px-6 py-3" data-cy={`okr-objective-basic-key-results-header-${objective?.id}`}>
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider" data-cy={`okr-objective-basic-key-results-header-label-${objective?.id}`}>
+            <div
+              className="min-w-[600px]"
+              data-cy={`okr-objective-basic-key-results-table-${objective?.id}`}
+            >
+              <div
+                className="bg-gray-50 px-6 py-3"
+                data-cy={`okr-objective-basic-key-results-header-${objective?.id}`}
+              >
+                <div
+                  className="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  data-cy={`okr-objective-basic-key-results-header-label-${objective?.id}`}
+                >
                   Key Result
                 </div>
               </div>
-              <div className="divide-y divide-gray-200 bg-white" data-cy={`okr-objective-basic-key-results-list-${objective?.id}`}>
-              {objective?.keyResults?.map((keyResult: any) => {
-                const statusInfo = getKeyResultStatus(keyResult);
-                const keyResultMenu = getKeyResultMenu(keyResult);
-                const isAchieved = statusInfo.value === 'Achieved';
-                const isFailed = statusInfo.value === 'Failed';
-                const isPending =
-                  statusInfo.value === 'Pending' ||
-                  statusInfo.value === 'pending';
-                const isResolved = isAchieved || isFailed;
-                const canToggle =
-                  isOwner &&
-                  isInActiveSession &&
-                  !objective?.isClosed &&
-                  (isPending || isAchieved || isFailed);
+              <div
+                className="divide-y divide-gray-200 bg-white"
+                data-cy={`okr-objective-basic-key-results-list-${objective?.id}`}
+              >
+                {objective?.keyResults?.map((keyResult: any) => {
+                  const statusInfo = getKeyResultStatus(keyResult);
+                  const keyResultMenu = getKeyResultMenu(keyResult);
+                  const isAchieved = statusInfo.value === 'Achieved';
+                  const isFailed = statusInfo.value === 'Failed';
+                  const isPending =
+                    statusInfo.value === 'Pending' ||
+                    statusInfo.value === 'pending';
+                  const isResolved = isAchieved || isFailed;
+                  const canToggle =
+                    isOwner &&
+                    isInActiveSession &&
+                    !objective?.isClosed &&
+                    (isPending || isAchieved || isFailed);
 
-                const handleCheckboxClick = () => {
-                  if (!canToggle) return;
-                  if (isAchieved) {
-                    handleStatusChange(keyResult, 'Pending');
-                  } else if (isFailed) {
-                    handleStatusChange(keyResult, 'Pending');
-                  } else {
-                    handleStatusChange(keyResult, 'Achieved');
-                  }
-                };
+                  const handleCheckboxClick = () => {
+                    if (!canToggle) return;
+                    if (isAchieved) {
+                      handleStatusChange(keyResult, 'Pending');
+                    } else if (isFailed) {
+                      handleStatusChange(keyResult, 'Pending');
+                    } else {
+                      handleStatusChange(keyResult, 'Achieved');
+                    }
+                  };
 
-                return (
-                  <div
-                    key={keyResult.id}
-                    id={`key-result-basic-${keyResult.id}`}
-                    data-cy={`okr-key-result-basic-${keyResult.id}`}
-                    className={`relative flex items-center gap-4 px-6 py-4 transition-colors group ${
-                      isAchieved
-                        ? 'bg-green-50/80 hover:bg-green-100/60'
-                        : isFailed
-                          ? 'bg-red-50/80 hover:bg-red-100/60'
-                          : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={handleCheckboxClick}
-                      disabled={!canToggle}
-                      data-cy={`okr-key-result-basic-checkbox-${keyResult.id}`}
-                      className={`relative z-10 flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-colors ${
-                        canToggle ? 'cursor-pointer' : 'cursor-default'
-                      } ${
+                  return (
+                    <div
+                      key={keyResult.id}
+                      id={`key-result-basic-${keyResult.id}`}
+                      data-cy={`okr-key-result-basic-${keyResult.id}`}
+                      className={`relative flex items-center gap-4 px-6 py-4 transition-colors group ${
                         isAchieved
-                          ? 'border-green-500 bg-green-500 text-white hover:border-green-600 hover:bg-green-600'
+                          ? 'bg-green-50/80 hover:bg-green-100/60'
                           : isFailed
-                            ? 'border-red-500 bg-red-500 text-white hover:border-red-600 hover:bg-red-600'
-                            : 'border-gray-300 hover:border-blue-600'
+                            ? 'bg-red-50/80 hover:bg-red-100/60'
+                            : 'hover:bg-gray-50'
                       }`}
-                      aria-label={
-                        isAchieved
-                          ? 'Mark as pending'
-                          : isFailed
-                            ? 'Mark as pending'
-                            : 'Mark as achieved'
-                      }
                     >
-                      {isAchieved && <CheckOutlined className="text-xs" />}
-                      {isFailed && <CloseOutlined className="text-xs" />}
-                    </button>
-                    <div
-                      className="flex-1 min-w-0 flex items-center gap-0"
-                      data-cy={`okr-key-result-basic-title-wrapper-${keyResult.id}`}
-                    >
-                      <span
-                        className={`text-sm font-medium min-w-0 break-words ${
+                      <button
+                        type="button"
+                        onClick={handleCheckboxClick}
+                        disabled={!canToggle}
+                        data-cy={`okr-key-result-basic-checkbox-${keyResult.id}`}
+                        className={`relative z-10 flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                          canToggle ? 'cursor-pointer' : 'cursor-default'
+                        } ${
                           isAchieved
-                            ? 'line-through text-gray-500 decoration-green-500 decoration-2'
+                            ? 'border-green-500 bg-green-500 text-white hover:border-green-600 hover:bg-green-600'
                             : isFailed
-                              ? 'line-through text-gray-500 decoration-red-500 decoration-2'
-                              : 'text-gray-900'
+                              ? 'border-red-500 bg-red-500 text-white hover:border-red-600 hover:bg-red-600'
+                              : 'border-gray-300 hover:border-blue-600'
                         }`}
-                        data-cy={`okr-key-result-basic-title-${keyResult.id}`}
+                        aria-label={
+                          isAchieved
+                            ? 'Mark as pending'
+                            : isFailed
+                              ? 'Mark as pending'
+                              : 'Mark as achieved'
+                        }
                       >
-                        {keyResult?.title}
-                      </span>
-                      {isResolved && (
-                        <div
-                          className={`h-0.5 min-w-[24px] flex-1 shrink basis-0 ${
-                            isAchieved ? 'bg-green-500' : 'bg-red-500'
-                          }`}
-                          aria-hidden
-                          data-cy={`okr-key-result-basic-strikethrough-${keyResult.id}`}
-                        />
-                      )}
-                    </div>
-                    <div
-                      className="flex items-center gap-2 flex-shrink-0 w-[200px] min-w-[200px]"
-                      data-cy={`okr-key-result-basic-details-${keyResult.id}`}
-                    >
-                      {isResolved && (
+                        {isAchieved && <CheckOutlined className="text-xs" />}
+                        {isFailed && <CloseOutlined className="text-xs" />}
+                      </button>
+                      <div
+                        className="flex-1 min-w-0 flex items-center gap-0"
+                        data-cy={`okr-key-result-basic-title-wrapper-${keyResult.id}`}
+                      >
                         <span
-                          className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white ${
-                            isAchieved ? 'bg-green-500' : 'bg-red-500'
+                          className={`text-sm font-medium min-w-0 break-words ${
+                            isAchieved
+                              ? 'line-through text-gray-500 decoration-green-500 decoration-2'
+                              : isFailed
+                                ? 'line-through text-gray-500 decoration-red-500 decoration-2'
+                                : 'text-gray-900'
                           }`}
-                          data-cy={`okr-key-result-basic-status-icon-${keyResult.id}`}
+                          data-cy={`okr-key-result-basic-title-${keyResult.id}`}
                         >
-                          {isAchieved ? (
-                            <CheckOutlined className="text-xs" />
-                          ) : (
-                            <CloseOutlined className="text-xs" />
-                          )}
+                          {keyResult?.title}
                         </span>
-                      )}
-                      <span
-                        className="text-xs text-gray-600 border border-gray-200 px-2 py-1 rounded bg-white group-hover:border-gray-300"
-                        data-cy={`okr-key-result-basic-weight-${keyResult.id}`}
+                        {isResolved && (
+                          <div
+                            className={`h-0.5 min-w-[24px] flex-1 shrink basis-0 ${
+                              isAchieved ? 'bg-green-500' : 'bg-red-500'
+                            }`}
+                            aria-hidden
+                            data-cy={`okr-key-result-basic-strikethrough-${keyResult.id}`}
+                          />
+                        )}
+                      </div>
+                      <div
+                        className="flex items-center gap-2 flex-shrink-0 w-[200px] min-w-[200px]"
+                        data-cy={`okr-key-result-basic-details-${keyResult.id}`}
                       >
-                        Weight: {keyResult?.weight ?? '—'}
-                      </span>
-                      {keyResultMenu && Number(keyResult?.progress ?? 0) === 0 && (
-                        <Dropdown
-                          data-cy={`okr-key-result-basic-actions-dropdown-${keyResult.id}`}
-                          overlay={keyResultMenu}
-                          trigger={['click']}
-                          placement="bottomRight"
-                          overlayClassName="okr-actions-dropdown"
-                        >
-                          <button
-                            type="button"
-                            className="text-gray-400 hover:text-gray-600 border border-gray-200 rounded p-1"
-                            data-cy={`okr-key-result-basic-actions-button-${keyResult.id}`}
+                        {isResolved && (
+                          <span
+                            className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white ${
+                              isAchieved ? 'bg-green-500' : 'bg-red-500'
+                            }`}
+                            data-cy={`okr-key-result-basic-status-icon-${keyResult.id}`}
                           >
-                            <EllipsisOutlined
-                              id={`key-result-basic-menu-button-${keyResult.id}`}
-                              data-cy={`okr-key-result-basic-menu-button-${keyResult.id}`}
-                              className="text-lg"
-                            />
-                          </button>
-                        </Dropdown>
-                      )}
+                            {isAchieved ? (
+                              <CheckOutlined className="text-xs" />
+                            ) : (
+                              <CloseOutlined className="text-xs" />
+                            )}
+                          </span>
+                        )}
+                        <span
+                          className="text-xs text-gray-600 border border-gray-200 px-2 py-1 rounded bg-white group-hover:border-gray-300"
+                          data-cy={`okr-key-result-basic-weight-${keyResult.id}`}
+                        >
+                          Weight: {keyResult?.weight ?? '—'}
+                        </span>
+                        {keyResultMenu &&
+                          Number(keyResult?.progress ?? 0) === 0 && (
+                            <Dropdown
+                              data-cy={`okr-key-result-basic-actions-dropdown-${keyResult.id}`}
+                              overlay={keyResultMenu}
+                              trigger={['click']}
+                              placement="bottomRight"
+                              overlayClassName="okr-actions-dropdown"
+                            >
+                              <button
+                                type="button"
+                                className="text-gray-400 hover:text-gray-600 border border-gray-200 rounded p-1"
+                                data-cy={`okr-key-result-basic-actions-button-${keyResult.id}`}
+                              >
+                                <EllipsisOutlined
+                                  id={`key-result-basic-menu-button-${keyResult.id}`}
+                                  data-cy={`okr-key-result-basic-menu-button-${keyResult.id}`}
+                                  className="text-lg"
+                                />
+                              </button>
+                            </Dropdown>
+                          )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
               </div>
             </div>
           </div>

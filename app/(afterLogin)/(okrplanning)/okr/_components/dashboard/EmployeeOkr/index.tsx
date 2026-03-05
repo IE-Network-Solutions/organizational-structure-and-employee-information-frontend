@@ -180,7 +180,10 @@ const EmployeeOKRTable: React.FC = () => {
     const map = new Map<string, string>();
     if (allUsers?.items) {
       allUsers.items.forEach((user: any) => {
-        const fullName = `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim().toLowerCase();
+        const fullName =
+          `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`
+            .trim()
+            .toLowerCase();
         map.set(user.id, fullName);
       });
     }
@@ -262,7 +265,13 @@ const EmployeeOKRTable: React.FC = () => {
           data-cy="employee-okr-fiscal-year-label"
           className="text-sm text-gray-700"
         >
-          Fiscal Year <span className="text-red-500" data-cy="employee-okr-fiscal-year-required">*</span>
+          Fiscal Year{' '}
+          <span
+            className="text-red-500"
+            data-cy="employee-okr-fiscal-year-required"
+          >
+            *
+          </span>
         </label>
         <Select
           loading={fyLoading}
@@ -304,7 +313,13 @@ const EmployeeOKRTable: React.FC = () => {
           data-cy="employee-okr-session-label"
           className="text-sm text-gray-700"
         >
-          Session <span className="text-red-500" data-cy="employee-okr-session-required">*</span>
+          Session{' '}
+          <span
+            className="text-red-500"
+            data-cy="employee-okr-session-required"
+          >
+            *
+          </span>
         </label>
         <Select
           loading={fyLoading}
@@ -316,9 +331,7 @@ const EmployeeOKRTable: React.FC = () => {
           allowClear
           showSearch
           onChange={(value: any) => {
-            setSessionIds(
-              Array.isArray(value) ? value : value ? [value] : [],
-            );
+            setSessionIds(Array.isArray(value) ? value : value ? [value] : []);
           }}
           mode="multiple"
           filterOption={(input, option) =>
@@ -352,7 +365,13 @@ const EmployeeOKRTable: React.FC = () => {
           data-cy="employee-okr-employee-label"
           className="text-sm text-gray-700"
         >
-          Employee <span className="text-red-500" data-cy="employee-okr-employee-required">*</span>
+          Employee{' '}
+          <span
+            className="text-red-500"
+            data-cy="employee-okr-employee-required"
+          >
+            *
+          </span>
         </label>
         <Select
           id="employee-okr-employee-select"
@@ -364,19 +383,13 @@ const EmployeeOKRTable: React.FC = () => {
           value={searchObjParams.userId}
           onChange={(value) => handleFilter(value, 'userId')}
           filterOption={(input: any, option: any) =>
-            (option?.label ?? '')
-              ?.toLowerCase()
-              .includes(input.toLowerCase())
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
           }
           options={allUsers?.items?.map((item: any) => ({
             ...item,
             value: item?.id,
             label:
-              item?.firstName +
-              ' ' +
-              item?.middleName +
-              ' ' +
-              item?.lastName,
+              item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
           }))}
         />
       </div>
@@ -656,7 +669,11 @@ const EmployeeOKRTable: React.FC = () => {
 
       <div
         className={isMobile || isTablet ? 'overflow-x-auto' : ''}
-        style={isMobile || isTablet ? { WebkitOverflowScrolling: 'touch' } : undefined}
+        style={
+          isMobile || isTablet
+            ? { WebkitOverflowScrolling: 'touch' }
+            : undefined
+        }
         data-cy="employee-okr-table-wrapper"
       >
         <Table

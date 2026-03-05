@@ -31,7 +31,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   title = 'Delete OKR',
   'data-cy': dataCy,
 }) => {
-  const messageContent = customMessage ?? deleteMessage ?? 'Are you sure you want to delete this Objective? All Key results under it will be removed.';
+  const messageContent =
+    customMessage ??
+    deleteMessage ??
+    'Are you sure you want to delete this Objective? All Key results under it will be removed.';
 
   const deleteModalFooter = (
     <div
@@ -76,11 +79,22 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       )}
     >
       <div className="flex gap-3" data-cy="delete-confirmation-modal-content">
-        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFE4E4] flex items-center justify-center" data-cy="delete-confirmation-modal-icon">
+        <div
+          className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFE4E4] flex items-center justify-center"
+          data-cy="delete-confirmation-modal-icon"
+        >
           <CloseOutlined style={{ color: '#B91C1C', fontSize: 18 }} />
         </div>
-        <div className="flex-1 min-w-0" data-cy="delete-confirmation-modal-text-container">
-          <h3 className="text-[17px] font-bold text-[#333333] m-0 mb-2 tracking-tight" data-cy="delete-confirmation-modal-title">{title}</h3>
+        <div
+          className="flex-1 min-w-0"
+          data-cy="delete-confirmation-modal-text-container"
+        >
+          <h3
+            className="text-[17px] font-bold text-[#333333] m-0 mb-2 tracking-tight"
+            data-cy="delete-confirmation-modal-title"
+          >
+            {title}
+          </h3>
           <p
             data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
             className="text-[14px] font-normal text-[#666666] leading-[1.5] m-0"

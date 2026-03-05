@@ -1326,6 +1326,7 @@ h6 {
 }
 .okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
   color: rgba(0, 0, 0, 0.88) !important;
+}
 /* Leave Management table: thin light gray borders, no vertical lines */
 .leave-management-table .ant-table {
   border: none !important;

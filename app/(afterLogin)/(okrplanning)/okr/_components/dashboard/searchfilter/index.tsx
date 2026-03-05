@@ -8,7 +8,10 @@ import {
   useGetActiveFiscalYears,
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { useOKRStore, useSearchFilterStore } from '@/store/uistate/features/okrplanning/okr';
+import {
+  useOKRStore,
+  useSearchFilterStore,
+} from '@/store/uistate/features/okrplanning/okr';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { LuSettings2 } from 'react-icons/lu';
@@ -20,7 +23,10 @@ interface OkrSearchProps {
   'data-cy'?: string;
 }
 
-const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': dataCy }) => {
+const OkrSearch: React.FC<OkrSearchProps> = ({
+  embedded = false,
+  'data-cy': dataCy,
+}) => {
   const {
     isFilterModalOpen: isModalOpen,
     openFilterModal,
@@ -186,7 +192,13 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
             data-cy="okr-mobile-employee-label"
             className="text-sm font-medium text-gray-700"
           >
-            Employee <span className="text-red-500" data-cy="okr-mobile-employee-required">*</span>
+            Employee{' '}
+            <span
+              className="text-red-500"
+              data-cy="okr-mobile-employee-required"
+            >
+              *
+            </span>
           </label>
           <Select
             id="mobile-employee-select"
@@ -199,19 +211,13 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
             value={searchObjParams.userId}
             onChange={(value) => handleFilter(value, 'userId')}
             filterOption={(input: any, option: any) =>
-              (option?.label ?? '')
-                ?.toLowerCase()
-                .includes(input.toLowerCase())
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
             options={allUsers?.items?.map((item: any) => ({
               ...item,
               value: item?.id,
               label:
-                item?.firstName +
-                ' ' +
-                item?.middleName +
-                ' ' +
-                item?.lastName,
+                item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
             }))}
           />
         </div>
@@ -229,7 +235,13 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
             data-cy="okr-mobile-department-label"
             className="text-sm font-medium text-gray-700"
           >
-            Department <span className="text-red-500" data-cy="okr-mobile-department-required">*</span>
+            Department{' '}
+            <span
+              className="text-red-500"
+              data-cy="okr-mobile-department-required"
+            >
+              *
+            </span>
           </label>
           <Select
             id="mobile-department-select"
@@ -270,7 +282,13 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
           data-cy="okr-mobile-fiscal-year-label"
           className="text-sm font-medium text-gray-700"
         >
-          Fiscal Year <span className="text-red-500" data-cy="okr-mobile-fiscal-year-required">*</span>
+          Fiscal Year{' '}
+          <span
+            className="text-red-500"
+            data-cy="okr-mobile-fiscal-year-required"
+          >
+            *
+          </span>
         </label>
         <Select
           loading={fyLoading}
@@ -313,7 +331,10 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
           data-cy="okr-mobile-session-label"
           className="text-sm font-medium text-gray-700"
         >
-          Session <span className="text-red-500" data-cy="okr-mobile-session-required">*</span>
+          Session{' '}
+          <span className="text-red-500" data-cy="okr-mobile-session-required">
+            *
+          </span>
         </label>
         <Select
           loading={fyLoading}
@@ -367,7 +388,13 @@ const OkrSearch: React.FC<OkrSearchProps> = ({ embedded = false, 'data-cy': data
             data-cy="okr-mobile-metric-type-label"
             className="text-sm font-medium text-gray-700"
           >
-            Metric Type <span className="text-red-500" data-cy="okr-mobile-metric-type-required">*</span>
+            Metric Type{' '}
+            <span
+              className="text-red-500"
+              data-cy="okr-mobile-metric-type-required"
+            >
+              *
+            </span>
           </label>
           <Select
             id="mobile-metric-type-select"

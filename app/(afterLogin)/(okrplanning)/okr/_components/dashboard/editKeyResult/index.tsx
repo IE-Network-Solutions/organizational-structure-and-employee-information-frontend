@@ -3,7 +3,10 @@ import { Modal, Form, Tooltip } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import KeyResultForm from '../../keyresultForm';
 import { KeyResultSelectedBadge } from '../../keyresultForm/_ui';
-import { useOKRStore, useEditKeyResultStore } from '@/store/uistate/features/okrplanning/okr';
+import {
+  useOKRStore,
+  useEditKeyResultStore,
+} from '@/store/uistate/features/okrplanning/okr';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useGetKeyResultForEdit } from '@/store/server/features/okrplanning/okr/keyresult/queries';
@@ -23,11 +26,9 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
 
   const [form] = Form.useForm();
   const { mutate: updateKeyResult, isLoading } = useUpdateKeyResult();
-  const {
-    keyResultValue,
-    handleSingleKeyResultChange,
-  } = useOKRStore();
-  const { isEditing, setIsEditing, resetEditKeyResult } = useEditKeyResultStore();
+  const { keyResultValue, handleSingleKeyResultChange } = useOKRStore();
+  const { isEditing, setIsEditing, resetEditKeyResult } =
+    useEditKeyResultStore();
 
   const hasValidKeyResult = (value: any) =>
     value && typeof value === 'object' && !Array.isArray(value);
@@ -70,7 +71,10 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
       ...kr,
       key_type: kr?.key_type || kr?.metricType?.name || '',
       deadline: deadline ?? null,
-      weight: kr?.weight != null && kr?.weight !== '' ? Number(kr.weight) : kr?.weight,
+      weight:
+        kr?.weight != null && kr?.weight !== ''
+          ? Number(kr.weight)
+          : kr?.weight,
     };
   })();
 
@@ -248,7 +252,10 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           >
             Please update your key result below.
           </p>
-          <div className="border-b border-gray-200 mt-4" data-cy="okr-edit-key-result-section-divider" />
+          <div
+            className="border-b border-gray-200 mt-4"
+            data-cy="okr-edit-key-result-section-divider"
+          />
         </div>
 
         <div
@@ -267,27 +274,48 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
                 label={getMetricLabel(kr)}
                 data-cy="okr-edit-key-result-kr-card-badge"
               />
-              <div className="flex flex-wrap gap-2 mb-2" data-cy="okr-edit-key-result-kr-card-meta">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200" data-cy="okr-edit-key-result-kr-card-weight">
+              <div
+                className="flex flex-wrap gap-2 mb-2"
+                data-cy="okr-edit-key-result-kr-card-meta"
+              >
+                <span
+                  className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                  data-cy="okr-edit-key-result-kr-card-weight"
+                >
                   Weight {kr?.weight ?? 0}%
                 </span>
                 {isNumericType(kr) && (
                   <>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200" data-cy="okr-edit-key-result-kr-card-initial">
+                    <span
+                      className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                      data-cy="okr-edit-key-result-kr-card-initial"
+                    >
                       Initial Value : {kr?.initialValue ?? 0}
                     </span>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200" data-cy="okr-edit-key-result-kr-card-target">
+                    <span
+                      className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                      data-cy="okr-edit-key-result-kr-card-target"
+                    >
                       Target Value : {kr?.targetValue ?? 0}
                     </span>
                   </>
                 )}
               </div>
-              <div className="flex items-start justify-between gap-3" data-cy="okr-edit-key-result-kr-card-content">
-                <p className="text-base font-bold text-gray-900 leading-snug break-words flex-1 min-w-0" data-cy="okr-edit-key-result-kr-card-title">
+              <div
+                className="flex items-start justify-between gap-3"
+                data-cy="okr-edit-key-result-kr-card-content"
+              >
+                <p
+                  className="text-base font-bold text-gray-900 leading-snug break-words flex-1 min-w-0"
+                  data-cy="okr-edit-key-result-kr-card-title"
+                >
                   {kr?.title?.trim() ? (
                     kr.title
                   ) : (
-                    <span className="text-gray-400 italic font-normal" data-cy="okr-edit-key-result-kr-card-untitled">
+                    <span
+                      className="text-gray-400 italic font-normal"
+                      data-cy="okr-edit-key-result-kr-card-untitled"
+                    >
                       Untitled key result
                     </span>
                   )}
@@ -312,7 +340,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
                   data-cy="okr-edit-key-result-form-inline"
                   keyItem={normalizedKeyItem}
                   index={0}
-                  // eslint-disable-next-line 
+                  // eslint-disable-next-line
                   updateKeyResult={(_index, field, value) =>
                     handleSingleKeyResultChange(value, field as string)
                   }

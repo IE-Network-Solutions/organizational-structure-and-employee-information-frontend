@@ -1,13 +1,26 @@
 import React from 'react';
 import { Tooltip } from 'antd';
-import { QuestionCircleOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  QuestionCircleOutlined,
+  CloseOutlined,
+  EditOutlined,
+} from '@ant-design/icons';
 
 /** Shared tooltip content for Key Result field */
 export const KEY_RESULT_TOOLTIP = (
   <div className="py-1" data-cy="key-result-tooltip">
-    <div className="font-bold text-gray-900 mb-1" data-cy="key-result-tooltip-title">Key Results</div>
-    <div className="text-sm text-gray-700 leading-relaxed" data-cy="key-result-tooltip-content">
-      These are the different results you will get for your objective based on your selected metric
+    <div
+      className="font-bold text-gray-900 mb-1"
+      data-cy="key-result-tooltip-title"
+    >
+      Key Results
+    </div>
+    <div
+      className="text-sm text-gray-700 leading-relaxed"
+      data-cy="key-result-tooltip-content"
+    >
+      These are the different results you will get for your objective based on
+      your selected metric
     </div>
   </div>
 );
@@ -15,9 +28,18 @@ export const KEY_RESULT_TOOLTIP = (
 /** Shared tooltip content for Weight field */
 export const WEIGHT_TOOLTIP = (
   <div className="py-1" data-cy="weight-tooltip">
-    <div className="font-bold text-gray-900 mb-1" data-cy="weight-tooltip-title">Weight</div>
-    <div className="text-sm text-gray-700 leading-relaxed" data-cy="weight-tooltip-content">
-      Is the amount of scoring you give to each key result finally adding up to 100
+    <div
+      className="font-bold text-gray-900 mb-1"
+      data-cy="weight-tooltip-title"
+    >
+      Weight
+    </div>
+    <div
+      className="text-sm text-gray-700 leading-relaxed"
+      data-cy="weight-tooltip-content"
+    >
+      Is the amount of scoring you give to each key result finally adding up to
+      100
     </div>
   </div>
 );
@@ -41,15 +63,40 @@ export interface KeyResultFieldLabelProps {
 /**
  * Consistent label with required asterisk and help tooltip for Key Result form fields.
  */
-export function KeyResultFieldLabel({ label, tooltip, required = true }: KeyResultFieldLabelProps) {
+export function KeyResultFieldLabel({
+  label,
+  tooltip,
+  required = true,
+}: KeyResultFieldLabelProps) {
   return (
-    <span className="inline-flex items-center gap-1 text-sm font-medium text-gray-700" data-cy="key-result-field-label">
-      <span className="inline-flex items-center" data-cy="key-result-field-label-text">
+    <span
+      className="inline-flex items-center gap-1 text-sm font-medium text-gray-700"
+      data-cy="key-result-field-label"
+    >
+      <span
+        className="inline-flex items-center"
+        data-cy="key-result-field-label-text"
+      >
         {label}
-        {required && <span className="text-red-500 ml-0.5" data-cy="key-result-field-required">*</span>}
+        {required && (
+          <span
+            className="text-red-500 ml-0.5"
+            data-cy="key-result-field-required"
+          >
+            *
+          </span>
+        )}
       </span>
-      <Tooltip title={tooltip} overlayClassName="okr-tooltip-custom" placement="topLeft" data-cy="key-result-field-tooltip">
-        <QuestionCircleOutlined className="text-gray-400 cursor-help" data-cy="key-result-field-tooltip-icon" />
+      <Tooltip
+        title={tooltip}
+        overlayClassName="okr-tooltip-custom"
+        placement="topLeft"
+        data-cy="key-result-field-tooltip"
+      >
+        <QuestionCircleOutlined
+          className="text-gray-400 cursor-help"
+          data-cy="key-result-field-tooltip-icon"
+        />
       </Tooltip>
     </span>
   );
@@ -123,8 +170,20 @@ export function KeyResultSectionCard({
       className="border border-gray-200 rounded-lg p-4"
     >
       {(title || badge) && (
-        <div className="flex justify-between items-center mb-4" data-cy="key-result-section-card-header">
-          {title ? <h4 className="text-sm font-bold text-gray-900" data-cy="key-result-section-card-title">{title}</h4> : <span data-cy="key-result-section-card-title-empty" />}
+        <div
+          className="flex justify-between items-center mb-4"
+          data-cy="key-result-section-card-header"
+        >
+          {title ? (
+            <h4
+              className="text-sm font-bold text-gray-900"
+              data-cy="key-result-section-card-title"
+            >
+              {title}
+            </h4>
+          ) : (
+            <span data-cy="key-result-section-card-title-empty" />
+          )}
           {badge}
         </div>
       )}
@@ -141,11 +200,22 @@ export interface KeyResultSelectedBadgeProps {
 /**
  * "You Have Selected: {label}" badge for advanced mode.
  */
-export function KeyResultSelectedBadge({ label, 'data-cy': dataCy }: KeyResultSelectedBadgeProps) {
+export function KeyResultSelectedBadge({
+  label,
+  'data-cy': dataCy,
+}: KeyResultSelectedBadgeProps) {
   return (
     <div className="flex items-center gap-2 mb-4" data-cy={dataCy}>
-      <span className="text-sm text-gray-600" data-cy="key-result-selected-badge-label">You Have Selected:</span>
-      <span className="inline-flex items-center px-4 h-8 border border-okr-primary text-okr-primary rounded-lg text-sm font-medium" data-cy="key-result-selected-badge-value">
+      <span
+        className="text-sm text-gray-600"
+        data-cy="key-result-selected-badge-label"
+      >
+        You Have Selected:
+      </span>
+      <span
+        className="inline-flex items-center px-4 h-8 border border-okr-primary text-okr-primary rounded-lg text-sm font-medium"
+        data-cy="key-result-selected-badge-value"
+      >
         {label}
       </span>
     </div>
@@ -176,15 +246,36 @@ export function KeyResultSavedCard({
       data-cy={dataCy}
       className="border border-gray-200 rounded-lg p-3 flex items-start justify-between"
     >
-      <div className="flex flex-col gap-2 flex-1 min-w-0" data-cy="key-result-saved-card-content">
-        <span className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block" data-cy="key-result-saved-card-weight">
+      <div
+        className="flex flex-col gap-2 flex-1 min-w-0"
+        data-cy="key-result-saved-card-content"
+      >
+        <span
+          className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block"
+          data-cy="key-result-saved-card-weight"
+        >
           Weight {weight}%
         </span>
-        <p className="text-sm font-medium text-gray-900 truncate" data-cy="key-result-saved-card-title">
-          {title ? title : <span className="text-gray-400 italic" data-cy="key-result-saved-card-untitled">Untitled key result</span>}
+        <p
+          className="text-sm font-medium text-gray-900 truncate"
+          data-cy="key-result-saved-card-title"
+        >
+          {title ? (
+            title
+          ) : (
+            <span
+              className="text-gray-400 italic"
+              data-cy="key-result-saved-card-untitled"
+            >
+              Untitled key result
+            </span>
+          )}
         </p>
       </div>
-      <div className="flex items-start gap-2 flex-shrink-0 pt-0.5" data-cy="key-result-saved-card-actions">
+      <div
+        className="flex items-start gap-2 flex-shrink-0 pt-0.5"
+        data-cy="key-result-saved-card-actions"
+      >
         <Tooltip title="Edit" data-cy="key-result-saved-card-edit-tooltip">
           <button
             type="button"

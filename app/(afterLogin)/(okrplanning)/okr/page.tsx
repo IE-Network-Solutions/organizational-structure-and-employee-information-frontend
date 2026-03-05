@@ -137,17 +137,34 @@ const OKR: React.FC<any> = () => {
             className="flex text-sm font-medium text-gray-500 mt-1"
             data-cy="okr-breadcrumb-nav"
           >
-            <ol className="flex items-center space-x-2" data-cy="okr-breadcrumb-list">
+            <ol
+              className="flex items-center space-x-2"
+              data-cy="okr-breadcrumb-list"
+            >
               <li data-cy="okr-breadcrumb-item-okr">
-                <a className="hover:text-okr-primary transition-colors" href="#" data-cy="okr-breadcrumb-link">
+                <a
+                  className="hover:text-okr-primary transition-colors"
+                  href="#"
+                  data-cy="okr-breadcrumb-link"
+                >
                   OKR
                 </a>
               </li>
               <li data-cy="okr-breadcrumb-item-separator">
-                <span className="text-gray-400" data-cy="okr-breadcrumb-separator">/</span>
+                <span
+                  className="text-gray-400"
+                  data-cy="okr-breadcrumb-separator"
+                >
+                  /
+                </span>
               </li>
               <li data-cy="okr-breadcrumb-item-objectives">
-                <span className="text-gray-900" data-cy="okr-breadcrumb-current">Objectives</span>
+                <span
+                  className="text-gray-900"
+                  data-cy="okr-breadcrumb-current"
+                >
+                  Objectives
+                </span>
               </li>
             </ol>
           </nav>
@@ -208,7 +225,7 @@ const OKR: React.FC<any> = () => {
                   : 'inline-flex items-center px-4 py-2 rounded-md shadow-sm'
               }`}
             />
-        </div>
+          </div>
         ) : null}
       </div>
       {/* Future: Conditional Rendering Based on OKR Mode

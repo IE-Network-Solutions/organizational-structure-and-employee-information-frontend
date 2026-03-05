@@ -181,15 +181,27 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
             className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white shadow-sm hover:shadow-md transition-shadow flex items-center justify-between text-left"
             onClick={() => setSheetOpen(storeKey, true)}
           >
-            <div className="min-w-0" data-cy={`okr-key-result-mobile-open-button-content-${index}`}>
-              <p className="text-xs text-okr-primary font-medium" data-cy={`okr-key-result-mobile-open-button-metric-${index}`}>
+            <div
+              className="min-w-0"
+              data-cy={`okr-key-result-mobile-open-button-content-${index}`}
+            >
+              <p
+                className="text-xs text-okr-primary font-medium"
+                data-cy={`okr-key-result-mobile-open-button-metric-${index}`}
+              >
                 {metricLabel}
               </p>
-              <p className="text-sm font-semibold text-gray-900 truncate" data-cy={`okr-key-result-mobile-open-button-title-${index}`}>
+              <p
+                className="text-sm font-semibold text-gray-900 truncate"
+                data-cy={`okr-key-result-mobile-open-button-title-${index}`}
+              >
                 {titleLabel}
               </p>
             </div>
-            <span className="text-okr-primary flex items-center gap-1 text-sm font-medium" data-cy={`okr-key-result-mobile-open-button-edit-${index}`}>
+            <span
+              className="text-okr-primary flex items-center gap-1 text-sm font-medium"
+              data-cy={`okr-key-result-mobile-open-button-edit-${index}`}
+            >
               <EditOutlined />
               Edit
             </span>
@@ -199,9 +211,20 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
             id={`okr-key-result-mobile-drawer-${index}`}
             data-cy={`okr-key-result-mobile-drawer-${index}`}
             title={
-              <div className="flex flex-col" data-cy={`okr-key-result-mobile-drawer-title-${index}`}>
-                <span className="text-xs text-gray-500" data-cy={`okr-key-result-mobile-drawer-title-metric-${index}`}>{metricLabel}</span>
-                <span className="text-sm font-semibold text-gray-900" data-cy={`okr-key-result-mobile-drawer-title-label-${index}`}>
+              <div
+                className="flex flex-col"
+                data-cy={`okr-key-result-mobile-drawer-title-${index}`}
+              >
+                <span
+                  className="text-xs text-gray-500"
+                  data-cy={`okr-key-result-mobile-drawer-title-metric-${index}`}
+                >
+                  {metricLabel}
+                </span>
+                <span
+                  className="text-sm font-semibold text-gray-900"
+                  data-cy={`okr-key-result-mobile-drawer-title-label-${index}`}
+                >
                   {titleLabel}
                 </span>
               </div>

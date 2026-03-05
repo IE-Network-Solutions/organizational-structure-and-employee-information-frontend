@@ -1,10 +1,12 @@
-
 import { Dropdown, Menu, Progress, Select } from 'antd';
 import { FC } from 'react';
 import { useQueryClient } from 'react-query';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
-import { useOKRStore, useKeyResultMetricsStore } from '@/store/uistate/features/okrplanning/okr';
+import {
+  useOKRStore,
+  useKeyResultMetricsStore,
+} from '@/store/uistate/features/okrplanning/okr';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
 import {
@@ -54,7 +56,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
 
   const isEditModalOpen = editModalKeyResultId === String(keyResult?.id ?? '');
-  const isDeleteModalOpen = deleteModalKeyResultId === String(keyResult?.id ?? '');
+  const isDeleteModalOpen =
+    deleteModalKeyResultId === String(keyResult?.id ?? '');
   const { mutate: updateKeyResult } = useUpdateKeyResult();
   const { userId } = useAuthenticationStore();
   const isBasicOkr = useIsBasicOkr();
