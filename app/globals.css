@@ -1326,4 +1326,81 @@ h6 {
 }
 .okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
   color: rgba(0, 0, 0, 0.88) !important;
+/* Leave Management table: thin light gray borders, no vertical lines */
+.leave-management-table .ant-table {
+  border: none !important;
+}
+.leave-management-table .ant-table-thead > tr > th {
+  background: #f9fafb !important;
+  color: #374151;
+  font-weight: 700 !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  border-right: none !important;
+}
+.leave-management-table .ant-table-thead > tr > th,
+.leave-management-table .ant-table-thead > tr > th * {
+  font-weight: 700 !important;
+}
+.leave-management-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f3f4f6 !important;
+  border-right: none !important;
+}
+/* Employee names in first column: not bold (override UserCard font-semibold) */
+.leave-management-table .ant-table-tbody td:first-child .font-semibold,
+.leave-management-table
+  .ant-table-tbody
+  td:first-child
+  [data-cy='components-common-usercard-usercard-tsx-usercard-div-38'] {
+  font-weight: 400 !important;
+}
+.leave-management-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
+/* Leave Management toolbar: thin light gray borders on search/filter controls */
+#time-attendance-leave-management-search-employee.ant-select
+  .ant-select-selector,
+#time-attendance-leave-management-search-employee.ant-select:hover
+  .ant-select-selector,
+#time-attendance-leave-management-search-employee.ant-select.ant-select-open
+  .ant-select-selector {
+  border-color: #f3f4f6 !important;
+  border-width: 1px !important;
+}
+#time-attendance-leave-management-search-employee.ant-select.ant-select-focused
+  .ant-select-selector {
+  border-color: #e5e7eb !important;
+  box-shadow: 0 0 0 1px #e5e7eb !important;
+}
+
+/* Leave Management filter: popover + date dropdown render inside filter root */
+#time-attendance-leave-management-filter-root {
+  position: relative !important;
+  overflow: visible !important;
+}
+#time-attendance-leave-management-filter-root .ant-picker-dropdown {
+  z-index: 1060 !important;
+}
+#time-attendance-leave-management-filter-popover-content {
+  overflow: visible !important;
+}
+
+/* Leave Request Detail Modal – Figma node 1943-11843: size & colors */
+.leave-request-detail-modal.ant-modal .ant-modal-content {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+}
+.leave-request-detail-modal.ant-modal .ant-modal-body {
+  padding: 24px !important;
+  color: #111827;
+}
+.leave-request-detail-modal.ant-modal .ant-modal-close {
+  color: #6b7280;
+}
+.leave-request-detail-modal.ant-modal .ant-modal-close:hover {
+  color: #111827;
 }
