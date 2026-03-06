@@ -1,6 +1,7 @@
+'use client';
 import React, { useEffect } from 'react';
-import { Select, Input, Form } from 'antd';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { Select, Input, Form, Modal, Tooltip, Row, Col } from 'antd';
+import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useGetCriteriaTargets } from '@/store/server/features/okrplanning/okr/criteria/queries';
@@ -17,7 +18,7 @@ import {
 
 const { Option } = Select;
 
-const AssignTargetDrawer: React.FC = () => {
+const AssignTargetModal: React.FC = () => {
   const { data: criteriaData } = useGetCriteriaTargets();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: activeSessionData } = useGetActiveSession();
@@ -45,13 +46,13 @@ const AssignTargetDrawer: React.FC = () => {
   const resetState = () => {
     form.resetFields();
     setSelectedMonths([]);
-    getTargetById;
     form.setFieldsValue({
       department: '',
       criteria: '',
       month: [],
     });
   };
+
   useEffect(() => {
     if (currentId && getTargetById) {
       form.setFieldsValue({
@@ -61,7 +62,7 @@ const AssignTargetDrawer: React.FC = () => {
         [getTargetById.month]: getTargetById.target,
       });
       setSelectedMonths([getTargetById.month]);
-    } else if (!currentId) {
+    } else if (!currentId && activeSessionData) {
       const allActiveMonths =
         activeSessionData?.months?.map((month: any) => month.name) || [];
       form.setFieldsValue({
@@ -69,17 +70,21 @@ const AssignTargetDrawer: React.FC = () => {
       });
       setSelectedMonths(allActiveMonths);
     }
-  }, [currentId, getTargetById, activeSessionData]);
+  }, [currentId, getTargetById, activeSessionData, setSelectedMonths, form]);
 
   useEffect(() => {
     if (isCreateSuccess || isUpdateSuccess) {
-      resetState();
-      closeDrawer();
+      handleModalClose();
     }
   }, [isCreateSuccess, isUpdateSuccess]);
 
+  const handleModalClose = () => {
+    resetState();
+    closeDrawer();
+  };
+
   const onSubmit = (values: any) => {
-    const target = values.month.map((month: string) => ({
+    const target = (values.month || []).map((month: string) => ({
       month,
       target: values[month],
     }));
@@ -100,192 +105,250 @@ const AssignTargetDrawer: React.FC = () => {
     }
   };
 
-  const handleDepartmentChange = () => {};
-  const handleCriteriaChange = () => {};
+  const footer = (
+    <div
+      className="flex justify-end gap-3 mt-4"
+      data-cy="okr-target-modal-footer"
+    >
+      <CustomButton
+        type="default"
+        title="Cancel"
+        onClick={handleModalClose}
+        className="h-10 px-6 rounded-lg"
+        id="okr-target-modal-cancel-button"
+        data-cy="okr-target-modal-cancel-button"
+      />
+      <CustomButton
+        onClick={() => form.submit()}
+        title={currentId ? 'Update' : 'Create'}
+        type="primary"
+        loading={isCreateLoading || isUpdateLoading}
+        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2]"
+        id="okr-target-modal-submit-button"
+        data-cy="okr-target-modal-submit-button"
+      />
+    </div>
+  );
 
   return (
-    <CustomDrawerLayout
+    <Modal
       open={isDrawerVisible}
-      onClose={closeDrawer}
-      modalHeader={
+      onCancel={handleModalClose}
+      title={
         <span
-          className="text-xl font-semibold"
-          id="okr-assign-target-drawer-header-title"
-          data-cy="okr-assign-target-drawer-header-title"
+          className="text-[20px] font-bold text-[#262626]"
+          data-cy="okr-target-modal-title"
         >
-          {currentId ? 'Update Target' : 'Assign Target'}
+          {currentId ? 'Edit Target Configuration' : 'Add Target Configuration'}
         </span>
       }
-      width="30%"
-      footer={
-        <div
-          className="flex justify-center items-center w-full h-full"
-          id="okr-assign-target-drawer-footer"
-          data-cy="okr-assign-target-drawer-footer"
-        >
-          <div
-            className="flex justify-between items-center gap-4"
-            id="okr-assign-target-drawer-footer-buttons"
-            data-cy="okr-assign-target-drawer-footer-buttons"
-          >
-            <CustomButton
-              type="default"
-              title="Cancel"
-              onClick={() => {
-                form.resetFields();
-                closeDrawer();
-                resetState();
-              }}
-              id="okr-assign-target-drawer-cancel-button"
-              data-cy="okr-assign-target-drawer-cancel-button"
-            />
-            <CustomButton
-              title={currentId ? 'Update' : 'Assign'}
-              onClick={() => form.submit()}
-              loading={currentId ? isUpdateLoading : isCreateLoading}
-              id="okr-assign-target-drawer-submit-button"
-              data-cy="okr-assign-target-drawer-submit-button"
-            />
-          </div>
-        </div>
+      footer={footer}
+      width={800}
+      centered
+      closeIcon={
+        <CloseOutlined
+          className="text-[#8c8c8c]"
+          data-cy="okr-target-modal-close-icon"
+        />
       }
-      data-cy="okr-assign-target-drawer"
+      data-cy="okr-target-modal"
+      className="okr-settings-modal"
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={onSubmit}
-        className="space-y-4"
-        id="okr-assign-target-drawer-form"
-        data-cy="okr-assign-target-drawer-form"
+        className="pt-4"
+        id="okr-target-modal-form"
+        data-cy="okr-target-modal-form"
       >
-        <Form.Item
-          label="Department"
-          name="department"
-          id="okr-assign-target-drawer-department-field"
-          data-cy="okr-assign-target-drawer-department-field"
-        >
-          <Select
-            placeholder="Select Department"
-            onChange={handleDepartmentChange}
-            className="w-full h-12"
-            allowClear
-            id="okr-assign-target-drawer-department-select"
-            data-cy="okr-assign-target-drawer-department-select"
-          >
-            {departmentData?.map((dept: any) => (
-              <Option
-                key={dept.id}
-                value={dept.id}
-                id={`okr-assign-target-drawer-department-option-${dept.id}`}
-                data-cy={`okr-assign-target-drawer-department-option-${dept.id}`}
-              >
-                {dept.name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          label="Choose Criteria"
-          name="criteria"
-          rules={[
-            { required: true, message: 'Please select at least one criteria' },
-          ]}
-          id="okr-assign-target-drawer-criteria-field"
-          data-cy="okr-assign-target-drawer-criteria-field"
-        >
-          <Select
-            placeholder="Select criteria"
-            onChange={handleCriteriaChange}
-            className="flex-1 h-12"
-            id="okr-assign-target-drawer-criteria-select"
-            data-cy="okr-assign-target-drawer-criteria-select"
-          >
-            {criteriaData?.items?.map((criteria: any) => (
-              <Option
-                key={criteria.id}
-                value={criteria.id}
-                id={`okr-assign-target-drawer-criteria-option-${criteria.id}`}
-                data-cy={`okr-assign-target-drawer-criteria-option-${criteria.id}`}
-              >
-                {criteria.name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          name="month"
-          label="Month"
-          rules={[{ required: true, message: 'Please select a month!' }]}
-          id="okr-assign-target-drawer-month-field"
-          data-cy="okr-assign-target-drawer-month-field"
-        >
-          <Select
-            className="h-12"
-            mode={currentId ? undefined : 'multiple'} // Single selection when currentId exists
-            placeholder="Select a month"
-            onChange={
-              (value) => setSelectedMonths(currentId ? [value] : value) // Normalize to an array
-            }
-            id="okr-assign-target-drawer-month-select"
-            data-cy="okr-assign-target-drawer-month-select"
-          >
-            {activeSessionData?.months?.map((month: any) => (
-              <Option
-                key={month.id}
-                value={month.name}
-                id={`okr-assign-target-drawer-month-option-${month.id}`}
-                data-cy={`okr-assign-target-drawer-month-option-${month.id}`}
-              >
-                {month.name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        {selectedMonths?.map((month) => (
-          <div
-            key={month}
-            className="flex items-center gap-4"
-            id={`okr-assign-target-drawer-month-block-${month}`}
-            data-cy={`okr-assign-target-drawer-month-block-${month}`}
-          >
+        <Row gutter={24} data-cy="okr-target-modal-department-row">
+          <Col span={12} data-cy="okr-target-modal-department-col">
             <Form.Item
-              id={`okr-assign-target-drawer-month-label-field-${month}`}
-              data-cy={`okr-assign-target-drawer-month-label-field-${month}`}
+              label={
+                <div
+                  className="flex items-center gap-1"
+                  data-cy="okr-target-modal-department-label"
+                >
+                  <span
+                    className="text-[14px] font-medium text-[#262626]"
+                    data-cy="okr-target-modal-department-label-text"
+                  >
+                    Department
+                  </span>
+                  <span
+                    className="text-red-500"
+                    data-cy="okr-target-modal-department-required-indicator"
+                  >
+                    *
+                  </span>
+                  <Tooltip title="Select the department for this assignment.">
+                    <QuestionCircleOutlined
+                      className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                      data-cy="okr-target-modal-department-tooltip"
+                    />
+                  </Tooltip>
+                </div>
+              }
+              name="department"
+              rules={[{ required: true, message: 'Please select department' }]}
+              data-cy="okr-target-modal-department-field"
             >
-              <Input
-                value={month}
-                disabled
-                className="flex-1 h-12"
-                id={`okr-assign-target-drawer-month-label-input-${month}`}
-                data-cy={`okr-assign-target-drawer-month-label-input-${month}`}
-              />
+              <Select
+                placeholder="Select Department"
+                className="w-full h-11 custom-modal-select"
+                dropdownClassName="custom-assignee-dropdown"
+                data-cy="okr-target-modal-department-select"
+              >
+                {departmentData?.map((dept: any) => (
+                  <Option
+                    key={dept.id}
+                    value={dept.id}
+                    data-cy={`okr-target-modal-department-option-${dept.id}`}
+                  >
+                    {dept.name}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
+          </Col>
+          <Col span={12} data-cy="okr-target-modal-criteria-col">
             <Form.Item
-              name={`${month}`}
-              className="flex-1"
-              rules={[{ required: true, message: 'Enter the weight here!' }]}
-              id={`okr-assign-target-drawer-month-weight-field-${month}`}
-              data-cy={`okr-assign-target-drawer-month-weight-field-${month}`}
+              label={
+                <div
+                  className="flex items-center gap-1"
+                  data-cy="okr-target-modal-criteria-label"
+                >
+                  <span
+                    className="text-[14px] font-medium text-[#262626]"
+                    data-cy="okr-target-modal-criteria-label-text"
+                  >
+                    Criteria
+                  </span>
+                  <span
+                    className="text-red-500"
+                    data-cy="okr-target-modal-criteria-required-indicator"
+                  >
+                    *
+                  </span>
+                  <Tooltip title="Select the criteria for this assignment.">
+                    <QuestionCircleOutlined
+                      className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                      data-cy="okr-target-modal-criteria-tooltip"
+                    />
+                  </Tooltip>
+                </div>
+              }
+              name="criteria"
+              rules={[{ required: true, message: 'Please select criteria' }]}
+              data-cy="okr-target-modal-criteria-field"
             >
-              <Input
-                placeholder="Enter Weight"
-                type="number"
-                min={0}
-                max={100}
-                className="h-12"
-                id={`okr-assign-target-drawer-month-weight-input-${month}`}
-                data-cy={`okr-assign-target-drawer-month-weight-input-${month}`}
-              />
+              <Select
+                placeholder="Select Criteria"
+                className="w-full h-11 custom-modal-select"
+                dropdownClassName="custom-assignee-dropdown"
+                data-cy="okr-target-modal-criteria-select"
+              >
+                {criteriaData?.items?.map((criteria: any) => (
+                  <Option
+                    key={criteria.id}
+                    value={criteria.id}
+                    data-cy={`okr-target-modal-criteria-option-${criteria.id}`}
+                  >
+                    {criteria.name}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
-          </div>
-        ))}
+          </Col>
+        </Row>
+
+        {/* Dynamic Month Targets Grid */}
+        <Row gutter={16} className="mt-2" data-cy="okr-target-modal-months-row">
+          {selectedMonths?.map((month) => (
+            <Col
+              key={month}
+              span={8}
+              data-cy={`okr-target-modal-month-col-${month}`}
+            >
+              <Form.Item
+                label={
+                  <div
+                    className="flex items-center gap-1"
+                    data-cy={`okr-target-modal-month-label-${month}`}
+                  >
+                    <span
+                      className="text-[14px] font-medium text-[#262626]"
+                      data-cy={`okr-target-modal-month-label-text-${month}`}
+                    >
+                      {month} Target
+                    </span>
+                    <span
+                      className="text-red-500"
+                      data-cy={`okr-target-modal-month-required-indicator-${month}`}
+                    >
+                      *
+                    </span>
+                  </div>
+                }
+                name={month}
+                rules={[{ required: true, message: 'Required' }]}
+                data-cy={`okr-target-modal-month-field-${month}`}
+              >
+                <Input
+                  type="number"
+                  placeholder="Input"
+                  className="h-11"
+                  data-cy={`okr-target-modal-month-input-${month}`}
+                />
+              </Form.Item>
+            </Col>
+          ))}
+        </Row>
+
+        {/* Hidden Month Multi-select for logic consistency */}
+        {!currentId && (
+          <Form.Item
+            name="month"
+            noStyle
+            data-cy="okr-target-modal-hidden-month-field"
+          />
+        )}
+
+        <style jsx global data-cy="okr-target-modal-styles">{`
+          .okr-settings-modal .custom-modal-select .ant-select-selector {
+            display: flex !important;
+            align-items: center !important;
+            height: 44px !important;
+          }
+          .okr-settings-modal
+            .custom-assignee-dropdown
+            .ant-select-item-option-selected {
+            background-color: #e6f7ff !important;
+          }
+          .okr-settings-modal .ant-modal-title {
+            margin-bottom: 24px !important;
+          }
+          .okr-settings-modal .ant-modal-header {
+            padding: 20px 24px 16px 24px !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+          }
+          .okr-settings-modal .ant-modal-body {
+            padding: 24px !important;
+          }
+          .okr-settings-modal .ant-modal-footer {
+            padding: 16px 24px 24px 24px !important;
+            border-top: 1px solid #f0f0f0 !important;
+          }
+          .okr-settings-modal .ant-form-item-label > label {
+            height: auto !important;
+            line-height: 1.5 !important;
+            padding-bottom: 4px !important;
+          }
+        `}</style>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 
-export default AssignTargetDrawer;
+export default AssignTargetModal;
