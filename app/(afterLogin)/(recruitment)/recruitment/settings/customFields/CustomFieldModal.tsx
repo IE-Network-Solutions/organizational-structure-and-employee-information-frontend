@@ -123,6 +123,17 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{ fieldMode: 'active' }}
+        onValuesChange={(changedValues, allValues) => {
+          const isOptionsType =
+            allValues.fieldValidation === 'multiple_choice' ||
+            allValues.fieldValidation === 'checkbox';
+          const optionsChanged = 'field' in changedValues;
+          const switchedAwayFromOptions =
+            'fieldValidation' in changedValues && !isOptionsType;
+          if ((optionsChanged && isOptionsType) || switchedAwayFromOptions) {
+            form.setFields([{ name: 'field', errors: [] }]);
+          }
+        }}
         data-cy="custom-field-form"
       >
         <Form.Item
@@ -178,20 +189,9 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
               <Form.List
                 name="field"
                 initialValue={[]}
-                rules={[
-                  {
-                    validator: async (rule, names) => {
-                      if (!names || names.length < 2) {
-                        return Promise.reject(
-                          new Error('At least 2 options are required'),
-                        );
-                      }
-                    },
-                  },
-                ]}
                 data-cy="custom-field-options-list"
               >
-                {(fields, { add, remove }) => (
+                {(fields, { add, remove }, { errors }) => (
                   <div
                     className="mb-4"
                     data-cy="custom-field-options-container"
@@ -202,6 +202,12 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
                     >
                       Options
                     </p>
+                    <Form.Item
+                      className="mb-2"
+                      style={{ marginBottom: errors.length ? undefined : 0 }}
+                    >
+                      <Form.ErrorList errors={errors} />
+                    </Form.Item>
                     {fields.map((field) => (
                       <Form.Item
                         data-cy={`custom-field-option-item-${field.key}`}
