@@ -28,11 +28,15 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
   // const router = useRouter();
 
   useEffect(() => {
-    // Register main service worker (PWA + push)
     if ('serviceWorker' in navigator) {
       const isDev = process.env.NODE_ENV === 'development';
-      const skipRegister = isDev && navigator.serviceWorker.controller;
-      if (!skipRegister) {
+      // In development: unregister all service workers so requests hit the Next server and avoid 404 / "missing required error components" loops
+      if (isDev) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          registrations.forEach((r) => r.unregister());
+        });
+      } else if (!navigator.serviceWorker.controller) {
+        // Production: register main service worker (PWA + push)
         navigator.serviceWorker
           .register('/sw.js', {
             scope: '/',
@@ -43,7 +47,6 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           .catch((e) => {
             alert(e);
           });
-        // Register minimal push-only SW (activates quickly so "Allow notifications" does not time out)
         navigator.serviceWorker
           .register('/sw-push.js', {
             scope: '/push/',

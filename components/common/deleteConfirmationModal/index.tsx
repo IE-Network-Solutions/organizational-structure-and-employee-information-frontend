@@ -2,7 +2,13 @@
 
 import React from 'react';
 import { Modal, Button } from 'antd';
-import Image from 'next/image';
+
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
 interface DeleteModalProps {
   open: boolean;
@@ -15,6 +21,8 @@ interface DeleteModalProps {
   loading?: boolean;
   id?: string;
   'data-cy'?: string;
+  /** When set, the modal is positioned just below this rect (e.g. under the trigger button) instead of centered */
+  triggerRect?: TriggerRect | null;
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -28,14 +36,27 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   loading,
   id,
   'data-cy': dataCy,
+  triggerRect,
 }) => {
+  const isPositioned = Boolean(triggerRect);
+  const modalStyle: React.CSSProperties | undefined = isPositioned
+    ? {
+        position: 'fixed',
+        top: triggerRect!.top + triggerRect!.height + 8,
+        left: triggerRect!.left,
+        margin: 0,
+        paddingBottom: 0,
+        maxHeight: `calc(100vh - ${triggerRect!.top + triggerRect!.height + 8}px)`,
+      }
+    : undefined;
+
   const deleteModalFooter = (
     <div
-      className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6"
+      className="w-full flex justify-end items-center gap-3 mt-6"
       data-cy="delete-confirmation-modal-footer"
     >
       <Button
-        className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+        className="px-5 h-9 text-sm font-medium border-gray-300"
         id="deleteModalCancelButtonId"
         onClick={onCancel}
       >
@@ -43,8 +64,9 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       </Button>
       <Button
         id="confirmDeleteId"
-        className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+        className="px-5 h-9 text-sm font-medium"
         type="primary"
+        danger
         loading={loading ?? false}
         onClick={onConfirm}
       >
@@ -55,43 +77,35 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   return (
     <Modal
       open={open}
-      width={500}
-      okText={'Delete'}
+      width={420}
       onOk={onConfirm}
       onCancel={onCancel}
       footer={deleteModalFooter}
+      centered={!isPositioned}
+      {...(modalStyle !== undefined && { style: modalStyle })}
+      title={
+        <span
+          className="text-base font-semibold text-gray-900"
+          data-cy="delete-confirmation-modal-title"
+        >
+          {deleteMessage ?? 'Delete'}
+        </span>
+      }
       modalRender={(modal) => (
         <div id={id} data-cy={dataCy}>
           {modal}
         </div>
       )}
+      data-cy="delete-confirmation-modal"
     >
-      <p
-        data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-69"
-        className="flex justify-center items-center h-[200px]"
-      >
-        <Image
-          src="/deleteSvg.svg"
-          width={300}
-          height={300}
-          alt="Picture of the author"
-        />
-      </p>
-
-      <p
-        data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
-        className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
-      >
-        {deleteMessage ?? 'you sure to Delete ? '}
-      </p>
-      {customMessage && (
-        <div
-          data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
-          className="mt-4 text-center"
+      <div className="py-2" data-cy="delete-confirmation-modal-content">
+        <p
+          data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
+          className="text-sm text-gray-700"
         >
-          {customMessage}
-        </div>
-      )}
+          {customMessage ?? 'Are you sure you want to delete this item?'}
+        </p>
+      </div>
     </Modal>
   );
 };

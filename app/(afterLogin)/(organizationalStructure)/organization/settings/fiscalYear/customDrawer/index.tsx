@@ -7,13 +7,10 @@ import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations
 import React, { useEffect } from 'react';
 import { FormInstance } from 'antd/lib';
 import { Form } from 'antd';
-import {
-  Month,
-  Session,
-} from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import FiscalYearForm from './steps/fiscalYearDrawer';
-import MonthDrawer from './steps/monthDrawer';
 import SessionDrawer from './steps/sessionDrawer';
+import MonthDrawer from './steps/monthDrawer';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 dayjs.extend(isBetween);
@@ -23,7 +20,6 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 dayjs.extend(isSameOrBefore);
 import { message } from 'antd'; // for error feedback
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 interface FiscalYearDrawerProps {
   form?: FormInstance;
@@ -38,26 +34,17 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     current,
     isEditMode,
     selectedFiscalYear,
-    calendarType,
     setEditMode,
     setSelectedFiscalYear,
-    fiscalYearFormValues,
-    sessionFormValues,
-    monthRangeValues,
     setCurrent,
     setMonthRangeFormValues,
-    setFiscalYearFormValues,
-    setSessionFormValues,
     openfiscalYearDrawer,
     setOpenFiscalYearDrawer,
     resetFormState,
-    setCalendarType,
-    setFiscalYearStart,
-    setFiscalYearEnd,
-    setSessionData,
+    setFiscalYearPayLoad,
   } = useFiscalYearDrawerStore();
 
-  const { data: fiscalYears } = useGetAllFiscalYears();
+  useGetAllFiscalYears();
 
   useEffect(() => {
     const formValues = form3?.getFieldsValue();
@@ -76,309 +63,169 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     setSelectedFiscalYear(null);
     setCurrent(0);
 
-    // Reset all form fields
     form1.resetFields();
-    form2.resetFields();
-    form3.resetFields();
-
-    // Clear all stored form values from the store
-    setFiscalYearFormValues({});
-    setSessionFormValues({});
-    setMonthRangeFormValues(null);
-
-    // Reset form validation state
     resetFormState();
-
-    // Reset calendar type and dates
-    setCalendarType('');
-    setFiscalYearStart(null);
-    setFiscalYearEnd(null);
-
-    // Reset session data
-    setSessionData([]);
+    setFiscalYearPayLoad(null);
   };
 
-  React.useEffect(() => {
-    if (
-      isEditMode &&
-      selectedFiscalYear &&
-      Array.isArray(monthRangeValues) &&
-      monthRangeValues.length > 0
-    ) {
-      form1.setFieldsValue(fiscalYearFormValues);
-      form2.setFieldsValue(sessionFormValues);
-      form3.setFieldsValue(
-        monthRangeValues.reduce(
-          (acc, month) => {
-            const key = month.monthNumber;
-            acc[`monthName_${key}`] = month.monthName;
-            acc[`monthStartDate_${key}`] = month.monthStartDate;
-            acc[`monthEndDate_${key}`] = month.monthEndDate;
-            acc[`monthDescription_${key}`] = month.monthDescription;
-            return acc;
-          },
-          {} as Record<string, any>,
-        ),
-      );
-    }
-  }, [isEditMode, selectedFiscalYear, monthRangeValues]);
-
-  const getTransformedFiscalYear = (
-    monthFormValues: any,
-    sessionFormValues: any,
-  ) => {
-    const months = Object.keys(monthFormValues)
-      .filter((key) => key.startsWith('monthName_'))
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */
-      .map((_, index) => ({
-        /* eslint-enable @typescript-eslint/naming-convention */
-        name: monthFormValues[`monthName_${index + 1}`],
-        description: monthFormValues[`monthDescription_${index + 1}`],
-        startDate: monthFormValues[`monthStartDate_${index + 1}`],
-        endDate: monthFormValues[`monthEndDate_${index + 1}`],
-      }));
-
-    const sessions = [];
-    if (calendarType === 'Quarter') {
-      sessions.push(
-        ...sessionFormValues?.sessionData.map((session: any, index: any) => ({
-          name: session.sessionName || `Session ${index + 1}`,
-          description:
-            session.sessionDescription ||
-            `Description for Session ${index + 1}`,
-          startDate: session.sessionStartDate || '',
-          endDate: session.sessionEndDate || '',
-          months: months.slice(index * 3, (index + 1) * 3),
-        })),
-      );
-    } else if (calendarType === 'Semester') {
-      sessions.push(
-        ...sessionFormValues?.sessionData.map((session: any, index: any) => ({
-          name: session.sessionName || `Session ${index + 1}`,
-          description:
-            session.sessionDescription ||
-            `Description for Session ${index + 1}`,
-          startDate: session.sessionStartDate || '',
-          endDate: session.sessionEndDate || '',
-          months: months.slice(index * 6, (index + 1) * 6),
-        })),
-      );
-    } else if (calendarType === 'Year') {
-      sessions.push(
-        ...sessionFormValues?.sessionData.map((session: any) => ({
-          name: session?.sessionName || 'Session 1',
-          description:
-            session?.sessionDescription || 'Description for Session 1',
-          startDate: session?.sessionStartDate || '',
-          endDate: session?.sessionEndDate || '',
-          months,
-        })),
-      );
-    }
-
-    return sessions;
-  };
-
-  const handleSubmit = (monthFormValues: any) => {
-    const fiscalYearData = getTransformedFiscalYear(
-      monthFormValues,
+  /* eslint-disable-next-line @typescript-eslint/naming-convention */
+  const handleSubmit = async () => {
+    // 1. Gather data from store
+    const {
+      fiscalYearFormValues,
       sessionFormValues,
-    );
+      monthRangeValues,
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      fiscalYearPayLoad,
+    } = useFiscalYearDrawerStore.getState();
 
+    // 2. Validate essential data availability
+    if (
+      !fiscalYearFormValues.fiscalYearStartDate ||
+      !fiscalYearFormValues.fiscalYearEndDate ||
+      !sessionFormValues.sessionData ||
+      sessionFormValues.sessionData.length === 0 ||
+      !monthRangeValues ||
+      monthRangeValues.length === 0
+    ) {
+      if (!fiscalYearPayLoad) {
+        message.error('Missing required fiscal year data.');
+        return;
+      }
+    }
+
+    // 3. Construct the payload
+    const payload: FiscalYear = {
+      name: fiscalYearFormValues.fiscalYearName,
+      startDate: dayjs(fiscalYearFormValues.fiscalYearStartDate),
+      endDate: fiscalYearFormValues.fiscalYearEndDate.format('YYYY-MM-DD'),
+      description: fiscalYearFormValues.fiscalYearDescription || '',
+      sessions: sessionFormValues.sessionData.map((session: any) => ({
+        id: session?.id, // Includes ID for updates
+        name: session.sessionName,
+        startDate: dayjs(session.sessionStartDate).format('YYYY-MM-DD'),
+        endDate: dayjs(session.sessionEndDate).format('YYYY-MM-DD'),
+        description: session.sessionDescription || '',
+        months: monthRangeValues
+          .filter((month: any) =>
+            dayjs(month.monthStartDate).isBetween(
+              dayjs(session.sessionStartDate),
+              dayjs(session.sessionEndDate),
+              null,
+              '[]',
+            ),
+          )
+          .map((month: any) => ({
+            id: month?.id, // Includes ID for updates
+            name: month.monthName,
+            startDate: dayjs(month.monthStartDate).format('YYYY-MM-DD'),
+            endDate: dayjs(month.monthEndDate).format('YYYY-MM-DD'),
+            description: month.monthDescription || '',
+          })),
+      })),
+    };
+
+    // Calculate isActive
     const now = dayjs();
-    // Determine if this fiscal year is active by date
-    const fyStart = fiscalYearFormValues?.fiscalYearStartDate
-      ? dayjs(fiscalYearFormValues.fiscalYearStartDate)
-      : null;
-    const fyEnd = fiscalYearFormValues?.fiscalYearEndDate
-      ? dayjs(fiscalYearFormValues.fiscalYearEndDate)
-      : null;
-    const isYearActive =
-      fyStart && fyEnd && now.isBetween(fyStart, fyEnd, null, '[]');
+    const fyStart = dayjs(payload.startDate);
+    const fyEnd = dayjs(payload.endDate);
 
-    const fiscalYearPayload = {
-      name: fiscalYearFormValues?.fiscalYearName,
-      startDate: fiscalYearFormValues?.fiscalYearStartDate
-        ? dayjs(fiscalYearFormValues.fiscalYearStartDate).format('YYYY-MM-DD')
-        : undefined,
-      endDate: fiscalYearFormValues?.fiscalYearEndDate
-        ? dayjs(fiscalYearFormValues.fiscalYearEndDate).format('YYYY-MM-DD')
-        : undefined,
-      description: fiscalYearFormValues?.fiscalYearDescription,
-      isActive: !!isYearActive,
-      sessions: fiscalYearData?.map((session: Session, sessionIdx: number) => {
-        // Get the session from selectedFiscalYear (if in edit mode)
-        const originalSession =
-          isEditMode && selectedFiscalYear?.sessions?.[sessionIdx];
-        const sessionStart = session?.startDate
-          ? dayjs(session.startDate)
-          : null;
-        const sessionEnd = session?.endDate ? dayjs(session.endDate) : null;
-        const isSessionActive =
-          sessionStart &&
-          sessionEnd &&
-          now.isBetween(sessionStart, sessionEnd, null, '[]');
+    const activeFiscalYearPayload = {
+      ...payload,
+      isActive: now.isBetween(fyStart, fyEnd, null, '[]'),
+      sessions: payload.sessions?.map((session: any) => {
+        const sStart = dayjs(session.startDate);
+        const sEnd = dayjs(session.endDate);
         return {
-          ...(isEditMode && originalSession?.id
-            ? { id: originalSession.id }
-            : {}),
-          name: session?.name,
-          description: session?.description,
-          startDate: session?.startDate
-            ? dayjs(session.startDate).format('YYYY-MM-DD')
-            : undefined,
-          endDate: session?.endDate
-            ? dayjs(session.endDate).format('YYYY-MM-DD')
-            : undefined,
-          active: !!isSessionActive,
-          months: session?.months?.map((month: Month, monthIdx: number) => {
-            // Get the month from the original session (if in edit mode)
-            const originalMonth =
-              isEditMode && originalSession?.months?.[monthIdx];
-            const monthStart = month?.startDate ? dayjs(month.startDate) : null;
-            const monthEnd = month?.endDate ? dayjs(month.endDate) : null;
-            const isMonthActive =
-              monthStart &&
-              monthEnd &&
-              now.isBetween(monthStart, monthEnd, null, '[]');
-            return {
-              ...(isEditMode && originalMonth?.id
-                ? { id: originalMonth.id }
-                : {}),
-              name: month?.name,
-              description: month?.description,
-              startDate: month?.startDate
-                ? dayjs(month.startDate).format('YYYY-MM-DD')
-                : undefined,
-              endDate: month?.endDate
-                ? dayjs(month.endDate).format('YYYY-MM-DD')
-                : undefined,
-              active: !!isMonthActive,
-            };
-          }),
+          ...session,
+          active: now.isBetween(sStart, sEnd, null, '[]'),
+          months: session.months.map((month: any) => ({
+            ...month,
+            active: now.isBetween(
+              dayjs(month.startDate),
+              dayjs(month.endDate),
+              null,
+              '[]',
+            ),
+          })),
         };
       }),
     };
 
-    if (!fiscalYears) {
-      message.error('Fiscal years data not loaded.');
-      return;
-    }
-
-    const newStart = dayjs(fiscalYearFormValues?.fiscalYearStartDate);
-    const newEnd = dayjs(fiscalYearFormValues?.fiscalYearEndDate);
-
-    const hasOverlap = fiscalYears.items.some((fy) => {
-      // If editing, skip the current fiscal year
-      if (isEditMode && fy.id === selectedFiscalYear?.id) return false;
-      const fyStart = dayjs(fy.startDate);
-      const fyEnd = dayjs(fy.endDate);
-      return (
-        newStart.isSameOrBefore(fyEnd, 'day') &&
-        newEnd.isSameOrAfter(fyStart, 'day')
-      );
-    });
-
-    if (hasOverlap) {
-      NotificationMessage.warning({
-        message:
-          'Fiscal year start or end date overlap with an existing fiscal year.',
-      });
-      return; // Prevent submit
-    }
-
-    if (isEditMode) {
+    // 4. Submit
+    if (isEditMode && selectedFiscalYear?.id) {
       updateFiscalYear(
         {
-          id: selectedFiscalYear?.id,
-          fiscalYear: fiscalYearPayload,
+          id: selectedFiscalYear.id,
+          fiscalYear: activeFiscalYearPayload,
         },
         {
           onSuccess: () => {
-            form1.resetFields();
-            form2.resetFields();
-            form3.resetFields();
-            setMonthRangeFormValues(null);
-            setFiscalYearFormValues({});
-            setSessionFormValues({});
-            setSessionData([]);
-            setCurrent(0);
-            setOpenFiscalYearDrawer(false);
+            handleCancel();
           },
         },
       );
     } else {
-      createFiscalYear(fiscalYearPayload, {
+      createFiscalYear(activeFiscalYearPayload, {
         onSuccess: () => {
-          form1.resetFields();
-          form2.resetFields();
-          form3.resetFields();
-          setMonthRangeFormValues(null);
-          setFiscalYearFormValues({});
-          setSessionFormValues({});
-          setSessionData([]);
-          setCurrent(0);
-          setOpenFiscalYearDrawer(false);
+          handleCancel();
         },
       });
     }
   };
 
-  const formContent = (
-    <
-      // Form layout="vertical" onFinish={handleSubmit}
-    >
-      {current === 0 && (
-        <FiscalYearForm
-          form={form1}
-          data-cy="org-settings-fiscalyear-customdrawer-index-fiscalyearform-1"
-        />
-      )}
-      {current === 1 && (
-        <SessionDrawer
-          form={form2}
-          isCreateLoading={createIsLoading}
-          isUpdateLoading={updateIsLoading}
-          isFiscalYear={true}
-          data-cy="org-settings-fiscalyear-customdrawer-index-sessiondrawer-1"
-        />
-      )}
-      {current === 2 && (
-        <MonthDrawer
-          form={form3}
-          isCreateLoading={createIsLoading}
-          isUpdateLoading={updateIsLoading}
-          onSubmit={handleSubmit} // <-- pass the handler
-          isFiscalYear={true}
-          open={openfiscalYearDrawer} // <-- add this
-          data-cy="org-settings-fiscalyear-customdrawer-index-monthdrawer-1"
-        />
-      )}
-    </>
-  );
-
   return (
-    <>
-      <CustomDrawerLayout
-        modalHeader={
-          <h1
-            className="flex justify-start text-base font-bold text-gray-800"
-            data-cy="org-settings-fiscal-year-drawer-header"
-            id="org-settings-fiscal-year-drawer-header"
-          >
-            {isEditMode ? 'Edit Fiscal Year' : 'Add New Fiscal Year'}
-          </h1>
-        }
-        onClose={handleCancel}
-        open={openfiscalYearDrawer}
-        width="35%"
-        footer={null}
-        customPadding="0px"
-        data-cy="org-settings-fiscal-year-drawer"
+    <CustomDrawerLayout
+      modalHeader={
+        <h1
+          className="flex justify-start text-base font-bold text-gray-800"
+          data-cy="fiscal-year-drawer-title"
+        >
+          {isEditMode ? 'Edit Fiscal Year' : 'Add New Fiscal Year'}
+        </h1>
+      }
+      onClose={handleCancel}
+      open={openfiscalYearDrawer}
+      width="40%"
+      footer={null}
+      customPadding="0px"
+    >
+      <div
+        className="p-0 h-full overflow-y-auto"
+        data-cy="fiscal-year-drawer-body"
       >
-        {formContent}
-      </CustomDrawerLayout>
-    </>
+        <div
+          style={{ display: current === 0 ? 'block' : 'none' }}
+          data-cy="fiscal-year-drawer-step-0"
+        >
+          <FiscalYearForm form={form1} />
+        </div>
+        <div
+          style={{ display: current === 1 ? 'block' : 'none' }}
+          data-cy="fiscal-year-drawer-step-1"
+        >
+          <SessionDrawer
+            isCreateLoading={createIsLoading}
+            isUpdateLoading={updateIsLoading}
+            form={form2}
+            isFiscalYear={true}
+          />
+        </div>
+        <div
+          style={{ display: current === 2 ? 'block' : 'none' }}
+          data-cy="fiscal-year-drawer-step-2"
+        >
+          <MonthDrawer
+            isCreateLoading={createIsLoading}
+            isUpdateLoading={updateIsLoading}
+            form={form3}
+            open={current === 2}
+            onSubmit={handleSubmit}
+            isFiscalYear={true}
+          />
+        </div>
+      </div>
+    </CustomDrawerLayout>
   );
 };
 

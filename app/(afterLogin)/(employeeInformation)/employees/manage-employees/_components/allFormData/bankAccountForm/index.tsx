@@ -1,57 +1,126 @@
-import { Col, Form, Row, Input } from 'antd';
+import { Form, Input, Card } from 'antd';
 import React from 'react';
 import DynamicFormFields from '../../dynamicFormDisplayer';
-import AddCustomField from '../../addCustomField';
 import UseSetCategorizedFormData from '../../customField';
 import { validateName } from '@/utils/validation';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 const BankInformationForm = () => {
   const currentBankForm = UseSetCategorizedFormData('bankInformation');
 
   return (
     <div id="bank-info-form" data-cy="bank-info-form">
-      <div
-        className="text-gray-950 text-sm font-semibold mb-4 text-center"
-        id="bank-info-title"
-        data-cy="bank-info-title"
+      <Card
+        title={
+          <div
+            data-cy="bank-account-form-title-div"
+            className="flex items-center gap-2 text-gray-600"
+          >
+            <div
+              data-cy="bank-account-form-icon-div"
+              className="p-1.5 bg-blue-50 rounded text-blue-500"
+            >
+              <AccountBalanceIcon fontSize="small" />
+            </div>
+            <span
+              data-cy="bank-account-form-title"
+              className="text-sm font-medium"
+            >
+              Bank Information
+            </span>
+          </div>
+        }
+        className="h-full shadow-sm"
+        bodyStyle={{ padding: '16px' }}
       >
-        Bank Account
-      </div>
-      <Row gutter={16} id="bank-info-row-main" data-cy="bank-info-row-main">
+        <Form.Item
+          name={['bankInformation', 'bankName']}
+          label="Bank Name"
+          rules={[{ required: true, message: 'Bank Name is required' }]}
+        >
+          <Input placeholder="Bank Name" />
+        </Form.Item>
+
+        <Form.Item
+          name={['bankInformation', 'accountNumber']}
+          label="Account Number"
+          rules={[
+            { required: true, message: 'Account Number is required' },
+            { pattern: /^[0-9]+$/, message: 'Must be numeric' },
+          ]}
+        >
+          <Input placeholder="123456789" />
+        </Form.Item>
+
+        <Form.Item
+          className="font-semibold text-xs w-full"
+          name={['bankInformation', 'branch']}
+          id="bankInformationBranch"
+          data-cy="bankInformationBranch"
+          label={
+            <span
+              className="mb-1 font-semibold text-xs"
+              data-cy="bank-account-form-branch-label"
+            >
+              Branch
+            </span>
+          }
+          rules={[
+            {
+              required: false,
+              validator: (rule, value) =>
+                !validateName('Branch', value, false)
+                  ? Promise.resolve()
+                  : Promise.reject(
+                      new Error(validateName('Branch', value) || ''),
+                    ),
+            },
+          ]}
+        >
+          <Input id="bank-info-branch-input" data-cy="bank-info-branch-input" />
+        </Form.Item>
+        <DynamicFormFields
+          formTitle="bankInformation"
+          fields={currentBankForm.form}
+          data-cy="bank-info-dynamic-fields"
+        />
+      </Card>
+
+      {/* <Row gutter={16} id="bank-info-row-main" data-cy="bank-info-row-main">
         <Col
           xs={24}
           sm={12}
           id="bank-info-bank-name-col"
           data-cy="bank-info-bank-name-col"
         >
-          <Form.Item
+            <Form.Item
             className="font-semibold text-xs w-full"
-            name={['bankInformation', 'bankName']}
-            id="bankInformationBankName"
-            data-cy="bankInformationBankName"
+            name={['bankInformation', 'branch']}
+            id="bankInformationBranch"
+            data-cy="bankInformationBranch"
             label={
               <span
                 className="mb-1 font-semibold text-xs"
-                data-cy="bank-account-form-bank-name-label"
+                data-cy="bank-account-form-branch-label"
               >
-                Bank Name
+                Branch
               </span>
             }
             rules={[
               {
-                required: true,
+                required: false,
                 validator: (rule, value) =>
-                  !validateName('Bank Name', value)
+                  !validateName('Branch', value, false)
                     ? Promise.resolve()
                     : Promise.reject(
-                        new Error(validateName('Bank Name', value) || ''),
+                        new Error(validateName('Branch', value) || ''),
                       ),
               },
             ]}
           >
             <Input
-              id="bank-info-bank-name-input"
-              data-cy="bank-info-bank-name-input"
+              id="bank-info-branch-input"
+              data-cy="bank-info-branch-input"
             />
           </Form.Item>
         </Col>
@@ -175,19 +244,15 @@ const BankInformationForm = () => {
             />
           </Form.Item>
         </Col>
-      </Row>
-      <DynamicFormFields
-        formTitle="bankInformation"
-        fields={currentBankForm.form}
-        data-cy="bank-info-dynamic-fields"
-      />
-      <AddCustomField
+      </Row> */}
+
+      {/* <AddCustomField
         formTitle="bankInformation"
         customEmployeeInformationForm={currentBankForm}
         className="mt-4"
         id="bank-info-custom-field"
         data-cy="bank-info-custom-field"
-      />
+      /> */}
     </div>
   );
 };

@@ -210,7 +210,7 @@ export default function PlanCard({
         >
           {plan.status && <StatusBadge status={plan.status} />}
           {canApprove && (
-            <Dropdown dropdownRender={() => approvalMenu} trigger={['click']}>
+            <Dropdown popupRender={() => approvalMenu} trigger={['click']}>
               <Button
                 id={`plan-card-approve-dropdown-button-${plan.id}`}
                 data-cy={`plan-card-approve-dropdown-button-${plan.id}`}
@@ -223,7 +223,7 @@ export default function PlanCard({
             </Dropdown>
           )}
           {canEdit && plan.status?.label === 'Open' && (
-            <Dropdown dropdownRender={() => editMenu} trigger={['click']}>
+            <Dropdown popupRender={() => editMenu} trigger={['click']}>
               <Button
                 id={`plan-card-edit-dropdown-button-${plan.id}`}
                 data-cy={`plan-card-edit-dropdown-button-${plan.id}`}

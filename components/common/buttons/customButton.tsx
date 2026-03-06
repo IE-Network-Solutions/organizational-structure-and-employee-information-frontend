@@ -42,7 +42,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       {!isTitleHidden && (
         <div
           data-cy="components-common-buttons-custombutton-tsx-custombutton-div-43"
-          className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight"
+          className="text-center text-base font-bold leading-normal tracking-tight"
         >
           {title}
         </div>
@@ -59,7 +59,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     >
       <div
         data-cy="components-common-buttons-custombutton-tsx-custombutton-div-60"
-        className={`text-center leading-normal tracking-tight ${textClassName || 'text-base font-bold font-["Manrope"]'}`}
+        className={`text-center leading-normal tracking-tight ${textClassName || 'text-base font-bold'}`}
       >
         {title}
       </div>
