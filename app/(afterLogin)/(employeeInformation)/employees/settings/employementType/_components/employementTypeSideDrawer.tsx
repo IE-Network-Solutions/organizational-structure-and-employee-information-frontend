@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, Modal } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import TextArea from 'antd/es/input/TextArea';
 import {
@@ -81,115 +81,120 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
     : 'employment-type-create';
 
   return (
-    isOpen && (
-      <CustomDrawerLayout
-        open={isOpen}
-        onClose={onClose}
-        modalHeader={
-          <div
-            className="flex justify-start text-base font-extrabold text-gray-800"
-            id={`employment-type-drawer-header-${drawerSlug}`}
-            data-cy={`employment-type-drawer-header-${drawerSlug}`}
-          >
-            {isEditMode ? 'Edit Employee Type' : 'Add Employee Type'}
-          </div>
-        }
-        width="40%"
-        footer={
-          <div
-            className=" w-full bg-[#fff]  flex justify-center space-x-5  p-4"
-            id={`employment-type-drawer-footer-${drawerSlug}`}
-            data-cy={`employment-type-drawer-footer-${drawerSlug}`}
-          >
-            <Button
-              className="h-[40px] sm:h-[56px] text-base px-10"
-              type="default"
-              onClick={handleCloseDrawer}
-              id={`employment-type-drawer-cancel-${drawerSlug}`}
-              data-cy={`employment-type-drawer-cancel-${drawerSlug}`}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="h-[40px] sm:h-[56px] text-base px-10"
-              type="primary"
-              onClick={handleSubmit}
-              id={`employment-type-drawer-submit-${drawerSlug}`}
-              data-cy={`employment-type-drawer-submit-${drawerSlug}`}
-            >
-              {isEditMode ? 'Update' : 'Submit'}
-            </Button>
-          </div>
-        }
-        data-cy={`employment-type-drawer-${drawerSlug}`}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          id={`employment-type-drawer-form-${drawerSlug}`}
-          data-cy={`employment-type-drawer-form-${drawerSlug}`}
+    <Modal
+      open={isOpen}
+      onCancel={handleCloseDrawer}
+      title={
+        <div
+          className="flex justify-between items-center w-full"
+          id={`employment-type-modal-header-${drawerSlug}`}
+          data-cy={`employment-type-modal-header-${drawerSlug}`}
         >
-          <Form.Item
-            id="name"
-            label={
-              <span
-                className="text-md my-2 font-semibold text-gray-700"
-                id={`employment-type-name-label-${drawerSlug}`}
-                data-cy={`employment-type-name-label-${drawerSlug}`}
-              >
-                EmployeType Name
-              </span>
-            }
-            name="name"
-            rules={[
-              {
-                required: true,
-                message: 'Please input the EmployeType name!',
-              },
-            ]}
-            data-cy={`employment-type-name-item-${drawerSlug}`}
+          <span
+            data-cy="settings-employment-type-modal-header-label"
+            className="text-base font-bold text-gray-800"
           >
-            <Input
-              allowClear
-              size="large"
-              placeholder="Enter EmployeType name"
-              className="text-sm w-full h-10"
-              id={`employment-type-name-input-${drawerSlug}`}
-              data-cy={`employment-type-name-input-${drawerSlug}`}
-            />
-          </Form.Item>
-          <Form.Item
-            id="description"
-            label={
-              <span
-                className="text-md my-2 font-semibold text-gray-700"
-                id={`employment-type-description-label-${drawerSlug}`}
-                data-cy={`employment-type-description-label-${drawerSlug}`}
-              >
-                EmployeType Description
-              </span>
-            }
-            name="description"
-            rules={[
-              {
-                required: true,
-                message: 'Please input the employetype description!',
-              },
-            ]}
-            data-cy={`employment-type-description-item-${drawerSlug}`}
+            {isEditMode ? 'Edit Employment Type' : 'Create Employment Type'}
+          </span>
+        </div>
+      }
+      closable={true}
+      closeIcon={<CloseOutlined className="text-gray-800" />}
+      footer={
+        <div
+          className="w-full flex justify-end gap-4"
+          id={`employment-type-modal-footer-${drawerSlug}`}
+          data-cy={`employment-type-modal-footer-${drawerSlug}`}
+        >
+          <Button
+            className="h-8 text-base px-10"
+            type="default"
+            onClick={handleCloseDrawer}
+            id={`employment-type-modal-cancel-${drawerSlug}`}
+            data-cy={`employment-type-modal-cancel-${drawerSlug}`}
           >
-            <TextArea
-              className="h-36"
-              allowClear
-              rows={4}
-              placeholder="Enter employetype description"
-              id={`employment-type-description-input-${drawerSlug}`}
-              data-cy={`employment-type-description-input-${drawerSlug}`}
-            />
-          </Form.Item>
-        </Form>
-      </CustomDrawerLayout>
-    )
+            Cancel
+          </Button>
+          <Button
+            className="h-8 text-base px-10"
+            type="primary"
+            onClick={handleSubmit}
+            id={`employment-type-modal-submit-${drawerSlug}`}
+            data-cy={`employment-type-modal-submit-${drawerSlug}`}
+          >
+            {isEditMode ? 'Update' : 'Create'}
+          </Button>
+        </div>
+      }
+      width={500}
+      data-cy={`employment-type-modal-${drawerSlug}`}
+      zIndex={10002}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        id={`employment-type-modal-form-${drawerSlug}`}
+        data-cy={`employment-type-modal-form-${drawerSlug}`}
+      >
+        <Form.Item
+          id="name"
+          label={
+            <span
+              className="text-md font-semibold text-gray-700"
+              id={`employment-type-name-label-${drawerSlug}`}
+              data-cy={`employment-type-name-label-${drawerSlug}`}
+            >
+              Name
+            </span>
+          }
+          name="name"
+          rules={[
+            {
+              required: true,
+              message: 'Please input the employment type name!',
+            },
+          ]}
+          data-cy={`employment-type-name-item-${drawerSlug}`}
+        >
+          <Input
+            allowClear
+            size="large"
+            placeholder="Input"
+            className="text-sm w-full"
+            id={`employment-type-name-input-${drawerSlug}`}
+            data-cy={`employment-type-name-input-${drawerSlug}`}
+          />
+        </Form.Item>
+        <Form.Item
+          id="description"
+          label={
+            <span
+              className="text-md font-semibold text-gray-700"
+              id={`employment-type-description-label-${drawerSlug}`}
+              data-cy={`employment-type-description-label-${drawerSlug}`}
+            >
+              Description{' '}
+              <span
+                data-cy="settings-employment-type-modal-description-optional-label"
+                className="font-normal text-gray-500"
+              >
+                (optional)
+              </span>
+            </span>
+          }
+          name="description"
+          data-cy={`employment-type-description-item-${drawerSlug}`}
+        >
+          <TextArea
+            allowClear
+            rows={4}
+            placeholder="Textarea"
+            id={`employment-type-description-input-${drawerSlug}`}
+            data-cy={`employment-type-description-input-${drawerSlug}`}
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 
