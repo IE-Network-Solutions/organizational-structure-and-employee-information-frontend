@@ -101,8 +101,8 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         filter: { ...userFilter, ...filter },
       },
       {
-        onSuccess: () => message.success('Download completed successfully!'),
-        onError: () => message.error('Failed to export. Please try again.'),
+        onSuccess: () => {message.success('Download completed successfully!')},
+        onError: () =>{ message.error('Failed to export. Please try again.')},
       },
     );
   };
