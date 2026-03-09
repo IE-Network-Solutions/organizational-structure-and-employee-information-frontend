@@ -1,12 +1,7 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import React, { useEffect, useState, useCallback } from 'react';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Form, Input, Space, Spin, Switch, Select } from 'antd';
+import { Form, Input, Space, Spin, Switch, Select, Modal, Button } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetAllowedArea } from '@/store/server/features/timesheet/allowedArea/mutation';
 import { useGetAllowedArea } from '@/store/server/features/timesheet/allowedArea/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -89,30 +84,6 @@ const LocationSidebar = () => {
     setIsShow(false);
   }, [form, setAllowedAreaId, setIsShow]);
 
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      loading: isLoading,
-      onClick: () => onClose(),
-      id: 'time-attendance-settings-allowed-areas-sidebar-cancel-button',
-      'data-cy': 'time-attendance-settings-allowed-areas-sidebar-cancel-button',
-    },
-    {
-      label: allowedAreaId ? 'Edit' : 'Create',
-      key: 'create',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      type: 'primary',
-      loading: isFetching || isLoading,
-      onClick: () => form.submit(),
-      id: 'time-attendance-settings-allowed-areas-sidebar-submit-button',
-      'data-cy': 'time-attendance-settings-allowed-areas-sidebar-submit-button',
-    },
-  ];
-
   useEffect(() => {
     if (isSuccess) {
       onClose();
@@ -160,34 +131,44 @@ const LocationSidebar = () => {
 
   return (
     isShow && (
-      <CustomDrawerLayout
+      <Modal
         data-cy="time-attendance-settings-allowed-areas-sidebar-container"
         open={isShow}
-        onClose={() => onClose()}
-        modalHeader={
+        onCancel={() => onClose()}
+        title={
           <div
-            className="px-2"
+            className="text-lg font-semibold text-[#4d4d4d]"
             id="time-attendance-settings-allowed-areas-sidebar-header-container"
             data-cy="time-attendance-settings-allowed-areas-sidebar-header-container"
           >
-            <CustomDrawerHeader data-cy="time-attendance-settings-allowed-areas-sidebar-header">
-              {allowedAreaId ? 'Edit' : 'New'} Location
-            </CustomDrawerHeader>
+            {allowedAreaId ? 'Edit' : 'New'} Location
           </div>
         }
         footer={
           <div
-            className="p-4"
+            className="flex items-center justify-end gap-3"
             id="time-attendance-settings-allowed-areas-sidebar-footer-container"
             data-cy="time-attendance-settings-allowed-areas-sidebar-footer-container"
           >
-            <CustomDrawerFooterButton
-              buttons={footerModalItems}
-              data-cy="time-attendance-settings-allowed-areas-sidebar-footer-button"
-            />
+            <Button
+              type="default"
+              className="h-10 px-6 rounded-lg"
+              onClick={() => onClose()}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              className="h-10 px-6 rounded-lg"
+              onClick={() => form.submit()}
+            >
+              {allowedAreaId ? 'Update' : 'Create'}
+            </Button>
           </div>
         }
         width="800px"
+        zIndex={10002}
+        centered
       >
         <Spin
           spinning={isFetching || isLoading}
@@ -341,7 +322,7 @@ const LocationSidebar = () => {
             </div>
           </Form>
         </Spin>
-      </CustomDrawerLayout>
+      </Modal>
     )
   );
 };

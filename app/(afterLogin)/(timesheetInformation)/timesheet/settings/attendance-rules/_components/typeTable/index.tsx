@@ -133,7 +133,7 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
       data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-spin`}
     >
       <div
-        className="p-6 border rounded-2xl border-gray-200 mt-6"
+        className="p-6 border rounded-2xl border-gray-200"
         id={`time-attendance-settings-attendance-rules-type-table-${type.id}-container`}
         data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-container`}
       >

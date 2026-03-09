@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
-import { Space, Spin, Switch } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 import ActionButton from '@/components/common/actionButton';
 import StatusBadge, {
   StatusBadgeTheme,
@@ -23,8 +22,8 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
     useDeleteLeaveType();
   const { setLeaveTypeId, setIsShowTypeAndPoliciesSidebarEdit } =
     useTimesheetSettingsStore();
-
-  const { mutate: setActive, isLoading } = useUpdateLeaveTypeActive();
+  const { mutate: setActive, isLoading: isActiveLoading } =
+    useUpdateLeaveTypeActive();
 
   const onDelete = () => {
     deleteLeaveType(item.id);
@@ -36,16 +35,16 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
 
   return (
     <Spin
-      spinning={isLoading || isDeleteLoading}
+      spinning={isDeleteLoading || isActiveLoading}
       data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-spin`}
     >
       <div
-        className="rounded-lg border border-gray-200 p-1 sm:p-6 mt-4 w-full"
+        className="rounded-lg border border-gray-200 bg-white p-2 sm:p-4 w-full mb-4"
         id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-container`}
         data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-container`}
       >
         <div
-          className="flex items-center gap-2.5 mb-4"
+          className="flex items-center justify-between gap-2.5 mb-4 pb-3 border-b border-gray-200"
           id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-header`}
           data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-header`}
         >
@@ -67,158 +66,143 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
                   ? StatusBadgeTheme.secondary
                   : StatusBadgeTheme.success
               }
-              className="h-6"
+              className="h-6 !text-[11px] !px-2"
               data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-status-badge`}
             >
               {item.isPaid ? 'PAID' : 'UNPAID'}
             </StatusBadge>
           </div>
-          <Space
-            size={12}
+          <div
+            className="flex items-center gap-2"
             id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-actions`}
             data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-actions`}
           >
-            <AccessGuard
-              permissions={[Permissions.UpdateLeaveType]}
-              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-switch-access-guard`}
+            <span
+              className={`h-5 px-3 rounded-md border text-sm font-medium inline-flex items-center ${
+                item.isActive
+                  ? 'border-[#1677ff] bg-[#e6f4ff] text-[#1677ff]'
+                  : 'border-gray-300 bg-white text-gray-600'
+              }`}
+              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-active-status`}
+              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-active-status`}
             >
-              <Switch
-                id={`${item.title}LeaveTypeCardSwitchButtonFieldId`}
-                data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-switch-button-id`}
-                checkedChildren={
-                  <CheckOutlined
-                    data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-switch-checked-icon`}
-                  />
-                }
-                unCheckedChildren={
-                  <CloseOutlined
-                    data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-switch-unchecked-icon`}
-                  />
-                }
-                value={item.isActive}
-                onChange={(isActive) => {
-                  setActive({
-                    isActive,
-                    id: item.id,
-                  });
-                }}
-              />
-            </AccessGuard>
+              {item.isActive ? 'Active' : 'Inactive'}
+            </span>
             <AccessGuard
-              permissions={[Permissions.DeleteLeaveType]}
+              permissions={[
+                Permissions.UpdateLeaveType,
+                Permissions.DeleteLeaveType,
+              ]}
               data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-action-button-access-guard`}
             >
               <ActionButton
                 id={item?.id}
                 onDelete={onDelete}
                 onEdit={onEdit}
+                onStatusToggle={() =>
+                  setActive({
+                    id: item.id,
+                    isActive: !item.isActive,
+                  })
+                }
+                statusToggleLabel={
+                  item.isActive
+                    ? 'Deactivate Leave Type'
+                    : 'Activate Leave Type'
+                }
                 data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-action-button`}
               />
             </AccessGuard>
-          </Space>
+          </div>
         </div>
 
         <div
-          className="grid grid-cols-2 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3"
           id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-info-grid`}
           data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-info-grid`}
         >
           <div
-            className="flex text-xs text-gray-900 gap-4 even:justify-end"
+            className="rounded-lg border border-gray-200 p-3"
             id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled`}
             data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled`}
           >
-            <span
-              className="font-bold"
+            <p
+              className="text-sm text-gray-600 mb-2"
               id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled-label`}
               data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled-label`}
             >
-              Entitled Date-
-            </span>
-            <span
-              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled-value`}
-              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled-value`}
-            >
-              {item.entitledDaysPerYear}
-            </span>
-          </div>
-          <div
-            className="flex text-xs text-gray-900 gap-4 even:justify-end"
-            id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification`}
-            data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification`}
-          >
-            <span
-              className="font-bold"
-              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification-label`}
-              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification-label`}
-            >
-              Minimum Notification Period-
-            </span>
-            <span
-              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification-value`}
-              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification-value`}
-            >
-              {item.minimumNotifyingDays}
-            </span>
-          </div>
-          <div
-            className="flex text-xs text-gray-900 gap-4 even:justify-end"
-            id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-maximum-allowed`}
-            data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-maximum-allowed`}
-          >
-            <span
-              className="font-bold"
-              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-maximum-allowed-label`}
-              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-maximum-allowed-label`}
-            >
-              Maximum Allowed Days-
-            </span>
-            <span
+              Maximum Allowed Days
+            </p>
+            <p
+              className="text-2xl font-semibold text-gray-900 mb-0"
               id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-maximum-allowed-value`}
               data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-maximum-allowed-value`}
             >
-              {item.maximumAllowedConsecutiveDays}
-            </span>
+              {item.maximumAllowedConsecutiveDays ?? '-'}
+            </p>
           </div>
           <div
-            className="flex text-xs text-gray-900 gap-4 even:justify-end"
+            className="rounded-lg border border-gray-200 p-3"
+            id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification`}
+            data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification`}
+          >
+            <p
+              className="text-sm text-gray-600 mb-2"
+              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification-label`}
+              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification-label`}
+            >
+              Minimum Notification Period
+            </p>
+            <p
+              className="text-2xl font-semibold text-gray-900 mb-0"
+              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification-value`}
+              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-minimum-notification-value`}
+            >
+              {item.minimumNotifyingDays ?? '-'}
+            </p>
+          </div>
+          <div
+            className="rounded-lg border border-gray-200 p-3"
+            id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled`}
+            data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled`}
+          >
+            <p
+              className="text-sm text-gray-600 mb-2"
+              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled-label`}
+              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled-label`}
+            >
+              Entitled Days
+            </p>
+            <p
+              className="text-2xl font-semibold text-gray-900 mb-0"
+              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled-value`}
+              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-entitled-value`}
+            >
+              {item.entitledDaysPerYear ?? '-'}
+            </p>
+          </div>
+          <div
+            className="rounded-lg border border-gray-200 p-3"
             id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-accrual-rule`}
             data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-accrual-rule`}
           >
-            <span
-              className="font-bold"
+            <p
+              className="text-sm text-gray-600 mb-2"
               id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-accrual-rule-label`}
               data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-accrual-rule-label`}
             >
-              Accrual Rule-
-            </span>
-            <span
+              Accrual Rule
+            </p>
+            <p
+              className="text-2xl font-semibold text-gray-900 mb-0"
               id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-accrual-rule-value`}
               data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-accrual-rule-value`}
             >
-              {item.accrualRule &&
+              {(item.accrualRule &&
                 typeof item.accrualRule !== 'string' &&
-                item.accrualRule.title}
-            </span>
-          </div>
-          <div
-            className="flex text-xs text-gray-900 gap-4 col-span-2"
-            id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-description`}
-            data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-description`}
-          >
-            <span
-              className="font-bold"
-              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-description-label`}
-              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-description-label`}
-            >
-              Description
-            </span>
-            <span
-              id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-description-value`}
-              data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-description-value`}
-            >
-              {item.description}
-            </span>
+                item.accrualRule.title) ||
+                '-'}
+            </p>
           </div>
         </div>
       </div>
