@@ -217,6 +217,11 @@ interface PayPeriod {
   status: 'OPEN' | 'CLOSED';
   activeFiscalYearId: string;
   tenantId: string;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string | null;
+  updatedBy?: string | null;
+  deletedAt?: string | null;
 }
 
 interface PayrollState {
