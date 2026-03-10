@@ -138,7 +138,7 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
         backgroundColor: 'rgba(0, 0, 0, 0.4)',
       }}
       // Removing default modal padding for cleaner look
-      bodyStyle={{ padding: 0 }}
+      styles={{ body: { padding: 0 } }}
       style={{ borderRadius: '16px', overflow: 'hidden' }}
       data-cy="okr-mode-selection-modal"
     >

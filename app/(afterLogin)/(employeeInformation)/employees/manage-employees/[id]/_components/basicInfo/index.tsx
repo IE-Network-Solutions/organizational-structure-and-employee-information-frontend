@@ -1,8 +1,6 @@
 'use client';
 
-import { Avatar, Card, Divider, List, message, Tag, Modal, Button } from 'antd';
-import { MdKeyboardArrowRight } from 'react-icons/md';
-import { HiOutlineMail } from 'react-icons/hi';
+import { Avatar, Card, message, Tag, Modal, Button } from 'antd';
 import { FiTrash2 } from 'react-icons/fi';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { Upload } from 'antd';
@@ -18,9 +16,32 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
-import Link from 'next/link';
+import dayjs from 'dayjs';
+import { LuPencil } from 'react-icons/lu';
 
 const { Dragger } = Upload;
+
+function formatServiceYear(joinedDate: string | null | undefined): string {
+  if (!joinedDate) return '-';
+  const start = dayjs(joinedDate);
+  const now = dayjs();
+  const years = now.diff(start, 'year');
+  const months = now.diff(start.add(years, 'year'), 'month');
+  if (years === 0) return `${months} month${months !== 1 ? 's' : ''}`;
+  return `${years} year${years !== 1 ? 's' : ''}, ${months} month${months !== 1 ? 's' : ''}`;
+}
+
+function formatAddress(
+  addresses: Record<string, unknown> | null | undefined,
+): string {
+  if (!addresses || typeof addresses !== 'object') return '-';
+  const parts = [
+    (addresses as any).subCity,
+    (addresses as any).city,
+    (addresses as any).country,
+  ].filter(Boolean);
+  return parts.length ? parts.join(' ') : '-';
+}
 
 function BasicInfo({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -176,26 +197,35 @@ function BasicInfo({ id }: { id: string }) {
     permissions: [Permissions.ChangeManagerProfile],
   });
 
+  const activeJob = employeeData?.employeeJobInformation?.find(
+    (e: any) => e.isPositionActive === true,
+  );
+  const isActive = !employeeData?.deletedAt;
+  const joinedDate = employeeData?.employeeInformation?.joinedDate;
+  const addresses = employeeData?.employeeInformation?.addresses;
+  const officeName = activeJob?.branch?.name || '-';
+
   return (
     <Card
       loading={isLoading}
-      className="mb-3"
+      className="mb-3 rounded-xl shadow-sm"
       id="basic-info-card"
       data-cy="basic-info-card"
     >
+      {/* Top section: Avatar | Name + Email | Status + Edit */}
       <div
-        className="flex flex-col gap-3 items-center"
+        className="flex flex-wrap gap-4 items-start mb-6"
         id="basic-info-content"
         data-cy="basic-info-content"
       >
         {/* Profile Image Section */}
         <div
-          className="relative group"
+          className="relative shrink-0"
           id="basic-info-avatar-wrapper"
           data-cy="basic-info-avatar-wrapper"
         >
           <Avatar
-            size={144}
+            size={48}
             src={getDisplayImageUrl()}
             className="relative z-0"
             data-cy="basic-info-avatar"
@@ -206,63 +236,137 @@ function BasicInfo({ id }: { id: string }) {
                 <button
                   onClick={handleDeleteProfileImage}
                   disabled={isDeleting}
-                  className="absolute z-10 text-red-500 bg-white rounded-full p-1.5 shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  style={{
-                    top: '1px',
-                    right: '1px',
-                    width: '32px',
-                    height: '32px',
-                    opacity: 0.9,
-                  }}
+                  className="absolute z-10 text-red-500 bg-white rounded-full p-1.5 shadow border border-gray-200 top-0 left-0.1 right-0 w-5 h-5 flex items-center justify-center"
                   id="basic-info-delete-image-btn"
                   data-cy="basic-info-delete-image-btn"
                 >
-                  <FiTrash2
-                    size={16}
-                    id="basic-info-delete-image-btn-icon"
-                    data-cy="basic-info-delete-image-btn-icon"
-                  />
+                  <FiTrash2 size={14} />
                 </button>
               )}
-              <div
-                className="absolute bottom-0 left-0 w-full h-1/2 z-10 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-full"
-                id="basic-info-update-image-overlay"
-                data-cy="basic-info-update-image-overlay"
+              <button
+                onClick={showModal}
+                className="absolute -bottom-1 -right-1 z-10 bg-white rounded-full p-1.5 shadow border border-gray-200 w-5 h-5 flex items-center justify-center text-gray-600 hover:bg-gray-50"
+                id="basic-info-edit-profile-btn"
+                data-cy="basic-info-edit-profile-btn"
               >
-                <button
-                  onClick={showModal}
-                  className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded hover:bg-blue-600 transition-colors"
-                  id="basic-info-update-image-btn"
-                  data-cy="basic-info-update-image-btn"
-                >
-                  Update Image
-                </button>
-              </div>
+                <LuPencil size={16} />
+              </button>
             </>
-          ) : (
-            ''
-          )}
+          ) : null}
         </div>
-        <h5 id="basic-info-name" data-cy="basic-info-name">
-          {employeeData?.firstName} {employeeData?.middleName}{' '}
-          {employeeData?.lastName}
-        </h5>
-        <p id="basic-info-position" data-cy="basic-info-position">
-          {employeeData?.employeeJobInformation?.find(
-            (e: any) => e.isPositionActive === true,
-          )?.position?.name || '-'}
-        </p>
-
-        <Tag
-          color="purple-inverse"
-          id="basic-info-employment-type"
-          data-cy="basic-info-employment-type"
+        <div
+          className="flex-1 min-w-0 flex flex-col gap-0.5"
+          data-cy="basic-info-name-block"
         >
-          {employeeData?.employeeJobInformation?.find(
-            (e: any) => e.isPositionActive === true,
-          )?.employementType?.name || '-'}
-        </Tag>
-        <Divider className="my-2" data-cy="basic-info-divider-1" />
+          <h5
+            id="basic-info-name"
+            data-cy="basic-info-name"
+            className="text-base font-bold text-gray-900 m-0"
+          >
+            {employeeData?.firstName} {employeeData?.middleName}{' '}
+          </h5>
+          <p
+            id="basic-info-email-text"
+            data-cy="basic-info-email-text"
+            className="text-sm text-gray-500 m-0"
+          >
+            {employeeData?.email}
+          </p>
+        </div>
+        <div
+          className="flex items-center gap-2 shrink-0"
+          data-cy="basic-info-status-block"
+        >
+          <Tag
+            className={`m-0 ${
+              isActive
+                ? 'bg-[#e6f4ff] text-[#1677ff] border border-[#91caff]'
+                : 'bg-red-50 text-red-500 border border-red-500'
+            }`}
+            id="basic-info-status"
+            data-cy="basic-info-status"
+          >
+            {isActive ? 'Active' : 'Deactivated'}
+          </Tag>
+          {/* <AccessGuard
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            selfShouldAccess
+            id="basic-info-edit-details-guard"
+            data-cy="basic-info-edit-details-guard"
+          >
+            <button
+              className="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-gray-50"
+              id="basic-info-edit-details-btn"
+              data-cy="basic-info-edit-details-btn"
+            >
+              <LuPencil size={16} />
+            </button>
+          </AccessGuard> */}
+        </div>
+      </div>
+
+      {/* Bottom section: Joined at, Address, Service Year, Office */}
+      <div
+        className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4 border-t border-gray-100"
+        id="basic-info-details-row"
+        data-cy="basic-info-details-row"
+      >
+        <div id="basic-info-joined" data-cy="basic-info-joined">
+          <p
+            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            data-cy="basic-info-joined-label"
+          >
+            Joined at
+          </p>
+          <p
+            className="text-sm font-semibold text-gray-900 m-0"
+            data-cy="basic-info-joined-value"
+          >
+            {joinedDate ? dayjs(joinedDate).format('DD MMMM, YYYY') : '-'}
+          </p>
+        </div>
+        <div id="basic-info-address" data-cy="basic-info-address">
+          <p
+            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            data-cy="basic-info-address-label"
+          >
+            Address
+          </p>
+          <p
+            className="text-sm font-semibold text-gray-900 m-0"
+            data-cy="basic-info-address-value"
+          >
+            {formatAddress(addresses)}
+          </p>
+        </div>
+        <div id="basic-info-service-year" data-cy="basic-info-service-year">
+          <p
+            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            data-cy="basic-info-service-year-label"
+          >
+            Service Year
+          </p>
+          <p
+            className="text-sm font-semibold text-gray-900 m-0"
+            data-cy="basic-info-service-year-value"
+          >
+            {formatServiceYear(joinedDate)}
+          </p>
+        </div>
+        <div id="basic-info-office" data-cy="basic-info-office">
+          <p
+            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            data-cy="basic-info-office-label"
+          >
+            Office
+          </p>
+          <p
+            className="text-sm font-semibold text-gray-900 m-0"
+            data-cy="basic-info-office-value"
+          >
+            {officeName}
+          </p>
+        </div>
       </div>
 
       {/* Modal for Changing Image */}
@@ -340,248 +444,6 @@ function BasicInfo({ id }: { id: string }) {
           )}
         </Dragger>
       </Modal>
-      <div
-        className="px-4 flex gap-5 my-2 items-center"
-        id="basic-info-email"
-        data-cy="basic-info-email"
-      >
-        <HiOutlineMail
-          color="#BFBFBF"
-          id="basic-info-email-icon"
-          data-cy="basic-info-email-icon"
-        />
-        <p
-          className="font-semibold"
-          id="basic-info-email-text"
-          data-cy="basic-info-email-text"
-        >
-          {employeeData?.email}
-        </p>
-      </div>
-
-      <Divider className="my-2" key="arrows" data-cy="basic-info-divider-2" />
-      <List
-        split={false}
-        size="small"
-        id="basic-info-list"
-        data-cy="basic-info-list"
-      >
-        <List.Item
-          key={'department'}
-          actions={[
-            <MdKeyboardArrowRight
-              key="arrow"
-              id="basic-info-team-arrow"
-              data-cy="basic-info-team-arrow"
-            />,
-          ]}
-          id="basic-info-team-item"
-          data-cy="basic-info-team-item"
-        >
-          <List.Item.Meta
-            data-cy="basic-info-list-item-meta"
-            title={
-              <p
-                className="text-xs font-light"
-                id="basic-info-team-title"
-                data-cy="basic-info-team-title"
-              >
-                Team
-              </p>
-            }
-            description={
-              <p
-                className="font-bold text-black text-sm"
-                id="basic-info-team-value"
-                data-cy="basic-info-team-value"
-              >
-                {employeeData?.employeeJobInformation?.find(
-                  (e: any) => e.isPositionActive === true,
-                )?.department?.name || '-'}
-              </p>
-            }
-          />
-        </List.Item>
-        <List.Item
-          key={'office'}
-          actions={[
-            // <Popover
-            //   content={<BranchTransferRequest employeeData={employeeData} />}
-            //   title="Branch Transfer Request"
-            //   placement="bottomRight"
-            //   trigger="click"
-            //   key="popover"
-            //   id="basic-info-office-popover"
-            //   data-cy="basic-info-office-popover"
-            // >
-            <MdKeyboardArrowRight
-              key="arrow"
-              id="basic-info-office-arrow"
-              data-cy="basic-info-office-arrow"
-            />,
-            // </Popover>,
-          ]}
-          id="basic-info-office-item"
-          data-cy="basic-info-office-item"
-        >
-          <List.Item.Meta
-            data-cy="basic-info-list-item-meta"
-            title={
-              <p
-                className="text-xs font-light"
-                id="basic-info-office-title"
-                data-cy="basic-info-office-title"
-              >
-                Office
-              </p>
-            }
-            description={
-              <p
-                className="font-bold text-black text-sm"
-                id="basic-info-office-value"
-                data-cy="basic-info-office-value"
-              >
-                {employeeData?.employeeJobInformation?.find(
-                  (e: any) => e.isPositionActive === true,
-                )?.branch?.name || '-'}
-              </p>
-            }
-          />
-        </List.Item>
-        {employeeData?.delegatedTo?.id || employeeData?.reportingTo?.id ? (
-          hasAccess ? (
-            <Link
-              href={`/employees/manage-employees/${employeeData?.delegatedTo?.id ?? employeeData?.reportingTo?.id}`}
-              id="basic-info-manager-link"
-              data-cy="basic-info-manager-link"
-            >
-              <List.Item
-                key="Manager"
-                actions={[
-                  <MdKeyboardArrowRight
-                    key="arrow"
-                    id="basic-info-manager-arrow"
-                    data-cy="basic-info-manager-arrow"
-                  />,
-                ]}
-                id="basic-info-manager-item"
-                data-cy="basic-info-manager-item"
-              >
-                <List.Item.Meta
-                  data-cy="basic-info-list-item-meta"
-                  title={
-                    <p
-                      className="text-xs font-light"
-                      id="basic-info-manager-title"
-                      data-cy="basic-info-manager-title"
-                    >
-                      Manager
-                    </p>
-                  }
-                  description={
-                    <p
-                      className="font-bold text-black text-sm"
-                      id="basic-info-manager-value"
-                      data-cy="basic-info-manager-value"
-                    >
-                      <span
-                        className="mr-2"
-                        id="basic-info-manager-avatar-wrapper"
-                        data-cy="basic-info-manager-avatar-wrapper"
-                      >
-                        <Avatar
-                          src={
-                            employeeData?.delegatedTo
-                              ? employeeData?.delegatedTo?.profileImage
-                              : employeeData?.reportingTo?.profileImage
-                          }
-                          data-cy="basic-info-manager-avatar"
-                        />
-                      </span>
-                      {employeeData?.delegatedTo
-                        ? employeeData?.delegatedTo?.firstName
-                        : employeeData?.reportingTo?.firstName}{' '}
-                    </p>
-                  }
-                />
-              </List.Item>
-            </Link>
-          ) : (
-            <List.Item
-              key="Manager"
-              id="basic-info-manager-item-no-access"
-              data-cy="basic-info-manager-item-no-access"
-            >
-              <List.Item.Meta
-                data-cy="basic-info-list-item-meta"
-                title={
-                  <p
-                    className="text-xs font-light"
-                    id="basic-info-manager-title-no-access"
-                    data-cy="basic-info-manager-title-no-access"
-                  >
-                    Manager
-                  </p>
-                }
-                description={
-                  <p
-                    className="font-bold text-black text-sm"
-                    id="basic-info-manager-value-no-access"
-                    data-cy="basic-info-manager-value-no-access"
-                  >
-                    <span
-                      className="mr-2"
-                      id="basic-info-manager-avatar-wrapper-no-access"
-                      data-cy="basic-info-manager-avatar-wrapper-no-access"
-                    >
-                      <Avatar
-                        src={
-                          employeeData?.delegatedTo
-                            ? employeeData?.delegatedTo?.profileImage
-                            : employeeData?.reportingTo?.profileImage
-                        }
-                        data-cy="basic-info-manager-avatar-no-access"
-                      />
-                    </span>
-                    {employeeData?.delegatedTo
-                      ? employeeData?.delegatedTo?.firstName
-                      : employeeData?.reportingTo?.firstName}{' '}
-                  </p>
-                }
-              />
-            </List.Item>
-          )
-        ) : (
-          <List.Item
-            key="Manager"
-            className="text-gray-500 cursor-not-allowed"
-            id="basic-info-manager-item-not-assigned"
-            data-cy="basic-info-manager-item-not-assigned"
-          >
-            <List.Item.Meta
-              data-cy="basic-info-list-item-meta"
-              title={
-                <p
-                  className="text-xs font-light"
-                  id="basic-info-manager-title-not-assigned"
-                  data-cy="basic-info-manager-title-not-assigned"
-                >
-                  Manager
-                </p>
-              }
-              description={
-                <p
-                  className="font-bold text-black text-sm"
-                  id="basic-info-manager-value-not-assigned"
-                  data-cy="basic-info-manager-value-not-assigned"
-                >
-                  Not Assigned
-                </p>
-              }
-            />
-          </List.Item>
-        )}
-      </List>
     </Card>
   );
 }

@@ -1,18 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Row,
-  Select,
-  Switch,
-  Table,
-  TableProps,
-  TimePicker,
-} from 'antd';
-import { InfoLine } from '../../common/infoLine';
+import { Button, Card, Col, Form, Row, Select, Switch, TimePicker } from 'antd';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {
   EditState,
@@ -26,11 +15,6 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-interface DataType {
-  key: string;
-  workingDay: React.ReactNode;
-  time: React.ReactNode;
-}
 
 const { Option } = Select;
 const WorkScheduleComponent: React.FC = () => {
@@ -50,6 +34,7 @@ const WorkScheduleComponent: React.FC = () => {
   const { data: employeeData, isLoading, refetch } = useGetEmployee(userId);
   const { data: workSchedules } = useGetWorkSchedules();
   const [form] = Form.useForm();
+  const [dailySchedule, setDailySchedule] = React.useState<any[]>([]);
 
   const handleSaveChanges = (editKey: keyof EditState) => {
     form
@@ -62,12 +47,14 @@ const WorkScheduleComponent: React.FC = () => {
             changeMakerUserId: loggedInUserId,
           },
           {
-            onSuccess: () => {
-              refetch(); // Refresh data after successful update
+            onSuccess: async () => {
+              await refetch(); // Refresh data after successful update
+              // Clear selectedWorkSchedule when exiting edit mode to ensure fresh data is used
+              setSelectedWorkSchedule(null);
+              setEdit(editKey); // Turn off edit mode AFTER refetch completes
             },
           },
         );
-        setEdit(editKey);
       })
       .catch();
   };
@@ -77,71 +64,143 @@ const WorkScheduleComponent: React.FC = () => {
     );
     setSelectedWorkSchedule(selectedValue || null);
     setWorkSchedule(value);
+    // CRITICAL: Update the form field value so it's included in form submission
+    form.setFieldValue('workScheduleId', value);
+
+    // Update daily schedule when schedule changes
+    if (selectedValue?.detail) {
+      const scheduleData = selectedValue.detail.map(
+        (day: any, index: number) => {
+          const decimalHour = day.duration || 0;
+          const hours = Math.floor(decimalHour);
+          const minutes = Math.round((decimalHour % 1) * 60);
+          const startTime = day.startTime
+            ? dayjs(day.startTime, 'HH:mm')
+            : hours > 0
+              ? dayjs().startOf('day').add(hours, 'hour').add(minutes, 'minute')
+              : null;
+          const endTime = day.endTime
+            ? dayjs(day.endTime, 'HH:mm')
+            : startTime
+              ? startTime.add(decimalHour, 'hour')
+              : null;
+
+          return {
+            key: index,
+            day: day.dayOfWeek || day.day || '',
+            workDay: day.workDay || day.workday || false,
+            startTime: startTime,
+            endTime: endTime,
+            duration: day.duration || 0,
+          };
+        },
+      );
+      setDailySchedule(scheduleData);
+    }
   };
 
-  const data: any = (selectedWorkSchedule?.detail || []).map(
-    (schedule, index) => {
-      const decimalHour = schedule.duration || 0;
-      const hours = Math.floor(decimalHour);
-      const minutes = Math.round((decimalHour % 1) * 60);
-      const timeValue = dayjs()
-        .startOf('day')
-        .add(hours, 'hour')
-        .add(minutes, 'minute');
+  // const data: any = (selectedWorkSchedule?.detail || []).map(
+  //   (schedule, index) => {
+  //     const decimalHour = schedule.duration || 0;
+  //     const hours = Math.floor(decimalHour);
+  //     const minutes = Math.round((decimalHour % 1) * 60);
+  //     const timeValue = dayjs()
+  //       .startOf('day')
+  //       .add(hours, 'hour')
+  //       .add(minutes, 'minute');
 
-      return {
-        key: index.toString(),
-        workingDay: (
-          <div
-            className="flex space-x-2 justify-start"
-            id={`job-work-schedule-day-${index}`}
-            data-cy={`job-work-schedule-day-${index}`}
-          >
-            <Switch
-              checked={schedule?.workDay}
-              disabled
-              id={`job-work-schedule-switch-${index}`}
-              data-cy={`job-work-schedule-switch-${index}`}
-            />
-            <span
-              id={`job-work-schedule-day-name-${index}`}
-              data-cy={`job-work-schedule-day-name-${index}`}
-            >
-              {schedule.day}
-            </span>
-          </div>
-        ),
-        time: (
-          <TimePicker
-            value={timeValue}
-            format="HH:mm"
-            disabled
-            id={`job-work-schedule-time-${index}`}
-            data-cy={`job-work-schedule-time-${index}`}
-          />
-        ),
-      };
-    },
-  );
+  //     return {
+  //       key: index.toString(),
+  //       workingDay: (
+  //         <div
+  //           className="flex space-x-2 justify-start"
+  //           id={`job-work-schedule-day-${index}`}
+  //           data-cy={`job-work-schedule-day-${index}`}
+  //         >
+  //           <Switch
+  //             checked={schedule?.workDay}
+  //             disabled
+  //             id={`job-work-schedule-switch-${index}`}
+  //             data-cy={`job-work-schedule-switch-${index}`}
+  //           />
+  //           <span
+  //             id={`job-work-schedule-day-name-${index}`}
+  //             data-cy={`job-work-schedule-day-name-${index}`}
+  //           >
+  //             {schedule.day}
+  //           </span>
+  //         </div>
+  //       ),
+  //       time: (
+  //         <TimePicker
+  //           value={timeValue}
+  //           format="HH:mm"
+  //           disabled
+  //           id={`job-work-schedule-time-${index}`}
+  //           data-cy={`job-work-schedule-time-${index}`}
+  //         />
+  //       ),
+  //     };
+  //   },
+  // );
 
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
+
+    // Initialize daily schedule when entering edit mode
+    const scheduleToUse =
+      selectedWorkSchedule ||
+      workSchedules?.items?.find(
+        (schedule: any) => schedule.id === workSchedule,
+      );
+
+    if (scheduleToUse?.detail) {
+      const scheduleData = scheduleToUse.detail.map(
+        (day: any, index: number) => {
+          const decimalHour = day.duration || 0;
+          const hours = Math.floor(decimalHour);
+          const minutes = Math.round((decimalHour % 1) * 60);
+          const startTime = day.startTime
+            ? dayjs(day.startTime, 'HH:mm')
+            : hours > 0
+              ? dayjs().startOf('day').add(hours, 'hour').add(minutes, 'minute')
+              : null;
+          const endTime = day.endTime
+            ? dayjs(day.endTime, 'HH:mm')
+            : startTime
+              ? startTime.add(decimalHour, 'hour')
+              : null;
+
+          return {
+            key: index,
+            day: day.dayOfWeek || day.day || '',
+            workDay: day.workDay || day.workday || false,
+            startTime: startTime,
+            endTime: endTime,
+            duration: day.duration || 0,
+          };
+        },
+      );
+      setDailySchedule(scheduleData);
+    }
+
     if (workSchedule) {
       workscheduleChangeHandler(workSchedule);
     }
   };
-  const workScheduleColumns: TableProps<DataType>['columns'] = [
-    {
-      title: 'Working Day',
-      dataIndex: 'workingDay',
-      key: 'workingDay',
-    },
-    {
-      title: 'Time',
-      dataIndex: 'time',
-      key: 'time',
-    },
-  ];
+
+  const handleCancelEdit = () => {
+    setEdit('workSchedule');
+    form.resetFields();
+  };
+
+  // Calculate total working days and hours for edit form
+  const editTotalWorkingDays = dailySchedule.filter(
+    (day) => day.workDay,
+  ).length;
+  const editTotalWorkingHours = dailySchedule.reduce((total, day) => {
+    return total + (day.workDay ? day.duration || 0 : 0);
+  }, 0);
 
   useEffect(() => {
     const employeeDataInfo = {
@@ -150,126 +209,292 @@ const WorkScheduleComponent: React.FC = () => {
         (e: any) => e.isPositionActive === true,
       )?.workScheduleId,
     };
-    setWorkSchedule(employeeDataInfo?.workScheduleId);
 
-    form.setFieldsValue(employeeDataInfo);
-  }, [form, employeeData, setWorkSchedule]);
+    // CRITICAL: Don't update state when in edit mode - let user's selection persist
+    // Only update state when NOT in edit mode (displaying saved data)
+    if (!edit.workSchedule) {
+      setWorkSchedule(employeeDataInfo?.workScheduleId);
 
-  const schedule = workSchedules?.items[0];
+      // Update selectedWorkSchedule to match the new workScheduleId from employeeData
+      if (employeeDataInfo?.workScheduleId && workSchedules?.items) {
+        const newSelectedSchedule = workSchedules.items.find(
+          (schedule: any) => schedule.id === employeeDataInfo.workScheduleId,
+        );
+        if (
+          newSelectedSchedule &&
+          newSelectedSchedule.id !== selectedWorkSchedule?.id
+        ) {
+          setSelectedWorkSchedule(newSelectedSchedule);
+        }
+      }
+    }
 
-  const totalWorkingHours = schedule?.detail.reduce((total, day) => {
-    return total + day.hours || 0;
+    // Always update form fields with employeeData (for initial load)
+    if (!edit.workSchedule) {
+      form.setFieldsValue(employeeDataInfo);
+    }
+
+    // Initialize daily schedule - use selectedWorkSchedule if available, otherwise use employeeData
+    const scheduleToUse =
+      selectedWorkSchedule ||
+      (employeeDataInfo?.workScheduleId &&
+        workSchedules?.items?.find(
+          (schedule: any) => schedule.id === employeeDataInfo.workScheduleId,
+        ));
+
+    if (scheduleToUse?.detail) {
+      const scheduleData = scheduleToUse.detail.map(
+        (day: any, index: number) => ({
+          key: index,
+          day: day.dayOfWeek || day.day || '',
+          workDay: day.workDay || day.workday || false,
+          startTime: day.startTime ? dayjs(day.startTime, 'HH:mm') : null,
+          endTime: day.endTime ? dayjs(day.endTime, 'HH:mm') : null,
+          duration: day.duration || 0,
+        }),
+      );
+      setDailySchedule(scheduleData);
+    }
+  }, [
+    form,
+    employeeData,
+    setWorkSchedule,
+    selectedWorkSchedule,
+    workSchedules,
+    edit.workSchedule,
+  ]);
+
+  // Find the active job's work schedule
+  const activeJob = employeeData?.employeeJobInformation?.find(
+    (e: any) => e.isPositionActive === true,
+  );
+  const activeWorkScheduleId = activeJob?.workScheduleId;
+
+  // Try to get work schedule from selectedWorkSchedule first (if in edit mode), then from workSchedules list
+  // Only use selectedWorkSchedule when in edit mode; otherwise use the schedule from employeeData
+  const activeWorkSchedule = edit.workSchedule
+    ? selectedWorkSchedule ||
+      workSchedules?.items?.find(
+        (schedule: any) => schedule.id === activeWorkScheduleId,
+      )
+    : workSchedules?.items?.find(
+        (schedule: any) => schedule.id === activeWorkScheduleId,
+      );
+
+  // Calculate total working hours per week (only for working days)
+  const workingDays =
+    activeWorkSchedule?.detail?.filter(
+      (day: any) => day.workDay === true || day.workday === true,
+    ) || [];
+  const totalWorkingHours = workingDays.reduce((total: number, day: any) => {
+    // Use duration field (which is in decimal hours) or hours field if available
+    const dayHours = day.duration ?? day.hours ?? 0;
+    const hoursValue = Number(dayHours);
+    return total + (isNaN(hoursValue) ? 0 : hoursValue);
   }, 0);
 
-  const workingHours: { day: string; hours: number }[] =
-    workSchedules?.items[0]?.detail?.map((day) => ({
-      day: day.dayOfWeek || '',
-      hours: day.hours || 0,
-    })) || [];
+  // Calculate daily working hours (average) - round to 1 decimal place
+  const dailyWorkingHours =
+    workingDays.length > 0 && totalWorkingHours > 0
+      ? Number((totalWorkingHours / workingDays.length).toFixed(1))
+      : 0;
+
   return (
     <Card
       loading={isLoading}
-      title="Work Schedule"
+      title={
+        <span
+          className="text-base font-bold text-gray-900"
+          data-cy="job-work-schedule-card-title"
+        >
+          Work Schedule
+        </span>
+      }
       extra={
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}
           id="job-work-schedule-edit-guard"
           data-cy="job-work-schedule-edit-guard"
         >
-          <LuPencil
-            className="cursor-pointer"
+          <button
+            type="button"
             onClick={() => handleEditChange('workSchedule')}
-            id="job-work-schedule-edit-icon"
-            data-cy="job-work-schedule-edit-icon"
-          />
+            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+            id="job-work-schedule-edit-btn"
+            data-cy="job-work-schedule-edit-btn"
+          >
+            <LuPencil className="text-gray-700" />
+          </button>
         </AccessGuard>
       }
-      className="my-6 mt-0"
+      className="work-schedule-card rounded-lg border border-gray-200 my-6 mt-0"
       id="job-work-schedule-card"
       data-cy="job-work-schedule-card"
+      headStyle={{ borderBottom: 'none' }}
+      bodyStyle={{ padding: '0 0 0 24px' }}
     >
       {!edit.workSchedule ? (
-        <Row
-          gutter={[16, 24]}
-          id="job-work-schedule-display-row"
-          data-cy="job-work-schedule-display-row"
-        >
-          <Col
-            lg={16}
-            id="job-work-schedule-display-col"
-            data-cy="job-work-schedule-display-col"
+        <>
+          <Row
+            gutter={[24, 0]}
+            id="job-work-schedule-display-row"
+            data-cy="job-work-schedule-display-row"
           >
-            <InfoLine
-              title="Current schedule"
-              value={
-                employeeData?.employeeJobInformation?.find(
-                  (e: any) => e.isPositionActive === true,
-                )?.workSchedule?.name || ''
-              }
-              data-cy="job-work-schedule-current-schedule"
-            />
-            <InfoLine
-              title="Total working hours/week"
-              value={totalWorkingHours}
-              data-cy="job-work-schedule-total-working-hours"
-            />
-            <InfoLine
-              title="Daily working hours"
-              value={
-                <div
-                  className="flex gap-10"
-                  id="job-work-schedule-daily-hours"
-                  data-cy="job-work-schedule-daily-hours"
+            <Col
+              lg={12}
+              id="job-work-schedule-display-col-left"
+              data-cy="job-work-schedule-display-col-left"
+              className="flex flex-col"
+            >
+              <div
+                className="mb-5"
+                id="job-work-schedule-current-schedule"
+                data-cy="job-work-schedule-current-schedule"
+              >
+                <p
+                  className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                  data-cy="job-work-schedule-current-schedule-label"
                 >
-                  <div
-                    className="flex flex-col space-y-1"
-                    id="job-work-schedule-days"
-                    data-cy="job-work-schedule-days"
-                  >
-                    {workingHours?.map((item) => (
-                      <div
-                        key={`${item?.day}-label`}
-                        id={`job-work-schedule-day-${item?.day}`}
-                        data-cy={`job-work-schedule-day-${item?.day}`}
-                      >
-                        {item?.day}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div
-                    className="flex flex-col space-y-1"
-                    id="job-work-schedule-hours"
-                    data-cy="job-work-schedule-hours"
-                  >
-                    {workingHours?.map((item) => (
-                      <div
-                        key={`${item?.day}-value`}
-                        className="font-light"
-                        id={`job-work-schedule-hour-${item?.day}`}
-                        data-cy={`job-work-schedule-hour-${item?.day}`}
-                      >
-                        {item?.hours} hours
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              }
-            />
-          </Col>
-        </Row>
+                  Current Schedule
+                </p>
+                <p
+                  className="text-base font-semibold text-gray-500 m-0"
+                  data-cy="job-work-schedule-current-schedule-value"
+                >
+                  {activeJob?.workSchedule?.name || '-'}
+                </p>
+              </div>
+            </Col>
+            <Col
+              lg={12}
+              id="job-work-schedule-display-col-right"
+              data-cy="job-work-schedule-display-col-right"
+              className="flex flex-col"
+            >
+              <div
+                className="mb-5"
+                id="job-work-schedule-daily-hours"
+                data-cy="job-work-schedule-daily-hours"
+              >
+                <p
+                  className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                  data-cy="job-work-schedule-daily-hours-label"
+                >
+                  Daily Working hours
+                </p>
+                <p
+                  className="text-base font-semibold text-gray-500 m-0"
+                  data-cy="job-work-schedule-daily-hours-value"
+                >
+                  {dailyWorkingHours > 0
+                    ? `${dailyWorkingHours} hours`
+                    : activeWorkSchedule
+                      ? '0 hours'
+                      : '-'}
+                </p>
+              </div>
+            </Col>
+          </Row>
+          <Row
+            gutter={[24, 0]}
+            id="job-work-schedule-total-row"
+            data-cy="job-work-schedule-total-row"
+          >
+            <Col
+              lg={12}
+              id="job-work-schedule-total-col"
+              data-cy="job-work-schedule-total-col"
+              className="flex flex-col"
+            >
+              <div
+                className="mb-5"
+                id="job-work-schedule-total-working-hours"
+                data-cy="job-work-schedule-total-working-hours"
+              >
+                <p
+                  className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                  data-cy="job-work-schedule-total-hours-label"
+                >
+                  Total Working Hours
+                </p>
+                <p
+                  className="text-base font-semibold text-gray-500 m-0"
+                  data-cy="job-work-schedule-total-hours-value"
+                >
+                  {totalWorkingHours > 0
+                    ? `${Math.round(totalWorkingHours)} Hours`
+                    : activeWorkSchedule
+                      ? '0 Hours'
+                      : '-'}
+                </p>
+              </div>
+            </Col>
+          </Row>
+        </>
       ) : (
         <div
           id="job-work-schedule-edit-wrapper"
           data-cy="job-work-schedule-edit-wrapper"
         >
+          {/* Header with Summary and Action Buttons */}
           <div
-            className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
+            className="flex justify-between items-center mb-6"
             id="job-work-schedule-edit-header"
             data-cy="job-work-schedule-edit-header"
           >
-            Work Schedule
+            <div
+              className="flex items-center gap-3"
+              data-cy="job-work-schedule-edit-summary-row"
+            >
+              <span
+                className="text-base font-semibold text-gray-900"
+                data-cy="job-work-schedule-edit-title"
+              >
+                Work Schedule
+              </span>
+              <div
+                className="flex gap-2"
+                data-cy="job-work-schedule-edit-badges"
+              >
+                <div
+                  className="px-3 py-1 bg-gray-100 rounded text-sm font-medium text-gray-700"
+                  data-cy="job-work-schedule-edit-days-badge"
+                >
+                  {editTotalWorkingDays} Days
+                </div>
+                <div
+                  className="px-3 py-1 bg-gray-100 rounded text-sm font-medium text-gray-700"
+                  data-cy="job-work-schedule-edit-hours-badge"
+                >
+                  {Math.round(editTotalWorkingHours)} Hours
+                </div>
+              </div>
+            </div>
+            <div
+              className="flex gap-2"
+              data-cy="job-work-schedule-edit-actions"
+            >
+              <Button
+                type="default"
+                onClick={handleCancelEdit}
+                className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center hover:bg-red-600 transition-colors border-none"
+                id="job-work-schedule-edit-cancel-btn"
+                data-cy="job-work-schedule-edit-cancel-btn"
+              >
+                <CloseOutlined className="text-white" />
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => form.submit()}
+                className="w-8 h-8 rounded-lg bg-[#1d4ed8] flex items-center justify-center hover:bg-blue-600 transition-colors"
+                id="job-work-schedule-edit-save-btn"
+                data-cy="job-work-schedule-edit-save-btn"
+              >
+                <CheckOutlined className="text-white" />
+              </Button>
+            </div>
           </div>
+
           <Form
             form={form}
             layout="vertical"
@@ -278,94 +503,208 @@ const WorkScheduleComponent: React.FC = () => {
             id="job-work-schedule-edit-form"
             data-cy="job-work-schedule-edit-form"
           >
-            <Row
-              gutter={16}
-              id="job-work-schedule-edit-select-row"
-              data-cy="job-work-schedule-edit-select-row"
-            >
-              <Col
-                xs={24}
-                sm={24}
-                id="job-work-schedule-edit-select-col"
-                data-cy="job-work-schedule-edit-select-col"
-              >
-                <Form.Item
-                  className="font-semibold text-xs"
-                  name="workScheduleId"
-                  id="workScheduleId"
-                  data-cy="job-work-schedule-edit-form-item"
-                  label="Work Schedule Category"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please select a work schedule!',
-                    },
-                  ]}
+            {/* Work Schedule Category */}
+            <Form.Item
+              className="font-semibold text-xs mb-4"
+              name="workScheduleId"
+              id="workScheduleId"
+              data-cy="job-work-schedule-edit-form-item"
+              label={
+                <span
+                  className="text-sm font-medium text-gray-700"
+                  data-cy="job-work-schedule-edit-form-label"
                 >
-                  <Select
-                    placeholder="Select an option"
-                    className="mt-2"
-                    onChange={workscheduleChangeHandler}
-                    allowClear
-                    value={workSchedule}
-                    id="job-work-schedule-edit-select"
-                    data-cy="job-work-schedule-edit-select"
+                  Work Schedule Category{' '}
+                  <span
+                    className="text-red-500"
+                    data-cy="job-work-schedule-edit-form-required"
                   >
-                    {workSchedules?.items.map((schedule) => (
-                      <Option
-                        key={schedule.id}
-                        value={schedule.id}
-                        id={`job-work-schedule-edit-option-${schedule.id}`}
-                        data-cy={`job-work-schedule-edit-option-${schedule.id}`}
+                    *
+                  </span>
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a work schedule!',
+                },
+              ]}
+            >
+              <Select
+                placeholder="Select"
+                className="mt-2"
+                onChange={workscheduleChangeHandler}
+                allowClear
+                value={workSchedule}
+                id="job-work-schedule-edit-select"
+                data-cy="job-work-schedule-edit-select"
+                size="large"
+              >
+                {workSchedules?.items.map((schedule) => (
+                  <Option
+                    key={schedule.id}
+                    value={schedule.id}
+                    id={`job-work-schedule-edit-option-${schedule.id}`}
+                    data-cy={`job-work-schedule-edit-option-${schedule.id}`}
+                  >
+                    {schedule.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            {/* Working Days Section */}
+            <div
+              className="mb-6"
+              data-cy="job-work-schedule-working-days-section"
+            >
+              <label
+                className="text-sm font-medium text-gray-700 mb-3 block"
+                data-cy="job-work-schedule-working-days-label"
+              >
+                Working Days
+              </label>
+              <div
+                className="flex gap-2 flex-wrap"
+                data-cy="job-work-schedule-working-days-buttons"
+              >
+                {dailySchedule.length > 0 ? (
+                  dailySchedule.map((day, index) => {
+                    const dayName = day.day || '';
+                    const abbreviated =
+                      dayName.length > 3 ? dayName.substring(0, 3) : dayName;
+                    return (
+                      <button
+                        key={day.key || index}
+                        type="button"
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 ${day.workDay ? 'border border-[#1d4ed8]' : ''}`}
+                        id={`job-work-schedule-day-btn-${index}`}
+                        data-cy={`job-work-schedule-day-btn-${index}`}
                       >
-                        {schedule.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row
-              gutter={16}
-              id="job-work-schedule-edit-table-row"
-              data-cy="job-work-schedule-edit-table-row"
-            >
-              <Col
-                xs={24}
-                sm={24}
-                id="job-work-schedule-edit-table-col"
-                data-cy="job-work-schedule-edit-table-col"
+                        {abbreviated}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div
+                    className="text-sm text-gray-500"
+                    data-cy="job-work-schedule-no-data"
+                  >
+                    No schedule data available. Please select a work schedule
+                    category.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Daily Schedule Section */}
+            <div data-cy="job-work-schedule-daily-section">
+              <label
+                className="text-sm font-medium text-gray-700 mb-3 block"
+                data-cy="job-work-schedule-daily-label"
               >
-                <Table
-                  columns={workScheduleColumns}
-                  dataSource={data}
-                  pagination={false}
-                  id="job-work-schedule-edit-table"
-                  data-cy="job-work-schedule-edit-table"
-                />
-              </Col>
-            </Row>
-            <Row
-              className="mt-6"
-              id="job-work-schedule-edit-submit-row"
-              data-cy="job-work-schedule-edit-submit-row"
-            >
-              <Col
-                span={24}
-                style={{ textAlign: 'right' }}
-                id="job-work-schedule-edit-submit-col"
-                data-cy="job-work-schedule-edit-submit-col"
-              >
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  id="job-work-schedule-edit-submit-btn"
-                  data-cy="job-work-schedule-edit-submit-btn"
-                >
-                  Save Changes
-                </Button>
-              </Col>
-            </Row>
+                Daily Schedule
+              </label>
+              <div className="space-y-4" data-cy="job-work-schedule-daily-list">
+                {dailySchedule.map((day, index) => {
+                  const hours = day.workDay ? day.duration || 0 : 0;
+                  return (
+                    <div
+                      key={index}
+                      className={`flex items-center gap-4 p-4 rounded-lg border ${
+                        day.workDay
+                          ? 'border-gray-200 bg-white'
+                          : 'border-gray-100 bg-gray-50'
+                      }`}
+                      id={`job-work-schedule-day-row-${index}`}
+                      data-cy={`job-work-schedule-day-row-${index}`}
+                    >
+                      <Switch
+                        disabled
+                        checked={day.workDay}
+                        onChange={(checked) => {
+                          const updated = [...dailySchedule];
+                          updated[index].workDay = checked;
+                          setDailySchedule(updated);
+                        }}
+                        id={`job-work-schedule-switch-${index}`}
+                        data-cy={`job-work-schedule-switch-${index}`}
+                      />
+                      <span
+                        className="text-sm font-medium text-gray-700 min-w-[80px]"
+                        data-cy={`job-work-schedule-day-name-${index}`}
+                      >
+                        {day.day || ''}
+                      </span>
+                      <div
+                        className="flex items-center gap-2 flex-1"
+                        data-cy={`job-work-schedule-day-times-${index}`}
+                      >
+                        <TimePicker
+                          value={day.startTime}
+                          format="HH:mm"
+                          placeholder="Start time"
+                          disabled
+                          onChange={(time) => {
+                            const updated = [...dailySchedule];
+                            updated[index].startTime = time;
+                            if (time && updated[index].endTime) {
+                              const start = time;
+                              const end = updated[index].endTime;
+                              const diff = end.diff(start, 'hour', true);
+                              updated[index].duration = diff > 0 ? diff : 0;
+                            }
+                            setDailySchedule(updated);
+                          }}
+                          className="flex-1"
+                          id={`job-work-schedule-start-time-${index}`}
+                          data-cy={`job-work-schedule-start-time-${index}`}
+                        />
+                        <span
+                          className="text-gray-400"
+                          data-cy={`job-work-schedule-time-separator-${index}`}
+                        >
+                          -
+                        </span>
+                        <TimePicker
+                          value={day.endTime}
+                          format="HH:mm"
+                          placeholder="End time"
+                          disabled
+                          onChange={(time) => {
+                            const updated = [...dailySchedule];
+                            updated[index].endTime = time;
+                            if (time && updated[index].startTime) {
+                              const start = updated[index].startTime;
+                              const end = time;
+                              const diff = end.diff(start, 'hour', true);
+                              updated[index].duration = diff > 0 ? diff : 0;
+                            }
+                            setDailySchedule(updated);
+                          }}
+                          className="flex-1"
+                          id={`job-work-schedule-end-time-${index}`}
+                          data-cy={`job-work-schedule-end-time-${index}`}
+                        />
+                        <div
+                          className={`px-3 py-1 rounded text-sm font-medium min-w-[80px] text-center hidden sm:block ${
+                            day.workDay
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-gray-100 text-gray-400'
+                          }`}
+                          id={`job-work-schedule-hours-${index}`}
+                          data-cy={`job-work-schedule-hours-${index}`}
+                        >
+                          {hours > 0
+                            ? `${Math.round(hours * 10) / 10} Hours`
+                            : '0 Hours'}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </Form>
         </div>
       )}

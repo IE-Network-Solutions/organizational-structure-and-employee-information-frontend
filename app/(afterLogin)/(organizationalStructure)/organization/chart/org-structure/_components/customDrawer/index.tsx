@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { MergeForm, DeleteForm, TransferForm } from '../forms';
 import CustomDrawerLayout from '@/components/common/customDrawer';
@@ -62,7 +63,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       onClose={onClose}
       modalHeader={
         <div
-          className="flex justify-start text-xl font-extrabold text-gray-800 "
+          className="flex justify-start text-base sm:text-xl font-bold text-gray-800"
           data-cy={`${drawerDataCy}-header`}
           id={`${drawerId}-header`}
         >
@@ -72,12 +73,12 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       width={width}
       footer={
         <div
-          className="w-full flex justify-center space-x-5 p-4 "
+          className="w-full flex justify-end sm:justify-center gap-2 sm:gap-4 p-2 sm:p-4"
           data-cy={`${drawerDataCy}-footer`}
           id={`${drawerId}-footer`}
         >
           <Button
-            className="h-[40px] text-base px-10"
+            className="h-9 sm:h-10 text-sm sm:text-base px-4 sm:px-10"
             type="default"
             onClick={onClose}
             data-cy={`${drawerDataCy}-cancel-btn`}
@@ -86,7 +87,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             Cancel
           </Button>
           <Button
-            className="h-[40px] text-base px-10"
+            className="h-9 sm:h-10 text-sm sm:text-base px-4 sm:px-10"
             type="primary"
             onClick={onSubmit}
             loading={loading}

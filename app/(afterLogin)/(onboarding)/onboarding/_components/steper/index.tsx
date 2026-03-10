@@ -1,7 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Button, Spin, Form, Checkbox } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Form } from 'antd';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
+dayjs.extend(isBetween);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 // UI‑state stores
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
@@ -10,13 +17,13 @@ import useOrganizationStore from '@/store/uistate/features/organizationStructure
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { PUBLIC_DOMAIN } from '@/utils/constants';
 
 // Server mutations & queries
 import {
   useCreateFiscalYear,
   useDeleteFiscalYear,
 } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
+import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import {
   useCreateSchedule,
   useDeleteSchedule,
@@ -53,49 +60,43 @@ import FiscalYearForm from './onBoardingFy';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useRouter } from 'next/navigation';
-import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
+import Welcome from './welcome';
+import OnboardingModalBackground from './OnboardingModalBackground';
 
 /**
- * Onboarding multi‑step wizard component
+ * Onboarding simplified flow
  */
 const OnboardingSteper: React.FC = () => {
+  const [showWelcome, setShowWelcome] = useState(true);
+
   /* -------------------------------------------------------------------------- */
   /*                               form instances                               */
   /* -------------------------------------------------------------------------- */
   const [formCompany] = Form.useForm();
   const [formFiscal] = Form.useForm();
   const [formSchedule] = Form.useForm();
-  const forms = [formCompany, formFiscal, formSchedule];
 
   /* -------------------------------------------------------------------------- */
   /*                               external data                                */
   /* -------------------------------------------------------------------------- */
-
   const { data: departments } = useGetDepartments();
   const router = useRouter();
   useEffect(() => {
     if (departments?.length) {
       router.push('/dashboard');
     }
-  }, [departments?.length]);
+  }, [departments?.length, router]);
 
-  const {
-    currentStep,
-    nextStep,
-    prevStep,
-    loading,
-    toggleLoading,
-    isModalVisible,
-    togleIsModalVisible,
-  } = useStepStore();
+  const { loading, toggleLoading, isModalVisible, togleIsModalVisible } =
+    useStepStore();
+
   const { createWorkSchedule, detail } = useScheduleStore();
   const { orgData } = useOrganizationStore();
   const { fiscalYearPayLoad } = useFiscalYearDrawerStore();
   const { companyName, companyProfileImage, companyStamp } =
     useCompanyProfile();
 
-  const { data: branches } = useGetBranches();
   const { data: timeZoneRow } = useGetTimeZone();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
@@ -120,10 +121,7 @@ const OnboardingSteper: React.FC = () => {
   /* -------------------------------------------------------------------------- */
   /*                              static payloads                              */
   /* -------------------------------------------------------------------------- */
-  const schedulePayload = {
-    name: 'Full‑time Schedule',
-    detail,
-  };
+  const schedulePayload = { name: 'Full‑time Schedule', detail };
   const timeZonePayload = {
     timezone: detectedTimeZone,
     id: timeZoneRow ? timeZoneRow.id : '',
@@ -132,8 +130,8 @@ const OnboardingSteper: React.FC = () => {
     name: 'HQ',
     description: 'HQ',
     location: 'HQ',
-    contactNumber: companyInformation?.contactPersonPhoneNumber,
-    contactEmail: companyInformation?.contactPersonEmail,
+    contactNumber: companyInformation?.contactPersonPhoneNumber || '',
+    contactEmail: companyInformation?.contactPersonEmail || '',
   };
   const applicantStatusPayload = {
     title: 'Initial Stage',
@@ -217,28 +215,100 @@ const OnboardingSteper: React.FC = () => {
   /*                              submit handler                                */
   /* -------------------------------------------------------------------------- */
   const onSubmitOnboarding = async () => {
-    // 1. validate all forms
+    toggleLoading();
     try {
-      await Promise.all(forms.map((f) => f.validateFields()));
+      // Validate the fiscal form first (Step 2)
+      await formFiscal.validateFields();
+
+      // For Steps 1 and 3, skip validation if fields aren't fully interactable,
+      // OR ensure they are populated via their background components.
+      // We'll try to validate all just in case.
+      await Promise.all([
+        formCompany.validateFields(),
+        formSchedule.validateFields(),
+      ]);
     } catch (error: any) {
       showValidationErrors(error?.errorFields);
+      toggleLoading();
       return;
     }
 
-    // 2. gather payload after validation
     const companyInfoPayload = formCompany.getFieldsValue();
-
-    toggleLoading();
     createWorkSchedule();
 
-    /* keep track of successful requests so that we can roll back on error */
     const successfulRequests: {
       deletePayload: any;
       deleteFn: (payload: any) => Promise<any>;
     }[] = [];
 
+    // Construct payload exactly like organization settings drawer does
+    if (
+      !fiscalYearPayLoad ||
+      !fiscalYearPayLoad.sessions ||
+      fiscalYearPayLoad.sessions.length === 0
+    ) {
+      NotificationMessage.error({
+        message: 'Error',
+        description: 'Missing required fiscal year data.',
+      });
+      toggleLoading();
+      return;
+    }
+
+    const now = dayjs();
+
+    // Build payload matching organization settings structure exactly
+    // Format dates: startDate as Dayjs object, endDate as formatted string (same as organization settings)
+    const payload: FiscalYear = {
+      name: fiscalYearPayLoad.name,
+      startDate: dayjs(fiscalYearPayLoad.startDate),
+      endDate: dayjs(fiscalYearPayLoad.endDate).format('YYYY-MM-DD'),
+      description: fiscalYearPayLoad.description || '',
+      sessions: fiscalYearPayLoad.sessions.map((session: any) => ({
+        name: session.name,
+        startDate: dayjs(session.startDate).format('YYYY-MM-DD'),
+        endDate: dayjs(session.endDate).format('YYYY-MM-DD'),
+        description: session.description || '',
+        months:
+          session.months?.map((month: any) => ({
+            name: month.name,
+            startDate: dayjs(month.startDate).format('YYYY-MM-DD'),
+            endDate: dayjs(month.endDate).format('YYYY-MM-DD'),
+            description: month.description || '',
+          })) || [],
+      })),
+    };
+
+    // Calculate isActive exactly like organization settings
+    const fyStart = dayjs(payload.startDate);
+    const fyEnd = dayjs(payload.endDate);
+
+    const activeFiscalYearPayload = {
+      ...payload,
+      isActive: now.isBetween(fyStart, fyEnd, null, '[]'),
+      sessions:
+        payload.sessions?.map((session: any) => {
+          const sStart = dayjs(session.startDate);
+          const sEnd = dayjs(session.endDate);
+          return {
+            ...session,
+            active: now.isBetween(sStart, sEnd, null, '[]'),
+            months:
+              session.months?.map((month: any) => ({
+                ...month,
+                active: now.isBetween(
+                  dayjs(month.startDate),
+                  dayjs(month.endDate),
+                  null,
+                  '[]',
+                ),
+              })) || [],
+          };
+        }) || [],
+    };
+
     const generator = createResourcesGenerator(
-      fiscalYearPayLoad,
+      activeFiscalYearPayload,
       schedulePayload,
       orgData,
       companyInfoPayload,
@@ -250,23 +320,19 @@ const OnboardingSteper: React.FC = () => {
     try {
       for (const { createFn, deleteFn, data } of generator) {
         const response = await createFn(data);
-        // For rollback, use the same payload as was used for creation, or adapt as needed
         if (deleteFn && response) {
-          // If the delete function expects a different payload, adapt here as needed
           successfulRequests.push({
             deletePayload: response?.id ?? data,
             deleteFn,
           });
         }
       }
-
       NotificationMessage.success({
         message: 'Success',
-        description: 'All Requests Successfully Created',
+        description: 'Onboarding Successfully Completed',
       });
       togleIsModalVisible();
     } catch (err) {
-      // rollback
       await Promise.all(
         successfulRequests.map(({ deletePayload, deleteFn }) =>
           deleteFn(deletePayload),
@@ -274,356 +340,55 @@ const OnboardingSteper: React.FC = () => {
       );
       NotificationMessage.error({
         message: 'Error',
-        description:
-          'An error occurred while processing onboarding. Rolled back changes.',
+        description: 'An error occurred. Rolled back changes.',
       });
     }
-
     toggleLoading();
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                         next/previous step handler                         */
-  /* -------------------------------------------------------------------------- */
-  const handleNextStep = () => {
-    // last index = steps.length - 1 (3)
-    if (currentStep >= 3) {
-      // on the review step… just make sure at least one branch exists
-      if (branches && branches.items?.length) {
-        nextStep();
-      } else {
-        NotificationMessage.warning({
-          message: 'Branch not created',
-          description: 'You have to create at least one branch',
-        });
-      }
-      return;
-    }
-
-    // validate only the current form before moving on
-    if (currentStep < forms.length) {
-      forms[currentStep]
-        .validateFields()
-        .then(() => nextStep())
-        .catch((e) => showValidationErrors([e?.errorFields[0]]));
-    } else {
-      nextStep();
-    }
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /*                                    UI                                      */
-  /* -------------------------------------------------------------------------- */
-  const steps = [
-    { title: 'Step 1', content: <CompanyProfile form={formCompany} /> },
-    { title: 'Step 2', content: <FiscalYearForm form={formFiscal} /> },
-    { title: 'Step 3', content: <WorkSchedule form={formSchedule} /> },
-    { title: 'Step 4', content: <OrgChartComponent /> },
-  ];
-
   const handleCloseModal = () => togleIsModalVisible();
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   return (
-    <div
-      data-cy="onboarding-components-steper-index-tsx-index-div-328"
-      className="flex flex-col items-center p-4 mobile-sm:p-2 mobile-md:p-4 mobile-lg:p-6 tablet-md:p-8 lg:p-12"
-    >
+    <>
+      {showWelcome && <Welcome onComplete={() => setShowWelcome(false)} />}
+
       <div
-        data-cy="onboarding-components-steper-index-tsx-index-div-329"
-        className="bg-white w-full rounded-lg flex flex-col p-4 lg:flex-row-reverse items-center gap-10"
+        className="h-screen w-full flex items-center justify-center p-6 relative overflow-hidden"
+        data-cy="onboarding-stepper-container"
       >
-        {/* Left section: copy, progress & buttons */}
-        <div
-          data-cy="onboarding-components-steper-index-tsx-index-div-331"
-          className="mx-auto pr-0 w-full"
-        >
-          {/* progress dots */}
+        {/* Background skeleton: sidebar + top bar + placeholder boxes (matches reference images) */}
+        <OnboardingModalBackground />
+
+        {/* Main View: Fiscal Year modal stays visible; loading shown on its button */}
+        {!showWelcome && (
           <div
-            className="flex items-center mb-8"
-            data-cy="onboarding-stepper-progress-dots"
+            className="z-10 w-full flex justify-center overflow-hidden"
+            data-cy="onboarding-fiscal-form-wrap"
           >
-            {steps.map((notused, index) => (
-              <div
-                key={index}
-                className={`w-6 h-5 rounded mr-2 ${currentStep >= index ? 'bg-blue' : 'bg-gray-300'}`}
-                data-cy={`onboarding-stepper-progress-dot-${index}`}
-              />
-            ))}
+            <FiscalYearForm
+              form={formFiscal}
+              onNext={onSubmitOnboarding}
+              isLoading={loading}
+            />
           </div>
+        )}
 
-          <div
-            className="text-xl font-bold text-gray-600 mb-8"
-            data-cy="onboarding-stepper-step-indicator"
-          >
-            STEP {currentStep + 1} OF {steps.length}
-          </div>
-
-          {/* dynamic heading/description */}
-          {(() => {
-            switch (currentStep) {
-              case 0:
-                return (
-                  <>
-                    <h2
-                      className="text-2xl md:text-4xl font-bold text-gray-900 mb-4"
-                      data-cy="onboarding-stepper-step-0-heading"
-                    >
-                      Personalize your experience and ensure smooth setup
-                    </h2>
-                    <p
-                      className="text-gray-600 mb-10"
-                      data-cy="onboarding-stepper-step-0-description"
-                    >
-                      This will help us configure the system to better align
-                      with your organizations operation.
-                    </p>
-                  </>
-                );
-              case 1:
-                return (
-                  <>
-                    <h2
-                      className="text-2xl md:text-4xl font-bold text-gray-900 mb-4"
-                      data-cy="onboarding-stepper-step-1-heading"
-                    >
-                      Define fiscal year for your organisation
-                    </h2>
-                    <p
-                      className="text-gray-600 mb-10"
-                      data-cy="onboarding-stepper-step-1-description"
-                    >
-                      This will help us ensure accurate reporting and data
-                      alignment.
-                    </p>
-                  </>
-                );
-              case 2:
-                return (
-                  <>
-                    <h2
-                      className="text-2xl md:text-4xl font-bold text-gray-900 mb-4"
-                      data-cy="onboarding-stepper-step-2-heading"
-                    >
-                      Define the work schedule for your organisation
-                    </h2>
-                    <p
-                      className="text-gray-600 mb-10"
-                      data-cy="onboarding-stepper-step-2-description"
-                    >
-                      Specify working days and hours to ensure proper planning
-                      and resource management.
-                    </p>
-                  </>
-                );
-              case 3:
-                return (
-                  <>
-                    <h2
-                      className="text-2xl md:text-4xl font-bold text-gray-900 mb-4"
-                      data-cy="onboarding-stepper-step-3-heading"
-                    >
-                      Create and define your organizational structure
-                    </h2>
-                    <p
-                      className="text-gray-600 mb-10"
-                      data-cy="onboarding-stepper-step-3-description"
-                    >
-                      Add departments, roles, and reporting hierarchies to
-                      ensure clear communication and streamlined workflows.
-                    </p>
-                  </>
-                );
-              default:
-                return null;
-            }
-          })()}
-
-          {/* buttons (desktop) */}
-          <div
-            data-cy="onboarding-components-steper-index-tsx-index-div-434"
-            className="hidden tablet-md:flex flex-col space-y-4 items-center"
-          >
-            <div
-              data-cy="onboarding-components-steper-index-tsx-index-div-435"
-              className="flex space-x-4"
-            >
-              {currentStep > 0 && (
-                <Button
-                  onClick={prevStep}
-                  icon={<ArrowLeftOutlined />}
-                  className="w-36 h-16"
-                  size="large"
-                  id="goBackButton"
-                  disabled={currentStep === 0}
-                >
-                  Go Back
-                </Button>
-              )}
-              <Button
-                onClick={
-                  currentStep === steps.length - 1
-                    ? onSubmitOnboarding
-                    : handleNextStep
-                }
-                type="primary"
-                size="large"
-                className="w-36 h-16 bg-blue disabled:bg-gray-200"
-                id={
-                  currentStep === steps.length - 1
-                    ? 'finishButton'
-                    : 'continueButton'
-                }
-                disabled={loading || (currentStep === 0 && !agreedToTerms)}
-              >
-                {loading ? (
-                  <Spin size="large" style={{ color: 'white' }} />
-                ) : currentStep === steps.length - 1 ? (
-                  'Submit'
-                ) : (
-                  'Continue'
-                )}
-              </Button>
-            </div>
-
-            {currentStep === 0 && (
-              <div
-                data-cy="onboarding-components-steper-index-tsx-index-div-475"
-                className="mt-4"
-              >
-                <Checkbox
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  id="termsCheckbox"
-                >
-                  I accept the{' '}
-                  <a
-                    href={`${PUBLIC_DOMAIN}/terms-of-service`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600"
-                    data-cy="onboarding-stepper-terms-link"
-                  >
-                    Terms & Conditions
-                  </a>
-                </Checkbox>
-              </div>
-            )}
-          </div>
+        {/* Hidden Background Steps: They still run useEffects to populate formCompany and formSchedule */}
+        <div className="hidden" data-cy="onboarding-hidden-steps">
+          <CompanyProfile form={formCompany} />
+          <WorkSchedule form={formSchedule} />
+          <OrgChartComponent />
         </div>
 
-        {/* Right section: actual step content (desktop) */}
-        <div
-          data-cy="onboarding-components-steper-index-tsx-index-div-498"
-          className="w-full mt-8 md:mt-0 tablet-md:block hidden"
-        >
-          {steps.map((step, idx) => (
-            <div
-              key={idx}
-              style={{ display: idx === currentStep ? 'block' : 'none' }}
-              data-cy={`onboarding-components-steper-index-tsx-div-521-${idx}`}
-            >
-              {step.content}
-            </div>
-          ))}
-        </div>
+        {/* Success modal */}
+        <CustomModal
+          visible={isModalVisible}
+          onClose={handleCloseModal}
+          text="You have successfully finished the onboarding process"
+          route="/dashboard"
+        />
       </div>
-
-      {/* buttons + step content for mobile */}
-      <div
-        data-cy="onboarding-components-steper-index-tsx-index-div-511"
-        className="tablet-md:hidden w-full mt-8"
-      >
-        {steps.map((step, idx) => (
-          <div
-            key={idx}
-            style={{ display: idx === currentStep ? 'block' : 'none' }}
-            data-cy={`onboarding-components-steper-index-tsx-div-537-${idx}`}
-          >
-            {step.content}
-          </div>
-        ))}
-
-        <div
-          data-cy="onboarding-components-steper-index-tsx-index-div-521"
-          className="flex flex-col space-y-4 mt-6 items-center"
-        >
-          <div
-            data-cy="onboarding-components-steper-index-tsx-index-div-522"
-            className="flex space-x-4"
-          >
-            {currentStep > 0 && (
-              <Button
-                onClick={prevStep}
-                icon={<ArrowLeftOutlined />}
-                className="w-36 h-16"
-                size="large"
-                id="goBackButtonMobile"
-                disabled={currentStep === 0}
-              >
-                Go Back
-              </Button>
-            )}
-            <Button
-              onClick={
-                currentStep === steps.length - 1
-                  ? onSubmitOnboarding
-                  : handleNextStep
-              }
-              type="primary"
-              size="large"
-              className="w-36 h-16 bg-blue disabled:bg-gray-200"
-              id={
-                currentStep === steps.length - 1
-                  ? 'finishButtonMobile'
-                  : 'continueButtonMobile'
-              }
-              disabled={loading || (currentStep === 0 && !agreedToTerms)}
-            >
-              {loading ? (
-                <Spin size="large" style={{ color: 'white' }} />
-              ) : currentStep === steps.length - 1 ? (
-                'Submit'
-              ) : (
-                'Continue'
-              )}
-            </Button>
-          </div>
-
-          {currentStep === 0 && (
-            <div
-              data-cy="onboarding-components-steper-index-tsx-index-div-562"
-              className="mt-4"
-            >
-              <Checkbox
-                checked={agreedToTerms}
-                onChange={(e) => setAgreedToTerms(e.target.checked)}
-                id="termsCheckboxMobile"
-              >
-                I accept the{' '}
-                <a
-                  href={`${PUBLIC_DOMAIN}/terms-of-service`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600"
-                  data-cy="onboarding-stepper-terms-link-mobile"
-                >
-                  Terms of Service
-                </a>
-              </Checkbox>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Success modal */}
-      <CustomModal
-        visible={isModalVisible}
-        onClose={handleCloseModal}
-        text="You have successfully finished the onboarding process"
-        route="/dashboard"
-      />
-    </div>
+    </>
   );
 };
 
