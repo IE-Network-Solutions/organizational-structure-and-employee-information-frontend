@@ -2,7 +2,13 @@
 
 import React from 'react';
 import { Modal, Button } from 'antd';
-import Image from 'next/image';
+
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
 interface DeleteModalProps {
   open: boolean;
@@ -41,6 +47,18 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   danger = false,
   modalClassName,
 }) => {
+  const isPositioned = Boolean(triggerRect);
+  const modalStyle: React.CSSProperties | undefined = isPositioned
+    ? {
+        position: 'fixed',
+        top: triggerRect!.top + triggerRect!.height + 8,
+        left: triggerRect!.left,
+        margin: 0,
+        paddingBottom: 0,
+        maxHeight: `calc(100vh - ${triggerRect!.top + triggerRect!.height + 8}px)`,
+      }
+    : undefined;
+
   const deleteModalFooter = (
     <div
       className="w-full flex flex-col md:flex-row justify-end items-center gap-3 mt-4"
@@ -80,6 +98,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           {modal}
         </div>
       )}
+      data-cy="delete-confirmation-modal"
     >
       {!hideImage && (
         <p
@@ -105,9 +124,9 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
           className="mt-4 text-center"
         >
-          {customMessage}
-        </div>
-      )}
+          {customMessage ?? 'Are you sure you want to delete this item?'}
+        </p>
+      </div>
     </Modal>
   );
 };

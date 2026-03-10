@@ -82,6 +82,41 @@ const getTenantId = async (token: string) => {
 };
 
 /**
+ * Fetches current user (including permissions) from backend and updates the auth store.
+ * Used to refresh permissions on route change so they come from Redis/backend, not localStorage.
+ */
+export const fetchCurrentUserAndUpdateStore = async (): Promise<boolean> => {
+  const {
+    token,
+    localId,
+    setTenantId,
+    setUserId,
+    setUserData,
+    setLoggedUserRole,
+  } = useAuthenticationStore.getState();
+  if (!token || !localId) return false;
+  try {
+    const tokenToUse = token.length > 0 ? token : await getCurrentToken();
+    if (!tokenToUse) return false;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/firebase/${localId}`,
+      method: 'GET',
+      headers: { Authorization: `Bearer ${tokenToUse}` },
+    });
+    // API may return { data: user } or the user object directly
+    const data = response?.data ?? response;
+    if (!data || typeof data !== 'object') return false;
+    setTenantId(data.tenantId ?? '');
+    setUserId(data.id ?? '');
+    setUserData(data);
+    setLoggedUserRole(data?.role?.slug ?? '');
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
  * Custom hook to fetch a tenant ID by local ID which fetch from firebase using useQuery from react-query.
  *
  * @param localId The ID of the localId to fetch

@@ -30,7 +30,7 @@ async function deriveKey(): Promise<CryptoKey> {
 
   const baseKey = await crypto.subtle.importKey(
     'raw',
-    strToUint8Array(password),
+    strToUint8Array(password) as BufferSource,
     { name: 'PBKDF2' },
     false,
     ['deriveKey'],
@@ -39,7 +39,7 @@ async function deriveKey(): Promise<CryptoKey> {
   const key = await crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: saltBytes,
+      salt: saltBytes as BufferSource,
       iterations: 1000,
       hash: 'SHA-256',
     },
@@ -76,11 +76,11 @@ export async function encrypt(text: string): Promise<string> {
     const encryptedBuffer = await crypto.subtle.encrypt(
       {
         name: 'AES-GCM',
-        iv,
+        iv: iv as BufferSource,
         tagLength: 128,
       },
       key,
-      encodedText,
+      encodedText as BufferSource,
     );
 
     const encryptedBytes = new Uint8Array(encryptedBuffer);
@@ -107,11 +107,11 @@ export async function decrypt(ciphertext: string): Promise<string> {
     const decryptedBuffer = await crypto.subtle.decrypt(
       {
         name: 'AES-GCM',
-        iv,
+        iv: iv as BufferSource,
         tagLength: 128,
       },
       key,
-      encryptedBytes,
+      encryptedBytes as BufferSource,
     );
 
     return new TextDecoder().decode(decryptedBuffer);

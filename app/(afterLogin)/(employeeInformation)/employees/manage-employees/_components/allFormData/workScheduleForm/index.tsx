@@ -1,32 +1,20 @@
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { Col, Form, Row, Select, Switch, Table, TimePicker } from 'antd';
-import { TableProps } from 'antd/lib';
-import dayjs from 'dayjs';
+import { Col, Form, Row, Select } from 'antd';
+
 import React from 'react';
 
 const { Option } = Select;
 
-interface DataType {
-  key: string;
-  workingDay: React.ReactNode;
-  time: React.ReactNode;
-}
-
 interface WorkScheduleFormProps {
   selectedWorkScheduleDetails?: any[];
+  form?: any;
 }
 
-const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
-  selectedWorkScheduleDetails,
-}) => {
+const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
   const { data: workSchedules } = useGetWorkSchedules();
-  const {
-    selectedWorkSchedule,
-    setSelectedWorkSchedule,
-    workSchedule,
-    setWorkSchedule,
-  } = useEmployeeManagementStore();
+  const { setSelectedWorkSchedule, workSchedule, setWorkSchedule } =
+    useEmployeeManagementStore();
 
   const workscheduleChangeHandler = (value: string) => {
     const selectedValue = workSchedules?.items.find(
@@ -36,69 +24,14 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
     setWorkSchedule(value);
   };
 
-  const columns: TableProps<DataType>['columns'] = [
-    {
-      title: 'Working Day',
-      dataIndex: 'workingDay',
-      key: 'workingDay',
-    },
-    {
-      title: 'Time',
-      dataIndex: 'time',
-      key: 'time',
-    },
-  ];
-
-  const data: DataType[] = (
-    selectedWorkSchedule?.detail ||
-    selectedWorkScheduleDetails ||
-    []
-  ).map((schedule, index) => {
-    const timeValue =
-      schedule?.hours ||
-      (schedule?.startTime && schedule?.endTime
-        ? `${dayjs(schedule?.startTime, 'h:mm A').format('HH:mm:ss')} - ${dayjs(
-            schedule?.endTime,
-            'h:mm A',
-          ).format('HH:mm:ss')}`
-        : '00:00:00');
-
-    return {
-      key: `${selectedWorkSchedule?.id || 'default'}-${index}`,
-      workingDay: (
-        <div
-          className="flex space-x-2 justify-start"
-          data-cy={`work-schedule-day-${index}`}
-        >
-          <Switch
-            checked={schedule?.status || schedule?.workday}
-            disabled
-            data-cy={`work-schedule-day-switch-${index}`}
-          />
-          <span data-cy={`work-schedule-day-name-${index}`}>
-            {schedule?.dayOfWeek || schedule?.day}
-          </span>
-        </div>
-      ),
-      time: (
-        <TimePicker
-          value={dayjs(timeValue, 'HH:mm:ss')}
-          disabled
-          data-cy={`work-schedule-time-${index}`}
-        />
-      ),
-    };
-  });
+  React.useEffect(() => {
+    if (form && workSchedule) {
+      form.setFieldsValue({ workScheduleId: workSchedule });
+    }
+  }, [workSchedule, form]);
 
   return (
     <div id="work-schedule-form" data-cy="work-schedule-form">
-      <div
-        className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
-        id="work-schedule-title"
-        data-cy="work-schedule-title"
-      >
-        Work Schedule
-      </div>
       <Row
         gutter={16}
         id="work-schedule-select-row"
@@ -150,7 +83,7 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
           </Form.Item>
         </Col>
       </Row>
-      <Row
+      {/* <Row
         gutter={16}
         id="work-schedule-table-row"
         data-cy="work-schedule-table-row"
@@ -169,7 +102,7 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
             data-cy="work-schedule-table"
           />
         </Col>
-      </Row>
+      </Row> */}
     </div>
   );
 };
