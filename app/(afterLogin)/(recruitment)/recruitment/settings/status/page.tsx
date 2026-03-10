@@ -1,7 +1,14 @@
 'use client';
 import { Button, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import RecruitmentStatusDrawer from './statusDrawer';
 import { useGetRecruitmentStatuses } from '@/store/server/features/recruitment/settings/status/queries';
@@ -11,7 +18,13 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteRecruitmentStatus } from '@/store/server/features/recruitment/settings/status/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { MoreHorizontal, Pencil, Trash2, UserPlus, GripVertical } from 'lucide-react';
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  UserPlus,
+  GripVertical,
+} from 'lucide-react';
 import { useSettingsAddButton } from '../SettingsAddButtonContext';
 
 const DRAG_DATA_KEY = 'application/x-status-id';
@@ -53,17 +66,32 @@ function StatusCardContent({
 }) {
   return (
     <>
-      <div className="flex-1 min-w-0 pr-8">
-        <div className="flex flex-wrap items-center gap-2" data-cy="talent-acquisition-status-card-content">
-          <h3 className="text-[14px] font-normal text-black leading-normal" data-cy="recruitment-settings-status-card-title">
+      <div
+        className="flex-1 min-w-0 pr-8"
+        data-cy="talent-acquisition-status-card-main"
+      >
+        <div
+          className="flex flex-wrap items-center gap-2"
+          data-cy="talent-acquisition-status-card-content"
+        >
+          <h3
+            className="text-[14px] font-normal text-black leading-normal"
+            data-cy="recruitment-settings-status-card-title"
+          >
             {status?.title}
           </h3>
-          <span className="recruitment-settings-card-level inline-block px-2.5 py-0.5 rounded" data-cy="recruitment-settings-status-card-level">
+          <span
+            className="recruitment-settings-card-level inline-block px-2.5 py-0.5 rounded"
+            data-cy="recruitment-settings-status-card-level"
+          >
             {levelLabel}
           </span>
         </div>
         {status?.description && (
-          <p className="recruitment-settings-card-description mt-2 leading-snug" data-cy="recruitment-settings-status-card-description">
+          <p
+            className="recruitment-settings-card-description mt-2 leading-snug"
+            data-cy="recruitment-settings-status-card-description"
+          >
             {status.description}
           </p>
         )}
@@ -123,7 +151,9 @@ function DraggableMiddleCard({
 
   const handleGripDragStart = useCallback(
     (e: React.DragEvent) => {
-      const cardEl = (e.currentTarget as HTMLElement).closest('[data-status-card]') as HTMLElement;
+      const cardEl = (e.currentTarget as HTMLElement).closest(
+        '[data-status-card]',
+      ) as HTMLElement;
       if (cardEl) onDragStart(e, cardEl);
     },
     [onDragStart],
@@ -155,7 +185,11 @@ function DraggableMiddleCard({
       >
         <GripVertical size={24} strokeWidth={2} />
       </div>
-      <StatusCardContent status={status} levelLabel={levelLabel} menuItems={menuItems} />
+      <StatusCardContent
+        status={status}
+        levelLabel={levelLabel}
+        menuItems={menuItems}
+      />
     </div>
   );
 }
@@ -186,8 +220,12 @@ function StaticStatusCard({
 }
 
 function useStatusCardActions(status: any, showMenu: boolean) {
-  const { setSelectedStatus, setIsDrawerOpen, setEditMode, setIsDeleteModalOpen } =
-    useRecruitmentStatusStore();
+  const {
+    setSelectedStatus,
+    setIsDrawerOpen,
+    setEditMode,
+    setIsDeleteModalOpen,
+  } = useRecruitmentStatusStore();
 
   const handleEditStatus = useCallback(
     (s: any) => {
@@ -243,10 +281,8 @@ const Status: React.FC = () => {
     selectedStatus,
   } = useRecruitmentStatusStore();
 
-  const { data: recruitmentStatus, isLoading: fetchLoading } = useGetRecruitmentStatuses(
-    STATUS_LIST_LIMIT,
-    1,
-  );
+  const { data: recruitmentStatus, isLoading: fetchLoading } =
+    useGetRecruitmentStatuses(STATUS_LIST_LIMIT, 1);
   const { mutate: deleteRecruitmentStatus } = useDeleteRecruitmentStatus();
   const { mutate: reorderStatuses } = useReorderRecruitmentStatuses();
 
@@ -275,8 +311,10 @@ const Status: React.FC = () => {
   const totalItems = items.length;
 
   const { firstItem, middleItems, lastItem } = useMemo(() => {
-    if (items.length === 0) return { firstItem: null, middleItems: [], lastItem: null };
-    if (items.length === 1) return { firstItem: items[0], middleItems: [], lastItem: null };
+    if (items.length === 0)
+      return { firstItem: null, middleItems: [], lastItem: null };
+    if (items.length === 1)
+      return { firstItem: items[0], middleItems: [], lastItem: null };
     return {
       firstItem: items[0],
       middleItems: items.slice(1, -1),
@@ -312,7 +350,9 @@ const Status: React.FC = () => {
     const container = middleListRef.current;
     if (!container || before.size === 0) return;
 
-    const cards = container.querySelectorAll('[data-status-card]') as NodeListOf<HTMLElement>;
+    const cards = container.querySelectorAll(
+      '[data-status-card]',
+    ) as NodeListOf<HTMLElement>;
     const toAnimate: { el: HTMLElement; dx: number; dy: number }[] = [];
 
     cards.forEach((el) => {
@@ -354,30 +394,36 @@ const Status: React.FC = () => {
     return () => clearTimeout(timer);
   }, [orderedMiddleItems]);
 
-  const handleDragStart = useCallback((e: React.DragEvent, cardEl: HTMLElement) => {
-    const id = (cardEl.closest('[data-status-id]') as HTMLElement)?.getAttribute('data-status-id');
-    if (!id) return;
-    e.dataTransfer.setData(DRAG_DATA_KEY, id);
-    e.dataTransfer.effectAllowed = 'move';
-    setDragSourceId(id);
+  const handleDragStart = useCallback(
+    (e: React.DragEvent, cardEl: HTMLElement) => {
+      const id = (
+        cardEl.closest('[data-status-id]') as HTMLElement
+      )?.getAttribute('data-status-id');
+      if (!id) return;
+      e.dataTransfer.setData(DRAG_DATA_KEY, id);
+      e.dataTransfer.effectAllowed = 'move';
+      setDragSourceId(id);
 
-    const ghost = cardEl.cloneNode(true) as HTMLElement;
-    ghost.style.position = 'absolute';
-    ghost.style.top = '-9999px';
-    ghost.style.left = '0';
-    ghost.style.width = `${cardEl.offsetWidth}px`;
-    ghost.style.pointerEvents = 'none';
-    ghost.style.transform = 'rotate(3deg)';
-    ghost.style.transformOrigin = 'center center';
-    ghost.style.boxShadow = '0 12px 28px -6px rgba(0,0,0,0.18), 0 4px 10px -4px rgba(0,0,0,0.1)';
-    ghost.style.borderRadius = '8px';
-    ghost.style.opacity = '0.95';
-    document.body.appendChild(ghost);
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    ghost.offsetHeight;
-    e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, 24);
-    setTimeout(() => ghost.remove(), 0);
-  }, []);
+      const ghost = cardEl.cloneNode(true) as HTMLElement;
+      ghost.style.position = 'absolute';
+      ghost.style.top = '-9999px';
+      ghost.style.left = '0';
+      ghost.style.width = `${cardEl.offsetWidth}px`;
+      ghost.style.pointerEvents = 'none';
+      ghost.style.transform = 'rotate(3deg)';
+      ghost.style.transformOrigin = 'center center';
+      ghost.style.boxShadow =
+        '0 12px 28px -6px rgba(0,0,0,0.18), 0 4px 10px -4px rgba(0,0,0,0.1)';
+      ghost.style.borderRadius = '8px';
+      ghost.style.opacity = '0.95';
+      document.body.appendChild(ghost);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      ghost.offsetHeight;
+      e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, 24);
+      setTimeout(() => ghost.remove(), 0);
+    },
+    [],
+  );
 
   const handleDragOver = useCallback(
     (e: React.DragEvent, targetIndex: number) => {
@@ -386,11 +432,15 @@ const Status: React.FC = () => {
       if (!dragSourceId || dragOverThrottleRef.current) return;
 
       const list = orderedRef.current;
-      const sourceIndex = list.findIndex((s: any) => String(s.id) === dragSourceId);
+      const sourceIndex = list.findIndex(
+        (s: any) => String(s.id) === dragSourceId,
+      );
       if (sourceIndex === -1 || sourceIndex === targetIndex) return;
 
       dragOverThrottleRef.current = true;
-      setTimeout(() => { dragOverThrottleRef.current = false; }, 80);
+      setTimeout(() => {
+        dragOverThrottleRef.current = false;
+      }, 80);
 
       snapshotPositions();
       const reordered = reorder(list, sourceIndex, targetIndex);
@@ -419,9 +469,20 @@ const Status: React.FC = () => {
         className="p-5 rounded-2xl bg-white h-full"
         data-cy="talent-acquisition-status-page-container"
       >
-        <div className="hidden md:flex justify-end items-center mb-6">
-          <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
-            <Button type="primary" className="h-10 px-4 recruitment-settings-primary-btn" disabled>
+        <div
+          className="hidden md:flex justify-end items-center mb-6"
+          data-cy="talent-acquisition-status-button-define-new-container"
+        >
+          <AccessGuard
+            permissions={[Permissions.CreateApplicationStage]}
+            data-cy="talent-acquisition-status-button-define-new"
+          >
+            <Button
+              type="primary"
+              className="h-10 px-4 recruitment-settings-primary-btn"
+              disabled
+              data-cy="talent-acquisition-status-button-define-new-button"
+            >
               Define Status
             </Button>
           </AccessGuard>
@@ -445,25 +506,44 @@ const Status: React.FC = () => {
         className="hidden md:flex justify-end items-center mb-6"
         data-cy="talent-acquisition-status-page-header"
       >
-        <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
+        <AccessGuard
+          permissions={[Permissions.CreateApplicationStage]}
+          data-cy="talent-acquisition-status-button-define-new-access-guard"
+        >
           <Button
             type="primary"
             id="createStatusButton"
             data-cy="talent-acquisition-status-button-define-new"
             onClick={handleOpen}
             className="h-10 px-4 recruitment-settings-primary-btn"
-            icon={<UserPlus size={18} data-cy="talent-acquisition-status-button-define-new-icon" />}
+            icon={
+              <UserPlus
+                size={18}
+                data-cy="talent-acquisition-status-button-define-new-icon"
+              />
+            }
           >
-            <span className="hidden sm:inline" data-cy="talent-acquisition-status-button-define-new-text">
+            <span
+              className="hidden sm:inline"
+              data-cy="talent-acquisition-status-button-define-new-text"
+            >
               Define Status
             </span>
           </Button>
         </AccessGuard>
       </div>
 
-      <div className="flex flex-col gap-4 w-full">
+      <div
+        className="flex flex-col gap-4 w-full"
+        data-cy="talent-acquisition-status-list-container"
+      >
         {totalItems === 0 ? (
-          <p className="text-gray-500 text-sm">No statuses defined yet. Add one to get started.</p>
+          <p
+            className="text-gray-500 text-sm"
+            data-cy="talent-acquisition-status-list-empty"
+          >
+            No statuses defined yet. Add one to get started.
+          </p>
         ) : (
           <>
             {firstItem && (
@@ -471,11 +551,16 @@ const Status: React.FC = () => {
                 status={firstItem}
                 levelLabel={getLevelLabel(1, totalItems)}
                 showMenu={false}
+                data-cy="talent-acquisition-status-first-card"
               />
             )}
 
             {orderedMiddleItems.length > 0 && (
-              <div ref={middleListRef} className="flex flex-col gap-4">
+              <div
+                ref={middleListRef}
+                className="flex flex-col gap-4"
+                data-cy="talent-acquisition-status-middle-list"
+              >
                 {orderedMiddleItems.map((status: any, index: number) => (
                   <DraggableMiddleCard
                     key={status.id}
@@ -487,6 +572,7 @@ const Status: React.FC = () => {
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     onDragEnd={handleDragEnd}
+                    data-cy={`talent-acquisition-status-middle-card-${status.id}`}
                   />
                 ))}
               </div>
@@ -497,14 +583,16 @@ const Status: React.FC = () => {
                 status={lastItem}
                 levelLabel={getLevelLabel(totalItems, totalItems)}
                 showMenu
+                data-cy="talent-acquisition-status-last-card"
               />
             )}
           </>
         )}
       </div>
 
-      <RecruitmentStatusDrawer />
+      <RecruitmentStatusDrawer data-cy="talent-acquisition-status-create-edit-modal" />
       <DeleteModal
+        data-cy="talent-acquisition-status-delete-modal"
         open={isDeleteModalOpen}
         onCancel={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
