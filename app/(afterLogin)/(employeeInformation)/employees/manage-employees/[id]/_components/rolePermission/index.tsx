@@ -598,7 +598,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
 
               {/* Permission Groups List - collapsible panels with permissions nested under each group */}
               <div
-                className="max-h-96 overflow-y-auto"
+                className="max-h-96 overflow-y-auto scrollbar-hide"
                 id="role-permission-collapse"
                 data-cy="role-permission-collapse"
               >
@@ -765,7 +765,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
               {/* Active Permissions List */}
               <div
                 data-cy="active-permission-list-div"
-                className="max-h-96 overflow-y-auto space-y-2"
+                className="max-h-96 overflow-y-auto space-y-2 scrollbar-hide"
               >
                 {activePermissions.length === 0 ? (
                   <div
