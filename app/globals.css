@@ -1221,6 +1221,21 @@ h6 {
   transition: transform 0.2s ease-out, opacity 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
+/* Define Status: placeholder slot left behind when item is being dragged */
+.recruitment-settings-status-drag-placeholder {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-style: dashed !important;
+  border-color: #d1d5db !important;
+}
+.recruitment-settings-status-drag-placeholder > * {
+  visibility: hidden;
+}
+
+/* Define Status: card base for FLIP animation (transition set by JS) */
+.recruitment-settings-status-card-animate {
+  will-change: transform;
+}
+
 /* Custom drag ghost (clone used for setDragImage): professional tilted preview */
 .recruitment-settings-drag-ghost {
   transform: rotate(8deg);

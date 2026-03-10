@@ -32,12 +32,14 @@ const RecruitmentStatusDrawer: React.FC = () => {
 
   const handleSubmit = () => {
     form.validateFields().then((values) => {
-      const payload = {
+      const payload: Record<string, unknown> = {
         title: values?.title,
-        level: values?.level,
         description: values?.description ?? undefined,
         ...(isEditMode ? { updatedBy: userId } : { createdBy: userId }),
       };
+      if (!isEditMode) {
+        payload.level = values?.level;
+      }
       if (isEditMode) {
         updateRecruitmentStatus({
           id: selectedStatus?.id || '',
@@ -57,7 +59,6 @@ const RecruitmentStatusDrawer: React.FC = () => {
         form.setFieldsValue({
           title: selectedStatus.title || '',
           description: selectedStatus.description || '',
-          level: selectedStatus.order ?? selectedStatus.level ?? '',
         });
       } else {
         form.resetFields();
@@ -101,19 +102,21 @@ const RecruitmentStatusDrawer: React.FC = () => {
           />
         </Form.Item>
 
-        <Form.Item
-          label="Status Level"
-          name="level"
-          rules={[{ required: true, message: 'Please enter status level' }]}
-          required
-        >
-          <Input
-            id="talent-acquisition-status-input-level"
-            data-cy="talent-acquisition-status-input-level"
-            className="h-10 rounded-md"
-            placeholder="status level"
-          />
-        </Form.Item>
+        {!isEditMode && (
+          <Form.Item
+            label="Status Level"
+            name="level"
+            rules={[{ required: true, message: 'Please enter status level' }]}
+            required
+          >
+            <Input
+              id="talent-acquisition-status-input-level"
+              data-cy="talent-acquisition-status-input-level"
+              className="h-10 rounded-md"
+              placeholder="status level"
+            />
+          </Form.Item>
+        )}
 
         <Form.Item label="Description" name="description">
           <Input.TextArea
