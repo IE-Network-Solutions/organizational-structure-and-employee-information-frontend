@@ -6,18 +6,19 @@ import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
 import { IoCloseOutline } from 'react-icons/io5';
 import {
-  MdDashboard,
-  MdGroups,
-  MdPersonAdd,
-  MdAccessTimeFilled,
-  MdTrackChanges,
-  MdChatBubble,
-  MdSchool,
-  MdPayments,
-  MdRedeem,
   MdGridView,
-  MdAdminPanelSettings,
   MdDomain,
+  MdPeople,
+  MdPersonSearch,
+  MdOutlineAccessTime,
+  MdAdjust,
+  MdChat,
+  MdSchool,
+  MdAccountBalanceWallet,
+  MdCardGiftcard,
+  MdWidgets,
+  MdHowToReg,
+  MdAdminPanelSettings,
 } from 'react-icons/md';
 import { Layout, Button, theme, Skeleton, message } from 'antd';
 
@@ -347,7 +348,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const treeData: CustomMenuItem[] = [
     {
-      icon: <MdDashboard style={{ fontSize: 20 }} />,
+      icon: <MdGridView style={{ fontSize: 20 }} />,
       title: 'Dashboard',
       key: '/dashboard',
       className: 'font-bold',
@@ -379,7 +380,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdGroups style={{ fontSize: 20 }} />,
+      icon: <MdPeople style={{ fontSize: 20 }} />,
       title: 'Employees',
       key: '/employees',
       className: 'font-bold',
@@ -404,7 +405,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdPersonAdd style={{ fontSize: 20 }} />,
+      icon: <MdPersonSearch style={{ fontSize: 20 }} />,
       title: 'Talent Acquisition',
       key: '/recruitment',
       className: 'font-bold',
@@ -462,7 +463,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdTrackChanges style={{ fontSize: 20 }} />,
+      icon: <MdAdjust style={{ fontSize: 20 }} />,
       title: 'OKR',
       key: '/okr-menu',
       className: 'font-bold',
@@ -509,7 +510,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdChatBubble style={{ fontSize: 20 }} />,
+      icon: <MdChat style={{ fontSize: 20 }} />,
       title: 'CFR',
       key: 'feedback-menu',
       className: 'font-bold',
@@ -571,7 +572,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdPayments style={{ fontSize: 20 }} />,
+      icon: <MdAccountBalanceWallet style={{ fontSize: 20 }} />,
       title: 'Payroll',
       key: '/payroll-menu',
       className: 'font-bold',
@@ -610,7 +611,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdAccessTimeFilled style={{ fontSize: 20 }} />,
+      icon: <MdOutlineAccessTime style={{ fontSize: 20 }} />,
       title: 'Time & Attendance',
       key: 'timesheet-menu',
       className: 'font-bold',
@@ -657,7 +658,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdGridView style={{ fontSize: 20 }} />,
+      icon: <MdWidgets style={{ fontSize: 20 }} />,
       title: 'Compensation & Benefit',
       key: 'compensation-menu',
       className: 'font-bold',
@@ -692,7 +693,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdRedeem style={{ fontSize: 20 }} />,
+      icon: <MdCardGiftcard style={{ fontSize: 20 }} />,
       title: 'Incentives',
       key: 'incentive-menu',
       className: 'font-bold',
@@ -1201,6 +1202,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       <Sider
         theme="light"
         width={280}
+        className="scrollbar-hide"
         style={{
           overflow: 'visible',
           height: '100vh',
@@ -1213,9 +1215,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           borderRight: '1px solid #E5E7EB',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
-          display: 'flex',
-          flexDirection: 'column',
-          paddingBottom: '24px',
         }}
         trigger={null}
         collapsible
@@ -1235,7 +1234,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         <div
           data-cy="nav-sider-logo-wrap"
-          className="flex items-center justify-between px-4 pt-6 pb-0"
+          className="flex items-center justify-between pl-10 pt-6 mb-10"
         >
           <div data-cy="nav-sider-logo" className="flex items-center gap-2">
             {!collapsed && <Logo type="selamnew" />}
@@ -1256,11 +1255,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         </button>
         <div
           data-cy="nav-sider-menu-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar"
+          className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+          style={{ minHeight: 0 }}
         >
           <div
             data-cy="nav-sider-menu-inner"
-            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-20 ${collapsed ? 'px-0' : 'pl-6 pr-3'}`}
+            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-6 pr-3'}`}
           >
             {!isMounted || isLoading ? (
               <div
@@ -1296,7 +1296,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       <div
                         data-cy="nav-sider-group-children"
                         className={`space-y-1 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'hidden opacity-0'
-                          }`}
+                          } ${collapsed ? '' : 'pl-2'}`}
                       >
                         {group.children?.map((item: any) => (
                           <NavMenuItem
@@ -1318,30 +1318,32 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 })}
               </div>
             )}
+
+            <div
+              data-cy="nav-sider-admin-wrap"
+              className={`px-4 py-6 mt-10 ${collapsed ? 'flex justify-center' : ''}`}
+            >
+              <Button
+                data-cy="nav-sider-admin-btn"
+                type="primary"
+                size="large"
+                icon={<MdHowToReg size={22} />}
+                className={`
+                  flex items-center justify-center bg-[#1D4ED8] hover:bg-[#1e40af] border-none shadow-lg transition-all duration-300
+                  ${collapsed
+                    ? 'w-[52px] h-[52px] rounded-xl'
+                    : 'w-full h-12 rounded-xl text-[14px] font-semibold gap-2'
+                  }
+                `}
+                onClick={() => router.push('/admin/dashboard')}
+              >
+                {!collapsed && 'Admin Console'}
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div
-          data-cy="nav-sider-admin-wrap"
-          className={`px-4 mt-auto ${collapsed ? 'flex justify-center' : ''}`}
-        >
-          <Button
-            data-cy="nav-sider-admin-btn"
-            type="primary"
-            size="large"
-            icon={<MdAdminPanelSettings size={22} />}
-            className={`
-            flex items-center justify-center bg-[#1D4ED8] hover:bg-[#1e40af] border-none shadow-lg transition-all duration-300
-            ${collapsed
-                ? 'w-[52px] h-[52px] rounded-xl'
-                : 'w-full h-12 rounded-xl text-[14px] font-semibold gap-2'
-              }
-          `}
-            onClick={() => router.push('/admin/dashboard')}
-          >
-            {!collapsed && 'Admin Console'}
-          </Button>
-        </div>
+
       </Sider>
       <Layout
         style={{
