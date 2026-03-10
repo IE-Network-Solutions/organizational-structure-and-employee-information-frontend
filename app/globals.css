@@ -1205,8 +1205,7 @@ h6 {
   .ant-dropdown-menu {
   font-weight: normal;
 }
-.talent-acquisition-candidate-table-action-dropdown
-  .ant-dropdown-menu-item {
+.talent-acquisition-candidate-table-action-dropdown .ant-dropdown-menu-item {
   font-weight: normal;
 }
 
