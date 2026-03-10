@@ -21,7 +21,7 @@ const ButtonContinue: React.FC<Props> = ({
       data-cy="sidebar-action-form-item"
     >
       <div
-        className="w-full flex  sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-6 sm:mt-8"
+        className="w-full flex  sm:flex-row justify-end  gap-4 sm:gap-6 mt-3 sm:mt-4"
         id="sidebar-action-button-row"
         data-cy="sidebar-action-button-row"
       >
@@ -29,7 +29,8 @@ const ButtonContinue: React.FC<Props> = ({
           <Button
             name="cancelUserSidebarButton"
             id="cancelSidebarButtonId"
-            className="px-6 py-3 text-xs font-bold"
+            className="px-6 py-3 text-xs border border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-gray-500 hover:border-gray-400"
+            type="default"
             onClick={handleBackClick}
             data-cy="sidebar-back-button"
           >
@@ -50,6 +51,7 @@ const ButtonContinue: React.FC<Props> = ({
               name="cancelSidebarButtonId"
               id="sidebar-cancel-button"
               data-cy="sidebar-cancel-button"
+              className="border border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-gray-500 hover:border-gray-400"
             >
               Cancel
             </Button>
@@ -69,11 +71,11 @@ const ButtonContinue: React.FC<Props> = ({
               ? `sidebar-submit-button-${current}`
               : `sidebar-continue-button-${current}`
           }
-          className="px-6 py-3 text-xs font-bold"
+          className="px-6 py-3 text-xs font-bold bg-[#1e40af]"
           htmlType="button"
           type="primary"
         >
-          {current === 2 ? 'Submit' : 'Save and Continue'}
+          {current === 3 ? 'Submit' : 'Save and Continue'}
         </Button>
       </div>
     </Form.Item>

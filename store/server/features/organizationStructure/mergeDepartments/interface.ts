@@ -9,4 +9,6 @@ export interface MergingDepartment {
   branchId: string;
   departmentToDelete: string[];
   department: UpdateDepartmentChild[];
+  level?: number;
+  teamLeader?: string;
 }

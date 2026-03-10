@@ -2,23 +2,26 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
-import {
-  AppstoreOutlined,
-  MenuOutlined,
-  FileTextOutlined,
-} from '@ant-design/icons';
+import { MenuOutlined } from '@ant-design/icons';
+import NavBar from './topNavBar';
 import { IoCloseOutline } from 'react-icons/io5';
-import { Layout, Button, theme, Skeleton, message, Popover } from 'antd';
+import {
+  MdDashboard,
+  MdGroups,
+  MdPersonAdd,
+  MdAccessTimeFilled,
+  MdTrackChanges,
+  MdChatBubble,
+  MdSchool,
+  MdPayments,
+  MdRedeem,
+  MdGridView,
+  MdAdminPanelSettings,
+  MdDomain,
+} from 'react-icons/md';
+import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
-import NavBar from './topNavBar';
-import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
-import { TbMessage2 } from 'react-icons/tb';
-import { AiOutlineDollarCircle, AiOutlineRight } from 'react-icons/ai';
-import { CiBookmark } from 'react-icons/ci';
-import { PiMoneyLight, PiUserGearLight } from 'react-icons/pi';
-import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
@@ -48,6 +51,7 @@ interface CustomMenuItem {
 
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module } from '@/types/tenant-management';
+import { AiOutlineRight } from 'react-icons/ai';
 
 interface MyComponentProps {
   children: ReactNode;
@@ -63,6 +67,10 @@ const NavMenuItem: React.FC<{
   router: any;
   pathname: string;
   triggerRouteLoaderStart: () => void;
+  expandedKeys: (string | number | bigint)[];
+  setExpandedKeys: React.Dispatch<
+    React.SetStateAction<(string | number | bigint)[]>
+  >;
 }> = ({
   item,
   collapsed,
@@ -71,123 +79,111 @@ const NavMenuItem: React.FC<{
   router,
   pathname,
   triggerRouteLoaderStart,
+  expandedKeys,
+  setExpandedKeys,
 }) => {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const hasChildren = item.children && item.children.length > 0;
+    const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedKeys.includes(item.key);
 
-  // Check if this item or any of its children matches the current specific active path
-  const isDirectlyActive = selectedKeys.includes(item.key);
-  const isChildActive =
-    hasChildren &&
-    item.children.some((child: any) => selectedKeys.includes(child.key));
-  const isActive =
-    isDirectlyActive || isChildActive || (hasChildren && isPopoverOpen);
+    // Check if this item or any of its children matches the current path
+    const isDirectlyActive =
+      selectedKeys.includes(item.key) || pathname === item.key;
+    const isChildActive =
+      hasChildren &&
+      item.children.some(
+        (child: any) => selectedKeys.includes(child.key) || pathname === child.key,
+      );
+    const isActive = isDirectlyActive || isChildActive;
 
-  const popoverContent = (
-    <div
-      data-cy="nav-popover-content"
-      className="flex flex-col min-w-[220px] p-1 bg-white"
-    >
-      {item.children?.map((child: any) => (
-        <button
-          data-cy="nav-popover-item"
-          key={child.key}
-          onClick={() => {
-            const path = String(child.key);
-            setIsPopoverOpen(false);
-            if (pathname !== path) {
-              triggerRouteLoaderStart();
-              router.push(path);
-              setSelectedKeys([path]);
-            }
-          }}
-          className="text-left py-2 px-4 hover:bg-[#F0F7FF] hover:text-[#3636F0] rounded-lg text-[13px] transition-colors text-gray-600 font-medium"
-        >
-          {child.label}
-        </button>
-      ))}
-    </div>
-  );
+    const handleToggle = () => {
+      if (hasChildren) {
+        setExpandedKeys((prev) =>
+          prev.includes(item.key)
+            ? prev.filter((k) => k !== item.key)
+            : [...prev, item.key],
+        );
+      } else {
+        const path = String(item.key);
+        if (pathname !== path) {
+          triggerRouteLoaderStart();
+          router.push(path);
+          setSelectedKeys([path]);
+        }
+      }
+    };
 
-  return (
-    <Popover
-      key={item.key}
-      content={hasChildren ? popoverContent : null}
-      trigger={hasChildren ? (collapsed ? 'hover' : 'click') : []}
-      onOpenChange={(open) => hasChildren && setIsPopoverOpen(open)}
-      placement="rightTop"
-      arrow={false}
-      overlayClassName="nav-popover"
-      rootClassName="nav-popover-root"
-    >
-      <div
-        data-cy="nav-menu-item"
-        onClick={() => {
-          if (!hasChildren) {
-            const path = String(item.key);
-            if (pathname !== path) {
-              triggerRouteLoaderStart();
-              router.push(path);
-              setSelectedKeys([path]);
-            }
-          }
-        }}
-        className={`
-          group relative flex items-center gap-3 px-3 py-[9px] cursor-pointer transition-all duration-200
-          ${
-            isActive
-              ? 'bg-white border border-[#3636F0] rounded-xl shadow-sm'
-              : 'hover:bg-[#EBF5FF] rounded-xl'
-          }
-          ${collapsed ? 'justify-center px-0 mx-[10px]' : 'ml-[-1px]'}
-        `}
-      >
-        {isActive && (
-          <div
-            data-cy="nav-menu-item-indicator"
-            className="absolute top-1/2 -translate-y-1/2 w-[8px] h-[26px] bg-[#3636F0] rounded-r-full left-0"
-          />
-        )}
-
+    return (
+      <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
         <div
-          data-cy="nav-menu-item-icon"
-          className={`text-[19px] transition-colors ${
-            isActive
-              ? 'text-[#3636F0]'
-              : 'text-[#475569] group-hover:text-[#3636F0]'
-          } ${isActive && !collapsed ? 'ml-3' : ''}`}
+          data-cy="nav-menu-item"
+          onClick={handleToggle}
+          className={`
+          group flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200 rounded-xl
+          ${isActive
+              ? 'text-[#3630f0] font-bold'
+              : 'text-black font-medium'
+            }
+          hover:bg-[#E1EFFF] hover:text-[#3630f0]
+          ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
+        `}
         >
-          {item.icon}
-        </div>
+          <div
+            data-cy="nav-menu-item-icon"
+            className={`text-[21px] transition-colors ${isActive
+              ? 'text-[#3630f0]'
+              : 'text-black group-hover:text-[#3630f0]'
+              }`}
+          >
+            {item.icon}
+          </div>
 
-        {!collapsed && (
-          <>
+          {!collapsed && (
             <span
               data-cy="nav-menu-item-label"
-              className={`flex-1 text-[13.5px] tracking-tight transition-colors ${
-                isActive
-                  ? 'text-[#3636F0] font-semibold'
-                  : 'text-[#475569] font-medium group-hover:text-gray-900'
-              }`}
+              className="flex-1 text-[14.5px] transition-colors"
             >
               {item.label}
             </span>
-            {hasChildren && (
-              <AiOutlineRight
-                size={12}
-                className={`transition-colors ${
-                  isActive
-                    ? 'text-[#3636F0]'
-                    : 'text-[#94A3B8] group-hover:text-gray-600'
-                }`}
-              />
-            )}
-          </>
+          )}
+        </div>
+
+        {hasChildren && !collapsed && isExpanded && (
+          <div
+            className="flex flex-col mt-1 ml-9 space-y-1"
+            data-cy="nav-menu-item-children-container"
+          >
+            {item.children.map((child: any) => {
+              const isChildSelected =
+                selectedKeys.includes(child.key) || pathname === child.key;
+              return (
+                <div
+                  key={child.key}
+                  data-cy="nav-menu-item-child"
+                  onClick={() => {
+                    const path = String(child.key);
+                    if (pathname !== path) {
+                      triggerRouteLoaderStart();
+                      router.push(path);
+                      setSelectedKeys([path]);
+                    }
+                  }}
+                  className={`
+                  py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
+                  ${isChildSelected
+                      ? 'text-[#3630f0] font-bold text-[15.5px]'
+                      : 'text-black font-medium text-[14.5px] hover:text-[#3630f0] hover:bg-[#E1EFFF]'
+                    }
+                `}
+                >
+                  {child.label}
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
-    </Popover>
-  );
-};
+    );
+  };
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
@@ -217,7 +213,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     isCheckingPermissions,
     setIsCheckingPermissions,
   } = useAuthenticationStore();
-  const isAdminPage = pathname.startsWith('/admin');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const pathName = usePathname();
@@ -352,15 +347,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const treeData: CustomMenuItem[] = [
     {
-      icon: <AppstoreOutlined style={{ fontSize: 18 }} />,
+      icon: <MdDashboard style={{ fontSize: 20 }} />,
       title: 'Dashboard',
       key: '/dashboard',
       className: 'font-bold',
-      permissions: [], // Public or basic?
+      permissions: [],
       moduleCode: 'DASHBOARD',
     },
     {
-      icon: <CiSettings size={18} />,
+      icon: <MdDomain style={{ fontSize: 20 }} />,
       title: 'Organization',
       key: '/organization',
       className: 'font-bold',
@@ -384,7 +379,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <LuUsers size={18} />,
+      icon: <MdGroups style={{ fontSize: 20 }} />,
       title: 'Employees',
       key: '/employees',
       className: 'font-bold',
@@ -400,12 +395,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className: 'font-bold',
           permissions: ['manage_employees'],
         },
-        // {
-        //   title: <span>Department Request</span>,
-        //   key: '/employees/departmentRequest',
-        //   className: 'font-bold',
-        //   permissions: ['manage_department_requests'],
-        // },
         {
           title: <span data-cy="nav-tree-employees-settings">Settings</span>,
           key: '/employees/settings',
@@ -415,7 +404,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <PiSuitcaseSimpleThin size={18} />,
+      icon: <MdPersonAdd style={{ fontSize: 20 }} />,
       title: 'Talent Acquisition',
       key: '/recruitment',
       className: 'font-bold',
@@ -445,7 +434,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className: 'font-bold',
           permissions: ['manage_recruitment_jobs'],
           disabled: hasEndedFiscalYear,
-          //  || isSubscriptionExpired,
         },
         {
           title: <span data-cy="nav-tree-candidates">Candidates</span>,
@@ -474,7 +462,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <CiStar size={18} />,
+      icon: <MdTrackChanges style={{ fontSize: 20 }} />,
       title: 'OKR',
       key: '/okr-menu',
       className: 'font-bold',
@@ -521,7 +509,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <TbMessage2 size={18} />,
+      icon: <MdChatBubble style={{ fontSize: 20 }} />,
       title: 'CFR',
       key: 'feedback-menu',
       className: 'font-bold',
@@ -556,7 +544,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <CiBookmark size={18} />,
+      icon: <MdSchool style={{ fontSize: 20 }} />,
       title: 'Learning & Growth',
       key: 'tna-menu',
       className: 'font-bold',
@@ -564,15 +552,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       moduleCode: 'TNA',
       children: [
-        // {
-        //   title: <span>My-TNA</span>,
-        //   key: '/tna/my-training',
-        //   className: 'font-bold',
-        //   permissions: ['view_my_training'],
-
-        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
-
-        // },
         {
           title: (
             <span data-cy="nav-tree-training-management">
@@ -583,15 +562,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className: 'font-bold',
           permissions: ['manage_training'],
         },
-        // {
-        //   title: <span>TNA</span>,
-        //   key: '/tna/review',
-        //   className: 'font-bold',
-        //   permissions: ['view_tna_review'],
-
-        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
-
-        // },
         {
           title: <span data-cy="nav-tree-tna-settings">Settings</span>,
           key: '/tna/settings/course-category',
@@ -601,7 +571,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <AiOutlineDollarCircle size={18} />,
+      icon: <MdPayments style={{ fontSize: 20 }} />,
       title: 'Payroll',
       key: '/payroll-menu',
       className: 'font-bold',
@@ -640,7 +610,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <CiCalendar size={18} />,
+      icon: <MdAccessTimeFilled style={{ fontSize: 20 }} />,
       title: 'Time & Attendance',
       key: 'timesheet-menu',
       className: 'font-bold',
@@ -687,7 +657,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <PiMoneyLight size={18} />,
+      icon: <MdGridView style={{ fontSize: 20 }} />,
       title: 'Compensation & Benefit',
       key: 'compensation-menu',
       className: 'font-bold',
@@ -722,7 +692,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <LuCircleDollarSign size={18} />,
+      icon: <MdRedeem style={{ fontSize: 20 }} />,
       title: 'Incentives',
       key: 'incentive-menu',
       className: 'font-bold',
@@ -751,7 +721,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <FileTextOutlined style={{ fontSize: 18 }} />,
+      icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
       title: 'Audit Log',
       key: '/audit-log',
       className: 'font-bold',
@@ -760,7 +730,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       moduleCode: 'AUDIT_LOG',
     },
     {
-      icon: <CiSettings size={18} />,
+      icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
       title: 'Admin',
       key: 'admin-menu',
       className: 'font-bold',
@@ -1065,7 +1035,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const groupedMenuItems = React.useMemo(() => {
@@ -1080,10 +1050,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ...item,
           children: item.children
             ? item.children.filter((child) =>
-                AccessGuard.checkAccess({
-                  permissions: child.permissions,
-                }),
-              )
+              AccessGuard.checkAccess({
+                permissions: child.permissions,
+              }),
+            )
             : [],
         };
       })
@@ -1171,9 +1141,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           children:
             treeItem.children && treeItem.children.length > 0
               ? treeItem.children.map((child) => ({
-                  key: child.key,
-                  label: child.title,
-                }))
+                key: child.key,
+                label: child.title,
+              }))
               : undefined,
         });
       });
@@ -1186,24 +1156,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       menuItems.push({
         type: 'group',
         key: parent.id,
-        label: (
-          <span
-            data-cy="nav-group-label"
-            className="text-xs font-semibold text-gray-500 px-4"
-          >
-            {parent.name}
-          </span>
-        ),
+        label: parent.name,
         children: groupChildren,
       });
     });
 
     return menuItems;
   }, [treeData, modulesData]);
-
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
-    {},
-  );
   const { mutate: employeeInfo } = useCreateEmployee();
   const handleUserInfoUpdate = () => {
     const fullName = employeeData?.firstName?.split(' ') || [];
@@ -1256,6 +1215,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           transition: 'transform 0.3s ease',
           display: 'flex',
           flexDirection: 'column',
+          paddingBottom: '24px',
         }}
         trigger={null}
         collapsible
@@ -1300,7 +1260,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         >
           <div
             data-cy="nav-sider-menu-inner"
-            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-20 ${collapsed ? 'px-0' : 'px-3'}`}
+            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-20 ${collapsed ? 'px-0' : 'pl-6 pr-3'}`}
           >
             {!isMounted || isLoading ? (
               <div
@@ -1312,7 +1272,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             ) : (
               <div data-cy="nav-sider-groups" className="space-y-6">
                 {groupedMenuItems.map((group: any) => {
-                  const isExpanded = expandedGroups[group.key] ?? true;
+                  const isExpanded = true;
 
                   return (
                     <div
@@ -1322,51 +1282,21 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       <div
                         data-cy="nav-sider-group-header"
-                        className="px-2 mb-1"
+                        className="px-4 mb-2 mt-4 first:mt-2"
                       >
-                        <button
-                          data-cy="nav-sider-group-toggle"
-                          type="button"
-                          onClick={() =>
-                            setExpandedGroups((prev) => ({
-                              ...prev,
-                              [group.key]: !isExpanded,
-                            }))
-                          }
-                          className={`w-full flex items-center justify-between text-[13px] font-medium text-[#94A3B8] hover:text-gray-600 transition-colors ${
-                            collapsed ? 'h-4' : ''
-                          }`}
-                        >
-                          {!collapsed && (
-                            <>
-                              <span data-cy="nav-sider-group-label">
-                                {group.label}
-                              </span>
-                              <span
-                                data-cy="nav-sider-group-chevron"
-                                className={`transition-transform duration-200 text-[#94A3B8] ${
-                                  isExpanded ? 'rotate-180' : ''
-                                }`}
-                              >
-                                <AiOutlineRight
-                                  size={10}
-                                  className="-rotate-90"
-                                />
-                              </span>
-                            </>
-                          )}
-                        </button>
                         <div
-                          data-cy="nav-sider-group-divider"
-                          className={`h-[1px] bg-[#E2E8F0] my-3 ${collapsed ? 'w-[50px] mx-auto' : 'w-full'}`}
-                        />
+                          data-cy="nav-sider-group-label-wrap"
+                          className={`w-full text-[13px] font-light text-[#64748B] tracking-wide transition-colors ${collapsed ? 'hidden' : ''
+                            }`}
+                        >
+                          {group.label}
+                        </div>
                       </div>
 
                       <div
                         data-cy="nav-sider-group-children"
-                        className={`space-y-1 transition-all duration-300 ${
-                          isExpanded ? 'opacity-100' : 'hidden opacity-0'
-                        }`}
+                        className={`space-y-1 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'hidden opacity-0'
+                          }`}
                       >
                         {group.children?.map((item: any) => (
                           <NavMenuItem
@@ -1378,6 +1308,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             router={router}
                             pathname={pathname}
                             triggerRouteLoaderStart={triggerRouteLoaderStart}
+                            expandedKeys={expandedKeys}
+                            setExpandedKeys={setExpandedKeys}
                           />
                         ))}
                       </div>
@@ -1391,21 +1323,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
         <div
           data-cy="nav-sider-admin-wrap"
-          className={`absolute bottom-6 ${collapsed ? 'left-1/2 -translate-x-1/2' : 'left-4 right-4'}`}
+          className={`px-4 mt-auto ${collapsed ? 'flex justify-center' : ''}`}
         >
           <Button
             data-cy="nav-sider-admin-btn"
             type="primary"
             size="large"
-            icon={<PiUserGearLight size={22} />}
+            icon={<MdAdminPanelSettings size={22} />}
             className={`
-              flex items-center justify-center bg-[#1D4ED8] hover:bg-[#1e40af] border-none shadow-lg shadow-blue-200/50 transition-all duration-300
-              ${
-                collapsed
-                  ? 'w-[52px] h-[52px] rounded-xl'
-                  : 'w-full h-12 rounded-xl text-[14px] font-semibold gap-2'
+            flex items-center justify-center bg-[#1D4ED8] hover:bg-[#1e40af] border-none shadow-lg transition-all duration-300
+            ${collapsed
+                ? 'w-[52px] h-[52px] rounded-xl'
+                : 'w-full h-12 rounded-xl text-[14px] font-semibold gap-2'
               }
-            `}
+          `}
             onClick={() => router.push('/admin/dashboard')}
           >
             {!collapsed && 'Admin Console'}
@@ -1416,7 +1347,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         style={{
           marginLeft: 0,
           transition: 'margin-left 0.3s ease',
-          background: '#fff',
+          background: '#ffffff',
         }}
       >
         <Header
@@ -1473,9 +1404,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
+            paddingRight: isMobile ? 0 : 24,
             paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
-            background: '#fff',
+            background: '#ffffff',
           }}
         >
           {isMounted && isCheckingPermissions ? (
@@ -1488,11 +1420,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ) : (
             <div
               data-cy="nav-content-inner"
-              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+              className="overflow-auto"
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                marginRight: 0,
+                marginRight: 24,
+                marginLeft: 24,
+                background: '#ffffff',
               }}
             >
               {children}

@@ -4,8 +4,8 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
   const theme: ThemeConfig = {
     token: {
-      // Font Family - SF Pro Text with fallbacks
-      fontFamily: `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`,
+      // Font Family - Calibre with fallbacks
+      fontFamily: `'Calibri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`,
 
       // Typography - Base Text Styles
       fontSize: 14, // Base font size
@@ -29,14 +29,14 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       lineHeightHeading5: 1.5, // H5 line height (24px / 16px)
 
       // Brand Colors - Primary (Blue Palette)
-      colorPrimary: '#1890FF', // Primary-7: Main primary color
+      colorPrimary: '#1E40AF', // Primary-7: Main primary color
       colorPrimaryBg: '#E6F7FF', // Primary-3: Default state background
       colorPrimaryBgHover: '#BAE7FF', // Primary-4: Hover background
       colorPrimaryBorder: '#91D5FF', // Primary-5: Border color
-      colorPrimaryBorderHover: '#40A9FF', // Primary-6: Hover border
-      colorPrimaryHover: '#40A9FF', // Primary-6: Hover color
+      colorPrimaryBorderHover: '#4096FF', // Primary hover border
+      colorPrimaryHover: '#4096FF', // Primary hover color
       colorPrimaryActive: '#096DD9', // Primary-8: Active color
-      colorPrimaryTextHover: '#40A9FF', // Primary-6: Text hover
+      colorPrimaryTextHover: '#4096FF', // Primary text hover
       colorPrimaryText: '#1890FF', // Primary-7: Text color
       colorPrimaryTextActive: '#096DD9', // Primary-8: Text active
 
@@ -90,7 +90,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Link Colors
       colorLink: '#1890FF', // Default link color
-      colorLinkHover: '#40A9FF', // Link hover state
+      colorLinkHover: '#4096FF', // Link hover state
       colorLinkActive: '#096DD9', // Link active state
 
       // Neutral Colors - Text

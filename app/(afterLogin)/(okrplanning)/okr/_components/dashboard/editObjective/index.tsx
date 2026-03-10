@@ -465,14 +465,16 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       title={modalHeader}
       centered
       width={isMobile ? '100vw' : 1200}
-      bodyStyle={{
-        padding: isMobile ? 12 : 32,
-        maxHeight: '80vh',
-        overflow: 'hidden',
+      styles={{
+        body: {
+          padding: isMobile ? 12 : 32,
+          maxHeight: '80vh',
+          overflow: 'hidden',
+        },
       }}
       style={{ top: isMobile ? 0 : 32, padding: 0 }}
       maskClosable={false}
-      destroyOnClose
+      destroyOnHidden
       closable={false}
     >
       <Form
