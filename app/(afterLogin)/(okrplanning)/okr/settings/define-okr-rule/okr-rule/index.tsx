@@ -1,5 +1,5 @@
+'use client';
 import CustomButton from '@/components/common/buttons/customButton';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   useCreateOkrRule,
@@ -7,45 +7,51 @@ import {
 } from '@/store/server/features/okrplanning/monitoring-evaluation/okr-rule/mutations';
 import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule';
 import { OkrRule } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule/interface';
-import { Form, Input, InputNumber } from 'antd';
+import { Form, Input, Modal, Row, Col } from 'antd';
 import React, { useEffect } from 'react';
+import { CloseOutlined } from '@ant-design/icons';
 
-interface OkrRuleDrawerProps {
+interface OkrRuleModalProps {
   open: boolean;
   onClose: () => void;
   okrRule?: OkrRule | null;
 }
 
-const OkrRuleDrawer: React.FC<OkrRuleDrawerProps> = ({
+const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
   open,
   onClose,
   okrRule,
 }) => {
   const { setOkrRule } = useOkrRuleStore();
   const [form] = Form.useForm();
-  const { mutate: createOkrRule } = useCreateOkrRule();
-  const { mutate: updateOkrRule } = useUpdateOkrRule();
+  const { mutate: createOkrRule, isLoading: isCreateLoading } =
+    useCreateOkrRule();
+  const { mutate: updateOkrRule, isLoading: isUpdateLoading } =
+    useUpdateOkrRule();
 
-  const handleDrawerClose = () => {
-    form.resetFields(); // Reset all form fields
+  const handleModalClose = () => {
+    form.resetFields();
     onClose();
     setOkrRule(null);
   };
 
   const onFinish = (values: any) => {
-    if (values?.myOkrPercentage + values?.teamOkrPercentage === 100) {
+    const personal = parseFloat(values.myOkrPercentage);
+    const team = parseFloat(values.teamOkrPercentage);
+
+    if (personal + team === 100) {
       okrRule
         ? updateOkrRule(
             { ...values, id: okrRule?.id },
             {
               onSuccess: () => {
-                handleDrawerClose();
+                handleModalClose();
               },
             },
           )
         : createOkrRule(values, {
             onSuccess: () => {
-              handleDrawerClose();
+              handleModalClose();
             },
           });
     } else {
@@ -55,137 +61,197 @@ const OkrRuleDrawer: React.FC<OkrRuleDrawerProps> = ({
     }
   };
 
-  // Set form values when OkrRule changes
   useEffect(() => {
     if (okrRule) {
-      form.setFieldsValue(okrRule); // Set form fields with OkrRule values
+      form.setFieldsValue(okrRule);
     } else {
-      form.resetFields(); // Reset form if OkrRule is null
+      form.resetFields();
     }
   }, [okrRule, form]);
 
-  const modalHeader = (
-    <div
-      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
-      id="okr-rule-drawer-header"
-      data-cy="okr-rule-drawer-header"
-    >
-      {okrRule ? 'Edit OKR Rule' : 'Create OKR Rule'}
-    </div>
-  );
-
   const footer = (
     <div
-      className="w-full flex justify-center items-center gap-4 pt-8"
-      id="okr-rule-drawer-footer"
-      data-cy="okr-rule-drawer-footer"
+      className="flex justify-end gap-3 mt-4"
+      data-cy="okr-rule-modal-footer"
     >
       <CustomButton
         type="default"
         title="Cancel"
-        onClick={handleDrawerClose}
-        style={{ marginRight: 8 }}
-        id="okr-rule-drawer-cancel-button"
-        data-cy="okr-rule-drawer-cancel-button"
+        onClick={handleModalClose}
+        className="h-10 px-6 rounded-lg"
+        id="okr-rule-modal-cancel-button"
+        data-cy="okr-rule-modal-cancel-button"
       />
       <CustomButton
-        htmlType="submit"
+        onClick={() => form.submit()}
         title={okrRule ? 'Update' : 'Create'}
         type="primary"
-        onClick={() => form.submit()}
-        id="okr-rule-drawer-submit-button"
-        data-cy="okr-rule-drawer-submit-button"
+        loading={isCreateLoading || isUpdateLoading}
+        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2]"
+        id="okr-rule-modal-submit-button"
+        data-cy="okr-rule-modal-submit-button"
       />
     </div>
   );
 
   return (
-    <CustomDrawerLayout
+    <Modal
       open={open}
-      onClose={handleDrawerClose}
-      modalHeader={modalHeader}
+      onCancel={handleModalClose}
+      title={
+        <span
+          className="text-[20px] font-bold text-[#262626]"
+          data-cy="okr-rule-modal-title"
+        >
+          OKR Rule
+        </span>
+      }
       footer={footer}
-      width="30%"
-      data-cy="okr-rule-drawer"
+      width={640}
+      centered
+      closeIcon={
+        <CloseOutlined
+          className="text-[#8c8c8c]"
+          data-cy="okr-rule-modal-close-icon"
+        />
+      }
+      data-cy="okr-rule-modal"
+      className="okr-settings-modal"
     >
       <Form
         form={form}
-        onFinish={onFinish}
         layout="vertical"
-        id="okr-rule-drawer-form"
-        data-cy="okr-rule-drawer-form"
+        onFinish={onFinish}
+        className="pt-4"
+        id="okr-rule-modal-form"
+        data-cy="okr-rule-modal-form"
       >
         <Form.Item
-          label="OKR Rule Name"
+          label={
+            <div
+              className="flex items-center gap-1"
+              data-cy="okr-rule-modal-name-label"
+            >
+              <span
+                className="text-[14px] font-medium text-[#262626]"
+                data-cy="okr-rule-modal-name-label-text"
+              >
+                OKR rule name
+              </span>
+              <span
+                className="text-red-500"
+                data-cy="okr-rule-modal-name-required-indicator"
+              >
+                *
+              </span>
+            </div>
+          }
           name="title"
           rules={[
             { required: true, message: 'Please enter the OKR rule name' },
           ]}
-          id="okr-rule-drawer-title-field"
-          data-cy="okr-rule-drawer-title-field"
+          data-cy="okr-rule-modal-name-field"
         >
           <Input
-            className="h-12"
-            placeholder="Enter Name"
-            id="okr-rule-drawer-title-input"
-            data-cy="okr-rule-drawer-title-input"
+            placeholder="Enter OKR rule name"
+            className="h-11"
+            data-cy="okr-rule-modal-name-input"
           />
         </Form.Item>
 
-        <div
-          className="flex gap-4 w-full"
-          id="okr-rule-drawer-percentage-wrapper"
-          data-cy="okr-rule-drawer-percentage-wrapper"
-        >
-          <Form.Item
-            label="Self Contribution Amount"
-            name="myOkrPercentage"
-            rules={[
-              {
-                required: true,
-                message: 'Please enter self contribution amount',
-              },
-            ]}
-            className="w-full"
-            id="okr-rule-drawer-self-percentage-field"
-            data-cy="okr-rule-drawer-self-percentage-field"
-          >
-            <InputNumber
-              type="number"
-              min={0}
-              max={100}
-              className="w-full  h-12 text-center "
-              id="okr-rule-drawer-self-percentage-input"
-              data-cy="okr-rule-drawer-self-percentage-input"
-            />
-          </Form.Item>
+        <Row gutter={24} data-cy="okr-rule-modal-contribution-row">
+          <Col span={12} data-cy="okr-rule-modal-personal-col">
+            <Form.Item
+              label={
+                <div
+                  className="flex items-center gap-1"
+                  data-cy="okr-rule-modal-personal-label"
+                >
+                  <span
+                    className="text-[14px] font-medium text-[#262626]"
+                    data-cy="okr-rule-modal-personal-label-text"
+                  >
+                    Personal Contribution
+                  </span>
+                  <span
+                    className="text-red-500"
+                    data-cy="okr-rule-modal-personal-required-indicator"
+                  >
+                    *
+                  </span>
+                </div>
+              }
+              name="myOkrPercentage"
+              rules={[{ required: true, message: 'Required' }]}
+              data-cy="okr-rule-modal-personal-field"
+            >
+              <Input
+                type="number"
+                placeholder="Enter personal contribution"
+                className="h-11"
+                data-cy="okr-rule-modal-personal-input"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12} data-cy="okr-rule-modal-team-col">
+            <Form.Item
+              label={
+                <div
+                  className="flex items-center gap-1"
+                  data-cy="okr-rule-modal-team-label"
+                >
+                  <span
+                    className="text-[14px] font-medium text-[#262626]"
+                    data-cy="okr-rule-modal-team-label-text"
+                  >
+                    Team Contribution
+                  </span>
+                  <span
+                    className="text-red-500"
+                    data-cy="okr-rule-modal-team-required-indicator"
+                  >
+                    *
+                  </span>
+                </div>
+              }
+              name="teamOkrPercentage"
+              rules={[{ required: true, message: 'Required' }]}
+              data-cy="okr-rule-modal-team-field"
+            >
+              <Input
+                type="number"
+                placeholder="Enter team contribution"
+                className="h-11"
+                data-cy="okr-rule-modal-team-input"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
 
-          <Form.Item
-            label="Team's Contribution Amount"
-            name="teamOkrPercentage"
-            rules={[
-              {
-                required: true,
-                message: "Please enter team's contribution amount",
-              },
-            ]}
-            className="w-full"
-            id="okr-rule-drawer-team-percentage-field"
-            data-cy="okr-rule-drawer-team-percentage-field"
-          >
-            <InputNumber
-              type="number"
-              min={0}
-              max={100}
-              className="w-full  h-12 text-center "
-              id="okr-rule-drawer-team-percentage-input"
-              data-cy="okr-rule-drawer-team-percentage-input"
-            />
-          </Form.Item>
-        </div>
+        <style jsx global data-cy="okr-rule-modal-styles">{`
+          .okr-settings-modal .ant-modal-title {
+            margin-bottom: 24px !important;
+          }
+          .okr-settings-modal .ant-form-item-label > label {
+            height: auto !important;
+            line-height: 1.5 !important;
+            padding-bottom: 4px !important;
+          }
+          .okr-settings-modal .ant-modal-header {
+            padding: 20px 24px 16px 24px !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+          }
+          .okr-settings-modal .ant-modal-body {
+            padding: 24px !important;
+          }
+          .okr-settings-modal .ant-modal-footer {
+            padding: 16px 24px 24px 24px !important;
+            border-top: 1px solid #f0f0f0 !important;
+          }
+        `}</style>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 
-export default OkrRuleDrawer;
+export default OkrRuleModal;

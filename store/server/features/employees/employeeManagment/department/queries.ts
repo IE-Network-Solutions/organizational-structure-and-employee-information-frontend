@@ -54,6 +54,20 @@ const getDepartmentsWithUsers = async () => {
   });
 };
 
+const getDepartmentUsersAllLevels = async (departmentId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/all-levels/users/${departmentId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 /**
  * Function to fetch a single post by sending a GET request to the API
  * @param id The ID of the post to fetch
@@ -143,6 +157,16 @@ export const useGetDepartment = (departmentID: string) =>
 
 export const useGetDepartmentsWithUsers = () =>
   useQuery<any>('departmentsWithUsers', getDepartmentsWithUsers);
+
+export const useGetDepartmentUsersAllLevels = (departmentId: string | null) =>
+  useQuery<any>(
+    ['departmentUsersAllLevels', departmentId],
+    () => getDepartmentUsersAllLevels(departmentId as string),
+    {
+      enabled: !!departmentId,
+      keepPreviousData: true,
+    },
+  );
 
 export const useGetDepartmentLead = (id: string | null) =>
   useQuery<any>(['departmentLead', id], () => getDepartmentLead(id), {

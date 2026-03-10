@@ -1,5 +1,5 @@
-import React from 'react';
-import { Select } from 'antd';
+import React, { useState } from 'react';
+import { Input, Select } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -37,6 +37,16 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   const totalPages = Math.ceil(total / pageSize);
   const { isMobile } = useIsMobile();
 
+  const [goToPageValue, setGoToPageValue] = useState<string>('');
+
+  const handleGoToPage = () => {
+    const page = parseInt(goToPageValue, 10);
+    if (!Number.isNaN(page) && page >= 1 && page <= totalPages) {
+      handlePageChange(page);
+      setGoToPageValue('');
+    }
+  };
+
   const renderPageNumbers = () => {
     const pageNumbers = [];
     // Reduce visible pages on mobile for better UX
@@ -50,7 +60,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             onClick={() => handlePageChange(i)}
             className={`${
               isMobile ? 'w-10 h-10' : 'w-8 h-8'
-            } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
+            } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
               current === i
                 ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af]  '
                 : 'bg-white text-[#111827] hover:bg-gray-100'
@@ -72,7 +82,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => handlePageChange(1)}
           className={`${
             isMobile ? 'w-10 h-10' : 'w-8 h-8'
-          } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
+          } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
             current === 1
               ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af]'
               : 'bg-white text-[#111827] hover:bg-gray-100'
@@ -117,7 +127,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             onClick={() => handlePageChange(i)}
             className={`${
               isMobile ? 'w-10 h-10' : 'w-8 h-8'
-            } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
+            } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
               current === i
                 ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af] '
                 : 'bg-white text-[#111827] hover:bg-gray-100'
@@ -147,7 +157,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
-          className={`w-8 h-8 flex items-center justify-center  rounded-[10px] ${
+          className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
             current === totalPages
               ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af] '
               : 'bg-white text-[#111827]  hover:bg-gray-100'
@@ -176,10 +186,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
           data-cy="pagination-prev-button"
-          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
+          className={`w-8 h-8 flex items-center justify-center border border-gray-100 rounded-[10px] ${
             current === 1
-              ? 'text-[#111827] border-gray-200 opacity-50'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+              ? 'text-[#111827] opacity-50'
+              : 'text-[#111827] hover:bg-gray-50 hover:border-gray-200 active:bg-gray-100'
           }`}
         >
           <LeftOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
@@ -189,14 +199,44 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
           data-cy="pagination-next-button"
-          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
+          className={`w-8 h-8 flex items-center justify-center border border-gray-100 rounded-[10px] ${
             current === totalPages
-              ? 'text-[#111827] border-gray-200 opacity-50'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+              ? 'text-[#111827] opacity-50'
+              : 'text-[#111827] hover:bg-gray-50 hover:border-gray-200 active:bg-gray-100'
           }`}
         >
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
+
+        {!isMobile && totalPages > 0 && (
+          <div
+            className="flex items-center gap-2 ml-4"
+            data-cy="pagination-goto"
+          >
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
+            <Input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={goToPageValue}
+              onChange={(e) => setGoToPageValue(e.target.value)}
+              onPressEnter={handleGoToPage}
+              className="w-12 h-8 text-center text-sm px-1 border-gray-100"
+              data-cy="pagination-goto-input"
+            />
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-page-label-number-of-page"
+            >
+              Page
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Info and Page Size Selector */}
