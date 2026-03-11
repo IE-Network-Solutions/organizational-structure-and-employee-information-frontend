@@ -183,13 +183,12 @@ const ManageEmployees: React.FC<any> = () => {
 
   return (
     <div
-      className="h-auto w-full pr-2"
+      className="h-auto w-full"
       id="manage-employees-page"
       data-cy="manage-employees-page"
     >
-      <BlockWrapper className="h-auto w-full bg-white">
         <div
-          className="flex flex-wrap justify-between items-center px-3 sm:px-6"
+          className="flex flex-wrap justify-between items-center px-3"
           id="manage-employees-header"
           data-cy="manage-employees-header"
         >
@@ -349,7 +348,7 @@ const ManageEmployees: React.FC<any> = () => {
         </div>
         <Divider size="large" />
         <div
-          className="px-3 sm:px-6 mb-6"
+          className="mb-6 px-3"
           data-cy="manage-employees-stats-section"
         >
           <div
@@ -393,7 +392,7 @@ const ManageEmployees: React.FC<any> = () => {
           </div>
         </div>
         <div
-          className="border border-gray-200 rounded-lg mx-6 "
+          className="border border-gray-200 rounded-lg mx-3"
           data-cy="manage-employees-table-section"
         >
           <div
@@ -488,7 +487,6 @@ const ManageEmployees: React.FC<any> = () => {
             </div>
           </div>
         </div>
-      </BlockWrapper>
     </div>
   );
 };
