@@ -65,43 +65,49 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
         data-cy="additional-information-form"
       >
         <Row
-        justify="space-between"
-        align="middle"
-        className="mb-4 w-full"
-        style={{ width: '100%' }}
-        id="additional-information-header-row"
-        data-cy="additional-information-header-row"
-      >
-        <Col>
-          <span className="text-sm font-normal text-black">
-            Additional Information
-          </span>
-        </Col>
-        <Col>
-          <div className="flex items-center gap-2">
-          <Button
-            type="default"
-            size="small"
-            icon={<CloseIcon fontSize="small" className="text-red-500" />}
-            onClick={() => setEdit('additionalInformation')}
-            id="additional-information-cancel-btn"
-            data-cy="additional-information-cancel-btn"
-            className="border border-red-500"
-            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-          />
-          <Button
-            type="primary"
-            size="small"
-            icon={<CheckIcon  />}
-            loading={isLoading}
-            htmlType="submit"
-            id="additional-information-submit-btn"
-            data-cy="additional-information-submit-btn"
-            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-          />
-          </div>
-        </Col>
-      </Row>
+          justify="space-between"
+          align="middle"
+          className="mb-4 w-full"
+          style={{ width: '100%' }}
+          id="additional-information-header-row"
+          data-cy="additional-information-header-row"
+        >
+          <Col>
+            <span
+              data-cy="additional-information-form-title"
+              className="text-sm font-normal text-black"
+            >
+              Additional Information
+            </span>
+          </Col>
+          <Col>
+            <div
+              data-cy="additional-information-form-buttons"
+              className="flex items-center gap-2"
+            >
+              <Button
+                type="default"
+                size="small"
+                icon={<CloseIcon fontSize="small" className="text-red-500" />}
+                onClick={() => setEdit('additionalInformation')}
+                id="additional-information-cancel-btn"
+                data-cy="additional-information-cancel-btn"
+                className="border border-red-500"
+                style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+              />
+              <Button
+                type="primary"
+                size="small"
+                icon={<CheckIcon />}
+                loading={isLoading}
+                htmlType="submit"
+                id="additional-information-submit-btn"
+                data-cy="additional-information-submit-btn"
+                style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+              />
+            </div>
+          </Col>
+        </Row>
         {Object.entries(allFields).map(([key, val]) => (
           <Form.Item
             key={key}
@@ -318,32 +324,32 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
       loading={isLoading}
       title={
         !edit.additionalInformation ? (
-        <span
-          className="text-base font-bold text-gray-900"
-          data-cy="additional-information-card-title"
-        >
-          Additional Information
-        </span>
+          <span
+            className="text-base font-bold text-gray-900"
+            data-cy="additional-information-card-title"
+          >
+            Additional Information
+          </span>
         ) : null
       }
       extra={
         !edit.additionalInformation ? (
-        <AccessGuard
-          permissions={[Permissions.UpdateEmployeeDetails]}
-          selfShouldAccess
-          id={id}
-          data-cy="additional-information-edit-guard"
-        >
-          <button
-            type="button"
-            onClick={() => handleEditChange('additionalInformation')}
-            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-            id="additional-information-edit-icon"
-            data-cy="additional-information-edit-icon"
+          <AccessGuard
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            selfShouldAccess
+            id={id}
+            data-cy="additional-information-edit-guard"
           >
-            <LuPencil size={16} className="text-black" />
-          </button>
-        </AccessGuard>
+            <button
+              type="button"
+              onClick={() => handleEditChange('additionalInformation')}
+              className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+              id="additional-information-edit-icon"
+              data-cy="additional-information-edit-icon"
+            >
+              <LuPencil size={16} className="text-black" />
+            </button>
+          </AccessGuard>
         ) : null
       }
       className="additional-information-card rounded-lg border border-gray-200 my-6"

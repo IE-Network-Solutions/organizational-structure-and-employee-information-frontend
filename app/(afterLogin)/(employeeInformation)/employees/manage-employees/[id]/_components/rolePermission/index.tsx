@@ -5,7 +5,6 @@ import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features
 import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
 import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
 import {
-  EditState,
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
@@ -73,10 +72,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     if (!edit.rolePermission) setEdit('rolePermission');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // const handlePermissionChange = (value: string[]) => {
-  //   setSelectedPermissions(value);
-  // };
   const basicGroupPermissionId =
     groupPermissionData?.items?.filter((item) => item.isBasic) ?? [];
   const basicGroupPermissions = basicGroupPermissionId.flatMap(
@@ -140,52 +135,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     }
   };
 
-  // const onGroupPermissionChange = (value: string[]) => {
-  //   const newGroupId = value.find(
-  //     (id) => !selectedGroupPermission.includes(id),
-  //   );
-  //   const removedGroupIds = selectedGroupPermission.filter(
-  //     (id) => !value.includes(id),
-  //   );
-
-  //   if (newGroupId) {
-  //     const selectedGroup = groupPermissionData?.items?.find(
-  //       (gp) => gp.id === newGroupId,
-  //     );
-  //     if (selectedGroup) {
-  //       setSelectedGroupForModal(selectedGroup);
-  //       setTempSelectedPermissions([]);
-  //       setModalVisible(true);
-  //     }
-  //   }
-
-  //   let updatedPermissionsUnderGroup = [...selectedPermissionsUnderGroup];
-
-  //   removedGroupIds.forEach((groupId) => {
-  //     const removedGroup = groupPermissionData?.items?.find(
-  //       (gp) => gp.id === groupId,
-  //     );
-  //     if (removedGroup) {
-  //       const groupPermissions = removedGroup.permissions.map(
-  //         (perm) => perm.id,
-  //       );
-  //       updatedPermissionsUnderGroup = updatedPermissionsUnderGroup.filter(
-  //         (permId) => !groupPermissions.includes(permId),
-  //       );
-  //     }
-  //   });
-
-  //   setSelectedGroupPermission(value);
-  //   setSelectedPermissionsUnderGroup(updatedPermissionsUnderGroup);
-
-  //   form.setFieldsValue({
-  //     permission: Array.from(
-  //       new Set([...selectedPermissions, ...updatedPermissionsUnderGroup]),
-  //     ),
-  //     groupPermissionId: value,
-  //   });
-  // };
-
   const handleModalPermissionChange = (checkedValues: string[]) => {
     setTempSelectedPermissions(checkedValues);
   };
@@ -213,9 +162,9 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     employeeRolePermissionUpdate({ id, values });
   };
 
-  const handleEditChange = (editKey: keyof EditState) => {
-    setEdit(editKey);
-  };
+  // const handleEditChange = (editKey: keyof EditState) => {
+  //   setEdit(editKey);
+  // };
   const handleSelectAll = () => {
     if (selectAll) {
       setTempSelectedPermissions([]);
@@ -343,8 +292,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
   };
 
   return (
-    <div 
-    id="role-permission-container" data-cy="role-permission-container ">
+    <div id="role-permission-container" data-cy="role-permission-container ">
       <Card
         loading={isLoading}
         id="role-permission-card"
@@ -363,7 +311,11 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
           data-cy="role-permission-form"
         >
           {/* Roles Section */}
-          <div className="border-[1px] border-[#D9D9D9] rounded-md p-2 mb-4" id="roles-section" data-cy="roles-section">
+          <div
+            className="border-[1px] border-[#D9D9D9] rounded-md p-2 mb-4"
+            id="roles-section"
+            data-cy="roles-section"
+          >
             <h3
               data-cy="roles-section-title"
               className="text-base font-bold text-gray-900 mb-4"
@@ -480,11 +432,8 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
               id="permission-management-col"
               data-cy="permission-management-col"
               className="mb-4 border-[1px] border-[#D9D9D9] rounded-md px-2 py-4"
-
             >
-              <div
-                data-cy="active-permission-group-filters-container"
-              >
+              <div data-cy="active-permission-group-filters-container">
                 <Space direction="vertical" size="middle" className="w-full">
                   <div
                     data-cy="active-permission-group-filters-container"

@@ -85,11 +85,6 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
     );
   };
 
-  const getCurrentTaskCount = () => {
-    const formValues = form.getFieldsValue();
-    return (formValues.tasks || []).length;
-  };
-
   const calculateTotalWeight = () => {
     return calculateExistingWeight() + calculateNewTasksWeight();
   };
@@ -530,9 +525,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
             id={`probation-inline-panel-submit-btn-${panelSlug}`}
             data-cy={`probation-inline-panel-submit-btn-${panelSlug}`}
           >
-            {editMode
-              ? 'Update Task'
-              : `Create`}
+            {editMode ? 'Update Task' : `Create`}
           </Button>
         </Space>
       </div>

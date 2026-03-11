@@ -304,31 +304,31 @@ const WorkScheduleComponent: React.FC = () => {
       loading={isLoading}
       title={
         !edit.workSchedule ? (
-        <span
-          className="text-base font-bold text-gray-900"
-          data-cy="job-work-schedule-card-title"
-        >
-          Work Schedule
-        </span>
+          <span
+            className="text-base font-bold text-gray-900"
+            data-cy="job-work-schedule-card-title"
+          >
+            Work Schedule
+          </span>
         ) : null
       }
       extra={
         !edit.workSchedule ? (
-        <AccessGuard
-          permissions={[Permissions.UpdateEmployeeDetails]}
-          id="job-work-schedule-edit-guard"
-          data-cy="job-work-schedule-edit-guard"
-        >
-          <button
-            type="button"
-            onClick={() => handleEditChange('workSchedule')}
-            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-            id="job-work-schedule-edit-btn"
-            data-cy="job-work-schedule-edit-btn"
+          <AccessGuard
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            id="job-work-schedule-edit-guard"
+            data-cy="job-work-schedule-edit-guard"
           >
-            <LuPencil className="text-gray-700" />
-          </button>
-        </AccessGuard>
+            <button
+              type="button"
+              onClick={() => handleEditChange('workSchedule')}
+              className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+              id="job-work-schedule-edit-btn"
+              data-cy="job-work-schedule-edit-btn"
+            >
+              <LuPencil className="text-gray-700" />
+            </button>
+          </AccessGuard>
         ) : null
       }
       className="work-schedule-card rounded-lg border border-gray-200 my-6 mt-0"

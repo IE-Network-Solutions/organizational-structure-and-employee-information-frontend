@@ -97,7 +97,6 @@ function UpdateUserInfo({ employeeData }: any) {
   }, [employeeData, form]);
 
   return (
-  
     <Form
       form={form}
       layout="vertical"
@@ -116,32 +115,38 @@ function UpdateUserInfo({ employeeData }: any) {
         data-cy="personal-data-update-user-info-header-row"
       >
         <Col>
-          <span className="text-sm font-normal text-black">
+          <span
+            data-cy="personal-data-update-user-info-title"
+            className="text-sm font-normal text-black"
+          >
             Personal Information
           </span>
         </Col>
         <Col>
-          <div className="flex items-center gap-2">
-          <Button
-            type="default"
-            size="small"
-            icon={<CloseIcon fontSize="small" className="text-red-500" />}
-            onClick={() => setEdit('general')}
-            id="personal-data-update-user-info-cancel-btn"
-            data-cy="personal-data-update-user-info-cancel-btn"
-            className="border border-red-500"
-            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-          />
-          <Button
-            type="primary"
-            size="small"
-            icon={<CheckIcon  />}
-            htmlType="submit"
-            loading={isSubmitting || isLoadingUser || isLoadingEmployee}
-            id="personal-data-update-user-info-submit-btn"
-            data-cy="personal-data-update-user-info-submit-btn"
-            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-          />
+          <div
+            data-cy="personal-data-update-user-info-buttons"
+            className="flex items-center gap-2"
+          >
+            <Button
+              type="default"
+              size="small"
+              icon={<CloseIcon fontSize="small" className="text-red-500" />}
+              onClick={() => setEdit('general')}
+              id="personal-data-update-user-info-cancel-btn"
+              data-cy="personal-data-update-user-info-cancel-btn"
+              className="border border-red-500"
+              style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+            />
+            <Button
+              type="primary"
+              size="small"
+              icon={<CheckIcon />}
+              htmlType="submit"
+              loading={isSubmitting || isLoadingUser || isLoadingEmployee}
+              id="personal-data-update-user-info-submit-btn"
+              data-cy="personal-data-update-user-info-submit-btn"
+              style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+            />
           </div>
         </Col>
       </Row>
@@ -385,7 +390,6 @@ function UpdateUserInfo({ employeeData }: any) {
           </Form.Item>
         </Col>
       </Row>
-
     </Form>
   );
 }
