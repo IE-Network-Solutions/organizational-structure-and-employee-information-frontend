@@ -103,9 +103,17 @@ const Page = () => {
             >
               <Card
                 title={
-                  <div className="flex items-center gap-2">
+                  <div
+                    data-cy="time-attendance-settings-closed-date-month-dropdown-title-container"
+                    id="time-attendance-settings-closed-date-month-dropdown-title-container"
+                    className="flex items-center gap-2"
+                  >
                     <NotificationsActiveOutlinedIcon />
-                    <span className="text-base font-normal text-[#4d4d4d]">
+                    <span
+                      data-cy="time-attendance-settings-closed-date-month-dropdown-title-text"
+                      id="time-attendance-settings-closed-date-month-dropdown-title-text"
+                      className="text-base font-normal text-[#4d4d4d]"
+                    >
                       Closed dates in {current.format('MMMM YYYY')}
                     </span>
                   </div>
@@ -127,10 +135,18 @@ const Page = () => {
                       id="time-attendance-settings-closed-date-month-dropdown-item"
                       data-cy="time-attendance-settings-closed-date-month-dropdown-item"
                     >
-                      <span className="text-sm font-medium text-gray-900">
+                      <span
+                        data-cy="time-attendance-settings-closed-date-month-dropdown-item-text"
+                        id="time-attendance-settings-closed-date-month-dropdown-item-text"
+                        className="text-sm font-medium text-gray-900"
+                      >
                         {item.name || 'Closed Date'}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span
+                        data-cy="time-attendance-settings-closed-date-month-dropdown-item-date"
+                        id="time-attendance-settings-closed-date-month-dropdown-item-date"
+                        className="text-xs text-gray-500"
+                      >
                         {d.format('YYYY-MM-DD')}
                       </span>
                     </div>
@@ -140,9 +156,21 @@ const Page = () => {
             </div>
           )}
         >
-          <div className="flex flex-col items-center gap-1 cursor-pointer">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500" />
-            <span className="text-[10px] leading-tight text-red-500 text-center">
+          <div
+            data-cy="time-attendance-settings-closed-date-month-dropdown-item-container"
+            id="time-attendance-settings-closed-date-month-dropdown-item-container"
+            className="flex flex-col items-center gap-1 cursor-pointer"
+          >
+            <span
+              data-cy="time-attendance-settings-closed-date-month-dropdown-item-dot"
+              id="time-attendance-settings-closed-date-month-dropdown-item-dot"
+              className="inline-block w-1.5 h-1.5 rounded-full bg-red-500"
+            />
+            <span
+              data-cy="time-attendance-settings-closed-date-month-dropdown-item-text"
+              id="time-attendance-settings-closed-date-month-dropdown-item-text"
+              className="text-[10px] leading-tight text-red-500 text-center"
+            >
               {dayNumbers.join(', ')}
             </span>
           </div>

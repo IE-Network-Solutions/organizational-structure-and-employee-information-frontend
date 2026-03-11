@@ -253,14 +253,29 @@ const LocationSidebar = () => {
                   id="time-attendance-settings-allowed-areas-sidebar-info-banner"
                   data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner"
                 >
-                  <div className="mt-1 h-5 w-5 flex items-center justify-center rounded-full border border-[#2563EB] text-[#2563EB] text-xs font-semibold shrink-0">
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-icon"
+                    className="mt-1 h-5 w-5 flex items-center justify-center rounded-full border border-[#2563EB] text-[#2563EB] text-xs font-semibold shrink-0"
+                  >
                     i
                   </div>
-                  <div className="space-y-1 text-sm text-[#1f2937]">
-                    <div className="font-medium">
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text"
+                    id="time-attendance-settings-allowed-areas-sidebar-info-banner-text"
+                    className="space-y-1 text-sm text-[#1f2937]"
+                  >
+                    <div
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text-title"
+                      id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-title"
+                      className="font-medium"
+                    >
                       How to set your location:
                     </div>
-                    <p className="m-0 text-xs text-[#4b5563]">
+                    <p
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
+                      id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
+                      className="m-0 text-xs text-[#4b5563]"
+                    >
                       Click anywhere on the map to set your location. Adjust the
                       radius slider to define the area coverage, or use the
                       &quot;Use Current Location&quot; button for quick setup.
@@ -273,8 +288,16 @@ const LocationSidebar = () => {
                   id="time-attendance-settings-allowed-areas-sidebar-map-container"
                   data-cy="time-attendance-settings-allowed-areas-sidebar-map-container"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-normal text-gray-900">
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-map-title"
+                    id="time-attendance-settings-allowed-areas-sidebar-map-title"
+                    className="flex items-center justify-between mb-2"
+                  >
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-map-title-text"
+                      id="time-attendance-settings-allowed-areas-sidebar-map-title-text"
+                      className="text-sm font-normal text-gray-900"
+                    >
                       Location Map
                     </span>
                     <Button
@@ -328,12 +351,24 @@ const LocationSidebar = () => {
                 </Form.Item>
 
                 {/* Radius display (mirrors EnhancedLocationPicker behaviour) */}
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-normal text-gray-900">
+                <div
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-radius-container"
+                  id="time-attendance-settings-allowed-areas-sidebar-radius-container"
+                  className="mt-4"
+                >
+                  <div data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label-container" id="time-attendance-settings-allowed-areas-sidebar-radius-label-container" className="flex items-center justify-between mb-2">
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label"
+                      id="time-attendance-settings-allowed-areas-sidebar-radius-label"
+                      className="text-sm font-normal text-gray-900"
+                    >
                       Radius
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input-container"
+                      id="time-attendance-settings-allowed-areas-sidebar-radius-input-container"
+                      className="flex items-center gap-2"
+                    >
                       <InputNumber
                         min={0.01}
                         max={0.5}
@@ -350,7 +385,13 @@ const LocationSidebar = () => {
                         id="time-attendance-settings-allowed-areas-sidebar-radius-input"
                         data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input"
                       />
-                      <span className="text-xs text-gray-900">km</span>
+                      <span
+                        data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input-unit"
+                        id="time-attendance-settings-allowed-areas-sidebar-radius-input-unit"
+                        className="text-xs text-gray-900"
+                      >
+                        km
+                      </span>
                     </div>
                   </div>
                   <Slider
@@ -379,9 +420,21 @@ const LocationSidebar = () => {
                 </div>
 
                 {/* Lat / Long display (editable, mirrors EnhancedLocationPicker behaviour) */}
-                <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <span className="text-sm font-normal text-gray-900">
+                <div
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-container"
+                  id="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-container"
+                  className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2"
+                >
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-container"
+                    id="time-attendance-settings-allowed-areas-sidebar-latitude-container"
+                    className="space-y-1"
+                  >
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-label"
+                      id="time-attendance-settings-allowed-areas-sidebar-latitude-label"
+                      className="text-sm font-normal text-gray-900"
+                    >
                       Latitude
                     </span>
                     <InputNumber
@@ -389,7 +442,10 @@ const LocationSidebar = () => {
                       precision={6}
                       onChange={(value) => {
                         if (value !== null) {
-                          handleLocationChange(value as number, formValues.longitude);
+                          handleLocationChange(
+                            value as number,
+                            formValues.longitude,
+                          );
                         }
                       }}
                       className={controlClass}
@@ -398,8 +454,16 @@ const LocationSidebar = () => {
                       data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-display"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <span className="text-sm font-normal text-gray-900">
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-container"
+                    id="time-attendance-settings-allowed-areas-sidebar-longitude-container"
+                    className="space-y-1"
+                  >
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-label"
+                      id="time-attendance-settings-allowed-areas-sidebar-longitude-label"
+                      className="text-sm font-normal text-gray-900"
+                    >
                       Longitude
                     </span>
                     <InputNumber
@@ -407,7 +471,10 @@ const LocationSidebar = () => {
                       precision={6}
                       onChange={(value) => {
                         if (value !== null) {
-                          handleLocationChange(formValues.latitude, value as number);
+                          handleLocationChange(
+                            formValues.latitude,
+                            value as number,
+                          );
                         }
                       }}
                       className={controlClass}
@@ -417,25 +484,37 @@ const LocationSidebar = () => {
                     />
                   </div>
                 </div>
-                <p className="mt-2 text-center text-xs text-gray-500">
+                <p
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-description"
+                  id="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-description"
+                  className="mt-2 text-center text-xs text-gray-500"
+                >
                   You can update the map by changing latitude or longitude.
                 </p>
 
                 {/* Global location card */}
                 <div
-                  className="mt-6 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 flex items-center justify-between"
-                  id="time-attendance-settings-allowed-areas-sidebar-is-global-container"
                   data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-container"
+                  id="time-attendance-settings-allowed-areas-sidebar-is-global-container"
+                  className="mt-6 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 flex items-center justify-between"
                 >
-                  <div className="flex flex-col gap-0.5">
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-label-container"
+                    id="time-attendance-settings-allowed-areas-sidebar-is-global-label-container"
+                    className="flex flex-col gap-0.5"
+                  >
                     <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-label-text"
+                      id="time-attendance-settings-allowed-areas-sidebar-is-global-label-text"
                       className="text-sm font-medium text-gray-900"
-                      id="time-attendance-settings-allowed-areas-sidebar-is-global-label"
-                      data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-label"
                     >
                       Global Location
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-label-description"
+                      id="time-attendance-settings-allowed-areas-sidebar-is-global-label-description"
+                      className="text-xs text-gray-500"
+                    >
                       Make this location available globally
                     </span>
                   </div>

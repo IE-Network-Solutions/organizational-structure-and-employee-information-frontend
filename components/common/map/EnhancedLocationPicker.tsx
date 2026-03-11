@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Button, message } from 'antd';
+import { Button, InputNumber, message, Slider, Space, Typography } from 'antd';
 import dynamic from 'next/dynamic';
 import LocationSearch from './LocationSearch';
+
+const { Text } = Typography;
 
 const LocationPicker = dynamic(() => import('./LocationPicker'), {
   ssr: false,
@@ -20,7 +22,6 @@ const LocationPicker = dynamic(() => import('./LocationPicker'), {
     </div>
   ),
 });
-
 
 interface EnhancedLocationPickerProps {
   latitude: number;
@@ -177,9 +178,10 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
       </div>
 
       {/* Radius Control */}
-      {/* <div
+      <div
         data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-178"
         className="mt-4"
+        hidden
       >
         <div
           data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-179"
@@ -245,12 +247,13 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
           railStyle={{ backgroundColor: '#e9d5ff' }}
           className="mt-6"
         />
-      </div> */}
+      </div>
 
       {/* Coordinates Display - after radius */}
-      {/* <div
+      <div
         data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-230"
         className="mt-4"
+        hidden
       >
         <div
           data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-231"
@@ -288,7 +291,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
             />
           </div>
         </Space>
-      </div> */}
+      </div>
     </div>
   );
 };
