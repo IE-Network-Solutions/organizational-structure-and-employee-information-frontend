@@ -63,11 +63,7 @@ const InfoItem = ({
       {value}
     </Text>
     {tags && tags.length > 0 && (
-      <Space
-        wrap
-        size={[2, 8]}
-        data-cy="my-payroll-info-item-tags"
-      >
+      <Space wrap size={[2, 8]} data-cy="my-payroll-info-item-tags">
         {tags.map((tag, index) => (
           <Tag
             key={index}
@@ -77,6 +73,7 @@ const InfoItem = ({
               maxWidth: '100%',
               margin: 0,
             }}
+            data-cy="my-payroll-info-item-tag"
           >
             <span
               style={{
@@ -85,10 +82,17 @@ const InfoItem = ({
                 whiteSpace: 'nowrap',
                 maxWidth: '120px',
               }}
+              data-cy="my-payroll-info-item-tag-label"
             >
               {tag.label}
             </span>
-            <span style={{ whiteSpace: 'nowrap' }}> : {tag.value}</span>
+            <span
+              style={{ whiteSpace: 'nowrap' }}
+              data-cy="my-payroll-info-item-tag-value"
+            >
+              {' '}
+              : {tag.value}
+            </span>
           </Tag>
         ))}
       </Space>
@@ -99,7 +103,9 @@ const InfoItem = ({
 export default function MyPayroll() {
   const { userId } = useAuthenticationStore();
   const { data: payPeriodData } = useGetPayPeriod();
-  const { data: employee, isLoading: isEmployeeLoading } = useGetEmployee(userId!);
+  const { data: employee, isLoading: isEmployeeLoading } = useGetEmployee(
+    userId!,
+  );
   const { pageSize } = usePayrollStore();
   const { data: payroll, isLoading: isPayrollLoading } = useGetActivePayroll(
     `&employeeId=${userId}`,
@@ -145,15 +151,19 @@ export default function MyPayroll() {
       );
       setActiveMergedPayroll(activeMergedData[0]);
     }
-  }, [payroll, employee, openPayPeriods, setMergedPayroll, setActiveMergedPayroll]);
+  }, [
+    payroll,
+    employee,
+    openPayPeriods,
+    setMergedPayroll,
+    setActiveMergedPayroll,
+  ]);
 
   const loading = isEmployeeLoading || isPayrollLoading;
 
   const renderInformation = () => {
     if (loading)
-      return (
-        <Skeleton active data-cy="my-payroll-info-loading-skeleton" />
-      );
+      return <Skeleton active data-cy="my-payroll-info-loading-skeleton" />;
     if (!activeMergedPayroll)
       return (
         <Text type="secondary" data-cy="my-payroll-info-empty">
@@ -164,18 +174,42 @@ export default function MyPayroll() {
     const breakdown = activeMergedPayroll?.breakdown;
 
     // Calculate total benefit if not directly available as a single field
-    const entitledBenefitTotal = (breakdown?.merits?.reduce((acc: number, item: any) => acc + parseFloat(item.amount || '0'), 0) || 0) +
-      (breakdown?.variablePay ? parseFloat(breakdown.variablePay.amount || '0') : 0) +
-      (breakdown?.incentives ? parseFloat(breakdown.incentives.amount || '0') : 0);
+    const entitledBenefitTotal =
+      (breakdown?.merits?.reduce(
+        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
+        0,
+      ) || 0) +
+      (breakdown?.variablePay
+        ? parseFloat(breakdown.variablePay.amount || '0')
+        : 0) +
+      (breakdown?.incentives
+        ? parseFloat(breakdown.incentives.amount || '0')
+        : 0);
 
-    const entitledDeductionTotal = (breakdown?.pension?.reduce((acc: number, item: any) => acc + parseFloat(item.amount || '0'), 0) || 0) +
-      (breakdown?.totalDeductionWithPension?.reduce((acc: number, item: any) => acc + parseFloat(item.amount || '0'), 0) || 0);
+    const entitledDeductionTotal =
+      (breakdown?.pension?.reduce(
+        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
+        0,
+      ) || 0) +
+      (breakdown?.totalDeductionWithPension?.reduce(
+        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
+        0,
+      ) || 0);
 
     return (
-      <Row gutter={[{ xs: 16, sm: 24, md: 32, lg: 24 }, { xs: 16, sm: 24, md: 32, lg: 24 }]}>
+      <Row
+        gutter={[
+          { xs: 16, sm: 24, md: 32, lg: 24 },
+          { xs: 16, sm: 24, md: 32, lg: 24 },
+        ]}
+      >
         <Col xs={24} lg={12}>
           <Card
-            title={<Text strong style={{ fontSize: '16px', color: '#262626' }}>Payroll Information</Text>}
+            title={
+              <Text strong style={{ fontSize: '16px', color: '#262626' }}>
+                Payroll Information
+              </Text>
+            }
             bordered
             style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
             headStyle={{ borderBottom: 'none', padding: '24px 24px 0 24px' }}
@@ -185,25 +219,37 @@ export default function MyPayroll() {
               <Col span={12}>
                 <InfoItem
                   label="Basic Salary"
-                  value={activeMergedPayroll?.employeeInfo?.basicSalaries?.[0]?.basicSalary || '--'}
+                  value={
+                    activeMergedPayroll?.employeeInfo?.basicSalaries?.[0]
+                      ?.basicSalary || '--'
+                  }
                 />
               </Col>
               <Col span={12}>
                 <InfoItem
                   label="Account Number"
-                  value={activeMergedPayroll?.employeeInfo?.employeeInformation?.bankInformation?.accountNumber || '--'}
+                  value={
+                    activeMergedPayroll?.employeeInfo?.employeeInformation
+                      ?.bankInformation?.accountNumber || '--'
+                  }
                 />
               </Col>
               <Col span={12}>
                 <InfoItem
                   label="Bank Information"
-                  value={activeMergedPayroll?.employeeInfo?.employeeInformation?.bankInformation?.bankName || '--'}
+                  value={
+                    activeMergedPayroll?.employeeInfo?.employeeInformation
+                      ?.bankInformation?.bankName || '--'
+                  }
                 />
               </Col>
               <Col span={12}>
                 <InfoItem
                   label="Branch"
-                  value={activeMergedPayroll?.employeeInfo?.employeeJobInformation?.[0]?.branch?.name || '--'}
+                  value={
+                    activeMergedPayroll?.employeeInfo
+                      ?.employeeJobInformation?.[0]?.branch?.name || '--'
+                  }
                 />
               </Col>
             </Row>
@@ -211,7 +257,11 @@ export default function MyPayroll() {
         </Col>
         <Col xs={24} lg={12}>
           <Card
-            title={<Text strong style={{ fontSize: '16px', color: '#262626' }}>{dayjs(activePayPeriod?.startDate).format('MMMM')} Pay Slip</Text>}
+            title={
+              <Text strong style={{ fontSize: '16px', color: '#262626' }}>
+                {dayjs(activePayPeriod?.startDate).format('MMMM')} Pay Slip
+              </Text>
+            }
             bordered
             style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
             headStyle={{ borderBottom: 'none', padding: '24px 24px 0 24px' }}
@@ -227,24 +277,52 @@ export default function MyPayroll() {
               <Col span={12}>
                 <InfoItem
                   label="Pay Date"
-                  value={dayjs(activePayPeriod?.updatedAt).format('MMM-DD-YYYY')}
+                  value={dayjs(activePayPeriod?.updatedAt).format(
+                    'MMM-DD-YYYY',
+                  )}
                 />
               </Col>
             </Row>
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <InfoItem
               label="Entitled Allowance"
-              value={parseFloat(activeMergedPayroll?.totalAllowance || '0').toFixed(2)}
-              tags={breakdown?.allowances?.map((a: any) => ({ label: a.type, value: parseFloat(a.amount || '0').toFixed(2) }))}
+              value={parseFloat(
+                activeMergedPayroll?.totalAllowance || '0',
+              ).toFixed(2)}
+              tags={breakdown?.allowances?.map((a: any) => ({
+                label: a.type,
+                value: parseFloat(a.amount || '0').toFixed(2),
+              }))}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <InfoItem
               label="Entitled Benefit"
               value={entitledBenefitTotal.toFixed(2)}
               tags={[
-                ...(breakdown?.merits?.map((m: any) => ({ label: m.type, value: parseFloat(m.amount || '0').toFixed(2) })) || []),
-                ...(breakdown?.variablePay ? [{ label: breakdown.variablePay.type, value: parseFloat(breakdown.variablePay.amount || '0').toFixed(2) }] : []),
-                ...(breakdown?.incentives ? [{ label: 'Incentive', value: parseFloat(breakdown.incentives.amount || '0').toFixed(2) }] : []),
+                ...(breakdown?.merits?.map((m: any) => ({
+                  label: m.type,
+                  value: parseFloat(m.amount || '0').toFixed(2),
+                })) || []),
+                ...(breakdown?.variablePay
+                  ? [
+                      {
+                        label: breakdown.variablePay.type,
+                        value: parseFloat(
+                          breakdown.variablePay.amount || '0',
+                        ).toFixed(2),
+                      },
+                    ]
+                  : []),
+                ...(breakdown?.incentives
+                  ? [
+                      {
+                        label: 'Incentive',
+                        value: parseFloat(
+                          breakdown.incentives.amount || '0',
+                        ).toFixed(2),
+                      },
+                    ]
+                  : []),
               ]}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
@@ -252,17 +330,33 @@ export default function MyPayroll() {
               label="Entitled Deduction"
               value={entitledDeductionTotal.toFixed(2)}
               tags={[
-                ...(breakdown?.pension?.map((p: any) => ({ label: p.type, value: parseFloat(p.amount || '0').toFixed(2) })) || []),
-                ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({ label: d.type, value: parseFloat(d.amount || '0').toFixed(2) })) || []),
+                ...(breakdown?.pension?.map((p: any) => ({
+                  label: p.type,
+                  value: parseFloat(p.amount || '0').toFixed(2),
+                })) || []),
+                ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({
+                  label: d.type,
+                  value: parseFloat(d.amount || '0').toFixed(2),
+                })) || []),
               ]}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <Row gutter={16}>
               <Col span={12}>
-                <InfoItem label="Gross Earning" value={parseFloat(activeMergedPayroll?.grossSalary || '0').toFixed(2)} />
+                <InfoItem
+                  label="Gross Earning"
+                  value={parseFloat(
+                    activeMergedPayroll?.grossSalary || '0',
+                  ).toFixed(2)}
+                />
               </Col>
               <Col span={12}>
-                <InfoItem label="Net Pay" value={parseFloat(activeMergedPayroll?.netPay || '0').toFixed(2)} />
+                <InfoItem
+                  label="Net Pay"
+                  value={parseFloat(activeMergedPayroll?.netPay || '0').toFixed(
+                    2,
+                  )}
+                />
               </Col>
             </Row>
           </Card>
@@ -366,16 +460,35 @@ export default function MyPayroll() {
                   data-cy="my-payroll-history-cards-row"
                 >
                   {payrollHistory
-                    .slice((historyCurrentPage - 1) * historyPageSize, historyCurrentPage * historyPageSize)
+                    .slice(
+                      (historyCurrentPage - 1) * historyPageSize,
+                      historyCurrentPage * historyPageSize,
+                    )
                     .map((historyItem: any, index: number) => {
-                      const period = payPeriodData?.find((p: any) => p.id === historyItem.payPeriodId);
+                      const period = payPeriodData?.find(
+                        (p: any) => p.id === historyItem.payPeriodId,
+                      );
                       const breakdown = historyItem.breakdown;
 
-                      const entitledBenefitTotal = (breakdown?.merits?.reduce((acc: number, item: any) => acc + parseFloat(item.amount || '0'), 0) || 0) +
-                        (breakdown?.variablePay ? parseFloat(breakdown.variablePay.amount || '0') : 0) +
-                        (breakdown?.incentives ? parseFloat(breakdown.incentives.amount || '0') : 0);
+                      const entitledBenefitTotal =
+                        (breakdown?.merits?.reduce(
+                          (acc: number, item: any) =>
+                            acc + parseFloat(item.amount || '0'),
+                          0,
+                        ) || 0) +
+                        (breakdown?.variablePay
+                          ? parseFloat(breakdown.variablePay.amount || '0')
+                          : 0) +
+                        (breakdown?.incentives
+                          ? parseFloat(breakdown.incentives.amount || '0')
+                          : 0);
 
-                      const entitledDeductionTotal = (breakdown?.pension?.reduce((acc: number, item: any) => acc + parseFloat(item.amount || '0'), 0) || 0) +
+                      const entitledDeductionTotal =
+                        (breakdown?.pension?.reduce(
+                          (acc: number, item: any) =>
+                            acc + parseFloat(item.amount || '0'),
+                          0,
+                        ) || 0) +
                         (breakdown?.totalDeductionWithPension?.reduce(
                           (acc: number, item: any) =>
                             acc + parseFloat(item.amount || '0'),
@@ -421,48 +534,126 @@ export default function MyPayroll() {
                               <Col span={12}>
                                 <InfoItem
                                   label="Salary Period"
-                                  value={period ? dayjs(period.startDate).format('MMM-YYYY') : '--'}
+                                  value={
+                                    period
+                                      ? dayjs(period.startDate).format(
+                                          'MMM-YYYY',
+                                        )
+                                      : '--'
+                                  }
                                 />
                               </Col>
                               <Col span={12}>
                                 <InfoItem
                                   label="Pay Date"
-                                  value={period ? dayjs(period.updatedAt).format('MMM-DD-YYYY') : '--'}
+                                  value={
+                                    period
+                                      ? dayjs(period.updatedAt).format(
+                                          'MMM-DD-YYYY',
+                                        )
+                                      : '--'
+                                  }
                                 />
                               </Col>
                             </Row>
-                            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
+                            <Divider
+                              style={{
+                                margin: '8px 0',
+                                borderColor: '#e0e0e0',
+                              }}
+                            />
                             <InfoItem
                               label="Entitled Allowance"
-                              value={parseFloat(historyItem.totalAllowance || '0').toFixed(2)}
-                              tags={breakdown?.allowances?.map((a: any) => ({ label: a.type, value: parseFloat(a.amount || '0').toFixed(2) }))}
+                              value={parseFloat(
+                                historyItem.totalAllowance || '0',
+                              ).toFixed(2)}
+                              tags={breakdown?.allowances?.map((a: any) => ({
+                                label: a.type,
+                                value: parseFloat(a.amount || '0').toFixed(2),
+                              }))}
                             />
-                            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
+                            <Divider
+                              style={{
+                                margin: '8px 0',
+                                borderColor: '#e0e0e0',
+                              }}
+                            />
                             <InfoItem
                               label="Entitled Benefit"
                               value={entitledBenefitTotal.toFixed(2)}
                               tags={[
-                                ...(breakdown?.merits?.map((m: any) => ({ label: m.type, value: parseFloat(m.amount || '0').toFixed(2) })) || []),
-                                ...(breakdown?.variablePay ? [{ label: breakdown.variablePay.type, value: parseFloat(breakdown.variablePay.amount || '0').toFixed(2) }] : []),
-                                ...(breakdown?.incentives ? [{ label: 'Incentive', value: parseFloat(breakdown.incentives.amount || '0').toFixed(2) }] : []),
+                                ...(breakdown?.merits?.map((m: any) => ({
+                                  label: m.type,
+                                  value: parseFloat(m.amount || '0').toFixed(2),
+                                })) || []),
+                                ...(breakdown?.variablePay
+                                  ? [
+                                      {
+                                        label: breakdown.variablePay.type,
+                                        value: parseFloat(
+                                          breakdown.variablePay.amount || '0',
+                                        ).toFixed(2),
+                                      },
+                                    ]
+                                  : []),
+                                ...(breakdown?.incentives
+                                  ? [
+                                      {
+                                        label: 'Incentive',
+                                        value: parseFloat(
+                                          breakdown.incentives.amount || '0',
+                                        ).toFixed(2),
+                                      },
+                                    ]
+                                  : []),
                               ]}
                             />
-                            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
+                            <Divider
+                              style={{
+                                margin: '8px 0',
+                                borderColor: '#e0e0e0',
+                              }}
+                            />
                             <InfoItem
                               label="Entitled Deduction"
                               value={entitledDeductionTotal.toFixed(2)}
                               tags={[
-                                ...(breakdown?.pension?.map((p: any) => ({ label: p.type, value: parseFloat(p.amount || '0').toFixed(2) })) || []),
-                                ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({ label: d.type, value: parseFloat(d.amount || '0').toFixed(2) })) || []),
+                                ...(breakdown?.pension?.map((p: any) => ({
+                                  label: p.type,
+                                  value: parseFloat(p.amount || '0').toFixed(2),
+                                })) || []),
+                                ...(breakdown?.totalDeductionWithPension?.map(
+                                  (d: any) => ({
+                                    label: d.type,
+                                    value: parseFloat(d.amount || '0').toFixed(
+                                      2,
+                                    ),
+                                  }),
+                                ) || []),
                               ]}
                             />
-                            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
+                            <Divider
+                              style={{
+                                margin: '8px 0',
+                                borderColor: '#e0e0e0',
+                              }}
+                            />
                             <Row gutter={16}>
                               <Col span={12}>
-                                <InfoItem label="Gross Earning" value={parseFloat(historyItem.grossSalary || '0').toFixed(2)} />
+                                <InfoItem
+                                  label="Gross Earning"
+                                  value={parseFloat(
+                                    historyItem.grossSalary || '0',
+                                  ).toFixed(2)}
+                                />
                               </Col>
                               <Col span={12}>
-                                <InfoItem label="Net Pay" value={parseFloat(historyItem.netPay || '0').toFixed(2)} />
+                                <InfoItem
+                                  label="Net Pay"
+                                  value={parseFloat(
+                                    historyItem.netPay || '0',
+                                  ).toFixed(2)}
+                                />
                               </Col>
                             </Row>
                           </Card>
@@ -538,15 +729,17 @@ const SettlementView = ({ userId }: { userId: string }) => {
 
   // Set first item as default selected
   useEffect(() => {
-    if (settlementTrackingData && settlementTrackingData.length > 0 && !selectedId) {
+    if (
+      settlementTrackingData &&
+      settlementTrackingData.length > 0 &&
+      !selectedId
+    ) {
       setSelectedId(settlementTrackingData[0].id);
     }
   }, [settlementTrackingData, selectedId]);
 
   if (isLoading)
-    return (
-      <Skeleton active data-cy="my-payroll-settlement-loading-skeleton" />
-    );
+    return <Skeleton active data-cy="my-payroll-settlement-loading-skeleton" />;
 
   if (!settlementTrackingData || settlementTrackingData.length === 0) {
     return (
@@ -559,25 +752,42 @@ const SettlementView = ({ userId }: { userId: string }) => {
     );
   }
 
-  const selectedItem = settlementTrackingData.find((item: any) => item.id === selectedId) || settlementTrackingData[0];
+  const selectedItem =
+    settlementTrackingData.find((item: any) => item.id === selectedId) ||
+    settlementTrackingData[0];
 
-  const totalAmount = parseFloat(selectedItem.totalAmount || selectedItem.amount || '0');
+  const totalAmount = parseFloat(
+    selectedItem.totalAmount || selectedItem.amount || '0',
+  );
   const totalPaid = parseFloat(selectedItem.totalPaid || '0');
   const remaining = Math.max(0, totalAmount - totalPaid);
-  const progressPercent = totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0;
+  const progressPercent =
+    totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0;
 
   // Placeholder history data since top-level list might not have it
   const payments = selectedItem.history || [
-    { date: 'Feb 09, 2026', amount: 4679.72, period: 'Jan 07, 2026 - Feb 06, 2026', reason: '' },
-    { date: 'Feb 09, 2026', amount: 545454.00, period: 'Feb 06, 2026 - Jun 06, 2026', reason: '' },
-    { date: 'Feb 09, 2026', amount: 5652222.00, period: 'Jun 07, 2026 - Aug 06, 2027', reason: '' }
+    {
+      date: 'Feb 09, 2026',
+      amount: 4679.72,
+      period: 'Jan 07, 2026 - Feb 06, 2026',
+      reason: '',
+    },
+    {
+      date: 'Feb 09, 2026',
+      amount: 545454.0,
+      period: 'Feb 06, 2026 - Jun 06, 2026',
+      reason: '',
+    },
+    {
+      date: 'Feb 09, 2026',
+      amount: 5652222.0,
+      period: 'Jun 07, 2026 - Aug 06, 2027',
+      reason: '',
+    },
   ];
 
   return (
-    <Row
-      gutter={[48, 48]}
-      data-cy="my-payroll-settlement-view"
-    >
+    <Row gutter={[48, 48]} data-cy="my-payroll-settlement-view">
       {/* Sidebar List */}
       <Col xs={24} lg={10}>
         <Space
@@ -626,7 +836,9 @@ const SettlementView = ({ userId }: { userId: string }) => {
                   }
                   data-cy="my-payroll-settlement-item-status-tag"
                 >
-                  {item.status === 'PAID' || item.isPaid ? 'Paid' : 'In Progress'}
+                  {item.status === 'PAID' || item.isPaid
+                    ? 'Paid'
+                    : 'In Progress'}
                 </Tag>
               </div>
             </Card>
@@ -647,10 +859,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
           data-cy="my-payroll-settlement-details-container"
         >
           {/* Summary Cards */}
-          <Row
-            gutter={[16, 16]}
-            data-cy="my-payroll-settlement-summary-row"
-          >
+          <Row gutter={[16, 16]} data-cy="my-payroll-settlement-summary-row">
             {[
               { label: 'Total Amount', value: totalAmount },
               { label: 'Total Paid', value: totalPaid },
@@ -682,7 +891,10 @@ const SettlementView = ({ userId }: { userId: string }) => {
                     style={{ fontSize: '22px', color: '#262626' }}
                     data-cy="my-payroll-settlement-summary-value"
                   >
-                    {card.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {card.value.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </Text>
                 </div>
               </Col>
