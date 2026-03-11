@@ -9,8 +9,6 @@ import {
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
-import { Permissions } from '@/types/commons/permissionEnum';
-import AccessGuard from '@/utils/permissionGuard';
 import {
   Button,
   Card,
@@ -28,7 +26,6 @@ import {
   Tag,
 } from 'antd';
 import React, { useEffect, useState, useMemo } from 'react';
-import { LuPencil } from 'react-icons/lu';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUserOutlined';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
@@ -71,6 +68,11 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     useUpdateEmployeeRolePermission();
   const { setEdit, edit, selectedPermissions, setSelectedPermissions } =
     useEmployeeManagementStore();
+
+  useEffect(() => {
+    if (!edit.rolePermission) setEdit('rolePermission');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // const handlePermissionChange = (value: string[]) => {
   //   setSelectedPermissions(value);
@@ -209,7 +211,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
 
   const handleUpdateUserRolePermission = (values: any) => {
     employeeRolePermissionUpdate({ id, values });
-    setEdit('rolePermission');
   };
 
   const handleEditChange = (editKey: keyof EditState) => {
@@ -342,32 +343,17 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
   };
 
   return (
-    <div id="role-permission-container" data-cy="role-permission-container">
+    <div 
+    id="role-permission-container" data-cy="role-permission-container ">
       <Card
         loading={isLoading}
-        title="User Role Permission"
-        extra={
-          <AccessGuard
-            permissions={[Permissions.UpdateEmployeeDetails]}
-            id="role-permission-edit-guard"
-            data-cy="role-permission-edit-guard"
-          >
-            <LuPencil
-              className="cursor-pointer"
-              onClick={() => handleEditChange('rolePermission')}
-              id="role-permission-edit-icon"
-              data-cy="role-permission-edit-icon"
-            />
-          </AccessGuard>
-        }
-        className=" rounded-lg border border-gray-200"
         id="role-permission-card"
         data-cy="role-permission-card"
         headStyle={{ borderBottom: 'none' }}
+        bordered={false}
       >
         <Form
           form={form}
-          disabled={!edit.rolePermission}
           name="dependencies"
           autoComplete="off"
           style={{ maxWidth: '100%' }}
@@ -377,7 +363,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
           data-cy="role-permission-form"
         >
           {/* Roles Section */}
-          <div className="mb-6" id="roles-section" data-cy="roles-section">
+          <div className="border-[1px] border-[#D9D9D9] rounded-md p-2 mb-4" id="roles-section" data-cy="roles-section">
             <h3
               data-cy="roles-section-title"
               className="text-base font-bold text-gray-900 mb-4"
@@ -403,7 +389,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                           : 'border-gray-200 hover:shadow-md'
                       }`}
                       onClick={() => {
-                        if (!edit.rolePermission) return;
                         onRoleChangeHandler(role.id);
                       }}
                       id={`role-card-${role.id}`}
@@ -467,7 +452,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                           <Checkbox
                             checked={isSelected}
                             onChange={() => {
-                              if (!edit.rolePermission) return;
                               onRoleChangeHandler(role.id);
                             }}
                             id={`role-checkbox-${role.id}`}
@@ -484,27 +468,23 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
 
           {/* Main Content Row */}
           <Row
-            gutter={[24, 24]}
+            // gutter={6}
             id="main-content-row"
             data-cy="main-content-row"
+            justify="space-between"
           >
             {/* Left Column - Permission Management */}
             <Col
               xs={24}
-              lg={14}
+              lg={16}
               id="permission-management-col"
               data-cy="permission-management-col"
+              className="mb-4 border-[1px] border-[#D9D9D9] rounded-md px-2 py-4"
+
             >
               <div
                 data-cy="active-permission-group-filters-container"
-                className="mb-4"
               >
-                <h3
-                  data-cy="active-permission-group-filters-title"
-                  className="text-base font-bold text-gray-900 mb-4"
-                >
-                  Permission Management
-                </h3>
                 <Space direction="vertical" size="middle" className="w-full">
                   <div
                     data-cy="active-permission-group-filters-container"
@@ -668,7 +648,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                               onChange={(checked) =>
                                 handleGroupToggle(group, checked)
                               }
-                              disabled={!edit.rolePermission}
+                              disabled={false}
                               id={`permission-group-switch-${group.id}`}
                               data-cy={`permission-group-switch-${group.id}`}
                               className={`${isFullySelected ? 'bg-[#1d4ed8]' : ''}`}
@@ -701,7 +681,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                                       e.target.checked,
                                     )
                                   }
-                                  disabled={!edit.rolePermission}
+                                  disabled={false}
                                   id={`permission-checkbox-${permission.id}`}
                                   data-cy={`permission-checkbox-${permission.id}`}
                                   className="pt-0.5"
@@ -739,9 +719,10 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
             {/* Right Column - Active Permissions */}
             <Col
               xs={24}
-              lg={10}
+              lg={7}
               id="active-permissions-col"
               data-cy="active-permissions-col"
+              className="mb-4 border-[1px] border-[#D9D9D9] rounded-md px-2 py-4"
             >
               <div data-cy="active-permission-list-container" className="mb-4">
                 <div
@@ -812,7 +793,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                           size="small"
                           icon={<CloseIcon className="text-gray-400" />}
                           onClick={() => handleRemovePermission(permission.id)}
-                          disabled={!edit.rolePermission}
+                          disabled={false}
                           id={`remove-permission-btn-${permission.id}`}
                           data-cy={`remove-permission-btn-${permission.id}`}
                         />

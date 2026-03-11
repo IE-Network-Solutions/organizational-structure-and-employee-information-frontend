@@ -11,6 +11,8 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateField } from '../../../../_components/formValidator';
 import dayjs from 'dayjs';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 const { Option } = Select;
 
@@ -153,14 +155,17 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
     <Card
       loading={isLoading}
       title={
+        !edit.emergencyContact ? (
         <span
           className="text-base font-bold text-gray-900"
           data-cy="emergency-contact-card-title"
         >
           Emergency Contact Information
         </span>
+        ) : null
       }
       extra={
+        !edit.emergencyContact ? (
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}
           selfShouldAccess
@@ -177,6 +182,7 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
             <LuPencil size={16} className="text-black" />
           </button>
         </AccessGuard>
+        ) : null
       }
       className="emergency-contact-card rounded-lg border border-gray-200"
       id="emergency-contact-card"
@@ -193,13 +199,51 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
           id="emergency-contact-form"
           data-cy="emergency-contact-form"
         >
+
+<Row
+        justify="space-between"
+        align="middle"
+        className="mb-4 w-full"
+        style={{ width: '100%' }}
+        id="personal-data-update-user-info-header-row"
+        data-cy="personal-data-update-user-info-header-row"
+      >
+        <Col>
+          <span className="text-sm font-normal text-black">
+            Emergency Contact Information
+          </span>
+        </Col>
+        <Col>
+          <div className="flex items-center gap-2">
+          <Button
+            type="default"
+            size="small"
+            icon={<CloseIcon fontSize="small" className="text-red-500" />}
+            onClick={() => setEdit('emergencyContact')}
+            id="emergency-contact-cancel-btn"
+            data-cy="emergency-contact-cancel-btn"
+            className="border border-red-500"
+            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+          />
+          <Button
+            type="primary"
+            size="small"
+            icon={<CheckIcon  />}
+            htmlType="submit"
+            id="emergency-contact-submit-btn"
+            data-cy="emergency-contact-submit-btn"
+            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+          />
+          </div>
+        </Col>
+      </Row>
           <Row
             gutter={[16, 24]}
             id="emergency-contact-form-row"
             data-cy="emergency-contact-form-row"
           >
             <Col
-              lg={16}
+              lg={24}
               id="emergency-contact-form-col"
               data-cy="emergency-contact-form-col"
             >
@@ -315,26 +359,6 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                   )}
                 </Form.Item>
               ))}
-            </Col>
-          </Row>
-          <Row
-            id="emergency-contact-submit-row"
-            data-cy="emergency-contact-submit-row"
-          >
-            <Col
-              span={24}
-              style={{ textAlign: 'right' }}
-              id="emergency-contact-submit-col"
-              data-cy="emergency-contact-submit-col"
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-                id="emergency-contact-submit-btn"
-                data-cy="emergency-contact-submit-btn"
-              >
-                Save Changes
-              </Button>
             </Col>
           </Row>
         </Form>

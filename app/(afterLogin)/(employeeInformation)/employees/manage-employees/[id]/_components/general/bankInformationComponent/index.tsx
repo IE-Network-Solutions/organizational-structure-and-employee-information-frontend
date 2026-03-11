@@ -10,6 +10,8 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { validateField } from '../../../../_components/formValidator';
 import dayjs from 'dayjs';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 const BankInformationComponent = ({
   mergedFields,
@@ -138,14 +140,17 @@ const BankInformationComponent = ({
     <Card
       loading={isLoading}
       title={
+        !edit.bankInformation ? (
         <span
           className="text-base font-bold text-gray-900"
           data-cy="bank-information-card-title"
         >
           Bank Information
         </span>
+        ) : null
       }
       extra={
+        !edit.bankInformation ? (
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}
           selfShouldAccess
@@ -162,6 +167,7 @@ const BankInformationComponent = ({
             <LuPencil size={16} className="text-black" />
           </button>
         </AccessGuard>
+        ) : null
       }
       className="bank-information-card rounded-lg border border-gray-200 my-6"
       id="bank-information-card"
@@ -179,12 +185,49 @@ const BankInformationComponent = ({
           data-cy="bank-information-form"
         >
           <Row
+        justify="space-between"
+        align="middle"
+        className="mb-4 w-full"
+        style={{ width: '100%' }}
+        id="personal-data-update-user-info-header-row"
+        data-cy="personal-data-update-user-info-header-row"
+      >
+        <Col>
+          <span className="text-sm font-normal text-black">
+            Bank Information
+          </span>
+        </Col>
+        <Col>
+          <div className="flex items-center gap-2">
+          <Button
+            type="default"
+            size="small"
+            icon={<CloseIcon fontSize="small" className="text-red-500" />}
+            onClick={() => setEdit('bankInformation')}
+            id="bank-information-cancel-btn"
+            data-cy="bank-information-cancel-btn"
+            className="border border-red-500"
+            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+          />
+          <Button
+            type="primary"
+            size="small"
+            icon={<CheckIcon  />}
+            htmlType="submit"
+            id="bank-information-submit-btn"
+            data-cy="bank-information-submit-btn"
+            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+          />
+          </div>
+        </Col>
+      </Row>
+          <Row
             gutter={[16, 24]}
             id="bank-information-form-row"
             data-cy="bank-information-form-row"
           >
             <Col
-              lg={16}
+              lg={24}
               id="bank-information-form-col"
               data-cy="bank-information-form-col"
             >
@@ -249,26 +292,6 @@ const BankInformationComponent = ({
                   />
                 </Form.Item>
               ))}
-            </Col>
-          </Row>
-          <Row
-            id="bank-information-submit-row"
-            data-cy="bank-information-submit-row"
-          >
-            <Col
-              span={24}
-              style={{ textAlign: 'right' }}
-              id="bank-information-submit-col"
-              data-cy="bank-information-submit-col"
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-                id="bank-information-submit-btn"
-                data-cy="bank-information-submit-btn"
-              >
-                Save Changes
-              </Button>
             </Col>
           </Row>
         </Form>

@@ -28,31 +28,36 @@ function PersonalDataComponent({ id }: { id: string }) {
     <>
       <Card
         loading={isLoading}
+        bodyStyle={{ padding: '10px 0px 0px 10px' }}
         title={
-          <span
-            className="text-base font-bold text-gray-900"
-            data-cy="personal-data-card-title"
-          >
-            Personal Information
-          </span>
+          !edit.general ? (
+            <span
+              className="text-base font-bold text-gray-900"
+              data-cy="personal-data-card-title"
+            >
+              Personal Information
+            </span>
+          ) : null
         }
         extra={
-          <PermissionWrapper
-            permissions={[Permissions.UpdateEmployeeDetails]}
-            selfShouldAccess
-            id={id}
-            data-cy="personal-data-edit-guard"
-          >
-            <button
-              type="button"
-              onClick={() => handleEditChange('general')}
-              className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-              id="personal-data-edit-icon"
-              data-cy="personal-data-edit-icon"
+          !edit.general ? (
+            <PermissionWrapper
+              permissions={[Permissions.UpdateEmployeeDetails]}
+              selfShouldAccess
+              id={id}
+              data-cy="personal-data-edit-guard"
             >
-              <LuPencil size={16} className="text-black" />
-            </button>
-          </PermissionWrapper>
+              <button
+                type="button"
+                onClick={() => handleEditChange('general')}
+                className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+                id="personal-data-edit-icon"
+                data-cy="personal-data-edit-icon"
+              >
+                <LuPencil size={16} className="text-black" />
+              </button>
+            </PermissionWrapper>
+          ) : null
         }
         className="my-6 mt-0"
         id="personal-data-card"
@@ -63,12 +68,16 @@ function PersonalDataComponent({ id }: { id: string }) {
           gutter={16}
           id="personal-data-content-row"
           data-cy="personal-data-content-row"
+          className="w-full"
+          style={{ width: '100%' }}
         >
           {edit.general ? (
-            <UpdateUserInfo
-              employeeData={employeeData}
-              data-cy="personal-data-update-user-info"
-            />
+            <Col span={24} className="w-full">
+              <UpdateUserInfo
+                employeeData={employeeData}
+                data-cy="personal-data-update-user-info"
+              />
+            </Col>
           ) : (
             <>
               <Col

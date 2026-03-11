@@ -346,14 +346,17 @@ function Job({ id }: { id: string }) {
           <Card
             loading={isLoading}
             title={
+              !isEditing ? (
               <span
                 className="text-base font-bold text-gray-900"
                 data-cy="job-employment-card-title"
               >
                 Employment Information
               </span>
-            }
+              ) : null
+              }
             extra={
+              !isEditing ? (
               <button
                 type="button"
                 onClick={handleEditClick}
@@ -363,7 +366,8 @@ function Job({ id }: { id: string }) {
               >
                 <LuPencil className="text-gray-700" />
               </button>
-            }
+              ) : null
+              }
             className="employment-information-card rounded-lg border border-gray-200 my-6 mt-0"
             id="job-employment-card"
             data-cy="job-employment-card"
@@ -376,32 +380,60 @@ function Job({ id }: { id: string }) {
                 layout="inline"
                 id="job-joined-date-form"
                 data-cy="job-joined-date-form"
+                className="w-full"
               >
+                <Row
+        justify="space-between"
+        align="middle"
+        className="mb-4 w-full"
+        style={{ width: '100%' }}
+        id="job-employment-header-row"
+        data-cy="job-employment-header-row"
+      >
+        <Col>
+          <span className="text-sm font-normal text-black">
+            Employment Information
+          </span>
+        </Col>
+        <Col>
+          <div className="flex items-center gap-2">
+          <Button
+            type="default"
+            size="small"
+            icon={<CloseIcon fontSize="small" className="text-red-500" />}
+            onClick={() => setIsEditing(false)}
+            id="job-joined-date-cancel-btn"
+            data-cy="job-joined-date-cancel-btn"
+            className="border border-red-500"
+            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+          />
+          <Button
+            type="primary"
+            size="small"
+            icon={<CheckIcon  />}
+            htmlType="submit"
+            id="job-joined-date-submit-btn"
+            data-cy="job-joined-date-submit-btn"
+            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+          />
+          </div>
+        </Col>
+      </Row>
                 <Form.Item
                   name="joinedDate"
                   id="job-joined-date-form-item"
                   data-cy="job-joined-date-form-item"
                   rules={[{ required: true, message: 'Please select a date!' }]}
+                  className="w-full"
                 >
                   <DatePicker
                     format="YYYY-MM-DD"
                     id="job-joined-date-datepicker"
                     data-cy="job-joined-date-datepicker"
+                    className="w-full"
                   />
                 </Form.Item>
-                <Form.Item
-                  id="job-joined-date-submit-form-item"
-                  data-cy="job-joined-date-submit-form-item"
-                >
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    id="job-joined-date-submit-btn"
-                    data-cy="job-joined-date-submit-btn"
-                  >
-                    Save
-                  </Button>
-                </Form.Item>
+             
               </Form>
             ) : (
               <Row

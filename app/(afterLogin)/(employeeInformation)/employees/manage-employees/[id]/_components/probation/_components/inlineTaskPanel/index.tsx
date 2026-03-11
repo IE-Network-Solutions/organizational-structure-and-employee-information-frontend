@@ -247,10 +247,10 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                     <Card
                       key={field.key}
                       size="small"
-                      className="bg-white"
                       id={`probation-inline-panel-task-card-${taskSlug}`}
                       data-cy={`probation-inline-panel-task-card-${taskSlug}`}
                       bordered={false}
+                      bodyStyle={{ padding: '0' }}
                     >
                       <div
                         className="flex justify-between items-center mb-2 sm:mb-3"
@@ -435,18 +435,18 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
               {/* Add Another Task Button */}
               {!editMode && (
                 <div
-                  className="mt-3 sm:mt-4"
+                  className="mt-3 sm:mt-4 flex justify-center"
                   data-cy="probation-inline-task-add-button-container"
                 >
                   <Button
-                    type="dashed"
+                    type="primary"
                     icon={<PlusOutlined />}
                     onClick={() => add()}
-                    className="border-blue-300 text-blue-600 hover:border-blue-500 hover:text-blue-700 w-full"
+                    className=""
                     id={`probation-inline-panel-add-task-btn-${panelSlug}`}
                     data-cy={`probation-inline-panel-add-task-btn-${panelSlug}`}
                   >
-                    Add Another Task
+                    Add Task
                   </Button>
                 </div>
               )}
@@ -532,7 +532,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
           >
             {editMode
               ? 'Update Task'
-              : `Submit All Tasks (${getCurrentTaskCount()})`}
+              : `Create`}
           </Button>
         </Space>
       </div>

@@ -8,6 +8,8 @@ import {
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import dayjs from 'dayjs';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 function UpdateUserInfo({ employeeData }: any) {
   const { mutate: updateEmployeeInformation, isLoading: isLoadingUser } =
@@ -95,20 +97,64 @@ function UpdateUserInfo({ employeeData }: any) {
   }, [employeeData, form]);
 
   return (
+  
     <Form
       form={form}
       layout="vertical"
       onFinish={(values) => handleSaveChanges(values)}
       id="personal-data-update-user-info-form"
       data-cy="personal-data-update-user-info-form"
+      className="w-full"
     >
+      {/* Header: Title + circular action buttons */}
+      <Row
+        justify="space-between"
+        align="middle"
+        className="mb-4 w-full"
+        style={{ width: '100%' }}
+        id="personal-data-update-user-info-header-row"
+        data-cy="personal-data-update-user-info-header-row"
+      >
+        <Col>
+          <span className="text-sm font-normal text-black">
+            Personal Information
+          </span>
+        </Col>
+        <Col>
+          <div className="flex items-center gap-2">
+          <Button
+            type="default"
+            size="small"
+            icon={<CloseIcon fontSize="small" className="text-red-500" />}
+            onClick={() => setEdit('general')}
+            id="personal-data-update-user-info-cancel-btn"
+            data-cy="personal-data-update-user-info-cancel-btn"
+            className="border border-red-500"
+            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+          />
+          <Button
+            type="primary"
+            size="small"
+            icon={<CheckIcon  />}
+            htmlType="submit"
+            loading={isSubmitting || isLoadingUser || isLoadingEmployee}
+            id="personal-data-update-user-info-submit-btn"
+            data-cy="personal-data-update-user-info-submit-btn"
+            style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+          />
+          </div>
+        </Col>
+      </Row>
+
       <Row
         gutter={16}
+        className="w-full"
+        style={{ width: '100%' }}
         id="personal-data-update-user-info-row"
         data-cy="personal-data-update-user-info-row"
       >
         {/* Left Column */}
-        <Col lg={12}>
+        <Col xs={24} sm={24} md={12} lg={12} className="w-full">
           <Form.Item
             name="firstName"
             label="First name"
@@ -221,7 +267,7 @@ function UpdateUserInfo({ employeeData }: any) {
         </Col>
 
         {/* Right Column */}
-        <Col lg={12}>
+        <Col xs={24} sm={24} md={12} lg={12} className="w-full">
           <Form.Item
             name="middleName"
             label="Middle Name"
@@ -338,24 +384,8 @@ function UpdateUserInfo({ employeeData }: any) {
             />
           </Form.Item>
         </Col>
-
-        <Col
-          span={24}
-          style={{ textAlign: 'right' }}
-          id="personal-data-update-user-info-submit-col"
-          data-cy="personal-data-update-user-info-submit-col"
-        >
-          <Button
-            loading={isSubmitting || isLoadingUser || isLoadingEmployee}
-            type="primary"
-            htmlType="submit"
-            id="personal-data-update-user-info-submit-btn"
-            data-cy="personal-data-update-user-info-submit-btn"
-          >
-            Save Changes
-          </Button>
-        </Col>
       </Row>
+
     </Form>
   );
 }

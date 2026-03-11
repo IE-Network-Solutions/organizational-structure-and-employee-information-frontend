@@ -303,14 +303,17 @@ const WorkScheduleComponent: React.FC = () => {
     <Card
       loading={isLoading}
       title={
+        !edit.workSchedule ? (
         <span
           className="text-base font-bold text-gray-900"
           data-cy="job-work-schedule-card-title"
         >
           Work Schedule
         </span>
+        ) : null
       }
       extra={
+        !edit.workSchedule ? (
         <AccessGuard
           permissions={[Permissions.UpdateEmployeeDetails]}
           id="job-work-schedule-edit-guard"
@@ -326,12 +329,13 @@ const WorkScheduleComponent: React.FC = () => {
             <LuPencil className="text-gray-700" />
           </button>
         </AccessGuard>
+        ) : null
       }
       className="work-schedule-card rounded-lg border border-gray-200 my-6 mt-0"
       id="job-work-schedule-card"
       data-cy="job-work-schedule-card"
       headStyle={{ borderBottom: 'none' }}
-      bodyStyle={{ padding: '0 0 0 24px' }}
+      bodyStyle={{ padding: '10px' }}
     >
       {!edit.workSchedule ? (
         <>
