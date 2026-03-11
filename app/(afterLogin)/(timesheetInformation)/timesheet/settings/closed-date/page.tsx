@@ -69,7 +69,88 @@ const Page = () => {
     },
   ];
 
-  const cellRender: CalendarProps<Dayjs>['cellRender'] = (current) => {
+  const cellRender: CalendarProps<Dayjs>['cellRender'] = (current, info) => {
+    // Month cell (year view): show all closed dates in that month
+    if (info.type === 'month') {
+      const closedForMonth = closedDates.filter((item) => {
+        if (!item?.date) return false;
+        const closedDate =
+          typeof item.date === 'string' ? dayjs(item.date) : item.date;
+        return current.isSame(closedDate, 'month');
+      });
+
+      if (!closedForMonth.length) return null;
+
+      const dayNumbers = Array.from(
+        new Set(
+          closedForMonth.map((item) => {
+            const d =
+              typeof item.date === 'string' ? dayjs(item.date) : item.date;
+            return d.date();
+          }),
+        ),
+      ).sort((a, b) => a - b);
+
+      return (
+        <Dropdown
+          trigger={['click']}
+          placement="bottomLeft"
+          dropdownRender={() => (
+            <div
+              id="time-attendance-settings-closed-date-month-dropdown-container"
+              data-cy="time-attendance-settings-closed-date-month-dropdown-container"
+              className="bg-white border-1 border-gray-200 shadow-lg rounded-md p-2"
+            >
+              <Card
+                title={
+                  <div className="flex items-center gap-2">
+                    <NotificationsActiveOutlinedIcon />
+                    <span className="text-base font-normal text-[#4d4d4d]">
+                      Closed dates in {current.format('MMMM YYYY')}
+                    </span>
+                  </div>
+                }
+                headStyle={{ borderBottom: 'none', padding: '0 10px 0 10px' }}
+                bodyStyle={{ padding: '8px 10px' }}
+                style={{ width: isMobile ? 220 : 320 }}
+                className="border-1 border-[#D9D9D9]"
+              >
+                {closedForMonth.map((item) => {
+                  const d =
+                    typeof item.date === 'string'
+                      ? dayjs(item.date)
+                      : (item.date as Dayjs);
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex flex-col gap-0.5 py-1"
+                      id="time-attendance-settings-closed-date-month-dropdown-item"
+                      data-cy="time-attendance-settings-closed-date-month-dropdown-item"
+                    >
+                      <span className="text-sm font-medium text-gray-900">
+                        {item.name || 'Closed Date'}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {d.format('YYYY-MM-DD')}
+                      </span>
+                    </div>
+                  );
+                })}
+              </Card>
+            </div>
+          )}
+        >
+          <div className="flex flex-col items-center gap-1 cursor-pointer">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500" />
+            <span className="text-[10px] leading-tight text-red-500 text-center">
+              {dayNumbers.join(', ')}
+            </span>
+          </div>
+        </Dropdown>
+      );
+    }
+
+    // Date cell (month view): existing closed-date dropdown per day
     const closedForDay = closedDates.filter((item) => {
       if (!item?.date) return false;
       const closedDate =

@@ -112,7 +112,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'closed-date',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'closed-date' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'closed-date' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-closed-date-tab-label"
           id="time-attendance-settings-closed-date-tab-label"
         >
@@ -124,7 +124,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'break-type',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'break-type' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'break-type' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-break-type-tab-label"
           id="time-attendance-settings-break-type-tab-label"
         >
@@ -136,7 +136,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'leave-types-and-policies',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'leave-types-and-policies' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'leave-types-and-policies' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-leave-types-and-policies-tab-label"
           id="time-attendance-settings-leave-types-and-policies-tab-label"
         >
@@ -148,7 +148,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'allowed-areas',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'allowed-areas' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'allowed-areas' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-allowed-areas-tab-label"
           id="time-attendance-settings-allowed-areas-tab-label"
         >
@@ -160,7 +160,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'attendance-rules',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'attendance-rules' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'attendance-rules' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-attendance-rules-tab-label"
           id="time-attendance-settings-attendance-rules-tab-label"
         >
@@ -172,7 +172,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     //   key: 'imported-logs',
     //   label: (
     //     <div
-    //       className={`text-base font-semibold m-0 ${activeKey === 'imported-logs' ? 'text-primary' : 'text-gray-800'}`}
+    //       className={`text-base font-normal m-0 ${activeKey === 'imported-logs' ? 'text-primary' : 'text-gray-800'}`}
     //       data-cy="time-attendance-settings-imported-logs-tab-label"
     //       id="time-attendance-settings-imported-logs-tab-label"
     //     >
@@ -184,7 +184,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'accrual-rule',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'accrual-rule' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'accrual-rule' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-accrual-rule-tab-label"
           id="time-attendance-settings-accrual-rule-tab-label"
         >
@@ -196,7 +196,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'carry-over-rule',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'carry-over-rule' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'carry-over-rule' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-carry-over-rule-tab-label"
           id="time-attendance-settings-carry-over-rule-tab-label"
         >
@@ -208,7 +208,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'approvals',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'approvals' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'approvals' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-approvals-tab-label"
           id="time-attendance-settings-approvals-tab-label"
         >
@@ -220,7 +220,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'time-zone',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'time-zone' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'time-zone' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-time-zone-tab-label"
           id="time-attendance-settings-time-zone-tab-label"
         >
@@ -232,7 +232,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'workSchedule',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'workSchedule' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'workSchedule' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-workschedule-tab-label"
           id="time-attendance-settings-workschedule-tab-label"
         >
@@ -244,7 +244,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       key: 'zkt-addon',
       label: (
         <div
-          className={`text-base font-semibold m-0 ${activeKey === 'zkt-addon' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base font-normal m-0 ${activeKey === 'zkt-addon' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="time-attendance-settings-zkt-addon-tab-label"
           id="time-attendance-settings-zkt-addon-tab-label"
         >
