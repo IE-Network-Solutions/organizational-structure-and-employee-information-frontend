@@ -65,23 +65,30 @@ const InfoItem = ({
     {tags && tags.length > 0 && (
       <Space
         wrap
-        size={[12, 8]}
+        size={[2, 8]}
         data-cy="my-payroll-info-item-tags"
       >
         {tags.map((tag, index) => (
           <Tag
             key={index}
             style={{
-              backgroundColor: '#f5f5f5',
-              border: '1px solid #bfbfbf',
-              borderRadius: '4px',
-              padding: '2px 8px',
-              color: '#434343',
-              fontSize: '12px',
-              margin: '0',
+              display: 'inline-flex',
+              alignItems: 'center',
+              maxWidth: '100%',
+              margin: 0,
             }}
           >
-            {tag.label} : {tag.value}
+            <span
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: '120px',
+              }}
+            >
+              {tag.label}
+            </span>
+            <span style={{ whiteSpace: 'nowrap' }}> : {tag.value}</span>
           </Tag>
         ))}
       </Space>
@@ -165,7 +172,7 @@ export default function MyPayroll() {
       (breakdown?.totalDeductionWithPension?.reduce((acc: number, item: any) => acc + parseFloat(item.amount || '0'), 0) || 0);
 
     return (
-      <Row gutter={[{ xs: 16, sm: 24, md: 32, lg: 48 }, { xs: 16, sm: 24, md: 32, lg: 48 }]}>
+      <Row gutter={[{ xs: 16, sm: 24, md: 32, lg: 24 }, { xs: 16, sm: 24, md: 32, lg: 24 }]}>
         <Col xs={24} lg={12}>
           <Card
             title={<Text strong style={{ fontSize: '16px', color: '#262626' }}>Payroll Information</Text>}
@@ -249,7 +256,7 @@ export default function MyPayroll() {
                 ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({ label: d.type, value: parseFloat(d.amount || '0').toFixed(2) })) || []),
               ]}
             />
-            <Divider style={{ margin: '12px 0' }} />
+            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <Row gutter={16}>
               <Col span={12}>
                 <InfoItem label="Gross Earning" value={parseFloat(activeMergedPayroll?.grossSalary || '0').toFixed(2)} />
@@ -286,6 +293,15 @@ export default function MyPayroll() {
           .responsive-container .ant-card-body { padding: 16px !important; }
           .responsive-container .ant-card-head { padding: 16px 16px 0 16px !important; }
           .responsive-container .ant-card-head-title { font-size: 14px !important; }
+          .truncated-tag { max-width: 150px !important; }
+        }
+        .truncated-tag {
+          max-width: 250px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          display: inline-block;
+          vertical-align: bottom;
         }
       `}</style>
       <Title
@@ -608,23 +624,6 @@ const SettlementView = ({ userId }: { userId: string }) => {
                       ? 'success'
                       : 'processing'
                   }
-                  style={{
-                    margin: 0,
-                    borderRadius: '4px',
-                    backgroundColor:
-                      item.status === 'PAID' || item.isPaid
-                        ? '#f6ffed'
-                        : '#e6f7ff',
-                    border: '1px solid',
-                    borderColor:
-                      item.status === 'PAID' || item.isPaid
-                        ? '#b7eb8f'
-                        : '#91d5ff',
-                    color:
-                      item.status === 'PAID' || item.isPaid
-                        ? '#52c41a'
-                        : '#1890ff',
-                  }}
                   data-cy="my-payroll-settlement-item-status-tag"
                 >
                   {item.status === 'PAID' || item.isPaid ? 'Paid' : 'In Progress'}
@@ -802,20 +801,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                   </Text>
                 </Col>
                 <Col span={12}>
-                  <Tag
-                    style={{
-                      backgroundColor: '#f5f5f5',
-                      border: '1px solid #d9d9d9',
-                      color: '#595959',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      marginRight: 0,
-                      maxWidth: '100%',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                    data-cy="my-payroll-settlement-history-period-tag"
-                  >
+                  <Tag data-cy="my-payroll-settlement-history-period-tag">
                     {payment.period || payment.payPeriod || '--'}
                   </Tag>
                 </Col>
