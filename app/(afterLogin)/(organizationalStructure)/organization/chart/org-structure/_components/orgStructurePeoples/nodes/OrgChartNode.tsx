@@ -138,13 +138,10 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
       ? 'Unassigned'
       : displayName;
 
-  // Show only first and middle name for employees in the chart
-  const compactName = useMemo(() => {
-    if (!displayLabel) return displayLabel;
-    const parts = displayLabel.split(' ').filter(Boolean);
-    if (parts.length <= 2) return displayLabel;
-    return `${parts[0]} ${parts[1]}`;
-  }, [displayLabel]);
+  // Show only first and middle name for employees in the chart (no hook needed)
+  const nameParts = displayLabel?.split(' ').filter(Boolean) ?? [];
+  const compactName =
+    nameParts.length <= 2 ? displayLabel : `${nameParts[0]} ${nameParts[1]}`;
 
   const handleMenuClick: MenuProps['onClick'] = ({ key, domEvent }) => {
     const mouseEvent =

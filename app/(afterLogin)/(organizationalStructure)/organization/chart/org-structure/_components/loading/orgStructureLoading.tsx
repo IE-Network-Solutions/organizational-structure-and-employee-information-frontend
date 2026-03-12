@@ -20,7 +20,10 @@ const OrgChartSkeleton: React.FC<OrgChartSkeletonProps> = ({ loading }) => {
         data-cy="org-org-structure-components-loading-orgstructureloading-div-1"
         id="org-org-structure-components-loading-orgstructureloading-div-1"
       >
-        <div className="origin-top scale-60 sm:scale-90 md:scale-95">
+        <div
+          className="origin-top scale-60 sm:scale-90 md:scale-95"
+          data-cy="org-structure-loading-tree-wrapper"
+        >
           <Tree
             label={
               <div

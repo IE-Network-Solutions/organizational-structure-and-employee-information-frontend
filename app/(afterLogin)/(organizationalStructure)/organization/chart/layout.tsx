@@ -131,10 +131,18 @@ export default function ChartLayout({
                 }
                 subtitle={
                   <>
-                    <span className="text-slate-500">
+                    <span
+                      className="text-slate-500"
+                      data-cy="org-structure-breadcrumb-prefix"
+                    >
                       Organization Structure /{' '}
                     </span>
-                    <span className="text-[#000000B2]">Org Structure</span>
+                    <span
+                      className="text-[#000000B2]"
+                      data-cy="org-structure-breadcrumb-current"
+                    >
+                      Org Structure
+                    </span>
                   </>
                 }
                 data-cy="org-structure-breadcrumb"

@@ -159,7 +159,10 @@ export function DeleteDepartmentModal() {
     return (
       <Modal
         title={
-          <span className="text-lg font-semibold text-[#000000B2]">
+          <span
+            className="text-lg font-semibold text-[#000000B2]"
+            data-cy="org-structure-delete-department-confirm-title"
+          >
             Delete Department
           </span>
         }
@@ -205,7 +208,10 @@ export function DeleteDepartmentModal() {
   return (
     <Modal
       title={
-        <span className="text-lg font-semibold text-[#000000B2]">
+        <span
+          className="text-lg font-semibold text-[#000000B2]"
+          data-cy="org-structure-delete-department-title"
+        >
           Delete Department
         </span>
       }
@@ -221,7 +227,7 @@ export function DeleteDepartmentModal() {
       <Form
         form={form}
         layout="vertical"
-        onValuesChange={(_, allValues) => {
+        onValuesChange={(changedValues, allValues) => {
           if (allValues.departmentTobeShiftedId !== undefined) {
             setDepartmentTobeShiftedId(
               allValues.departmentTobeShiftedId ?? null,

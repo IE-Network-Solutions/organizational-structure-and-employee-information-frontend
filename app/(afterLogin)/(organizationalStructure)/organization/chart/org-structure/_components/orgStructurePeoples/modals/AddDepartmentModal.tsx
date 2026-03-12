@@ -339,8 +339,14 @@ export function AddDepartmentModal() {
         className="[&_.ant-form-item]:mb-4 [&_.ant-form-item:last-of-type]:mb-0"
         data-cy="org-structure-department-form"
       >
-        <div className="flex justify-between gap-3 mb-4">
-          <div className="w-full">
+        <div
+          className="flex justify-between gap-3 mb-4"
+          data-cy="org-structure-department-header-row"
+        >
+          <div
+            className="w-full"
+            data-cy="org-structure-department-name-wrapper"
+          >
             <Form.Item
               name="name"
               label="Department / Team Name"
@@ -359,9 +365,19 @@ export function AddDepartmentModal() {
               />
             </Form.Item>
           </div>
-          <div className="flex-content-end mt-0.5">
-            <Form.Item name="colour" label="Colour">
-              <div className="inline-flex items-center justify-center border border-gray-200 rounded-md px-3 py-1.5 box-border transition-colors duration-200 hover:border-[#4096FF] focus-within:border-[#4096FF] focus-within:shadow-[0_0_0_2px_rgba(64,150,255,0.2)]">
+          <div
+            className="flex-content-end mt-0.5"
+            data-cy="org-structure-department-colour-wrapper"
+          >
+            <Form.Item
+              name="colour"
+              label="Colour"
+              data-cy="org-structure-department-colour-form-item"
+            >
+              <div
+                className="inline-flex items-center justify-center border border-gray-200 rounded-md px-3 py-1.5 box-border transition-colors duration-200 hover:border-[#4096FF] focus-within:border-[#4096FF] focus-within:shadow-[0_0_0_2px_rgba(64,150,255,0.2)]"
+                data-cy="org-structure-department-colour-control"
+              >
                 <ColorPalettePicker />
               </div>
             </Form.Item>
@@ -370,7 +386,11 @@ export function AddDepartmentModal() {
 
         <Form.Item
           name="branchId"
-          label={<>Select Branch</>}
+          label={
+            <span data-cy="org-structure-department-branch-label">
+              Select Branch
+            </span>
+          }
           rules={[{ required: true, message: 'Please select a branch' }]}
         >
           <Select
