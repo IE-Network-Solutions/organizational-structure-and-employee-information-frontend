@@ -1,96 +1,77 @@
 'use client';
-import { Button, Card, Typography, Input } from 'antd';
+import { Card, Input, Row, Col } from 'antd';
 import React from 'react';
-import { FaPlus } from 'react-icons/fa';
-import { SearchOutlined } from '@ant-design/icons';
 import PositionCards from './positionCards';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import CreatePosition from './createPosition';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
-
-const { Title } = Typography;
 
 const Positions: React.FC = () => {
-  const { setOpenPositionDrawer, searchTerm, setSearchTerm } =
-    usePositionState();
+  const { searchTerm, setSearchTerm } = usePositionState();
 
-  const showDrawer = () => {
-    setOpenPositionDrawer(true);
-  };
   return (
     <div
-      className="w-full h-auto p-0 "
+      className="w-full h-auto"
       id="settings-positions-container"
       data-cy="settings-positions-container"
     >
-      <Card
-        className="border-none"
-        id="settings-positions-card"
-        data-cy="settings-positions-card"
-      >
-        <div
-          className="flex items-center justify-between"
-          id="settings-positions-header"
-          data-cy="settings-positions-header"
-        >
-          <Title
-            level={5}
-            id="settings-positions-title"
-            data-cy="settings-positions-title"
+      <Row gutter={[16, 16]}>
+        <Col className="sm:hidden" xl={12} lg={12} md={12} sm={24} xs={24}>
+          <div
+            id="settings-positions-create"
+            data-cy="settings-positions-create"
           >
-            Employee Positions
-          </Title>
-          <AccessGuard
-            permissions={[Permissions.CreatePosition]}
-            id="settings-positions-new-btn-guard"
-            data-cy="settings-positions-new-btn-guard"
+            <CreatePosition data-cy="settings-positions-create-form" />
+          </div>
+        </Col>
+        <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+          <Card
+            className="border border-gray-200 rounded-lg"
+            id="settings-positions-card"
+            data-cy="settings-positions-card"
+            bodyStyle={{ padding: 0 }}
           >
-            <Button
-              type="primary"
-              className="h-10 w-10 sm:w-auto"
-              icon={<FaPlus />}
-              onClick={showDrawer}
-              id="settings-positions-new-btn"
-              data-cy="settings-positions-new-btn"
+            <div
+              className="p-4"
+              id="settings-positions-search-container"
+              data-cy="settings-positions-search-container"
             >
-              <span
-                className="hidden lg:inline"
-                id="settings-positions-new-btn-text"
-                data-cy="settings-positions-new-btn-text"
-              >
-                New Position
-              </span>
-            </Button>
-          </AccessGuard>
-        </div>
-        <div
-          className="mt-4 mb-4"
-          id="settings-positions-search-container"
-          data-cy="settings-positions-search-container"
+              <Input.Search
+                placeholder="Search Position"
+                className="w-full"
+                allowClear
+                size="large"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onSearch={(value) => setSearchTerm(value)}
+                id="settings-positions-search-input"
+                data-cy="settings-positions-search-input"
+              />
+            </div>
+            <div
+              id="settings-positions-card-list"
+              data-cy="settings-positions-card-list"
+            >
+              <PositionCards data-cy="settings-positions-card-list" />
+            </div>
+          </Card>
+        </Col>
+        <Col
+          xl={12}
+          lg={12}
+          md={12}
+          sm={24}
+          xs={24}
+          className="hidden sm:block"
+          data-cy="settings-positions-create-col"
         >
-          <Input
-            placeholder="Search employee Position"
-            className="w-full h-12 rounded-lg border-gray-200"
-            allowClear
-            suffix={<SearchOutlined className="text-gray-400" />}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            value={searchTerm}
-            id="settings-positions-search-input"
-            data-cy="settings-positions-search-input"
-          />
-        </div>
-        <div
-          id="settings-positions-card-list"
-          data-cy="settings-positions-card-list"
-        >
-          <PositionCards data-cy="settings-positions-card-list" />
-        </div>
-      </Card>
-
-      <div id="settings-positions-create" data-cy="settings-positions-create">
-        <CreatePosition data-cy="settings-positions-create-form" />
-      </div>
+          <div
+            id="settings-positions-create"
+            data-cy="settings-positions-create"
+          >
+            <CreatePosition data-cy="settings-positions-create-form" />
+          </div>
+        </Col>
+      </Row>
     </div>
   );
 };

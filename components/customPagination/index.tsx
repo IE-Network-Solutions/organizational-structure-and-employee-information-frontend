@@ -213,7 +213,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             className="flex items-center gap-2 ml-4"
             data-cy="pagination-goto"
           >
-            <span className="text-xs text-[#718096]" data-cy="pagination-goto-label">Go to</span>
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
             <Input
               type="number"
               min={1}
@@ -224,7 +229,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               className="w-12 h-8 text-center text-sm px-1 border-gray-100"
               data-cy="pagination-goto-input"
             />
-            <span className="text-xs text-[#718096]" data-cy="pagination-goto-page-label-number-of-page">Page</span>
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-page-label-number-of-page"
+            >
+              Page
+            </span>
           </div>
         )}
       </div>

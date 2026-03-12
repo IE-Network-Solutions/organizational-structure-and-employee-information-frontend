@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 
 const OkrSettings = () => {
-  redirect('/okr/settings/planning-period');
+  redirect('/okr/settings/okr-type');
   return null;
 };
 

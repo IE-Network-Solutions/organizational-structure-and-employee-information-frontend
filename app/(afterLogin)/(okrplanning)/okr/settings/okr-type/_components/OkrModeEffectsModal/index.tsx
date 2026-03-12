@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Modal, Button } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { Modal } from 'antd';
+import { CheckCircleFilled, CloseOutlined } from '@ant-design/icons';
+import CustomButton from '@/components/common/buttons/customButton';
 
 interface OkrModeEffectsModalProps {
   open: boolean;
@@ -40,83 +41,84 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
       onCancel={onClose}
       footer={null}
       centered
-      width={500}
+      width={600}
       closable={true}
-      maskClosable={true}
+      closeIcon={<CloseOutlined className="text-[#8c8c8c]" />}
       data-cy="okr-mode-effects-modal"
     >
-      <div
-        className="py-4"
-        data-cy="okr-mode-effects-modal-content"
-        id="okr-mode-effects-modal-content"
-      >
+      <div className="py-2" data-cy="okr-mode-effects-modal-content">
+        {/* Header Section */}
         <div
-          className="flex items-start gap-4 mb-6"
+          className="flex items-center gap-3 mb-6"
           data-cy="okr-mode-effects-modal-header"
-          id="okr-mode-effects-modal-header"
         >
-          <InfoCircleOutlined
-            className="text-blue-500 text-2xl mt-1"
-            data-cy="okr-mode-effects-modal-info-icon"
-            id="okr-mode-effects-modal-info-icon"
+          <CheckCircleFilled
+            className="text-[#52c41a] text-[24px]"
+            data-cy="okr-mode-effects-modal-icon"
           />
-          <div
-            className="flex-1"
-            data-cy="okr-mode-effects-modal-text-container"
-            id="okr-mode-effects-modal-text-container"
+          <h3
+            className="text-[20px] font-bold text-[#262626] m-0 leading-none"
+            data-cy="okr-mode-effects-modal-title"
           >
-            <h3
-              className="text-lg font-semibold text-gray-900 mb-4"
-              data-cy="okr-mode-effects-modal-title"
-              id="okr-mode-effects-modal-title"
-            >
-              {title}
-            </h3>
-            <ul
-              className="space-y-2"
-              data-cy="okr-mode-effects-modal-messages-list"
-              id="okr-mode-effects-modal-messages-list"
-            >
-              {messages.map((message, index) => (
-                <li
-                  key={index}
-                  className="text-sm text-gray-700 flex items-start gap-2"
-                  data-cy={`okr-mode-effects-modal-message-${index}`}
-                  id={`okr-mode-effects-modal-message-${index}`}
-                >
-                  <span
-                    className="text-gray-400 mt-1"
-                    data-cy={`okr-mode-effects-modal-bullet-${index}`}
-                    id={`okr-mode-effects-modal-bullet-${index}`}
-                  >
-                    •
-                  </span>
-                  <span
-                    data-cy={`okr-mode-effects-modal-message-text-${index}`}
-                    id={`okr-mode-effects-modal-message-text-${index}`}
-                  >
-                    {message}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {title}
+          </h3>
         </div>
+
+        {/* Content Section */}
         <div
-          className="flex justify-end mt-6"
-          data-cy="okr-mode-effects-modal-footer"
-          id="okr-mode-effects-modal-footer"
+          className="space-y-4 mb-8"
+          data-cy="okr-mode-effects-modal-content-section"
         >
-          <Button
-            type="primary"
-            onClick={onClose}
-            data-cy="okr-mode-effects-modal-ok-button"
-            id="okr-mode-effects-modal-ok-button"
+          <ul
+            className="space-y-3 m-0 p-0 list-none"
+            data-cy="okr-mode-effects-modal-messages-list"
           >
-            OK
-          </Button>
+            {messages.map((message, index) => (
+              <li
+                key={index}
+                className="text-[15px] text-[#595959] flex items-start gap-2 leading-relaxed"
+                data-cy={`okr-mode-effects-modal-message-${index}`}
+              >
+                <span
+                  className="text-[#2b54ad] font-bold"
+                  data-cy={`okr-mode-effects-modal-bullet-${index}`}
+                >
+                  •
+                </span>
+                <span data-cy={`okr-mode-effects-modal-message-text-${index}`}>
+                  {message}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Action Button */}
+        <div
+          className="flex justify-end"
+          data-cy="okr-mode-effects-modal-actions"
+        >
+          <CustomButton
+            type="primary"
+            title="Success"
+            onClick={onClose}
+            className="h-11 px-10 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] border-none"
+            id="okr-mode-effects-modal-ok-button"
+            data-cy="okr-mode-effects-modal-ok-button"
+          />
         </div>
       </div>
+
+      <style jsx global data-cy="okr-mode-effects-modal-styles">{`
+        .ant-modal-content {
+          border-radius: 12px !important;
+          padding: 32px !important;
+        }
+        .ant-modal-close {
+          top: 24px !important;
+          right: 24px !important;
+        }
+      `}</style>
     </Modal>
   );
 };

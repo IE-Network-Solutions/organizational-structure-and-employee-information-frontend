@@ -23,6 +23,11 @@ interface OKRSettingStore {
   setPage: (page: number) => void;
   userId: string | null;
   setUserId: (userId: string | null) => void;
+
+  showNotReportedList: boolean;
+  setShowNotReportedList: (showNotReportedList: boolean) => void;
+  incompleteUserIds: string[];
+  setIncompleteUserIds: (incompleteUserIds: string[]) => void;
 }
 
 export const useOKRSettingStore = create<OKRSettingStore>()(
@@ -50,5 +55,12 @@ export const useOKRSettingStore = create<OKRSettingStore>()(
     setPage: (page: number) => set({ page }),
     userId: null,
     setUserId: (userId: string | null) => set({ userId }),
+
+    showNotReportedList: false,
+    setShowNotReportedList: (showNotReportedList: boolean) =>
+      set({ showNotReportedList }),
+    incompleteUserIds: [],
+    setIncompleteUserIds: (incompleteUserIds: string[]) =>
+      set({ incompleteUserIds }),
   })),
 );
