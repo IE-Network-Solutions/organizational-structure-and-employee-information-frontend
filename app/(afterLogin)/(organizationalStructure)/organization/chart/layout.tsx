@@ -111,7 +111,7 @@ export default function ChartLayout({
       >
         {/* ORG Structure Section */}
         <div
-          className="w-full overflow-visible"
+          className="w-full overflow-visible mt-6"
           data-cy="org-structure-card-container"
           id="org-structure-card-container"
         >
@@ -123,13 +123,20 @@ export default function ChartLayout({
               <CustomBreadcrumb
                 title={
                   <span
-                    className="text-lg sm:text-2xl font-bold text-gray-900"
+                    className="text-lg sm:text-2xl font-bold text-[#000000B2]"
                     data-cy="org-structure-breadcrumb-title"
                   >
                     Organization Structure
                   </span>
                 }
-                subtitle="Organization Structure / Org Structure"
+                subtitle={
+                  <>
+                    <span className="text-slate-500">
+                      Organization Structure /{' '}
+                    </span>
+                    <span className="text-[#000000B2]">Org Structure</span>
+                  </>
+                }
                 data-cy="org-structure-breadcrumb"
               />
             }
@@ -165,13 +172,14 @@ export default function ChartLayout({
                     title="Download"
                     icon={
                       <DownloadOutlined
-                        style={{ fontSize: 16 }}
+                        style={{ fontSize: 16, color: '#000000B2' }}
                         data-cy="org-structure-download-btn-icon"
                         id="org-structure-download-btn-icon"
                       />
                     }
                     type="default"
-                    className="h-10 w-10 sm:w-[104px] rounded-lg border border-gray-300 text-gray-700 font-normal flex items-center justify-center sm:justify-start gap-2"
+                    className="h-10 w-10 sm:w-[104px] rounded-lg border border-gray-300 text-[#000000B2] hover:border-[#4096FF] hover:text-[#4096FF] font-normal flex items-center justify-center gap-2"
+                    style={{ boxShadow: 'none', color: '#000000B2' }}
                     data-cy="org-structure-download-btn"
                     id="org-structure-download-btn"
                     loading={chartDownloadLoading}

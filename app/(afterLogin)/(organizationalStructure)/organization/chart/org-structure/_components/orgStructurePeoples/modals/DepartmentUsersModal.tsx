@@ -37,7 +37,9 @@ function getDisplayName(u: DepartmentStaffUser): string {
   const first = u.firstName ?? '';
   const middle = u.middleName ?? '';
   const last = u.lastName ?? '';
-  return [first, middle, last].filter(Boolean).join(' ').trim() || '—';
+  const parts = [first, middle, last].filter(Boolean);
+  const compact = parts.slice(0, 2).join(' ').trim();
+  return compact || '—';
 }
 
 function getPosition(u: DepartmentStaffUser): string {
@@ -172,6 +174,11 @@ export function DepartmentUsersModal() {
   useEffect(() => {
     if (!usersModalOpen) return;
     const onMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      // Ignore clicks on the subordinate badge toggle button itself
+      if (target && target.closest('[data-cy^="org-structure-node-badge-"]')) {
+        return;
+      }
       if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
         handleClose();
       }

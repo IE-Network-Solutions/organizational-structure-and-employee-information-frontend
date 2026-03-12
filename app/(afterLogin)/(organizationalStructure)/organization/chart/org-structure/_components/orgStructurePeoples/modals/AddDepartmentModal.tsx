@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -372,11 +370,7 @@ export function AddDepartmentModal() {
 
         <Form.Item
           name="branchId"
-          label={
-            <>
-              Select Branch
-            </>
-          }
+          label={<>Select Branch</>}
           rules={[{ required: true, message: 'Please select a branch' }]}
         >
           <Select

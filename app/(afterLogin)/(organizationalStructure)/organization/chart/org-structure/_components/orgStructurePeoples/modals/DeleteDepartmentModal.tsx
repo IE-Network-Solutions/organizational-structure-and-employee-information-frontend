@@ -95,12 +95,7 @@ export function DeleteDepartmentModal() {
       departmentTobeDeletedId: departmentTobeDeletedId ?? undefined,
       departmentTobeShiftedId: departmentTobeShiftedId ?? undefined,
     });
-  }, [
-    deleteModalOpen,
-    departmentTobeDeletedId,
-    departmentTobeShiftedId,
-    form,
-  ]);
+  }, [deleteModalOpen, departmentTobeDeletedId, departmentTobeShiftedId, form]);
 
   const handleClose = () => {
     setDeleteModalOpen(false);
@@ -228,7 +223,9 @@ export function DeleteDepartmentModal() {
         layout="vertical"
         onValuesChange={(_, allValues) => {
           if (allValues.departmentTobeShiftedId !== undefined) {
-            setDepartmentTobeShiftedId(allValues.departmentTobeShiftedId ?? null);
+            setDepartmentTobeShiftedId(
+              allValues.departmentTobeShiftedId ?? null,
+            );
           }
         }}
       >
@@ -272,8 +269,7 @@ export function DeleteDepartmentModal() {
               rules={[
                 {
                   required: true,
-                  message:
-                    'Please select a department to shift employees to',
+                  message: 'Please select a department to shift employees to',
                 },
               ]}
               data-cy="org-structure-delete-shift-to-form-item"
