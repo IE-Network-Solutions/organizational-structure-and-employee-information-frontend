@@ -4,9 +4,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
 import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
 import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
-import {
-  useEmployeeManagementStore,
-} from '@/store/uistate/features/employees/employeeManagment';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import {
   Button,
@@ -299,6 +297,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
         data-cy="role-permission-card"
         headStyle={{ borderBottom: 'none' }}
         bordered={false}
+        bodyStyle={{ padding: '0' }}
       >
         <Form
           form={form}

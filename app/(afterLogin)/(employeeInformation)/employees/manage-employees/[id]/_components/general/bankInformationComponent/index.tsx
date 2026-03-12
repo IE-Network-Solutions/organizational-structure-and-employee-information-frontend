@@ -233,7 +233,10 @@ const BankInformationComponent = ({
             data-cy="bank-information-form-row"
           >
             <Col
+              className="w-full"
               lg={24}
+              sm={24}
+              xs={24}
               id="bank-information-form-col"
               data-cy="bank-information-form-col"
             >

@@ -230,7 +230,14 @@ const AddressComponent = ({
             id="address-form-row"
             data-cy="address-form-row"
           >
-            <Col lg={24} id="address-form-col" data-cy="address-form-col">
+            <Col
+              className="w-full"
+              lg={24}
+              sm={24}
+              xs={24}
+              id="address-form-col"
+              data-cy="address-form-col"
+            >
               {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}

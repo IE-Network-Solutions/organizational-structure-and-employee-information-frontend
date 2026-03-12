@@ -248,7 +248,10 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
             data-cy="emergency-contact-form-row"
           >
             <Col
+              className="w-full"
               lg={24}
+              sm={24}
+              xs={24}
               id="emergency-contact-form-col"
               data-cy="emergency-contact-form-col"
             >

@@ -206,7 +206,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
           data-cy="probation-header-actions"
         >
           <span
-            className="inline-flex items-center px-3 py-1 rounded border border-amber-200 bg-amber-50/80 text-gray-800 text-sm font-medium"
+            className="inline-flex items-center px-1 py-1 rounded border border-amber-200 bg-amber-50/80 text-gray-800 text-sm font-medium"
             id="probation-total-weight"
             data-cy="probation-total-weight"
           >
