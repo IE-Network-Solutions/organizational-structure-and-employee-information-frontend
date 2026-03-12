@@ -25,7 +25,11 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import dayjs from 'dayjs';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
-import { useGetSettlementTracking } from '@/store/server/features/payroll/settlementTracking/queries';
+import {
+  useGetSettlementTracking,
+  useEmployeeSettlementTracking,
+} from '@/store/server/features/payroll/settlementTracking/queries';
+import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
 
 const { Title, Text } = Typography;
 
@@ -33,50 +37,56 @@ const InfoItem = ({
   label,
   value,
   tags,
+  large,
 }: {
   label: string;
   value: string | number;
   tags?: { label: string; value: string | number }[];
+  large?: boolean;
 }) => (
   <div className="info-item" data-cy="my-payroll-info-item">
     <Text
       style={{
-        fontSize: '14px',
+        fontSize: '12px',
         color: '#8c8c8c',
         display: 'block',
-        marginBottom: '8px',
+        marginBottom: '2px',
       }}
       data-cy="my-payroll-info-item-label"
     >
       {label}
     </Text>
     <Text
-      strong
       style={{
-        fontSize: '16px',
-        color: '#262626',
+        fontSize: large ? '18px' : '15px',
+        color: '#434343',
         display: 'block',
-        marginBottom: '8px',
+        marginBottom: '2px',
       }}
       data-cy="my-payroll-info-item-value"
     >
       {value}
     </Text>
     {tags && tags.length > 0 && (
-      <Space wrap size={[2, 8]} data-cy="my-payroll-info-item-tags">
+      <Space wrap size={[8, 8]} data-cy="my-payroll-info-item-tags">
         {tags.map((tag, index) => (
           <Tag
             key={index}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              maxWidth: '100%',
+              backgroundColor: '#fafafa',
+              border: '1px solid #e8e8e8',
+              borderRadius: '4px',
+              padding: '2px 8px',
+              fontSize: '12px',
               margin: 0,
             }}
             data-cy="my-payroll-info-item-tag"
           >
             <span
               style={{
+                color: '#8c8c8c',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -87,7 +97,7 @@ const InfoItem = ({
               {tag.label}
             </span>
             <span
-              style={{ whiteSpace: 'nowrap' }}
+              style={{ color: '#595959', whiteSpace: 'nowrap' }}
               data-cy="my-payroll-info-item-tag-value"
             >
               {' '}
@@ -206,14 +216,17 @@ export default function MyPayroll() {
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Text strong style={{ fontSize: '16px', color: '#262626' }}>
+              <Text
+                strong
+                style={{ fontSize: '15px', color: '#434343', fontWeight: 600 }}
+              >
                 Payroll Information
               </Text>
             }
             bordered
             style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
-            headStyle={{ borderBottom: 'none', padding: '24px 24px 0 24px' }}
-            bodyStyle={{ padding: '24px' }}
+            headStyle={{ borderBottom: 'none', padding: '16px 20px 0 20px' }}
+            bodyStyle={{ padding: '0 20px 20px 20px' }}
           >
             <Row gutter={[16, 16]}>
               <Col span={12}>
@@ -258,14 +271,17 @@ export default function MyPayroll() {
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Text strong style={{ fontSize: '16px', color: '#262626' }}>
+              <Text
+                strong
+                style={{ fontSize: '15px', color: '#434343', fontWeight: 600 }}
+              >
                 {dayjs(activePayPeriod?.startDate).format('MMMM')} Pay Slip
               </Text>
             }
             bordered
             style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
-            headStyle={{ borderBottom: 'none', padding: '24px 24px 0 24px' }}
-            bodyStyle={{ padding: '24px' }}
+            headStyle={{ borderBottom: 'none', padding: '16px 20px 0 20px' }}
+            bodyStyle={{ padding: '0 20px 20px 20px' }}
           >
             <Row gutter={[16, 16]}>
               <Col span={12}>
@@ -289,6 +305,7 @@ export default function MyPayroll() {
               value={parseFloat(
                 activeMergedPayroll?.totalAllowance || '0',
               ).toFixed(2)}
+              large
               tags={breakdown?.allowances?.map((a: any) => ({
                 label: a.type,
                 value: parseFloat(a.amount || '0').toFixed(2),
@@ -298,6 +315,7 @@ export default function MyPayroll() {
             <InfoItem
               label="Entitled Benefit"
               value={entitledBenefitTotal.toFixed(2)}
+              large
               tags={[
                 ...(breakdown?.merits?.map((m: any) => ({
                   label: m.type,
@@ -329,6 +347,7 @@ export default function MyPayroll() {
             <InfoItem
               label="Entitled Deduction"
               value={entitledDeductionTotal.toFixed(2)}
+              large
               tags={[
                 ...(breakdown?.pension?.map((p: any) => ({
                   label: p.type,
@@ -426,7 +445,7 @@ export default function MyPayroll() {
 
       <Tabs
         defaultActiveKey="1"
-        style={{ marginBottom: '24px' }}
+        style={{ marginBottom: '16px' }}
         data-cy="my-payroll-tabs"
       >
         <Tabs.TabPane
@@ -435,7 +454,7 @@ export default function MyPayroll() {
           data-cy="my-payroll-tab-information"
         >
           <div
-            style={{ paddingTop: '24px' }}
+            style={{ paddingTop: '8px' }}
             data-cy="my-payroll-tab-information-content"
           >
             {renderInformation()}
@@ -508,8 +527,9 @@ export default function MyPayroll() {
                               <Text
                                 strong
                                 style={{
-                                  fontSize: '16px',
-                                  color: '#262626',
+                                  fontSize: '15px',
+                                  color: '#434343',
+                                  fontWeight: 600,
                                 }}
                                 data-cy="my-payroll-history-card-title"
                               >
@@ -525,9 +545,9 @@ export default function MyPayroll() {
                             }}
                             headStyle={{
                               borderBottom: 'none',
-                              padding: '24px 24px 0 24px',
+                              padding: '16px 20px 0 20px',
                             }}
-                            bodyStyle={{ padding: '24px' }}
+                            bodyStyle={{ padding: '16px 20px' }}
                             data-cy="my-payroll-history-card"
                           >
                             <Row gutter={[16, 16]}>
@@ -558,7 +578,7 @@ export default function MyPayroll() {
                             </Row>
                             <Divider
                               style={{
-                                margin: '8px 0',
+                                margin: '12px 0',
                                 borderColor: '#e0e0e0',
                               }}
                             />
@@ -567,6 +587,7 @@ export default function MyPayroll() {
                               value={parseFloat(
                                 historyItem.totalAllowance || '0',
                               ).toFixed(2)}
+                              large
                               tags={breakdown?.allowances?.map((a: any) => ({
                                 label: a.type,
                                 value: parseFloat(a.amount || '0').toFixed(2),
@@ -574,13 +595,14 @@ export default function MyPayroll() {
                             />
                             <Divider
                               style={{
-                                margin: '8px 0',
+                                margin: '12px 0',
                                 borderColor: '#e0e0e0',
                               }}
                             />
                             <InfoItem
                               label="Entitled Benefit"
                               value={entitledBenefitTotal.toFixed(2)}
+                              large
                               tags={[
                                 ...(breakdown?.merits?.map((m: any) => ({
                                   label: m.type,
@@ -610,13 +632,14 @@ export default function MyPayroll() {
                             />
                             <Divider
                               style={{
-                                margin: '8px 0',
+                                margin: '12px 0',
                                 borderColor: '#e0e0e0',
                               }}
                             />
                             <InfoItem
                               label="Entitled Deduction"
                               value={entitledDeductionTotal.toFixed(2)}
+                              large
                               tags={[
                                 ...(breakdown?.pension?.map((p: any) => ({
                                   label: p.type,
@@ -666,18 +689,27 @@ export default function MyPayroll() {
                   data-cy="my-payroll-history-pagination-wrapper"
                 >
                   <style data-cy="my-payroll-history-pagination-styles">{`
-                    .history-pagination {
+                    .custom-pagination {
                       display: flex !important;
                       width: 100% !important;
                       justify-content: flex-start !important;
                       align-items: center !important;
                     }
-                    .history-pagination .ant-pagination-options {
+                    .custom-pagination .ant-pagination-options {
                       margin-left: auto !important;
+                      display: flex;
+                      align-items: center;
+                    }
+                    .custom-pagination .ant-pagination-options-quick-jumper {
+                      color: #8c8c8c;
+                      font-size: 13px;
+                    }
+                    .custom-pagination .ant-pagination-options-quick-jumper input {
+                      border-radius: 4px;
                     }
                   `}</style>
                   <Pagination
-                    className="history-pagination"
+                    className="custom-pagination"
                     current={historyCurrentPage}
                     total={payrollHistory.length}
                     pageSize={historyPageSize}
@@ -721,22 +753,41 @@ export default function MyPayroll() {
 }
 
 const SettlementView = ({ userId }: { userId: string }) => {
+  const { data: allowanceDatas } = useGetAllowance();
   const { data: settlementTrackingData, isLoading } = useGetSettlementTracking({
-    employeeId: userId,
+    employeeId: userId!,
   });
 
-  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const groupedSettlements = useMemo(() => {
+    if (!settlementTrackingData || !Array.isArray(settlementTrackingData))
+      return {};
+    return settlementTrackingData.reduce((acc: any, item: any) => {
+      const id = item.compensationItemId;
+      if (!acc[id]) acc[id] = [];
+      acc[id].push(item);
+      return acc;
+    }, {});
+  }, [settlementTrackingData]);
 
-  // Set first item as default selected
+  const [selectedCompensationId, setSelectedCompensationId] = React.useState<
+    string | null
+  >(null);
+
   useEffect(() => {
-    if (
-      settlementTrackingData &&
-      settlementTrackingData.length > 0 &&
-      !selectedId
-    ) {
-      setSelectedId(settlementTrackingData[0].id);
+    const keys = Object.keys(groupedSettlements);
+    if (keys.length > 0 && !selectedCompensationId) {
+      setSelectedCompensationId(keys[0]);
     }
-  }, [settlementTrackingData, selectedId]);
+  }, [groupedSettlements, selectedCompensationId]);
+
+  const currentEntitlementId = useMemo(() => {
+    if (!selectedCompensationId) return null;
+    const group = groupedSettlements[selectedCompensationId];
+    return group?.[0]?.compensationItemEntitlementId || group?.[0]?.id;
+  }, [groupedSettlements, selectedCompensationId]);
+
+  const { data: entitlementDetail, isLoading: isDetailLoading } =
+    useEmployeeSettlementTracking(currentEntitlementId || '', userId!);
 
   if (isLoading)
     return <Skeleton active data-cy="my-payroll-settlement-loading-skeleton" />;
@@ -752,65 +803,49 @@ const SettlementView = ({ userId }: { userId: string }) => {
     );
   }
 
-  const selectedItem =
-    settlementTrackingData.find((item: any) => item.id === selectedId) ||
-    settlementTrackingData[0];
+  const settlementTracking =
+    (entitlementDetail as any)?.settlementTracking || [];
 
-  const totalAmount = parseFloat(
-    selectedItem.totalAmount || selectedItem.amount || '0',
+  const totalAmount = settlementTracking.reduce(
+    (acc: any, item: any) => acc + (Number(item.amount) || 0),
+    0,
   );
-  const totalPaid = parseFloat(selectedItem.totalPaid || '0');
-  const remaining = Math.max(0, totalAmount - totalPaid);
+  const totalPaid = settlementTracking
+    .filter((item: any) => item.isPaid === true)
+    .reduce((acc: any, item: any) => acc + (Number(item.amount) || 0), 0);
+  const remaining = totalAmount - totalPaid;
+
   const progressPercent =
     totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0;
 
-  // Placeholder history data since top-level list might not have it
-  const payments = selectedItem.history || [
-    {
-      date: 'Feb 09, 2026',
-      amount: 4679.72,
-      period: 'Jan 07, 2026 - Feb 06, 2026',
-      reason: '',
-    },
-    {
-      date: 'Feb 09, 2026',
-      amount: 545454.0,
-      period: 'Feb 06, 2026 - Jun 06, 2026',
-      reason: '',
-    },
-    {
-      date: 'Feb 09, 2026',
-      amount: 5652222.0,
-      period: 'Jun 07, 2026 - Aug 06, 2027',
-      reason: '',
-    },
-  ];
+  const payments = settlementTracking.filter(
+    (item: any) => item.isPaid === true,
+  );
 
   return (
-    <Row gutter={[48, 48]} data-cy="my-payroll-settlement-view">
+    <Row gutter={[24, 24]} data-cy="my-payroll-settlement-view">
       {/* Sidebar List */}
       <Col xs={24} lg={10}>
         <Space
           direction="vertical"
           style={{ width: '100%' }}
-          size={16}
+          size={12}
           data-cy="my-payroll-settlement-list"
         >
-          {settlementTrackingData.map((item: any) => (
+          {Object.entries(groupedSettlements).map(([compId, items]: any) => (
             <Card
-              key={item.id}
-              onClick={() => setSelectedId(item.id)}
+              key={compId}
+              onClick={() => setSelectedCompensationId(compId)}
               style={{
-                borderRadius: '8px',
+                borderRadius: '12px',
                 border:
-                  selectedId === item.id
-                    ? '1px solid #635aff'
+                  selectedCompensationId === compId
+                    ? '1.5px solid #635BFF'
                     : '1px solid #e0e0e0',
                 cursor: 'pointer',
-                boxShadow:
-                  selectedId === item.id ? '0 0 0 1px #635aff' : 'none',
+                transition: 'all 0.3s ease',
               }}
-              bodyStyle={{ padding: '16px 24px' }}
+              bodyStyle={{ padding: '16px' }}
               data-cy="my-payroll-settlement-item-card"
             >
               <div
@@ -823,20 +858,25 @@ const SettlementView = ({ userId }: { userId: string }) => {
               >
                 <Text
                   strong
-                  style={{ fontSize: '15px', color: '#262626' }}
+                  style={{
+                    fontSize: '14px',
+                    color: '#434343',
+                    fontWeight: 600,
+                  }}
                   data-cy="my-payroll-settlement-item-title"
                 >
-                  {item.description || item.payPeriod || 'Settlement Item'}
+                  {allowanceDatas?.find((a: any) => a.id === compId)?.name ||
+                    'Settlement Item'}
                 </Text>
                 <Tag
                   color={
-                    item.status === 'PAID' || item.isPaid
+                    items.every((item: any) => item.isPaid === true)
                       ? 'success'
                       : 'processing'
                   }
                   data-cy="my-payroll-settlement-item-status-tag"
                 >
-                  {item.status === 'PAID' || item.isPaid
+                  {items.every((item: any) => item.isPaid === true)
                     ? 'Paid'
                     : 'In Progress'}
                 </Tag>
@@ -850,176 +890,211 @@ const SettlementView = ({ userId }: { userId: string }) => {
       <Col xs={24} lg={14}>
         <div
           style={{
-            border: '1px solid #d9e2ff',
+            border: '1.5px solid #635BFF',
             borderRadius: '12px',
             padding: '24px',
             backgroundColor: '#fff',
-            height: '100%',
           }}
-          data-cy="my-payroll-settlement-details-container"
+          data-cy="my-payroll-settlement-details"
         >
-          {/* Summary Cards */}
-          <Row gutter={[16, 16]} data-cy="my-payroll-settlement-summary-row">
-            {[
-              { label: 'Total Amount', value: totalAmount },
-              { label: 'Total Paid', value: totalPaid },
-              { label: 'Remaining', value: remaining },
-            ].map((card, i) => (
-              <Col xs={24} sm={8} key={i}>
+          {isDetailLoading ? (
+            <Skeleton active paragraph={{ rows: 6 }} />
+          ) : (
+            <>
+              <Row
+                gutter={[16, 16]}
+                data-cy="my-payroll-settlement-summary-row"
+              >
+                {[
+                  { label: 'Total Amount', value: totalAmount },
+                  { label: 'Total Paid', value: totalPaid },
+                  { label: 'Remaining', value: remaining },
+                ].map((card, i) => (
+                  <Col xs={24} sm={8} key={i}>
+                    <div
+                      style={{
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '8px',
+                        padding: '16px',
+                      }}
+                      data-cy="my-payroll-settlement-summary-card"
+                    >
+                      <Text
+                        style={{
+                          fontSize: '12px',
+                          color: '#8c8c8c',
+                          display: 'block',
+                          marginBottom: '4px',
+                        }}
+                        data-cy="my-payroll-settlement-summary-label"
+                      >
+                        {card.label}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: '18px',
+                          color: '#434343',
+                          fontWeight: 600,
+                        }}
+                        data-cy="my-payroll-settlement-summary-value"
+                      >
+                        {card.value.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Text>
+                    </div>
+                  </Col>
+                ))}
+              </Row>
+
+              <div
+                style={{
+                  marginTop: '16px',
+                  padding: '12px',
+                  backgroundColor: '#fafafa',
+                  borderRadius: '8px',
+                }}
+                data-cy="my-payroll-settlement-progress-wrapper"
+              >
                 <div
                   style={{
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '8px',
                   }}
-                  data-cy="my-payroll-settlement-summary-card"
+                  data-cy="my-payroll-settlement-progress-header"
                 >
                   <Text
-                    style={{
-                      fontSize: '13px',
-                      color: '#8c8c8c',
-                      display: 'block',
-                      marginBottom: '8px',
-                    }}
-                    data-cy="my-payroll-settlement-summary-label"
+                    style={{ fontSize: '12px', color: '#bfbfbf' }}
+                    data-cy="my-payroll-settlement-progress-label"
                   >
-                    {card.label}
+                    Repayment Progress
+                  </Text>
+                  <Text
+                    style={{
+                      color: '#52c41a',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                    }}
+                    data-cy="my-payroll-settlement-progress-percent"
+                  >
+                    {progressPercent}%
+                  </Text>
+                </div>
+                <Progress
+                  percent={progressPercent}
+                  strokeColor="#52c41a"
+                  showInfo={false}
+                  strokeWidth={8}
+                  trailColor="#f0f0f0"
+                  data-cy="my-payroll-settlement-progress-bar"
+                />
+              </div>
+
+              <div style={{ marginTop: '24px' }}>
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  data-cy="my-payroll-settlement-payments-header"
+                >
+                  <Text
+                    strong
+                    style={{ flex: 1, fontSize: '12px', color: '#434343' }}
+                    data-cy="my-payroll-settlement-header-date"
+                  >
+                    Date
                   </Text>
                   <Text
                     strong
-                    style={{ fontSize: '22px', color: '#262626' }}
-                    data-cy="my-payroll-settlement-summary-value"
+                    style={{ flex: 1, fontSize: '12px', color: '#434343' }}
+                    data-cy="my-payroll-settlement-header-amount"
                   >
-                    {card.value.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    Pay Amount
+                  </Text>
+                  <Text
+                    strong
+                    style={{ flex: 2, fontSize: '12px', color: '#434343' }}
+                    data-cy="my-payroll-settlement-header-period"
+                  >
+                    Pay Period
                   </Text>
                 </div>
-              </Col>
-            ))}
-          </Row>
 
-          {/* Repayment Progress */}
-          <div
-            style={{
-              marginTop: '24px',
-              padding: '16px',
-              border: '1px solid #f0f0f0',
-              borderRadius: '8px',
-            }}
-            data-cy="my-payroll-settlement-progress-wrapper"
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: '12px',
-              }}
-              data-cy="my-payroll-settlement-progress-header"
-            >
-              <Text
-                style={{ fontSize: '12px', color: '#8c8c8c' }}
-                data-cy="my-payroll-settlement-progress-label"
-              >
-                Repayment Progress
-              </Text>
-              <Text
-                strong
-                style={{ color: '#52c41a', fontSize: '12px' }}
-                data-cy="my-payroll-settlement-progress-percent"
-              >
-                {progressPercent}%
-              </Text>
-            </div>
-            <Progress
-              percent={progressPercent}
-              strokeColor="#52c41a"
-              showInfo={false}
-              strokeWidth={10}
-              trailColor="#f0f0f0"
-              style={{ marginBottom: 0 }}
-              data-cy="my-payroll-settlement-progress-bar"
-            />
-          </div>
-
-          {/* History List */}
-          <div
-            style={{ marginTop: '24px' }}
-            data-cy="my-payroll-settlement-history-section"
-          >
-            <Row
-              style={{
-                backgroundColor: '#fafafa',
-                padding: '12px 16px',
-                borderBottom: '1px solid #f0f0f0',
-              }}
-              data-cy="my-payroll-settlement-history-header"
-            >
-              <Col span={5}>
-                <Text strong style={{ fontSize: '13px' }}>
-                  Date
-                </Text>
-              </Col>
-              <Col span={5}>
-                <Text strong style={{ fontSize: '13px' }}>
-                  Pay Amount
-                </Text>
-              </Col>
-              <Col span={9}>
-                <Text strong style={{ fontSize: '13px' }}>
-                  Pay Period
-                </Text>
-              </Col>
-              <Col span={5}>
-                <Text strong style={{ fontSize: '13px' }}>
-                  Reason
-                </Text>
-              </Col>
-            </Row>
-
-            {payments.map((payment: any, idx: number) => (
-              <Row
-                key={idx}
-                style={{
-                  padding: '16px 8px',
-                  backgroundColor: idx % 2 === 1 ? '#fafafa' : '#fff',
-                  alignItems: 'middle',
-                }}
-                data-cy="my-payroll-settlement-history-row"
-              >
-                <Col span={6}>
-                  <Text
-                    style={{ fontSize: '12px', color: '#595959' }}
-                    data-cy="my-payroll-settlement-history-date"
-                  >
-                    {payment.date ||
-                      dayjs(payment.createdAt).format('MMM DD, YYYY')}
-                  </Text>
-                </Col>
-                <Col span={6}>
-                  <Text
-                    style={{ fontSize: '12px', color: '#595959' }}
-                    data-cy="my-payroll-settlement-history-amount"
-                  >
-                    {parseFloat(payment.amount || '0').toLocaleString(
-                      undefined,
-                      {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      },
-                    )}
-                  </Text>
-                </Col>
-                <Col span={12}>
-                  <Tag data-cy="my-payroll-settlement-history-period-tag">
-                    {payment.period || payment.payPeriod || '--'}
-                  </Tag>
-                </Col>
-              </Row>
-            ))}
-          </div>
+                <div style={{ padding: '0 8px' }}>
+                  {payments.length > 0 ? (
+                    payments.map((payment: any, idx: number) => (
+                      <div
+                        key={idx}
+                        style={{
+                          padding: '16px 8px',
+                          backgroundColor: idx % 2 === 1 ? '#fafafa' : '#fff',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          marginBottom: '4px',
+                        }}
+                        data-cy="my-payroll-settlement-payment-row"
+                      >
+                        <Text
+                          style={{ flex: 1, fontSize: '12px' }}
+                          data-cy="my-payroll-settlement-payment-date"
+                        >
+                          {payment.date ||
+                            dayjs(payment.createdAt).format('MMM DD, YYYY')}
+                        </Text>
+                        <Text
+                          style={{ flex: 1, fontSize: '12px' }}
+                          data-cy="my-payroll-settlement-payment-amount"
+                        >
+                          {parseFloat(payment.amount || '0').toLocaleString(
+                            undefined,
+                            {
+                              minimumFractionDigits: 2,
+                            },
+                          )}
+                        </Text>
+                        <div style={{ flex: 2 }}>
+                          <Tag
+                            style={{
+                              backgroundColor: '#fafafa',
+                              border: '1px solid #e8e8e8',
+                              borderRadius: '4px',
+                              padding: '2px 8px',
+                              fontSize: '11px',
+                            }}
+                            data-cy="my-payroll-settlement-payment-period-tag"
+                          >
+                            {(() => {
+                              const p = payment.period || payment.payPeriod;
+                              if (!p) return '--';
+                              if (typeof p === 'string') return p;
+                              if (typeof p === 'object' && p.startDate) {
+                                return `${dayjs(p.startDate).format('MMM DD, YYYY')} - ${dayjs(p.endDate).format('MMM DD, YYYY')}`;
+                              }
+                              return '--';
+                            })()}
+                          </Tag>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      style={{ textAlign: 'center', padding: '20px' }}
+                      data-cy="my-payroll-settlement-payments-empty"
+                    >
+                      <Text type="secondary" style={{ fontSize: '12px' }}>
+                        No payment history recorded.
+                      </Text>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </Col>
     </Row>

@@ -5,7 +5,7 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Col, Modal, Row, Select } from 'antd';
-import { LuSettings2 } from 'react-icons/lu';
+import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
 
 interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
@@ -64,8 +64,14 @@ const Filters: React.FC<FiltersProps> = () => {
               data-cy="payroll-mobile-employee-search-interact-select"
               showSearch
               allowClear
-              className="h-10 w-[100%]"
-              placeholder="Search by name"
+              className="w-full search-select-mobile"
+              style={{ height: '40px' }}
+              placeholder="Search Employee"
+              suffixIcon={
+                <SearchOutlined
+                  style={{ color: '#bfbfbf', fontSize: '18px' }}
+                />
+              }
               onChange={(value) => handleEmployeeSelect(value)}
               filterOption={(input, option) => {
                 const label = option?.label;
@@ -80,15 +86,39 @@ const Filters: React.FC<FiltersProps> = () => {
           <Button
             id="payroll-mobile-filter-open-click-button"
             data-cy="payroll-mobile-filter-open-click-button"
-            className="p-5 h-10  text-gray-500 border border-gray-300"
+            className="flex items-center justify-center border border-gray-300 rounded-lg overflow-hidden"
+            style={{
+              height: '40px',
+              width: '40px',
+              minWidth: '40px',
+              padding: 0,
+            }}
             onClick={() => setIsModalOpen(true)}
             icon={
-              <LuSettings2
+              <FilterOutlined
+                style={{ fontSize: '18px', color: '#595959' }}
                 id="payroll-mobile-filter-open-click-icon"
                 data-cy="payroll-mobile-filter-open-click-icon"
               />
             }
           />
+          <style jsx global data-cy="payroll-mobile-filter-select-styles">{`
+            .search-select-mobile .ant-select-selector {
+              height: 40px !important;
+              padding: 0 12px !important;
+              border-radius: 8px !important;
+              display: flex !important;
+              align-items: center !important;
+            }
+            .search-select-mobile .ant-select-selection-search {
+              height: 40px !important;
+              display: flex !important;
+              align-items: center !important;
+            }
+            .search-select-mobile .ant-select-selection-placeholder {
+              line-height: 38px !important;
+            }
+          `}</style>
         </div>
 
         <Modal
@@ -170,8 +200,8 @@ const Filters: React.FC<FiltersProps> = () => {
         <Col
           id="payroll-desktop-filter-employee-view-column"
           data-cy="payroll-desktop-filter-employee-view-column"
-          lg={16}
-          md={14}
+          lg={12}
+          md={12}
           sm={24}
           xs={24}
         >
@@ -180,9 +210,14 @@ const Filters: React.FC<FiltersProps> = () => {
             data-cy="payroll-desktop-employee-search-interact-select"
             showSearch
             allowClear
-            className="min-h-12 w-[100%]"
-            placeholder="Search by name"
+            className="w-full"
+            style={{ borderRadius: '4px' }}
+            placeholder="Search Employee"
+            suffixIcon={
+              <SearchOutlined style={{ color: '#bfbfbf', fontSize: '16px' }} />
+            }
             onChange={(value) => handleEmployeeSelect(value)}
+            size="large"
             filterOption={(input, option) => {
               const label = option?.label;
               return (
@@ -196,17 +231,20 @@ const Filters: React.FC<FiltersProps> = () => {
         <Col
           id="payroll-desktop-filter-department-view-column"
           data-cy="payroll-desktop-filter-department-view-column"
-          lg={8}
+          lg={6}
+          md={8}
           sm={12}
           xs={24}
         >
           <Select
             id={`selectDepartment${searchParams.allJobs}`}
             data-cy="payroll-desktop-department-filter-interact-select"
-            placeholder="All Departments"
+            placeholder="Department"
             onChange={handleDepartmentChange}
             allowClear
-            className="w-full h-14"
+            className="w-full"
+            size="large"
+            style={{ borderRadius: '4px' }}
           >
             {EmployeeDepartment?.map((item: any) => (
               <Option

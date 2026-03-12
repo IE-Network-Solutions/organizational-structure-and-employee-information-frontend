@@ -1,252 +1,280 @@
 import React, { useEffect } from 'react';
-import { Button, Form, Input, Select } from 'antd';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { Button, Form, Modal, Select } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import { useUpdateAllowance } from '@/store/server/features/payroll/employeeInformation/mutation';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
-const Drawer: React.FC = () => {
+const PayrollModal: React.FC = () => {
   const [form] = Form.useForm();
+  const entitledAllowances = Form.useWatch('entitled_allowance', form);
 
   const {
     isDrawerVisible,
     closeDrawer,
     selectedPayrollData,
     setSelectedPayrollData,
-    selectedAllowance,
     isEditMode,
   } = useDrawerStore();
+
   const { mutate: update } = useUpdateAllowance();
   const { data: AllowanceData } = useGetAllowance();
 
   const onFinish = async () => {
     const updatedFormValues = form.getFieldsValue();
     const formattedData = updatedFormValues?.entitled_allowance;
-    const employeeId = selectedAllowance?.key;
+    const employeeId = selectedPayrollData?.key || selectedPayrollData?.id;
 
     update(
       { data: formattedData, employeeId: employeeId },
       {
         onSuccess: () => {
-          closeDrawer();
+          handleClose();
         },
       },
     );
   };
-  const firstName = selectedPayrollData?.name.split(' ')[0];
+
+  const handleClose = () => {
+    setSelectedPayrollData(null);
+    closeDrawer();
+    form.resetFields();
+  };
 
   useEffect(() => {
     if (selectedPayrollData && isEditMode) {
       form.setFieldsValue({
-        name: selectedPayrollData?.name,
-        job_information: selectedPayrollData?.job_information,
-        basic_salary: selectedPayrollData?.salary,
         entitled_allowance: selectedPayrollData?.allowances
-          ?.filter((item: any) => item.entitlementId)
-          ?.map((item: any) => item.name),
-        bank_information: selectedPayrollData?.bank_information,
-        branch: selectedPayrollData?.branch,
-        account_number: selectedPayrollData?.account,
-        criteria: selectedPayrollData?.criteria,
+          ?.filter((item: any) => item.entitlementId || item.id)
+          ?.map((item: any) => item.id || item.entitlementId),
       });
     } else {
       form.resetFields();
     }
-  }, [selectedPayrollData]);
+  }, [selectedPayrollData, isEditMode, form]);
 
-  const { isMobile } = useIsMobile();
+  const firstName = selectedPayrollData?.name?.split(' ')[0] || 'Employee';
 
   return (
-    <CustomDrawerLayout
-      data-cy="payroll-employee-drawer-view-component"
-      open={isDrawerVisible && selectedPayrollData?.key}
-      onClose={() => {
-        setSelectedPayrollData(null);
-        closeDrawer;
-      }}
-      modalHeader={
-        <span
-          className="text-lg font-semibold flex justify-center px-4"
-          id="payroll-employee-drawer-title-view-text"
-          data-cy="payroll-employee-drawer-title-view-text"
-        >
+    <Modal
+      open={isDrawerVisible && !!selectedPayrollData}
+      onCancel={handleClose}
+      footer={null}
+      closeIcon={
+        <CloseOutlined style={{ fontSize: '18px', color: '#8c8c8c' }} />
+      }
+      width={600}
+      centered
+      bodyStyle={{ padding: '16px 24px' }}
+      data-cy="payroll-allowance-modal"
+      title={
+        <span style={{ fontSize: '20px', fontWeight: 600, color: '#262626' }}>
           {`${firstName}'s Payroll Information`}
         </span>
       }
-      width="700px"
-      footer={
-        <div
-          className="flex justify-center items-center w-full h-full"
-          id="payroll-employee-drawer-footer-view-container"
-          data-cy="payroll-employee-drawer-footer-view-container"
-        >
-          <div
-            className="flex justify-between items-center gap-4 p-4"
-            id="payroll-employee-drawer-footer-actions-view-container"
-            data-cy="payroll-employee-drawer-footer-actions-view-container"
-          >
-            <Button
-              id="payroll-employee-drawer-cancel-click-button"
-              data-cy="payroll-employee-drawer-cancel-click-button"
-              type="default"
-              className="h-10 px-10"
-              onClick={() => {
-                closeDrawer();
-              }}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              id="payroll-employee-drawer-update-click-button"
-              data-cy="payroll-employee-drawer-update-click-button"
-              type="primary"
-              className="h-10 px-10"
-              onClick={() => {
-                form.submit();
-              }}
-            >
-              Update
-            </Button>
-          </div>
-        </div>
-      }
     >
       <Form
-        id="payroll-employee-drawer-form-submit-form"
-        data-cy="payroll-employee-drawer-form-submit-form"
         form={form}
-        className="p-2"
         layout="vertical"
         onFinish={onFinish}
+        initialValues={{ entitled_allowance: [] }}
+        style={{ marginTop: '12px' }}
+        data-cy="payroll-allowance-form"
       >
-        <Form.Item
-          id="payroll-employee-drawer-name-view-formitem"
-          data-cy="payroll-employee-drawer-name-view-formitem"
-          label="Full Name"
-          name="name"
+        <div
+          style={{
+            border: '1px solid #f0f0f0',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '16px',
+            backgroundColor: '#fff',
+          }}
+          data-cy="payroll-allowance-section"
         >
-          <Input
-            id="payroll-employee-drawer-name-view-input"
-            data-cy="payroll-employee-drawer-name-view-input"
-            placeholder="Full Name"
-            disabled
-            className="h-10"
-          />
-        </Form.Item>
-
-        <Form.Item
-          id="payroll-employee-drawer-job-view-formitem"
-          data-cy="payroll-employee-drawer-job-view-formitem"
-          label="Job Information"
-          name="job_information"
-        >
-          <Input
-            id="payroll-employee-drawer-job-view-input"
-            data-cy="payroll-employee-drawer-job-view-input"
-            disabled
-            placeholder="Job Information"
-            className="h-10"
-          />
-        </Form.Item>
-
-        <Form.Item
-          id="payroll-employee-drawer-salary-view-formitem"
-          data-cy="payroll-employee-drawer-salary-view-formitem"
-          label="Basic Salary"
-          name="basic_salary"
-        >
-          <Input
-            id="payroll-employee-drawer-salary-view-input"
-            data-cy="payroll-employee-drawer-salary-view-input"
-            disabled
-            placeholder="Your basic Salary"
-            className="w-full h-10"
-          ></Input>
-        </Form.Item>
-        <Form.Item
-          id="payroll-employee-drawer-allowance-view-formitem"
-          data-cy="payroll-employee-drawer-allowance-view-formitem"
-          label="Entitled Allowance"
-          name="entitled_allowance"
-          rules={[{ required: true, message: 'Please select Allowance' }]}
-        >
-          <Select
-            id="payroll-employee-drawer-allowance-select-interact-select"
-            data-cy="payroll-employee-drawer-allowance-select-interact-select"
-            mode="multiple"
-            placeholder="Select allowanace type"
-            className="w-full"
-            style={{
-              minHeight: isMobile ? 'auto' : 48,
-              overflow: 'auto',
-            }}
-          >
-            {AllowanceData?.filter(
-              (items: any) =>
-                items.type == 'ALLOWANCE' && items?.applicableTo !== 'GLOBAL',
-            )?.map((item: any) => (
-              <Option
-                id={`payroll-employee-drawer-allowance-option-select-${item.id}`}
-                data-cy={`payroll-employee-drawer-allowance-option-select-${item.id}`}
-                key={item.id}
-                value={item.id}
+          <Form.Item
+            label={
+              <span
+                style={{ fontSize: '14px', fontWeight: 500, color: '#262626' }}
+                data-cy="payroll-allowance-label"
               >
-                {item.name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+                Entitled Allowance{' '}
+                <span
+                  style={{ color: '#ff4d4f' }}
+                  data-cy="payroll-allowance-required-indicator"
+                >
+                  *
+                </span>
+              </span>
+            }
+            name="entitled_allowance"
+            rules={[{ required: true, message: 'Please select Allowance' }]}
+            style={{ marginBottom: entitledAllowances?.length > 0 ? 12 : 0 }}
+            data-cy="payroll-allowance-form-item"
+          >
+            <div
+              className="custom-centered-select-wrapper"
+              style={{ position: 'relative' }}
+            >
+              <Select
+                className="always-show-placeholder"
+                mode="multiple"
+                placeholder=""
+                style={{ width: '100%', height: '44px' }}
+                size="large"
+                dropdownStyle={{ borderRadius: '8px' }}
+                maxTagCount={0}
+                maxTagPlaceholder={() => null}
+                value={entitledAllowances}
+                dropdownClassName="custom-allowance-dropdown"
+                onChange={(values) => {
+                  form.setFieldsValue({ entitled_allowance: values });
+                }}
+                data-cy="payroll-allowance-select"
+              >
+                {AllowanceData?.filter(
+                  (items: any) =>
+                    items.type === 'ALLOWANCE' &&
+                    items?.applicableTo !== 'GLOBAL',
+                )?.map((item: any) => (
+                  <Option key={item.id} value={item.id}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
+              <span
+                style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#8c8c8c',
+                  fontSize: '14px',
+                  pointerEvents: 'none',
+                  zIndex: 10,
+                }}
+              >
+                Select Allowance
+              </span>
+              <style jsx global data-cy="payroll-allowance-select-styles">{`
+                .custom-centered-select-wrapper .ant-select-selector {
+                  display: flex !important;
+                  align-items: center !important;
+                  height: 44px !important;
+                }
+                .custom-centered-select-wrapper
+                  .always-show-placeholder
+                  .ant-select-selection-placeholder {
+                  display: none !important;
+                }
+                .custom-centered-select-wrapper
+                  .always-show-placeholder
+                  .ant-select-selection-item {
+                  display: none !important;
+                }
+                .custom-centered-select-wrapper
+                  .always-show-placeholder
+                  .ant-select-selection-search {
+                  display: none !important;
+                }
+                .custom-centered-select-wrapper
+                  .always-show-placeholder
+                  .ant-select-selection-overflow {
+                  display: none !important;
+                }
+                .custom-allowance-dropdown .ant-select-item-option-selected {
+                  background-color: #e6f7ff !important;
+                  font-weight: 500;
+                }
+                .custom-allowance-dropdown
+                  .ant-select-item-option-selected
+                  .ant-select-item-option-state {
+                  color: #1890ff;
+                }
+              `}</style>
+            </div>
+          </Form.Item>
 
-        <Form.Item
-          id="payroll-employee-drawer-bank-view-formitem"
-          data-cy="payroll-employee-drawer-bank-view-formitem"
-          label="Bank Information"
-          name="bank_information"
-        >
-          <Input
-            id="payroll-employee-drawer-bank-view-input"
-            data-cy="payroll-employee-drawer-bank-view-input"
-            disabled
-            placeholder="Enat Bank"
-            className="w-full h-10"
-          ></Input>
-        </Form.Item>
-        <Form.Item
-          id="payroll-employee-drawer-branch-view-formitem"
-          data-cy="payroll-employee-drawer-branch-view-formitem"
-          label="Branch"
-          name="branch"
-        >
-          <Input
-            id="payroll-employee-drawer-branch-view-input"
-            data-cy="payroll-employee-drawer-branch-view-input"
-            disabled
-            placeholder="22 branch"
-            className="w-full h-10"
-          ></Input>
-        </Form.Item>
+          {/* Manual Tag Display below the search field */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {entitledAllowances?.map((id: string) => {
+              const allowance = AllowanceData?.find((a: any) => a.id === id);
+              if (!allowance) return null;
+              return (
+                <div
+                  key={id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: '#f5f5f5',
+                    border: '1px solid #d9d9d9',
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                  }}
+                  data-cy="payroll-allowance-selected-tag"
+                >
+                  <span style={{ fontSize: '14px', color: '#595959' }}>
+                    {allowance.name}
+                  </span>
+                  <CloseOutlined
+                    style={{
+                      fontSize: '10px',
+                      color: '#8c8c8c',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => {
+                      const newValues = entitledAllowances.filter(
+                        (val: string) => val !== id,
+                      );
+                      form.setFieldsValue({ entitled_allowance: newValues });
+                    }}
+                    data-cy="payroll-allowance-tag-remove-icon"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-        <Form.Item
-          id="payroll-employee-drawer-account-view-formitem"
-          data-cy="payroll-employee-drawer-account-view-formitem"
-          label="Account Number"
-          name="account_number"
+        <div
+          style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}
         >
-          <Input
-            id="payroll-employee-drawer-account-view-input"
-            data-cy="payroll-employee-drawer-account-view-input"
-            disabled
-            placeholder="account number"
-            className="w-full h-10"
-          ></Input>
-        </Form.Item>
+          <Button
+            onClick={handleClose}
+            style={{
+              height: '40px',
+              padding: '0 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              color: '#595959',
+              border: '1px solid #d9d9d9',
+            }}
+            data-cy="payroll-allowance-cancel-button"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => form.submit()}
+            style={{
+              height: '40px',
+              padding: '0 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              backgroundColor: '#1d39c4',
+              border: 'none',
+              fontWeight: 500,
+            }}
+            data-cy="payroll-allowance-continue-button"
+          >
+            Continue
+          </Button>
+        </div>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 
-export default Drawer;
+export default PayrollModal;
