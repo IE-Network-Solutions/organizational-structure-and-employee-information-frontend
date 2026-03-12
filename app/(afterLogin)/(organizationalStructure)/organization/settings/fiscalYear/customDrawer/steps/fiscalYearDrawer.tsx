@@ -467,7 +467,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                 ]}
               >
                 <Input
-                  className="mt-1 w-full font-normal text-sm"
+                  className="mt-1 w-full font-normal text-sm h-10"
                   placeholder="Enter name"
                   data-cy="org-settings-fiscal-year-name-input-value"
                   id="org-settings-fiscal-year-name-input-value"
@@ -476,6 +476,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
 
               <Row
                 gutter={[16, 8]}
+                align="middle"
                 data-cy="org-settings-fiscal-year-start-date-input-row"
                 id="org-settings-fiscal-year-start-date-input-row"
               >
@@ -524,7 +525,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                           form.validateFields(['fiscalYearEndDate']);
                         }
                       }}
-                      className="w-full font-normal text-sm mt-1"
+                      className="w-full font-normal text-sm mt-1 h-10"
                       placeholder="Select date"
                     />
                   </Form.Item>
@@ -563,7 +564,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                         // Trigger validation on blur to catch copy-paste scenarios
                         form.validateFields(['fiscalYearEndDate']);
                       }}
-                      className="w-full font-normal text-sm mt-2"
+                      className="w-full font-normal text-sm mt-1 h-10"
                       placeholder="Select date"
                       data-cy="org-settings-fiscal-year-end-date-input-value"
                       id="org-settings-fiscal-year-end-date-input-value"
@@ -594,12 +595,12 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                     calendarType || form.getFieldValue('fiscalYearCalenderId')
                   }
                   disabled={isEditMode}
-                  className="w-full mt-2 [&_.ant-radio-wrapper]:!h-auto [&_.ant-radio-wrapper]:!py-2 [&_.ant-radio-wrapper]:!px-3 [&_.ant-radio-wrapper]:!border [&_.ant-radio-wrapper]:!border-gray-300 [&_.ant-radio-wrapper]:!rounded-md [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:!w-full [&_.ant-radio-wrapper]:!flex [&_.ant-radio-wrapper]:!items-start [&_.ant-radio-wrapper:hover]:!border-primary [&_.ant-radio-wrapper-checked]:!border-primary [&_.ant-radio-wrapper-checked]:!bg-transparent [&_.ant-radio]:!mr-2 [&_.ant-radio]:!mt-0"
+                  className="w-full mt-2 [&_.ant-radio-wrapper]:!h-auto [&_.ant-radio-wrapper]:!py-2 [&_.ant-radio-wrapper]:!px-3 [&_.ant-radio-wrapper]:!border [&_.ant-radio-wrapper]:!border-gray-300 [&_.ant-radio-wrapper]:!rounded-md [&_.ant-radio-wrapper]:!shadow-sm [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:!w-full [&_.ant-radio-wrapper]:!flex [&_.ant-radio-wrapper]:!items-start [&_.ant-radio-wrapper:hover]:!border-primary [&_.ant-radio-wrapper-checked]:!border-primary [&_.ant-radio-wrapper-checked]:!bg-transparent [&_.ant-radio]:!mr-2 [&_.ant-radio]:!mt-0"
                   data-cy="org-settings-fiscal-year-calendar-input-value"
                   id="org-settings-fiscal-year-calendar-input-value"
                 >
                   <div
-                    className="flex flex-col gap-1"
+                    className="flex flex-col gap-4"
                     data-cy="org-settings-fiscal-year-calendar-radio-group-container"
                   >
                     <Radio
@@ -617,7 +618,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                           Monthly
                         </span>
                         <span
-                          className="text-xs text-gray-500 mt-1"
+                          className="text-xs text-gray-600 mt-1"
                           data-cy="org-settings-fiscal-year-calendar-input-option-monthly-description"
                         >
                           The fiscal year will be divided through out 12 months
@@ -639,7 +640,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                           Quarterly
                         </span>
                         <span
-                          className="text-xs text-gray-500 mt-1"
+                          className="text-xs text-gray-600 mt-1"
                           data-cy="org-settings-fiscal-year-calendar-input-option-quarterly-description"
                         >
                           The fiscal year will be divided through out 3 months
@@ -661,7 +662,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                           Biannual
                         </span>
                         <span
-                          className="text-xs text-gray-500 mt-1"
+                          className="text-xs text-gray-600 mt-1"
                           data-cy="org-settings-fiscal-year-calendar-input-option-bianual-description"
                         >
                           The fiscal year will be divided through out 6 months
@@ -686,7 +687,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
               <div
                 data-cy="org-settings-fiscal-year-cancel-btn-div"
                 id="org-settings-fiscal-year-cancel-btn-div"
-                className={`flex justify-end pt-2 pb-0 sm:p-2 gap-3 ${
+                className={`flex justify-end items-center w-full pt-2 pb-0 gap-3 ${
                   isMobile
                     ? 'shadow-[10px_20px_50px_0px_#00000033]'
                     : 'shadow-none'
@@ -695,7 +696,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                 <Button
                   type="default"
                   onClick={handleClose}
-                  className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+                  className="flex justify-center text-sm font-normal h-10 px-6 border-gray-300"
                   data-cy="org-settings-fiscal-year-cancel-btn"
                   id="org-settings-fiscal-year-cancel-btn"
                 >
@@ -720,7 +721,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                     onClick={handleNext}
                     disabled={!isFormValid || hasOverlapError}
                     type="primary"
-                    className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+                    className="flex justify-center text-sm font-normal h-10 px-6 min-w-[100px]"
                   >
                     Continue
                   </Button>

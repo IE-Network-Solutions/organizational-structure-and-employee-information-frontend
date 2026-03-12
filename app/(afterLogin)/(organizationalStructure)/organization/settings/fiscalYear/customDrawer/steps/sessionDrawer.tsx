@@ -390,7 +390,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             >
               <Input
                 size="middle"
-                className="w-full font-normal text-sm"
+                className="w-full font-normal text-sm h-10"
                 placeholder="Enter session name"
                 data-cy={`org-settings-fiscal-year-session-name-input-${index}`}
                 id={`org-settings-fiscal-year-session-name-input-${index}`}
@@ -460,7 +460,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               <RangePicker
                 size="middle"
                 format="YYYY-MM-DD"
-                className="w-full"
+                className="w-full h-10 [&_.ant-picker-input]:h-8"
                 data-cy={`org-settings-fiscal-year-session-date-range-input-${index}`}
                 id={`org-settings-fiscal-year-session-date-range-input-${index}`}
               />
@@ -522,7 +522,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         className="px-0"
       >
         <div
-          className="px-2 py-1 border-2 border-gray-200 rounded-lg"
+          className="px-2 py-1 border border-gray-200 rounded-lg"
           data-cy="org-settings-fiscal-year-session-drawer-sessions-container"
         >
           <h3
@@ -542,7 +542,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
           id="org-settings-fiscal-year-session-previous-btn-form-item"
         >
           <div
-            className={`flex justify-end pt-2 pb-0 sm:p-2 gap-3 ${
+            className={`flex justify-end w-full pt-2 pb-0  gap-3 ${
               isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'
             }`}
             data-cy="org-settings-fiscal-year-session-previous-btn-container"
@@ -551,7 +551,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             <Button
               type="default"
               onClick={handlePrevious}
-              className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              className="flex justify-center text-sm font-normal h-10 px-6 border-gray-300"
               data-cy="org-settings-fiscal-year-session-previous-btn"
               id="org-settings-fiscal-year-session-previous-btn"
             >
@@ -571,7 +571,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 <Button
                   type="primary"
                   onClick={handleNext}
-                  className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+                  className="flex justify-center text-sm font-normal h-10 px-6 min-w-[100px]"
                   disabled={hasErrors}
                   data-cy="org-settings-fiscal-year-session-next-btn"
                   id="org-settings-fiscal-year-session-next-btn"
