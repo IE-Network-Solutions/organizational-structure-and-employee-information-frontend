@@ -56,7 +56,7 @@ const TransferButton: React.FC<TransferButtonProps> = ({
           onClick={onClick}
           disabled={disabled}
           loading={loading}
-          className={`px-4 h-9 flex items-center gap-2 ${borderColorClass} ${textColorClass}`}
+          className={`px-4 h-9 flex items-center gap-2 bg-transparent hover:!bg-gray-50 ${borderColorClass} ${textColorClass}`}
           data-cy="org-settings-transfer-submit-btn"
           id="org-settings-transfer-submit-btn"
         >

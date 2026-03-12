@@ -21,10 +21,10 @@ const AvailableTeamsPanel: React.FC<AvailableTeamsPanelProps> = ({
 }) => {
   return (
     <div
-      className="hidden lg:block w-[18.5%]"
+      className="hidden lg:flex lg:flex-col lg:w-[18.5%] h-[calc(100vh-280px)]"
       data-cy="transfer-available-teams-panel"
     >
-      <div className="mb-4" data-cy="transfer-search-container">
+      <div className="mb-4 flex-shrink-0" data-cy="transfer-search-container">
         <Input
           placeholder="Search team"
           allowClear
@@ -46,7 +46,7 @@ const AvailableTeamsPanel: React.FC<AvailableTeamsPanelProps> = ({
       <DroppableArea
         id="available-teams"
         data-cy="available-teams"
-        className="max-h-[300px] overflow-y-auto w-full p-4 rounded-lg border-2 scrollbar-hide"
+        className="flex-1 min-h-0 overflow-y-auto w-full p-4 rounded-lg border-2 scrollbar-hide"
         isEmpty={false}
       >
         {availableDepartments.map((dept: Department, index: number) => (
