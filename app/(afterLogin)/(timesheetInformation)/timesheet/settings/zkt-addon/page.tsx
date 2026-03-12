@@ -77,7 +77,7 @@ const ZKTAddonPage = () => {
       {contextHolder}
       <div
         data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-78"
-        className="p-5 rounded-2xl bg-white"
+        className="p-5 rounded-lg sm:w-[754px] mx-auto border border-[#D9D9D9]"
       >
         {/* Logos Section */}
         <div
