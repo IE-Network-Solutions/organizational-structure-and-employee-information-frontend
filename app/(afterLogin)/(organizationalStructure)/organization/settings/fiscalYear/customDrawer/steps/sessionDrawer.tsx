@@ -542,16 +542,14 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
           id="org-settings-fiscal-year-session-previous-btn-form-item"
         >
           <div
-            className={`flex justify-end w-full pt-2 pb-0  gap-3 ${
-              isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'
-            }`}
+            className={`flex justify-end w-full pt-2 pb-0  gap-3 shadow-none`}
             data-cy="org-settings-fiscal-year-session-previous-btn-container"
             id="org-settings-fiscal-year-session-previous-btn-container"
           >
             <Button
               type="default"
               onClick={handlePrevious}
-              className="flex justify-center text-sm font-normal h-10 px-6 border-gray-300"
+              className="flex justify-center text-sm font-normal h-10 px-6 border-gray-300 bg-transparent hover:bg-gray-50"
               data-cy="org-settings-fiscal-year-session-previous-btn"
               id="org-settings-fiscal-year-session-previous-btn"
             >

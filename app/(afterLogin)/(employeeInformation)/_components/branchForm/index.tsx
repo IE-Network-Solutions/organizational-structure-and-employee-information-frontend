@@ -195,8 +195,8 @@ const BranchForm: React.FC<{
             data-cy={`branch-form-location-input-${modalSlug}`}
           />
         </Form.Item>
-        <Row gutter={16}>
-          <Col span={12}>
+        <Row gutter={[16, 0]}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               name="contactEmail"
               label={
@@ -232,7 +232,7 @@ const BranchForm: React.FC<{
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               name="contactNumber"
               label={

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Modal } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { CloseOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Department } from '../cards/TeamCard';
 
 interface MergeConfirmationModalProps {
@@ -31,9 +31,9 @@ const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({
       okButtonProps={{
         loading,
         danger: true,
-        className: 'bg-red-600 hover:bg-red-700',
+        className: 'bg-red-600 hover:bg-red-700 font-normal',
       }}
-      cancelButtonProps={{ className: 'border-gray-300' }}
+      cancelButtonProps={{ className: 'border-gray-300 font-normal' }}
       title={
         <div
           className="flex items-center gap-2"
@@ -48,19 +48,13 @@ const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({
           </span>
         </div>
       }
-      closeIcon={
-        <span
-          className="text-gray-400"
-          data-cy="merge-confirmation-modal-close-icon"
-        >
-          ×
-        </span>
-      }
+      closeIcon={<CloseOutlined className="text-base" data-cy="merge-confirmation-modal-close-icon" />}
+      className="[&_.ant-modal-header]:flex [&_.ant-modal-header]:items-center"
       data-cy="merge-confirmation-modal"
     >
-      <div className="py-4" data-cy="merge-confirmation-modal-content">
+      <div className="pt-3 pb-2" data-cy="merge-confirmation-modal-content">
         <p
-          className="text-gray-700 mb-4"
+          className="text-gray-700 mb-4 mt-0"
           data-cy="merge-confirmation-modal-description"
         >
           This action will permanently merge{' '}
@@ -83,7 +77,7 @@ const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({
           data-cy="merge-confirmation-what-will-change-container"
         >
           <h4
-            className="font-semibold text-gray-900 mb-2"
+            className="text-sm font-medium text-gray-900 mb-2"
             data-cy="merge-confirmation-what-will-change-title"
           >
             What will Change

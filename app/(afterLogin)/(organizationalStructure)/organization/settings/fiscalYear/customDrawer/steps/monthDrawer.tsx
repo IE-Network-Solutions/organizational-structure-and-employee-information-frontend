@@ -784,7 +784,7 @@ const MonthDrawer: React.FC<
           id="org-settings-fiscal-year-month-previous-btn-form-item"
         >
           <div
-            className={`flex justify-end w-full pt-2 pb-0  gap-3 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
+            className={`flex justify-end w-full pt-2 pb-0  gap-3 shadow-none`}
             data-cy="org-settings-fiscal-year-month-previous-btn-container"
             id="org-settings-fiscal-year-month-previous-btn-container"
           >
@@ -813,7 +813,7 @@ const MonthDrawer: React.FC<
                 }
                 setCurrent(1); // Go to previous step
               }}
-              className="flex justify-center text-sm font-normal h-10 px-6 border-gray-300"
+              className="flex justify-center text-sm font-normal h-10 px-6 border-gray-300 bg-transparent hover:bg-gray-50"
               data-cy="org-settings-fiscal-year-month-previous-btn"
               id="org-settings-fiscal-year-month-previous-btn"
             >

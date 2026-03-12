@@ -687,11 +687,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
               <div
                 data-cy="org-settings-fiscal-year-cancel-btn-div"
                 id="org-settings-fiscal-year-cancel-btn-div"
-                className={`flex justify-end items-center w-full pt-2 pb-0 gap-3 ${
-                  isMobile
-                    ? 'shadow-[10px_20px_50px_0px_#00000033]'
-                    : 'shadow-none'
-                }`}
+                className={`flex justify-end items-center w-full pt-2 pb-0 gap-3 shadow-none`}
               >
                 <Button
                   type="default"
