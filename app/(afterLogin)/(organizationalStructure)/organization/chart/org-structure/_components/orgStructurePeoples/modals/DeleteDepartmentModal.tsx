@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Modal, Select, Button, Space } from 'antd';
+import React, { useEffect, useMemo } from 'react';
+import { Modal, Select, Button, Space, Form } from 'antd';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useQueryClient } from 'react-query';
 import { useGetOrgCharts } from '@/store/server/features/organizationStructure/organizationalChart/query';
@@ -56,6 +56,10 @@ export function DeleteDepartmentModal() {
   const { isMobile } = useIsMobile();
   const { data: orgStructureData } = useGetOrgCharts();
   const deleteMutation = useDeleteOrgChart();
+  const [form] = Form.useForm<{
+    departmentTobeDeletedId?: string;
+    departmentTobeShiftedId?: string;
+  }>();
 
   const deleteModalOpen = useDepartmentStore((s) => s.deleteModalOpen);
   const deleteStep = useDepartmentStore((s) => s.deleteStep);
@@ -85,15 +89,33 @@ export function DeleteDepartmentModal() {
     [orgStructureData, departmentTobeDeletedId],
   );
 
+  useEffect(() => {
+    if (!deleteModalOpen) return;
+    form.setFieldsValue({
+      departmentTobeDeletedId: departmentTobeDeletedId ?? undefined,
+      departmentTobeShiftedId: departmentTobeShiftedId ?? undefined,
+    });
+  }, [
+    deleteModalOpen,
+    departmentTobeDeletedId,
+    departmentTobeShiftedId,
+    form,
+  ]);
+
   const handleClose = () => {
     setDeleteModalOpen(false);
     setDeleteStep(1);
     setDepartmentTobeShiftedId(null);
+    form.resetFields();
   };
 
-  const handleContinue = () => {
-    if (!departmentTobeShiftedId) return;
-    setDeleteStep(2);
+  const handleContinue = async () => {
+    try {
+      await form.validateFields();
+      setDeleteStep(2);
+    } catch {
+      // validation errors are shown by Form.Item
+    }
   };
 
   const handleConfirmDelete = () => {
@@ -123,30 +145,39 @@ export function DeleteDepartmentModal() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: isMobile ? 12 : 24,
+      padding: isMobile ? 8 : 16,
     },
     content: {
       borderRadius: 8,
       border: '1px solid var(--Colors-Base-Gray-3, #E5E7EB)',
       background: '#FFF',
     },
+    header: {
+      padding: isMobile ? '10px 12px 0' : '16px 20px 0',
+    },
     body: {
-      padding: isMobile ? '16px' : '24px',
+      padding: isMobile ? '12px' : '16px 20px 16px',
     },
   };
 
   if (deleteStep === 2) {
     return (
       <Modal
-        title="Delete Department"
+        title={
+          <span className="text-lg font-semibold text-[#000000B2]">
+            Delete Department
+          </span>
+        }
         open
         onCancel={handleStep2Cancel}
         centered
         styles={centeredModalStyles}
+        className="org-structure-department-modal"
         footer={
           <Space>
             <Button
-              className="h-9 sm:h-10 px-4 sm:px-5"
+              className="h-8 px-4 sm:px-4 border-gray-300 text-gray-700 bg-white hover:border-[#4096FF] hover:text-[#4096FF]"
+              style={{ height: 32, boxShadow: 'none' }}
               onClick={handleStep2Cancel}
             >
               Cancel
@@ -156,7 +187,8 @@ export function DeleteDepartmentModal() {
               danger
               loading={deleteMutation.isLoading}
               onClick={handleConfirmDelete}
-              className="h-9 sm:h-10 px-4 sm:px-5"
+              className="h-8 px-4 sm:px-4"
+              style={{ height: 32, boxShadow: 'none' }}
             >
               Delete
             </Button>
@@ -177,107 +209,125 @@ export function DeleteDepartmentModal() {
 
   return (
     <Modal
-      title="Delete Department"
+      title={
+        <span className="text-lg font-semibold text-[#000000B2]">
+          Delete Department
+        </span>
+      }
       open
       onCancel={handleClose}
       centered
       styles={centeredModalStyles}
-      footer={
-        <Space>
-          <Button className="h-9 sm:h-10 px-4 sm:px-5" onClick={handleClose}>
-            Cancel
-          </Button>
-          {departmentTobeShiftedId ? (
-            <Button
-              type="primary"
-              danger
-              onClick={handleContinue}
-              className="h-9 sm:h-10 px-4 sm:px-5"
-              style={{ backgroundColor: '#FF4D4F', borderColor: '#FF4D4F' }}
-            >
-              Continue
-            </Button>
-          ) : (
-            <Button
-              disabled
-              className="h-9 sm:h-10 px-4 sm:px-5"
-              style={{
-                backgroundColor: '#fff',
-                borderColor: '#d9d9d9',
-                color: 'rgba(0,0,0,0.25)',
-                cursor: 'not-allowed',
-              }}
-            >
-              Continue
-            </Button>
-          )}
-        </Space>
-      }
+      footer={null}
       width={isMobile ? 'calc(100vw - 24px)' : 520}
       data-cy="org-structure-delete-department-modal"
+      className="org-structure-department-modal"
     >
-      <Space direction="vertical" style={{ width: '100%' }} size={16}>
-        <div data-cy="org-structure-delete-department-to-delete-field-wrap">
-          <label
-            style={{ display: 'block', marginBottom: 6 }}
-            data-cy="org-structure-delete-department-to-delete-label"
-          >
-            Department to be Deleted{' '}
-            <span
-              style={{ color: '#ff4d4f' }}
-              data-cy="org-structure-delete-required-asterisk"
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={(_, allValues) => {
+          if (allValues.departmentTobeShiftedId !== undefined) {
+            setDepartmentTobeShiftedId(allValues.departmentTobeShiftedId ?? null);
+          }
+        }}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size={16}>
+          <div data-cy="org-structure-delete-department-to-delete-field-wrap">
+            <Form.Item
+              label="Department to be Deleted"
+              name="departmentTobeDeletedId"
+              required
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a department to be deleted',
+                },
+              ]}
+              data-cy="org-structure-delete-department-to-delete-form-item"
             >
-              *
-            </span>
-          </label>
-          <Select
-            style={{ width: '100%' }}
-            value={departmentTobeDeletedId ?? undefined}
-            options={[
-              ...(departmentTobeDeletedId && departmentTobeDeletedName
-                ? [
-                    {
-                      value: departmentTobeDeletedId,
-                      label: departmentTobeDeletedName,
-                    },
-                  ]
-                : []),
-            ]}
-            disabled
-            data-cy="org-structure-delete-department-field"
-          />
-        </div>
-        <div data-cy="org-structure-delete-shift-to-field-wrap">
-          <label
-            style={{ display: 'block', marginBottom: 6 }}
-            data-cy="org-structure-delete-shift-to-label"
-          >
-            Shift employee to{' '}
-            <span
-              style={{ color: '#ff4d4f' }}
-              data-cy="org-structure-delete-shift-to-required"
+              <Select
+                size="middle"
+                style={{ width: '100%', height: 32 }}
+                options={[
+                  ...(departmentTobeDeletedId && departmentTobeDeletedName
+                    ? [
+                        {
+                          value: departmentTobeDeletedId,
+                          label: departmentTobeDeletedName,
+                        },
+                      ]
+                    : []),
+                ]}
+                disabled
+                data-cy="org-structure-delete-department-field"
+              />
+            </Form.Item>
+          </div>
+          <div data-cy="org-structure-delete-shift-to-field-wrap">
+            <Form.Item
+              label="Shift employee to"
+              name="departmentTobeShiftedId"
+              required
+              rules={[
+                {
+                  required: true,
+                  message:
+                    'Please select a department to shift employees to',
+                },
+              ]}
+              data-cy="org-structure-delete-shift-to-form-item"
             >
-              *
-            </span>
-          </label>
-          <Select
-            style={{ width: '100%' }}
-            placeholder="Select a department to shift employees to"
-            value={departmentTobeShiftedId ?? undefined}
-            onChange={(v) => setDepartmentTobeShiftedId(v ?? null)}
-            options={shiftOptions}
-            showSearch
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            data-cy="org-structure-delete-shift-to-select"
-          />
+              <Select
+                size="middle"
+                style={{ width: '100%', height: 32 }}
+                placeholder="Select a department to shift employees to"
+                popupClassName="org-structure-branch-select-dropdown"
+                onChange={(v) => {
+                  form.setFieldValue('departmentTobeShiftedId', v ?? undefined);
+                  setDepartmentTobeShiftedId(v ?? null);
+                }}
+                options={shiftOptions}
+                showSearch
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                data-cy="org-structure-delete-shift-to-select"
+              />
+            </Form.Item>
+          </div>
+        </Space>
+        <div
+          className="flex justify-end gap-3 mt-6"
+          data-cy="org-structure-delete-department-form-actions"
+        >
+          <Button
+            onClick={handleClose}
+            className="h-8 px-4 sm:px-5 border-gray-300 text-gray-700 bg-white hover:border-[#4096FF] hover:text-[#4096FF]"
+            style={{ height: 32, boxShadow: 'none' }}
+            data-cy="org-structure-delete-cancel"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            danger
+            onClick={handleContinue}
+            className="h-8 px-4 sm:px-5"
+            style={{
+              height: 32,
+              boxShadow: 'none',
+            }}
+            data-cy="org-structure-delete-continue"
+          >
+            Continue
+          </Button>
         </div>
-      </Space>
+      </Form>
     </Modal>
   );
 }

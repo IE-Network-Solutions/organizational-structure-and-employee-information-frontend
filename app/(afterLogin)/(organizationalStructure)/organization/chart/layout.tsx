@@ -105,7 +105,7 @@ export default function ChartLayout({
       data-cy="org-structure-layout-provider"
     >
       <div
-        className="flex flex-col w-full px-2 sm:px-6"
+        className="flex flex-col w-full"
         data-cy="org-structure-layout"
         id="org-structure-layout"
       >
@@ -118,7 +118,7 @@ export default function ChartLayout({
           <Card
             data-cy="org-structure-card"
             id="org-structure-card"
-            className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-2 [&_.ant-card-head]:sm:px-6 [&_.ant-card-body]:px-0 [&_.ant-card-body]:sm:px-0"
+            className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
             title={
               <CustomBreadcrumb
                 title={
@@ -231,7 +231,7 @@ export default function ChartLayout({
 
         {/* Page Content - responsive padding matching talent resource */}
         <main
-          className="pt-0 px-2 sm:px-6 pb-4 overflow-visible"
+          className="pt-0 pb-4 overflow-visible"
           data-cy="org-structure-main-content"
           id="org-structure-main-content"
         >
