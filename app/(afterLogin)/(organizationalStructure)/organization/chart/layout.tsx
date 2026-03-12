@@ -105,31 +105,46 @@ export default function ChartLayout({
       data-cy="org-structure-layout-provider"
     >
       <div
-        className="flex flex-col w-full px-2 sm:px-6"
+        className="flex flex-col w-full"
         data-cy="org-structure-layout"
         id="org-structure-layout"
       >
         {/* ORG Structure Section */}
         <div
-          className="w-full overflow-visible"
+          className="w-full overflow-visible mt-6"
           data-cy="org-structure-card-container"
           id="org-structure-card-container"
         >
           <Card
             data-cy="org-structure-card"
             id="org-structure-card"
-            className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-2 [&_.ant-card-head]:sm:px-6 [&_.ant-card-body]:px-0 [&_.ant-card-body]:sm:px-0"
+            className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
             title={
               <CustomBreadcrumb
                 title={
                   <span
-                    className="text-lg sm:text-2xl font-bold text-gray-900"
+                    className="text-lg sm:text-2xl font-bold text-[#000000B2]"
                     data-cy="org-structure-breadcrumb-title"
                   >
                     Organization Structure
                   </span>
                 }
-                subtitle="Organization Structure / Org Structure"
+                subtitle={
+                  <>
+                    <span
+                      className="text-slate-500"
+                      data-cy="org-structure-breadcrumb-prefix"
+                    >
+                      Organization Structure /{' '}
+                    </span>
+                    <span
+                      className="text-[#000000B2]"
+                      data-cy="org-structure-breadcrumb-current"
+                    >
+                      Org Structure
+                    </span>
+                  </>
+                }
                 data-cy="org-structure-breadcrumb"
               />
             }
@@ -165,13 +180,14 @@ export default function ChartLayout({
                     title="Download"
                     icon={
                       <DownloadOutlined
-                        style={{ fontSize: 16 }}
+                        style={{ fontSize: 16, color: '#000000B2' }}
                         data-cy="org-structure-download-btn-icon"
                         id="org-structure-download-btn-icon"
                       />
                     }
                     type="default"
-                    className="h-10 w-10 sm:w-[104px] rounded-lg border border-gray-300 text-gray-700 font-normal flex items-center justify-center sm:justify-start gap-2"
+                    className="h-10 w-10 sm:w-[104px] rounded-lg border border-gray-300 text-[#000000B2] hover:border-[#4096FF] hover:text-[#4096FF] font-normal flex items-center justify-center gap-2"
+                    style={{ boxShadow: 'none', color: '#000000B2' }}
                     data-cy="org-structure-download-btn"
                     id="org-structure-download-btn"
                     loading={chartDownloadLoading}
@@ -231,7 +247,7 @@ export default function ChartLayout({
 
         {/* Page Content - responsive padding matching talent resource */}
         <main
-          className="pt-0 px-2 sm:px-6 pb-4 overflow-visible"
+          className="pt-0 pb-4 overflow-visible"
           data-cy="org-structure-main-content"
           id="org-structure-main-content"
         >

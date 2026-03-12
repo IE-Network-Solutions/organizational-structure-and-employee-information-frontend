@@ -356,7 +356,11 @@ const LocationSidebar = () => {
                   id="time-attendance-settings-allowed-areas-sidebar-radius-container"
                   className="mt-4"
                 >
-                  <div data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label-container" id="time-attendance-settings-allowed-areas-sidebar-radius-label-container" className="flex items-center justify-between mb-2">
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label-container"
+                    id="time-attendance-settings-allowed-areas-sidebar-radius-label-container"
+                    className="flex items-center justify-between mb-2"
+                  >
                     <span
                       data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label"
                       id="time-attendance-settings-allowed-areas-sidebar-radius-label"
