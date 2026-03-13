@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Form, Input, InputNumber } from 'antd';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { Button, Form, Input, InputNumber, Modal } from 'antd';
 import { useCreatePensionRule } from '@/store/server/features/payroll/payroll/mutation';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -35,6 +34,11 @@ const Drawer: React.FC = () => {
 
   const [form] = Form.useForm();
 
+  const handleClose = () => {
+    closeDrawer();
+    form.resetFields();
+  };
+
   // Reset form when drawer opens
   useEffect(() => {
     if (isDrawerVisible) {
@@ -44,10 +48,10 @@ const Drawer: React.FC = () => {
 
   useEffect(() => {
     if (isCreateSuccess) {
-      form.resetFields();
-      closeDrawer();
+      handleClose();
     }
-  }, [isCreateSuccess, form, closeDrawer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCreateSuccess]);
 
   const onFinish = async (values: any) => {
     // Only include the fields required by the backend DTO
@@ -66,67 +70,83 @@ const Drawer: React.FC = () => {
   };
 
   return (
-    <CustomDrawerLayout
+    <Modal
       open={isDrawerVisible}
-      onClose={closeDrawer}
-      modalHeader={
-        <span
-          data-cy="pension-components-drawer-index-tsx-index-span-73"
-          className=" flex justify-center text-xl font-semibold"
+      onCancel={handleClose}
+      footer={null}
+      centered
+      width={640}
+      destroyOnClose
+      maskClosable={false}
+      closable={false}
+    >
+      <div
+        id="payroll-pension-modal-header-view-container"
+        data-cy="payroll-pension-modal-header-view-container"
+        className="flex items-center justify-between px-2 pt-2 pb-6"
+      >
+        <h2
+          id="payroll-pension-modal-title-view-text"
+          data-cy="payroll-pension-modal-title-view-text"
+          className="text-xl font-bold text-gray-900"
         >
           Define New Pension Rule
-        </span>
-      }
-      width="700px"
-      footer={
-        <div
-          data-cy="pension-components-drawer-index-tsx-index-div-79"
-          className="flex justify-center items-center w-full h-full"
-        >
-          <div
-            data-cy="pension-components-drawer-index-tsx-index-div-80"
-            className="flex justify-between items-center gap-4 p-4"
-          >
-            <Button
-              type="default"
-              className="h-10 px-10"
-              onClick={() => {
-                closeDrawer();
-                form.resetFields();
-              }}
-            >
-              Cancel
-            </Button>
+        </h2>
 
-            <Button
-              type="primary"
-              className="h-10 px-10"
-              onClick={() => form.submit()}
-              loading={isCreateLoading}
-            >
-              Create
-            </Button>
-          </div>
-        </div>
-      }
-    >
+        <button
+          id="payroll-pension-modal-close-click-button"
+          data-cy="payroll-pension-modal-close-click-button"
+          type="button"
+          onClick={handleClose}
+          className="text-gray-500 hover:text-gray-700 transition-colors p-1 rounded-full hover:bg-gray-100"
+          aria-label="Close modal"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div
+        id="payroll-pension-modal-body-view-container"
+        data-cy="payroll-pension-modal-body-view-container"
+        className="px-2 pb-2"
+      >
+        <div
+          id="payroll-pension-modal-card-view-container"
+          data-cy="payroll-pension-modal-card-view-container"
+          className="border border-gray-200 rounded-lg p-6"
+        >
       <Form
         id="pension-rule-form"
+        data-cy="payroll-pension-modal-form-submit-form"
         layout="vertical"
         form={form}
-        className="px-3"
+        className="px-1"
         onFinish={onFinish}
       >
         <Form.Item
+          id="payroll-pension-modal-name-view-formitem"
+          data-cy="payroll-pension-modal-name-view-formitem"
           label="Name"
           name="name"
           rules={[{ required: true, message: 'Please input the name!' }]}
         >
-          <Input placeholder="Pension Rule Name" className="h-12 mt-2" />
+          <Input
+            id="payroll-pension-modal-name-view-input"
+            data-cy="payroll-pension-modal-name-view-input"
+            placeholder="Rule name"
+            className="h-12 mt-2"
+          />
         </Form.Item>
 
-        <Form.Item label="Description" name="description">
+        <Form.Item
+          id="payroll-pension-modal-description-view-formitem"
+          data-cy="payroll-pension-modal-description-view-formitem"
+          label="Description"
+          name="description"
+        >
           <Input.TextArea
+            id="payroll-pension-modal-description-view-textarea"
+            data-cy="payroll-pension-modal-description-view-textarea"
             rows={3}
             placeholder="Enter description (optional)"
             className="mt-2"
@@ -134,6 +154,8 @@ const Drawer: React.FC = () => {
         </Form.Item>
 
         <Form.Item
+          id="payroll-pension-modal-employee-view-formitem"
+          data-cy="payroll-pension-modal-employee-view-formitem"
           label="Employee Contribution (%)"
           name="employee"
           rules={[
@@ -157,8 +179,10 @@ const Drawer: React.FC = () => {
           }
         >
           <InputNumber
+            id="payroll-pension-modal-employee-view-input"
+            data-cy="payroll-pension-modal-employee-view-input"
             className="h-12 mt-2 w-full input-number-mobile"
-            placeholder="Input Employee Contribution"
+            placeholder="Input employee contribution"
             min={0}
             max={100}
             step={0.01}
@@ -175,6 +199,8 @@ const Drawer: React.FC = () => {
         </Form.Item>
 
         <Form.Item
+          id="payroll-pension-modal-employer-view-formitem"
+          data-cy="payroll-pension-modal-employer-view-formitem"
           label="Employer Contribution (%)"
           name="employer"
           rules={[
@@ -198,8 +224,10 @@ const Drawer: React.FC = () => {
           }
         >
           <InputNumber
+            id="payroll-pension-modal-employer-view-input"
+            data-cy="payroll-pension-modal-employer-view-input"
             className="w-full h-12 mt-2 input-number-mobile"
-            placeholder="Input Employer Contribution"
+            placeholder="Input employer contribution"
             min={0}
             max={100}
             step={0.01}
@@ -215,7 +243,36 @@ const Drawer: React.FC = () => {
           />
         </Form.Item>
       </Form>
-    </CustomDrawerLayout>
+        </div>
+      </div>
+
+      <div
+        id="payroll-pension-modal-footer-view-container"
+        data-cy="payroll-pension-modal-footer-view-container"
+        className="px-2 pb-2 pt-6 flex justify-end space-x-3"
+      >
+        <Button
+          id="payroll-pension-modal-cancel-click-button"
+          data-cy="payroll-pension-modal-cancel-click-button"
+          type="default"
+          className="h-10 px-10"
+          onClick={handleClose}
+        >
+          Cancel
+        </Button>
+
+        <Button
+          id="payroll-pension-modal-submit-click-button"
+          data-cy="payroll-pension-modal-submit-click-button"
+          type="primary"
+          className="h-10 px-10"
+          onClick={() => form.submit()}
+          loading={isCreateLoading}
+        >
+          Continue
+        </Button>
+      </div>
+    </Modal>
   );
 };
 

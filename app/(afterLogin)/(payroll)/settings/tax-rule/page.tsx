@@ -1,13 +1,15 @@
 'use client';
-import React from 'react';
-import { Table, Button, Space, Tooltip } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useMemo, useState } from 'react';
+import { Dropdown, Table, Button } from 'antd';
+import { EditOutlined, DeleteOutlined, MoreOutlined } from '@ant-design/icons';
 import Drawer from './_components/drawer';
 import { useGetTaxRule } from '@/store/server/features/payroll/setting/tax-rule/queries';
 import { useDeleteTaxRule } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/taxRules/taxRulesStore';
-import DeletePopover from '@/components/common/actionButton/deletePopover';
-import { FaPlus } from 'react-icons/fa';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
 
 interface TaxRule {
   id: string;
@@ -25,6 +27,20 @@ const TaxRules = () => {
 
   const { data, isLoading } = useGetTaxRule();
   const { mutate: deleteTaxRule } = useDeleteTaxRule();
+  const { isMobile, isTablet } = useIsMobile();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
+
+  const dataSource = useMemo(() => {
+    return Array.isArray(data) ? data : [];
+  }, [data]);
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return dataSource.slice(start, start + pageSize);
+  }, [currentPage, pageSize, dataSource]);
 
   const columns: Array<{
     title: string;
@@ -71,47 +87,74 @@ const TaxRules = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (text: any, record: any) => (
-        <Space
-          id={`payroll-tax-rule-actions-view-space-${record.id}`}
-          data-cy={`payroll-tax-rule-actions-view-space-${record.id}`}
-          size="middle"
-        >
-          <Tooltip
-            data-cy={`payroll-tax-rule-edit-click-button-tooltip-${record.id}`}
-            title="Edit"
-          >
-            <Button
-              id={`payroll-tax-rule-edit-click-button-${record.id}`}
-              data-cy={`payroll-tax-rule-edit-click-button-${record.id}`}
-              type="primary"
-              className=" border-none rounded-xl"
-              icon={
+      render: (text: any, record: any) => {
+        const menu = {
+          items: [
+            {
+              key: 'edit',
+              label: (
+                <span
+                  id={`payroll-tax-rule-actions-menu-edit-text-${record.id}`}
+                  data-cy={`payroll-tax-rule-actions-menu-edit-text-${record.id}`}
+                >
+                  Edit
+                </span>
+              ),
+              icon: (
                 <EditOutlined
-                  data-cy={`payroll-tax-rule-edit-click-button-icon-${record.id}`}
+                  data-cy={`payroll-tax-rule-actions-menu-edit-icon-${record.id}`}
                 />
-              }
-              onClick={() => handleEdit(record)}
-            />
-          </Tooltip>
-
-          <DeletePopover
-            data-cy={`payroll-tax-rule-delete-popover-view-component-${record.id}`}
-            onDelete={() => handleDelete(record.id)}
-          >
-            <Button
-              id={`payroll-tax-rule-delete-click-button-${record.id}`}
-              data-cy={`payroll-tax-rule-delete-click-button-${record.id}`}
-              className="bg-red-600 text-white border-none rounded-xl"
-              icon={
+              ),
+              onClick: () => handleEdit(record),
+            },
+            {
+              key: 'delete',
+              label: (
+                <span
+                  id={`payroll-tax-rule-actions-menu-delete-text-${record.id}`}
+                  data-cy={`payroll-tax-rule-actions-menu-delete-text-${record.id}`}
+                >
+                  Delete
+                </span>
+              ),
+              icon: (
                 <DeleteOutlined
-                  data-cy={`payroll-tax-rule-delete-click-button-icon-${record.id}`}
+                  data-cy={`payroll-tax-rule-actions-menu-delete-icon-${record.id}`}
                 />
-              }
-            />
-          </DeletePopover>
-        </Space>
-      ),
+              ),
+              onClick: () => handleDelete(record.id),
+            },
+          ],
+        } as const;
+
+        return (
+          <div
+            id={`payroll-tax-rule-actions-view-container-${record.id}`}
+            data-cy={`payroll-tax-rule-actions-view-container-${record.id}`}
+            className="flex items-center"
+          >
+            <Dropdown
+              menu={menu}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <button
+                id={`payroll-tax-rule-actions-more-button-${record.id}`}
+                data-cy={`payroll-tax-rule-actions-more-button-${record.id}`}
+                className="px-2 py-1 border border-gray-200 rounded text-gray-500 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                type="button"
+                aria-label="More actions"
+              >
+                <MoreOutlined
+                  data-cy={`payroll-tax-rule-actions-more-icon-${record.id}`}
+                  rotate={90}
+                  style={{ fontSize: 18 }}
+                />
+              </button>
+            </Dropdown>
+          </div>
+        );
+      },
     },
   ];
 
@@ -120,44 +163,73 @@ const TaxRules = () => {
     openDrawer();
   };
 
-  const handleDelete = (record: any) => {
-    deleteTaxRule(record);
+  const handleDelete = (recordId: string) => {
+    setSelectedDeleteId(recordId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!selectedDeleteId) return;
+    deleteTaxRule(selectedDeleteId, {
+      onSuccess: () => {
+        setDeleteModalOpen(false);
+        setSelectedDeleteId(null);
+      },
+    });
   };
 
   const handleAddRule = () => {
     openDrawer();
   };
 
+  const onPageChange = (page: number, newPageSize?: number) => {
+    setCurrentPage(page);
+    if (newPageSize) setPageSize(newPageSize);
+  };
+
+  const onPageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+  };
+
   return (
     <div
       id="payroll-tax-rule-page-view-container"
       data-cy="payroll-tax-rule-page-view-container"
-      className="p-5 rounded-2xl bg-white"
+      className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden"
     >
       <div
         id="payroll-tax-rule-header-view-container"
         data-cy="payroll-tax-rule-header-view-container"
-        className="flex justify-between items-center mb-4"
+        className="flex justify-between items-center px-6 py-5"
       >
         <h1
           id="payroll-tax-rule-title-view-text"
           data-cy="payroll-tax-rule-title-view-text"
-          className="text-lg text-bold"
+          className="text-lg font-semibold text-gray-900"
         >
           Tax Rule
         </h1>
+        <div
+          id="payroll-tax-rule-header-action-spacer"
+          data-cy="payroll-tax-rule-header-action-spacer"
+          className="hidden sm:block"
+        />
+      </div>
+      <div
+        id="payroll-tax-rule-hidden-primary-action-target"
+        data-cy="payroll-tax-rule-hidden-primary-action-target"
+        className="hidden"
+      >
         <Button
           id="payroll-tax-rule-add-click-button"
           data-cy="payroll-tax-rule-add-click-button"
           type="primary"
-          className="h-10 w-10 sm:w-auto bg-[#3636f0]"
-          icon={<FaPlus data-cy="payroll-tax-rule-add-click-button-icon" />}
           onClick={handleAddRule}
         >
           <span
             id="payroll-tax-rule-add-click-button-text"
             data-cy="payroll-tax-rule-add-click-button-text"
-            className="hidden sm:inline"
           >
             Add Tax Rule
           </span>
@@ -166,7 +238,7 @@ const TaxRules = () => {
       <div
         id="payroll-tax-rule-table-wrapper-view-container"
         data-cy="payroll-tax-rule-table-wrapper-view-container"
-        className="flex overflow-x-auto scrollbar-none w-full"
+        className="overflow-x-auto"
       >
         <div
           id="payroll-tax-rule-table-inner-view-container"
@@ -176,7 +248,7 @@ const TaxRules = () => {
           <Table
             id="payroll-tax-rule-table-view-table"
             data-cy="payroll-tax-rule-table-view-table"
-            dataSource={data}
+            dataSource={paginatedData}
             columns={columns}
             pagination={false}
             bordered={false}
@@ -184,7 +256,44 @@ const TaxRules = () => {
           />
         </div>
       </div>
+      <div
+        id="payroll-tax-rule-pagination-footer-view-container"
+        data-cy="payroll-tax-rule-pagination-footer-view-container"
+        className="border-t border-gray-100 p-4"
+      >
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            data-cy="payroll-tax-rule-mobile-pagination-view-component"
+            totalResults={dataSource.length}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onChange={onPageChange}
+            onShowSizeChange={(_current, size) => onPageSizeChange(size)}
+          />
+        ) : (
+          <CustomPagination
+            data-cy="payroll-tax-rule-desktop-pagination-view-component"
+            current={currentPage}
+            total={dataSource.length}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageSizeChange}
+          />
+        )}
+      </div>
       <Drawer data-cy="payroll-tax-rule-drawer-view-component" />
+      <DeleteModal
+        open={deleteModalOpen}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setSelectedDeleteId(null);
+        }}
+        deleteMessage="Delete Tax Rule"
+        customMessage="Are you sure you want to delete this tax rule? This action cannot be undone."
+        data-cy="payroll-tax-rule-delete-modal"
+        id="payroll-tax-rule-delete-modal"
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Button, Form, Input, Row, Select } from 'antd';
+// import CustomDrawerLayout from '@/components/common/customDrawer';
+import { Button, Form, Input, Row, Select, Modal } from 'antd';
 import React from 'react';
 
 const PayrollApprovalCreator = ({
@@ -28,15 +28,51 @@ const PayrollApprovalCreator = ({
   users: any;
 }) => {
   return (
-    <CustomDrawerLayout
+    <Modal
+      data-cy="settings-payroll-approvals-creator-modal"
       open={addModal}
-      modalHeader={customFieldsDrawerHeader}
-      onClose={onClose}
-      width="40%"
+      onCancel={onClose}
       footer={null}
+      centered
+      width={640}
+      destroyOnClose
+      maskClosable={false}
+      closable={false}
     >
+      {/* Header */}
       <div
-        className="pb-[60px]"
+        id="settings-payroll-approvals-creator-header"
+        data-cy="settings-payroll-approvals-creator-header"
+        className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+      >
+        <h2
+          id="settings-payroll-approvals-creator-title"
+          data-cy="settings-payroll-approvals-creator-title"
+          className="text-lg font-semibold text-gray-900"
+        >
+          {customFieldsDrawerHeader || 'Add Approval Workflow'}
+        </h2>
+        <button
+          id="settings-payroll-approvals-creator-close-button"
+          data-cy="settings-payroll-approvals-creator-close-button"
+          type="button"
+          onClick={onClose}
+          className="inline-flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-md hover:bg-gray-100"
+          aria-label="Close modal"
+        >
+          <span
+            id="settings-payroll-approvals-creator-close-icon"
+            data-cy="settings-payroll-approvals-creator-close-icon"
+            className="text-lg leading-none"
+          >
+            ✕
+          </span>
+        </button>
+      </div>
+
+      {/* Body */}
+      <div
+        className="px-6 pt-4 pb-2"
         id="settings-payroll-approvals-creator-container"
         data-cy="settings-payroll-approvals-creator-container"
       >
@@ -181,28 +217,35 @@ const PayrollApprovalCreator = ({
             ),
           )}
 
-          <Form.Item
-            id="settings-payroll-approvals-creator-levels-container-submit"
-            data-cy="settings-payroll-approvals-creator-levels-container-submit"
-          >
-            <Row
-              className="flex justify-end gap-3"
-              id="settings-payroll-approvals-creator-levels-container-submit-row"
-              data-cy="settings-payroll-approvals-creator-levels-container-submit-row"
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-                id="settings-payroll-approvals-creator-levels-container-submit-row-button"
-                data-cy="settings-payroll-approvals-creator-levels-container-submit-row-button"
-              >
-                Submit
-              </Button>
-            </Row>
-          </Form.Item>
         </Form>
       </div>
-    </CustomDrawerLayout>
+
+      {/* Footer */}
+      <Row
+        className="flex justify-end gap-3 mt-4 border-t border-gray-100 pt-4 px-6"
+        id="settings-payroll-approvals-creator-footer"
+        data-cy="settings-payroll-approvals-creator-footer"
+      >
+        <Button
+          type="default"
+          className="h-10 px-8"
+          data-cy="settings-payroll-approvals-creator-cancel-button"
+          id="settings-payroll-approvals-creator-cancel-button"
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="primary"
+          className="h-10 px-8"
+          data-cy="settings-payroll-approvals-creator-create-button"
+          id="settings-payroll-approvals-creator-create-button"
+          onClick={() => form.submit()}
+        >
+          Create
+        </Button>
+      </Row>
+    </Modal>
   );
 };
 

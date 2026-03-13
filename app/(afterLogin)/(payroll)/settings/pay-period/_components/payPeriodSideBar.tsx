@@ -1,10 +1,20 @@
 'use-client';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Select, Spin, DatePicker, Button, Popover, message } from 'antd';
+// import CustomDrawerFooterButton, {
+//   CustomDrawerFooterButtonProps,
+// } from '@/components/common/customDrawer/customDrawerFooterButton';
+// import CustomDrawerLayout from '@/components/common/customDrawer';
+// import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
+import {
+  Form,
+  Select,
+  Spin,
+  DatePicker,
+  Button,
+  Popover,
+  message,
+  Modal,
+  Radio,
+} from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
@@ -247,12 +257,37 @@ const PayPeriodSideBar = () => {
     setSelectedFiscalYear(null);
   };
 
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
+  // const footerModalItems: CustomDrawerFooterButtonProps[] = [
+  //   {
+  //     label: 'Cancel',
+  //     key: 'cancel',
+  //     className: 'h-12',
+  //     size: 'large',
+  //     loading: false,
+  //     onClick: () => onClose(),
+  //   },
+  //   {
+  //     label: (
+  //       <span data-cy="payroll-payperiod-sidebar-create-button-label">
+  //         Create
+  //       </span>
+  //     ),
+  //     key: 'create',
+  //     'data-cy': 'payroll-payperiod-sidebar-create-button',
+  //     className: 'h-12',
+  //     type: 'primary',
+  //     size: 'large',
+  //     loading: createPayPeriodsLoading,
+  //     onClick: () => form.submit(),
+  //   },
+  // ];
+
+  const footerModalItems = [
     {
       label: 'Cancel',
       key: 'cancel',
+      dataCy: 'payroll-payperiod-sidebar-cancel-button',
       className: 'h-12',
-      size: 'large',
       loading: false,
       onClick: () => onClose(),
     },
@@ -263,19 +298,31 @@ const PayPeriodSideBar = () => {
         </span>
       ),
       key: 'create',
-      'data-cy': 'payroll-payperiod-sidebar-create-button',
+      dataCy: 'payroll-payperiod-sidebar-create-button',
       className: 'h-12',
-      type: 'primary',
-      size: 'large',
+      type: 'primary' as const,
       loading: createPayPeriodsLoading,
       onClick: () => form.submit(),
     },
   ];
 
   const modeOptions = [
-    { label: 'Weekly', value: 'Weekly' },
-    { label: 'Bi-weekly', value: 'Bi-weekly' },
-    { label: 'Monthly', value: 'Monthly' },
+    {
+      label: 'Monthly',
+      value: 'Monthly',
+      description: 'Pay period is generated once per month.',
+    },
+    {
+      label: 'Bi-weekly',
+      value: 'Bi-weekly',
+      description:
+        'Pay period is generated every two weeks (14–15 day intervals).',
+    },
+    {
+      label: 'Weekly',
+      value: 'Weekly',
+      description: 'Pay period is generated every week (7-day intervals).',
+    },
   ];
 
   const getSpanRulesForMode = (mode: string) => {
@@ -287,110 +334,161 @@ const PayPeriodSideBar = () => {
     return { min: 1, max: Infinity } as const;
   };
 
-  return (
-    isPayPeriodSidebarVisible && (
-      <CustomDrawerLayout
-        data-cy="payroll-payperiod-sidebar-drawer"
-        open={isPayPeriodSidebarVisible}
-        onClose={onClose}
-        modalHeader={
-          <CustomDrawerHeader
-            data-cy="payroll-payperiod-sidebar-header"
-            className="flex justify-center"
-          >
-            <span
-              id="payroll-payperiod-sidebar-header-title"
-              data-cy="payroll-payperiod-sidebar-header-title"
-            >
-              Add Pay Periods
-            </span>
-          </CustomDrawerHeader>
-        }
-        footer={
-          <CustomDrawerFooterButton
-            data-cy="payroll-payperiod-sidebar-footer"
-            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
-            buttons={footerModalItems}
-          />
-        }
-        width="30%"
-        customMobileHeight="50vh"
-      >
-        <Spin data-cy="payroll-payperiod-sidebar-spinner" spinning={false}>
-          <Form
-            id="payroll-payperiod-sidebar-form"
-            data-cy="payroll-payperiod-sidebar-form"
-            layout="vertical"
-            form={form}
-            onFinish={() => onFormSubmit()}
-            requiredMark={CustomLabel}
-            className="px-3"
-          >
-            <Form.Item
-              id="payroll-payperiod-sidebar-fiscalyear-formitem"
-              data-cy="payroll-payperiod-sidebar-fiscalyear-formitem"
-              name="fiscalYear"
-              label="Fiscal Year"
-              rules={[
-                { required: true, message: 'Please select a fiscal year' },
-              ]}
-            >
-              <Select
-                id="payroll-payperiod-sidebar-fiscalyear-select"
-                data-cy="payroll-payperiod-sidebar-fiscalyear-select"
-                placeholder="Select fiscal year"
-                onChange={handleFiscalYearChange}
-                options={fiscalYearsData?.items.map((year) => ({
-                  label: `${dayjs(year.startDate).format('MMMM D, YYYY')} - ${dayjs(year.endDate).format('MMMM D, YYYY')}`,
-                  value: year.id,
-                }))}
-              />
-            </Form.Item>
 
-            <Form.Item
-              id="payroll-payperiod-sidebar-mode-formitem"
-              data-cy="payroll-payperiod-sidebar-mode-formitem"
-              name="payPeriodMode"
-              label="Pay Period mode"
-              rules={[
-                { required: true, message: 'Please select pay period mode' },
-              ]}
+  return (
+    <Modal
+      data-cy="payroll-payperiod-sidebar-modal"
+      open={isPayPeriodSidebarVisible}
+      onCancel={onClose}
+      footer={null}
+      centered
+      width={640}
+      destroyOnClose
+      maskClosable={false}
+      closable={false}
+      className="!p-0"
+    >
+      {/* Header */}
+      <div
+        id="payroll-payperiod-sidebar-modal-header"
+        data-cy="payroll-payperiod-sidebar-modal-header"
+        className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+      >
+        <span
+          id="payroll-payperiod-sidebar-header-title"
+          data-cy="payroll-payperiod-sidebar-header-title"
+          className="text-[22px] font-bold text-gray-900 tracking-tight"
+        >
+          Add Pay Periods
+        </span>
+        <button
+          id="payroll-payperiod-sidebar-modal-close-click-button"
+          data-cy="payroll-payperiod-sidebar-modal-close-click-button"
+          type="button"
+          onClick={onClose}
+          className="inline-flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-md hover:bg-gray-100"
+          aria-label="Close modal"
+        >
+          <span
+            id="payroll-payperiod-sidebar-modal-close-icon"
+            data-cy="payroll-payperiod-sidebar-modal-close-icon"
+            className="text-lg leading-none"
+          >
+            ✕
+          </span>
+        </button>
+      </div>
+      {/* Body */}
+      <div
+        id="payroll-payperiod-sidebar-modal-body-view-container"
+        data-cy="payroll-payperiod-sidebar-modal-body-view-container"
+        className="px-6 pt-4 pb-2 bg-gray-50/60"
+      >
+        <div
+          id="payroll-payperiod-sidebar-modal-card-view-container"
+          data-cy="payroll-payperiod-sidebar-modal-card-view-container"
+          className="bg-white border border-gray-200 rounded-xl shadow-sm p-6"
+        >
+          <Spin data-cy="payroll-payperiod-sidebar-spinner" spinning={false}>
+            <Form
+              id="payroll-payperiod-sidebar-form"
+              data-cy="payroll-payperiod-sidebar-form"
+              layout="vertical"
+              form={form}
+              onFinish={() => onFormSubmit()}
+              requiredMark={CustomLabel}
+              className="flex flex-col gap-5"
             >
-              <Select
-                id="payroll-payperiod-sidebar-mode-select"
-                data-cy="payroll-payperiod-sidebar-mode-select"
-                className="mt-2 h-10"
-                placeholder="Select pay period mode"
-                options={modeOptions}
-                allowClear
-                onChange={(value) => setPayPeriodMode(value)}
-              />
-            </Form.Item>
-            {payPeriodMode && (
-              <div
-                id="payroll-payperiod-sidebar-mode-label"
-                data-cy="payroll-payperiod-sidebar-mode-label"
-                className="text-center text-l"
-              >{`${payPeriodMode} pay periods`}</div>
-            )}
-            {formattedDivisions.length > 0 && (
-              <div
-                id="payroll-payperiod-sidebar-divisions-container"
-                data-cy="payroll-payperiod-sidebar-divisions-container"
-                className="mt-4"
+              <Form.Item
+                id="payroll-payperiod-sidebar-fiscalyear-formitem"
+                data-cy="payroll-payperiod-sidebar-fiscalyear-formitem"
+                name="fiscalYear"
+                label="Fiscal Year"
+                rules={[
+                  { required: true, message: 'Please select a fiscal year' },
+                ]}
               >
-                {divisions.map((range, index) => (
-                  <div
-                    id={`payroll-payperiod-sidebar-division-${index}`}
-                    data-cy={`payroll-payperiod-sidebar-division-${index}`}
-                    key={index}
-                    className="my-2"
-                  >
-                    <div
-                      id={`payroll-payperiod-sidebar-division-form-${index}`}
-                      data-cy={`payroll-payperiod-sidebar-division-form-${index}`}
-                      className="w-full"
+                <Select
+                  id="payroll-payperiod-sidebar-fiscalyear-select"
+                  data-cy="payroll-payperiod-sidebar-fiscalyear-select"
+                  placeholder="Select fiscal year"
+                  onChange={handleFiscalYearChange}
+                  options={fiscalYearsData?.items.map((year) => ({
+                    label: `${dayjs(year.startDate).format('MMMM D, YYYY')} - ${dayjs(year.endDate).format('MMMM D, YYYY')}`,
+                    value: year.id,
+                  }))}
+                />
+              </Form.Item>
+
+              <Form.Item
+                id="payroll-payperiod-sidebar-mode-formitem"
+                data-cy="payroll-payperiod-sidebar-mode-formitem"
+                name="payPeriodMode"
+                label="Pay Period mode"
+                rules={[
+                  { required: true, message: 'Please select pay period mode' },
+                ]}
+              >
+                <Radio.Group
+                  id="payroll-payperiod-sidebar-mode-radio-group"
+                  data-cy="payroll-payperiod-sidebar-mode-radio-group"
+                  className="mt-2 space-y-3"
+                  value={payPeriodMode}
+                  onChange={(e) => setPayPeriodMode(e.target.value)}
+                >
+                  {modeOptions.map((option) => (
+                    <Radio
+                      key={option.value}
+                      value={option.value}
+                      className={`flex items-start p-4 border rounded-xl cursor-pointer transition-all w-full ${
+                        payPeriodMode === option.value
+                          ? 'border-primary bg-primary/5'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      data-cy={`payroll-payperiod-sidebar-mode-card-${option.value.toLowerCase()}`}
                     >
+                      <div className="ml-2 flex flex-col">
+                        <span
+                          className="text-sm font-medium text-gray-700"
+                          data-cy={`payroll-payperiod-sidebar-mode-card-title-${option.value.toLowerCase()}`}
+                        >
+                          {option.label}
+                        </span>
+                        {option.description && (
+                          <span className="text-xs text-gray-500 mt-0.5">
+                            {option.description}
+                          </span>
+                        )}
+                      </div>
+                    </Radio>
+                  ))}
+                </Radio.Group>
+              </Form.Item>
+              {payPeriodMode && (
+                <div
+                  id="payroll-payperiod-sidebar-mode-label"
+                  data-cy="payroll-payperiod-sidebar-mode-label"
+                  className="mt-1 text-sm font-medium text-gray-700"
+                >{`${payPeriodMode} pay periods`}</div>
+              )}
+              {formattedDivisions.length > 0 && (
+                <div
+                  id="payroll-payperiod-sidebar-divisions-container"
+                  data-cy="payroll-payperiod-sidebar-divisions-container"
+                  className="mt-4 space-y-3"
+                >
+                  {divisions.map((range, index) => (
+                    <div
+                      id={`payroll-payperiod-sidebar-division-${index}`}
+                      data-cy={`payroll-payperiod-sidebar-division-${index}`}
+                      key={index}
+                      className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+                    >
+                      <div
+                        id={`payroll-payperiod-sidebar-division-form-${index}`}
+                        data-cy={`payroll-payperiod-sidebar-division-form-${index}`}
+                        className="w-full"
+                      >
                       <Form.Item
                         name={`range${index}`}
                         data-cy={`payroll-payperiod-sidebar-division-formitem-${index}`}
@@ -780,8 +878,33 @@ const PayPeriodSideBar = () => {
             )}
           </Form>
         </Spin>
-      </CustomDrawerLayout>
-    )
+        </div>
+        </div>
+      {/* Footer */}
+    <div
+      id="payroll-payperiod-sidebar-modal-footer"
+      data-cy="payroll-payperiod-sidebar-modal-footer"
+      className="w-full flex justify-end items-center gap-4 px-2 pb-2 pt-6"
+    >
+      {footerModalItems.map((item) => (
+        <Button
+          key={item.key}
+          id={
+            item.key === 'create'
+              ? 'payroll-payperiod-sidebar-create-button'
+              : 'payroll-payperiod-sidebar-cancel-button'
+          }
+          data-cy={item.dataCy}
+          type={item.type}
+          className={item.className}
+          loading={item.loading}
+          onClick={item.onClick}
+        >
+          {item.label}
+        </Button>
+      ))}
+    </div>
+  </Modal>
   );
 };
 

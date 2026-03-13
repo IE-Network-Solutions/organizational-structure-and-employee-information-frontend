@@ -2,7 +2,7 @@
 import { useCreateApproverMutation } from '@/store/server/features/approver/mutation';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { APPROVALTYPES } from '@/types/enumTypes';
-import { Button, Form } from 'antd';
+import { Button, Form, Modal } from 'antd';
 import React, { useMemo } from 'react';
 import ApprovalTable from './_component/ApprovalTable';
 import { FaPlus } from 'react-icons/fa';
@@ -95,98 +95,105 @@ const Approvals = () => {
 
   const pageSlug = 'approvals-payroll-settings';
 
+  const handleCloseModal = () => {
+    setAddDepartmentApproval(false);
+    setDepartmentApproval(false);
+  };
+
   return (
     <div
-      className="px-5 py-4 rounded-2xl bg-white h-full"
+      className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden"
       id={`settings-${pageSlug}-container`}
       data-cy={`settings-${pageSlug}-container`}
     >
-      {addDepartmentApproval ? (
-        departmentApproval ? (
-          <div
-            id={`settings-${pageSlug}-workflow-setting`}
-            data-cy={`settings-${pageSlug}-workflow-setting`}
-          >
-            <div
-              className="mb-4"
-              id={`settings-${pageSlug}-workflow-setting-header`}
-              data-cy={`settings-${pageSlug}-workflow-setting-header`}
-            >
-              <PayrollApprovalWorkFlowSetting
-                handleSubmit={handleSubmit}
-                isSuccess={isSuccess}
-                form={form}
-                title={'Department transfer '}
-                data-cy={`settings-${pageSlug}-workflow-setting-component`}
-              />
-            </div>
-          </div>
-        ) : (
-          <div
-            id={`settings-${pageSlug}-workflow-config`}
-            data-cy={`settings-${pageSlug}-workflow-config`}
-          >
-            <PayrollApprovalWorkFlow
-              onChange={onChange}
-              data-cy={`settings-${pageSlug}-workflow-config-component`}
-            />
-          </div>
-        )
-      ) : (
+      <div id={`settings-${pageSlug}-list`} data-cy={`settings-${pageSlug}-list`}>
         <div
-          id={`settings-${pageSlug}-list`}
-          data-cy={`settings-${pageSlug}-list`}
+          className="flex justify-between items-center px-6 py-5"
+          id={`settings-${pageSlug}-list-header`}
+          data-cy={`settings-${pageSlug}-list-header`}
         >
           <div
-            className="mb-4 flex justify-between"
-            id={`settings-${pageSlug}-list-header`}
-            data-cy={`settings-${pageSlug}-list-header`}
+            className="text-lg font-semibold text-gray-900"
+            id={`settings-${pageSlug}-list-title`}
+            data-cy={`settings-${pageSlug}-list-title`}
           >
-            <div
-              className=" py-2 text-lg font-bold "
-              id={`settings-${pageSlug}-list-title`}
-              data-cy={`settings-${pageSlug}-list-title`}
+            Approval Types
+          </div>
+          <PermissionWraper
+            permissions={[Permissions.CreateApprover]}
+            id={`settings-${pageSlug}-add-approval-guard`}
+            data-cy={`settings-${pageSlug}-add-approval-guard`}
+          >
+            <Button
+              type="primary"
+                className="hidden h-10 w-10 sm:w-auto bg-primary hover:!bg-primary/90"
+              onClick={() => setAddDepartmentApproval(true)}
+              icon={<FaPlus />}
+              id={`settings-${pageSlug}-add-approval-btn`}
+              data-cy={`settings-${pageSlug}-add-approval-btn`}
+              disabled={allFilterData?.items?.length >= 1}
             >
-              Approval Types
-            </div>
-            <PermissionWraper
-              permissions={[Permissions.CreateApprover]}
-              id={`settings-${pageSlug}-add-approval-guard`}
-              data-cy={`settings-${pageSlug}-add-approval-guard`}
-            >
-              <Button
-                type="primary"
-                className="hidden sm:flex h-10 w-10 sm:w-auto"
-                onClick={() => setAddDepartmentApproval(true)}
-                icon={<FaPlus />}
-                id={`settings-${pageSlug}-add-approval-btn`}
-                data-cy={`settings-${pageSlug}-add-approval-btn`}
-                disabled={allFilterData?.items?.length >= 1}
+              <span
+                className="hidden sm:inline"
+                data-cy="settings-approvals-add-btn-text"
               >
-                <span
-                  className="hidden sm:inline"
-                  data-cy="settings-approvals-add-btn-text"
-                >
-                  Set Approval
-                </span>
-              </Button>
-            </PermissionWraper>
-          </div>
-
-          <div
-            className="flex flex-col gap-4"
-            id={`settings-${pageSlug}-filters`}
-            data-cy={`settings-${pageSlug}-filters`}
-          ></div>
-          <div
-            className="overflow-x-auto scrollbar-none  w-full"
-            id={`settings-${pageSlug}-table-wrapper`}
-            data-cy={`settings-${pageSlug}-table-wrapper`}
-          >
-            <ApprovalTable data-cy={`settings-${pageSlug}-table`} />
-          </div>
+                Set Approval
+              </span>
+            </Button>
+          </PermissionWraper>
         </div>
-      )}
+
+        <div
+          className="flex flex-col gap-4"
+          id={`settings-${pageSlug}-filters`}
+          data-cy={`settings-${pageSlug}-filters`}
+        ></div>
+        <div
+          className="overflow-x-auto w-full px-6 pb-5"
+          id={`settings-${pageSlug}-table-wrapper`}
+          data-cy={`settings-${pageSlug}-table-wrapper`}
+        >
+          <ApprovalTable data-cy={`settings-${pageSlug}-table`} />
+        </div>
+      </div>
+
+      <Modal
+        open={addDepartmentApproval}
+        onCancel={handleCloseModal}
+        footer={null}
+        centered
+        width={720}
+        destroyOnClose
+        maskClosable={false}
+        closable={false}
+        data-cy={`settings-${pageSlug}-workflow-modal`}
+      >
+        <PayrollApprovalWorkFlow
+          onChange={onChange}
+          currentStep={departmentApproval ? 2 : 1}
+          onClose={handleCloseModal}
+          onPrimaryClick={
+            departmentApproval
+              ? () => {
+                  form.submit();
+                }
+              : undefined
+          }
+          primaryLabel={departmentApproval ? 'Create' : undefined}
+          primaryDisabled={!departmentApproval}
+          data-cy={`settings-${pageSlug}-workflow-config-component`}
+        >
+          {departmentApproval && (
+            <PayrollApprovalWorkFlowSetting
+              handleSubmit={handleSubmit}
+              isSuccess={isSuccess}
+              form={form}
+              title={'Department transfer '}
+              data-cy={`settings-${pageSlug}-workflow-setting-component`}
+            />
+          )}
+        </PayrollApprovalWorkFlow>
+      </Modal>
     </div>
   );
 };

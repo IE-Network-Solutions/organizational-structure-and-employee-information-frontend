@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Table, Button, Space, Switch, Spin, Tooltip } from 'antd';
+import { Button, Spin, Tooltip } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import PayPeriodSideBar from './_components/payPeriodSideBar';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
@@ -70,69 +70,10 @@ const PayPeriod = () => {
         startDate: payPeriod.startDate,
         endDate: payPeriod.endDate,
         range: `${dayjs(payPeriod.startDate).format('MMMM D, YYYY')} - ${dayjs(payPeriod.endDate).format('MMMM D, YYYY')}`,
-        month: dayjs(payPeriod.startDate).format('MMM'),
+        month: dayjs(payPeriod.startDate).format('MMMM'),
         status: payPeriod.status,
       }))
     : [];
-
-  const columns = [
-    {
-      title: 'Range',
-      dataIndex: 'range',
-      key: 'range',
-    },
-    {
-      title: 'Month',
-      dataIndex: 'month',
-      key: 'month',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (record: any) => (
-        <AccessGuard
-          data-cy={`payroll-payperiod-actions-view-container-${record.id}`}
-          permissions={[
-            Permissions.UpdatePayPeriod,
-            Permissions.DeletePayPeriod,
-          ]}
-        >
-          <Space
-            id={`payroll-payperiod-actions-view-space-${record.id}`}
-            data-cy={`payroll-payperiod-actions-view-space-${record.id}`}
-            size="middle"
-          >
-            <Switch
-              id={`payroll-payperiod-status-toggle-switch-${record.id}`}
-              data-cy={`payroll-payperiod-status-toggle-switch-${record.id}`}
-              checked={record.status === 'OPEN'}
-              onChange={() => onStatusChange(record)}
-              checkedChildren="Opened"
-              unCheckedChildren="Closed"
-            />
-            <Tooltip
-              data-cy={`payroll-payperiod-edit-click-button-tooltip-${record.id}`}
-              title="Edit"
-            >
-              <Button
-                id={`payroll-payperiod-edit-click-button-${record.id}`}
-                data-cy={`payroll-payperiod-edit-click-button-${record.id}`}
-                type="primary"
-                shape="default"
-                icon={<EditOutlined />}
-                onClick={() => handleEdit(record)}
-              />
-            </Tooltip>
-          </Space>
-        </AccessGuard>
-      ),
-    },
-  ];
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
@@ -153,20 +94,31 @@ const PayPeriod = () => {
     <div
       id="payroll-payperiod-page-view-container"
       data-cy="payroll-payperiod-page-view-container"
-      className="p-5 rounded-2xl bg-white"
+      className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden"
     >
       <div
         id="payroll-payperiod-header-view-container"
         data-cy="payroll-payperiod-header-view-container"
-        className="flex justify-between items-center mb-4"
+        className="flex justify-between items-center px-6 py-5"
       >
         <h1
           id="payroll-payperiod-title-view-text"
           data-cy="payroll-payperiod-title-view-text"
-          className="text-lg text-bold"
+          className="text-lg font-semibold text-gray-900"
         >
           Pay Period
         </h1>
+        <div
+          id="payroll-payperiod-header-action-spacer"
+          data-cy="payroll-payperiod-header-action-spacer"
+          className="hidden sm:block"
+        />
+      </div>
+      <div
+        id="payroll-payperiod-hidden-primary-action-target"
+        data-cy="payroll-payperiod-hidden-primary-action-target"
+        className="hidden"
+      >
         <AccessGuard
           data-cy="payroll-payperiod-add-click-button-access-guard"
           permissions={[Permissions.CreatePayPeriod]}
@@ -175,15 +127,12 @@ const PayPeriod = () => {
             id="payroll-payperiod-add-click-button"
             data-cy="payroll-payperiod-add-click-button"
             type="primary"
-            className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
-            style={{ marginBottom: '20px' }}
             onClick={handleAddPayPeriod}
           >
             <span
               id="payroll-payperiod-add-click-button-text"
               data-cy="payroll-payperiod-add-click-button-text"
-              className="hidden lg:inline"
             >
               Pay Period
             </span>
@@ -192,22 +141,94 @@ const PayPeriod = () => {
       </div>
       <Spin data-cy="payroll-payperiod-table-spinner" spinning={isLoading}>
         <div
-          id="payroll-payperiod-table-wrapper-view-container"
-          data-cy="payroll-payperiod-table-wrapper-view-container"
-          className="flex overflow-x-auto scrollbar-none w-full "
+          id="payroll-payperiod-grid-wrapper-view-container"
+          data-cy="payroll-payperiod-grid-wrapper-view-container"
+          className="px-6 pb-5"
         >
           <div
-            id="payroll-payperiod-table-inner-view-container"
-            data-cy="payroll-payperiod-table-inner-view-container"
-            className="w-full"
+            id="payroll-payperiod-grid-view-container"
+            data-cy="payroll-payperiod-grid-view-container"
+            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
           >
-            <Table
-              id="payroll-payperiod-table-view-table"
-              data-cy="payroll-payperiod-table-view-table"
-              dataSource={paginatedData}
-              columns={columns}
-              pagination={false}
-            />
+            {paginatedData.map((period) => {
+              const isOpen = period.status === 'OPEN';
+              return (
+                <div
+                  key={period.id}
+                  id={`payroll-payperiod-card-${period.id}`}
+                  data-cy={`payroll-payperiod-card-${period.id}`}
+                  className="relative rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <div
+                    id={`payroll-payperiod-card-header-${period.id}`}
+                    data-cy={`payroll-payperiod-card-header-${period.id}`}
+                    className="mb-4 flex items-start justify-between"
+                  >
+                    <h3
+                      id={`payroll-payperiod-card-title-${period.id}`}
+                      data-cy={`payroll-payperiod-card-title-${period.id}`}
+                      className="text-base font-medium text-gray-900"
+                    >
+                      {period.month}
+                    </h3>
+                    <AccessGuard
+                      data-cy={`payroll-payperiod-card-actions-guard-${period.id}`}
+                      permissions={[Permissions.UpdatePayPeriod]}
+                    >
+                      <Tooltip
+                        data-cy={`payroll-payperiod-card-edit-tooltip-${period.id}`}
+                        title="Edit"
+                      >
+                        <button
+                          id={`payroll-payperiod-card-edit-button-${period.id}`}
+                          data-cy={`payroll-payperiod-card-edit-button-${period.id}`}
+                          className="rounded border border-gray-200 p-1 text-gray-400 transition hover:bg-gray-50 hover:text-gray-600"
+                          type="button"
+                          aria-label={`Edit ${period.month} pay period`}
+                          onClick={() => handleEdit(period)}
+                        >
+                          <EditOutlined
+                            data-cy={`payroll-payperiod-card-edit-icon-${period.id}`}
+                          />
+                        </button>
+                      </Tooltip>
+                    </AccessGuard>
+                  </div>
+
+                  <div
+                    id={`payroll-payperiod-card-details-${period.id}`}
+                    data-cy={`payroll-payperiod-card-details-${period.id}`}
+                    className="flex flex-wrap items-center gap-3"
+                  >
+                    <span
+                      id={`payroll-payperiod-card-range-${period.id}`}
+                      data-cy={`payroll-payperiod-card-range-${period.id}`}
+                      className="inline-flex items-center rounded border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-medium text-gray-600"
+                    >
+                      {period.range}
+                    </span>
+                    <span
+                      id={`payroll-payperiod-card-status-${period.id}`}
+                      data-cy={`payroll-payperiod-card-status-${period.id}`}
+                      className={`inline-flex items-center rounded border px-2.5 py-1 text-[11px] font-medium ${
+                        isOpen
+                          ? 'border-green-200 bg-green-50 text-green-600'
+                          : 'border-gray-200 bg-gray-50 text-gray-500'
+                      }`}
+                    >
+                      {isOpen ? 'Open' : 'Closed'}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div
+            id="payroll-payperiod-pagination-view-container"
+            data-cy="payroll-payperiod-pagination-view-container"
+            className="border-t border-gray-100 mt-6 pt-4"
+          >
             {isMobile || isTablet ? (
               <CustomMobilePagination
                 data-cy="payroll-payperiod-mobile-pagination-view-component"

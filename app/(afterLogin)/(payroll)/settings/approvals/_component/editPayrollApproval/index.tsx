@@ -1,6 +1,6 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
+// import CustomDrawerLayout from '@/components/common/customDrawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { Button, Form, Input, Row, Select, Tooltip } from 'antd';
+import { Button, Form, Input, Row, Select, Tooltip, Modal } from 'antd';
 import React, { useEffect } from 'react';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 
@@ -58,40 +58,51 @@ const EditPayrollApproval = ({
   }, [selectedItem, form]);
 
   return (
-    <CustomDrawerLayout
+    <Modal
+      data-cy="editPayrollApprovalModal"
       open={editModal}
-      modalHeader={customFieldsDrawerHeader}
-      onClose={onClose}
-      width="35%"
-      footer={
-        <Row
-          className="flex justify-center gap-6"
-          id="editPayrollApprovalFooter"
-          data-cy="editPayrollApprovalFooter"
-        >
-          <Button
-            type="default"
-            className="h-10 px-10"
-            data-cy="editPayrollApprovalCancelBtn"
-            id="editPayrollApprovalCancelBtn"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            onClick={handleSubmit}
-            className="h-10 px-10"
-            data-cy="editPayrollApprovalSubmitBtn"
-            id="editPayrollApprovalSubmitBtn"
-          >
-            Submit
-          </Button>
-        </Row>
-      }
+      onCancel={onClose}
+      footer={null}
+      centered
+      width={640}
+      destroyOnClose
+      maskClosable={false}
+      closable={false}
     >
+      {/* Header */}
       <div
-        className="pb-[60px]"
+        id="editPayrollApprovalHeader"
+        data-cy="editPayrollApprovalHeader"
+        className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+      >
+        <h2
+          id="editPayrollApprovalTitle"
+          data-cy="editPayrollApprovalTitle"
+          className="text-lg font-semibold text-gray-900"
+        >
+          {customFieldsDrawerHeader || 'Edit Approval Workflow'}
+        </h2>
+        <button
+          id="editPayrollApprovalCloseButton"
+          data-cy="editPayrollApprovalCloseButton"
+          type="button"
+          onClick={onClose}
+          className="inline-flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-md hover:bg-gray-100"
+          aria-label="Close modal"
+        >
+          <span
+            id="editPayrollApprovalCloseIcon"
+            data-cy="editPayrollApprovalCloseIcon"
+            className="text-lg leading-none"
+          >
+            ✕
+          </span>
+        </button>
+      </div>
+
+      {/* Body */}
+      <div
+        className="px-6 pt-4 pb-2"
         data-cy="editPayrollApprovalContent"
         id="editPayrollApprovalContent"
       >
@@ -228,6 +239,7 @@ const EditPayrollApproval = ({
           </Form.List>
         </Form>
       </div>
+
       <DeleteModal
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedApprover, selectedItem?.id)}
@@ -235,7 +247,33 @@ const EditPayrollApproval = ({
         data-cy="editPayrollApprovalDeleteModal"
         id="editPayrollApprovalDeleteModal"
       />
-    </CustomDrawerLayout>
+
+      {/* Footer */}
+      <Row
+        className="flex justify-end gap-3 mt-4 border-t border-gray-100 pt-4 px-6"
+        id="editPayrollApprovalFooter"
+        data-cy="editPayrollApprovalFooter"
+      >
+        <Button
+          type="default"
+          className="h-10 px-8"
+          data-cy="editPayrollApprovalCancelBtn"
+          id="editPayrollApprovalCancelBtn"
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="primary"
+          onClick={handleSubmit}
+          className="h-10 px-8"
+          data-cy="editPayrollApprovalSubmitBtn"
+          id="editPayrollApprovalSubmitBtn"
+        >
+          Save
+        </Button>
+      </Row>
+    </Modal>
   );
 };
 

@@ -264,26 +264,6 @@ const PayrollApprovalWorkFlowSetting = ({
               </div>
             ),
           )}
-
-          <Form.Item
-            id="approval-payroll-workflow-setting-submit-button"
-            data-cy="approval-payroll-workflow-setting-submit-button"
-          >
-            <Row
-              className="flex justify-center gap-3"
-              id="approval-payroll-workflow-setting-submit-button-row"
-              data-cy="approval-payroll-workflow-setting-submit-button-row"
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-                id="approval-payroll-workflow-setting-submit-button"
-                data-cy="approval-payroll-workflow-setting-submit-button"
-              >
-                Submit
-              </Button>
-            </Row>
-          </Form.Item>
         </Form>
       </div>
     </div>

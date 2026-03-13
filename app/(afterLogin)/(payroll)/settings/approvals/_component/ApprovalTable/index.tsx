@@ -3,7 +3,7 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { Button, Tooltip, Skeleton } from 'antd';
+import { Button, Dropdown, Skeleton, Tooltip } from 'antd';
 import Image from 'next/image';
 import { useState } from 'react';
 import { FaPencil } from 'react-icons/fa6';
@@ -14,10 +14,13 @@ import { APPROVALTYPES } from '@/types/enumTypes';
 import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
 import EditWorkFLow from '../editWorkFLow';
 import AddApprover from '../addApprover';
-import PayrollApprovalTable from '../payrollApprovalTable';
 import { useApprovalFilter } from '@/store/server/features/approver/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { MoreOutlined } from '@ant-design/icons';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -46,6 +49,7 @@ const ApprovalTable = () => {
     searchParams,
   } = useApprovalBranchStore();
   const { data: employeeData, isLoading: isUserDataLoading } = useGetAllUsers();
+  const { isMobile, isTablet } = useIsMobile();
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
   const getEmployeeInformation = (id: string) => {
@@ -150,244 +154,113 @@ const ApprovalTable = () => {
     );
   };
 
-  const data = allFilterData?.items?.map((item: any, index: number) => {
-    const rowSlug = toSlug(item?.id ?? index);
-    return {
-      key: index,
-      workflow_name: item?.name ? item?.name : '-',
+  const handleOpenEdit = (item: any) => {
+    setEditModal(true);
+    setSelectedItem(item);
+    setLevel(item?.approvers ? item?.approvers?.length : '-');
+    setWorkflowApplies(item?.entityType ? item?.entityType : '-');
+    setApproverType(item?.approvalWorkflowType ? item?.approvalWorkflowType : '-');
+  };
 
-      assigned: (
+  const handleOpenAdd = (item: any) => {
+    setAddModal(true);
+    setSelectedItem(item);
+    setLevel(1);
+    setApproverType(item?.approvalWorkflowType ? item?.approvalWorkflowType : '-');
+  };
+
+  const renderAssignees = (approvers: any[], itemSlug: string) => {
+    if (isUserDataLoading) {
+      return (
         <div
-          className="flex flex-col gap-2 max-h-20 overflow-y-auto"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            overflow: 'hidden',
-            overflowY: 'scroll',
-          }}
-          id={`settings-payroll-approvals-row-assignee-${rowSlug}`}
-          data-cy={`settings-payroll-approvals-row-assignee-${rowSlug}`}
+          id={`settings-payroll-approvals-card-assignees-loading-${itemSlug}`}
+          data-cy={`settings-payroll-approvals-card-assignees-loading-${itemSlug}`}
+          className="flex flex-col gap-2"
         >
-          {isUserDataLoading ? (
-            // Show skeleton loaders while user data is loading
-            <>
-              <UserInfoSkeleton data-cy="settings-payroll-approvals-row-assignee-skeleton" />
-              <UserInfoSkeleton data-cy="settings-payroll-approvals-row-assignee-skeleton" />
-            </>
-          ) : (
-            item?.approvers?.map((employee: any, empIndex: number) => {
-              const userInfo = getEmployeeInformation(employee?.userId);
+          <UserInfoSkeleton />
+          <UserInfoSkeleton />
+        </div>
+      );
+    }
 
-              if (!userInfo) {
-                return (
-                  <div
-                    key={empIndex}
-                    className="flex items-center gap-2"
-                    id={`settings-payroll-approvals-row-assignee-${rowSlug}-${empIndex}`}
-                    data-cy={`settings-payroll-approvals-row-assignee-${rowSlug}-${empIndex}`}
-                  >
-                    <div
-                      className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200"
-                      id={`settings-payroll-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
-                      data-cy={`settings-payroll-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
-                    >
-                      <Image
-                        src={Avatar || '/placeholder.svg'}
-                        alt="Default avatar"
-                        layout="fill"
-                        className="object-cover"
-                        id={`settings-payroll-approvals-row-assignee-avatar-image-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-payroll-approvals-row-assignee-avatar-image-${rowSlug}-${empIndex}`}
-                      />
-                    </div>
-                    <div
-                      className="flex flex-col justify-center"
-                      id={`settings-payroll-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
-                      data-cy={`settings-payroll-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
-                    >
-                      <p
-                        className="text-gray-400"
-                        id={`settings-payroll-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-payroll-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
-                      >
-                        User not found
-                      </p>
-                      <p
-                        className="font-extralight text-[12px] text-gray-400"
-                        id={`settings-payroll-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-payroll-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
-                      >
-                        -
-                      </p>
-                    </div>
-                  </div>
-                );
-              }
+    if (approvers.length === 0) {
+      return (
+        <span
+          id={`settings-payroll-approvals-card-assignees-empty-${itemSlug}`}
+          data-cy={`settings-payroll-approvals-card-assignees-empty-${itemSlug}`}
+          className="text-sm text-gray-400"
+        >
+          -
+        </span>
+      );
+    }
 
-              const fullName = userInfo.firstName + '  ' + userInfo.middleName;
-              const shortEmail = userInfo.email;
-              const displayName =
-                fullName?.length > MAX_NAME_LENGTH
-                  ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
-                  : fullName;
-              const displayEmail =
-                shortEmail?.length > MAX_EMAIL_LENGTH
-                  ? shortEmail.slice(0, MAX_EMAIL_LENGTH) + '...'
-                  : shortEmail;
+    return (
+      <div
+        id={`settings-payroll-approvals-card-assignees-list-${itemSlug}`}
+        data-cy={`settings-payroll-approvals-card-assignees-list-${itemSlug}`}
+        className="flex flex-wrap items-center gap-2"
+      >
+        {approvers.map((employee: any, empIndex: number) => {
+          const userInfo = getEmployeeInformation(employee?.userId);
+          const fullName = userInfo
+            ? `${userInfo.firstName ?? ''} ${userInfo.middleName ?? ''}`.trim()
+            : 'User not found';
 
-              return (
-                <Tooltip
-                  key={empIndex}
-                  title={
-                    <div data-cy="approvals-component-approvaltable-index-tsx-index-div-242">
-                      {fullName}
-                      <br data-cy="approvals-component-approvaltable-index-tsx-index-br-244" />
-                      {userInfo.email}
-                    </div>
-                  }
-                  id={`settings-payroll-approvals-row-assignee-tooltip-${rowSlug}-${empIndex}`}
-                  data-cy={`settings-payroll-approvals-row-assignee-tooltip-${rowSlug}-${empIndex}`}
+          const displayName =
+            fullName.length > MAX_NAME_LENGTH
+              ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
+              : fullName;
+
+          return (
+            <Tooltip
+              key={`${employee?.userId ?? empIndex}-${empIndex}`}
+              title={
+                <div
+                  id={`settings-payroll-approvals-card-assignee-tooltip-${itemSlug}-${empIndex}`}
+                  data-cy={`settings-payroll-approvals-card-assignee-tooltip-${itemSlug}-${empIndex}`}
                 >
+                  {fullName}
+                </div>
+              }
+            >
+              <div
+                id={`settings-payroll-approvals-card-assignee-chip-${itemSlug}-${empIndex}`}
+                data-cy={`settings-payroll-approvals-card-assignee-chip-${itemSlug}-${empIndex}`}
+                className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-md px-2 py-1 shadow-sm"
+              >
+                {userInfo ? (
+                  <UserAvatar userId={employee?.userId} />
+                ) : (
                   <div
-                    className="flex items-center flex-wrap sm:flex-row gap-2"
-                    id={`settings-payroll-approvals-row-assignee-${rowSlug}-${empIndex}`}
-                    data-cy={`settings-payroll-approvals-row-assignee-${rowSlug}-${empIndex}`}
+                    id={`settings-payroll-approvals-card-assignee-fallback-avatar-${itemSlug}-${empIndex}`}
+                    data-cy={`settings-payroll-approvals-card-assignee-fallback-avatar-${itemSlug}-${empIndex}`}
+                    className="relative w-5 h-5 rounded-full overflow-hidden bg-gray-200 border border-gray-200"
                   >
-                    <UserAvatar
-                      userId={employee?.userId}
-                      data-cy={`settings-payroll-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
+                    <Image
+                      src={Avatar || '/placeholder.svg'}
+                      alt="Default avatar"
+                      layout="fill"
+                      className="object-cover"
+                      id={`settings-payroll-approvals-card-assignee-fallback-avatar-image-${itemSlug}-${empIndex}`}
+                      data-cy={`settings-payroll-approvals-card-assignee-fallback-avatar-image-${itemSlug}-${empIndex}`}
                     />
-                    <div
-                      className="flex flex-wrap flex-col justify-center"
-                      id={`settings-payroll-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
-                      data-cy={`settings-payroll-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
-                    >
-                      <p
-                        id={`settings-payroll-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-payroll-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
-                      >
-                        {displayName || '-'}
-                      </p>
-                      <p
-                        className="font-extralight text-[12px]"
-                        id={`settings-payroll-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
-                        data-cy={`settings-payroll-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
-                      >
-                        {displayEmail || '-'}
-                      </p>
-                    </div>
                   </div>
-                </Tooltip>
-              );
-            })
-          )}
-        </div>
-      ),
-      level: item?.approvers ? item?.approvers?.length : '-',
-      action: (
-        <div
-          className="flex gap-1 text-white"
-          id={`settings-payroll-approvals-row-actions-${rowSlug}`}
-          data-cy={`settings-payroll-approvals-row-actions-${rowSlug}`}
-        >
-          <AccessGuard
-            permissions={[Permissions.UpdateApprover]}
-            id={`settings-payroll-approvals-row-edit-guard-${rowSlug}`}
-            data-cy={`settings-payroll-approvals-row-edit-guard-${rowSlug}`}
-          >
-            <Tooltip
-              title={'Edit Approver'}
-              id={`settings-payroll-approvals-row-edit-btn-${rowSlug}`}
-              data-cy={`settings-payroll-approvals-row-edit-btn-${rowSlug}`}
-            >
-              <Button
-                id={`editUserButton${item?.id}`}
-                className="bg-[#2f78ee] text-white border-none w-7 h-7"
-                onClick={() => {
-                  setEditModal(true);
-                  setSelectedItem(item);
-                  setLevel(item?.approvers ? item?.approvers?.length : '-');
-                  setWorkflowApplies(item?.entityType ? item?.entityType : '-');
-                  setApproverType(
-                    item?.approvalWorkflowType
-                      ? item?.approvalWorkflowType
-                      : '-',
-                  );
-                }}
-                data-cy={`settings-payroll-approvals-row-edit-btn-${rowSlug}`}
-                icon={
-                  <FaPencil
-                    id={`settings-payroll-approvals-row-edit-icon-${rowSlug}`}
-                    data-cy={`settings-payroll-approvals-row-edit-icon-${rowSlug}`}
-                  />
-                }
-              />
+                )}
+                <span
+                  id={`settings-payroll-approvals-card-assignee-name-${itemSlug}-${empIndex}`}
+                  data-cy={`settings-payroll-approvals-card-assignee-name-${itemSlug}-${empIndex}`}
+                  className="text-sm text-gray-600 truncate"
+                >
+                  {displayName}
+                </span>
+              </div>
             </Tooltip>
-          </AccessGuard>
-          <AccessGuard
-            permissions={[Permissions.DeleteApprover]}
-            id={`settings-payroll-approvals-row-delete-guard-${rowSlug}`}
-            data-cy={`settings-payroll-approvals-row-delete-guard-${rowSlug}`}
-          >
-            <Tooltip
-              title={'Delete Employee'}
-              id={`settings-payroll-approvals-row-delete-btn-${rowSlug}`}
-              data-cy={`settings-approvals-row-delete-btn-${rowSlug}`}
-            >
-              <Button
-                id={`deleteUserButton${item?.id}`}
-                className="bg-red-600 w-7 h-7 text-white border-none"
-                onClick={() => {
-                  setDeleteModal(true);
-                  setDeletedItem(item?.id);
-                }}
-                data-cy={`settings-payroll-approvals-row-delete-btn-${rowSlug}`}
-                icon={
-                  <RiDeleteBin6Line
-                    id={`settings-payroll-approvals-row-delete-icon-${rowSlug}`}
-                    data-cy={`settings-payroll-approvals-row-delete-icon-${rowSlug}`}
-                  />
-                }
-              />
-            </Tooltip>
-          </AccessGuard>
-          <AccessGuard
-            permissions={[Permissions.CreateApprover]}
-            id={`settings-payroll-approvals-row-add-guard-${rowSlug}`}
-            data-cy={`settings-payroll-approvals-row-add-guard-${rowSlug}`}
-          >
-            <Tooltip
-              title={'Add Approver'}
-              id={`settings-payroll-approvals-row-tooltip=${rowSlug}`}
-              data-cy={`settings-payroll-approvals-tooltip=${rowSlug}`}
-            >
-              <Button
-                id={`editUserButton${item?.id}`}
-                className="bg-[#2f78ee] w-7 h-7 text-white border-none"
-                onClick={() => {
-                  setAddModal(true);
-                  setSelectedItem(item);
-                  setLevel(1);
-                  setApproverType(
-                    item?.approvalWorkflowType
-                      ? item?.approvalWorkflowType
-                      : '-',
-                  );
-                }}
-                data-cy={`settings-payroll-approvals-row-add-btn-${rowSlug}`}
-                icon={
-                  <FaPlus
-                    id={`settings-payroll-approvals-row-add-icon-${rowSlug}`}
-                    data-cy={`settings-payroll-approvals-row-add-icon-${rowSlug}`}
-                  />
-                }
-              />
-            </Tooltip>
-          </AccessGuard>
-        </div>
-      ),
-    };
-  });
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div
@@ -406,14 +279,221 @@ const ApprovalTable = () => {
       {addModal && (
         <AddApprover data-cy="settings-payroll-approvals-add-approver" />
       )}
-      <PayrollApprovalTable
-        data={data}
-        isEmployeeLoading={isEmployeeLoading}
-        allFilterData={allFilterData}
-        onPageChange={onPageChange}
-        pageSize={pageSize}
-        data-cy="settings-payroll-approvals-table-component"
-      />
+      <div
+        id="settings-payroll-approvals-card-shell"
+        data-cy="settings-payroll-approvals-card-shell"
+        className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm"
+      >
+        <div
+          id="settings-payroll-approvals-card-grid"
+          data-cy="settings-payroll-approvals-card-grid"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8"
+        >
+          {(allFilterData?.items ?? []).flatMap((item: any, index: number) => {
+            const baseSlug = toSlug(item?.id ?? index);
+            const approvers = Array.isArray(item?.approvers) ? item.approvers : [];
+
+            // Group assignees by stepOrder so we render one card per level
+            const grouped = new Map<number, any[]>();
+            for (const a of approvers) {
+              const level = Number(a?.stepOrder ?? 0);
+              const next = grouped.get(level) ?? [];
+              next.push(a);
+              grouped.set(level, next);
+            }
+
+            const levels = Array.from(grouped.keys()).filter((l) => l > 0).sort((a, b) => a - b);
+            const effectiveLevels = levels.length > 0 ? levels : [1];
+
+            return effectiveLevels.map((level) => {
+              const levelApprovers = grouped.get(level) ?? [];
+              const itemSlug = `${baseSlug}-level-${level}`;
+
+              const menu = {
+                items: [
+                  {
+                    key: 'edit',
+                    label: (
+                      <span
+                        id={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
+                        data-cy={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
+                      >
+                        Edit Approver
+                      </span>
+                    ),
+                    icon: (
+                      <FaPencil
+                        id={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
+                        data-cy={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
+                      />
+                    ),
+                    onClick: () => handleOpenEdit(item),
+                  },
+                  {
+                    key: 'add',
+                    label: (
+                      <span
+                        id={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
+                        data-cy={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
+                      >
+                        Add Approver
+                      </span>
+                    ),
+                    icon: (
+                      <FaPlus
+                        id={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
+                        data-cy={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
+                      />
+                    ),
+                    onClick: () => handleOpenAdd(item),
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <span
+                        id={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
+                        data-cy={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
+                      >
+                        Delete
+                      </span>
+                    ),
+                    icon: (
+                      <RiDeleteBin6Line
+                        id={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
+                        data-cy={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
+                      />
+                    ),
+                    onClick: () => {
+                      setDeleteModal(true);
+                      setDeletedItem(item?.id);
+                    },
+                  },
+                ],
+              } as const;
+
+              return (
+                <div
+                  key={`${item?.id ?? index}-${level}`}
+                  id={`settings-payroll-approvals-card-${itemSlug}`}
+                  data-cy={`settings-payroll-approvals-card-${itemSlug}`}
+                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col gap-3"
+                >
+                  <div
+                    id={`settings-payroll-approvals-card-top-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-top-${itemSlug}`}
+                    className="flex justify-between items-start"
+                  >
+                    <span
+                      id={`settings-payroll-approvals-card-level-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-level-${itemSlug}`}
+                      className="text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 px-2 py-1 rounded-md"
+                    >
+                      Level: {level}
+                    </span>
+
+                    <AccessGuard
+                      permissions={[
+                        Permissions.UpdateApprover,
+                        Permissions.DeleteApprover,
+                        Permissions.CreateApprover,
+                      ]}
+                      id={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
+                    >
+                      <Dropdown
+                        menu={menu}
+                        trigger={['click']}
+                        placement="bottomRight"
+                      >
+                        <button
+                          id={`settings-payroll-approvals-card-more-button-${itemSlug}`}
+                          data-cy={`settings-payroll-approvals-card-more-button-${itemSlug}`}
+                          className="text-gray-400 border border-gray-200 rounded px-2 py-1 hover:bg-gray-50 transition-colors flex items-center justify-center"
+                          type="button"
+                          aria-label="More actions"
+                        >
+                          <MoreOutlined
+                            id={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
+                            data-cy={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
+                            rotate={90}
+                            style={{ fontSize: 18 }}
+                          />
+                        </button>
+                      </Dropdown>
+                    </AccessGuard>
+                  </div>
+
+                  <div
+                    id={`settings-payroll-approvals-card-title-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-title-${itemSlug}`}
+                    className="font-semibold text-gray-800 text-[15px] mt-1"
+                  >
+                    {item?.name || '-'}
+                  </div>
+
+                  <div
+                    id={`settings-payroll-approvals-card-divider-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-divider-${itemSlug}`}
+                    className="border-t border-gray-100 my-1"
+                  />
+
+                  <div
+                    id={`settings-payroll-approvals-card-assigned-row-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-assigned-row-${itemSlug}`}
+                    className="flex flex-wrap items-center gap-2"
+                  >
+                    <span
+                      id={`settings-payroll-approvals-card-assigned-label-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-assigned-label-${itemSlug}`}
+                      className="text-sm font-medium text-gray-800 mr-1"
+                    >
+                      Assigned To:
+                    </span>
+                    {renderAssignees(levelApprovers, itemSlug)}
+                  </div>
+                </div>
+              );
+            });
+          })}
+
+          {!isEmployeeLoading && (allFilterData?.items ?? []).length === 0 && (
+            <div
+              id="settings-payroll-approvals-empty-state"
+              data-cy="settings-payroll-approvals-empty-state"
+              className="col-span-full text-center text-gray-500 py-10"
+            >
+              No approval workflows found.
+            </div>
+          )}
+        </div>
+
+        <div
+          id="settings-payroll-approvals-pagination-container"
+          data-cy="settings-payroll-approvals-pagination-container"
+          className="flex flex-col sm:flex-row justify-between items-center border-t border-gray-100 pt-6 gap-4 sm:gap-0 text-sm"
+        >
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={allFilterData?.meta?.totalItems ?? 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageChange}
+              id="settings-payroll-approvals-mobile-pagination"
+              data-cy="settings-payroll-approvals-mobile-pagination"
+            />
+          ) : (
+            <CustomPagination
+              current={allFilterData?.meta?.currentPage ?? 1}
+              total={allFilterData?.meta?.totalItems ?? 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={(newPageSize) => onPageChange(1, newPageSize)}
+              id="settings-payroll-approvals-desktop-pagination"
+              data-cy="settings-payroll-approvals-desktop-pagination"
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 };

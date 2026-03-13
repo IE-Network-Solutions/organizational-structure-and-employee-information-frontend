@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Form, Input, InputNumber } from 'antd';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { Button, Form, Input, InputNumber, Modal } from 'antd';
 import {
   useCreateTaxRule,
   useUpdateTaxRule,
@@ -40,6 +39,11 @@ const Drawer: React.FC = () => {
   } = useUpdateTaxRule();
 
   const [form] = Form.useForm();
+
+  const handleClose = () => {
+    form.resetFields();
+    closeDrawer();
+  };
   useEffect(() => {
     if (currentTaxRule) {
       form.setFieldsValue({
@@ -54,9 +58,9 @@ const Drawer: React.FC = () => {
 
   useEffect(() => {
     if (isCreateSuccess || isUpdateSuccess) {
-      form.resetFields();
-      closeDrawer();
+      handleClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCreateSuccess, isUpdateSuccess]);
 
   const onFinish = async (values: any) => {
@@ -78,63 +82,58 @@ const Drawer: React.FC = () => {
   };
 
   return (
-    <CustomDrawerLayout
+    <Modal
       data-cy="payroll-tax-rule-drawer-view-component"
       open={isDrawerVisible}
-      onClose={closeDrawer}
-      modalHeader={
-        <span
+      onCancel={handleClose}
+      footer={null}
+      centered
+      width={640}
+      destroyOnClose
+      maskClosable={false}
+      closable={false}
+    >
+      <div
+        id="payroll-tax-rule-modal-header-view-container"
+        data-cy="payroll-tax-rule-modal-header-view-container"
+        className="flex items-center justify-between px-2 pt-2 pb-6"
+      >
+        <h2
           id="payroll-tax-rule-drawer-title-view-text"
           data-cy="payroll-tax-rule-drawer-title-view-text"
-          className=" flex justify-center text-xl font-semibold"
+          className="text-xl font-bold text-gray-900"
         >
           {currentTaxRule ? 'Edit Tax Rule' : 'Define New Tax Rule'}
-        </span>
-      }
-      width="700px"
-      footer={
-        <div
-          id="payroll-tax-rule-drawer-footer-view-container"
-          data-cy="payroll-tax-rule-drawer-footer-view-container"
-          className="flex justify-center items-center w-full h-full"
-        >
-          <div
-            id="payroll-tax-rule-drawer-footer-actions-view-container"
-            data-cy="payroll-tax-rule-drawer-footer-actions-view-container"
-            className="flex justify-between items-center gap-4 p-4"
-          >
-            <Button
-              id="payroll-tax-rule-drawer-cancel-click-button"
-              data-cy="payroll-tax-rule-drawer-cancel-click-button"
-              type="default"
-              className="h-10 px-10"
-              onClick={() => {
-                (closeDrawer(), form.resetFields());
-              }}
-            >
-              Cancel
-            </Button>
+        </h2>
 
-            <Button
-              id="payroll-tax-rule-drawer-submit-click-button"
-              data-cy="payroll-tax-rule-drawer-submit-click-button"
-              type="primary"
-              className="h-10 px-10"
-              onClick={() => form.submit()}
-              loading={currentTaxRule ? isUpdateLoading : isCreateLoading}
-            >
-              {currentTaxRule ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        </div>
-      }
-    >
+        <button
+          id="payroll-tax-rule-modal-close-click-button"
+          data-cy="payroll-tax-rule-modal-close-click-button"
+          type="button"
+          onClick={handleClose}
+          className="text-gray-500 hover:text-gray-700 transition-colors p-1 rounded-full hover:bg-gray-100"
+          aria-label="Close modal"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div
+        id="payroll-tax-rule-modal-body-view-container"
+        data-cy="payroll-tax-rule-modal-body-view-container"
+        className="px-2 pb-2"
+      >
+        <div
+          id="payroll-tax-rule-modal-card-view-container"
+          data-cy="payroll-tax-rule-modal-card-view-container"
+          className="border border-gray-200 rounded-lg p-6"
+        >
       <Form
         id="tax-rule-form"
         data-cy="payroll-tax-rule-drawer-form-submit-form"
         layout="vertical"
         form={form}
-        className="px-3"
+        className="px-1"
         onFinish={onFinish}
       >
         <Form.Item
@@ -147,7 +146,7 @@ const Drawer: React.FC = () => {
           <Input
             id="payroll-tax-rule-name-view-input"
             data-cy="payroll-tax-rule-name-view-input"
-            placeholder="Full Name"
+            placeholder="Rule name"
             className="h-12 mt-2"
           />
         </Form.Item>
@@ -187,7 +186,7 @@ const Drawer: React.FC = () => {
             id="payroll-tax-rule-minimum-income-view-input"
             data-cy="payroll-tax-rule-minimum-income-view-input"
             className="h-12 mt-2 w-full input-number-mobile"
-            placeholder="Input Minimum Income"
+            placeholder="Input minimum Income"
             min={0}
             step={1}
             controls={true}
@@ -230,7 +229,7 @@ const Drawer: React.FC = () => {
             id="payroll-tax-rule-maximum-income-view-input"
             data-cy="payroll-tax-rule-maximum-income-view-input"
             className="h-12 mt-2 w-full input-number-mobile"
-            placeholder="Input Maximum Income"
+            placeholder="Input maximum Income"
             min={0}
             step={1}
             controls={true}
@@ -264,7 +263,7 @@ const Drawer: React.FC = () => {
             min={0}
             max={100}
             step={0.01}
-            placeholder="Input Tax Rate"
+            placeholder="Input tax rate"
             controls={true}
             addonAfter={
               <span
@@ -302,13 +301,42 @@ const Drawer: React.FC = () => {
             className="w-full h-12 mt-2 input-number-mobile"
             min={0}
             step={1}
-            placeholder="Input Deduction Amount"
+            placeholder="0"
             controls={true}
             addonAfter={null}
           />
         </Form.Item>
       </Form>
-    </CustomDrawerLayout>
+        </div>
+      </div>
+
+      <div
+        id="payroll-tax-rule-drawer-footer-view-container"
+        data-cy="payroll-tax-rule-drawer-footer-view-container"
+        className="px-2 pb-2 pt-6 flex justify-end space-x-3"
+      >
+        <Button
+          id="payroll-tax-rule-drawer-cancel-click-button"
+          data-cy="payroll-tax-rule-drawer-cancel-click-button"
+          type="default"
+          className="h-10 px-10"
+          onClick={handleClose}
+        >
+          Cancel
+        </Button>
+
+        <Button
+          id="payroll-tax-rule-drawer-submit-click-button"
+          data-cy="payroll-tax-rule-drawer-submit-click-button"
+          type="primary"
+          className="h-10 px-10"
+          onClick={() => form.submit()}
+          loading={currentTaxRule ? isUpdateLoading : isCreateLoading}
+        >
+          {currentTaxRule ? 'Update' : 'Continue'}
+        </Button>
+      </div>
+    </Modal>
   );
 };
 
