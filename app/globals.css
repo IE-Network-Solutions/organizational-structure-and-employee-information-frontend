@@ -115,9 +115,17 @@
   src: url('/calibre/Calibre-BlackItalic.otf') format('opentype');
 }
 
-/* Hide scrollbar for webkit browsers */
+/* Hide scrollbar while maintaining scroll functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+  /* Safari and Chrome */
 }
 
 /* Leaflet Map Styles */
@@ -161,6 +169,14 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
   /* Safari and Chrome */
+}
+
+/* Ensure Ant Design Sider children allow for flex scrolling */
+.ant-layout-sider-children {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: hidden !important;
 }
 
 .ant-popconfirm-message {
