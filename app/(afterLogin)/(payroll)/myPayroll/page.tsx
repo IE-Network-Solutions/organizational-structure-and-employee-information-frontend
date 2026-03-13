@@ -150,18 +150,19 @@ export default function MyPayroll() {
 
   useEffect(() => {
     if (payroll?.items && employee) {
-      const mergedData = payroll.items
-        .filter((pay: any) => pay.employeeId === employee.id)
-        .map((pay: any) => ({ ...pay, employeeInfo: employee || null }));
+      const mergedData = payroll.items.map((pay: any) => ({
+        ...pay,
+        employeeInfo: employee || null,
+      }));
 
       setMergedPayroll(mergedData);
 
-      const activeMergedData = mergedData?.find(
-        (pay: any) => openPayPeriods?.[0]?.id === pay.payPeriodId,
-      );
-      if (activeMergedData) {
-        setActiveMergedPayroll(activeMergedData);
-      }
+      const activeMergedData =
+        mergedData?.find(
+          (pay: any) => openPayPeriods?.[0]?.id === pay.payPeriodId,
+        ) || mergedData?.[0];
+
+      setActiveMergedPayroll(activeMergedData || null);
     }
   }, [
     payroll?.items,

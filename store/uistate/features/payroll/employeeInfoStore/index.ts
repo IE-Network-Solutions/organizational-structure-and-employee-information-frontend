@@ -257,9 +257,12 @@ const useEmployeeStore = create<PayrollState>((set) => ({
   mergedPayroll: [],
   activePayPeriod: null,
 
-  setActiveMergedPayroll: (data: ActiveMergedPayroll) =>
+  setActiveMergedPayroll: (data: ActiveMergedPayroll | null) =>
     set((state) => {
-      if (state.activeMergedPayroll?.firebaseId === data?.firebaseId)
+      if (
+        state.activeMergedPayroll?.employeeId === data?.employeeId &&
+        state.activeMergedPayroll?.payPeriodId === data?.payPeriodId
+      )
         return state;
       return { activeMergedPayroll: data };
     }),
