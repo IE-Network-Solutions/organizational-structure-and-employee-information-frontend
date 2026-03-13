@@ -24,6 +24,30 @@ import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
+
+// Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
+const isRouteMatch = (routePattern: string, pathname: string) => {
+  // Exact match
+  if (routePattern === pathname) return true;
+  
+  // Match [id] to UUIDs (or any non-slash segment)
+  if (routePattern.includes('[id]')) {
+    const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
+    const regex = new RegExp('^' + regexPattern + '(/.*)?$');
+    return regex.test(pathname);
+  }
+  
+  // Generic dynamic segment: [something] => [^/]+
+  if (routePattern.match(/\[.*?\]/g)) {
+    const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
+    const regex = new RegExp('^' + regexPattern + '(/.*)?$');
+    return regex.test(pathname);
+  }
+
+  // Prefix match for subpages
+  return pathname === routePattern || pathname.startsWith(routePattern + '/');
+};
+
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
@@ -88,13 +112,14 @@ const NavMenuItem: React.FC<{
 
     // Check if this item or any of its children matches the current path
     const isDirectlyActive =
-      selectedKeys.includes(item.key) || pathname === item.key;
+      selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
     const isChildActive =
       hasChildren &&
       item.children.some(
-        (child: any) => selectedKeys.includes(child.key) || pathname === child.key,
+        (child: any) =>
+          selectedKeys.includes(child.key) || isRouteMatch(String(child.key), pathname),
       );
-    const isActive = isDirectlyActive || isChildActive;
+    const isActive = isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
     const handleToggle = () => {
       if (hasChildren) {
@@ -121,9 +146,10 @@ const NavMenuItem: React.FC<{
           className={`
           group flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200 rounded-xl
           ${isActive
-              ? 'text-[#3630f0] font-bold'
+              ? 'text-[#1e40af] font-bold'
               : 'text-black font-medium'
             }
+          ${isDirectlyActive ? 'bg-[#E1EFFF]' : ''}
           hover:bg-[#E1EFFF]
           ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
         `}
@@ -131,7 +157,7 @@ const NavMenuItem: React.FC<{
           <div
             data-cy="nav-menu-item-icon"
             className={`text-[21px] transition-colors ${isActive
-              ? 'text-[#3630f0]'
+              ? 'text-[#1e40af]'
               : 'text-black'
               }`}
           >
@@ -150,12 +176,13 @@ const NavMenuItem: React.FC<{
 
         {hasChildren && !collapsed && isExpanded && (
           <div
-            className="flex flex-col mt-1 ml-9 space-y-1"
+            className="flex flex-col mt-1 ml-[33px] space-y-1"
             data-cy="nav-menu-item-children-container"
           >
             {item.children.map((child: any) => {
               const isChildSelected =
-                selectedKeys.includes(child.key) || pathname === child.key;
+                selectedKeys.includes(child.key) ||
+                isRouteMatch(String(child.key), pathname);
               return (
                 <div
                   key={child.key}
@@ -171,7 +198,7 @@ const NavMenuItem: React.FC<{
                   className={`
                   py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
                   ${isChildSelected
-                      ? 'text-[#3630f0] font-bold text-[15.5px] bg-[#E1EFFF]'
+                      ? 'text-[#1e40af] font-normal text-[16px]'
                       : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
                     }
                 `}
@@ -763,23 +790,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
-  // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
-  const isRouteMatch = (routePattern: string, pathname: string) => {
-    // Match [id] to UUIDs (or any non-slash segment)
-    if (routePattern.includes('[id]')) {
-      // UUID regex: [0-9a-fA-F-]{36} (simple version)
-      const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
-      const regex = new RegExp('^' + regexPattern + '$');
-      return regex.test(pathname);
-    }
-    // Generic dynamic segment: [something] => [^/]+
-    if (routePattern.match(/\[.*?\]/g)) {
-      const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
-      const regex = new RegExp('^' + regexPattern + '$');
-      return regex.test(pathname);
-    }
-    return routePattern === pathname;
-  };
+  // Helper function moved to global scope
+
 
   const checkPathnamePermissions = (pathname: string): boolean => {
     // Get all routes and their permissions
@@ -1211,7 +1223,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           top: 0,
           bottom: 0,
           zIndex: 1010,
-          backgroundColor: '#F0F7FF',
+          backgroundColor: '#F5fbff',
           borderRight: '1px solid #E5E7EB',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
@@ -1318,28 +1330,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 })}
               </div>
             )}
+          </div>
 
-            <div
-              data-cy="nav-sider-admin-wrap"
-              className={`px-4 py-6 mt-10 ${collapsed ? 'flex justify-center' : ''}`}
+          <div
+            data-cy="nav-sider-admin-wrap"
+            className="w-full flex justify-center py-6 mt-10"
+          >
+            <Button
+              data-cy="nav-sider-admin-btn"
+              type="primary"
+              size="large"
+              icon={<MdHowToReg size={22} />}
+              className={`
+                flex items-center justify-center bg-[#1e40af] hover:bg-[#173691] border-none shadow-lg transition-all duration-300
+                ${collapsed
+                  ? 'w-[52px] h-[52px] rounded-xl'
+                  : 'w-[85%] h-12 rounded-xl text-[14px] font-semibold gap-2'
+                }
+              `}
+              onClick={() => router.push('/admin/dashboard')}
             >
-              <Button
-                data-cy="nav-sider-admin-btn"
-                type="primary"
-                size="large"
-                icon={<MdHowToReg size={22} />}
-                className={`
-                  flex items-center justify-center bg-[#1D4ED8] hover:bg-[#1e40af] border-none shadow-lg transition-all duration-300
-                  ${collapsed
-                    ? 'w-[52px] h-[52px] rounded-xl'
-                    : 'w-full h-12 rounded-xl text-[14px] font-semibold gap-2'
-                  }
-                `}
-                onClick={() => router.push('/admin/dashboard')}
-              >
-                {!collapsed && 'Admin Console'}
-              </Button>
-            </div>
+              {!collapsed && 'Admin Console'}
+            </Button>
           </div>
         </div>
 
