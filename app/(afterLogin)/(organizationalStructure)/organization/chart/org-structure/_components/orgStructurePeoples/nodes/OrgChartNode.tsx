@@ -107,9 +107,9 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
       if (nodesToFit.length > 0) {
         fitView({
           nodes: nodesToFit,
-          padding: 0.25,
-          maxZoom: 1,
-          duration: 300,
+          padding: 0.35,
+          maxZoom: 1.1,
+          duration: 400,
         });
       }
     };
@@ -137,6 +137,11 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
     displayName === 'Unassigned' || displayName === 'Not Assigned'
       ? 'Unassigned'
       : displayName;
+
+  // Show only first and middle name for employees in the chart (no hook needed)
+  const nameParts = displayLabel?.split(' ').filter(Boolean) ?? [];
+  const compactName =
+    nameParts.length <= 2 ? displayLabel : `${nameParts[0]} ${nameParts[1]}`;
 
   const handleMenuClick: MenuProps['onClick'] = ({ key, domEvent }) => {
     const mouseEvent =
@@ -194,9 +199,9 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
         <Card
           data-cy={`org-structure-node-${data.id}`}
           styles={{
-            body: { padding: '12px 10px 10px', position: 'relative' },
+            body: { padding: '8px 10px 6px', position: 'relative' },
           }}
-          className="nodrag nopan w-full min-h-[120px] rounded-lg border border-gray-200 bg-white overflow-visible shadow-lg transition-transform duration-200 ease-out group-hover:translate-y-1 group-hover:scale-[0.98]"
+          className="nodrag nopan w-full min-h-[104px] rounded-lg border border-gray-200 bg-white overflow-visible shadow-lg transition-transform duration-200 ease-out group-hover:translate-y-1 group-hover:scale-[0.98]"
         >
           <Dropdown
             menu={{
@@ -244,7 +249,7 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
               strong
               className="block text-center text-[13px] leading-tight mt-2 text-gray-800 w-full overflow-hidden text-ellipsis whitespace-nowrap"
             >
-              {displayLabel}
+              {compactName}
             </Typography.Text>
             {title && (
               <Typography.Text className="block text-center text-xs leading-tight mt-0.5 text-gray-800 w-full overflow-hidden text-ellipsis whitespace-nowrap">
@@ -261,73 +266,87 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
             )}
           </div>
         </Card>
-        <div
-          className="absolute right-2 top-full transition-transform duration-200 ease-out group-hover:translate-y-1 group-hover:scale-[0.98]"
-          data-cy="org-structure-node-badge-wrapper"
-        >
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (directReportCount > 0) {
-                toggleCollapse(data.id);
-              } else {
-                const buttonEl = e.currentTarget as HTMLElement;
-                const cardEl = buttonEl.closest(
-                  '.react-flow__node',
-                ) as HTMLElement | null;
-                const verticalOffset = 0;
-                if (cardEl) {
-                  const rect = cardEl.getBoundingClientRect();
-                  setUsersModalAnchor({
-                    top: rect.top + rect.height / 2 + verticalOffset,
-                    left: rect.left + rect.width + 8,
-                  });
-                } else {
-                  const rect = buttonEl.getBoundingClientRect();
-                  setUsersModalAnchor({
-                    top: rect.top + rect.height / 2 + verticalOffset,
-                    left: rect.right + 8,
-                  });
-                }
-                setUsersModalDepartmentId(data.id);
-                setUsersModalScreenPosition(null);
-                const node = getNodes().find((n) => n.id === data.id);
-                if (node && 'position' in node) {
-                  const pos = node.position as { x: number; y: number };
-                  setUsersModalFlowPosition({
-                    x: pos.x + NODE_WIDTH + 8,
-                    y: pos.y + NODE_HEIGHT / 2 + verticalOffset,
-                  });
-                } else {
-                  setUsersModalFlowPosition(null);
-                }
-                setUsersModalOpen(true);
-              }
-            }}
-            className="nodrag nopan inline-flex items-center gap-1.5 py-1 px-2 min-h-6 rounded-t-none rounded-b-lg border border-gray-200 border-t-0 bg-white text-xs font-medium cursor-pointer shadow-sm"
-            style={{ color: '#1E40AF' }}
-            title={
-              directReportCount > 0
-                ? isCollapsed
-                  ? 'Expand children'
-                  : 'Collapse children'
-                : 'View staff in department'
-            }
-            data-cy={`org-structure-node-badge-${data.id}`}
+        {(directReportCount > 0 || (usersWithoutTeamLeadCount ?? 0) > 0) && (
+          <div
+            className="absolute right-2 top-full transition-transform duration-200 ease-out group-hover:translate-y-1 group-hover:scale-[0.98]"
+            data-cy="org-structure-node-badge-wrapper"
           >
-            <MdOutlineAccountTree size={14} className="shrink-0" />
-            {(directReportCount > 0
-              ? directReportCount
-              : (usersWithoutTeamLeadCount ?? 0)) > 0 && (
-              <span data-cy="org-structure-node-badge-count">
-                {directReportCount > 0
-                  ? directReportCount
-                  : (usersWithoutTeamLeadCount ?? 0)}
-              </span>
-            )}
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (directReportCount > 0) {
+                  toggleCollapse(data.id);
+                } else {
+                  // Toggle subordinate popup: if already open, fully close it
+                  const { usersModalOpen, usersModalDepartmentId } =
+                    useDepartmentStore.getState();
+                  if (usersModalOpen && usersModalDepartmentId === data.id) {
+                    setUsersModalOpen(false);
+                    setUsersModalDepartmentId(null);
+                    setUsersModalAnchor(null);
+                    setUsersModalFlowPosition(null);
+                    setUsersModalScreenPosition(null);
+                    return;
+                  }
+                  const buttonEl = e.currentTarget as HTMLElement;
+                  const cardEl = buttonEl.closest(
+                    '.react-flow__node',
+                  ) as HTMLElement | null;
+                  const verticalOffset = 0;
+                  if (cardEl) {
+                    const rect = cardEl.getBoundingClientRect();
+                    setUsersModalAnchor({
+                      top: rect.top + rect.height / 2 + verticalOffset,
+                      left: rect.left + rect.width + 8,
+                    });
+                  } else {
+                    const rect = buttonEl.getBoundingClientRect();
+                    setUsersModalAnchor({
+                      top: rect.top + rect.height / 2 + verticalOffset,
+                      left: rect.right + 8,
+                    });
+                  }
+                  setUsersModalDepartmentId(data.id);
+                  setUsersModalScreenPosition(null);
+                  const node = getNodes().find((n) => n.id === data.id);
+                  if (node && 'position' in node) {
+                    const pos = node.position as { x: number; y: number };
+                    setUsersModalFlowPosition({
+                      x: pos.x + NODE_WIDTH + 8,
+                      y: pos.y + NODE_HEIGHT / 2 + verticalOffset,
+                    });
+                  } else {
+                    setUsersModalFlowPosition(null);
+                  }
+                  setUsersModalOpen(true);
+                }
+              }}
+              className="nodrag nopan inline-flex items-center gap-1.5 py-1 px-2 min-h-6 rounded-t-none rounded-b-lg border border-gray-200 border-t-0 bg-white text-xs font-medium cursor-pointer shadow-sm"
+              style={{ color: '#1E40AF' }}
+              title={
+                directReportCount > 0
+                  ? isCollapsed
+                    ? 'Expand children'
+                    : 'Collapse children'
+                  : 'View staff in department'
+              }
+              data-cy={`org-structure-node-badge-${data.id}`}
+            >
+              <MdOutlineAccountTree size={14} className="shrink-0" />
+              {(directReportCount > 0
+                ? directReportCount
+                : (usersWithoutTeamLeadCount ?? 0)) > 0 && (
+                <span data-cy="org-structure-node-badge-count">
+                  {directReportCount > 0
+                    ? directReportCount
+                    : (usersWithoutTeamLeadCount ?? 0)}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
       </div>
       <Handle
         type="source"

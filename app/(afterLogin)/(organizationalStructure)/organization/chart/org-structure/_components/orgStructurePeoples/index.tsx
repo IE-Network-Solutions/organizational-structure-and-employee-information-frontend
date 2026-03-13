@@ -62,6 +62,9 @@ function OrgFlowContent() {
   const edges = useDepartmentStore((s) => s.edges);
   const setNodes = useDepartmentStore((s) => s.setNodes);
   const setEdges = useDepartmentStore((s) => s.setEdges);
+  const collapsedDepartmentIds = useDepartmentStore(
+    (s) => s.collapsedDepartmentIds,
+  );
 
   const onNodesChange = useCallback(
     (changes: Parameters<typeof applyNodeChanges>[0]) => {
@@ -103,10 +106,17 @@ function OrgFlowContent() {
     return () => clearTimeout(timeoutId);
   }, [nodes.length, fitWholeStructure]);
 
+  // When departments are collapsed/expanded, refit the visible structure
+  useEffect(() => {
+    const instance = flowInstanceRef.current;
+    if (!instance || nodes.length === 0) return;
+    instance.fitView({ padding: 0.1, duration: 350, maxZoom: 1.4 });
+  }, [collapsedDepartmentIds, nodes.length]);
+
   return (
     <OrgChartActionsProvider>
       <div
-        className="w-full h-[calc(100vh-220px)] min-h-[280px] sm:h-[calc(100vh-280px)] sm:min-h-[420px] bg-white overflow-x-auto overflow-y-auto"
+        className="w-full h-[calc(100vh-220px)] min-h-[280px] sm:h-[calc(100vh-280px)] sm:min-h-[420px] bg-white overflow-hidden"
         ref={chartRef}
         data-cy="org-structure-chart-flow-container"
       >
@@ -115,6 +125,10 @@ function OrgFlowContent() {
           edges={edges as Edge[]}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          panOnScroll={false}
+          zoomOnScroll={false}
+          panOnDrag={false}
+          zoomOnDoubleClick={false}
           onInit={(instance) => {
             flowInstanceRef.current = instance;
             // Fit whole structure once viewport and nodes are ready (backup to effect)
@@ -132,10 +146,6 @@ function OrgFlowContent() {
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={true}
-          panOnDrag={true}
-          panOnScroll={true}
-          zoomOnScroll={true}
-          zoomOnPinch={true}
           defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
           proOptions={{ hideAttribution: true }}
           className="bg-white"
@@ -183,7 +193,7 @@ function OrgChartComponentInner() {
 
   return (
     <div
-      className="pt-0 px-2 pb-4 sm:px-4 sm:pb-8 md:px-6 lg:px-8 overflow-visible"
+      className="pt-0 pb-4 sm:pb-8 overflow-visible"
       data-cy="org-structure-tree-container"
       id="org-structure-tree-container"
     >

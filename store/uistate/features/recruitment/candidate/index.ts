@@ -56,6 +56,15 @@ interface CandidateState {
   setDeleteCandidateId: (value: string) => void;
   deleteCandidateModal: boolean;
   setDeleteCandidateModal: (value: boolean) => void;
+  deleteTriggerRect: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  } | null;
+  setDeleteTriggerRect: (
+    rect: { top: number; left: number; width: number; height: number } | null,
+  ) => void;
 
   moveToTalentPoolModal: boolean;
   setMoveToTalentPoolModal: (value: boolean) => void;
@@ -131,6 +140,8 @@ export const useCandidateState = create<CandidateState>((set) => ({
   setDeleteCandidateId: (value) => set({ deleteCandidateId: value }),
   deleteCandidateModal: false,
   setDeleteCandidateModal: (value) => set({ deleteCandidateModal: value }),
+  deleteTriggerRect: null,
+  setDeleteTriggerRect: (rect) => set({ deleteTriggerRect: rect }),
 
   moveToTalentPoolModal: false,
   setMoveToTalentPoolModal: (value) => set({ moveToTalentPoolModal: value }),

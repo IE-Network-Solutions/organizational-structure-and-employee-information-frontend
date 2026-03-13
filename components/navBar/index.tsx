@@ -106,8 +106,8 @@ const NavMenuItem: React.FC<{
   expandedKeys,
   setExpandedKeys,
 }) => {
-    const hasChildren = item.children && item.children.length > 0;
-    const isExpanded = expandedKeys.includes(item.key);
+  const hasChildren = item.children && item.children.length > 0;
+  const isExpanded = expandedKeys.includes(item.key);
 
     // Check if this item or any of its children matches the current path
     const isDirectlyActive =
@@ -138,11 +138,11 @@ const NavMenuItem: React.FC<{
     };
 
     return (
-      <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
-        <div
-          data-cy="nav-menu-item"
-          onClick={handleToggle}
-          className={`
+    <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
+      <div
+        data-cy="nav-menu-item"
+        onClick={handleToggle}
+        className={`
           group flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200 rounded-xl
           ${isActive
               ? 'text-[#1e40af] font-bold'
@@ -152,65 +152,66 @@ const NavMenuItem: React.FC<{
           hover:bg-[#E1EFFF]
           ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
         `}
+      >
+        <div
+          data-cy="nav-menu-item-icon"
+          className={`text-[21px] transition-colors ${isActive
+            ? 'text-[#1e40af]'
+            : 'text-black'
+            }`}
         >
-          <div
-            data-cy="nav-menu-item-icon"
-            className={`text-[21px] transition-colors ${isActive
-              ? 'text-[#1e40af]'
-              : 'text-black'
-              }`}
-          >
-            {item.icon}
-          </div>
-
-          {!collapsed && (
-            <span
-              data-cy="nav-menu-item-label"
-              className="flex-1 text-[14.5px] transition-colors"
-            >
-              {item.label}
-            </span>
-          )}
+          {item.icon}
         </div>
 
-        {hasChildren && !collapsed && isExpanded && (
-          <div
-            className="flex flex-col mt-1 ml-[33px] space-y-1"
-            data-cy="nav-menu-item-children-container"
+        {!collapsed && (
+          <span
+            data-cy="nav-menu-item-label"
+            className="flex-1 text-[14.5px] transition-colors"
           >
-            {item.children.map((child: any) => {
-              const isChildSelected =
-                selectedKeys.includes(child.key) ||
-                isRouteMatch(String(child.key), pathname);
-              return (
-                <div
-                  key={child.key}
-                  data-cy="nav-menu-item-child"
-                  onClick={() => {
-                    const path = String(child.key);
-                    if (pathname !== path) {
-                      triggerRouteLoaderStart();
-                      router.push(path);
-                      setSelectedKeys([path]);
-                    }
-                  }}
-                  className={`
-                  py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
-                  ${isChildSelected
-                      ? 'text-[#1e40af] font-normal text-[16px]'
-                      : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
-                    }
-                `}
-                >
-                  {child.label}
-                </div>
-              );
-            })}
-          </div>
+            {item.label}
+          </span>
         )}
       </div>
-    );
-  };
+
+      {hasChildren && !collapsed && isExpanded && (
+        <div
+          className="flex flex-col mt-1 ml-[33px] space-y-1"
+          data-cy="nav-menu-item-children-container"
+        >
+          {item.children.map((child: any) => {
+            const isChildSelected =
+              selectedKeys.includes(child.key) ||
+              isRouteMatch(String(child.key), pathname);
+            return (
+              <div
+                key={child.key}
+                data-cy="nav-menu-item-child"
+                onClick={() => {
+                  const path = String(child.key);
+                  if (pathname !== path) {
+                    triggerRouteLoaderStart();
+                    router.push(path);
+                    setSelectedKeys([path]);
+                  }
+                }}
+                className={`
+                  py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
+                  ${isChildSelected
+                    ? 'text-[#1e40af] font-normal text-[16px]'
+                    : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
+                  }
+                `}
+              >
+                {child.label}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+    </div>
+  );
+};
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
@@ -1047,7 +1048,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const groupedMenuItems = React.useMemo(() => {
@@ -1062,10 +1063,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ...item,
           children: item.children
             ? item.children.filter((child) =>
-              AccessGuard.checkAccess({
-                permissions: child.permissions,
-              }),
-            )
+                AccessGuard.checkAccess({
+                  permissions: child.permissions,
+                }),
+              )
             : [],
         };
       })
@@ -1153,9 +1154,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           children:
             treeItem.children && treeItem.children.length > 0
               ? treeItem.children.map((child) => ({
-                key: child.key,
-                label: child.title,
-              }))
+                  key: child.key,
+                  label: child.title,
+                }))
               : undefined,
         });
       });
@@ -1311,8 +1312,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       >
                         <div
                           data-cy="nav-sider-group-label-wrap"
-                          className={`w-full text-[13px] font-light text-[#64748B] tracking-wide transition-colors ${collapsed ? 'hidden' : ''
-                            }`}
+                          className={`w-full text-[13px] font-light text-[#64748B] tracking-wide transition-colors ${
+                            collapsed ? 'hidden' : ''
+                          }`}
                         >
                           {group.label}
                         </div>
@@ -1389,7 +1391,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               : collapsed
                 ? 'calc(100% - 80px)'
                 : 'calc(100% - 280px)',
-            zIndex: 1000,
+            zIndex: 40,
             top: 0,
             left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
             transition: 'left 0.3s ease, width 0.3s ease',

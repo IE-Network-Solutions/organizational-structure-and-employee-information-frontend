@@ -201,6 +201,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       setSelectedCandidateID(candidate?.id);
       setEditCandidateModal(true);
     } else if (key === 'delete') {
+      setSelectedCandidate(candidate);
       setDeleteCandidateId(candidate?.id);
       setDeleteCandidateModal(true);
     }
