@@ -2,6 +2,7 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
+import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
 import { IoCloseOutline } from 'react-icons/io5';
@@ -49,8 +50,6 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
 };
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import Logo from '../common/logo';
-import SimpleLogo from '../common/logo/simpleLogo';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -1240,16 +1239,30 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }}
         collapsedWidth={80}
       >
-        <div data-cy="nav-sider-logo-collapsed" className="my-2">
-          {collapsed && <SimpleLogo />}
-        </div>
-
         <div
           data-cy="nav-sider-logo-wrap"
-          className="flex items-center justify-between pl-10 pt-6 mb-10"
+          className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
         >
-          <div data-cy="nav-sider-logo" className="flex items-center gap-2">
-            {!collapsed && <Logo type="selamnew" />}
+          <div data-cy="nav-sider-logo" className="relative h-10 w-full flex items-center">
+            {collapsed ? (
+              <div className="w-full flex justify-center">
+                <Image
+                  src="/image/Logo.png"
+                  alt="Logo"
+                  width={32}
+                  height={32}
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
+            ) : (
+              <Image
+                src="/image/Logo.png"
+                alt="Logo"
+                width={150}
+                height={40}
+                style={{ objectFit: 'contain' }}
+              />
+            )}
           </div>
         </div>
 
