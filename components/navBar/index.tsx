@@ -124,7 +124,7 @@ const NavMenuItem: React.FC<{
               ? 'text-[#3630f0] font-bold'
               : 'text-black font-medium'
             }
-          hover:bg-[#E1EFFF] hover:text-[#3630f0]
+          hover:bg-[#E1EFFF]
           ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
         `}
         >
@@ -132,7 +132,7 @@ const NavMenuItem: React.FC<{
             data-cy="nav-menu-item-icon"
             className={`text-[21px] transition-colors ${isActive
               ? 'text-[#3630f0]'
-              : 'text-black group-hover:text-[#3630f0]'
+              : 'text-black'
               }`}
           >
             {item.icon}
@@ -171,8 +171,8 @@ const NavMenuItem: React.FC<{
                   className={`
                   py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
                   ${isChildSelected
-                      ? 'text-[#3630f0] font-bold text-[15.5px]'
-                      : 'text-black font-medium text-[14.5px] hover:text-[#3630f0] hover:bg-[#E1EFFF]'
+                      ? 'text-[#3630f0] font-bold text-[15.5px] bg-[#E1EFFF]'
+                      : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
                     }
                 `}
                 >
