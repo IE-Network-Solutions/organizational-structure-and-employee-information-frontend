@@ -70,7 +70,10 @@ const PayrollModal: React.FC = () => {
       bodyStyle={{ padding: '16px 24px' }}
       data-cy="payroll-allowance-modal"
       title={
-        <span style={{ fontSize: '20px', fontWeight: 600, color: '#262626' }}>
+        <span
+          style={{ fontSize: '20px', fontWeight: 600, color: '#262626' }}
+          data-cy="payroll-allowance-modal-title-text"
+        >
           {`${firstName}'s Payroll Information`}
         </span>
       }
@@ -116,6 +119,7 @@ const PayrollModal: React.FC = () => {
             <div
               className="custom-centered-select-wrapper"
               style={{ position: 'relative' }}
+              data-cy="payroll-allowance-select-wrapper"
             >
               <Select
                 className="always-show-placeholder"
@@ -154,6 +158,7 @@ const PayrollModal: React.FC = () => {
                   pointerEvents: 'none',
                   zIndex: 10,
                 }}
+                data-cy="payroll-allowance-select-manual-placeholder"
               >
                 Select Allowance
               </span>
@@ -197,7 +202,10 @@ const PayrollModal: React.FC = () => {
           </Form.Item>
 
           {/* Manual Tag Display below the search field */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          <div
+            style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
+            data-cy="payroll-allowance-selected-tags-wrapper"
+          >
             {entitledAllowances?.map((id: string) => {
               const allowance = AllowanceData?.find((a: any) => a.id === id);
               if (!allowance) return null;
@@ -215,7 +223,10 @@ const PayrollModal: React.FC = () => {
                   }}
                   data-cy="payroll-allowance-selected-tag"
                 >
-                  <span style={{ fontSize: '14px', color: '#595959' }}>
+                  <span
+                    style={{ fontSize: '14px', color: '#595959' }}
+                    data-cy="payroll-allowance-selected-tag-name"
+                  >
                     {allowance.name}
                   </span>
                   <CloseOutlined
@@ -240,6 +251,7 @@ const PayrollModal: React.FC = () => {
 
         <div
           style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}
+          data-cy="payroll-allowance-modal-actions"
         >
           <Button
             onClick={handleClose}

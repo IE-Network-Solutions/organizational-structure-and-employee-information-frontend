@@ -975,7 +975,10 @@ const EmployeeProfile = () => {
                   />
                 </div>
 
-                <div style={{ marginTop: '24px' }}>
+                <div
+                  style={{ marginTop: '24px' }}
+                  data-cy="payroll-settlement-payments-container"
+                >
                   <div
                     style={{
                       padding: '12px 16px',
@@ -1014,7 +1017,10 @@ const EmployeeProfile = () => {
                     </Text>
                   </div>
 
-                  <div style={{ padding: '0 8px' }}>
+                  <div
+                    style={{ padding: '0 8px' }}
+                    data-cy="payroll-settlement-payments-list"
+                  >
                     {payments.length > 0 ? (
                       payments.map((payment: any, idx: number) => (
                         <div
@@ -1055,7 +1061,10 @@ const EmployeeProfile = () => {
                               },
                             )}
                           </Text>
-                          <div style={{ flex: 2 }}>
+                          <div
+                            style={{ flex: 2 }}
+                            data-cy="payroll-settlement-payment-period-wrapper"
+                          >
                             <Tag
                               style={{
                                 backgroundColor: '#fafafa',
@@ -1120,7 +1129,7 @@ const EmployeeProfile = () => {
       data-cy="payroll-employee-profile-view-container"
     >
       {/* Header & Breadcrumbs */}
-      <div className="mb-4">
+      <div className="mb-4" data-cy="payroll-employee-detail-header">
         <Space align="center" style={{ marginBottom: '4px' }}>
           <Button
             type="text"
@@ -1132,7 +1141,7 @@ const EmployeeProfile = () => {
             Employee Payroll Detail
           </Title>
         </Space>
-        <div style={{ marginLeft: '40px' }}>
+        <div style={{ marginLeft: '40px' }} data-cy="payroll-employee-detail-breadcrumb-wrapper">
           <Text type="secondary" style={{ fontSize: '13px' }}>
             Employee /{' '}
             <Text strong style={{ fontSize: '13px', color: '#595959' }}>
@@ -1176,6 +1185,7 @@ const EmployeeProfile = () => {
               />
               <div
                 style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}
+                data-cy="payroll-employee-detail-name-email-wrapper"
               >
                 <Text
                   style={{
@@ -1200,7 +1210,7 @@ const EmployeeProfile = () => {
 
             <Row gutter={[16, 16]}>
               <Col xs={12} sm={6}>
-                <div>
+                <div data-cy="payroll-employee-detail-joined-date-wrapper">
                   <Text
                     style={{
                       fontSize: '12px',
@@ -1234,7 +1244,7 @@ const EmployeeProfile = () => {
                   paddingLeft: isMobile ? '0' : '32px',
                 }}
               >
-                <div>
+                <div data-cy="payroll-employee-detail-service-year-wrapper">
                   <Text
                     style={{
                       fontSize: '12px',
@@ -1265,7 +1275,7 @@ const EmployeeProfile = () => {
                   marginTop: isMobile ? '16px' : '0',
                 }}
               >
-                <div>
+                <div data-cy="payroll-employee-detail-address-wrapper">
                   <Text
                     style={{
                       fontSize: '12px',
@@ -1296,7 +1306,7 @@ const EmployeeProfile = () => {
                   marginTop: isMobile ? '16px' : '0',
                 }}
               >
-                <div>
+                <div data-cy="payroll-employee-detail-office-wrapper">
                   <Text
                     style={{
                       fontSize: '12px',
@@ -1330,18 +1340,18 @@ const EmployeeProfile = () => {
       {/* Tabs Section */}
       <Tabs defaultActiveKey="1" className="custom-tabs">
         <TabPane tab="Information" key="1">
-          <div style={{ paddingTop: '8px' }}>{renderInformation()}</div>
+          <div style={{ paddingTop: '8px' }} data-cy="payroll-employee-detail-info-tab-content">{renderInformation()}</div>
         </TabPane>
         <TabPane tab="Payroll History" key="2">
-          <div style={{ paddingTop: '8px' }}>{renderHistory()}</div>
+          <div style={{ paddingTop: '8px' }} data-cy="payroll-employee-detail-history-tab-content">{renderHistory()}</div>
         </TabPane>
         <TabPane tab="Settlement Tracking" key="3">
-          <div style={{ paddingTop: '8px' }}>{renderSettlement()}</div>
+          <div style={{ paddingTop: '8px' }} data-cy="payroll-employee-detail-settlement-tab-content">{renderSettlement()}</div>
         </TabPane>
       </Tabs>
 
       {/* Hidden Payslip for PDF generation */}
-      <div className="h-0 overflow-hidden">
+      <div className="h-0 overflow-hidden" data-cy="payroll-employee-detail-hidden-payslip-wrapper">
         <div
           ref={payslipRef}
           className="p-4"
@@ -1351,26 +1361,27 @@ const EmployeeProfile = () => {
             maxWidth: '210mm',
             backgroundColor: '#ffffff',
           }}
+          data-cy="payroll-employee-detail-payslip-content"
         >
-          <header className="text-center border-b pb-4 mb-4">
-            <h2 className="text-xl font-semibold">
+          <header className="text-center border-b pb-4 mb-4" data-cy="payroll-employee-detail-payslip-header">
+            <h2 className="text-xl font-semibold" data-cy="payroll-employee-detail-payslip-title">
               Payslip for the month of{' '}
-              <span className="text-violet-500">
+              <span className="text-violet-500" data-cy="payroll-employee-detail-payslip-period">
                 {dayjs(activePayPeriod?.startDate).format('MMMM-YYYY')}
               </span>
             </h2>
           </header>
-          <div className="flex justify-between">
-            <div className="mx-2 flex flex-col gap-2">
-              <div className="font-bold text-xl">Employee Pay Summary</div>
-              <div className="flex gap-6 w-full">
-                <div className="flex flex-col gap-2">
+          <div className="flex justify-between" data-cy="payroll-employee-detail-payslip-summary">
+            <div className="mx-2 flex flex-col gap-2" data-cy="payroll-employee-detail-payslip-info">
+              <div className="font-bold text-xl" data-cy="payroll-employee-detail-payslip-summary-title">Employee Pay Summary</div>
+              <div className="flex gap-6 w-full" data-cy="payroll-employee-detail-payslip-info-grid">
+                <div className="flex flex-col gap-2" data-cy="payroll-employee-detail-payslip-labels">
                   <Text>Employee name:</Text>
                   <Text>Job title:</Text>
                   <Text>Pay period:</Text>
                   <Text>Pay Date:</Text>
                 </div>
-                <div className="flex flex-col gap-2 font-bold">
+                <div className="flex flex-col gap-2 font-bold" data-cy="payroll-employee-detail-payslip-values">
                   <Text>
                     {[employee?.firstName, employee?.middleName]
                       .filter(Boolean)
@@ -1392,13 +1403,13 @@ const EmployeeProfile = () => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col justify-center items-center m-2">
-              <span className="font-bold text-xl">Employee Net Pay</span>
-              <span className="text-violet-500 text-4xl font-bold mb-2">
+            <div className="flex flex-col justify-center items-center m-2" data-cy="payroll-employee-detail-payslip-amounts">
+              <span className="font-bold text-xl" data-cy="payroll-employee-detail-payslip-net-label">Employee Net Pay</span>
+              <span className="text-violet-500 text-4xl font-bold mb-2" data-cy="payroll-employee-detail-payslip-net-value">
                 {activeMergedPayroll?.netPay}
               </span>
-              <span className="font-bold text-xl">Employee Basic Salary</span>
-              <span className=" text-2xl font-bold">
+              <span className="font-bold text-xl" data-cy="payroll-employee-detail-payslip-basic-label">Employee Basic Salary</span>
+              <span className=" text-2xl font-bold" data-cy="payroll-employee-detail-payslip-basic-value">
                 {
                   activeMergedPayroll?.employeeInfo?.basicSalaries[0]
                     ?.basicSalary
@@ -1407,23 +1418,23 @@ const EmployeeProfile = () => {
             </div>
           </div>
           <Divider className="my-2" />
-          <header className=" border-b pb-2 mb-2">
-            <h2 className="text-xl font-semibold">Employee Earnings</h2>
+          <header className=" border-b pb-2 mb-2" data-cy="payroll-employee-detail-payslip-earnings-header">
+            <h2 className="text-xl font-semibold" data-cy="payroll-employee-detail-payslip-earnings-title">Employee Earnings</h2>
           </header>
-          <div className="flex flex-col w-full gap-4">
-            <div className=" pl-4 flex justify-between items-center my-2">
+          <div className="flex flex-col w-full gap-4" data-cy="payroll-employee-detail-payslip-earnings-grid">
+            <div className=" pl-4 flex justify-between items-center my-2" data-cy="payroll-employee-detail-payslip-earnings-labels">
               <Text className="text-xl">Employee Allowance</Text>
               <Text className="text-xl pr-10">Amount</Text>
             </div>
-            <div className="flex justify-between">
-              <div className="flex flex-col gap-2 pl-4">
+            <div className="flex justify-between" data-cy="payroll-employee-detail-payslip-allowances">
+              <div className="flex flex-col gap-2 pl-4" data-cy="payroll-employee-detail-payslip-allowance-names">
                 {activeMergedPayroll?.breakdown?.allowances?.map(
                   (item: any, index: any) => (
                     <Text key={index}>{item.type}</Text>
                   ),
                 )}
               </div>
-              <div className="flex flex-col gap-2 text-right font-bold pr-10">
+              <div className="flex flex-col gap-2 text-right font-bold pr-10" data-cy="payroll-employee-detail-payslip-allowance-amounts">
                 {activeMergedPayroll?.breakdown?.allowances?.map(
                   (item: any, index: any) => (
                     <Text key={index}>

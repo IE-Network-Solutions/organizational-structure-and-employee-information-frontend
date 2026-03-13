@@ -992,7 +992,10 @@ const SettlementView = ({ userId }: { userId: string }) => {
                 />
               </div>
 
-              <div style={{ marginTop: '24px' }}>
+              <div
+                style={{ marginTop: '24px' }}
+                data-cy="my-payroll-settlement-payments-container"
+              >
                 <div
                   style={{
                     padding: '12px 16px',
@@ -1024,7 +1027,10 @@ const SettlementView = ({ userId }: { userId: string }) => {
                   </Text>
                 </div>
 
-                <div style={{ padding: '0 8px' }}>
+                <div
+                  style={{ padding: '0 8px' }}
+                  data-cy="my-payroll-settlement-payments-list"
+                >
                   {payments.length > 0 ? (
                     payments.map((payment: any, idx: number) => (
                       <div
@@ -1057,7 +1063,10 @@ const SettlementView = ({ userId }: { userId: string }) => {
                             },
                           )}
                         </Text>
-                        <div style={{ flex: 2 }}>
+                        <div
+                          style={{ flex: 2 }}
+                          data-cy="my-payroll-settlement-payment-period-wrapper"
+                        >
                           <Tag
                             style={{
                               backgroundColor: '#fafafa',

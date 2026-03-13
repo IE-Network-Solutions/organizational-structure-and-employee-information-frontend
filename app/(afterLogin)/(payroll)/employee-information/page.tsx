@@ -280,7 +280,10 @@ const EmployeeInformation = () => {
             data-cy={`payroll-edit-guard-view-component-${record.key}`}
             permissions={[Permissions.UpdateAllowanceEntitlement]}
           >
-            <div onClick={(e) => e.stopPropagation()}>
+            <div
+              onClick={(e) => e.stopPropagation()}
+              data-cy="payroll-employee-row-actions-dropdown-wrapper"
+            >
               <Dropdown
                 menu={{
                   items: [
@@ -467,7 +470,7 @@ const EmployeeInformation = () => {
         Employee Payroll Information
       </Title>
 
-      <div className="breadcrumb-container">
+      <div className="breadcrumb-container" data-cy="payroll-employee-information-breadcrumb-container">
         <Breadcrumb
           style={{ marginBottom: '20px', fontSize: '13px' }}
           data-cy="payroll-employee-information-breadcrumb"
@@ -492,7 +495,7 @@ const EmployeeInformation = () => {
         bodyStyle={{ padding: '24px' }}
         data-cy="payroll-employee-information-card"
       >
-        <div className="filter-container">
+        <div className="filter-container" data-cy="payroll-employee-information-filter-container">
           <Filters
             data-cy="payroll-employee-information-filter-interact-component"
             onSearch={handleSearch}
