@@ -1,6 +1,7 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { Dropdown, Table, Button } from 'antd';
+import type { MenuProps } from 'antd';
 import { EditOutlined, DeleteOutlined, MoreOutlined } from '@ant-design/icons';
 import Drawer from './_components/drawer';
 import { useGetTaxRule } from '@/store/server/features/payroll/setting/tax-rule/queries';
@@ -88,44 +89,42 @@ const TaxRules = () => {
       title: 'Action',
       key: 'action',
       render: (text: any, record: any) => {
-        const menu = {
-          items: [
-            {
-              key: 'edit',
-              label: (
-                <span
-                  id={`payroll-tax-rule-actions-menu-edit-text-${record.id}`}
-                  data-cy={`payroll-tax-rule-actions-menu-edit-text-${record.id}`}
-                >
-                  Edit
-                </span>
-              ),
-              icon: (
-                <EditOutlined
-                  data-cy={`payroll-tax-rule-actions-menu-edit-icon-${record.id}`}
-                />
-              ),
-              onClick: () => handleEdit(record),
-            },
-            {
-              key: 'delete',
-              label: (
-                <span
-                  id={`payroll-tax-rule-actions-menu-delete-text-${record.id}`}
-                  data-cy={`payroll-tax-rule-actions-menu-delete-text-${record.id}`}
-                >
-                  Delete
-                </span>
-              ),
-              icon: (
-                <DeleteOutlined
-                  data-cy={`payroll-tax-rule-actions-menu-delete-icon-${record.id}`}
-                />
-              ),
-              onClick: () => handleDelete(record.id),
-            },
-          ],
-        } as const;
+        const menuItems: MenuProps['items'] = [
+          {
+            key: 'edit',
+            label: (
+              <span
+                id={`payroll-tax-rule-actions-menu-edit-text-${record.id}`}
+                data-cy={`payroll-tax-rule-actions-menu-edit-text-${record.id}`}
+              >
+                Edit
+              </span>
+            ),
+            icon: (
+              <EditOutlined
+                data-cy={`payroll-tax-rule-actions-menu-edit-icon-${record.id}`}
+              />
+            ),
+            onClick: () => handleEdit(record),
+          },
+          {
+            key: 'delete',
+            label: (
+              <span
+                id={`payroll-tax-rule-actions-menu-delete-text-${record.id}`}
+                data-cy={`payroll-tax-rule-actions-menu-delete-text-${record.id}`}
+              >
+                Delete
+              </span>
+            ),
+            icon: (
+              <DeleteOutlined
+                data-cy={`payroll-tax-rule-actions-menu-delete-icon-${record.id}`}
+              />
+            ),
+            onClick: () => handleDelete(record.id),
+          },
+        ];
 
         return (
           <div
@@ -134,7 +133,7 @@ const TaxRules = () => {
             className="flex items-center"
           >
             <Dropdown
-              menu={menu}
+              menu={{ items: menuItems }}
               trigger={['click']}
               placement="bottomRight"
             >

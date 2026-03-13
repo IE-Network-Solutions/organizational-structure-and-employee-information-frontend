@@ -4,6 +4,7 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {  Dropdown, Skeleton, Tooltip } from 'antd';
+import type { MenuProps } from 'antd';
 import Image from 'next/image';
 import { useState } from 'react';
 import { FaPencil } from 'react-icons/fa6';
@@ -309,67 +310,65 @@ const ApprovalTable = () => {
               const levelApprovers = grouped.get(level) ?? [];
               const itemSlug = `${baseSlug}-level-${level}`;
 
-              const menu = {
-                items: [
-                  {
-                    key: 'edit',
-                    label: (
-                      <span
-                        id={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
-                        data-cy={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
-                      >
-                        Edit Approver
-                      </span>
-                    ),
-                    icon: (
-                      <FaPencil
-                        id={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
-                        data-cy={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
-                      />
-                    ),
-                    onClick: () => handleOpenEdit(item),
+              const menuItems: MenuProps['items'] = [
+                {
+                  key: 'edit',
+                  label: (
+                    <span
+                      id={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
+                    >
+                      Edit Approver
+                    </span>
+                  ),
+                  icon: (
+                    <FaPencil
+                      id={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
+                    />
+                  ),
+                  onClick: () => handleOpenEdit(item),
+                },
+                {
+                  key: 'add',
+                  label: (
+                    <span
+                      id={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
+                    >
+                      Add Approver
+                    </span>
+                  ),
+                  icon: (
+                    <FaPlus
+                      id={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
+                    />
+                  ),
+                  onClick: () => handleOpenAdd(item),
+                },
+                {
+                  key: 'delete',
+                  label: (
+                    <span
+                      id={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
+                    >
+                      Delete
+                    </span>
+                  ),
+                  icon: (
+                    <RiDeleteBin6Line
+                      id={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
+                    />
+                  ),
+                  onClick: () => {
+                    setDeleteModal(true);
+                    setDeletedItem(item?.id);
                   },
-                  {
-                    key: 'add',
-                    label: (
-                      <span
-                        id={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
-                        data-cy={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
-                      >
-                        Add Approver
-                      </span>
-                    ),
-                    icon: (
-                      <FaPlus
-                        id={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
-                        data-cy={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
-                      />
-                    ),
-                    onClick: () => handleOpenAdd(item),
-                  },
-                  {
-                    key: 'delete',
-                    label: (
-                      <span
-                        id={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
-                        data-cy={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
-                      >
-                        Delete
-                      </span>
-                    ),
-                    icon: (
-                      <RiDeleteBin6Line
-                        id={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
-                        data-cy={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
-                      />
-                    ),
-                    onClick: () => {
-                      setDeleteModal(true);
-                      setDeletedItem(item?.id);
-                    },
-                  },
-                ],
-              } as const;
+                },
+              ];
 
               return (
                 <div
@@ -401,9 +400,10 @@ const ApprovalTable = () => {
                       data-cy={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
                     >
                       <Dropdown
-                        menu={menu}
+                        menu={{ items: menuItems }}
                         trigger={['click']}
                         placement="bottomRight"
+                        data-cy={`settings-payroll-approvals-card-more-dropdown-${itemSlug}`}
                       >
                         <button
                           id={`settings-payroll-approvals-card-more-button-${itemSlug}`}
