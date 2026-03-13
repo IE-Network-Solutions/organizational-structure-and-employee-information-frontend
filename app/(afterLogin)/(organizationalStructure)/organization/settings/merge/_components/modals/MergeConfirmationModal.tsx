@@ -48,7 +48,12 @@ const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({
           </span>
         </div>
       }
-      closeIcon={<CloseOutlined className="text-base" data-cy="merge-confirmation-modal-close-icon" />}
+      closeIcon={
+        <CloseOutlined
+          className="text-base"
+          data-cy="merge-confirmation-modal-close-icon"
+        />
+      }
       className="[&_.ant-modal-header]:flex [&_.ant-modal-header]:items-center"
       data-cy="merge-confirmation-modal"
     >

@@ -20,12 +20,9 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 import { useEffect } from 'react';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import { FormInstance } from 'antd/lib';
 
 const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
-  const { isMobile } = useIsMobile();
-
   const {
     setCurrent,
     setCalendarType,

@@ -172,7 +172,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         data-cy="org-settings-layout-div"
         id="org-settings-layout-div"
       >
-        <div className="px-4 md:px-6 pt-4" data-cy="org-settings-header-container">
+        <div
+          className="px-4 md:px-6 pt-4"
+          data-cy="org-settings-header-container"
+        >
           <h3
             className="text-gray-900 text-2xl font-bold mb-0"
             data-cy="org-settings-page-header-title"

@@ -5,7 +5,7 @@ import {
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import React, { useEffect } from 'react';
 import { FormInstance } from 'antd/lib';
-import { Form, Modal, Button } from 'antd';
+import { Form, Modal } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { IoIosArrowBack } from 'react-icons/io';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -960,7 +960,11 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
                 data-cy="org-settings-fiscal-year-modal-back-btn"
               />
             ) : (
-              <span className="w-8 shrink-0" aria-hidden />
+              <span
+                className="w-8 shrink-0"
+                aria-hidden
+                data-cy="org-settings-fiscal-year-modal-back-spacer"
+              />
             )}
             <h1
               className="text-base font-bold text-gray-800 m-0 flex-1 text-center"

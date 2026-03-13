@@ -60,7 +60,14 @@ const BranchForm: React.FC<{
 
   return (
     <Modal
-      title={<span className="text-gray-700">{title}</span>}
+      title={
+        <span
+          className="text-gray-700"
+          data-cy={`branch-form-modal-title-${modalSlug}`}
+        >
+          {title}
+        </span>
+      }
       width={520}
       className="[&_.ant-modal-close]:text-gray-600 [&_.ant-modal-close]:hover:text-gray-800"
       styles={{
@@ -262,6 +269,7 @@ const BranchForm: React.FC<{
                     '--react-international-phone-height': '40px',
                   } as React.CSSProperties
                 }
+                data-cy={`branch-form-phone-input-wrapper-${modalSlug}`}
               >
                 <PhoneInput
                   defaultCountry="et"

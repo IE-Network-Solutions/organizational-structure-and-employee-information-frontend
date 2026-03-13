@@ -3,7 +3,6 @@ import { Button, Col, DatePicker, Form, Input, Row } from 'antd';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
 const { RangePicker } = DatePicker;
@@ -63,8 +62,6 @@ const MonthDrawer: React.FC<
     monthRangeValues,
     sessionData,
   } = useFiscalYearDrawerStore();
-
-  const { isMobile } = useIsMobile();
 
   // State to track expanded session (only one can be expanded at a time)
   const [expandedSession, setExpandedSession] = useState<number | null>(null);

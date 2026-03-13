@@ -22,8 +22,9 @@ const Branches = () => {
   const { mutate: updateBranch, isLoading: updateLoading } = useUpdateBranch();
   const { mutate: deleteBranch } = useDeleteBranch();
   const [form] = Form.useForm();
-  const [openDeleteConfirmBranchId, setOpenDeleteConfirmBranchId] =
-    useState<string | null>(null);
+  const [openDeleteConfirmBranchId, setOpenDeleteConfirmBranchId] = useState<
+    string | null
+  >(null);
 
   const {
     editingBranch,
@@ -131,8 +132,14 @@ const Branches = () => {
                 setOpenDeleteConfirmBranchId(visible ? branchId : null)
               }
               title={
-                <div className="flex items-center justify-between mb-3 mx-4">
-                  <p className="text-lg font-bold text-gray-700 m-0">
+                <div
+                  className="flex items-center justify-between mb-3 mx-4"
+                  data-cy={`org-settings-branch-delete-popconfirm-title-${branchId}`}
+                >
+                  <p
+                    className="text-lg font-bold text-gray-700 m-0"
+                    data-cy={`org-settings-branch-delete-popconfirm-title-text-${branchId}`}
+                  >
                     Delete Branch
                   </p>
                   <CloseOutlined
@@ -145,7 +152,10 @@ const Branches = () => {
                 </div>
               }
               description={
-                <p className="text-sm text-gray-500 m-0 my-1  mb-4 mx-4">
+                <p
+                  className="text-sm text-gray-500 m-0 my-1  mb-4 mx-4"
+                  data-cy={`org-settings-branch-delete-popconfirm-description-${branchId}`}
+                >
                   Are you sure you want to delete {branch.name}?
                 </p>
               }
@@ -160,7 +170,14 @@ const Branches = () => {
                 'data-cy': `org-settings-branch-delete-popconfirm-cancel-${branchId}`,
                 className: 'text-gray-200 m-0 p-2 mb-2 rounded-md',
               }}
-              cancelText={<div className='text-gray-500 m-0'>Cancel</div>}
+              cancelText={
+                <div
+                  className="text-gray-500 m-0"
+                  data-cy={`org-settings-branch-delete-popconfirm-cancel-text-${branchId}`}
+                >
+                  Cancel
+                </div>
+              }
               data-cy={`org-settings-branch-delete-popconfirm-${branchId}`}
             >
               <span

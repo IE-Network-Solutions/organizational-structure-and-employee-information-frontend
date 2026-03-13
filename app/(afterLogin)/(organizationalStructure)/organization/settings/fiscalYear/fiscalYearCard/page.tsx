@@ -342,8 +342,14 @@ const FiscalYearListCard: React.FC = () => {
                           />
                         )}
                       </div>
-                      <div className="flex flex-col gap-0.5 min-w-0 py-0.5">
-                        <div className="flex items-center gap-2 flex-wrap">
+                      <div
+                        className="flex flex-col gap-0.5 min-w-0 py-0.5"
+                        data-cy={`org-settings-fiscal-year-card-content-${fiscalYearId}`}
+                      >
+                        <div
+                          className="flex items-center gap-2 flex-wrap"
+                          data-cy={`org-settings-fiscal-year-card-title-row-${fiscalYearId}`}
+                        >
                           <h3
                             className="text-base font-semibold text-gray-800 m-0 cursor-pointer"
                             data-cy={`org-settings-fiscal-year-name-${fiscalYearId}`}
@@ -409,7 +415,10 @@ const FiscalYearListCard: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center shrink-0 self-center">
+                    <div
+                      className="flex items-center shrink-0 self-center"
+                      data-cy={`org-settings-fiscal-year-card-actions-${fiscalYearId}`}
+                    >
                       <AccessGuard
                         permissions={[
                           Permissions.UpdateCalendar,
@@ -600,35 +609,53 @@ const FiscalYearListCard: React.FC = () => {
                                                 <Popconfirm
                                                   icon={<></>}
                                                   title={
-                                                    <div className="flex items-center justify-between mb-3 mx-3">
-                                                      <p className="text-lg font-bold text-gray-700 m-0">
+                                                    <div
+                                                      className="flex items-center justify-between mb-3 mx-3"
+                                                      data-cy={`org-settings-fiscal-year-activate-month-popconfirm-title-${monthId}`}
+                                                    >
+                                                      <p
+                                                        className="text-lg font-bold text-gray-700 m-0"
+                                                        data-cy={`org-settings-fiscal-year-activate-month-popconfirm-title-text-${monthId}`}
+                                                      >
                                                         Change active month
                                                       </p>
                                                       <CloseOutlined
                                                         className="text-gray-400 m-0 cursor-pointer hover:text-gray-600"
                                                         onClick={(e) => {
                                                           e.stopPropagation();
-                                                         
                                                         }}
                                                       />
                                                     </div>
                                                   }
                                                   description={
-                                                    <p className="text-sm text-gray-500 m-0 my-1  mb-4 mx-3">
-                                                      Are you sure you want to activate this month?
+                                                    <p
+                                                      className="text-sm text-gray-500 m-0 my-1  mb-4 mx-3"
+                                                      data-cy={`org-settings-fiscal-year-activate-month-popconfirm-description-${monthId}`}
+                                                    >
+                                                      Are you sure you want to
+                                                      activate this month?
                                                     </p>
                                                   }
                                                   okText="Ok"
                                                   okButtonProps={{
                                                     type: 'primary',
-                                                    className: 'p-2 px-4 mr-3 mb-2 rounded-md',
+                                                    className:
+                                                      'p-2 px-4 mr-3 mb-2 rounded-md',
                                                     'data-cy': `org-settings-fiscal-year-activate-month-popconfirm-ok-${monthId}`,
                                                   }}
                                                   cancelButtonProps={{
                                                     'data-cy': `org-settings-fiscal-year-activate-month-popconfirm-cancel-${monthId}`,
-                                                    className: 'text-gray-200 m-0 p-2 mb-2 rounded-md',
+                                                    className:
+                                                      'text-gray-200 m-0 p-2 mb-2 rounded-md',
                                                   }}
-                                                  cancelText={<div className='text-gray-500 m-0'>Cancel</div>}
+                                                  cancelText={
+                                                    <div
+                                                      className="text-gray-500 m-0"
+                                                      data-cy={`org-settings-fiscal-year-activate-month-popconfirm-cancel-text-${monthId}`}
+                                                    >
+                                                      Cancel
+                                                    </div>
+                                                  }
                                                   onConfirm={() => {
                                                     activateMonth(month.id, {
                                                       onSuccess: () =>
@@ -641,6 +668,7 @@ const FiscalYearListCard: React.FC = () => {
                                                     onClick={(e) =>
                                                       e.stopPropagation()
                                                     }
+                                                    data-cy={`org-settings-fiscal-year-activate-month-popconfirm-trigger-${monthId}`}
                                                   >
                                                     <Switch
                                                       data-cy={`org-settings-fiscal-year-month-toggle-${monthId}`}

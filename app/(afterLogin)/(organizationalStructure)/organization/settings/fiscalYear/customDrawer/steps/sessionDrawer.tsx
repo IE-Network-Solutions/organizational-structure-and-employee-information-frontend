@@ -3,7 +3,6 @@ import { Button, Col, DatePicker, Form, Input, Row, Spin, Popover } from 'antd';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { RangePicker } = DatePicker;
 
@@ -26,8 +25,6 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   isCreateLoading,
   isUpdateLoading,
 }) => {
-  const { isMobile } = useIsMobile();
-
   // Ref to track last processed fiscal year dates to avoid infinite loops
   const lastProcessedFiscalYearRef = useRef<{
     start: string | null;

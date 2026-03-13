@@ -60,7 +60,10 @@ const TransferButton: React.FC<TransferButtonProps> = ({
           data-cy="org-settings-transfer-submit-btn"
           id="org-settings-transfer-submit-btn"
         >
-          <span className={`font-normal ${textColorClass}`} data-cy="transfer-button-text">
+          <span
+            className={`font-normal ${textColorClass}`}
+            data-cy="transfer-button-text"
+          >
             Transfer
           </span>
           <IoIosArrowDown

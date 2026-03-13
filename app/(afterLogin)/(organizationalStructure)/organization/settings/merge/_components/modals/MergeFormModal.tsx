@@ -70,7 +70,12 @@ const MergeFormModal: React.FC<MergeFormModalProps> = ({
       open={open}
       onCancel={handleCancel}
       title="Merge Department"
-      closeIcon={<CloseOutlined className="text-base text-gray-600 hover:text-gray-800" data-cy="merge-form-modal-close-icon" />}
+      closeIcon={
+        <CloseOutlined
+          className="text-base text-gray-600 hover:text-gray-800"
+          data-cy="merge-form-modal-close-icon"
+        />
+      }
       footer={null}
       className="[&_.ant-modal-close]:text-gray-600 [&_.ant-modal-close]:hover:text-gray-800"
       data-cy="merge-form-modal"
@@ -83,7 +88,9 @@ const MergeFormModal: React.FC<MergeFormModalProps> = ({
       >
         <Form.Item
           name="teamLead"
-          label={<span data-cy="merge-form-modal-team-lead-label">Team Lead</span>}
+          label={
+            <span data-cy="merge-form-modal-team-lead-label">Team Lead</span>
+          }
           rules={[{ required: true, message: 'Please select team lead' }]}
           data-cy="merge-form-modal-team-lead-item"
         >
@@ -98,7 +105,11 @@ const MergeFormModal: React.FC<MergeFormModalProps> = ({
         </Form.Item>
         <Form.Item
           name="departmentName"
-          label={<span data-cy="merge-form-modal-department-name-label">Name of Department</span>}
+          label={
+            <span data-cy="merge-form-modal-department-name-label">
+              Name of Department
+            </span>
+          }
           rules={[{ required: true, message: 'Please enter department name' }]}
           data-cy="merge-form-modal-department-name-item"
         >
