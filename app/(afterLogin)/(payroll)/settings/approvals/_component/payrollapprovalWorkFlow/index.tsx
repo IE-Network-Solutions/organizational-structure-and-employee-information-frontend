@@ -36,8 +36,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
     return 'inactive';
   };
 
-  const filledWidth =
-    currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%';
+  // const filledWidth =
+  //   currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%';
 
   return (
     <div
@@ -105,6 +105,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                 className="flex items-center bg-white"
               >
                 <span
+                  id="approval-payroll-workflow-step-1-indicator"
+                  data-cy="approval-payroll-workflow-step-1-indicator"
                   className={`w-3 h-3 rounded-full ring-4 ring-white shadow-sm ${
                     getStepState(1) === 'completed' || getStepState(1) === 'active'
                       ? 'bg-primary'
@@ -112,6 +114,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   }`}
                 />
                 <span
+                  id="approval-payroll-workflow-step-1-label"
+                  data-cy="approval-payroll-workflow-step-1-label"
                   className={`ml-2 text-sm font-medium ${
                     getStepState(1) === 'active' || getStepState(1) === 'completed'
                       ? 'text-primary'
@@ -138,6 +142,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                 className="flex items-center bg-white"
               >
                 <span
+                  id="approval-payroll-workflow-step-2-indicator"
+                  data-cy="approval-payroll-workflow-step-2-indicator"
                   className={`w-3 h-3 rounded-full ring-4 ring-white shadow-sm ${
                     getStepState(2) === 'completed' || getStepState(2) === 'active'
                       ? 'bg-primary'
@@ -145,6 +151,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   }`}
                 />
                 <span
+                  id="approval-payroll-workflow-step-2-label"
+                  data-cy="approval-payroll-workflow-step-2-label"
                   className={`ml-2 text-sm font-medium ${
                     getStepState(2) === 'active' || getStepState(2) === 'completed'
                       ? 'text-primary'
@@ -171,6 +179,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                 className="flex items-center bg-white"
               >
                 <span
+                  id="approval-payroll-workflow-step-3-indicator"
+                  data-cy="approval-payroll-workflow-step-3-indicator"
                   className={`w-3 h-3 rounded-full ring-4 ring-white shadow-sm ${
                     getStepState(3) === 'completed' || getStepState(3) === 'active'
                       ? 'bg-primary'
@@ -178,6 +188,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   }`}
                 />
                 <span
+                  id="approval-payroll-workflow-step-3-label"
+                  data-cy="approval-payroll-workflow-step-3-label"
                   className={`ml-2 text-sm font-medium ${
                     getStepState(3) === 'active' || getStepState(3) === 'completed'
                       ? 'text-primary'
@@ -208,7 +220,11 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
               }`}
             >
-              <div className="flex items-start">
+              <div
+                id="approval-payroll-workflow-sequential-option"
+                data-cy="approval-payroll-workflow-sequential-option"
+                className="flex items-start"
+              >
                 <span
                   className={`mt-1 mr-3 inline-flex h-[18px] w-[18px] items-center justify-center rounded-full border ${
                     selectedType === 'Sequential'
@@ -218,11 +234,20 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   data-cy="approval-workflow-sequential-radio"
                 >
                   {selectedType === 'Sequential' && (
-                    <span className="h-[10px] w-[10px] rounded-full bg-primary" />
+                    <span
+                      className="h-[10px] w-[10px] rounded-full bg-primary"
+                      data-cy="approval-workflow-sequential-radio-selected-indicator"
+                    />
                   )}
                 </span>
-                <div className="flex flex-col">
+                <div
+                  id="approval-payroll-workflow-sequential-text"
+                  data-cy="approval-payroll-workflow-sequential-text"
+                  className="flex flex-col"
+                >
                   <span
+                    id="approval-payroll-workflow-sequential-title"
+                    data-cy="approval-payroll-workflow-sequential-title"
                     className={`text-sm font-medium ${
                       selectedType === 'Sequential'
                         ? 'text-primary'
@@ -231,7 +256,11 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   >
                     Sequential Approval
                   </span>
-                  <span className="mt-1 text-sm text-gray-500">
+                  <span
+                    id="approval-payroll-workflow-sequential-description"
+                    data-cy="approval-payroll-workflow-sequential-description"
+                    className="mt-1 text-sm text-gray-500"
+                  >
                     Approval happen in a strict order, with each approver
                     signing off one after another
                   </span>
@@ -251,7 +280,11 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
               }`}
             >
-              <div className="flex items-start">
+              <div
+                id="approval-payroll-workflow-parallel-option"
+                data-cy="approval-payroll-workflow-parallel-option"
+                className="flex items-start"
+              >
                 <span
                   className={`mt-1 mr-3 inline-flex h-[18px] w-[18px] items-center justify-center rounded-full border ${
                     selectedType === 'Parallel'
@@ -261,11 +294,20 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   data-cy="approval-workflow-parallel-radio"
                 >
                   {selectedType === 'Parallel' && (
-                    <span className="h-[10px] w-[10px] rounded-full bg-primary" />
+                    <span
+                      className="h-[10px] w-[10px] rounded-full bg-primary"
+                      data-cy="approval-workflow-parallel-radio-selected-indicator"
+                    />
                   )}
                 </span>
-                <div className="flex flex-col">
+                <div
+                  id="approval-payroll-workflow-parallel-text"
+                  data-cy="approval-payroll-workflow-parallel-text"
+                  className="flex flex-col"
+                >
                   <span
+                    id="approval-payroll-workflow-parallel-title"
+                    data-cy="approval-payroll-workflow-parallel-title"
                     className={`text-sm font-medium ${
                       selectedType === 'Parallel'
                         ? 'text-primary'
@@ -274,7 +316,11 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   >
                     Parallel Approval
                   </span>
-                  <span className="mt-1 text-sm text-gray-500">
+                  <span
+                    id="approval-payroll-workflow-parallel-description"
+                    data-cy="approval-payroll-workflow-parallel-description"
+                    className="mt-1 text-sm text-gray-500"
+                  >
                     multi approvers can approve at the same time without any
                     specific order
                   </span>
@@ -290,16 +336,32 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
               disabled
               className="flex w-full cursor-not-allowed items-start rounded-lg border border-gray-100 bg-gray-50 px-4 py-4 text-left opacity-60"
             >
-              <div className="flex items-start">
+              <div
+                id="approval-payroll-workflow-conditional-option"
+                data-cy="approval-payroll-workflow-conditional-option"
+                className="flex items-start"
+              >
                 <span
                   className="mt-1 mr-3 inline-flex h-[18px] w-[18px] items-center justify-center rounded-full border border-gray-300"
                   data-cy="approval-workflow-conditional-radio"
                 />
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-gray-900">
+                <div
+                  id="approval-payroll-workflow-conditional-text"
+                  data-cy="approval-payroll-workflow-conditional-text"
+                  className="flex flex-col"
+                >
+                  <span
+                    id="approval-payroll-workflow-conditional-title"
+                    data-cy="approval-payroll-workflow-conditional-title"
+                    className="text-sm font-medium text-gray-900"
+                  >
                     Conditional Approval
                   </span>
-                  <span className="mt-1 text-sm text-gray-500">
+                  <span
+                    id="approval-payroll-workflow-conditional-description"
+                    data-cy="approval-payroll-workflow-conditional-description"
+                    className="mt-1 text-sm text-gray-500"
+                  >
                     Approver level depend on certain condition or criteria,
                     triggering specific workflows based on the rules
                   </span>

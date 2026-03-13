@@ -6,7 +6,7 @@ import PayPeriodSideBar from './_components/payPeriodSideBar';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
 import { useFetchActiveFiscalYearPayPeriods } from '@/store/server/features/payroll/setting/tax-rule/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { useChangePayPeriodStatus } from '@/store/server/features/payroll/setting/tax-rule/mutation';
+//import { useChangePayPeriodStatus } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import dayjs from 'dayjs';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -37,7 +37,7 @@ const PayPeriod = () => {
     useEditDrawerStore();
 
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
-  const { mutate: changePayPeriodStatus } = useChangePayPeriodStatus();
+  //const { mutate: changePayPeriodStatus } = useChangePayPeriodStatus();
   const { data: payPeriods, isLoading } = useFetchActiveFiscalYearPayPeriods(
     activeFiscalYear?.id,
   );
@@ -57,11 +57,11 @@ const PayPeriod = () => {
     setVisible(true);
   };
 
-  const onStatusChange = (record: any) => {
-    changePayPeriodStatus({
-      payPeriodId: record.id,
-    });
-  };
+  // const onStatusChange = (record: any) => {
+  //   changePayPeriodStatus({
+  //     payPeriodId: record.id,
+  //   });
+  // };
 
   const dataSource: DataSource[] = Array.isArray(payPeriods)
     ? payPeriods.reverse().map((payPeriod: DataSource) => ({

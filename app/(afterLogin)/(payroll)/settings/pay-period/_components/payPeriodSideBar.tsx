@@ -455,7 +455,9 @@ const PayPeriodSideBar = () => {
                           {option.label}
                         </span>
                         {option.description && (
-                          <span className="text-xs text-gray-500 mt-0.5">
+                          <span className="text-xs text-gray-500 mt-0.5"
+                            data-cy={`payroll-payperiod-sidebar-mode-card-description-${option.value.toLowerCase()}`}
+                          >
                             {option.description}
                           </span>
                         )}

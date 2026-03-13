@@ -8,25 +8,25 @@ import { FaPlus } from 'react-icons/fa';
 import Drawer from './_components/drawer';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
 
-type PensionRule = {
-  id: string;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-  deletedAt: string | null; // Can be null if not deleted
-  name: string; // Rule name
-  description: string; // Rule description
-  employer: string; // Employer identifier
-  employee: string; // Employee identifier
-  tenantId: string; // Tenant identifier
-};
+// type PensionRule = {
+//   id: string;
+//   createdAt: string; // ISO date string
+//   updatedAt: string; // ISO date string
+//   deletedAt: string | null; // Can be null if not deleted
+//   name: string; // Rule name
+//   description: string; // Rule description
+//   employer: string; // Employer identifier
+//   employee: string; // Employee identifier
+//   tenantId: string; // Tenant identifier
+// };
 
-interface ColumnType {
-  title: string;
-  dataIndex: string;
-  key: string;
-  sorter?: (a: PensionRule, b: PensionRule) => number;
-  render?: (notused: any, record: PensionRule) => React.ReactNode;
-}
+// interface ColumnType {
+//   title: string;
+//   dataIndex: string;
+//   key: string;
+//   sorter?: (a: PensionRule, b: PensionRule) => number;
+//   render?: (notused: any, record: PensionRule) => React.ReactNode;
+// }
 
 const Pension = () => {
   const { data: pensionRule, isLoading } = useGetAllPensionRule();
@@ -138,14 +138,20 @@ const Pension = () => {
                   className="flex justify-between items-start mb-4"
                 >
                   {editable ? (
-                    <div className="flex items-start justify-between w-full gap-4">
-                      <div className="flex-1">
+                    <div className="flex items-start justify-between w-full gap-4"
+                    data-cy={`payroll-pension-card-header-edit-container-${record.id ?? record.key}`}
+                    >
+                      <div className="flex-1"
+                        data-cy={`payroll-pension-name-input-container-${record.id}`}
+                      >
                         <label
                           id={`payroll-pension-name-label-${record.id}`}
                           data-cy={`payroll-pension-name-label-${record.id}`}
                           className="block text-xs font-medium text-gray-500 mb-1"
                         >
-                          Name<span className="text-red-500 ml-0.5">*</span>
+                          Name<span className="text-red-500 ml-0.5"
+                            data-cy={`payroll-pension-name-label-asterisk-${record.id}`}
+                          >*</span>
                         </label>
                         <Input
                           id={`payroll-pension-name-input-${record.id}`}
@@ -157,7 +163,9 @@ const Pension = () => {
                           className="w-full h-10"
                         />
                       </div>
-                      <div className="flex items-start gap-2 pt-5">
+                      <div className="flex items-start gap-2 pt-5"
+                        data-cy={`payroll-pension-card-header-action-container-${record.id ?? record.key}`}
+                      >
                         <Button
                           id={`payroll-pension-cancel-edit-click-button-${record.id}`}
                           data-cy={`payroll-pension-cancel-edit-click-button-${record.id}`}

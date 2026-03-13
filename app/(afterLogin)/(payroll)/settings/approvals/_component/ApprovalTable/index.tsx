@@ -3,7 +3,7 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { Button, Dropdown, Skeleton, Tooltip } from 'antd';
+import {  Dropdown, Skeleton, Tooltip } from 'antd';
 import Image from 'next/image';
 import { useState } from 'react';
 import { FaPencil } from 'react-icons/fa6';
@@ -51,7 +51,7 @@ const ApprovalTable = () => {
   const { data: employeeData, isLoading: isUserDataLoading } = useGetAllUsers();
   const { isMobile, isTablet } = useIsMobile();
   const MAX_NAME_LENGTH = 10;
-  const MAX_EMAIL_LENGTH = 5;
+  //const MAX_EMAIL_LENGTH = 5;
   const getEmployeeInformation = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;

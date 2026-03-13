@@ -268,6 +268,7 @@ const TaxRules = () => {
             pageSize={pageSize}
             currentPage={currentPage}
             onChange={onPageChange}
+            // eslint-disable-next-line 
             onShowSizeChange={(_current, size) => onPageSizeChange(size)}
           />
         ) : (
