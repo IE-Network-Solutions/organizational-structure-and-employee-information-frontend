@@ -156,13 +156,15 @@ export default function MyPayroll() {
 
       setMergedPayroll(mergedData);
 
-      const activeMergedData = mergedData?.filter(
+      const activeMergedData = mergedData?.find(
         (pay: any) => openPayPeriods?.[0]?.id === pay.payPeriodId,
       );
-      setActiveMergedPayroll(activeMergedData[0]);
+      if (activeMergedData) {
+        setActiveMergedPayroll(activeMergedData);
+      }
     }
   }, [
-    payroll,
+    payroll?.items,
     employee,
     openPayPeriods,
     setMergedPayroll,

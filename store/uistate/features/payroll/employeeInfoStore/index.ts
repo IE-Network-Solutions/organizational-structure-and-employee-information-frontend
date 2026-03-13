@@ -258,11 +258,18 @@ const useEmployeeStore = create<PayrollState>((set) => ({
   activePayPeriod: null,
 
   setActiveMergedPayroll: (data: ActiveMergedPayroll) =>
-    set({ activeMergedPayroll: data }),
+    set((state) => {
+      if (state.activeMergedPayroll?.firebaseId === data?.firebaseId)
+        return state;
+      return { activeMergedPayroll: data };
+    }),
   setMergedPayroll: (data: ActiveMergedPayroll[]) =>
     set({ mergedPayroll: data }),
   setActivePayPeriod: (data: PayPeriod | null) =>
-    set({ activePayPeriod: data }),
+    set((state) => {
+      if (state.activePayPeriod?.id === data?.id) return state;
+      return { activePayPeriod: data };
+    }),
 
   isPayrollModalOpen: false,
   setIsPayrollModalOpen: (open) => set({ isPayrollModalOpen: open }),

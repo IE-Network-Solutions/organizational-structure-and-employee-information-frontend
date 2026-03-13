@@ -126,8 +126,9 @@ const EmployeeProfile = () => {
   const { profileFileList } = useEmployeeManagementStore();
   const router = useRouter();
 
-  const openPayPeriods = payPeriodData?.filter(
-    (period: any) => period.status === 'OPEN',
+  const openPayPeriods = useMemo(
+    () => payPeriodData?.filter((period: any) => period.status === 'OPEN'),
+    [payPeriodData],
   );
   const { id } = useParams();
   const empId = id as string;
@@ -210,13 +211,15 @@ const EmployeeProfile = () => {
 
       setMergedPayroll(mergedData);
 
-      const activeMergedData = mergedData?.filter(
+      const activeMergedData = mergedData?.find(
         (pay: any) => openPayPeriods?.[0]?.id === pay.payPeriodId,
       );
-      setActiveMergedPayroll(activeMergedData[0]);
+      if (activeMergedData) {
+        setActiveMergedPayroll(activeMergedData);
+      }
     }
   }, [
-    payroll,
+    payroll?.items,
     employee,
     openPayPeriods,
     setMergedPayroll,
