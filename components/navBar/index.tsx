@@ -1208,7 +1208,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 1010,
+          zIndex: 50,
           backgroundColor: '#F0F7FF',
           borderRight: '1px solid #E5E7EB',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
@@ -1365,7 +1365,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               : collapsed
                 ? 'calc(100% - 80px)'
                 : 'calc(100% - 280px)',
-            zIndex: 1000,
+            zIndex: 40,
             top: 0,
             left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
             transition: 'left 0.3s ease, width 0.3s ease',

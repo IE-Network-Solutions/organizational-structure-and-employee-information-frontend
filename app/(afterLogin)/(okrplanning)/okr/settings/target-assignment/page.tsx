@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Spin, Dropdown, MenuProps } from 'antd';
+import { Spin, Dropdown, MenuProps, Tag } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
@@ -213,13 +213,13 @@ function Page() {
                   className="mb-4"
                   data-cy={`okr-target-card-dept-wrapper-${group.key}`}
                 >
-                  <span
-                    className="px-3 py-1 text-[12px] text-[#8c8c8c] border border-[#f0f0f0] rounded-[4px] bg-[#fafafa]"
+                  <Tag
+                    className="px-2 py-0.5 text-[12px] font-medium text-[#8c8c8c] border-[#f0f0f0] rounded-[4px] bg-[#fafafa]"
                     id={`okr-target-card-dept-${group.key}`}
                     data-cy={`okr-target-card-dept-${group.key}`}
                   >
                     {group.department}
-                  </span>
+                  </Tag>
                 </div>
 
                 {/* Divider Line */}
@@ -240,13 +240,13 @@ function Page() {
                     Target
                   </span>
                   {group.targets.map((t: any) => (
-                    <div
+                    <Tag
                       key={t.id}
-                      className="px-2 py-1 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[4px] bg-white whitespace-nowrap"
+                      className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] rounded-[4px] bg-white whitespace-nowrap m-0"
                       data-cy={`okr-target-card-target-item-${group.key}-${t.id}`}
                     >
                       {t.month} : {Math.round(parseFloat(t.target))}
-                    </div>
+                    </Tag>
                   ))}
                 </div>
               </div>

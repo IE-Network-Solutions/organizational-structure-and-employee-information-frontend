@@ -1,5 +1,5 @@
 'use client';
-import { Input, Popconfirm, Avatar, Dropdown, MenuProps, Spin } from 'antd';
+import { Input, Popconfirm, Avatar, Dropdown, MenuProps, Spin, Tag } from 'antd';
 import { SearchOutlined, MoreOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import PlanningAssignationModal from './_components/planning-assignation-drawer';
@@ -300,16 +300,16 @@ const PlanAssignment: React.FC = () => {
                       >
                         {/* Tag */}
                         <div
-                          className="mb-1"
+                          className="mb-2"
                           data-cy={`okr-planning-assignation-card-tag-wrapper-${item.userId}`}
                         >
-                          <span
-                            className="inline-block px-3 py-0.5 text-[12px] font-normal text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-white"
+                          <Tag
+                            className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px]"
                             id={`okr-planning-assignation-card-tag-${item.userId}`}
                             data-cy={`okr-planning-assignation-card-tag-${item.userId}`}
                           >
                             {item.planningPeriodType}
-                          </span>
+                          </Tag>
                         </div>
 
                         {/* Name */}
