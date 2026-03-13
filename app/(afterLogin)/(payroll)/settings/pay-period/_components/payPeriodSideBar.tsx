@@ -447,7 +447,9 @@ const PayPeriodSideBar = () => {
                       }`}
                       data-cy={`payroll-payperiod-sidebar-mode-card-${option.value.toLowerCase()}`}
                     >
-                      <div className="ml-2 flex flex-col">
+                      <div className="ml-2 flex flex-col"
+                        data-cy={`payroll-payperiod-sidebar-mode-card-description-container-${option.value.toLowerCase()}`}
+                      >
                         <span
                           className="text-sm font-medium text-gray-700"
                           data-cy={`payroll-payperiod-sidebar-mode-card-title-${option.value.toLowerCase()}`}
