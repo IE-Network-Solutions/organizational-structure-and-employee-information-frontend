@@ -5,13 +5,13 @@ import {
 } from '@/store/uistate/features/employees/employeeManagment';
 import { Card, Col, Input, Form, Row, Button } from 'antd';
 import React from 'react';
-import { LuPencil } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { validateField } from '../../../../_components/formValidator';
 import dayjs from 'dayjs';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const BankInformationComponent = ({
   mergedFields,
@@ -142,7 +142,7 @@ const BankInformationComponent = ({
       title={
         !edit.bankInformation ? (
           <span
-            className="text-base font-bold text-gray-900"
+            className="text-base font-bold text-[#4d4d4d]"
             data-cy="bank-information-card-title"
           >
             Bank Information
@@ -157,15 +157,15 @@ const BankInformationComponent = ({
             id={id}
             data-cy="bank-information-edit-guard"
           >
-            <button
-              type="button"
+            <Button
+              type="default"
               onClick={() => handleEditChange('bankInformation')}
-              className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+              className="w-8 h-8 border border-[#D9D9D9]"
               id="bank-information-edit-icon"
               data-cy="bank-information-edit-icon"
             >
-              <LuPencil size={16} className="text-black" />
-            </button>
+              <EditOutlinedIcon />
+            </Button>
           </AccessGuard>
         ) : null
       }

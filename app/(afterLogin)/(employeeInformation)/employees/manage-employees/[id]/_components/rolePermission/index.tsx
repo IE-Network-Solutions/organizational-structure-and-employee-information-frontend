@@ -18,7 +18,6 @@ import {
   Select,
   Input,
   Switch,
-  Badge,
   Space,
   Tag,
 } from 'antd';
@@ -26,11 +25,18 @@ import React, { useEffect, useState, useMemo } from 'react';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUserOutlined';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
-import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import AppsIcon from '@mui/icons-material/Apps';
 import CloseIcon from '@mui/icons-material/Close';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import {
+  AppstoreOutlined,
+  FileTextOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
+import { CiCalendar, CiSettings, CiStar, CiBookmark } from 'react-icons/ci';
+import { TbMessage2 } from 'react-icons/tb';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { PiMoneyLight, PiSuitcaseSimpleThin } from 'react-icons/pi';
+import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 
 interface Ids {
   id: string;
@@ -271,6 +277,27 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     );
   }, [permissionListData, selectedPermissions]);
 
+  // Group active permissions by their permission group
+  const activePermissionsByGroup = useMemo(() => {
+    if (!groupPermissionData?.items || !selectedPermissions.length) return [];
+
+    return groupPermissionData.items
+      .map((group: any) => {
+        const groupPermissions =
+          group.permissions?.filter((perm: any) =>
+            (selectedPermissions as string[]).includes(perm.id),
+          ) || [];
+
+        if (!groupPermissions.length) return null;
+
+        return {
+          group,
+          permissions: groupPermissions,
+        };
+      })
+      .filter(Boolean);
+  }, [groupPermissionData, selectedPermissions]);
+
   // Remove permission from active list
   const handleRemovePermission = (permissionId: string) => {
     const updatedPermissions = selectedPermissions.filter(
@@ -283,10 +310,82 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
   // Get group icon
   const getGroupIcon = (groupName: string) => {
     const name = groupName.toLowerCase();
-    if (name.includes('payroll') || name.includes('salary')) {
-      return <AccountBalanceWalletIcon className="text-gray-600" />;
+
+    if (name.includes('dashboard')) {
+      return <AppstoreOutlined style={{ fontSize: 18 }} />;
     }
-    return <AppsIcon className="text-gray-600" />;
+
+    if (name.includes('organization') || name.includes('org ')) {
+      return <CiSettings size={18} />;
+    }
+
+    if (name.includes('employee')) {
+      return <LuUsers size={18} />;
+    }
+
+    if (
+      name.includes('recruit') ||
+      name.includes('talent') ||
+      name.includes('job')
+    ) {
+      return <PiSuitcaseSimpleThin size={18} />;
+    }
+
+    if (name.includes('okr')) {
+      return <CiStar size={18} />;
+    }
+
+    if (
+      name.includes('feedback') ||
+      name.includes('cfr') ||
+      name.includes('conversation') ||
+      name.includes('recognition')
+    ) {
+      return <TbMessage2 size={18} />;
+    }
+
+    if (
+      name.includes('learning') ||
+      name.includes('training') ||
+      name.includes('tna')
+    ) {
+      return <CiBookmark size={18} />;
+    }
+
+    if (name.includes('payroll') || name.includes('salary')) {
+      return <AiOutlineDollarCircle size={18} />;
+    }
+
+    if (
+      name.includes('timesheet') ||
+      name.includes('attendance') ||
+      name.includes('leave')
+    ) {
+      return <CiCalendar size={18} />;
+    }
+
+    if (
+      name.includes('compensation') ||
+      name.includes('benefit') ||
+      name.includes('allowance') ||
+      name.includes('deduction')
+    ) {
+      return <PiMoneyLight size={18} />;
+    }
+
+    if (name.includes('incentive') || name.includes('variable pay')) {
+      return <LuCircleDollarSign size={18} />;
+    }
+
+    if (name.includes('audit')) {
+      return <FileTextOutlined style={{ fontSize: 18 }} />;
+    }
+
+    if (name.includes('admin') || name.includes('configuration')) {
+      return <CiSettings size={18} />;
+    }
+
+    return <AppstoreOutlined style={{ fontSize: 18 }} />;
   };
 
   return (
@@ -439,15 +538,23 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                     className="flex justify-between gap-2"
                   >
                     {/* Search Bar */}
+
                     <Input
                       placeholder="Search Permission"
-                      prefix={<SearchIcon className="text-gray-400" />}
+                      id="permission-search"
+                      allowClear
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      id="permission-search"
+                      className="w-[300px] pr-0 py-0 h-8"
                       data-cy="permission-search"
-                      className="rounded-lg"
-                      style={{ width: '250px' }}
+                      suffix={
+                        <div
+                          className="text-gray-400 border-l border-gray-300 py-1 px-2"
+                          data-cy="manage-employees-search-input"
+                        >
+                          <SearchOutlined data-cy="manage-employees-search-icon" />
+                        </div>
+                      }
                     />
 
                     {/* Update Button */}
@@ -459,7 +566,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                       htmlType="submit"
                       id="permission-update-btn"
                       data-cy="permission-update-btn"
-                      className="border-gray-300"
+                      className="border border-[#d9d9d9] text-[#4d4d4d] text-sm font-normal"
                     >
                       Update
                     </Button>
@@ -487,13 +594,14 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                             : 'bg-gray-100 border border-gray-300 text-gray-600'
                         }`}
                       >
-                        {groupPermissionData?.items?.length || 0}
+                        {activePermissions.length}
                       </span>
                       All Groups
                     </Tag>
                     {groupPermissionData?.items?.map((group: any) => {
                       const isSelected =
                         selectedGroupFilter === group.name.toLowerCase();
+                      const selectedCount = getGroupSelectedCount(group);
                       return (
                         <Tag
                           key={group.id}
@@ -514,7 +622,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                                 : 'bg-gray-100 border border-gray-300 text-gray-600'
                             }`}
                           >
-                            {group.permissions?.length || 0}
+                            {selectedCount}
                           </span>
                           {group.name}
                         </Tag>
@@ -679,24 +787,22 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                 >
                   <h3
                     data-cy="active-permission-list-title"
-                    className="text-base font-bold text-gray-900 m-0"
+                    className="text-base font-normal text-[#4d4d4d] m-0"
                   >
                     Active Permissions
                   </h3>
-                  <Badge
-                    count={activePermissions.length}
-                    showZero
-                    color="blue"
-                  />
+                  <Tag className="border border-[#91caff] bg-[#e6f4ff] text-[#1677ff]">
+                    {activePermissions.length} Active
+                  </Tag>
                 </div>
               </div>
 
               {/* Active Permissions List */}
               <div
                 data-cy="active-permission-list-div"
-                className="max-h-96 overflow-y-auto space-y-2 scrollbar-hide"
+                className="max-h-96 overflow-y-auto space-y-4 scrollbar-hide"
               >
-                {activePermissions.length === 0 ? (
+                {activePermissionsByGroup.length === 0 ? (
                   <div
                     data-cy="active-permission-list-no-permissions-div"
                     className="text-center text-gray-500 py-8"
@@ -704,50 +810,65 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                     No active permissions
                   </div>
                 ) : (
-                  activePermissions.map((permission: any) => {
-                    const group = groupPermissionData?.items?.find((g: any) =>
-                      g.permissions?.some((p: any) => p.id === permission.id),
-                    );
-                    return (
+                  activePermissionsByGroup.map(
+                    ({ group, permissions }: any) => (
                       <div
-                        key={permission.id}
-                        className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
-                        id={`active-permission-item-${permission.id}`}
-                        data-cy={`active-permission-item-${permission.id}`}
+                        key={group.id}
+                        data-cy="active-permission-group-section"
+                        className="space-y-2"
                       >
                         <div
-                          data-cy="active-permission-item-div"
-                          className="flex items-center gap-2 flex-1"
+                          data-cy="active-permission-group-section-header-div"
+                          className="flex items-center gap-2"
                         >
                           <div
-                            data-cy="active-permission-item-group-icon"
-                            className="w-6 h-6 flex items-center justify-center"
+                            data-cy="active-permission-group-section-header-icon-div"
+                            className="w-6 h-6 flex items-center justify-center text-[#4d4d4d]"
                           >
-                            {group ? (
-                              getGroupIcon(group.name)
-                            ) : (
-                              <AppsIcon className="text-gray-400" />
-                            )}
+                            {getGroupIcon(group.name)}
                           </div>
                           <span
-                            data-cy="active-permission-item-name"
-                            className="text-sm text-gray-700"
+                            data-cy="active-permission-group-section-header-name-span"
+                            className="text-base font-normal text-[#4d4d4d]"
                           >
-                            {permission.name}
+                            {group.name}
                           </span>
                         </div>
-                        <Button
-                          type="text"
-                          size="small"
-                          icon={<CloseIcon className="text-gray-400" />}
-                          onClick={() => handleRemovePermission(permission.id)}
-                          disabled={false}
-                          id={`remove-permission-btn-${permission.id}`}
-                          data-cy={`remove-permission-btn-${permission.id}`}
-                        />
+
+                        <div
+                          data-cy="active-permission-group-section-permissions-div"
+                          className="space-y-2"
+                        >
+                          {permissions.map((permission: any) => (
+                            <div
+                              key={permission.id}
+                              className="flex items-center justify-between px-3 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm"
+                              id={`active-permission-item-${permission.id}`}
+                              data-cy={`active-permission-item-${permission.id}`}
+                            >
+                              <span
+                                data-cy="active-permission-item-name"
+                                className="text-sm text-gray-700"
+                              >
+                                {permission.name}
+                              </span>
+                              <Button
+                                type="text"
+                                size="small"
+                                icon={<CloseIcon className="text-gray-400" />}
+                                onClick={() =>
+                                  handleRemovePermission(permission.id)
+                                }
+                                disabled={false}
+                                id={`remove-permission-btn-${permission.id}`}
+                                data-cy={`remove-permission-btn-${permission.id}`}
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    );
-                  })
+                    ),
+                  )
                 )}
               </div>
             </Col>

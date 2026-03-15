@@ -5,7 +5,6 @@ import {
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { LuPencil } from 'react-icons/lu';
 import dayjs from 'dayjs';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -16,6 +15,7 @@ import { useModalStore } from '@/store/uistate/features/authentication/changePas
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 function PersonalDataComponent({
   id,
@@ -95,11 +95,11 @@ function PersonalDataComponent({
     <>
       <Card
         loading={isLoading}
-        bodyStyle={{ padding: '10px 0px 0px 10px' }}
+        bodyStyle={{ padding: '10px 0px 0px 24px' }}
         title={
           !edit.general ? (
             <span
-              className="text-base font-bold text-gray-900"
+              className="text-base font-bold text-[#4d4d4d]"
               data-cy="personal-data-card-title"
             >
               Personal Information
@@ -114,15 +114,15 @@ function PersonalDataComponent({
               id={id}
               data-cy="personal-data-edit-guard"
             >
-              <button
-                type="button"
+              <Button
+                type="default"
                 onClick={() => handleEditChange('general')}
-                className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+                className="w-8 h-8 border border-[#D9D9D9]"
                 id="personal-data-edit-icon"
                 data-cy="personal-data-edit-icon"
               >
-                <LuPencil size={16} className="text-black" />
-              </button>
+                <EditOutlinedIcon />
+              </Button>
             </PermissionWrapper>
           ) : null
         }
@@ -476,13 +476,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-full-name"
                 >
                   <p
-                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                     data-cy="personal-data-full-name-label"
                   >
                     Full Name
                   </p>
                   <p
-                    className="text-base font-semibold text-gray-500 m-0"
+                    className="text-base font-normal text-[#4d4d4d] m-0"
                     data-cy="personal-data-full-name-value"
                   >
                     {`${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim() ||
@@ -494,13 +494,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-gender"
                 >
                   <p
-                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                     data-cy="personal-data-gender-label"
                   >
                     Gender
                   </p>
                   <p
-                    className="text-base font-semibold text-gray-500 m-0"
+                    className="text-base font-normal text-[#4d4d4d] m-0"
                     data-cy="personal-data-gender-value"
                   >
                     {employeeData?.employeeInformation?.gender
@@ -518,13 +518,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-marital-status"
                 >
                   <p
-                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                     data-cy="personal-data-marital-status-label"
                   >
                     Marital Status
                   </p>
                   <p
-                    className="text-base font-semibold text-gray-500 m-0"
+                    className="text-base font-normal text-[#4d4d4d] m-0"
                     data-cy="personal-data-marital-status-value"
                   >
                     {employeeData?.employeeInformation?.maritalStatus
@@ -562,13 +562,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-date-of-birth"
                 >
                   <p
-                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                     data-cy="personal-data-dob-label"
                   >
                     Date of Birth
                   </p>
                   <p
-                    className="text-base font-semibold text-gray-500 m-0"
+                    className="text-base font-normal text-[#4d4d4d] m-0"
                     data-cy="personal-data-dob-value"
                   >
                     {employeeData?.employeeInformation?.dateOfBirth
@@ -583,13 +583,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-nationality"
                 >
                   <p
-                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                     data-cy="personal-data-nationality-label"
                   >
                     Nationality
                   </p>
                   <p
-                    className="text-base font-semibold text-gray-500 m-0"
+                    className="text-base font-normal text-[#4d4d4d] m-0"
                     data-cy="personal-data-nationality-value"
                   >
                     {employeeData?.employeeInformation?.nationality?.name ||
@@ -601,13 +601,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-joined-date"
                 >
                   <p
-                    className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                     data-cy="personal-data-joined-date-label"
                   >
                     Joined Date
                   </p>
                   <p
-                    className="text-base font-semibold text-gray-500 m-0"
+                    className="text-base font-normal text-[#4d4d4d] m-0"
                     data-cy="personal-data-joined-date-value"
                   >
                     {employeeData?.employeeInformation?.joinedDate

@@ -1499,12 +1499,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               {children}
             </div>
           )}
-          <CreateEmployeeJobInformation
-            onInfoSubmition={() => {
-              handleUserInfoUpdate();
-            }}
-            id={userId}
-          />
+          {!pathName.startsWith('/employees/manage-employees') && (
+            <CreateEmployeeJobInformation
+              onInfoSubmition={() => {
+                handleUserInfoUpdate();
+              }}
+              id={userId}
+            />
+          )}
           <JobInfoAccessModal
             open={isModalOpen}
             onClose={handleCancel}

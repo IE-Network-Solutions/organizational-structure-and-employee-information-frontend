@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Col, Form, Input, Row, Select } from 'antd';
+import { Button, Card, Col, Form, Input, Row, Select } from 'antd';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import UseSetCategorizedFormData from '../../customField';
@@ -17,17 +17,19 @@ const EmergencyContactForm = () => {
         title={
           <div
             data-cy="emergency-contact-form-title-div"
-            className="flex items-center gap-2 text-gray-600"
+            className="flex items-center gap-2"
           >
-            <div
+            <Button
               data-cy="emergency-contact-form-icon"
-              className="p-1.5 bg-blue-50 rounded text-blue-500"
-            >
-              <ContactsIcon fontSize="small" />
-            </div>
+              className="border border-[#73adff]"
+              type="default"
+              icon={
+                <ContactsIcon fontSize="small" className="text-[#73adff]" />
+              }
+            ></Button>
             <span
               data-cy="emergency-contact-form-title"
-              className="text-sm font-medium"
+              className="text-sm font-normal text-[#4d4d4d]"
             >
               Emergency Contact
             </span>
@@ -40,7 +42,14 @@ const EmergencyContactForm = () => {
           <Col lg={12} xs={24}>
             <Form.Item
               name={['emergencyContact', 'firstName']} // Using firstName for Full Name
-              label="Full Name"
+              label={
+                <span
+                  data-cy="emergency-contact-full-name-label"
+                  className="text-sm font-normal text-[#030712]"
+                >
+                  Full Name
+                </span>
+              }
               rules={[{ required: true, message: 'Full Name is required' }]}
             >
               <Input placeholder="Full Name" />
@@ -50,12 +59,12 @@ const EmergencyContactForm = () => {
             <Row gutter={16}>
               <Col lg={12} xs={24}>
                 <Form.Item
-                  className="font-semibold text-xs"
+                  className="text-sm font-normal text-[#030712]"
                   name={['emergencyContact', 'maritalStatus']}
                   label={
                     <span
                       data-cy="emergency-contact-marital-status-label"
-                      className="text-gray-500"
+                      className="text-sm font-normal text-[#030712]"
                     >
                       Marital Status
                     </span>
@@ -70,12 +79,12 @@ const EmergencyContactForm = () => {
               </Col>
               <Col lg={12} xs={24}>
                 <Form.Item
-                  className="font-semibold text-xs"
+                  className="text-sm font-normal text-[#030712]"
                   name={['emergencyContact', 'nationality']}
                   label={
                     <span
                       data-cy="emergency-contact-nationality-label"
-                      className="text-gray-500"
+                      className="text-sm font-normal text-[#030712]"
                     >
                       Nationality
                     </span>
@@ -118,12 +127,12 @@ const EmergencyContactForm = () => {
         <Row gutter={12}>
           <Col lg={12} xs={24}>
             <Form.Item
-              className="font-semibold text-xs"
+              className="text-sm font-normal text-[#030712]"
               name={['emergencyContact', 'phoneNumber']}
               label={
                 <span
                   data-cy="emergency-contact-phone-number-label"
-                  className="text-gray-500"
+                  className="text-sm font-normal text-[#030712]"
                 >
                   Phone Number
                 </span>
@@ -149,12 +158,12 @@ const EmergencyContactForm = () => {
           </Col>
           <Col lg={12} xs={24}>
             <Form.Item
-              className="font-semibold text-xs"
+              className="text-sm font-normal text-[#030712]"
               name={['emergencyContact', 'gender']}
               label={
                 <span
                   data-cy="emergency-contact-gender-label"
-                  className="text-gray-500"
+                  className="text-sm font-normal text-[#030712]"
                 >
                   Gender
                 </span>

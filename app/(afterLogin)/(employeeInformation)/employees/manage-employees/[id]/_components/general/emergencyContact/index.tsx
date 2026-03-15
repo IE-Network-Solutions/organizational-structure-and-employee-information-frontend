@@ -5,7 +5,6 @@ import {
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { LuPencil } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
@@ -13,6 +12,7 @@ import { validateField } from '../../../../_components/formValidator';
 import dayjs from 'dayjs';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const { Option } = Select;
 
@@ -157,7 +157,7 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
       title={
         !edit.emergencyContact ? (
           <span
-            className="text-base font-bold text-gray-900"
+            className="text-base font-bold text-[#4d4d4d]"
             data-cy="emergency-contact-card-title"
           >
             Emergency Contact Information
@@ -172,15 +172,15 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
             id={id}
             data-cy="emergency-contact-edit-guard"
           >
-            <button
-              type="button"
+            <Button
+              type="default"
               onClick={() => handleEditChange('emergencyContact')}
-              className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+              className="w-8 h-8 border border-[#D9D9D9]"
               id="emergency-contact-edit-icon"
               data-cy="emergency-contact-edit-icon"
             >
-              <LuPencil size={16} className="text-black" />
-            </button>
+              <EditOutlinedIcon />
+            </Button>
           </AccessGuard>
         ) : null
       }

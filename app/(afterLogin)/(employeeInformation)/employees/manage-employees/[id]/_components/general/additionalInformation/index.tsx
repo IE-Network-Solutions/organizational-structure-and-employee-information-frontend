@@ -6,7 +6,6 @@ import {
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { LuPencil } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
@@ -14,6 +13,7 @@ import { validateField } from '../../../../_components/formValidator';
 import dayjs from 'dayjs';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const { Option } = Select;
 
@@ -75,7 +75,7 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
           <Col>
             <span
               data-cy="additional-information-form-title"
-              className="text-sm font-normal text-black"
+              className="text-sm font-normal text-[#4d4d4d]"
             >
               Additional Information
             </span>
@@ -325,7 +325,7 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
       title={
         !edit.additionalInformation ? (
           <span
-            className="text-base font-bold text-gray-900"
+            className="text-base font-bold text-[#4d4d4d]"
             data-cy="additional-information-card-title"
           >
             Additional Information
@@ -340,15 +340,15 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
             id={id}
             data-cy="additional-information-edit-guard"
           >
-            <button
-              type="button"
+            <Button
+              type="default"
               onClick={() => handleEditChange('additionalInformation')}
-              className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+              className="border border-[#D9D9D9] w-8 h-8"
               id="additional-information-edit-icon"
               data-cy="additional-information-edit-icon"
             >
-              <LuPencil size={16} className="text-black" />
-            </button>
+              <EditOutlinedIcon />
+            </Button>
           </AccessGuard>
         ) : null
       }

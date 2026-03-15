@@ -1,8 +1,10 @@
 import React from 'react';
 import { Button, Col, Form, Row, Upload } from 'antd';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { Inbox, FileText, Download, Trash2 } from 'lucide-react';
+import { Inbox } from 'lucide-react';
 import dayjs from 'dayjs';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 const { Dragger } = Upload;
 
@@ -123,7 +125,10 @@ const DocumentUploadForm = () => {
         </Row>
       </div>
 
-      <div data-cy="document-upload-form-documents-div" className="mt-8">
+      <div
+        data-cy="document-upload-form-documents-div"
+        className="mt-8 border-[1px] border-[#D9D9D9] rounded-lg p-4"
+      >
         <h5
           data-cy="document-upload-form-documents-title"
           className="text-gray-600 mb-4 font-medium"
@@ -138,20 +143,20 @@ const DocumentUploadForm = () => {
             <div
               data-cy="document-upload-form-file-div"
               key={file.uid}
-              className="flex items-center p-4 border border-gray-200 rounded-lg bg-white"
+              className="flex items-center p-4 border-[1px] border-[#D9D9D9] rounded-lg"
             >
-              <div
+              {/* <div
                 data-cy="document-upload-form-file-icon-div"
                 className="p-2 border border-gray-100 rounded mr-4 bg-white"
-              >
-                {/* Placeholder for file icon, maybe dynamic based on type if needed */}
-                <div
+              > */}
+              {/* Placeholder for file icon, maybe dynamic based on type if needed */}
+              {/* <div
                   data-cy="document-upload-form-file-icon-div"
                   className="w-8 h-8 flex items-center justify-center bg-red-50 rounded text-red-500"
                 >
                   <FileText className="w-5 h-5" />
                 </div>
-              </div>
+              </div> */}
               <div
                 data-cy="document-upload-form-file-details-div"
                 className="flex-1"
@@ -177,9 +182,10 @@ const DocumentUploadForm = () => {
               >
                 <Button
                   data-cy="document-upload-form-download-button"
-                  type="text"
+                  type="default"
+                  className="border border-[#D9D9D9]"
                   icon={
-                    <Download className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                    <SaveAltIcon fontSize="small" className="text-[#737a86]" />
                   }
                   onClick={() => {
                     // Implement download logic here
@@ -189,17 +195,19 @@ const DocumentUploadForm = () => {
                            Or creating a blob URL.
                         */
                   }}
-                  className="flex items-center justify-center"
                 />
                 <Button
                   data-cy="document-upload-form-delete-button"
-                  type="text"
+                  type="default"
                   danger
                   icon={
-                    <Trash2 className="w-5 h-5 text-red-400 hover:text-red-600" />
+                    <DeleteOutlineIcon
+                      fontSize="small"
+                      className="text-[#ff8384]"
+                    />
                   }
                   onClick={() => handleDocumentRemove(file)}
-                  className="flex items-center justify-center border border-red-100 bg-red-50 hover:bg-red-100"
+                  className="border border-[#ff8384]"
                 />
               </div>
             </div>

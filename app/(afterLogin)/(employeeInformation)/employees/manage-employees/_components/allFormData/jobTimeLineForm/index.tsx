@@ -63,13 +63,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
 
   const { data: department } = useGetDepartmentLead(selectedDepartmentId);
 
-  // const workSchedules = workSchedulesData?.items ?? [];
-  // const basicGroupPermissionId =
-  //   groupPermissionData?.items?.filter((item: any) => item.isBasic) ?? [];
-  // const basicGroupPermissions = basicGroupPermissionId.flatMap(
-  //   (item: any) => item.permissions ?? [],
-  // );
-
   const {
     mutate: handleCreatePosition,
     isLoading,
@@ -127,23 +120,11 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
     }
   }, [isAddEmployeeJobInfoModalVisible, employeeAllowances, actualForm]);
 
-  // const handleContractTypeChange = (e: any) => {
-  //   setContractType(e.target.value);
-  // };
-
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartmentId(value);
     setSwitchValue(false);
     actualForm.setFieldValue('departmentLeadOrNot', false);
   };
-
-  // const handleTeamLeadChange = (checked: boolean) => {
-  //   if (checked && department?.length > 0) {
-  //     return;
-  //   }
-  //   setSwitchValue(checked);
-  //   actualForm.setFieldValue('departmentLeadOrNot', checked);
-  // };
 
   const handleTeamLeadConfirm = () => {
     setSwitchValue(true);
@@ -154,23 +135,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
     setSwitchValue(false);
     actualForm.setFieldValue('departmentLeadOrNot', false);
   };
-
-  // const onRoleChangeHandler = (value: string) => {
-  //   const selectedRole = rolesWithPermission?.find(
-  //     (role: any) => role.id === value,
-  //   );
-  //   setSelectedRoleOnList(selectedRole);
-  //   setSelectedRoleOnOption(value);
-  //   const rolePermissions =
-  //     selectedRole?.permissions?.map((item: any) => item.id) || [];
-  //   const newPermissions = Array.from(
-  //     new Set([
-  //       ...rolePermissions,
-  //       ...(basicGroupPermissions?.map((perm: any) => perm.id) ?? []),
-  //     ]),
-  //   );
-  //   setSelectedPermissions(newPermissions);
-  // };
 
   useEffect(() => {
     if (department?.length > 0) {
@@ -258,11 +222,11 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           data-cy="job-timeline-effective-start-date-col"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="text-sm font-normal text-[#030712]"
             name={'effectiveStartDate'}
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 text-sm font-normal text-[#030712]"
                 id="job-timeline-effective-start-date-label"
                 data-cy="job-timeline-effective-start-date-label"
               >
@@ -333,7 +297,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             data-cy="basicSalary"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 id="job-timeline-salary-label"
                 data-cy="job-timeline-salary-label"
               >
@@ -403,35 +367,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           id="job-timeline-work-schedule-col"
           data-cy="job-timeline-work-schedule-col"
         >
-          {/* <Form.Item
-            className="font-semibold text-xs"
-            name="workScheduleId"
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                id="job-timeline-work-schedule-label"
-                data-cy="job-timeline-work-schedule-label"
-              >
-                Work Schedule
-              </span>
-            }
-            rules={[
-              { required: true, message: 'Please select work schedule' },
-            ]}
-          >
-            <Select
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              placeholder="Select Work Schedule"
-              options={workSchedules?.map((schedule: any) => ({
-                value: schedule?.id,
-                label: schedule?.name ?? '',
-              }))}
-              id="job-timeline-work-schedule-select"
-              data-cy="job-timeline-work-schedule-select"
-            />
-          </Form.Item> */}
           <WorkScheduleForm form={actualForm} />
         </Col>
         <Col
@@ -440,34 +375,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           id="job-timeline-role-col"
           data-cy="job-timeline-role-col"
         >
-          {/* <Form.Item
-            className="font-semibold text-xs"
-            name="roleId"
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                id="job-timeline-role-label"
-                data-cy="job-timeline-role-label"
-              >
-                Role
-              </span>
-            }
-            rules={[{ required: true, message: 'Please select role' }]}
-          >
-            <Select
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              placeholder="Select Role"
-              options={rolesWithPermission?.map((role: any) => ({
-                value: role?.id,
-                label: role?.name ?? '',
-              }))}
-              onChange={onRoleChangeHandler}
-              id="job-timeline-role-select"
-              data-cy="job-timeline-role-select"
-            />
-          </Form.Item> */}
           <RolePermissionForm
             form={actualForm}
             data-cy="user-sidebar-role-permission-form"
@@ -498,7 +405,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-position-label"
               >
                 <span
-                  className="mb-1 font-semibold text-xs"
+                  className="mb-1 font-normal text-sm text-[#030712]"
                   id="job-timeline-position-label-text"
                   data-cy="job-timeline-position-label-text"
                 >
@@ -600,7 +507,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-employement-type-label"
               >
                 <span
-                  className="mb-1 font-semibold text-xs"
+                  className="mb-1 font-normal text-sm text-[#030712]"
                   id="job-timeline-employement-type-label-text"
                   data-cy="job-timeline-employement-type-label-text"
                 >
@@ -647,7 +554,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             id="jobAction"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="job-timeline-status-label"
               >
                 Status
@@ -694,7 +601,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-department-label"
               >
                 <span
-                  className="mb-1 font-semibold text-xs"
+                  className="mb-1 font-normal text-sm text-[#030712]"
                   id="job-timeline-department-label-text"
                   data-cy="job-timeline-department-label-text"
                 >
@@ -740,7 +647,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             initialValue={false}
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 id="job-timeline-member-label"
                 data-cy="job-timeline-member-label"
               >
@@ -859,7 +766,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-branch-label"
               >
                 <span
-                  className="mb-1 font-semibold text-xs"
+                  className="mb-1 font-normal text-sm text-[#030712]"
                   id="job-timeline-branch-label-text"
                   data-cy="job-timeline-branch-label-text"
                 >
@@ -900,7 +807,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             className="w-full font-semibold text-xs"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 id="job-timeline-allowance-label"
                 data-cy="job-timeline-allowance-label"
               >

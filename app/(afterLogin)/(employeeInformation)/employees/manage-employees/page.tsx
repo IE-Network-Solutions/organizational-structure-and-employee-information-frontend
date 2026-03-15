@@ -1,11 +1,11 @@
 'use client';
-import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
 import UserTable from './_components/userTable';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import EmployeeSearch from './_components/userSearch';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { SearchOutlined } from '@ant-design/icons';
 
 import {
   Button,
@@ -15,6 +15,8 @@ import {
   Tooltip,
   Breadcrumb,
   Divider,
+  Typography,
+  Dropdown,
 } from 'antd';
 import {
   useEmployeeBranches,
@@ -35,7 +37,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import SearchIcon from '@mui/icons-material/Search';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const ManageEmployees: React.FC<any> = () => {
   const {
@@ -50,6 +52,7 @@ const ManageEmployees: React.FC<any> = () => {
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: EmploymentTypes } = useGetEmployementTypes();
   const { data: EmployeeStatus } = useGetEmployeeStatus();
+  const { isMobile } = useIsMobile();
   const showDrawer = () => {
     setOpen(true);
   };
@@ -181,48 +184,44 @@ const ManageEmployees: React.FC<any> = () => {
   };
 
   return (
-    <div
-      className="h-auto w-full"
-      id="manage-employees-page"
-      data-cy="manage-employees-page"
-    >
+    <div id="manage-employees-page" data-cy="manage-employees-page">
       <div
         className="flex flex-wrap justify-between items-center px-3"
         id="manage-employees-header"
         data-cy="manage-employees-header"
       >
-        <CustomBreadcrumb
-          title="Employee Management"
-          subtitle={
-            <Breadcrumb
-              items={[
-                {
-                  title: (
-                    <span
-                      className="text-xs sm:text-sm"
-                      data-cy="manage-employees-breadcrumb-employee"
-                    >
-                      Employee
-                    </span>
-                  ),
-                },
-                {
-                  title: (
-                    <Link
-                      className="text-xs sm:text-sm"
-                      href="/employees/manage-employees"
-                    >
-                      Employee Management
-                    </Link>
-                  ),
-                },
-              ]}
-            />
-          }
-          data-cy="manage-employees-breadcrumb"
-        />
+        <div data-cy="manage-employees-header-title">
+          <Typography.Title className="text-xl font-bold text-black">
+            Employee Management
+          </Typography.Title>
+          <Breadcrumb
+            items={[
+              {
+                title: (
+                  <span
+                    className="text-xs sm:text-sm"
+                    data-cy="manage-employees-breadcrumb-employee"
+                  >
+                    Employee
+                  </span>
+                ),
+              },
+              {
+                title: (
+                  <Link
+                    className="text-xs sm:text-sm"
+                    href="/employees/manage-employees"
+                  >
+                    Employee Management
+                  </Link>
+                ),
+              },
+            ]}
+          />
+        </div>
+
         <div
-          className="flex flex-wrap justify-start items-center my-2 gap-4 md:gap-8"
+          className="flex flex-wrap justify-start items-center my-2 gap-3"
           id="manage-employees-actions"
           data-cy="manage-employees-actions"
         >
@@ -256,7 +255,6 @@ const ManageEmployees: React.FC<any> = () => {
                   >
                     <Button
                       type="primary"
-                      size="large"
                       className="flex-1 !border-[#7C3AED] !text-white"
                       icon={<CiBookmark size={18} />}
                       onClick={() => {
@@ -269,7 +267,6 @@ const ManageEmployees: React.FC<any> = () => {
                     </Button>
                     <Button
                       type="primary"
-                      size="large"
                       className="flex-1 !border-[#7C3AED] !text-white"
                       icon={<TbLayoutList size={18} />}
                       onClick={() => {
@@ -286,18 +283,17 @@ const ManageEmployees: React.FC<any> = () => {
             >
               <Button
                 type="default"
-                size="large"
                 id="downloadUserButton"
                 data-cy="manage-employees-download-trigger-btn"
-                className="h-10 w-10 sm:w-auto"
-                icon={<SaveAltIcon />}
+                className="h-10 w-10 sm:w-auto border border-[#D9D9D9]"
+                icon={<SaveAltIcon fontSize="small" />}
               >
                 <span
-                  className="hidden sm:inline"
+                  className="hidden sm:inline text-[#4d4d4d] text-base font-normal"
                   id="manage-employees-download-btn-text"
                   data-cy="manage-employees-download-btn-text"
                 >
-                  Download
+                  Export
                 </span>
               </Button>
             </Popover>
@@ -397,20 +393,25 @@ const ManageEmployees: React.FC<any> = () => {
           data-cy="manage-employees-content"
         >
           <div
-            className="flex justify-between gap-4 mb-6 p-3"
+            className="flex justify-between gap-4 mb-2 px-3 pt-3"
             id="manage-employees-filter-row"
             data-cy="manage-employees-filter-row"
           >
             <Input
               placeholder="Search employee"
-              className="h-8 rounded-lg border border-gray-400"
-              style={{ width: 300 }}
-              suffix={<SearchIcon className="text-gray-400" fontSize="small" />}
               allowClear
-              onChange={(e) => setSearchParams('employee_name', e.target.value)}
               value={searchParams.employee_name}
-              id="manage-employees-search-input"
+              onChange={(e) => setSearchParams('employee_name', e.target.value)}
+              className="w-[300px] pr-0 py-0 h-10 sm:h-8"
               data-cy="manage-employees-search-input"
+              suffix={
+                <div
+                  className="text-gray-400 border-l border-gray-300 py-1 px-2"
+                  data-cy="manage-employees-search-input"
+                >
+                  <SearchOutlined data-cy="manage-employees-search-icon" />
+                </div>
+              }
             />
 
             <div
@@ -421,55 +422,40 @@ const ManageEmployees: React.FC<any> = () => {
               {getActiveFilters().map((filter) => (
                 <Tag
                   key={filter.key}
-                  closable
-                  onClose={() => removeFilter(filter.key)}
-                  className="bg-white text-blue border-blue  rounded-lg px-3 py-1 flex items-center text-sm font-medium"
+                  className="bg-white text-primary border-primary  rounded-md px-3 h-6  flex items-center text-xs font-normal"
                   id={`manage-employees-filter-tag-${filter.key}`}
                   data-cy={`manage-employees-filter-tag-${filter.key}`}
-                  closeIcon={
-                    <span
-                      className="text-blue hover:!text-[#FF8787] ml-2 text-base"
-                      id={`manage-employees-filter-tag-close-icon-${filter.key}`}
-                      data-cy={`manage-employees-filter-tag-close-icon-${filter.key}`}
-                    >
-                      ×
-                    </span>
-                  }
                 >
+                  <span
+                    onClick={() => removeFilter(filter.key)}
+                    className="text-primary hover:!text-[#FF8787] mr-2 text-lg"
+                    id={`manage-employees-filter-tag-close-icon-${filter.key}`}
+                    data-cy={`manage-employees-filter-tag-close-icon-${filter.key}`}
+                  >
+                    ×
+                  </span>
                   {filter.label}
                 </Tag>
               ))}
             </div>
 
-            <Popover
+            <Dropdown
               placement="bottomRight"
-              trigger="click"
+              trigger={['click']}
               open={isMobileFilterVisible}
               onOpenChange={(visible) => setIsMobileFilterVisible(visible)}
-              content={<EmployeeSearch />}
+              dropdownRender={() => <EmployeeSearch />}
             >
               <Button
                 type="default"
-                size="large"
-                className="h-8 px-6 rounded-lg bg-blue-600 border-gray-300 flex items-center gap-2"
                 id="manage-employees-filter-toggle-btn"
                 data-cy="manage-employees-filter-toggle-btn"
-                icon={
-                  <FilterAltOutlinedIcon
-                    className="text-gray-600"
-                    fontSize="small"
-                  />
-                }
+                className="border border-[#D9D9D9] font-normal text-[#4d4d4d]"
+                icon={<FilterAltOutlinedIcon className="py-1" />}
               >
-                <span
-                  id="manage-employees-filter-toggle-btn-text"
-                  data-cy="manage-employees-filter-toggle-btn-text"
-                  className="text-gray-600 text-sm"
-                >
-                  Filter
-                </span>
+                {!isMobile && 'Filter'}
               </Button>
-            </Popover>
+            </Dropdown>
           </div>
           <div
             className="overflow-x-auto"
