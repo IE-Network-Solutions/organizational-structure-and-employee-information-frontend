@@ -940,8 +940,14 @@ h6 {
 @media (max-width: 768px) {
   /* Touch target sizes for better mobile interaction */
   .ant-btn {
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 32px;
+    min-width: 32px;
+  }
+
+  /* Org Structure page: let modals control button height (32px) */
+  #org-structure-layout .ant-btn {
+    min-height: 32px;
+    min-width: auto;
   }
 
   .ant-menu-item {
@@ -1160,7 +1166,7 @@ h6 {
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
   .ant-select-item-option-content {
   color: #111827 !important; /* keep text dark */
-  font-weight: 600;
+  font-weight: 400;
 }
 
 /* Re-enable the checkmark icon inside this dropdown only */
@@ -1206,7 +1212,7 @@ h6 {
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
   .ant-select-item-option-content {
   color: #111827 !important; /* keep text dark */
-  font-weight: 600;
+  font-weight: 400;
 }
 
 /* Re-enable the checkmark icon inside this dropdown only */
@@ -1444,11 +1450,10 @@ h6 {
   color: #111827;
 }
 
-/* Org Structure: Add/Edit Department modal close button position */
+/* Org Structure: Add/Edit/Delete Department modals close button position */
 .org-structure-department-modal.ant-modal .ant-modal-close {
   top: 15px !important;
-  left: 448px !important;
-  right: auto !important;
+  right: 16px !important;
   color: #00000073 !important;
 }
 
