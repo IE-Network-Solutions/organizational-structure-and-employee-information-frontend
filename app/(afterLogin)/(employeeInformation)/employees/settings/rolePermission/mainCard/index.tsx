@@ -77,7 +77,7 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
       >
         {/* Left navigation sidebar */}
         <nav
-          className="flex lg:flex-col flex-row gap-2 lg:w-80 shrink-0  rounded-2xl p-2 lg:p-3 border border-gray-200"
+          className="flex lg:flex-col flex-row gap-2 rounded-lg p-2 lg:p-3 border border-gray-200"
           id="settings-role-permission-tabs"
           data-cy="settings-role-permission-tabs"
           role="tablist"
@@ -92,7 +92,7 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => handleNavClick(key)}
-                className={`w-full flex items-center gap-3 rounded-xl p-3 text-left transition-colors border ${
+                className={`w-full flex items-center gap-3 rounded-lg p-2 sm:p-3 text-left transition-colors border ${
                   isActive
                     ? 'bg-blue-50 border-[#1E40AF] text-[#1E40AF]'
                     : 'bg-transparent border-gray-200 text-gray-700 hover:bg-gray-200/60'
@@ -100,30 +100,34 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
                 id={`settings-role-permission-tab-${key}`}
                 data-cy={`settings-role-permission-tab-${key}`}
               >
-                <span
+                <button
                   data-cy="settings-role-permission-tab-icon"
-                  className={`shrink-0 flex items-center justify-center w-5 h-5 rounded-lg ${
-                    isActive ? 'text-[#1E40AF]' : 'text-gray-500'
+                  className={`shrink-0 flex items-center justify-center h-6 w-6 rounded-md ${
+                    isActive
+                      ? 'text-[#1E40AF] border border-[#1E40AF]'
+                      : 'border border-[#e8e8e8]'
                   }`}
                 >
-                  <IconComponent className="w-5 h-5" />
-                </span>
+                  <IconComponent
+                    className={`w-5 h-5 ${isActive ? 'text-[#1E40AF]' : 'text-[#848484]'}`}
+                  />
+                </button>
                 <div
                   data-cy="settings-role-permission-tab-content"
                   className="flex-1 min-w-0"
                 >
                   <div
                     data-cy="settings-role-permission-tab-label"
-                    className={`font-semibold text-gray-800 truncate ${
-                      isActive ? 'text-[#1E40AF]' : 'text-gray-500'
+                    className={`font-normal text-base truncate ${
+                      isActive ? 'text-[#4a65be]' : 'text-gray-500'
                     }`}
                   >
                     {!isMobile && label}
                   </div>
                   <div
                     data-cy="settings-role-permission-tab-subtext"
-                    className={`text-xs text-gray-500 truncate ${
-                      isActive ? 'text-[#1E40AF]' : 'text-gray-500'
+                    className={`text-xs font-normal truncate ${
+                      isActive ? 'text-[#768acd]' : 'text-gray-500'
                     }`}
                   >
                     {!isMobile && subtext}

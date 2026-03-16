@@ -1,13 +1,13 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { Pencil, Trash2 } from 'lucide-react';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import React, { useEffect, useRef } from 'react';
 import { Button, Dropdown } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import type { MenuProps } from 'antd';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { useDeletePosition } from '@/store/server/features/employees/positions/mutation';
-import PositionsEdit from '../positionEdit';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import CustomPagination from '@/components/customPagination';
@@ -28,7 +28,6 @@ const PositionCards: React.FC = () => {
     pageSize,
     deleteModal,
     deletedPositionId,
-    editModal,
     searchTerm,
     setSelectedPosition,
     setDeleteModal,
@@ -37,6 +36,8 @@ const PositionCards: React.FC = () => {
     setSelectedPositionId,
     setDeletePositionId,
     setEditModal,
+    setFormValues,
+    setOpenPositionDrawer,
   } = usePositionState();
   const { data: positions } = useGetPositions(
     currentPage,
@@ -44,10 +45,15 @@ const PositionCards: React.FC = () => {
     searchTerm,
   );
 
-  const handlePositionEditModalOpen = (position: any) => {
+  const handlePositionEdit = (position: any) => {
     setSelectedPosition(position);
     setSelectedPositionId(position?.id);
-    setEditModal(true);
+    setFormValues({
+      name: position?.name ?? '',
+      description: position?.description ?? '',
+    });
+    setEditModal(false);
+    setOpenPositionDrawer(true);
   };
   const handlePositionDeleteModalOpen = (position: any) => {
     setSelectedPosition(position);
@@ -89,13 +95,13 @@ const PositionCards: React.FC = () => {
                 >
                   <div
                     className="flex items-center gap-2"
-                    onClick={() => handlePositionEditModalOpen(position)}
+                    onClick={() => handlePositionEdit(position)}
                     id={`settings-position-edit-menu-item-${positionSlug}`}
                     data-cy={`settings-position-edit-menu-item-${positionSlug}`}
                   >
-                    <Pencil size={14} className="text-gray-600" />
+                    <EditOutlinedIcon className="text-gray-600" />
                     <span data-cy="settings-position-edit-menu-item-text">
-                      Edit
+                      Edit Employee Position
                     </span>
                   </div>
                 </AccessGuard>
@@ -115,14 +121,13 @@ const PositionCards: React.FC = () => {
                     id={`settings-position-delete-menu-item-${positionSlug}`}
                     data-cy={`settings-position-delete-menu-item-${positionSlug}`}
                   >
-                    <Trash2 size={14} />
+                    <DeleteOutlineOutlinedIcon />
                     <span data-cy="settings-position-delete-menu-item-text">
-                      Delete
+                      Delete Employee Position
                     </span>
                   </div>
                 </AccessGuard>
               ),
-              danger: true,
             },
           ];
           return (
@@ -151,8 +156,8 @@ const PositionCards: React.FC = () => {
                 >
                   <Button
                     type="text"
-                    icon={<MoreOutlined />}
-                    className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
+                    icon={<MoreHorizIcon />}
+                    className="w-8 h-8 flex items-center justify-center border border-[#D9D9D9] rounded-md"
                     id={`settings-position-menu-btn-${positionSlug}`}
                     data-cy={`settings-position-menu-btn-${positionSlug}`}
                   />
@@ -176,8 +181,6 @@ const PositionCards: React.FC = () => {
         onConfirm={handleDelete}
         data-cy="settings-position-delete-modal"
       />
-      {editModal && <PositionsEdit data-cy="settings-position-edit-form" />}
-
       {isMobile || isTablet ? (
         <CustomMobilePagination
           totalResults={positions?.meta?.totalItems ?? 0}

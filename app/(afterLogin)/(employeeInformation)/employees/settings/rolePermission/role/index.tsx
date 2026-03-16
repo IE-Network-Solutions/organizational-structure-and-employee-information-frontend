@@ -80,10 +80,17 @@ const RoleComponent: React.FC = () => {
       <div data-cy="settings-role-search-container" className="mb-4">
         <Input
           placeholder="Search Roles"
-          suffix={<SearchOutlined className="text-gray-400" />}
+          className="w-full pr-0 py-0"
+          suffix={
+            <div
+              className="text-gray-400 border-l border-gray-300 px-2 py-1"
+              data-cy="merge-search-icon-container"
+            >
+              <SearchOutlined />
+            </div>
+          }
           value={roleSearch}
           onChange={(e) => setRoleSearch(e.target.value)}
-          className="rounded-lg bg-white"
           id="settings-role-search"
           data-cy="settings-role-search"
           allowClear
