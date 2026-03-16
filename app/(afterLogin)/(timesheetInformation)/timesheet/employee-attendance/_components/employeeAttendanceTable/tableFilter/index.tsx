@@ -1,13 +1,13 @@
 import React, { FC } from 'react';
 import { Col, DatePicker, Form, Row, Select, Dropdown, Button } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 interface TableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -305,16 +305,15 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
       <div
         id="time-attendance-employee-attendance-mobile-filter-div"
         data-cy="time-attendance-employee-attendance-mobile-filter-div"
-        className="space-y-4"
       >
         <div
           id="time-attendance-employee-attendance-mobile-filter-date-range-div"
           data-cy="time-attendance-employee-attendance-mobile-filter-date-range-div"
-          className="flex justify-between gap-2"
+          className="flex justify-between"
         >
           <div
             data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
-            className="w-1/2"
+            className="w-1/3"
           >
             <Form.Item
               data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-form-item"
@@ -326,7 +325,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                 data-cy="time-attendance-employee-attendance-mobile-filter-employee-select"
                 placeholder="Select Employee"
                 allowClear
-                className={selectClassName}
+                className="w-full pr-0 py-0 h-8 rounded-lg"
                 options={employeeOptions}
                 showSearch
                 optionFilterProp="label"
@@ -342,6 +341,14 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                   ).includes(input.toLowerCase())
                 }
                 value={form.getFieldValue('employeeId')}
+                suffixIcon={
+                  <div
+                    data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-suffix-icon-div"
+                    className="text-gray-400 border-l p-2"
+                  >
+                    <SearchOutlined />
+                  </div>
+                }
               />
             </Form.Item>
           </div>
@@ -354,10 +361,12 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
           >
             <Button
-              className={`h-10 rounded-lg flex items-center justify-center border border-[#d4d4d4]`}
+              className={`h-10 rounded-lg flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
               id="time-attendance-employee-attendance-mobile-filter-toggle-button"
               data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
-              icon={<FilterAltIcon />}
+              icon={
+                <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+              }
             >
               Filter
             </Button>

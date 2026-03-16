@@ -220,7 +220,7 @@ const EmployeeAttendance = () => {
   return (
     <>
       <div
-        className="min-h-screen px-3 sm:px-6"
+        className="min-h-screen"
         id="time-attendance-employee-attendance-page-container-view"
         data-cy="time-attendance-employee-attendance-page-container-view"
       >
@@ -260,7 +260,7 @@ const EmployeeAttendance = () => {
                         data-cy="time-attendance-employee-attendance-breadcrumb-item-link"
                         href="/timesheet/employee-attendance"
                       >
-                        Attendance
+                        EmployeeAttendance
                       </Link>
                     ),
                   },
@@ -291,10 +291,11 @@ const EmployeeAttendance = () => {
                     <IosShareIcon
                       fontSize="small"
                       data-cy="time-attendance-employee-attendance-import-button-icon"
+                      className="text-[#374151]"
                     />
                   }
                   loading={isLoading || isLoadingImport}
-                  className={`border border-[#d4d4d4] ${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : ' h-10'}`}
+                  className={`border  border-[#d9d9d9] text-base font-normal text-[#4d4d4d] ${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : ' h-10'}`}
                   id="time-attendance-employee-attendance-import-button"
                   data-cy="time-attendance-employee-attendance-import-button"
                 >
@@ -378,12 +379,15 @@ const EmployeeAttendance = () => {
               >
                 <Button
                   icon={
-                    <SaveAltIcon data-cy="time-attendance-employee-attendance-export-button-icon" />
+                    <SaveAltIcon
+                      data-cy="time-attendance-employee-attendance-export-button-icon"
+                      className="text-white"
+                    />
                   }
                   size="large"
                   type="primary"
                   loading={isExportLoading}
-                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : ' h-10'}`}
+                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white' : ' h-10 text-base font-normal text-white'}`}
                   id="time-attendance-employee-attendance-export-button"
                   data-cy="time-attendance-employee-attendance-export-button"
                 >
