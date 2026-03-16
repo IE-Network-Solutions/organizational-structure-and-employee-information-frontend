@@ -313,7 +313,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
         >
           <div
             data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
-            className="w-1/3"
+            className="w-1/2 sm:w-1/3 "
           >
             <Form.Item
               data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-form-item"
@@ -323,9 +323,9 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
               <Select
                 id="time-attendance-employee-attendance-mobile-filter-employee-select"
                 data-cy="time-attendance-employee-attendance-mobile-filter-employee-select"
-                placeholder="Select Employee"
+                placeholder="Search Employee"
                 allowClear
-                className="w-full pr-0 py-0 h-8 rounded-lg"
+                className="w-full pr-0 py-0 h-10 rounded-lg"
                 options={employeeOptions}
                 showSearch
                 optionFilterProp="label"
