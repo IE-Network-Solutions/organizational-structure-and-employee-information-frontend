@@ -1,13 +1,20 @@
 'use client';
 
 import React, { useMemo, useCallback } from 'react';
-import { type NodeProps, Handle, Position, useReactFlow } from '@xyflow/react';
+import {
+  type NodeProps,
+  Handle,
+  Position,
+  useReactFlow,
+  useStoreApi,
+} from '@xyflow/react';
 import type { Node } from '@xyflow/react';
 import { Card, Avatar, Typography, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { User } from 'lucide-react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { MdOutlineAccountTree } from 'react-icons/md';
+import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import { FiPlus, FiEdit2, FiTrash2, FiEye } from 'react-icons/fi';
 import type { OrgNodeData } from '../layout';
 import { getSubtreeNodeIds, NODE_HEIGHT, NODE_WIDTH } from '../layout';
@@ -20,6 +27,10 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
   const { data } = props;
   const orgChartActions = useOrgChartActions();
   const { getNodes, getEdges, fitView } = useReactFlow();
+  const storeApi = useStoreApi();
+  const setNodes = useDepartmentStore((s) => s.setNodes);
+  const setEdges = useDepartmentStore((s) => s.setEdges);
+  const setFocusViewRootId = useDepartmentStore((s) => s.setFocusViewRootId);
   const collapsedDepartmentIds = useDepartmentStore(
     (s) => s.collapsedDepartmentIds,
   );
@@ -97,30 +108,85 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
 
   const handleFocusView = useCallback(() => {
     if (!data?.id) return;
-    const runFitView = () => {
-      const edges = getEdges();
-      const subtreeIds = getSubtreeNodeIds(
-        edges.map((e) => ({ source: e.source, target: e.target })),
-        data.id,
-      );
-      const nodesToFit = getNodes().filter((n) => subtreeIds.has(n.id));
-      if (nodesToFit.length > 0) {
-        fitView({
-          nodes: nodesToFit,
-          padding: 0.35,
-          maxZoom: 1.1,
-          duration: 400,
-        });
-      }
-    };
+    const focusedNodeId = data.id;
+    const state = useDepartmentStore.getState();
+    const fullNodes = state.fullNodes as { id: string; position?: { x: number; y: number }; [key: string]: unknown }[];
+    const fullEdges = state.fullEdges as { source: string; target: string; [key: string]: unknown }[];
+    if (fullNodes.length === 0 || fullEdges.length === 0) return;
+
+    const subtreeIds = getSubtreeNodeIds(
+      fullEdges.map((e) => ({ source: e.source, target: e.target })),
+      focusedNodeId,
+    );
+    const subtreeNodes = fullNodes.filter((n) => subtreeIds.has(n.id));
+    const subtreeEdges = fullEdges.filter(
+      (e) => subtreeIds.has(e.source) && subtreeIds.has(e.target),
+    );
+    if (subtreeNodes.length === 0) return;
 
     if (isCollapsed) {
       toggleCollapse(data.id);
-      requestAnimationFrame(() => requestAnimationFrame(runFitView));
-    } else {
-      runFitView();
     }
-  }, [data?.id, isCollapsed, toggleCollapse, getNodes, getEdges, fitView]);
+    // Show only the focused department and its children as the main org structure
+    setFocusViewRootId(focusedNodeId);
+    setNodes(subtreeNodes);
+    setEdges(subtreeEdges);
+
+    // After React has applied the new nodes, zoom in for a better view
+    const runFitView = () => {
+      fitView({
+        padding: 0.2,
+        maxZoom: 1.4,
+        minZoom: 0.35,
+        duration: 400,
+      });
+      // Position at top and center
+      const TOP_PADDING_PX = 56;
+      setTimeout(() => {
+        const flowState = storeApi.getState();
+        const { width, height, transform } = flowState;
+        if (width === 0 || height === 0 || !transform || !Array.isArray(transform)) return;
+        const [, , zoom] = transform;
+
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        subtreeNodes.forEach((n) => {
+          const pos = n.position ?? { x: 0, y: 0 };
+          minX = Math.min(minX, pos.x);
+          minY = Math.min(minY, pos.y);
+          maxX = Math.max(maxX, pos.x + NODE_WIDTH);
+          maxY = Math.max(maxY, pos.y + NODE_HEIGHT);
+        });
+        if (!Number.isFinite(minX)) return;
+
+        const boundsCenterX = (minX + maxX) / 2;
+        const boundsTopY = minY;
+        const newX = width / 2 - boundsCenterX * zoom;
+        const newY = TOP_PADDING_PX - boundsTopY * zoom;
+
+        storeApi.setState({
+          transform: [newX, newY, zoom],
+        });
+      }, 450);
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        runFitView();
+      });
+    });
+  }, [
+    data?.id,
+    isCollapsed,
+    toggleCollapse,
+    fitView,
+    storeApi,
+    setNodes,
+    setEdges,
+    setFocusViewRootId,
+  ]);
 
   if (!data) return null;
   const {
@@ -334,7 +400,14 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
               }
               data-cy={`org-structure-node-badge-${data.id}`}
             >
-              <MdOutlineAccountTree size={14} className="shrink-0" />
+              {directReportCount > 0 ? (
+                <MdOutlineAccountTree size={14} className="shrink-0" />
+              ) : (
+                <Person2OutlinedIcon
+                  fontSize="small"
+                  className="shrink-0"
+                />
+              )}
               {(directReportCount > 0
                 ? directReportCount
                 : (usersWithoutTeamLeadCount ?? 0)) > 0 && (

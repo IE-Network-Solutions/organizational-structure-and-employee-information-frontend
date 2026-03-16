@@ -135,26 +135,6 @@ export function DeleteDepartmentModal() {
 
   if (!deleteModalOpen) return null;
 
-  const centeredModalStyles = {
-    wrapper: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: isMobile ? 8 : 16,
-    },
-    content: {
-      borderRadius: 8,
-      border: '1px solid var(--Colors-Base-Gray-3, #E5E7EB)',
-      background: '#FFF',
-    },
-    header: {
-      padding: isMobile ? '10px 12px 0' : '16px 20px 0',
-    },
-    body: {
-      padding: isMobile ? '12px' : '16px 20px 16px',
-    },
-  };
-
   if (deleteStep === 2) {
     return (
       <Modal
@@ -168,14 +148,14 @@ export function DeleteDepartmentModal() {
         }
         open
         onCancel={handleStep2Cancel}
+        closable
         centered
-        styles={centeredModalStyles}
-        className="org-structure-department-modal"
+        className="org-structure-department-modal [&_.ant-modal-close]:mt-3 [&_.ant-modal-content]:rounded-lg [&_.ant-modal-content]:shadow-lg [&_.ant-modal-content]:border-0 [&_.ant-modal-header]:flex [&_.ant-modal-header]:items-center [&_.ant-modal-header]:border-b [&_.ant-modal-header]:border-gray-100 [&_.ant-modal-header]:px-3 [&_.ant-modal-header]:py-3 [&_.ant-modal-body]:px-3 [&_.ant-modal-body]:pb-3 [&_.ant-modal-title]:flex-1 [&_.ant-modal-title]:leading-none"
         footer={
           <Space>
             <Button
-              className="h-8 px-4 sm:px-4 border-gray-300 text-gray-700 bg-white hover:border-[#4096FF] hover:text-[#4096FF]"
-              style={{ height: 32, boxShadow: 'none' }}
+              className="h-8 sm:h-10 px-4 sm:px-4 font-normal border-gray-300 text-gray-700 bg-white hover:border-[#4096FF] hover:text-[#4096FF]"
+              style={{ boxShadow: 'none' }}
               onClick={handleStep2Cancel}
             >
               Cancel
@@ -185,8 +165,8 @@ export function DeleteDepartmentModal() {
               danger
               loading={deleteMutation.isLoading}
               onClick={handleConfirmDelete}
-              className="h-8 px-4 sm:px-4"
-              style={{ height: 32, boxShadow: 'none' }}
+              className="h-8 sm:h-10 px-4 sm:px-4 font-normal"
+              style={{ boxShadow: 'none' }}
             >
               Delete
             </Button>
@@ -217,16 +197,17 @@ export function DeleteDepartmentModal() {
       }
       open
       onCancel={handleClose}
+      closable
       centered
-      styles={centeredModalStyles}
       footer={null}
       width={isMobile ? 'calc(100vw - 24px)' : 520}
       data-cy="org-structure-delete-department-modal"
-      className="org-structure-department-modal"
+      className="org-structure-department-modal [&_.ant-modal-close]:mt-3 [&_.ant-modal-content]:rounded-lg [&_.ant-modal-content]:shadow-lg [&_.ant-modal-content]:border-0 [&_.ant-modal-header]:flex [&_.ant-modal-header]:items-center [&_.ant-modal-header]:border-b [&_.ant-modal-header]:border-gray-100 [&_.ant-modal-header]:px-3 [&_.ant-modal-header]:py-3 [&_.ant-modal-body]:px-3 [&_.ant-modal-body]:pb-3 [&_.ant-modal-title]:flex-1 [&_.ant-modal-title]:leading-none"
     >
       <Form
         form={form}
         layout="vertical"
+        requiredMark={false}
         onValuesChange={(changedValues, allValues) => {
           if (allValues.departmentTobeShiftedId !== undefined) {
             setDepartmentTobeShiftedId(
@@ -235,10 +216,15 @@ export function DeleteDepartmentModal() {
           }
         }}
       >
-        <Space direction="vertical" style={{ width: '100%' }} size={16}>
+        <Space direction="vertical" style={{ width: '100%' }} size={12}>
           <div data-cy="org-structure-delete-department-to-delete-field-wrap">
             <Form.Item
-              label="Department to be Deleted"
+              label={
+                <div className="flex items-center justify-between">
+                  <span>Department to be Deleted</span>
+                  <span className="text-red-500">*</span>
+                </div>
+              }
               name="departmentTobeDeletedId"
               required
               rules={[
@@ -269,7 +255,12 @@ export function DeleteDepartmentModal() {
           </div>
           <div data-cy="org-structure-delete-shift-to-field-wrap">
             <Form.Item
-              label="Shift employee to"
+              label={
+                <div className="flex items-center justify-between">
+                  <span>Shift employee to</span>
+                  <span className="text-red-500">*</span>
+                </div>
+              }
               name="departmentTobeShiftedId"
               required
               rules={[
@@ -309,8 +300,8 @@ export function DeleteDepartmentModal() {
         >
           <Button
             onClick={handleClose}
-            className="h-8 px-4 sm:px-5 border-gray-300 text-gray-700 bg-white hover:border-[#4096FF] hover:text-[#4096FF]"
-            style={{ height: 32, boxShadow: 'none' }}
+            className="h-8 sm:h-10 px-4 sm:px-5 font-normal border-gray-300 text-gray-700 bg-white hover:border-[#4096FF] hover:text-[#4096FF]"
+            style={{ boxShadow: 'none' }}
             data-cy="org-structure-delete-cancel"
           >
             Cancel
@@ -319,11 +310,8 @@ export function DeleteDepartmentModal() {
             type="primary"
             danger
             onClick={handleContinue}
-            className="h-8 px-4 sm:px-5"
-            style={{
-              height: 32,
-              boxShadow: 'none',
-            }}
+            className="h-8 sm:h-10 px-4 sm:px-5 font-normal"
+            style={{ boxShadow: 'none' }}
             data-cy="org-structure-delete-continue"
           >
             Continue
