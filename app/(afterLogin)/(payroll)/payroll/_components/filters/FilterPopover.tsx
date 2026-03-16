@@ -84,7 +84,14 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
           });
 
           if (!initialSearchTriggered.current) {
-            onSearch(form.getFieldsValue());
+            const formValues = form.getFieldsValue();
+            const sanitizedValues = Object.fromEntries(
+              Object.entries(formValues).filter(
+                ([, value]) =>
+                  typeof value === 'string' && value.trim() !== '',
+              ),
+            ) as { [key: string]: string };
+            onSearch(sanitizedValues);
             initialSearchTriggered.current = true;
           }
         }
@@ -97,13 +104,27 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
       const defaultPayPeriodId = payroll.items[0]?.payPeriodId;
       if (defaultPayPeriodId) {
         form.setFieldsValue({ payPeriodId: defaultPayPeriodId });
-        onSearch(form.getFieldsValue());
+        const formValues = form.getFieldsValue();
+        const sanitizedValues = Object.fromEntries(
+          Object.entries(formValues).filter(
+            ([, value]) =>
+              typeof value === 'string' && value.trim() !== '',
+          ),
+        ) as { [key: string]: string };
+        onSearch(sanitizedValues);
       }
     } else if (payPeriodData && payPeriodData.length > 0 && !form.getFieldValue('payPeriodId')) {
       const activePeriod = payPeriodData.find((p: any) => p.status === 'OPEN') || payPeriodData[0];
       if (activePeriod) {
         form.setFieldsValue({ payPeriodId: activePeriod.id });
-        onSearch(form.getFieldsValue());
+        const formValues = form.getFieldsValue();
+        const sanitizedValues = Object.fromEntries(
+          Object.entries(formValues).filter(
+            ([, value]) =>
+              typeof value === 'string' && value.trim() !== '',
+          ),
+        ) as { [key: string]: string };
+        onSearch(sanitizedValues);
       }
     }
   }, [payroll?.items, payPeriodData]);
@@ -125,7 +146,14 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
     setMonthId(values.monthId || '');
     setYearId(values.yearId || '');
     setSessionId(values.sessionId || '');
-    onSearch(values as any);
+
+    const sanitizedValues = Object.fromEntries(
+      Object.entries(values).filter(
+        ([, value]) => typeof value === 'string' && value.trim() !== '',
+      ),
+    ) as { [key: string]: string };
+
+    onSearch(sanitizedValues);
     setOpen(false);
   };
 
@@ -153,7 +181,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
           }
         }
       }}
-    >
+    data-cy="payroll-filter-popover-content">
       <div className="bg-white p-2 w-full max-w-[500px] min-w-[320px] md:min-w-[450px] relative" data-cy="payroll-filter-popover-content">
         
         {/* Close Icon */}
@@ -166,7 +194,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
         </button>
 
         {/* Header Section */}
-        <div className="mb-6">
+        <div className="mb-6" data-cy="payroll-filter-popover-header">
           <h2 className="text-[16px] font-bold text-gray-900 m-0 leading-tight">Filter</h2>
           <p className="text-[13px] text-gray-400 m-0 mt-1">Select All filters that apply</p>
         </div>
@@ -187,9 +215,11 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
                 rules={[{ required: true, message: 'Required' }]}
                 data-cy="payroll-filter-popover-year"
               >
-                <Select size="large" placeholder="Select Year" onChange={handleYearChange} allowClear>
+                <Select size="large" placeholder="Select Year" onChange={handleYearChange} allowClear data-cy="payroll-filter-popover-year-select">
                   {fiscalYears.map((year) => (
-                    <Option key={year.id} value={year.id}>
+                    <Option key={year.id} value={year.id}
+                    data-cy="payroll-filter-popover-year-option"
+                    >
                       {year.name}
                     </Option>
                   ))}
@@ -197,16 +227,16 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
               </Form.Item>
             </Col>
             
-            <Col xs={24} sm={12}>
+            <Col xs={24} sm={12} data-cy="payroll-filter-popover-session-col">
               <Form.Item
                 name="sessionId"
                 label={<CustomLabel title="Session" />}
                 rules={[{ required: true, message: 'Required' }]}
                 data-cy="payroll-filter-popover-session"
               >
-                <Select size="large" placeholder="Select Session" onChange={handleSessionChange} allowClear disabled={!form.getFieldValue('yearId')}>
+                <Select size="large" placeholder="Select Session" onChange={handleSessionChange} allowClear disabled={!form.getFieldValue('yearId')} data-cy="payroll-filter-popover-session-select">
                   {sessions.map((session) => (
-                    <Option key={session.id} value={session.id}>
+                    <Option key={session.id} value={session.id} data-cy="payroll-filter-popover-session-option">
                       {session.name}
                     </Option>
                   ))}
@@ -216,15 +246,15 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
           </Row>
 
           <Row gutter={16}>
-            <Col xs={24} sm={12}>
+            <Col xs={24} sm={12} data-cy="payroll-filter-popover-division-col">
               <Form.Item
                 name="divisionId"
                 label={<CustomLabel title="Division" />}
                 data-cy="payroll-filter-popover-division"
               >
-                <Select size="large" placeholder="Select Division" allowClear>
+                <Select size="large" placeholder="Select Division" allowClear data-cy="payroll-filter-popover-division-select">
                   {level1Departments?.map((division: any) => (
-                    <Option key={division.id} value={division.id}>
+                    <Option key={division.id} value={division.id} data-cy="payroll-filter-popover-division-option">
                       {division?.name}
                     </Option>
                   ))}
@@ -232,15 +262,15 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
               </Form.Item>
             </Col>
             
-            <Col xs={24} sm={12}>
+            <Col xs={24} sm={12} data-cy="payroll-filter-popover-department-col">
               <Form.Item
                 name="departmentId"
                 label={<CustomLabel title="Department" />}
                 data-cy="payroll-filter-popover-department"
               >
-                <Select size="large" placeholder="Select Department" allowClear>
+                <Select size="large" placeholder="Select Department" allowClear data-cy="payroll-filter-popover-department-select">
                   {departmentData?.map((department: any) => (
-                    <Option key={department.id} value={department.id}>
+                    <Option key={department.id} value={department.id} data-cy="payroll-filter-popover-department-option">
                       {department?.name}
                     </Option>
                   ))}
@@ -250,15 +280,15 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
           </Row>
 
           <Row gutter={16}>
-            <Col xs={24} sm={12}>
+            <Col xs={24} sm={12} data-cy="payroll-filter-popover-pay-period-col">
               <Form.Item
                 name="payPeriodId"
                 label={<CustomLabel title="Pay Period" />}
                 data-cy="payroll-filter-popover-pay-period"
               >
-                <Select size="large" placeholder="Select Pay Period" allowClear>
+                <Select size="large" placeholder="Select Pay Period" allowClear data-cy="payroll-filter-popover-pay-period-select">
                   {payPeriodData?.map((period: any) => (
-                    <Option key={period.id} value={period.id}>
+                    <Option key={period.id} value={period.id} data-cy="payroll-filter-popover-pay-period-option">
                       {dayjs(period.startDate).format('MMM DD, YYYY')} -- {dayjs(period.endDate).format('MMM DD, YYYY')}
                     </Option>
                   ))}
@@ -266,16 +296,16 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
               </Form.Item>
             </Col>
             
-            <Col xs={24} sm={12}>
+            <Col xs={24} sm={12} data-cy="payroll-filter-popover-month-col">
               <Form.Item
                 name="monthId"
                 label={<CustomLabel title="Month" />}
                 rules={[{ required: true, message: 'Required' }]}
                 data-cy="payroll-filter-popover-month"
               >
-                <Select size="large" placeholder="Select Month" allowClear disabled={!form.getFieldValue('sessionId')}>
+                <Select size="large" placeholder="Select Month" allowClear disabled={!form.getFieldValue('sessionId')} data-cy="payroll-filter-popover-month-select">
                   {months.map((month) => (
-                    <Option key={month.id} value={month.id}>
+                    <Option key={month.id} value={month.id} data-cy="payroll-filter-popover-month-option">
                       {month.name}
                     </Option>
                   ))}

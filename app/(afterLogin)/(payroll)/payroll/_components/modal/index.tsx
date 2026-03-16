@@ -49,6 +49,7 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
 
   return (
     <ConfigProvider
+    data-cy="payroll-generate-modal-config-provider"
       theme={{
         token: {
           colorPrimary: '#2543b5',
@@ -67,6 +68,7 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
       }}
     >
       <Modal
+        data-cy="payroll-generate-modal"
         title={
           <span 
             data-cy="payroll-generate-modal-title-view-text" 

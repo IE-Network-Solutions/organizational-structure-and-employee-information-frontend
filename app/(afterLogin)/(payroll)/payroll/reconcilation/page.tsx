@@ -766,29 +766,51 @@ const PayrollReconcilation = () => {
                 data-cy="payroll-reconciliation-detail-table-wrapper"
                 className="bg-white rounded-lg overflow-hidden border-b border-[#f0f0f0]"
               >
-                <table className="w-full text-left border-collapse">
-                  <thead className="bg-[#fafafa]">
-                    <tr>
-                      <th className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]">
+                <table
+                  className="w-full text-left border-collapse"
+                  data-cy="payroll-reconciliation-detail-table"
+                >
+                  <thead
+                    className="bg-[#fafafa]"
+                    data-cy="payroll-reconciliation-detail-table-head"
+                  >
+                    <tr data-cy="payroll-reconciliation-detail-table-head-row">
+                      <th
+                        className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
+                        data-cy="payroll-reconciliation-detail-table-head-employee"
+                      >
                         Employee
                       </th>
-                      <th className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]">
+                      <th
+                        className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
+                        data-cy="payroll-reconciliation-detail-table-head-current"
+                      >
                         Current
                       </th>
-                      <th className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]">
+                      <th
+                        className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
+                        data-cy="payroll-reconciliation-detail-table-head-previous"
+                      >
                         Previous
                       </th>
-                      <th className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]">
+                      <th
+                        className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
+                        data-cy="payroll-reconciliation-detail-table-head-diff"
+                      >
                         Difference
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#f0f0f0]">
+                  <tbody
+                    className="divide-y divide-[#f0f0f0]"
+                    data-cy="payroll-reconciliation-detail-table-body"
+                  >
                     {isLoadingDetails && (
-                      <tr>
+                      <tr data-cy="payroll-reconciliation-detail-table-loading-row">
                         <td
                           colSpan={4}
                           className="py-8 text-center text-[#00000073]"
+                          data-cy="payroll-reconciliation-detail-table-loading-cell"
                         >
                           Loading...
                         </td>
@@ -817,6 +839,7 @@ const PayrollReconcilation = () => {
 
                           return (
                             <tr
+                              data-cy="payroll-reconciliation-detail-table-body-row"
                               key={
                                 item.userId ||
                                 item.employeeId ||
@@ -825,16 +848,28 @@ const PayrollReconcilation = () => {
                               }
                               className="hover:bg-[#fafafa] transition-colors"
                             >
-                              <td className="py-4 px-4 text-[#000000d9]">
+                              <td
+                                className="py-4 px-4 text-[#000000d9]"
+                                data-cy="payroll-reconciliation-detail-table-body-employee"
+                              >
                                 {employeeName}
                               </td>
-                              <td className="py-4 px-4 text-[#000000d9]">
+                              <td
+                                className="py-4 px-4 text-[#000000d9]"
+                                data-cy="payroll-reconciliation-detail-table-body-current"
+                              >
                                 {current}
                               </td>
-                              <td className="py-4 px-4 text-[#000000d9]">
+                              <td
+                                className="py-4 px-4 text-[#000000d9]"
+                                data-cy="payroll-reconciliation-detail-table-body-previous"
+                              >
                                 {previous}
                               </td>
-                              <td className={`py-4 px-4 ${diffClass}`}>
+                              <td
+                                className={`py-4 px-4 ${diffClass}`}
+                                data-cy="payroll-reconciliation-detail-table-body-diff"
+                              >
                                 {rawDiff}
                               </td>
                             </tr>
@@ -844,10 +879,11 @@ const PayrollReconcilation = () => {
                     {!isLoadingDetails &&
                       !reconciliationDetails?.employeeVariances?.items
                         ?.length && (
-                        <tr>
+                        <tr data-cy="payroll-reconciliation-detail-table-empty-row">
                           <td
                             colSpan={4}
                             className="py-8 text-center text-[#00000073]"
+                            data-cy="payroll-reconciliation-detail-table-empty-cell"
                           >
                             No employee found
                           </td>

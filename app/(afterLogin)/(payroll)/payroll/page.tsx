@@ -138,8 +138,7 @@ const Payroll = () => {
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
-  const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
-    useSendingPayrollPayslip();
+  const { mutate: sendPaySlip } = useSendingPayrollPayslip();
   const { generateBankLetter } = useGenerateBankLetter();
   const { exportToExcel } = useExportData();
 
@@ -1572,13 +1571,12 @@ const Payroll = () => {
               onChange: (newSelectedRowKeys: React.Key[]) => {
                 setSelectedRowKeys(newSelectedRowKeys);
               },
-              /* eslint-disable @typescript-eslint/no-unused-vars */
               onSelectAll: (
-                selected: boolean,
-                selectedRows: any[],
-                changeRows: any[],
+                isSelected: boolean,
+                _selectedRows: any[],
+                _changeRows: any[],
               ) => {
-                if (selected) {
+                if (isSelected) {
                   const allKeys = mergedPayroll.map(
                     (item: any) => item.id || item.employeeId,
                   );
