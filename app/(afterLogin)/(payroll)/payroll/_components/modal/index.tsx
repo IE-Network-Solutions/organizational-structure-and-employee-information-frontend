@@ -48,8 +48,9 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
   );
 
   return (
+    // eslint-disable-next-line local-rules/data-cy-required
     <ConfigProvider
-    data-cy="payroll-generate-modal-config-provider"
+      data-cy="payroll-generate-modal-config-provider"
       theme={{
         token: {
           colorPrimary: '#2543b5',
@@ -73,6 +74,7 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
           <span 
             data-cy="payroll-generate-modal-title-view-text" 
             className="font-bold text-lg text-gray-900 tracking-wide"
+            
           >
             Generate Payroll
           </span>
