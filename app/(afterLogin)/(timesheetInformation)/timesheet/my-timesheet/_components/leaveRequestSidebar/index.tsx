@@ -323,7 +323,6 @@ const LeaveRequestSidebar = () => {
       centered
       destroyOnClose
       data-cy="time-attendance-leave-request-sidebar-container"
-      id="time-attendance-leave-request-sidebar-container"
       styles={{
         body: { paddingTop: 8 },
         footer: { paddingTop: 0, marginTop: 0 },
