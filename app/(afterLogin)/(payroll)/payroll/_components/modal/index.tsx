@@ -111,6 +111,7 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
             layout="vertical"
             requiredMark={customizeRequiredMark}
             initialValues={{ includeIncentive: true }}
+            data-cy="payroll-generate-modal-form"
           >
             <div data-cy="payroll-generate-modal-incentive-toggle-view-container">
               <Form.Item

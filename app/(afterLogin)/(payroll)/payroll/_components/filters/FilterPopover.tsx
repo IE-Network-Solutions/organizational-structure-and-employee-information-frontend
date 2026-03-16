@@ -32,8 +32,8 @@ interface FilterPopoverProps {
 }
 
 const CustomLabel = ({ title }: { title: string }) => (
-  <span className="text-[13px] font-semibold text-gray-800">
-    {title} <span className="text-red-500 ml-1">*</span>
+  <span className="text-[13px] font-semibold text-gray-800" data-cy="payroll-filter-popover-custom-label">
+    {title} <span className="text-red-500 ml-1" data-cy="payroll-filter-popover-custom-label-asterisk">*</span>
   </span>
 );
 
@@ -207,8 +207,8 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
           requiredMark={false}
           data-cy="payroll-filter-popover-form"
         >
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
+          <Row gutter={16} data-cy="payroll-filter-popover-form-row">
+            <Col xs={24} sm={12} data-cy="payroll-filter-popover-form-col">
               <Form.Item
                 name="yearId"
                 label={<CustomLabel title="Year" />}

@@ -1259,7 +1259,7 @@ const Payroll = () => {
               data-cy="payroll-more-actions-click-button"
               className="flex items-center justify-center w-10 h-10 border border-gray-300"
             >
-              <span className="inline-flex items-center justify-center text-gray-600 text-xl leading-none">
+              <span className="inline-flex items-center justify-center text-gray-600 text-xl leading-none" data-cy="payroll-more-actions-dots-view-text">
                 ...
               </span>
             </Button>
@@ -1563,6 +1563,7 @@ const Payroll = () => {
             dataSource={mergedPayroll || []}
             columns={columns}
             pagination={false}
+            //disable eslint-disable-next-line 
             rowClassName={(_: any, index: number) =>
               index % 2 === 1 ? 'payroll-zebra-row' : ''
             }
@@ -1573,7 +1574,9 @@ const Payroll = () => {
               },
               onSelectAll: (
                 isSelected: boolean,
+                //disable eslint-disable-next-line 
                 _selectedRows: any[],
+                //disable eslint-disable-next-line @typescript-eslint/no-unused-vars
                 _changeRows: any[],
               ) => {
                 if (isSelected) {
@@ -1585,7 +1588,7 @@ const Payroll = () => {
                   setSelectedRowKeys([]);
                 }
               },
-              /* eslint-enable @typescript-eslint/no-unused-vars */
+              //disable eslint-enable @typescript-eslint/no-unused-vars
             }}
             rowKey={(record: any) => record.id || record.employeeId}
           />
@@ -1625,7 +1628,7 @@ const Payroll = () => {
         >
           <Modal
             title={
-              <span style={{ fontWeight: 600, fontSize: '16px' }}>
+              <span style={{ fontWeight: 600, fontSize: '16px' }} data-cy="payroll-export-modal-title-view-text">
                 Export for Bank
               </span>
             }
