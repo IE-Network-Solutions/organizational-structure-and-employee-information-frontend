@@ -60,8 +60,20 @@ const BranchForm: React.FC<{
 
   return (
     <Modal
-      title={title}
+      title={
+        <span
+          className="text-gray-700"
+          data-cy={`branch-form-modal-title-${modalSlug}`}
+        >
+          {title}
+        </span>
+      }
       width={520}
+      className="[&_.ant-modal-close]:text-gray-600 [&_.ant-modal-close]:hover:text-gray-800"
+      styles={{
+        header: { color: 'rgb(55 65 81)' },
+        body: { paddingTop: '24px' },
+      }}
       onCancel={() => {
         setEditingBranch(null);
         setSelectedBranch(null);
@@ -90,6 +102,7 @@ const BranchForm: React.FC<{
                   ? 'cancelUpdateBranchButton'
                   : 'cancelCreateBranchButton'
               }
+              className="font-normal border-gray-300"
               onClick={() => {
                 setEditingBranch(null);
                 setSelectedBranch(null); // <- Clear the selected branch data
@@ -102,6 +115,7 @@ const BranchForm: React.FC<{
             <Button
               loading={loading}
               type="primary"
+              className="font-normal"
               id={editingBranch ? 'updateBranchButton' : 'createBranchButton'}
               data-cy={
                 editingBranch ? 'updateBranchButton' : 'createBranchButton'
@@ -121,6 +135,7 @@ const BranchForm: React.FC<{
         id={`branch-form-${modalSlug}`}
         data-cy={`branch-form-${modalSlug}`}
         requiredMark={false}
+        className="[&_.ant-form-item]:mb-4 [&_.ant-form-item-control-input]:mt-1.5"
       >
         <Form.Item
           name="name"
@@ -141,6 +156,7 @@ const BranchForm: React.FC<{
         >
           <Input
             size="large"
+            className="h-10"
             placeholder="Enter branch name"
             id={`branch-form-name-input-${modalSlug}`}
             data-cy={`branch-form-name-input-${modalSlug}`}
@@ -155,6 +171,7 @@ const BranchForm: React.FC<{
           <Input.TextArea
             size="large"
             rows={4}
+            className="min-h-[40px]"
             placeholder="Enter a brief description of the branch"
             id={`branch-form-description-textarea-${modalSlug}`}
             data-cy={`branch-form-description-textarea-${modalSlug}`}
@@ -179,43 +196,14 @@ const BranchForm: React.FC<{
         >
           <Input
             size="large"
+            className="h-10"
             placeholder="Enter location"
             id={`branch-form-location-input-${modalSlug}`}
             data-cy={`branch-form-location-input-${modalSlug}`}
           />
         </Form.Item>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="contactNumber"
-              label={
-                <span data-cy={`branch-form-contact-number-label-${modalSlug}`}>
-                  Contact Number{' '}
-                  <span
-                    style={{ color: 'red' }}
-                    data-cy={`branch-form-contact-number-required-${modalSlug}`}
-                  >
-                    *
-                  </span>
-                </span>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please enter the contact number',
-                },
-              ]}
-              id={`branch-form-contact-number-item-${modalSlug}`}
-              data-cy={`branch-form-contact-number-item-${modalSlug}`}
-            >
-              <PhoneInput
-                defaultCountry="et"
-                inputClassName="ant-input"
-                data-cy={`branch-form-contact-number-input-${modalSlug}`}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
+        <Row gutter={[16, 0]}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               name="contactEmail"
               label={
@@ -244,10 +232,52 @@ const BranchForm: React.FC<{
             >
               <Input
                 size="large"
+                className="h-10"
                 placeholder="Enter contact email"
                 id={`branch-form-contact-email-input-${modalSlug}`}
                 data-cy={`branch-form-contact-email-input-${modalSlug}`}
               />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              name="contactNumber"
+              label={
+                <span data-cy={`branch-form-contact-number-label-${modalSlug}`}>
+                  Contact Number{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`branch-form-contact-number-required-${modalSlug}`}
+                  >
+                    *
+                  </span>
+                </span>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter the contact number',
+                },
+              ]}
+              id={`branch-form-contact-number-item-${modalSlug}`}
+              data-cy={`branch-form-contact-number-item-${modalSlug}`}
+            >
+              <div
+                className="branch-form-phone-input-wrapper w-full"
+                style={
+                  {
+                    '--react-international-phone-height': '40px',
+                  } as React.CSSProperties
+                }
+                data-cy={`branch-form-phone-input-wrapper-${modalSlug}`}
+              >
+                <PhoneInput
+                  defaultCountry="et"
+                  inputClassName="ant-input"
+                  className="w-full [&_.react-international-phone-input-container]:!w-full [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden [&_.react-international-phone-country-selector-button]:!h-[40px] [&_.react-international-phone-input]:!h-[40px] [&_.react-international-phone-input]:!flex-1"
+                  data-cy={`branch-form-contact-number-input-${modalSlug}`}
+                />
+              </div>
             </Form.Item>
           </Col>
         </Row>

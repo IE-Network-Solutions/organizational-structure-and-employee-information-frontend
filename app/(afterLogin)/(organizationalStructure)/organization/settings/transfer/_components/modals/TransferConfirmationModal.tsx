@@ -27,26 +27,28 @@ const TransferConfirmationModal: React.FC<TransferConfirmationModalProps> = ({
       onCancel={onCancel}
       footer={null}
       width={500}
-      closeIcon={<CloseOutlined />}
-      data-cy="transfer-confirmation-modal"
-    >
-      <div className="py-4" data-cy="transfer-confirmation-modal-content">
+      title={
         <div
-          className="flex items-center gap-3 mb-4"
+          className="flex items-center gap-3"
           data-cy="transfer-confirmation-modal-header"
         >
           <ExclamationCircleOutlined
-            className="text-yellow-500 text-2xl"
+            className="text-yellow-500 text-xl shrink-0"
             data-cy="transfer-confirmation-modal-icon"
           />
-          <h3
-            className="text-lg font-bold text-gray-900 m-0"
+          <span
+            className="text-base font-semibold text-gray-900"
             data-cy="transfer-confirmation-title"
           >
             Transfer Confirmation
-          </h3>
+          </span>
         </div>
-
+      }
+      closeIcon={<CloseOutlined className="text-base" />}
+      className="[&_.ant-modal-header]:flex [&_.ant-modal-header]:items-center"
+      data-cy="transfer-confirmation-modal"
+    >
+      <div className="pt-2 pb-4" data-cy="transfer-confirmation-modal-content">
         <p
           className="text-gray-700 mb-4"
           data-cy="transfer-confirmation-message"
@@ -73,7 +75,7 @@ const TransferConfirmationModal: React.FC<TransferConfirmationModalProps> = ({
           data-cy="transfer-confirmation-what-will-change-container"
         >
           <h4
-            className="font-semibold text-gray-900 mb-2"
+            className="text-sm font-medium text-gray-900 mb-2"
             data-cy="transfer-confirmation-what-will-change-title"
           >
             What will Change
@@ -98,7 +100,11 @@ const TransferConfirmationModal: React.FC<TransferConfirmationModalProps> = ({
           className="flex justify-end gap-3"
           data-cy="transfer-confirmation-modal-actions"
         >
-          <Button onClick={onCancel} data-cy="transfer-confirmation-cancel">
+          <Button
+            onClick={onCancel}
+            className="font-normal"
+            data-cy="transfer-confirmation-cancel"
+          >
             Cancel
           </Button>
           <Button
@@ -106,6 +112,7 @@ const TransferConfirmationModal: React.FC<TransferConfirmationModalProps> = ({
             danger
             onClick={onConfirm}
             loading={loading}
+            className="font-normal"
             data-cy="transfer-confirmation-confirm"
           >
             Confirm Transfer
