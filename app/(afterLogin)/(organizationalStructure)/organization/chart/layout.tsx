@@ -161,7 +161,10 @@ export default function ChartLayout({
             id="org-structure-card"
             className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1.5 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
             title={
-              <div className="px-4 sm:px-6 py-0.5">
+              <div
+                className="px-4 sm:px-6 py-0.5"
+                data-cy="org-structure-breadcrumb-container"
+              >
                 <CustomBreadcrumb
                   compact
                   title={
@@ -263,7 +266,12 @@ export default function ChartLayout({
                       }
                     }}
                   >
-                    <span className="font-normal hidden sm:inline">Reset View</span>
+                    <span
+                      className="font-normal hidden sm:inline"
+                      data-cy="org-structure-reset-view-btn-span"
+                    >
+                      Reset View
+                    </span>
                   </Button>
                 )}
               </div>

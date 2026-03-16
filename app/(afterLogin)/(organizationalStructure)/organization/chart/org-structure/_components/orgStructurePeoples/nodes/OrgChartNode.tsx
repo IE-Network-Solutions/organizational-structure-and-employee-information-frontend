@@ -26,7 +26,7 @@ type OrgNode = Node<OrgNodeData, 'orgNode'>;
 export function OrgChartNode(props: NodeProps<OrgNode>) {
   const { data } = props;
   const orgChartActions = useOrgChartActions();
-  const { getNodes, getEdges, fitView } = useReactFlow();
+  const { getNodes, fitView } = useReactFlow();
   const storeApi = useStoreApi();
   const setNodes = useDepartmentStore((s) => s.setNodes);
   const setEdges = useDepartmentStore((s) => s.setEdges);
@@ -110,8 +110,16 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
     if (!data?.id) return;
     const focusedNodeId = data.id;
     const state = useDepartmentStore.getState();
-    const fullNodes = state.fullNodes as { id: string; position?: { x: number; y: number }; [key: string]: unknown }[];
-    const fullEdges = state.fullEdges as { source: string; target: string; [key: string]: unknown }[];
+    const fullNodes = state.fullNodes as {
+      id: string;
+      position?: { x: number; y: number };
+      [key: string]: unknown;
+    }[];
+    const fullEdges = state.fullEdges as {
+      source: string;
+      target: string;
+      [key: string]: unknown;
+    }[];
     if (fullNodes.length === 0 || fullEdges.length === 0) return;
 
     const subtreeIds = getSubtreeNodeIds(
@@ -145,7 +153,13 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
       setTimeout(() => {
         const flowState = storeApi.getState();
         const { width, height, transform } = flowState;
-        if (width === 0 || height === 0 || !transform || !Array.isArray(transform)) return;
+        if (
+          width === 0 ||
+          height === 0 ||
+          !transform ||
+          !Array.isArray(transform)
+        )
+          return;
         const [, , zoom] = transform;
 
         let minX = Infinity;
@@ -403,10 +417,7 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
               {directReportCount > 0 ? (
                 <MdOutlineAccountTree size={14} className="shrink-0" />
               ) : (
-                <Person2OutlinedIcon
-                  fontSize="small"
-                  className="shrink-0"
-                />
+                <Person2OutlinedIcon fontSize="small" className="shrink-0" />
               )}
               {(directReportCount > 0
                 ? directReportCount

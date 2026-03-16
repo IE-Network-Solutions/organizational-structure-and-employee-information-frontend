@@ -167,6 +167,7 @@ export function DeleteDepartmentModal() {
               onClick={handleConfirmDelete}
               className="h-8 sm:h-10 px-4 sm:px-4 font-normal"
               style={{ boxShadow: 'none' }}
+              data-cy="org-structure-delete-department-confirm-btn"
             >
               Delete
             </Button>
@@ -220,9 +221,19 @@ export function DeleteDepartmentModal() {
           <div data-cy="org-structure-delete-department-to-delete-field-wrap">
             <Form.Item
               label={
-                <div className="flex items-center justify-between">
-                  <span>Department to be Deleted</span>
-                  <span className="text-red-500">*</span>
+                <div
+                  className="flex items-center justify-between"
+                  data-cy="org-structure-delete-department-to-delete-label"
+                >
+                  <span data-cy="org-structure-delete-department-to-delete-label-text">
+                    Department to be Deleted
+                  </span>
+                  <span
+                    className="text-red-500"
+                    data-cy="org-structure-delete-department-to-delete-required-indicator"
+                  >
+                    *
+                  </span>
                 </div>
               }
               name="departmentTobeDeletedId"
@@ -256,9 +267,19 @@ export function DeleteDepartmentModal() {
           <div data-cy="org-structure-delete-shift-to-field-wrap">
             <Form.Item
               label={
-                <div className="flex items-center justify-between">
-                  <span>Shift employee to</span>
-                  <span className="text-red-500">*</span>
+                <div
+                  className="flex items-center justify-between"
+                  data-cy="org-structure-delete-shift-to-label"
+                >
+                  <span data-cy="org-structure-delete-shift-to-label-text">
+                    Shift employee to
+                  </span>
+                  <span
+                    className="text-red-500"
+                    data-cy="org-structure-delete-shift-to-required-indicator"
+                  >
+                    *
+                  </span>
                 </div>
               }
               name="departmentTobeShiftedId"

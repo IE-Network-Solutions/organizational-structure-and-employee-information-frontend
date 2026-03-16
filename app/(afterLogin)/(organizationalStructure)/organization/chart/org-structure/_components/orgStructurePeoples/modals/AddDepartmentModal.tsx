@@ -351,9 +351,19 @@ export function AddDepartmentModal() {
             <Form.Item
               name="name"
               label={
-                <div className="flex items-center justify-between">
-                  <span>Department / Team Name</span>
-                  <span className="text-red-500">*</span>
+                <div
+                  className="flex items-center justify-between"
+                  data-cy="org-structure-department-name-label"
+                >
+                  <span data-cy="org-structure-department-name-label-text">
+                    Department / Team Name
+                  </span>
+                  <span
+                    className="text-red-500"
+                    data-cy="org-structure-department-name-required-indicator"
+                  >
+                    *
+                  </span>
                 </div>
               }
               rules={[
@@ -393,11 +403,19 @@ export function AddDepartmentModal() {
         <Form.Item
           name="branchId"
           label={
-            <div className="flex items-center justify-between">
+            <div
+              className="flex items-center justify-between"
+              data-cy="org-structure-department-branch-label"
+            >
               <span data-cy="org-structure-department-branch-label">
                 Select Branch
               </span>
-              <span className="text-red-500">*</span>
+              <span
+                className="text-red-500"
+                data-cy="org-structure-department-branch-required-indicator"
+              >
+                *
+              </span>
             </div>
           }
           rules={[{ required: true, message: 'Please select a branch' }]}

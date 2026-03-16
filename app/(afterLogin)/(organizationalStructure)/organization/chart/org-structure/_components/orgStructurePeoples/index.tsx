@@ -233,7 +233,7 @@ function OrgFlowContent({ onReady }: { onReady?: () => void }) {
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={true}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.9 }}
           proOptions={{ hideAttribution: true }}
           className="bg-white"
         >
@@ -243,7 +243,6 @@ function OrgFlowContent({ onReady }: { onReady?: () => void }) {
         <AddDepartmentModal />
         <DepartmentUsersModal />
         <DeleteDepartmentModal />
-        
       </div>
     </OrgChartActionsProvider>
   );
@@ -300,7 +299,10 @@ function OrgChartComponentInner() {
 
       {/* Skeleton overlay while loading or until fitView has completed */}
       {showSkeleton && (
-        <div className="absolute inset-0 z-10 bg-white">
+        <div
+          className="absolute inset-0 z-10 bg-white"
+          data-cy="org-structure-skeleton-container"
+        >
           <OrgChartSkeleton
             loading={isLoading}
             data-cy="org-org-structure-components-orgstructurepeoples-index-orgchartskeleton-1"
