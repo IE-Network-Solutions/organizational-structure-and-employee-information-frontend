@@ -13,20 +13,20 @@ import {
   Avatar,
   Breadcrumb,
   Dropdown,
-  Input,
+ 
   ConfigProvider,
   Typography,
 } from 'antd';
 
 const { Text } = Typography;
 import {
-  MoreOutlined,
+ 
   SearchOutlined,
-  FilterOutlined,
+  
 } from '@ant-design/icons';
-import { X } from 'lucide-react';
+
 import { Workbook } from 'exceljs';
-import Filters from './_components/filters';
+
 import FilterPopover from './_components/filters/FilterPopover';
 import {
   useGetActivePayroll,
@@ -49,8 +49,7 @@ import { useExportData } from './_components/excel';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { PiExportLight } from 'react-icons/pi';
-import { LuSettings2 } from 'react-icons/lu';
+
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
 import GeneratePayrollModal, { Incentive } from './_components/modal';
@@ -95,8 +94,8 @@ const Payroll = () => {
   const {
     searchQuery,
     setSearchQuery,
-    isFilterModalOpen,
-    setIsFilterModalOpen,
+   
+    
     isPayrollModalOpen,
     setIsPayrollModalOpen,
   } = useEmployeeStore();

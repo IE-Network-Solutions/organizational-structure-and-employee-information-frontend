@@ -23,7 +23,6 @@ import { useReconciliationState } from '@/store/uistate/features/payroll/reconci
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { useRouter } from 'next/navigation';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
-import { FiSearch } from 'react-icons/fi';
 
 const { Option } = Select;
 const impactColors = {
@@ -626,47 +625,92 @@ const PayrollReconcilation = () => {
 
                 return (
                   <>
-                    <div className="mb-4">
-                      <div className="text-[#00000073] mb-1 text-[13px]">
+                    <div
+                      className="mb-4"
+                      data-cy="payroll-reconciliation-detail-summary-previous"
+                    >
+                      <div
+                        className="text-[#00000073] mb-1 text-[13px]"
+                        data-cy="payroll-reconciliation-detail-summary-previous-label"
+                      >
                         Total Previous
                       </div>
-                      <div className="text-[15px]">
+                      <div
+                        className="text-[15px]"
+                        data-cy="payroll-reconciliation-detail-summary-previous-value"
+                      >
                         {selected?.previous ?? '--'}
                       </div>
                     </div>
 
-                    <div className="mb-5">
-                      <div className="text-[#00000073] mb-1 text-[13px]">
+                    <div
+                      className="mb-5"
+                      data-cy="payroll-reconciliation-detail-summary-current"
+                    >
+                      <div
+                        className="text-[#00000073] mb-1 text-[13px]"
+                        data-cy="payroll-reconciliation-detail-summary-current-label"
+                      >
                         Current
                       </div>
-                      <div className="text-[15px]">
+                      <div
+                        className="text-[15px]"
+                        data-cy="payroll-reconciliation-detail-summary-current-value"
+                      >
                         {selected?.current ?? '--'}
                       </div>
                     </div>
 
-                    <div className="border-t border-[#f0f0f0] pt-4 mb-4">
-                      <div className="text-[#00000073] mb-1 text-[13px]">
+                    <div
+                      className="border-t border-[#f0f0f0] pt-4 mb-4"
+                      data-cy="payroll-reconciliation-detail-summary-variance-amt"
+                    >
+                      <div
+                        className="text-[#00000073] mb-1 text-[13px]"
+                        data-cy="payroll-reconciliation-detail-summary-variance-amt-label"
+                      >
                         Variance(AMT)
                       </div>
-                      <div className="text-[#ff4d4f]">
+                      <div
+                        className="text-[#ff4d4f]"
+                        data-cy="payroll-reconciliation-detail-summary-variance-amt-value"
+                      >
                         {selected?.variance ?? '--'}
                       </div>
                     </div>
 
-                    <div className="mb-5">
-                      <div className="text-[#00000073] mb-1 text-[13px]">
+                    <div
+                      className="mb-5"
+                      data-cy="payroll-reconciliation-detail-summary-variance-pct"
+                    >
+                      <div
+                        className="text-[#00000073] mb-1 text-[13px]"
+                        data-cy="payroll-reconciliation-detail-summary-variance-pct-label"
+                      >
                         Variance(%)
                       </div>
-                      <div className="text-[#52c41a]">
+                      <div
+                        className="text-[#52c41a]"
+                        data-cy="payroll-reconciliation-detail-summary-variance-pct-value"
+                      >
                         {selected?.variancePercentage ?? '--'}
                       </div>
                     </div>
 
-                    <div className="border-t border-[#f0f0f0] pt-4">
-                      <div className="text-[#00000073] mb-2 text-[13px]">
+                    <div
+                      className="border-t border-[#f0f0f0] pt-4"
+                      data-cy="payroll-reconciliation-detail-summary-impact"
+                    >
+                      <div
+                        className="text-[#00000073] mb-2 text-[13px]"
+                        data-cy="payroll-reconciliation-detail-summary-impact-label"
+                      >
                         Impact
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div
+                        className="flex items-center gap-2"
+                        data-cy="payroll-reconciliation-detail-summary-impact-value"
+                      >
                         <span
                           className="w-1.5 h-1.5 rounded-full"
                           style={{
@@ -674,7 +718,10 @@ const PayrollReconcilation = () => {
                               impactColors[impactKey] || impactColors.Low,
                           }}
                         />
-                        <span className="text-[13px]">
+                        <span
+                          className="text-[13px]"
+                          data-cy="payroll-reconciliation-detail-summary-impact-text"
+                        >
                           {impactLabel || '--'}
                         </span>
                       </div>

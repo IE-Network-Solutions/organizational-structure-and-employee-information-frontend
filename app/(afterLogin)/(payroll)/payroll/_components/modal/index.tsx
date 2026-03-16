@@ -30,11 +30,14 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
   }, [payPeriodData, form]);
 
   const handleGenerate = () => {
-    form.validateFields().then(values => {
-      onGenerate({ includeIncentive: values.includeIncentive });
-    }).catch(info => {
-      console.log('Validate Failed:', info);
-    });
+    form
+      .validateFields()
+      .then((values) => {
+        onGenerate({ includeIncentive: values.includeIncentive });
+      })
+      .catch(() => {
+        // validation errors are displayed by antd Form; no console output needed
+      });
   };
 
   const customizeRequiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
