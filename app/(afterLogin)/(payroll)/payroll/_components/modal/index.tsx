@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import { Modal, Button, Switch } from 'antd';
+import React from 'react';
+import { Modal, Form, Switch, DatePicker, Select, Button, ConfigProvider } from 'antd';
+import { IoCloseOutline } from 'react-icons/io5';
+import dayjs from 'dayjs';
+
+import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 
 interface Props {
   onClose: () => void;
@@ -11,134 +15,166 @@ export interface Incentive {
 }
 
 const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
-  const [includeIncentive, setIncludeIncentive] = useState(true);
+  const [form] = Form.useForm();
+  
+  const { data: payPeriodData } = useGetPayPeriod();
+
+  React.useEffect(() => {
+    if (payPeriodData && payPeriodData.length > 0) {
+      // Find the currently active (OPEN) pay period
+      const activePeriod = payPeriodData.find((p: any) => p.status === 'OPEN') || payPeriodData[0];
+      if (activePeriod && !form.getFieldValue('payPeriod')) {
+        form.setFieldsValue({ payPeriod: activePeriod.id });
+      }
+    }
+  }, [payPeriodData, form]);
 
   const handleGenerate = () => {
-    const withIncentive: Incentive = {
-      includeIncentive,
-    };
-
-    onGenerate(withIncentive);
+    form.validateFields().then(values => {
+      onGenerate({ includeIncentive: values.includeIncentive });
+    }).catch(info => {
+      console.log('Validate Failed:', info);
+    });
   };
 
+  const customizeRequiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
+    <React.Fragment>
+      {label}
+      {required && <span style={{ color: '#ff4d4f', marginLeft: '4px' }}>*</span>}
+    </React.Fragment>
+  );
+
   return (
-    <Modal
-      centered
-      data-cy="payroll-generate-modal-view-modal"
-      title={
-        <h2
-          id="payroll-generate-modal-title-view-text"
-          data-cy="payroll-generate-modal-title-view-text"
-          className="text-2xl font-semibold"
-        >
-          Generate Payroll
-        </h2>
-      }
-      open={true} // Modify as needed for your modal visibility logic
-      onCancel={onClose}
-      width="30%"
-      footer={
-        <div
-          id="payroll-generate-modal-footer-view-container"
-          data-cy="payroll-generate-modal-footer-view-container"
-          className="flex justify-end items-center space-x-4"
-        >
-          <Button
-            id="payroll-generate-modal-cancel-click-button"
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#2543b5',
+          borderRadius: 6,
+          fontFamily: 'inherit',
+        },
+        components: {
+          Modal: {
+            titleFontSize: 18,
+            titleColor: '#000000',
+          },
+          Form: {
+            labelColor: '#333333',
+          }
+        }
+      }}
+    >
+      <Modal
+        title={
+          <span 
+            data-cy="payroll-generate-modal-title-view-text" 
+            className="font-bold text-lg text-gray-900 tracking-wide"
+          >
+            Generate Payroll
+          </span>
+        }
+        open={true}
+        onCancel={onClose}
+        closeIcon={<IoCloseOutline size={24} className="text-gray-600 hover:text-gray-900" />}
+        width={520}
+        centered
+        footer={[
+          <Button 
+            key="cancel" 
             data-cy="payroll-generate-modal-cancel-click-button"
-            type="default"
-            className="px-3"
-            onClick={onClose}
+            onClick={onClose} 
+            className="px-5"
           >
             Cancel
-          </Button>
-          <Button
-            id="payroll-generate-modal-submit-click-button"
+          </Button>,
+          <Button 
+            key="submit" 
             data-cy="payroll-generate-modal-submit-click-button"
-            onClick={() => {
-              handleGenerate();
-            }}
-            type="primary"
-            className="px-3"
+            type="primary" 
+            onClick={handleGenerate} 
+            className="px-5"
           >
             Generate
-          </Button>
-        </div>
-      }
-    >
-      <div
-        id="payroll-generate-modal-body-view-container"
-        data-cy="payroll-generate-modal-body-view-container"
-        className="flex flex-col gap-6"
+          </Button>,
+        ]}
       >
-        <div
-          id="payroll-generate-modal-incentive-toggle-view-container"
-          data-cy="payroll-generate-modal-incentive-toggle-view-container"
-          className="flex flex-col items-start justify-between mb-4 mt-6"
+        <div 
+          data-cy="payroll-generate-modal-body-view-container"
+          className="border border-gray-200 rounded-lg p-6 mt-6 mb-2"
         >
-          <label
-            id="payroll-generate-modal-incentive-label-view-text"
-            data-cy="payroll-generate-modal-incentive-label-view-text"
-            className="font-medium"
+          <Form
+            form={form}
+            layout="vertical"
+            requiredMark={customizeRequiredMark}
+            initialValues={{ includeIncentive: true }}
           >
-            Include Incentive
-          </label>
-          <Switch
-            id="payroll-generate-modal-incentive-toggle-switch"
-            data-cy="payroll-generate-modal-incentive-toggle-switch"
-            checked={includeIncentive}
-            onChange={(checked) => setIncludeIncentive(checked)}
-            className="ml-4"
-          />
-        </div>
+            <div data-cy="payroll-generate-modal-incentive-toggle-view-container">
+              <Form.Item
+                label={
+                  <span 
+                    data-cy="payroll-generate-modal-incentive-label-view-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Include Incentive
+                  </span>
+                }
+                name="includeIncentive"
+                valuePropName="checked"
+                className="mb-5"
+              >
+                <Switch data-cy="payroll-generate-modal-incentive-toggle-switch" />
+              </Form.Item>
+            </div>
 
-        <div
-          id="payroll-generate-modal-daterange-view-container"
-          data-cy="payroll-generate-modal-daterange-view-container"
-          className="mb-4"
-        >
-          <label
-            id="payroll-generate-modal-daterange-label-view-text"
-            data-cy="payroll-generate-modal-daterange-label-view-text"
-            className="block font-medium mb-1"
-          >
-            Select Date
-          </label>
-          <input
-            id="payroll-generate-modal-daterange-view-input"
-            data-cy="payroll-generate-modal-daterange-view-input"
-            type="text"
-            placeholder="01 Jan 2023 - 10 Mar 2023"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            disabled
-          />
-        </div>
+            <div data-cy="payroll-generate-modal-daterange-view-container">
+              <Form.Item
+                label={
+                  <span 
+                    data-cy="payroll-generate-modal-daterange-label-view-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Date
+                  </span>
+                }
+                name="date"
+                className="mb-5"
+              >
+                <DatePicker 
+                  data-cy="payroll-generate-modal-daterange-view-input"
+                  style={{ width: '100%' }} 
+                  placeholder="Select date" 
+                  size="large"
+                />
+              </Form.Item>
+            </div>
 
-        <div
-          id="payroll-generate-modal-payperiod-view-container"
-          data-cy="payroll-generate-modal-payperiod-view-container"
-          className="mb-6"
-        >
-          <label
-            id="payroll-generate-modal-payperiod-label-view-text"
-            data-cy="payroll-generate-modal-payperiod-label-view-text"
-            className="block font-medium mb-1"
-          >
-            Pay Period
-          </label>
-          <select
-            id="payroll-generate-modal-payperiod-view-select"
-            data-cy="payroll-generate-modal-payperiod-view-select"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            disabled
-          >
-            <option value="" data-cy="payroll-modal-payperiod-placeholder">
-              Select Pay Period
-            </option>
-          </select>
+            <div data-cy="payroll-generate-modal-payperiod-view-container">
+              <Form.Item
+                label={
+                  <span 
+                    data-cy="payroll-generate-modal-payperiod-label-view-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Pay Period
+                  </span>
+                }
+                name="payPeriod"
+                className="mb-0"
+              >
+                <Select 
+                  data-cy="payroll-generate-modal-payperiod-view-select"
+                  placeholder="Select pay period" 
+                  size="large"
+                  options={payPeriodData?.map((period: any) => ({
+                    value: period.id,
+                    label: `${dayjs(period.startDate).format('MMM DD, YYYY')} - ${dayjs(period.endDate).format('MMM DD, YYYY')}`,
+                  })) || []}
+                />
+              </Form.Item>
+            </div>
+          </Form>
         </div>
-      </div>
-    </Modal>
+      </Modal>
+    </ConfigProvider>
   );
 };
 

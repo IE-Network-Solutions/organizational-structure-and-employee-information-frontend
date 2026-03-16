@@ -1459,3 +1459,30 @@ h6 {
     right: 12px !important;
   }
 }
+
+/* Payroll page table styles */
+.payroll-table .ant-table-thead > tr > th {
+  background-color: #fafafa !important;
+  color: #4b5563 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.payroll-table .ant-table-tbody > tr > td {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  color: #4b5563;
+}
+
+.payroll-table .ant-table-tbody > tr:hover > td {
+  background-color: #f0f4f8 !important;
+}
+
+.payroll-zebra-row > td {
+  background-color: rgba(249, 250, 251, 0.5) !important;
+}
+
+.payroll-zebra-row:hover > td {
+  background-color: #f0f4f8 !important;
+}

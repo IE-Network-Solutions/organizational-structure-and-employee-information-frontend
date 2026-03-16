@@ -4,7 +4,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetReconciliationDetails } from '@/store/server/features/payroll/reconcilation/queries';
 import { useReconciliationState } from '@/store/uistate/features/payroll/reconcilation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { Button, Modal, Select, Table } from 'antd';
+import { Button, Modal, Select, Table, ConfigProvider } from 'antd';
 import { FaEye } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useQueryClient } from 'react-query';
@@ -172,96 +172,115 @@ const PayrollReconcilationModal = ({
     }));
 
   return (
-    <Modal
-      open={isModalOpen}
-      onCancel={handleModalClose}
-      footer={null}
-      closeIcon={<IoCloseOutline className="text-2xl text-[#1A1C1E]" />}
-      width={1130}
-      centered
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#2543b5',
+          borderRadius: 6,
+          fontFamily: 'inherit',
+        },
+        components: {
+          Modal: {
+            titleFontSize: 18,
+            titleColor: '#000000',
+          },
+          Form: {
+            labelColor: '#333333',
+          }
+        }
+      }}
     >
-      <div
-        data-cy="reconcilation-components-modal-index-tsx-index-div-176"
-        className="pt-2 px-1 flex flex-col h-full max-h-[80vh]"
+      <Modal
+        open={isModalOpen}
+        onCancel={handleModalClose}
+        footer={null}
+        closeIcon={<IoCloseOutline className="text-2xl text-[#1A1C1E]" />}
+        width={1130}
+        centered
       >
         <div
-          data-cy="reconcilation-components-modal-index-tsx-index-div-177"
-          className="mb-6 flex-shrink-0"
+          data-cy="reconcilation-components-modal-index-tsx-index-div-176"
+          className="pt-2 px-1 flex flex-col h-full max-h-[80vh]"
         >
-          <h2
-            data-cy="reconcilation-components-modal-index-tsx-index-h2-178"
-            className="text-[28px] font-semibold text-[#1A1C1E] leading-none mb-2"
+          <div
+            data-cy="reconcilation-components-modal-index-tsx-index-div-177"
+            className="mb-6 flex-shrink-0"
           >
-            Salary
-          </h2>
-          <p
-            data-cy="reconcilation-components-modal-index-tsx-index-p-181"
-            className="text-[#74777F] text-[15px]"
+            <h2
+              data-cy="reconcilation-components-modal-index-tsx-index-h2-178"
+              className="text-[28px] font-semibold text-[#1A1C1E] leading-none mb-2"
+            >
+              Salary
+            </h2>
+            <p
+              data-cy="reconcilation-components-modal-index-tsx-index-p-181"
+              className="text-[#74777F] text-[15px]"
+            >
+              Employee Salary Variances
+            </p>
+          </div>
+
+          <div
+            data-cy="reconcilation-components-modal-index-tsx-index-div-186"
+            className="mb-6 flex-shrink-0"
           >
-            Employee Salary Variances
-          </p>
-        </div>
+            <Select
+              showSearch
+              allowClear
+              className="h-12 w-full rounded-lg border-[#C4C7CF] bg-white text-[15px] hover:border-[#4353FF] focus:border-[#4353FF] focus:shadow-none"
+              placeholder="Search Employee"
+              value={search || undefined}
+              onChange={(value) => handleEmployeeSelect(value)}
+              filterOption={(input, option) => {
+                const label = option?.label;
+                return (
+                  typeof label === 'string' &&
+                  label.toLowerCase().includes(input.toLowerCase())
+                );
+              }}
+              options={options}
+            />
+          </div>
 
-        <div
-          data-cy="reconcilation-components-modal-index-tsx-index-div-186"
-          className="mb-6 flex-shrink-0"
-        >
-          <Select
-            showSearch
-            allowClear
-            className="h-12 w-full rounded-lg border-[#C4C7CF] bg-white text-[15px] hover:border-[#4353FF] focus:border-[#4353FF] focus:shadow-none"
-            placeholder="Search Employee"
-            value={search || undefined}
-            onChange={(value) => handleEmployeeSelect(value)}
-            filterOption={(input, option) => {
-              const label = option?.label;
-              return (
-                typeof label === 'string' &&
-                label.toLowerCase().includes(input.toLowerCase())
-              );
-            }}
-            options={options}
-          />
-        </div>
+          <div
+            data-cy="reconcilation-components-modal-index-tsx-index-div-205"
+            className="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0 max-h-full"
+          >
+            <Table
+              loading={isLoadingReconciliationDetails}
+              dataSource={payrollVarianceData}
+              columns={columns}
+              pagination={false}
+              className="custom-payroll-table"
+            />
+          </div>
 
-        <div
-          data-cy="reconcilation-components-modal-index-tsx-index-div-205"
-          className="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0 max-h-full"
-        >
-          <Table
-            loading={isLoadingReconciliationDetails}
-            dataSource={payrollVarianceData}
-            columns={columns}
-            pagination={false}
-            className="custom-payroll-table"
-          />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              currentPage={currentPage}
+              totalResults={
+                reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
+              }
+              pageSize={pageSize}
+              onShowSizeChange={onPageSizeChange}
+            />
+          ) : (
+            <CustomPagination
+              current={currentPage}
+              total={
+                reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
+              }
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={(pageSize) => {
+                setPageSize(pageSize);
+                setCurrentPage(1);
+              }}
+            />
+          )}
         </div>
-
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            currentPage={currentPage}
-            totalResults={
-              reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
-            }
-            pageSize={pageSize}
-            onShowSizeChange={onPageSizeChange}
-          />
-        ) : (
-          <CustomPagination
-            current={currentPage}
-            total={
-              reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
-            }
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => {
-              setPageSize(pageSize);
-              setCurrentPage(1);
-            }}
-          />
-        )}
-      </div>
-    </Modal>
+      </Modal>
+    </ConfigProvider>
   );
 };
 
