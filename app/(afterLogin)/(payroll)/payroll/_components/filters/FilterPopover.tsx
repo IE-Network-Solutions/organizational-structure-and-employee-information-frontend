@@ -227,16 +227,19 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
               </Form.Item>
             </Col>
             
-            <Col xs={24} sm={12} data-cy="payroll-filter-popover-session-col">
+            <Col xs={24} sm={12} 
+            data-cy="payroll-filter-popover-session-col">
               <Form.Item
                 name="sessionId"
                 label={<CustomLabel title="Session" />}
                 rules={[{ required: true, message: 'Required' }]}
                 data-cy="payroll-filter-popover-session"
               >
-                <Select size="large" placeholder="Select Session" onChange={handleSessionChange} allowClear disabled={!form.getFieldValue('yearId')} data-cy="payroll-filter-popover-session-select">
+                <Select size="large" placeholder="Select Session" onChange={handleSessionChange} allowClear disabled={!form.getFieldValue('yearId')} 
+                data-cy="payroll-filter-popover-session-select">
                   {sessions.map((session) => (
-                    <Option key={session.id} value={session.id} data-cy="payroll-filter-popover-session-option">
+                    <Option key={session.id} value={session.id} 
+                    data-cy="payroll-filter-popover-session-option">
                       {session.name}
                     </Option>
                   ))}

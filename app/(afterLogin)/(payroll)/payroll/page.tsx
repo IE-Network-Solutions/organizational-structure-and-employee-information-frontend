@@ -1563,22 +1563,16 @@ const Payroll = () => {
             dataSource={mergedPayroll || []}
             columns={columns}
             pagination={false}
-            //disable eslint-disable-next-line 
-            rowClassName={(_: any, index: number) =>
-              index % 2 === 1 ? 'payroll-zebra-row' : ''
-            }
+            rowClassName={(record: any, index: number) => {
+              void record;
+              return index % 2 === 1 ? 'payroll-zebra-row' : '';
+            }}
             rowSelection={{
               selectedRowKeys,
               onChange: (newSelectedRowKeys: React.Key[]) => {
                 setSelectedRowKeys(newSelectedRowKeys);
               },
-              onSelectAll: (
-                isSelected: boolean,
-                //disable eslint-disable-next-line 
-                _selectedRows: any[],
-                //disable eslint-disable-next-line @typescript-eslint/no-unused-vars
-                _changeRows: any[],
-              ) => {
+              onSelectAll: (isSelected: boolean) => {
                 if (isSelected) {
                   const allKeys = mergedPayroll.map(
                     (item: any) => item.id || item.employeeId,
@@ -1588,7 +1582,6 @@ const Payroll = () => {
                   setSelectedRowKeys([]);
                 }
               },
-              //disable eslint-enable @typescript-eslint/no-unused-vars
             }}
             rowKey={(record: any) => record.id || record.employeeId}
           />
