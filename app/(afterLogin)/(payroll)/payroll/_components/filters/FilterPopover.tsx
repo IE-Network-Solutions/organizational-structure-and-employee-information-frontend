@@ -195,8 +195,18 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
 
         {/* Header Section */}
         <div className="mb-6" data-cy="payroll-filter-popover-header">
-          <h2 className="text-[16px] font-bold text-gray-900 m-0 leading-tight">Filter</h2>
-          <p className="text-[13px] text-gray-400 m-0 mt-1">Select All filters that apply</p>
+          <h2
+            className="text-[16px] font-bold text-gray-900 m-0 leading-tight"
+            data-cy="payroll-filter-popover-header-title"
+          >
+            Filter
+          </h2>
+          <p
+            className="text-[13px] text-gray-400 m-0 mt-1"
+            data-cy="payroll-filter-popover-header-subtitle"
+          >
+            Select All filters that apply
+          </p>
         </div>
 
         {/* Filter Form */}
@@ -318,7 +328,10 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
           </Row>
 
           {/* Footer Buttons */}
-          <div className="flex justify-end items-center gap-3 mt-4 pt-2 border-t border-gray-100">
+          <div
+            className="flex justify-end items-center gap-3 mt-4 pt-2 border-t border-gray-100"
+            data-cy="payroll-filter-popover-footer"
+          >
             <Button size="large" onClick={onReset} className="px-6 text-gray-600 font-semibold" data-cy="payroll-filter-popover-reset-btn">
               Reset
             </Button>

@@ -717,6 +717,7 @@ const PayrollReconcilation = () => {
                             backgroundColor:
                               impactColors[impactKey] || impactColors.Low,
                           }}
+                          data-cy="payroll-reconciliation-detail-summary-impact-value-color"
                         />
                         <span
                           className="text-[13px]"
@@ -758,6 +759,7 @@ const PayrollReconcilation = () => {
                       label.toLowerCase().includes(input.toLowerCase())
                     );
                   }}
+                  data-cy="payroll-reconciliation-detail-search-select"
                   options={employeeOptions}
                 />
               </div>

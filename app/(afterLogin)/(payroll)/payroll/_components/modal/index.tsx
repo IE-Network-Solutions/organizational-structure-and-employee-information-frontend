@@ -40,11 +40,24 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
       });
   };
 
-  const customizeRequiredMark = (label: React.ReactNode, { required }: { required: boolean }) => (
-    <React.Fragment>
+  const customizeRequiredMark = (
+    label: React.ReactNode,
+    { required }: { required: boolean },
+  ) => (
+    <span
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+      data-cy="payroll-generate-modal-required-mark"
+    >
       {label}
-      {required && <span style={{ color: '#ff4d4f', marginLeft: '4px' }}>*</span>}
-    </React.Fragment>
+      {required && (
+        <span
+          style={{ color: '#ff4d4f' }}
+          data-cy="payroll-generate-modal-required-asterisk"
+        >
+          *
+        </span>
+      )}
+    </span>
   );
 
   return (
