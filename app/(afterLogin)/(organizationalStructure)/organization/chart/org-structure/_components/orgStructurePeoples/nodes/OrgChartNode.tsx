@@ -20,7 +20,7 @@ type OrgNode = Node<OrgNodeData, 'orgNode'>;
 export function OrgChartNode(props: NodeProps<OrgNode>) {
   const { data } = props;
   const orgChartActions = useOrgChartActions();
-  const { fitView } = useReactFlow();
+  const { fitView, getNodes } = useReactFlow();
   const setFocusViewRootId = useDepartmentStore((s) => s.setFocusViewRootId);
   const collapsedDepartmentIds = useDepartmentStore(
     (s) => s.collapsedDepartmentIds,
