@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Modal, Button } from 'antd';
+import Image from 'next/image';
 
 interface TriggerRect {
   top: number;
@@ -14,6 +15,8 @@ interface DeleteModalProps {
   open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  /** Optional anchor rect to position the modal under a trigger element */
+  triggerRect?: TriggerRect;
   customMessage?: React.ReactNode;
   deleteMessage?: React.ReactNode;
   deleteText?: React.ReactNode;
@@ -35,6 +38,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   open,
   onConfirm,
   onCancel,
+  triggerRect,
   customMessage,
   deleteMessage,
   deleteText,
@@ -92,6 +96,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       footer={deleteModalFooter}
       closable
       centered
+      style={modalStyle}
       rootClassName={modalClassName}
       modalRender={(modal) => (
         <div id={id} data-cy={dataCy}>
@@ -125,8 +130,8 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           className="mt-4 text-center"
         >
           {customMessage ?? 'Are you sure you want to delete this item?'}
-        </p>
-      </div>
+        </div>
+      )}
     </Modal>
   );
 };
