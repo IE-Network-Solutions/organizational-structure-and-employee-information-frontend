@@ -1,10 +1,15 @@
 import React from 'react';
 import type { BadgeProps, CalendarProps } from 'antd';
-import { Badge, Calendar } from 'antd';
+import { Badge, Calendar, Radio, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useDelegationState } from '@/store/uistate/features/dashboard/delegation';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { useGetSchedule } from '@/store/server/features/dashboard/survey/queries';
+
+type ListItem = {
+  type: BadgeProps['status'];
+  content: string;
+};
 
 const Calender = () => {
   const { data: scheduleData } = useGetSchedule();
@@ -36,7 +41,7 @@ const Calender = () => {
   ];
 
   // Filter events by exact match to start or end date
-  const getListData = (value: Dayjs) => {
+  const getListData = (value: Dayjs): ListItem[] => {
     const current = value.format('YYYY-MM-DD'); // string
 
     const eventsForDay = allEvents.filter((event) => {
@@ -46,87 +51,144 @@ const Calender = () => {
       return current === start || current === end;
     });
 
+    const listData: ListItem[] = [];
+
     const hasMeetings = eventsForDay.some((e) => e.category === 'meetings');
     const hasSurveys = eventsForDay.some((e) => e.category === 'surveys');
     const hasActionPlans = eventsForDay.some(
       (e) => e.category === 'actionPlans',
     );
 
-    const listData = [];
+    if (hasMeetings) {
+      listData.push({
+        type: getBadgeType('meetings'),
+        content: 'Meeting',
+      });
+    }
 
-    if (hasMeetings) listData.push({ type: getBadgeType('meetings') });
-    if (hasSurveys) listData.push({ type: getBadgeType('surveys') });
-    if (hasActionPlans) listData.push({ type: getBadgeType('actionPlans') });
+    if (hasSurveys) {
+      listData.push({
+        type: getBadgeType('surveys'),
+        content: 'Survey',
+      });
+    }
+
+    if (hasActionPlans) {
+      listData.push({
+        type: getBadgeType('actionPlans'),
+        content: 'Action plan',
+      });
+    }
 
     return listData;
   };
 
   const dateCellRender = (value: Dayjs) => {
     const listData = getListData(value);
+
+    if (!listData.length) return null;
+
     return (
-      <div
-        className="flex gap-1 justify-center min-h-[18px]"
-        data-cy="calendar-cell"
-      >
-        {listData.length > 0 ? (
-          listData.map((item, index) => (
-            <Badge key={index} status={item.type} />
-          ))
-        ) : (
-          <Badge />
-        )}
-      </div>
+      <ul className="m-0 p-0 list-none space-y-1" data-cy="calendar-cell">
+        {listData.map((item) => (
+          <li key={`${value.toString()}-${item.type}-${item.content}`}>
+            <Badge status={item.type} text={item.content} />
+          </li>
+        ))}
+      </ul>
     );
   };
 
-  const cellRender: CalendarProps<Dayjs>['cellRender'] = (current) => {
-    return dateCellRender(current);
+  const cellRender: CalendarProps<Dayjs>['cellRender'] = (current, info) => {
+    if (info.type === 'date') {
+      return dateCellRender(current);
+    }
+
+    return info.originNode;
   };
 
   const handleDateChange = (value: Dayjs) => {
     setSelectedDate(value);
   };
 
-  const headerRender = ({ value, onChange }: any) => {
+  const headerRender: CalendarProps<Dayjs>['headerRender'] = ({
+    value,
+    type,
+    onChange,
+    onTypeChange,
+  }) => {
     const current = dayjs(value);
+    const year = current.year();
+    const month = current.month();
 
-    const prevMonth = () => {
-      const newValue = current.subtract(1, 'month');
-      onChange(newValue);
+    const yearOptions = Array.from({ length: 11 }, (_, index) => {
+      const y = year - 5 + index;
+      return {
+        label: `${y}`,
+        value: y,
+      };
+    });
+
+    const monthOptions = Array.from({ length: 12 }, (_, index) => ({
+      label: dayjs().month(index).format('MMM'),
+      value: index,
+    }));
+
+    const handleYearChange = (newYear: number) => {
+      const newDate = current.year(newYear);
+      onChange?.(newDate);
     };
 
-    const nextMonth = () => {
-      const newValue = current.add(1, 'month');
-      onChange(newValue);
+    const handleMonthChange = (newMonth: number) => {
+      const newDate = current.month(newMonth);
+      onChange?.(newDate);
     };
+
+   
 
     return (
       <div
-        className="flex justify-between items-center px-4 py-2"
+        className=""
         data-cy="calendar-header"
       >
-        <FaAngleLeft
-          onClick={prevMonth}
-          className="cursor-pointer"
-          data-cy="calendar-prev-month"
-        />
-        <span className="font-semibold" data-cy="calendar-month-year">
-          {current.format('MMMM YYYY')}
-        </span>
-        <FaAngleRight
-          onClick={nextMonth}
-          className="cursor-pointer"
-          data-cy="calendar-next-month"
-        />
+       
+        <div className="flex items-center gap-3 justify-end  px-4 py-2 ">
+          <Select
+            size="small"
+            value={year}
+            options={yearOptions}
+            onChange={handleYearChange}
+            data-cy="calendar-year-select"
+          />
+          <Select
+            size="small"
+            value={month}
+            options={monthOptions}
+            onChange={handleMonthChange}
+            data-cy="calendar-month-select"
+          />
+          <Radio.Group
+            size="small"
+            value={type}
+            onChange={(e) => onTypeChange?.(e.target.value)}
+            data-cy="calendar-view-toggle"
+          >
+            <Radio.Button value="month">Month</Radio.Button>
+            <Radio.Button value="year">Year</Radio.Button>
+          </Radio.Group>
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="h-[385px]" data-cy="calendar-container">
+    <div
+      className="min-h-[620px] rounded-lg border border-gray-200 bg-white p-3"
+      data-cy="calendar-container"
+    >
       <Calendar
         headerRender={headerRender}
-        fullscreen={false}
+        // fullscreen={false}
         cellRender={cellRender}
         onChange={handleDateChange}
       />

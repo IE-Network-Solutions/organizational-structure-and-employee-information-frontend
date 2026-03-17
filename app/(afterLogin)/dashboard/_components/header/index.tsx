@@ -1,8 +1,10 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { useGetPersonalRecognition } from '@/store/server/features/CFR/recognition/queries';
 import { Card, Progress } from 'antd';
 import { useRouter } from 'next/navigation';
 import { GoGoal } from 'react-icons/go';
@@ -10,6 +12,8 @@ import { PiUsersThreeBold } from 'react-icons/pi';
 import { PiBuildingOfficeBold } from 'react-icons/pi';
 import { PiShuffleAngularBold } from 'react-icons/pi';
 import { PiCurrencyDollarSimpleBold } from 'react-icons/pi';
+import { MdOutlineMilitaryTech, MdReportGmailerrorred } from 'react-icons/md';
+import { IoMdTrendingDown, IoMdTrendingUp } from 'react-icons/io';
 
 const Header = () => {
   const { userId, tenantId } = useAuthenticationStore();
@@ -28,6 +32,96 @@ const Header = () => {
   );
   const { data: vpScore } = useGetVPScore(userId, hasOKR);
   const router = useRouter();
+  const { data: personalRecognition } = useGetPersonalRecognition();
+
+  const totalAppreciationEngagement =
+    (personalRecognition?.feedbackIssued?.Engagement?.appreciations || 0) +
+    (personalRecognition?.feedbackReceived?.Engagement?.appreciations || 0);
+
+  const totalAppreciationKpi =
+    (personalRecognition?.feedbackIssued?.KPI?.appreciations || 0) +
+    (personalRecognition?.feedbackReceived?.KPI?.appreciations || 0);
+
+  const totalReprimandEngagement =
+    (personalRecognition?.feedbackIssued?.Engagement?.reprimands || 0) +
+    (personalRecognition?.feedbackReceived?.Engagement?.reprimands || 0);
+
+  const totalReprimandKpi =
+    (personalRecognition?.feedbackIssued?.KPI?.reprimands || 0) +
+    (personalRecognition?.feedbackReceived?.KPI?.reprimands || 0);
+
+  const appreciationStats = [
+    {
+      id: 'engagement',
+      label: 'Engagement',
+      value: totalAppreciationEngagement,
+      trendLabel: '5% Last Week',
+      trendDirection: 'up' as const,
+    },
+    {
+      id: 'kpi',
+      label: 'KPI',
+      value: totalAppreciationKpi,
+      trendLabel: '5% Last Week',
+      trendDirection: 'up' as const,
+    },
+  ];
+
+  const reprimandStats = [
+    {
+      id: 'engagement',
+      label: 'Engagement',
+      value: totalReprimandEngagement,
+      trendLabel: '5% Last Week',
+      trendDirection: 'down' as const,
+    },
+    {
+      id: 'kpi',
+      label: 'KPI',
+      value: totalReprimandKpi,
+      trendLabel: '5% Last Week',
+      trendDirection: 'down' as const,
+    },
+  ];
+
+  const [appreciationIndex, setAppreciationIndex] = useState(0);
+  const [reprimandIndex, setReprimandIndex] = useState(0);
+  const [isAppreciationAnimating, setIsAppreciationAnimating] = useState(false);
+  const [isReprimandAnimating, setIsReprimandAnimating] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAppreciationIndex((prev) => (prev + 1) % appreciationStats.length);
+      setReprimandIndex((prev) => (prev + 1) % reprimandStats.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!hasOKR) return;
+
+    setIsAppreciationAnimating(true);
+    const timeout = setTimeout(() => {
+      setIsAppreciationAnimating(false);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [appreciationIndex, hasOKR]);
+
+  useEffect(() => {
+    if (!hasOKR) return;
+
+    setIsReprimandAnimating(true);
+    const timeout = setTimeout(() => {
+      setIsReprimandAnimating(false);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [reprimandIndex, hasOKR]);
+
+  const currentAppreciation = appreciationStats[appreciationIndex];
+  const currentReprimand = reprimandStats[reprimandIndex];
 
   const onDetail = () => {
     router.push(`/dashboard/vp`);
@@ -76,7 +170,7 @@ const Header = () => {
               </div>
             </div>
           </Card>
-          <Card
+          {/* <Card
             loading={isLoading}
             bordered={false}
             bodyStyle={{ padding: 0 }}
@@ -106,7 +200,7 @@ const Header = () => {
                 </div>
               </div>
             </div>
-          </Card>
+          </Card> */}
           <Card
             loading={isLoading}
             bordered={false}
@@ -139,6 +233,88 @@ const Header = () => {
             </div>
           </Card>
           <Card
+            bordered={false}
+            bodyStyle={{ padding: 0 }}
+            className={`flex flex-col gap-4 h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0 transition-transform duration-300 `}
+          >
+            <div className="flex items-center justify-between">
+              <div className="rounded-xl bg-[#F6FFED] flex items-center justify-center w-10 h-10">
+              <MdOutlineMilitaryTech size={24} className="text-green-500" />
+              </div>
+              <div
+                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${
+                  isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                }`}
+              >
+                {currentAppreciation.value}
+              </div>
+            </div>
+            <div className="flex flex-col mt-3">
+              <div className="text-gray-500 w-full text-start text-sm">
+                Appreciation
+              </div>
+              <div className="flex items-center justify-between text-xs mt-2">
+                <span className={`text-gray-500 transition-all duration-300 ${
+                  isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                }`}>{currentAppreciation.label}</span>
+                <span
+                  className={
+                    `${currentAppreciation.trendDirection === 'up'
+                      ? 'text-[#52C41A]'
+                      : 'text-red-500'
+                    } flex items-center gap-1 transition-all duration-300 ${
+                      isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                    }`
+                  }
+                >
+                  <IoMdTrendingUp size={14} className={currentAppreciation.trendDirection === 'up' ? 'text-[#52C41A]' : 'text-red-500'} />
+                  {currentAppreciation.trendLabel}
+                </span>
+              </div>
+            </div>
+          </Card>
+          <Card
+            bordered={false}
+            bodyStyle={{ padding: 0 }}
+            className={`flex flex-col gap-4 h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0 transition-transform duration-300`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="rounded-xl bg-[#FFF2F0] flex items-center justify-center w-10 h-10">
+              <MdReportGmailerrorred size={24} className="text-red-500" />
+              </div>
+              <div
+                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${
+                  isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                }`}
+              >
+                {currentReprimand.value}
+              </div>
+            </div>
+            <div className="flex flex-col mt-3">
+              <div className="text-gray-500 w-full text-start text-sm">
+                Reprimand
+              </div>
+              <div className="flex items-center justify-between text-xs mt-2">
+                <span className={`text-gray-500 transition-all duration-300 ${
+                  isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                }`}>{currentReprimand.label}</span>
+                <span
+                  className={
+                    `${currentReprimand.trendDirection === 'down'
+                      ? 'text-red-500'
+                      : 'text-[#52C41A]'
+                    } flex items-center gap-1 transition-all duration-300 ${
+                      isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                    }`
+                  }
+                >
+                    <IoMdTrendingDown size={14} className={currentReprimand.trendDirection === 'down' ? 'text-red-500' : 'text-[#52C41A]'} />
+                  {currentReprimand.trendLabel}
+                </span>
+              </div>
+            </div>
+          </Card>
+          {/* <Card
             loading={isLoading}
             bordered={false}
             bodyStyle={{ padding: 0 }}
@@ -183,7 +359,7 @@ const Header = () => {
                 </div>
               </div>
             </div>
-          </Card>
+          </Card> */}
           <Card
             loading={isLoading}
             bordered={false}
@@ -215,6 +391,7 @@ const Header = () => {
               </div>
             </div>
           </Card>
+          
         </div>
       )}
     </>

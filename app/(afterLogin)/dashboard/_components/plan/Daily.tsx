@@ -83,13 +83,13 @@ const Daily = ({
   ) => {
     updateStatus({
       id: id,
-      status: status == 'pre_achieved' ? 'pending' : 'pre_achieved',
+      status: status == 'pre_achieved' ? 'pre_pending' : 'pre_achieved',
       planningPeriodId: planningPeriodId,
     });
   };
   return (
     <div
-      className="h-[210px] overflow-y-auto scrollbar-track-primary scrollbar-none"
+      className=" overflow-y-auto scrollbar-track-primary scrollbar-none"
       data-cy="dashboard-plan-daily-container"
     >
       {planTaskArray?.length > 0 ? (
@@ -146,6 +146,7 @@ const Daily = ({
                       data-cy={`dashboard-plan-daily-task-item-${dailyTask?.id}`}
                     >
                       <Checkbox
+                        className="[&_.ant-checkbox-checked_.ant-checkbox-inner]:!bg-[#52C41A] [&_.ant-checkbox-checked_.ant-checkbox-inner]:!border-[#52C41A]"
                         checked={dailyTask?.status == 'pre_achieved'}
                         onChange={() =>
                           onChange(
@@ -158,7 +159,7 @@ const Daily = ({
                         data-cy={`dashboard-plan-daily-task-checkbox-${dailyTask?.id}`}
                       >
                         <div
-                          className={`text-sm font-medium truncate max-w-full ${dailyTask?.status == 'pre-achieved'
+                          className={`text-sm font-medium truncate max-w-full ${dailyTask?.status == 'pre_achieved'
                             ? 'line-through text-gray-400'
                             : 'text-gray-900'
                             }`}

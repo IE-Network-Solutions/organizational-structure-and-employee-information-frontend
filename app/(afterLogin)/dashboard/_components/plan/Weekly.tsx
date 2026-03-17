@@ -45,13 +45,13 @@ const Weekly = ({
   ) => {
     updateStatus({
       id: id,
-      status: status == 'pre-achieved' ? 'pending' : 'pre-achieved',
+      status: status == 'pre_achieved' ? 'pre_pending' : 'pre_achieved',
       planningPeriodId: planningPeriodId,
     });
   };
   return (
     <div
-      className="h-[210px] overflow-y-auto scrollbar-track-primary scrollbar-none"
+      className=" overflow-y-auto scrollbar-track-primary scrollbar-none"
       data-cy="dashboard-plan-weekly-container"
     >
       {planTaskArray?.length > 0 ? (
@@ -81,15 +81,16 @@ const Weekly = ({
                   data-cy={`dashboard-plan-weekly-task-item-${task?.id}`}
                 >
                   <Checkbox
-                    checked={task?.status == 'pre-achieved'}
+                    className="[&_.ant-checkbox-checked_.ant-checkbox-inner]:!bg-[#52C41A] [&_.ant-checkbox-checked_.ant-checkbox-inner]:!border-[#52C41A]"
+                    checked={task?.status == 'pre_achieved'}
                     onChange={() =>
                       onChange(task?.id, task?.status, activePlanPeriod?.id)
                     }
                     disabled={task?.status == 'completed'}
                     data-cy={`dashboard-plan-weekly-task-checkbox-${task?.id}`}
-                  >
+                    >
                     <div
-                      className={`text-sm font-medium truncate max-w-full ${task?.status == 'pre-achieved'
+                      className={`text-sm font-medium truncate max-w-full ${task?.status == 'pre_achieved'
                         ? 'line-through text-gray-400'
                         : 'text-gray-900'
                         }`}

@@ -1,5 +1,5 @@
 // components/CardList.tsx
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Avatar, Button, Badge, Card } from 'antd';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { UserOutlined } from '@ant-design/icons';
@@ -29,6 +29,7 @@ interface CardListProps {
 const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
   const [currentPersonIndex, setCurrentPersonIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const cardsPerPage = 1;
 
   const totalCards = people?.length || 0;
@@ -72,12 +73,21 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
   const { icon, bg, text } = getHeaderIcon();
 
   const handlePrevious = () => {
-    setCurrentPersonIndex(Math.max(currentPersonIndex - 1, 0));
+    if (currentPersonIndex === 0) return;
+    setCurrentPersonIndex((prev) => Math.max(prev - 1, 0));
   };
 
   const handleNext = () => {
-    setCurrentPersonIndex(Math.min(currentPersonIndex + 1, maxIndex));
+    if (currentPersonIndex >= maxIndex) return;
+    setCurrentPersonIndex((prev) => Math.min(prev + 1, maxIndex));
   };
+
+  useEffect(() => {
+    if (!totalCards) return;
+    setIsAnimating(true);
+    const timeout = setTimeout(() => setIsAnimating(false), 200);
+    return () => clearTimeout(timeout);
+  }, [currentPersonIndex, totalCards]);
 
   const visibleCards = people?.slice(
     currentPersonIndex,
@@ -141,15 +151,17 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
                     currentPersonIndex > 0
                   )
                 }
-                className="bg-white shadow-sm w-6 h-6 rounded-md flex items-center justify-center border border-gray-200"
+                className="bg-white shadow-sm w-6 h-6 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary"
                 data-cy="dashboard-card-list-previous-button"
               />
             }
 
             {visibleCards?.map((item: any, index: number) => (
               <div
-                className="flex flex-col items-center gap-1 mx-auto"
-                key={index}
+                key={`${currentPersonIndex}-${index}`}
+                className={`flex flex-col items-center gap-1 mx-auto transition-all duration-200 ease-out transform ${
+                  isAnimating ? 'opacity-0 translate-y-1' : 'opacity-100 translate-y-0'
+                }`}
                 data-cy={`dashboard-card-list-card-${index}`}
               >
                 {item?.user?.profileImage ? (
@@ -188,7 +200,7 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
               <Button
                 onClick={handleNext}
                 icon={<MdKeyboardArrowRight data-cy="dashboard-card-list-next-icon" />}
-                className="bg-white shadow-sm w-6 h-6 rounded-md flex items-center justify-center border border-gray-200"
+                className="bg-white shadow-sm w-6 h-6 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary"
                 data-cy="dashboard-card-list-next-button"
                 disabled={
                   !(

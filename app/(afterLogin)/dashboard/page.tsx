@@ -15,6 +15,7 @@ import CardList from './_components/card-list';
 import { useGetBirthDay } from '@/store/server/features/dashboard/birthday/queries';
 import { useGetWorkAnniversary } from '@/store/server/features/dashboard/work-anniversary/queries';
 import { useGetRockStar, useGetWeeklyLeader } from '@/store/server/features/dashboard/recognitions/queries';
+import Calender from './_components/action-plan/calender';
 
 export default function Home() {
   useFiscalYearRedirect(); // 👈 Activate fiscal year redirect logic
@@ -43,53 +44,23 @@ export default function Home() {
 
   const mainLayout = (
     <div
-      className="min-h-screen pl-2 pr-3"
+      className="min-h-screen"
       data-cy="dashboard-main-layout"
     >
-      {isMobile || isTablet ? (
-        <div
-          className=" flex justify-between items-center mb-4"
-          data-cy="dashboard-mobile-header"
+      <div className="border-b border-gray-200 my-5 " data-cy="dashboard-header">
+        <h1
+          className="text-2xl font-bold text-gray-900"
+          data-cy="dashboard-header-title"
         >
-          {userData?.firstName ? (
-            <h1
-              className="text-2xl font-bold text-gray-800"
-              data-cy="dashboard-mobile-greeting"
-            >
-              Hi, {userData?.firstName}
-            </h1>
-          ) : (
-            <span data-cy="dashboard-mobile-greeting-empty"></span>
-          )}
-          <div
-            className=" text-primary text-base font-bold"
-            onClick={() => showAnnouncements()}
-            data-cy="dashboard-mobile-announcements-button"
-          >
-            <span data-cy="dashboard-mobile-announcements-text">
-              Announcements
-            </span>
-          </div>
-        </div>
-      ) : (
-        <div className=" flex justify-start" data-cy="dashboard-desktop-header">
-          {userData?.firstName ? (
-            <div
-              className="mb-4"
-              data-cy="dashboard-desktop-greeting-container"
-            >
-              <h1
-                className="text-2xl font-bold text-gray-800"
-                data-cy="dashboard-desktop-greeting"
-              >
-                Hi, {userData?.firstName}
-              </h1>
-            </div>
-          ) : (
-            <span data-cy="dashboard-desktop-greeting-empty"></span>
-          )}
-        </div>
-      )}
+          Dashboard
+        </h1>
+        <p
+          className="text-sm text-gray-500 mt-1"
+          data-cy="dashboard-header-breadcrumb"
+        >
+          Dashboard
+        </p>
+      </div>
       <Header />
       {isMobile || isTablet ? (
         <div className="grid grid-cols-1 pb-3" data-cy="dashboard-mobile-grid">
@@ -173,6 +144,7 @@ export default function Home() {
           </div>
         </div>
       )}
+      <Calender />
     </div>
   );
 

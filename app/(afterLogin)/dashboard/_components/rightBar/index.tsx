@@ -20,7 +20,9 @@ const RightBar = () => {
     >
 
       <ApprovalStatus />
-      {/* <ActionPlans />
+      {/* <ActionPlans /> */}
+      {/*
+      
       <SuperStart />
       <RookStarsList title="Leaders" data={weeklyLeaderData ?? []} />
       <RookStarsList title="Employee" data={rockStarData ?? []} />
