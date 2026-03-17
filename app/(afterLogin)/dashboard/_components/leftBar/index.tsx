@@ -13,19 +13,19 @@ import Incentive from '../incentive';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const LeftBar = () => {
-  const { data: birthDays, isLoading: birthdayLoading } = useGetBirthDay();
-  const { data: workAnniversary, isLoading: workLoading } =
-    useGetWorkAnniversary();
+
   const { isMobile, isTablet } = useIsMobile();
 
   return (
-    <div
-      className="col-span-1 lg:col-span-6 flex flex-col gap-6"
-      data-cy="dashboard-left-bar"
-    >
-      <Plan />
-      <Appreciation />
-      {isMobile || isTablet ? null : <SelfAttendance />}
+    <div>
+      <div
+        className="col-span-1 lg:col-span-5 flex flex-col gap-6"
+        data-cy="dashboard-left-bar"
+      >
+        <Plan />
+
+        {/* <Appreciation /> */}
+        {/* {isMobile || isTablet ? null : <SelfAttendance />}
       <div
         className="grid grid-cols-1 lg:grid-cols-12 gap-4"
         data-cy="dashboard-left-bar-grid"
@@ -36,23 +36,7 @@ const LeftBar = () => {
         >
           <EmploymentStats />
         </div>
-        <div
-          className="col-span-1 lg:col-span-6 flex flex-col gap-4"
-          data-cy="dashboard-left-bar-cards"
-        >
-          <CardList
-            type="birthday"
-            title="Who Has Birthday ?"
-            people={birthDays || []}
-            loading={birthdayLoading}
-          />
-          <CardList
-            type="anniversary"
-            title="Who Has an Anniversary"
-            people={workAnniversary || []}
-            loading={workLoading}
-          />
-        </div>
+
       </div>
       <div
         className="col-span-12 xl:col-span-4"
@@ -65,8 +49,11 @@ const LeftBar = () => {
         data-cy="dashboard-left-bar-course"
       >
         <CoursePermitted />
+      </div> */}
       </div>
+
     </div>
+
   );
 };
 

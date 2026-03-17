@@ -1,30 +1,82 @@
 // components/CardList.tsx
 import { FC, useState } from 'react';
-import { Avatar, Button } from 'antd';
+import { Avatar, Button, Badge, Card } from 'antd';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
-import { BirthDayData } from '@/store/server/features/dashboard/birthday/queries';
-import { WorkAnniversaryData } from '@/store/server/features/dashboard/work-anniversary/queries';
 import { UserOutlined } from '@ant-design/icons';
+import {
+  MdOutlineCake,
+  MdCardGiftcard,
+  MdOutlineEmojiEvents,
+  MdStarOutline,
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+} from 'react-icons/md';
+
+interface CardPerson {
+  user?: {
+    firstName?: string;
+    middleName?: string | null;
+    profileImage?: string | null;
+  };
+}
 
 interface CardListProps {
   title: string;
-  people: BirthDayData[] | WorkAnniversaryData[];
+  people: CardPerson[];
   loading: boolean;
   type: string;
 }
-const CardList: FC<CardListProps> = ({ title, people, type }) => {
+const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
   const [currentPersonIndex, setCurrentPersonIndex] = useState(0);
-  const cardsPerPage = 3;
+  const [isHovered, setIsHovered] = useState(false);
+  const cardsPerPage = 1;
 
   const totalCards = people?.length || 0;
   const maxIndex = totalCards - cardsPerPage;
 
+  const getHeaderIcon = () => {
+    switch (type) {
+      case 'birthday':
+        return {
+          icon: <MdOutlineCake />,
+          bg: 'bg-[#FFF0F6]',
+          text: 'text-[#F759AB]',
+        };
+      case 'anniversary':
+        return {
+          icon: <MdCardGiftcard />,
+          bg: 'bg-[#F6FFED]',
+          text: 'text-[#52C41A]',
+        };
+      case 'Leader':
+        return {
+          icon: <MdOutlineEmojiEvents />,
+          bg: 'bg-[#FFFBE6]',
+          text: 'text-[#FAAD14]',
+        };
+      case 'Employee':
+        return {
+          icon: <MdStarOutline />,
+          bg: 'bg-[#E6F7FF]',
+          text: 'text-primary',
+        };
+      default:
+        return {
+          icon: <MdOutlineCake />,
+          bg: 'bg-gray-100',
+          text: 'text-gray-500',
+        };
+    }
+  };
+
+  const { icon, bg, text } = getHeaderIcon();
+
   const handlePrevious = () => {
-    setCurrentPersonIndex((prev) => Math.max(prev - 1, 0));
+    setCurrentPersonIndex(Math.max(currentPersonIndex - 1, 0));
   };
 
   const handleNext = () => {
-    setCurrentPersonIndex((prev) => Math.min(prev + 1, maxIndex));
+    setCurrentPersonIndex(Math.min(currentPersonIndex + 1, maxIndex));
   };
 
   const visibleCards = people?.slice(
@@ -32,51 +84,71 @@ const CardList: FC<CardListProps> = ({ title, people, type }) => {
     currentPersonIndex + cardsPerPage,
   );
   return (
-    <div
-      className="bg-white rounded-lg p-1 h-[150px] shadow-lg"
+    <Card
+      bordered={false}
+      bodyStyle={{ padding: 0 }}
+      loading={loading}
+      className="bg-white rounded-lg border border-[#E5E7EB] shadow-none h-[150px] flex flex-col"
       data-cy="dashboard-card-list-container"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className="text-lg font-bold gap-3 flex items-center px-3  "
+        className="flex items-center justify-between px-4 pt-3 pb-1"
         data-cy="dashboard-card-list-title"
       >
+        <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center justify-center w-7 h-7 rounded-sm text-lg ${bg} ${text}`}
+            data-cy="dashboard-card-list-title-emoji"
+          >
+            {icon}
+          </span>
+          <span
+            className="text-sm font-semibold text-gray-900"
+            data-cy="dashboard-card-list-title-text"
+          >
+            {title}
+          </span>
+        </div>
         <span
-          className="mr-2 text-2xl"
-          data-cy="dashboard-card-list-title-emoji"
+          className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700"
+          data-cy="dashboard-card-list-count-tag"
         >
-          🎉{' '}
+          {people?.length || 0}
         </span>
-        <span data-cy="dashboard-card-list-title-text">{title}</span>
       </div>
 
       <div
-        className=" min-h-20 m-2 flex items-center justify-center"
+        className="flex-1 px-4 pb-3 flex items-center justify-center relative"
         data-cy="dashboard-card-list-content"
       >
         {visibleCards?.length > 0 ? (
           <div
-            className="flex flex-row gap-1 2xl:gap-3 2xl:px-3 items-center "
+            className="w-full flex items-center justify-between"
             data-cy="dashboard-card-list-cards"
           >
-            {totalCards > cardsPerPage && currentPersonIndex > 0 ? (
+            {isHovered &&
               <Button
                 onClick={handlePrevious}
                 icon={
-                  <FaArrowLeft data-cy="dashboard-card-list-previous-icon" />
+                  <MdKeyboardArrowLeft data-cy="dashboard-card-list-previous-icon" />
                 }
-                className="bg-gray-100 w-5 h-5 rounded-full flex items-center justify-center border-none"
+                disabled={
+                  !(
+                    isHovered &&
+                    totalCards > cardsPerPage &&
+                    currentPersonIndex > 0
+                  )
+                }
+                className="bg-white shadow-sm w-6 h-6 rounded-md flex items-center justify-center border border-gray-200"
                 data-cy="dashboard-card-list-previous-button"
               />
-            ) : (
-              <div
-                className="w-5"
-                data-cy="dashboard-card-list-previous-placeholder"
-              ></div>
-            )}
+            }
 
             {visibleCards?.map((item: any, index: number) => (
               <div
-                className="flex flex-col items-center 2xl:gap-1 2xl:min-w-24 "
+                className="flex flex-col items-center gap-1 mx-auto"
                 key={index}
                 data-cy={`dashboard-card-list-card-${index}`}
               >
@@ -84,7 +156,7 @@ const CardList: FC<CardListProps> = ({ title, people, type }) => {
                   <Avatar
                     src={item?.user?.profileImage}
                     alt={`${item?.user?.firstName || ''}`}
-                    className="w-10 2xl:w-16 h-10 2xl:h-16 rounded-full"
+                    className="w-10 2xl:w-12 h-10 2xl:h-12 rounded-full"
                     data-cy={`dashboard-card-list-card-avatar-${index}`}
                   />
                 ) : (
@@ -95,34 +167,38 @@ const CardList: FC<CardListProps> = ({ title, people, type }) => {
                         data-cy={`dashboard-card-list-card-avatar-icon-${index}`}
                       />
                     }
-                    className="w-10 2xl:w-16 h-10 2xl:h-16 rounded-full"
+                    className="w-10 2xl:w-12 h-10 2xl:h-12 rounded-full"
                     data-cy={`dashboard-card-list-card-avatar-default-${index}`}
                   />
                 )}
                 <p
-                  className="font-normal text-center text-[11px]"
+                  className="font-medium text-center text-[12px] text-gray-900"
                   data-cy={`dashboard-card-list-card-name-${index}`}
                 >
                   <span data-cy={`dashboard-card-list-card-name-text-${index}`}>
                     {`${item?.user?.firstName || ''} ${item?.user?.middleName || ''}`}
                   </span>
                 </p>
+                <p className="text-[11px] text-gray-500 text-center">
+                  Product Designer
+                </p>
               </div>
             ))}
-
-            {totalCards > cardsPerPage && currentPersonIndex < maxIndex ? (
+            {isHovered &&
               <Button
                 onClick={handleNext}
-                icon={<FaArrowRight data-cy="dashboard-card-list-next-icon" />}
-                className="bg-gray-100 w-5 h-5 rounded-full flex items-center justify-center border-none"
+                icon={<MdKeyboardArrowRight data-cy="dashboard-card-list-next-icon" />}
+                className="bg-white shadow-sm w-6 h-6 rounded-md flex items-center justify-center border border-gray-200"
                 data-cy="dashboard-card-list-next-button"
+                disabled={
+                  !(
+
+                    totalCards > cardsPerPage &&
+                    currentPersonIndex < maxIndex
+                  )
+                }
               />
-            ) : (
-              <div
-                className="w-5"
-                data-cy="dashboard-card-list-next-placeholder"
-              ></div>
-            )}
+            }
           </div>
         ) : (
           <div
@@ -135,7 +211,7 @@ const CardList: FC<CardListProps> = ({ title, people, type }) => {
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 };
 

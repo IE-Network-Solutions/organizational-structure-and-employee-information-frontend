@@ -51,17 +51,17 @@ const Weekly = ({
   };
   return (
     <div
-      className="h-[350px] overflow-y-auto scrollbar-track-primary scrollbar-none"
+      className="h-[210px] overflow-y-auto scrollbar-track-primary scrollbar-none"
       data-cy="dashboard-plan-weekly-container"
     >
       {planTaskArray?.length > 0 ? (
         planTaskArray?.map((item: any) => (
           <div
             key={item?.keyResultId}
-            className="flex flex-col pb-3"
+            className="flex flex-col mb-3"
             data-cy="dashboard-plan-weekly-key-result-group"
           >
-            <div
+            {/* <div
               className="text-base font-bold flex gap-3 pb-3 items-center "
               data-cy="dashboard-plan-weekly-key-result-header"
             >
@@ -72,11 +72,11 @@ const Weekly = ({
               <span data-cy="dashboard-plan-weekly-key-result-title">
                 {item?.task?.[0]?.keyResult?.title}
               </span>
-            </div>
-            <div className="" data-cy="dashboard-plan-weekly-tasks-container">
+            </div> */}
+            <div className="ml-3" data-cy="dashboard-plan-weekly-tasks-container">
               {item?.task?.map((task: any) => (
                 <div
-                  className="pb-2"
+                  className=""
                   key={task?.id}
                   data-cy={`dashboard-plan-weekly-task-item-${task?.id}`}
                 >
@@ -89,14 +89,15 @@ const Weekly = ({
                     data-cy={`dashboard-plan-weekly-task-checkbox-${task?.id}`}
                   >
                     <div
-                      className={`text-base font-medium text-slate-500 ${
-                        task?.status == 'pre-achieved'
-                          ? 'line-through text-slate-400'
-                          : ''
-                      }`}
+                      className={`text-sm font-medium truncate max-w-full ${task?.status == 'pre-achieved'
+                        ? 'line-through text-gray-400'
+                        : 'text-gray-900'
+                        }`}
                       data-cy={`dashboard-plan-weekly-task-text-${task?.id}`}
+                      title={task?.task}
                     >
                       <span
+                        className="block truncate"
                         data-cy={`dashboard-plan-weekly-task-text-content-${task?.id}`}
                       >
                         {task?.task}

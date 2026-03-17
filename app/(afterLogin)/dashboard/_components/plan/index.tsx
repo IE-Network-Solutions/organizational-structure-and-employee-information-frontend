@@ -3,6 +3,7 @@ import {
   useGetPlannedTaskForReport,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { Card, Select } from 'antd';
+import { LayoutGrid, Pencil } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { useDashboardPlanStore } from '@/store/uistate/features/dashboard/plan';
 import Daily from './Daily';
@@ -34,36 +35,39 @@ const Plan = () => {
 
   return (
     <Card
-      bodyStyle={{ padding: '0px' }}
+      bodyStyle={{ padding: 0 }}
       loading={plannedTaskForReportLoading}
-      className="bg-white shadow-lg rounded-lg p-1 lg:p-5 "
+      className="bg-white border h-[272px] shadow-none border-gray-200 shadow-sm rounded-lg overflow-hidden"
     >
       <div
-        className="flex justify-between p-2 items-center "
+        className="flex justify-between items-center px-4 pt-4 "
         data-cy="plan-header"
       >
-        <div className="text-lg  font-bold " data-cy="plan-title">
-          My Plans
+        <div className="flex items-center gap-2" data-cy="plan-title">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000"><path d="M183.5-183.5Q160-207 160-240t23.5-56.5Q207-320 240-320t56.5 23.5Q320-273 320-240t-23.5 56.5Q273-160 240-160t-56.5-23.5Zm0-240Q160-447 160-480t23.5-56.5Q207-560 240-560t56.5 23.5Q320-513 320-480t-23.5 56.5Q273-400 240-400t-56.5-23.5Zm0-240Q160-687 160-720t23.5-56.5Q207-800 240-800t56.5 23.5Q320-753 320-720t-23.5 56.5Q273-640 240-640t-56.5-23.5Zm240 0Q400-687 400-720t23.5-56.5Q447-800 480-800t56.5 23.5Q560-753 560-720t-23.5 56.5Q513-640 480-640t-56.5-23.5Zm240 0Q640-687 640-720t23.5-56.5Q687-800 720-800t56.5 23.5Q800-753 800-720t-23.5 56.5Q753-640 720-640t-56.5-23.5Zm-240 240Q400-447 400-480t23.5-56.5Q447-560 480-560t56.5 23.5Q560-513 560-480t-23.5 56.5Q513-400 480-400t-56.5-23.5ZM520-160v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q8 9 12.5 20t4.5 22q0 11-4 22.5T863-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" /></svg>
+          <span className="text-[16px] font-bold text-gray-900">Planning</span>
         </div>
-        <div className="pl-2 " data-cy="plan-selector">
+        <div data-cy="plan-selector">
           <Select
-            defaultValue={planType}
-            className="w-32 text-gray-400 text-sm"
+            value={planType}
+            className="w-[140px] min-w-[140px] text-sm rounded-md border-gray-200 [&_.ant-select-selector]:rounded-md [&_.ant-select-selector]:border-gray-200"
             onChange={handleChange}
             options={[
-              { value: 'Daily', label: 'Daily Task' },
-              { value: 'Weekly', label: 'Weekly Task' },
+              { value: 'Daily', label: 'Daily Plans' },
+              { value: 'Weekly', label: 'Weekly Plans' },
             ]}
           />
         </div>
       </div>
-      {planType === 'Daily' ? (
-        <Daily allPlannedTaskForReport={allPlannedTaskForReport} />
-      ) : planType === 'Weekly' ? (
-        <Weekly allPlannedTaskForReport={allPlannedTaskForReport} />
-      ) : (
-        'null'
-      )}
+      <div className="px-4 pb-4 pt-2 h-[220px] overflow-y-auto scrollbar-none">
+        {planType === 'Daily' ? (
+          <Daily allPlannedTaskForReport={allPlannedTaskForReport} />
+        ) : planType === 'Weekly' ? (
+          <Weekly allPlannedTaskForReport={allPlannedTaskForReport} />
+        ) : (
+          null
+        )}
+      </div>
     </Card>
   );
 };
