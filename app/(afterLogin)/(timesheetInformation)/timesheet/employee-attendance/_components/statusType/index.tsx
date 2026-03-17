@@ -36,7 +36,7 @@ const statusType = (val: string) => {
       <Button
         id="roleTypeOnLeave" // Note: I changed this id because it's same with the above Button
         data-cy="roleTypeOnLeave"
-        className="text-red-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-red-600 hover:bg-red-50"
+        className="text-green-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-green-600 hover:bg-green-50"
       >
         EARLY
       </Button>
