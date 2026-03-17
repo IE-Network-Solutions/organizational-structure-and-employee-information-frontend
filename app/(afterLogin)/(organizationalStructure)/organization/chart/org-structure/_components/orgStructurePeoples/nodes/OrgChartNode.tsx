@@ -1,13 +1,7 @@
 'use client';
 
 import React, { useMemo, useCallback } from 'react';
-import {
-  type NodeProps,
-  Handle,
-  Position,
-  useReactFlow,
-  useStoreApi,
-} from '@xyflow/react';
+import { type NodeProps, Handle, Position, useReactFlow } from '@xyflow/react';
 import type { Node } from '@xyflow/react';
 import { Card, Avatar, Typography, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
@@ -17,7 +11,7 @@ import { MdOutlineAccountTree } from 'react-icons/md';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import { FiPlus, FiEdit2, FiTrash2, FiEye } from 'react-icons/fi';
 import type { OrgNodeData } from '../layout';
-import { getSubtreeNodeIds, NODE_HEIGHT, NODE_WIDTH } from '../layout';
+import { NODE_HEIGHT, NODE_WIDTH } from '../layout';
 import { useOrgChartActions } from '../OrgChartActionsContext';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 
@@ -27,8 +21,6 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
   const { data } = props;
   const orgChartActions = useOrgChartActions();
   const { fitView } = useReactFlow();
-  const setNodes = useDepartmentStore((s) => s.setNodes);
-  const setEdges = useDepartmentStore((s) => s.setEdges);
   const setFocusViewRootId = useDepartmentStore((s) => s.setFocusViewRootId);
   const collapsedDepartmentIds = useDepartmentStore(
     (s) => s.collapsedDepartmentIds,

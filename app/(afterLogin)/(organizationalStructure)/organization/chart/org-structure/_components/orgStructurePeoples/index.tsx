@@ -125,7 +125,13 @@ function OrgFlowContent({ onReady }: { onReady?: () => void }) {
     });
     setNodes(builtVisible.nodes);
     setEdges(builtVisible.edges);
-  }, [userTreeData, collapsedDepartmentIds, focusViewRootId, setNodes, setEdges]);
+  }, [
+    userTreeData,
+    collapsedDepartmentIds,
+    focusViewRootId,
+    setNodes,
+    setEdges,
+  ]);
 
   const onNodesChange = useCallback(
     (changes: Parameters<typeof applyNodeChanges>[0]) => {
@@ -339,7 +345,7 @@ function OrgFlowContent({ onReady }: { onReady?: () => void }) {
   // After 3 distinct pinch gestures, show a UX tip about using two-finger scroll
   // for faster zooming.
   const handleMove = useCallback(
-    (_evt: any, viewport: { x: number; y: number; zoom: number }) => {
+    (evt: any, viewport: { x: number; y: number; zoom: number }) => {
       const prevZoom = lastZoomRef.current;
       lastZoomRef.current = viewport.zoom;
 
@@ -413,14 +419,32 @@ function OrgFlowContent({ onReady }: { onReady?: () => void }) {
           <DepartmentUsersModalPositionBridge />
         </ReactFlow>
         {showZoomHint && (
-          <div className="pointer-events-auto fixed bottom-10 right-[120px] z-[1001]">
-            <div className="flex items-start gap-3 rounded-lg bg-white shadow-lg border border-slate-200 px-4 py-3 max-w-sm">
-              <div className="mt-1 h-2 w-2 rounded-full bg-[#1E40AF]" />
-              <div className="text-xs text-slate-700">
-                <div className="font-medium mb-1 whitespace-nowrap">
+          <div
+            className="pointer-events-auto fixed bottom-10 right-[120px] z-[1001]"
+            data-cy="org-structure-zoom-tip-container"
+          >
+            <div
+              className="flex items-start gap-3 rounded-lg bg-white shadow-lg border border-slate-200 px-4 py-3 max-w-sm"
+              data-cy="org-structure-zoom-tip-card"
+            >
+              <div
+                className="mt-1 h-2 w-2 rounded-full bg-[#1E40AF]"
+                data-cy="org-structure-zoom-tip-indicator"
+              />
+              <div
+                className="text-xs text-slate-700"
+                data-cy="org-structure-zoom-tip-text"
+              >
+                <div
+                  className="font-medium mb-1 whitespace-nowrap"
+                  data-cy="org-structure-zoom-tip-title"
+                >
                   Tip for faster zoom
                 </div>
-                <div className="whitespace-nowrap">
+                <div
+                  className="whitespace-nowrap"
+                  data-cy="org-structure-zoom-tip-description"
+                >
                   Use two-finger scroll up or down instead of pinch.
                 </div>
               </div>
@@ -428,6 +452,7 @@ function OrgFlowContent({ onReady }: { onReady?: () => void }) {
                 type="button"
                 aria-label="Dismiss zoom tip"
                 className="ml-1 text-slate-400 hover:text-slate-600 text-xs"
+                data-cy="org-structure-zoom-tip-close-btn"
                 onClick={() => setShowZoomHint(false)}
               >
                 ×

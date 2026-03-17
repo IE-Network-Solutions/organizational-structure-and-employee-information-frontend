@@ -7,26 +7,6 @@ export interface DepartmentToEdit {
   branchId?: string;
 }
 
-/** Inline: ids reachable from rootId (source → target), then exclude root. Used for collapse. */
-function getDescendantIds(
-  edges: { source: string; target: string }[],
-  rootId: string,
-): Set<string> {
-  const ids = new Set<string>([rootId]);
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const e of edges) {
-      if (ids.has(e.source) && !ids.has(e.target)) {
-        ids.add(e.target);
-        changed = true;
-      }
-    }
-  }
-  ids.delete(rootId);
-  return ids;
-}
-
 // Visible layout is now recomputed from the backend tree (in the chart component),
 // so we do not filter nodes/edges here. We only track which departments are collapsed.
 
@@ -181,8 +161,7 @@ const useDepartmentStore = create<DepartmentState>((set) => ({
     })),
   focusViewRootId: null,
   setFocusViewRootId: (id) => set({ focusViewRootId: id }),
-  exitFocusView: () =>
-    set(() => ({ focusViewRootId: null })),
+  exitFocusView: () => set(() => ({ focusViewRootId: null })),
   clearCollapsedDepartments: () =>
     set(() => ({
       collapsedDepartmentIds: [],
