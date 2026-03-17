@@ -12,7 +12,10 @@ import {
   Alert,
   Collapse,
 } from 'antd';
-import { COPILOT_ERROR_MESSAGES } from '@/utils/copilotApiService';
+import {
+  COPILOT_ERROR_MESSAGES,
+  exportCopilotTableToExcel,
+} from '@/utils/copilotApiService';
 import {
   RobotOutlined,
   ExpandOutlined,
@@ -327,27 +330,40 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               className="mt-4 mb-3 relative z-0"
               data-cy="copilot-message-table-container"
             >
-              {tableData.title && (
-                <Text
-                  strong
-                  className="text-base block mb-3"
-                  style={{ color: '#262626' }}
-                  data-cy="copilot-message-table-title"
-                >
-                  {tableData.title}
-                </Text>
-              )}
+              <div className="flex items-center justify-between mb-3 gap-3">
+                {tableData.title && (
+                  <Text
+                    strong
+                    className="text-base"
+                    style={{ color: '#262626' }}
+                    data-cy="copilot-message-table-title"
+                  >
+                    {tableData.title}
+                  </Text>
+                )}
+                <div className="flex items-center gap-3 ml-auto">
+                  <Button
+                    type="primary"
+                    size="small"
+                    onClick={() => exportCopilotTableToExcel(tableData)}
+                    className="px-3 h-auto bg-blue-500 hover:bg-blue-600 text-white border-none"
+                    data-cy="copilot-table-export-excel"
+                  >
+                    Export to Excel
+                  </Button>
+                  <Button
+                    type="link"
+                    size="small"
+                    icon={<ExpandOutlined />}
+                    onClick={() => setFullScreenTableMessageId(message.id)}
+                    className="p-0 h-auto text-gray-500 hover:text-blue-600 relative z-10"
+                    data-cy="copilot-table-maximize"
+                  >
+                    Maximize
+                  </Button>
+                </div>
+              </div>
               {renderTable(tableData, false)}
-              <Button
-                type="link"
-                size="small"
-                icon={<ExpandOutlined />}
-                onClick={() => setFullScreenTableMessageId(message.id)}
-                className="p-0 h-auto mt-2 text-gray-500 hover:text-blue-600 relative z-10"
-                data-cy="copilot-table-maximize"
-              >
-                Maximize
-              </Button>
             </div>
           )}
         {tableData &&
