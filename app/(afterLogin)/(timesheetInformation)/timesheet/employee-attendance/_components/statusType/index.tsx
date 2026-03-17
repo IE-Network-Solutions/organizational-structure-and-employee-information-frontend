@@ -33,13 +33,13 @@ const statusType = (val: string) => {
     );
   } else if (val === 'early') {
     return (
-      <Button
+      <Tag
         id="roleTypeOnLeave" // Note: I changed this id because it's same with the above Button
         data-cy="roleTypeOnLeave"
-        className="text-green-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-green-600 hover:bg-green-50"
+        className="text-green-600 text-xs font-medium py-1 px-2 bg-white border border-green-600 hover:bg-green-50"
       >
         EARLY
-      </Button>
+      </Tag>
     );
   } else if (val === null || val === '') {
     return (

@@ -325,7 +325,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                 data-cy="time-attendance-employee-attendance-mobile-filter-employee-select"
                 placeholder="Search Employee"
                 allowClear
-                className="w-full pr-0 py-0 h-10 rounded-lg"
+                className="w-full pr-0 py-0 h-8 rounded-lg"
                 options={employeeOptions}
                 showSearch
                 optionFilterProp="label"
@@ -361,7 +361,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
           >
             <Button
-              className={`h-10 rounded-lg flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
+              className={`h-8 rounded-lg flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
               id="time-attendance-employee-attendance-mobile-filter-toggle-button"
               data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
               icon={
