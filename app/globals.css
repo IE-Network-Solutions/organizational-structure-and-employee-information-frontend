@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Org Structure chart: smooth layout transitions on collapse/expand */
+.org-structure-flow .react-flow__node,
+.org-structure-flow .xyflow__node {
+  transition: transform 260ms ease;
+}
+
+.org-structure-flow .react-flow__edge-path,
+.org-structure-flow .xyflow__edge-path {
+  transition: opacity 220ms ease;
+}
+
 /* Calibre font family - local OTF files */
 @font-face {
   font-family: 'Calibre';
