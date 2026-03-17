@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useMemo, useCallback, useRef, useEffect } from 'react';
+import React, {
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+  useState,
+} from 'react';
 import {
   ReactFlow,
   applyNodeChanges,
@@ -41,9 +47,11 @@ const edgeTypes = {
   vertical: VerticalEdge,
 };
 
-function OrgFlowContent() {
+function OrgFlowContent({ onReady }: { onReady?: () => void }) {
   const chartRef = useChartRef();
   const flowInstanceRef = useRef<ReactFlowInstance | null>(null);
+  const isProgrammaticFitRef = useRef(false);
+  const hasInitialFitRunRef = useRef(false);
   const { data: userTreeData } = useGetOrgChartsPeoples();
 
   const built = useMemo(() => {
@@ -60,6 +68,7 @@ function OrgFlowContent() {
 
   const nodes = useDepartmentStore((s) => s.nodes);
   const edges = useDepartmentStore((s) => s.edges);
+  const focusViewRootId = useDepartmentStore((s) => s.focusViewRootId);
   const setNodes = useDepartmentStore((s) => s.setNodes);
   const setEdges = useDepartmentStore((s) => s.setEdges);
   const collapsedDepartmentIds = useDepartmentStore(
@@ -97,26 +106,110 @@ function OrgFlowContent() {
   const fitWholeStructure = useCallback(() => {
     const instance = flowInstanceRef.current;
     if (!instance || nodes.length === 0) return;
-    instance.fitView({ padding: 0.12, duration: 0, maxZoom: 1.2 });
-  }, [nodes.length]);
+    isProgrammaticFitRef.current = true;
+    instance.fitView({ padding: 0.12, duration: 0, maxZoom: 0.5 });
+    hasInitialFitRunRef.current = true;
+    onReady?.();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('org-structure-can-reset-view', {
+          detail: { canReset: false },
+        }),
+      );
+    }
+    // Ignore the onMoveEnd that fitView may trigger (can fire late); allow user moves to show Reset after this.
+    setTimeout(() => {
+      isProgrammaticFitRef.current = false;
+    }, 500);
+  }, [nodes.length, onReady]);
 
   useEffect(() => {
-    if (nodes.length === 0) return;
+    if (nodes.length === 0 || focusViewRootId) return;
     const timeoutId = setTimeout(fitWholeStructure, 350);
     return () => clearTimeout(timeoutId);
-  }, [nodes.length, fitWholeStructure]);
+  }, [nodes.length, focusViewRootId, fitWholeStructure]);
 
-  // When departments are collapsed/expanded, refit the visible structure
+  // Allow external consumers (like the layout header) to trigger a reset:
+  // restore full graph if we were in Focus View, then fit the whole structure.
+  useEffect(() => {
+    const handler = () => {
+      useDepartmentStore.getState().exitFocusView();
+      setTimeout(fitWholeStructure, 100);
+    };
+    window.addEventListener('org-structure-reset-view', handler);
+    return () => {
+      window.removeEventListener('org-structure-reset-view', handler);
+    };
+  }, [fitWholeStructure]);
+
+  // Restrict how far the viewport can be panned so the org chart
+  // cannot be dragged infinitely outside the visible layout.
   useEffect(() => {
     const instance = flowInstanceRef.current;
     if (!instance || nodes.length === 0) return;
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    (nodes as Node[]).forEach((n) => {
+      const { x, y } = n.position;
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+    });
+
+    if (!Number.isFinite(minX) || !Number.isFinite(minY)) return;
+
+    const padding = 120;
+    const api = instance as any;
+    if (typeof api.setTranslateExtent === 'function') {
+      api.setTranslateExtent([
+        [minX - padding, minY - padding],
+        [maxX + padding, maxY + padding],
+      ]);
+    }
+  }, [nodes]);
+
+  // When the user finishes moving/zooming the viewport, show the Reset button.
+  // Do not show until initial fit has run, and not when the move was from our own fitView.
+  const handleMoveEnd = useCallback(() => {
+    if (!hasInitialFitRunRef.current || isProgrammaticFitRef.current) return;
+    if (typeof window === 'undefined') return;
+    window.dispatchEvent(
+      new CustomEvent('org-structure-can-reset-view', {
+        detail: { canReset: true },
+      }),
+    );
+  }, []);
+
+  // When departments are collapsed/expanded, refit the visible structure.
+  // Only run when collapsedDepartmentIds changes (not on initial load when nodes appear).
+  const prevCollapsedRef = useRef(collapsedDepartmentIds);
+  useEffect(() => {
+    if (prevCollapsedRef.current === collapsedDepartmentIds) return;
+    prevCollapsedRef.current = collapsedDepartmentIds;
+    const instance = flowInstanceRef.current;
+    if (!instance || nodes.length === 0) return;
+    isProgrammaticFitRef.current = true;
     instance.fitView({ padding: 0.1, duration: 350, maxZoom: 1.4 });
+    window.dispatchEvent(
+      new CustomEvent('org-structure-can-reset-view', {
+        detail: { canReset: false },
+      }),
+    );
+    const id = setTimeout(() => {
+      isProgrammaticFitRef.current = false;
+    }, 400);
+    return () => clearTimeout(id);
   }, [collapsedDepartmentIds, nodes.length]);
 
   return (
     <OrgChartActionsProvider>
       <div
-        className="w-full h-[calc(100vh-220px)] min-h-[280px] sm:h-[calc(100vh-280px)] sm:min-h-[420px] bg-white overflow-hidden"
+        className="w-full h-[calc(100vh-220px)] min-h-[280px] sm:h-[calc(100vh-280px)] sm:min-h-[420px] bg-white overflow-clip"
         ref={chartRef}
         data-cy="org-structure-chart-flow-container"
       >
@@ -127,17 +220,11 @@ function OrgFlowContent() {
           onEdgesChange={onEdgesChange}
           panOnScroll={false}
           zoomOnScroll={false}
-          panOnDrag={false}
+          panOnDrag
           zoomOnDoubleClick={false}
+          onMoveEnd={handleMoveEnd}
           onInit={(instance) => {
             flowInstanceRef.current = instance;
-            // Fit whole structure once viewport and nodes are ready (backup to effect)
-            setTimeout(() => {
-              const currentNodes = useDepartmentStore.getState().nodes;
-              if (currentNodes.length > 0) {
-                instance.fitView({ padding: 0.12, duration: 0, maxZoom: 1.2 });
-              }
-            }, 400);
           }}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
@@ -181,22 +268,21 @@ const OrgChartComponent: React.FC = () => {
 
 function OrgChartComponentInner() {
   const { isLoading } = useGetOrgChartsPeoples();
+  const [isChartReady, setIsChartReady] = useState(false);
 
-  if (isLoading) {
-    return (
-      <OrgChartSkeleton
-        loading={isLoading}
-        data-cy="org-org-structure-components-orgstructurepeoples-index-orgchartskeleton-1"
-      />
-    );
-  }
+  const handleChartReady = useCallback(() => {
+    setIsChartReady(true);
+  }, []);
+
+  const showSkeleton = isLoading || !isChartReady;
 
   return (
     <div
-      className="pt-0 pb-4 sm:pb-8 overflow-visible"
+      className="pt-0 pb-4 sm:pb-8 overflow-visible relative"
       data-cy="org-structure-tree-container"
       id="org-structure-tree-container"
     >
+      {/* React Flow / chart always mounted behind */}
       <div
         className="overflow-visible min-w-0"
         data-cy="org-structure-transform-component"
@@ -207,9 +293,23 @@ function OrgChartComponentInner() {
           data-cy="org-structure-chart"
           className="w-full overflow-visible"
         >
-          <OrgFlowContent />
+          <OrgFlowContent onReady={handleChartReady} />
         </div>
       </div>
+
+      {/* Skeleton overlay while loading or until fitView has completed */}
+      {showSkeleton && (
+        <div
+          className="absolute inset-0 z-10 bg-white"
+          data-cy="org-structure-skeleton-container"
+        >
+          <OrgChartSkeleton
+            loading={isLoading}
+            data-cy="org-org-structure-components-orgstructurepeoples-index-orgchartskeleton-1"
+          />
+        </div>
+      )}
+
       <div
         data-cy="org-structure-transform-component-buttons"
         id="org-structure-transform-component-buttons"

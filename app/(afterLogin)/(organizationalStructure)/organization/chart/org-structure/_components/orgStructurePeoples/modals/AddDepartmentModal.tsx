@@ -324,7 +324,7 @@ export function AddDepartmentModal() {
       footer={null}
       destroyOnClose
       centered
-      className="org-structure-department-modal [&_.ant-modal-close]:mt-5 [&_.ant-modal-content]:rounded-lg [&_.ant-modal-content]:shadow-lg [&_.ant-modal-content]:border-0 [&_.ant-modal-header]:flex [&_.ant-modal-header]:items-center [&_.ant-modal-header]:border-b [&_.ant-modal-header]:border-gray-100 [&_.ant-modal-header]:px-4 [&_.ant-modal-header]:py-4 [&_.ant-modal-body]:px-4 [&_.ant-modal-body]:pb-4 [&_.ant-modal-title]:flex-1 [&_.ant-modal-title]:leading-none"
+      className="org-structure-department-modal [&_.ant-modal-close]:mt-3 [&_.ant-modal-content]:rounded-lg [&_.ant-modal-content]:shadow-lg [&_.ant-modal-content]:border-0 [&_.ant-modal-header]:flex [&_.ant-modal-header]:items-center [&_.ant-modal-header]:border-b [&_.ant-modal-header]:border-gray-100 [&_.ant-modal-header]:px-3 [&_.ant-modal-header]:py-3 [&_.ant-modal-body]:px-3 [&_.ant-modal-body]:pb-3 [&_.ant-modal-title]:flex-1 [&_.ant-modal-title]:leading-none"
       data-cy={
         isEdit
           ? 'org-structure-edit-department-modal'
@@ -336,6 +336,7 @@ export function AddDepartmentModal() {
         layout="vertical"
         key={isEdit ? (departmentToEdit?.id ?? 'edit') : 'add'}
         initialValues={initialValues}
+        requiredMark={false}
         className="[&_.ant-form-item]:mb-4 [&_.ant-form-item:last-of-type]:mb-0"
         data-cy="org-structure-department-form"
       >
@@ -349,7 +350,22 @@ export function AddDepartmentModal() {
           >
             <Form.Item
               name="name"
-              label="Department / Team Name"
+              label={
+                <div
+                  className="flex items-center justify-between"
+                  data-cy="org-structure-department-name-label"
+                >
+                  <span data-cy="org-structure-department-name-label-text">
+                    Department / Team Name
+                  </span>
+                  <span
+                    className="text-red-500"
+                    data-cy="org-structure-department-name-required-indicator"
+                  >
+                    *
+                  </span>
+                </div>
+              }
               rules={[
                 {
                   required: true,
@@ -387,9 +403,20 @@ export function AddDepartmentModal() {
         <Form.Item
           name="branchId"
           label={
-            <span data-cy="org-structure-department-branch-label">
-              Select Branch
-            </span>
+            <div
+              className="flex items-center justify-between"
+              data-cy="org-structure-department-branch-label"
+            >
+              <span data-cy="org-structure-department-branch-label">
+                Select Branch
+              </span>
+              <span
+                className="text-red-500"
+                data-cy="org-structure-department-branch-required-indicator"
+              >
+                *
+              </span>
+            </div>
           }
           rules={[{ required: true, message: 'Please select a branch' }]}
         >
@@ -425,8 +452,8 @@ export function AddDepartmentModal() {
           <Button
             onClick={handleClose}
             size="large"
-            className="h-8 px-5 font-normal border-gray-300 text-gray-700 bg-white hover:border-[#4096FF] hover:text-[#4096FF]"
-            style={{ boxShadow: 'none', height: 32 }}
+            className="h-8 sm:h-10 px-5 font-normal border-gray-300 text-gray-700 bg-white hover:border-[#4096FF] hover:text-[#4096FF]"
+            style={{ boxShadow: 'none' }}
             data-cy="org-structure-department-cancel"
           >
             Cancel
@@ -436,8 +463,8 @@ export function AddDepartmentModal() {
             size="large"
             onClick={handleSubmit}
             loading={loading}
-            className="h-8 px-5 font-normal"
-            style={{ boxShadow: 'none', height: 32 }}
+            className="h-8 sm:h-10 px-5 font-normal"
+            style={{ boxShadow: 'none' }}
             data-cy={
               isEdit
                 ? 'org-structure-department-update'
