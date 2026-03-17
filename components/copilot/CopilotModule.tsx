@@ -615,20 +615,25 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
         ) {
           tableData = undefined;
         }
-        const displayText = tableData
-          ? undefined
-          : normalized.displayText || COPILOT_ERROR_MESSAGES.NO_DATA;
+        const responseType = normalized.responseType;
+        const displayText =
+          responseType === 'summary'
+            ? (normalized.answerForMetadata || normalized.displayText || COPILOT_ERROR_MESSAGES.NO_DATA)
+            : tableData
+              ? undefined
+              : normalized.displayText || COPILOT_ERROR_MESSAGES.NO_DATA;
         const copilotMessage: Message = {
           id: `msg-${Date.now()}-copilot`,
           text: displayText,
           sender: 'copilot',
           timestamp: new Date(),
-          metadata: tableData
+          metadata: tableData && responseType !== 'summary'
             ? undefined
             : normalized.answerForMetadata
               ? addMetadata(normalized.answerForMetadata)
               : undefined,
           tableData: tableData ?? undefined,
+          responseType,
         };
         setMessages((prev) => [...prev, copilotMessage]);
       } catch (error) {

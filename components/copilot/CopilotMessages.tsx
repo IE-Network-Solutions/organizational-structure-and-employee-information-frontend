@@ -45,6 +45,8 @@ export interface Message {
     columns: Array<{ key: string; title: string; dataIndex: string }>;
     rows: Array<Record<string, any>>;
   };
+  /** Backend hint: show as table, list, or summary. When "summary", answer text is primary; when "list", render rows as list. */
+  responseType?: 'table' | 'summary' | 'list';
 }
 
 interface CopilotMessagesProps {
@@ -284,6 +286,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
   const renderMessageContent = (message: Message) => {
     const text = message.text;
     const tableData = message.tableData;
+    const responseType = message.responseType;
     const isPermissionDenied = message.messageType === 'permission_denied';
     const isError = message.messageType === 'error';
     const hasBackendErrors =
@@ -320,8 +323,103 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             </Text>
           ))}
 
-        {/* Render table only when there are rows; otherwise show friendly no-data message */}
-        {tableData &&
+        {/* Summary: show answer as primary; table optional in collapsible */}
+        {responseType === 'summary' &&
+          tableData &&
+          tableData.type === 'table' &&
+          Array.isArray(tableData.rows) &&
+          tableData.rows.length > 0 && (
+            <Collapse
+              ghost
+              size="small"
+              className="mt-2 mb-3"
+              items={[
+                {
+                  key: 'table',
+                  label: (
+                    <span className="text-sm text-gray-600" data-cy="copilot-summary-show-table">
+                      Show table ({tableData.rows.length} rows)
+                    </span>
+                  ),
+                  children: (
+                    <div className="relative z-0">
+                      <div className="flex items-center justify-end gap-2 mb-2">
+                        <Button
+                          type="primary"
+                          size="small"
+                          onClick={() => exportCopilotTableToExcel(tableData)}
+                          data-cy="copilot-table-export-excel"
+                        >
+                          Export to Excel
+                        </Button>
+                        <Button
+                          type="link"
+                          size="small"
+                          icon={<ExpandOutlined />}
+                          onClick={() => setFullScreenTableMessageId(message.id)}
+                          data-cy="copilot-table-maximize"
+                        >
+                          Maximize
+                        </Button>
+                      </div>
+                      {renderTable(tableData, false)}
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          )}
+
+        {/* List: render rows as bullet list when user asked for list format */}
+        {responseType === 'list' &&
+          tableData &&
+          tableData.type === 'table' &&
+          Array.isArray(tableData.rows) &&
+          tableData.rows.length > 0 && (
+            <div className="mt-3 mb-3" data-cy="copilot-message-list-container">
+              {tableData.title && (
+                <Text strong className="text-base block mb-2" style={{ color: '#262626' }}>
+                  {tableData.title}
+                </Text>
+              )}
+              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                {tableData.rows.map((row, idx) => {
+                  const userObj = row.user ?? row.userId;
+                  let label: string;
+                  if (userObj && typeof userObj === 'object' && 'firstName' in userObj) {
+                    label = [userObj.firstName, userObj.middleName, userObj.lastName].filter(Boolean).join(' ');
+                  } else {
+                    const firstDataCol = tableData.columns.find(
+                      (c) => !['order', '#'].includes((c.dataIndex || c.key || '').toLowerCase())
+                    );
+                    const val = firstDataCol ? row[firstDataCol.dataIndex ?? firstDataCol.key] : row.order;
+                    label = typeof val === 'object' && val !== null ? String((val as { name?: string }).name ?? '—') : String(val ?? '—');
+                  }
+                  return (
+                    <li key={idx} data-cy="copilot-list-item">
+                      {label || '—'}
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="mt-2">
+                <Button
+                  type="link"
+                  size="small"
+                  onClick={() => exportCopilotTableToExcel(tableData)}
+                  className="p-0 h-auto text-blue-600"
+                  data-cy="copilot-table-export-excel"
+                >
+                  Export to Excel
+                </Button>
+              </div>
+            </div>
+          )}
+
+        {/* Table: default when responseType is table or unspecified */}
+        {responseType !== 'summary' &&
+          responseType !== 'list' &&
+          tableData &&
           tableData.type === 'table' &&
           tableData.columns &&
           Array.isArray(tableData.rows) &&
