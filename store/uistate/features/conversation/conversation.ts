@@ -39,6 +39,12 @@ export interface CategoriesUseState {
   searchQuery: string;
   setSearchQuery: (searchQuery: string) => void;
 
+  searchAppreciationQuery: string;
+  setSearchAppreciationQuery: (searchAppreciationQuery: string) => void;
+
+  searchReprimandQuery: string;
+  setSearchReprimandQuery: (searchReprimandQuery: string) => void;
+
   questions: any;
   setQuestions: (questions: any) => void;
 
@@ -68,6 +74,9 @@ export interface CategoriesUseState {
 
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
+
+  settingActiveTab: string;
+  setSettingActiveTab: (settingActiveTab: string) => void;
 
   empId: string;
   setEmpId: (empId: string) => void;
@@ -134,6 +143,14 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   searchQuery: '',
   setSearchQuery: (searchQuery: string) => set({ searchQuery }),
 
+  searchAppreciationQuery: '',
+  setSearchAppreciationQuery: (searchAppreciationQuery: string) =>
+    set({ searchAppreciationQuery }),
+
+  searchReprimandQuery: '',
+  setSearchReprimandQuery: (searchReprimandQuery: string) =>
+    set({ searchReprimandQuery }),
+
   setTotalPages: (totalPages: number) => set({ totalPages }),
 
   page: 1,
@@ -174,6 +191,9 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   activeTab: '1',
   setActiveTab: (activeTab: string) => set({ activeTab }),
+
+  settingActiveTab: 'appreciation',
+  setSettingActiveTab: (settingActiveTab: string) => set({ settingActiveTab }),
 
   empId: '',
   setEmpId: (empId: string) => set({ empId }),
