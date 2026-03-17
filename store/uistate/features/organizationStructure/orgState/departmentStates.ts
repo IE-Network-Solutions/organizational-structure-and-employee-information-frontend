@@ -112,6 +112,11 @@ interface DepartmentState {
   ) => void;
   setNodes: (nodes: unknown[] | ((prev: unknown[]) => unknown[])) => void;
   setEdges: (edges: unknown[] | ((prev: unknown[]) => unknown[])) => void;
+  /** When set, we are in Focus View (only this subtree is shown). Used to avoid overriding focus fit. */
+  focusViewRootId: string | null;
+  setFocusViewRootId: (id: string | null) => void;
+  /** Restore displayed nodes/edges from full graph (used when exiting Focus View) */
+  exitFocusView: () => void;
   reset: () => void;
 }
 
@@ -199,6 +204,17 @@ const useDepartmentStore = create<DepartmentState>((set) => ({
     set((s) => ({
       edges: typeof arg === 'function' ? arg(s.edges) : arg,
     })),
+  focusViewRootId: null,
+  setFocusViewRootId: (id) => set({ focusViewRootId: id }),
+  exitFocusView: () =>
+    set((s) => {
+      const { nodes, edges } = computeVisibleNodesAndEdges(
+        s.fullNodes,
+        s.fullEdges,
+        s.collapsedDepartmentIds,
+      );
+      return { nodes, edges };
+    }),
   reset: () =>
     set({
       rootDeptId: null,
@@ -227,6 +243,7 @@ const useDepartmentStore = create<DepartmentState>((set) => ({
       fullEdges: [],
       nodes: [],
       edges: [],
+      focusViewRootId: null,
     }),
 }));
 

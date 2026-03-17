@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Button } from 'antd';
+import { Button, Skeleton } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -15,10 +15,52 @@ interface OkrSettingsLayoutProps {
   children: React.ReactNode;
 }
 
+function TabContentSkeleton() {
+  return (
+    <div
+      className="w-full border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+      data-cy="okr-settings-tab-loading-skeleton"
+    >
+      <div
+        className="mb-6 flex gap-4 items-end"
+        data-cy="okr-settings-tab-loading-skeleton-header"
+      >
+        <Skeleton.Input
+          active
+          size="large"
+          className="!w-48 !min-w-0"
+          data-cy="okr-settings-tab-loading-skeleton-input-large"
+        />
+        <Skeleton.Input
+          active
+          className="!w-32 !min-w-0"
+          data-cy="okr-settings-tab-loading-skeleton-input"
+        />
+      </div>
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        data-cy="okr-settings-tab-loading-skeleton-cards-grid"
+      >
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton
+            key={i}
+            active
+            paragraph={{ rows: 3 }}
+            className="!p-5 rounded-[12px] border border-[#f0f0f0]"
+            data-cy={`okr-settings-tab-loading-skeleton-card-${i}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>('okr-type');
+  const [isTabLoading, setIsTabLoading] = useState(false);
+  const [pendingTabPath, setPendingTabPath] = useState<string | null>(null);
   const { setOpen: setPlanningOpen } = usePlanningAssignationStore();
   const { openDrawer: setCriteriaOpen } = useDrawerStore();
   const { setOpen: setOkrRuleOpen } = useOkrRuleStore();
@@ -83,10 +125,19 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     if (tabMap[lastKey]) {
       setActiveTab(tabMap[lastKey]);
     }
-  }, [pathname]);
+
+    // Clear tab loading state once we've navigated to the target path
+    if (pendingTabPath && pathname === pendingTabPath) {
+      setIsTabLoading(false);
+      setPendingTabPath(null);
+    }
+  }, [pathname, pendingTabPath]);
 
   const handleTabClick = (path: string, key: string) => {
+    if (pathname === path) return;
     setActiveTab(key);
+    setPendingTabPath(path);
+    setIsTabLoading(true);
     router.push(path);
   };
 
@@ -275,7 +326,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           id="okr-settings-layout-children-wrapper-display-div"
           data-cy="okr-settings-layout-children-wrapper-display-div"
         >
-          {children}
+          {isTabLoading ? <TabContentSkeleton /> : children}
         </div>
       </div>
     </div>

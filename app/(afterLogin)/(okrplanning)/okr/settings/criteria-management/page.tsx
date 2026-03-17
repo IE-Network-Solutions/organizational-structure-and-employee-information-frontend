@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Spin, Dropdown, MenuProps } from 'antd';
+import { Spin, Dropdown, MenuProps, Tag } from 'antd';
 import ScoringModal from './_components/criteria-drawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CriteriaFilters from './_components/criteria-filters';
@@ -188,20 +188,20 @@ function Page() {
                   className="flex items-center justify-between"
                   data-cy={`okr-criteria-card-footer-${item.key}`}
                 >
-                  <div
-                    className="px-3 py-1.5 text-[13px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
+                  <Tag
+                    className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0"
                     id={`okr-criteria-card-percentage-${item.key}`}
                     data-cy={`okr-criteria-card-percentage-${item.key}`}
                   >
                     Total %: {item.totalPercentage.replace('%', '')}
-                  </div>
-                  <div
-                    className="px-3 py-1.5 text-[13px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
+                  </Tag>
+                  <Tag
+                    className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0"
                     id={`okr-criteria-card-count-${item.key}`}
                     data-cy={`okr-criteria-card-count-${item.key}`}
                   >
                     Count: {item.criteriaCount}
-                  </div>
+                  </Tag>
                 </div>
               </div>
             ))}

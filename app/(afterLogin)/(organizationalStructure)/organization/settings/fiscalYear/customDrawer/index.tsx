@@ -5,7 +5,7 @@ import {
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import React, { useEffect } from 'react';
 import { FormInstance } from 'antd/lib';
-import { Form, Modal, Button } from 'antd';
+import { Form, Modal } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { IoIosArrowBack } from 'react-icons/io';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -946,35 +946,37 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     <Modal
       title={
         <div
-          className="flex items-center justify-between w-full"
+          className="flex items-center justify-between w-full min-h-[40px]"
           data-cy="org-settings-fiscal-year-modal-back-btn-grand-parent"
         >
           <div
-            className="flex items-center gap-3 flex-1"
+            className="flex items-center gap-3 flex-1 min-w-0"
             data-cy="org-settings-fiscal-year-modal-back-btn-parent"
           >
-            {current > 0 && (
-              <Button
-                type="text"
-                icon={<IoIosArrowBack />}
+            {current > 0 ? (
+              <IoIosArrowBack
                 onClick={handleBack}
-                className="p-0 w-auto h-auto"
+                className="p-0 m-[-4px] w-5 h-5 flex items-center justify-center shrink-0 text-gray-700 cursor-pointer"
                 data-cy="org-settings-fiscal-year-modal-back-btn"
+              />
+            ) : (
+              <span
+                className="w-8 shrink-0"
+                aria-hidden
+                data-cy="org-settings-fiscal-year-modal-back-spacer"
               />
             )}
             <h1
-              className="text-base font-bold text-gray-800 m-0 flex-1 text-center mt-5"
+              className="text-base font-bold text-gray-800 m-0 flex-1 text-center"
               data-cy="org-settings-fiscal-year-drawer-header"
               id="org-settings-fiscal-year-drawer-header"
             >
               {getModalTitle()}
             </h1>
           </div>
-          <Button
-            type="text"
-            icon={<CloseOutlined />}
+          <CloseOutlined
             onClick={handleCancel}
-            className="p-0 w-auto h-auto ml-auto"
+            className="p-0 w-8 h-8 mr-[-4px] flex items-center justify-center shrink-0 text-gray-600 hover:text-gray-800 cursor-pointer"
             data-cy="org-settings-fiscal-year-modal-close-btn"
           />
         </div>
@@ -986,11 +988,13 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       width={isMobile ? '95%' : '35%'}
       styles={{
         body: {
-          padding: '2px',
+          padding: '0 16px 16px',
         },
         header: {
           borderBottom: 'none',
           marginBottom: '16px',
+          paddingLeft: '14px',
+          paddingRight: '14px',
         },
       }}
       data-cy="org-settings-fiscal-year-drawer"

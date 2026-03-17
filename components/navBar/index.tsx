@@ -2,30 +2,54 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
+import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
 import { IoCloseOutline } from 'react-icons/io5';
 import {
-  MdDashboard,
-  MdGroups,
-  MdPersonAdd,
-  MdAccessTimeFilled,
-  MdTrackChanges,
-  MdChatBubble,
-  MdSchool,
-  MdPayments,
-  MdRedeem,
   MdGridView,
-  MdAdminPanelSettings,
   MdDomain,
+  MdPeople,
+  MdPersonSearch,
+  MdOutlineAccessTime,
+  MdAdjust,
+  MdChat,
+  MdSchool,
+  MdAccountBalanceWallet,
+  MdCardGiftcard,
+  MdWidgets,
+  MdHowToReg,
+  MdAdminPanelSettings,
 } from 'react-icons/md';
 import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
+
+// Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
+const isRouteMatch = (routePattern: string, pathname: string) => {
+  // Exact match
+  if (routePattern === pathname) return true;
+  
+  // Match [id] to UUIDs (or any non-slash segment)
+  if (routePattern.includes('[id]')) {
+    const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
+    const regex = new RegExp('^' + regexPattern + '(/.*)?$');
+    return regex.test(pathname);
+  }
+  
+  // Generic dynamic segment: [something] => [^/]+
+  if (routePattern.match(/\[.*?\]/g)) {
+    const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
+    const regex = new RegExp('^' + regexPattern + '(/.*)?$');
+    return regex.test(pathname);
+  }
+
+  // Prefix match for subpages
+  return pathname === routePattern || pathname.startsWith(routePattern + '/');
+};
+
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import Logo from '../common/logo';
-import SimpleLogo from '../common/logo/simpleLogo';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -85,53 +109,57 @@ const NavMenuItem: React.FC<{
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedKeys.includes(item.key);
 
-  // Check if this item or any of its children matches the current path
-  const isDirectlyActive =
-    selectedKeys.includes(item.key) || pathname === item.key;
-  const isChildActive =
-    hasChildren &&
-    item.children.some(
-      (child: any) =>
-        selectedKeys.includes(child.key) || pathname === child.key,
-    );
-  const isActive = isDirectlyActive || isChildActive;
-
-  const handleToggle = () => {
-    if (hasChildren) {
-      setExpandedKeys((prev) =>
-        prev.includes(item.key)
-          ? prev.filter((k) => k !== item.key)
-          : [...prev, item.key],
+    // Check if this item or any of its children matches the current path
+    const isDirectlyActive =
+      selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
+    const isChildActive =
+      hasChildren &&
+      item.children.some(
+        (child: any) =>
+          selectedKeys.includes(child.key) || isRouteMatch(String(child.key), pathname),
       );
-    } else {
-      const path = String(item.key);
-      if (pathname !== path) {
-        triggerRouteLoaderStart();
-        router.push(path);
-        setSelectedKeys([path]);
+    const isActive = isDirectlyActive || isChildActive || (hasChildren && isExpanded);
+
+    const handleToggle = () => {
+      if (hasChildren) {
+        setExpandedKeys((prev) =>
+          prev.includes(item.key)
+            ? prev.filter((k) => k !== item.key)
+            : [...prev, item.key],
+        );
+      } else {
+        const path = String(item.key);
+        if (pathname !== path) {
+          triggerRouteLoaderStart();
+          router.push(path);
+          setSelectedKeys([path]);
+        }
       }
     }
   };
 
-  return (
+    return (
     <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
       <div
         data-cy="nav-menu-item"
         onClick={handleToggle}
         className={`
           group flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200 rounded-xl
-          ${isActive ? 'text-[#3630f0] font-bold' : 'text-black font-medium'}
-          hover:bg-[#E1EFFF] hover:text-[#3630f0]
+          ${isActive
+              ? 'text-[#1e40af] font-bold'
+              : 'text-black font-medium'
+            }
+          ${isDirectlyActive ? 'bg-[#E1EFFF]' : ''}
+          hover:bg-[#E1EFFF]
           ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
         `}
       >
         <div
           data-cy="nav-menu-item-icon"
-          className={`text-[21px] transition-colors ${
-            isActive
-              ? 'text-[#3630f0]'
-              : 'text-black group-hover:text-[#3630f0]'
-          }`}
+          className={`text-[21px] transition-colors ${isActive
+            ? 'text-[#1e40af]'
+            : 'text-black'
+            }`}
         >
           {item.icon}
         </div>
@@ -148,12 +176,13 @@ const NavMenuItem: React.FC<{
 
       {hasChildren && !collapsed && isExpanded && (
         <div
-          className="flex flex-col mt-1 ml-9 space-y-1"
+          className="flex flex-col mt-1 ml-[33px] space-y-1"
           data-cy="nav-menu-item-children-container"
         >
           {item.children.map((child: any) => {
             const isChildSelected =
-              selectedKeys.includes(child.key) || pathname === child.key;
+              selectedKeys.includes(child.key) ||
+              isRouteMatch(String(child.key), pathname);
             return (
               <div
                 key={child.key}
@@ -168,10 +197,9 @@ const NavMenuItem: React.FC<{
                 }}
                 className={`
                   py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
-                  ${
-                    isChildSelected
-                      ? 'text-[#3630f0] font-bold text-[15.5px]'
-                      : 'text-black font-medium text-[14.5px] hover:text-[#3630f0] hover:bg-[#E1EFFF]'
+                  ${isChildSelected
+                    ? 'text-[#1e40af] font-normal text-[16px]'
+                    : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
                   }
                 `}
               >
@@ -181,6 +209,7 @@ const NavMenuItem: React.FC<{
           })}
         </div>
       )}
+
     </div>
   );
 };
@@ -194,6 +223,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const fullBleedContent = pathname.startsWith('/organization/chart');
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
@@ -269,7 +299,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   useEffect(() => {
     refetch();
-  }, [token]);
+  }, [token, refetch]);
 
   const hasEndedFiscalYear =
     !!activeFiscalYear?.isActive &&
@@ -345,9 +375,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return routes;
   };
 
-  const treeData: CustomMenuItem[] = [
+  const treeData: CustomMenuItem[] = React.useMemo(() => [
     {
-      icon: <MdDashboard style={{ fontSize: 20 }} />,
+      icon: <MdGridView style={{ fontSize: 20 }} />,
       title: 'Dashboard',
       key: '/dashboard',
       className: 'font-bold',
@@ -379,7 +409,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdGroups style={{ fontSize: 20 }} />,
+      icon: <MdPeople style={{ fontSize: 20 }} />,
       title: 'Employees',
       key: '/employees',
       className: 'font-bold',
@@ -404,7 +434,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdPersonAdd style={{ fontSize: 20 }} />,
+      icon: <MdPersonSearch style={{ fontSize: 20 }} />,
       title: 'Talent Acquisition',
       key: '/recruitment',
       className: 'font-bold',
@@ -462,7 +492,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdTrackChanges style={{ fontSize: 20 }} />,
+      icon: <MdAdjust style={{ fontSize: 20 }} />,
       title: 'OKR',
       key: '/okr-menu',
       className: 'font-bold',
@@ -509,7 +539,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdChatBubble style={{ fontSize: 20 }} />,
+      icon: <MdChat style={{ fontSize: 20 }} />,
       title: 'CFR',
       key: 'feedback-menu',
       className: 'font-bold',
@@ -571,7 +601,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdPayments style={{ fontSize: 20 }} />,
+      icon: <MdAccountBalanceWallet style={{ fontSize: 20 }} />,
       title: 'Payroll',
       key: '/payroll-menu',
       className: 'font-bold',
@@ -610,7 +640,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdAccessTimeFilled style={{ fontSize: 20 }} />,
+      icon: <MdOutlineAccessTime style={{ fontSize: 20 }} />,
       title: 'Time & Attendance',
       key: 'timesheet-menu',
       className: 'font-bold',
@@ -657,7 +687,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdGridView style={{ fontSize: 20 }} />,
+      icon: <MdWidgets style={{ fontSize: 20 }} />,
       title: 'Compensation & Benefit',
       key: 'compensation-menu',
       className: 'font-bold',
@@ -692,7 +722,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
     {
-      icon: <MdRedeem style={{ fontSize: 20 }} />,
+      icon: <MdCardGiftcard style={{ fontSize: 20 }} />,
       title: 'Incentives',
       key: 'incentive-menu',
       className: 'font-bold',
@@ -760,106 +790,97 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         },
       ],
     },
-  ];
+  ], [hasEndedFiscalYear]);
 
-  // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
-  const isRouteMatch = (routePattern: string, pathname: string) => {
-    // Match [id] to UUIDs (or any non-slash segment)
-    if (routePattern.includes('[id]')) {
-      // UUID regex: [0-9a-fA-F-]{36} (simple version)
-      const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
-      const regex = new RegExp('^' + regexPattern + '$');
-      return regex.test(pathname);
-    }
-    // Generic dynamic segment: [something] => [^/]+
-    if (routePattern.match(/\[.*?\]/g)) {
-      const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
-      const regex = new RegExp('^' + regexPattern + '$');
-      return regex.test(pathname);
-    }
-    return routePattern === pathname;
-  };
+  // Helper function moved to global scope
 
-  const checkPathnamePermissions = (pathname: string): boolean => {
-    // Get all routes and their permissions
-    const routesWithPermissions = getRoutesAndPermissions(treeData);
 
-    // Check if user is owner - owners have access to all routes
-    const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
-    if (isOwner) {
-      return true;
-    }
+  const checkPathnamePermissions = React.useCallback(
+    (pathname: string): boolean => {
+      // Get all routes and their permissions
+      const routesWithPermissions = getRoutesAndPermissions(treeData);
 
-    // First check if the pathname matches any defined route (supporting dynamic segments)
-    const matchingRoute = routesWithPermissions.find((route) => {
-      if (isRouteMatch(route.route, pathname)) {
+      // Check if user is owner - owners have access to all routes
+      const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
+      if (isOwner) {
         return true;
       }
-      // Check for parent-child relationship - allow any level of nesting
-      if (pathname.startsWith(route.route + '/')) {
-        return true;
-      }
-      return false;
-    });
 
-    // If no matching route found, check if it's a deeply nested route
-    if (!matchingRoute) {
-      // For deeply nested routes without explicit permissions,
-      // check if any parent route exists and has permissions
-      const pathParts = pathname.split('/').filter(Boolean);
+      // First check if the pathname matches any defined route (supporting dynamic segments)
+      const matchingRoute = routesWithPermissions.find((route) => {
+        if (isRouteMatch(route.route, pathname)) {
+          return true;
+        }
+        // Check for parent-child relationship - allow any level of nesting
+        if (pathname.startsWith(route.route + '/')) {
+          return true;
+        }
+        return false;
+      });
 
-      // Try to find a parent route that has permissions
-      for (let i = pathParts.length - 1; i > 0; i--) {
-        const parentPath = '/' + pathParts.slice(0, i).join('/');
-        const parentRoute = routesWithPermissions.find((route) =>
-          isRouteMatch(route.route, parentPath),
-        );
+      // If no matching route found, check if it's a deeply nested route
+      if (!matchingRoute) {
+        // For deeply nested routes without explicit permissions,
+        // check if any parent route exists and has permissions
+        const pathParts = pathname.split('/').filter(Boolean);
 
-        if (parentRoute) {
-          // Check if user has permissions for parent route
-          const userPermissions = userData?.userPermissions || [];
-          const hasParentPermissions = parentRoute.permissions.every(
-            (requiredPermission: any) => {
-              const found = userPermissions?.find(
-                (permission: any) =>
-                  permission.permission.slug === requiredPermission,
-              );
-              return found;
-            },
+        // Try to find a parent route that has permissions
+        for (let i = pathParts.length - 1; i > 0; i--) {
+          const parentPath = '/' + pathParts.slice(0, i).join('/');
+          const parentRoute = routesWithPermissions.find((route) =>
+            isRouteMatch(route.route, parentPath),
           );
 
-          if (hasParentPermissions) {
-            return true;
+          if (parentRoute) {
+            // Check if user has permissions for parent route
+            const userPermissions = userData?.userPermissions || [];
+            const hasParentPermissions = parentRoute.permissions.every(
+              (requiredPermission: any) => {
+                const found = userPermissions?.find(
+                  (permission: any) =>
+                    permission.permission.slug === requiredPermission,
+                );
+                return found;
+              },
+            );
+
+            if (hasParentPermissions) {
+              return true;
+            }
           }
         }
+
+        // If no parent route found or no permissions, deny access
+        return false;
       }
 
-      // If no parent route found or no permissions, deny access
-      return false;
-    }
+      // If route exists but has no permissions, allow access
+      if (
+        !matchingRoute.permissions ||
+        matchingRoute.permissions.length === 0
+      ) {
+        return true;
+      }
 
-    // If route exists but has no permissions, allow access
-    if (!matchingRoute.permissions || matchingRoute.permissions.length === 0) {
-      return true;
-    }
+      // Get user's permissions from the authentication store
 
-    // Get user's permissions from the authentication store
+      const userPermissions = userData?.userPermissions || [];
 
-    const userPermissions = userData?.userPermissions || [];
+      // Check if user has ALL required permissions for this route
 
-    // Check if user has ALL required permissions for this route
-
-    const hasAllPermissions = matchingRoute.permissions.every(
-      (requiredPermission: any) => {
-        const found = userPermissions?.find(
-          (permission: any) =>
-            permission.permission.slug === requiredPermission,
-        );
-        return found;
-      },
-    );
-    return hasAllPermissions;
-  };
+      const hasAllPermissions = matchingRoute.permissions.every(
+        (requiredPermission: any) => {
+          const found = userPermissions?.find(
+            (permission: any) =>
+              permission.permission.slug === requiredPermission,
+          );
+          return found;
+        },
+      );
+      return hasAllPermissions;
+    },
+    [treeData, userData],
+  );
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
     filter: { isActive: true },
   });
@@ -892,7 +913,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
     }
-  }, [departments, employeeData, router, isLoadingData, pathName, userId]);
+  }, [
+    departments,
+    employeeData,
+    router,
+    isLoadingData,
+    pathName,
+    userId,
+    setIsAddEmployeeJobInfoModalVisible,
+  ]);
 
   const handleOk = () => {
     router.push(`/employees/manage-employees/${userId}`);
@@ -918,36 +947,41 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     };
 
     checkPermissions();
-  }, [pathname, router]);
+  }, [
+    pathname,
+    router,
+    checkPathnamePermissions,
+    setIsCheckingPermissions,
+  ]);
 
-  const findParentMenuKey = (
-    pathname: string,
-    menuItems: CustomMenuItem[],
-  ): string | null => {
-    for (const item of menuItems) {
-      if (item.children) {
-        const matchesChild = item.children.some((child) => {
-          const childKey = String(child.key);
-          return (
-            pathname === childKey ||
-            pathname.startsWith(childKey + '/') ||
-            (childKey.includes('[id]') &&
-              pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
-          );
-        });
+  const findParentMenuKey = React.useCallback(
+    (pathname: string, menuItems: CustomMenuItem[]): string | null => {
+      for (const item of menuItems) {
+        if (item.children) {
+          const matchesChild = item.children.some((child) => {
+            const childKey = String(child.key);
+            return (
+              pathname === childKey ||
+              pathname.startsWith(childKey + '/') ||
+              (childKey.includes('[id]') &&
+                pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
+            );
+          });
 
-        if (matchesChild) {
-          return String(item.key);
-        }
+          if (matchesChild) {
+            return String(item.key);
+          }
 
-        const nestedParent = findParentMenuKey(pathname, item.children);
-        if (nestedParent) {
-          return String(item.key);
+          const nestedParent = findParentMenuKey(pathname, item.children);
+          if (nestedParent) {
+            return String(item.key);
+          }
         }
       }
-    }
-    return null;
-  };
+      return null;
+    },
+    [],
+  );
 
   useEffect(() => {
     saveExpandedKeysToStorage(expandedKeys);
@@ -967,7 +1001,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return prev;
       });
     }
-  }, [pathname]);
+  }, [pathname, findParentMenuKey, treeData]);
 
   useEffect(() => {
     setSelectedKeys([pathname]);
@@ -989,7 +1023,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     if (parentKey && expandedKeys.length === 0) {
       setExpandedKeys([parentKey]);
     }
-  }, []);
+  }, [expandedKeys.length, findParentMenuKey, pathname, treeData]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1201,6 +1235,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       <Sider
         theme="light"
         width={280}
+        className="scrollbar-hide"
         style={{
           overflow: 'visible',
           height: '100vh',
@@ -1209,13 +1244,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           top: 0,
           bottom: 0,
           zIndex: 1010,
-          backgroundColor: '#F0F7FF',
+          backgroundColor: '#F5fbff',
           borderRight: '1px solid #E5E7EB',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
-          display: 'flex',
-          flexDirection: 'column',
-          paddingBottom: '24px',
         }}
         trigger={null}
         collapsible
@@ -1229,16 +1261,30 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }}
         collapsedWidth={80}
       >
-        <div data-cy="nav-sider-logo-collapsed" className="my-2">
-          {collapsed && <SimpleLogo />}
-        </div>
-
         <div
           data-cy="nav-sider-logo-wrap"
-          className="flex items-center justify-between px-4 pt-6 pb-0"
+          className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
         >
-          <div data-cy="nav-sider-logo" className="flex items-center gap-2">
-            {!collapsed && <Logo type="selamnew" />}
+          <div data-cy="nav-sider-logo" className="relative h-10 w-full flex items-center">
+            {collapsed ? (
+              <div data-cy="nav-sider-logo-collapsed-container" className="w-full flex justify-center">
+                <Image
+                  src="/image/Logo.png"
+                  alt="Logo"
+                  width={32}
+                  height={32}
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
+            ) : (
+              <Image
+                src="/image/Logo.png"
+                alt="Logo"
+                width={150}
+                height={40}
+                style={{ objectFit: 'contain' }}
+              />
+            )}
           </div>
         </div>
 
@@ -1256,11 +1302,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         </button>
         <div
           data-cy="nav-sider-menu-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar"
+          className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+          style={{ minHeight: 0 }}
         >
           <div
             data-cy="nav-sider-menu-inner"
-            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-20 ${collapsed ? 'px-0' : 'pl-6 pr-3'}`}
+            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-6 pr-3'}`}
           >
             {!isMounted || isLoading ? (
               <div
@@ -1296,9 +1343,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
                       <div
                         data-cy="nav-sider-group-children"
-                        className={`space-y-1 transition-all duration-300 ${
-                          isExpanded ? 'opacity-100' : 'hidden opacity-0'
-                        }`}
+                        className={`space-y-1 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'hidden opacity-0'
+                          } ${collapsed ? '' : 'pl-2'}`}
                       >
                         {group.children?.map((item: any) => (
                           <NavMenuItem
@@ -1321,30 +1367,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               </div>
             )}
           </div>
+
+          <div
+            data-cy="nav-sider-admin-wrap"
+            className="w-full flex justify-center py-6 mt-10"
+          >
+            <Button
+              data-cy="nav-sider-admin-btn"
+              type="primary"
+              size="large"
+              icon={<MdHowToReg size={22} />}
+              className={`
+                flex items-center justify-center bg-[#1e40af] hover:bg-[#173691] border-none shadow-lg transition-all duration-300
+                ${collapsed
+                  ? 'w-[52px] h-[52px] rounded-xl'
+                  : 'w-[85%] h-12 rounded-xl text-[14px] font-semibold gap-2'
+                }
+              `}
+              onClick={() => router.push('/admin/dashboard')}
+            >
+              {!collapsed && 'Admin Console'}
+            </Button>
+          </div>
         </div>
 
-        <div
-          data-cy="nav-sider-admin-wrap"
-          className={`px-4 mt-auto ${collapsed ? 'flex justify-center' : ''}`}
-        >
-          <Button
-            data-cy="nav-sider-admin-btn"
-            type="primary"
-            size="large"
-            icon={<MdAdminPanelSettings size={22} />}
-            className={`
-            flex items-center justify-center bg-[#1D4ED8] hover:bg-[#1e40af] border-none shadow-lg transition-all duration-300
-            ${
-              collapsed
-                ? 'w-[52px] h-[52px] rounded-xl'
-                : 'w-full h-12 rounded-xl text-[14px] font-semibold gap-2'
-            }
-          `}
-            onClick={() => router.push('/admin/dashboard')}
-          >
-            {!collapsed && 'Admin Console'}
-          </Button>
-        </div>
+
       </Sider>
       <Layout
         style={{
@@ -1365,7 +1412,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               : collapsed
                 ? 'calc(100% - 80px)'
                 : 'calc(100% - 280px)',
-            zIndex: 1000,
+            zIndex: 40,
             top: 0,
             left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
             transition: 'left 0.3s ease, width 0.3s ease',
@@ -1407,7 +1454,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
-            paddingRight: isMobile ? 0 : 24,
+            paddingRight: isMobile ? 0 : fullBleedContent ? 0 : 24,
             paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
@@ -1427,8 +1474,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                marginRight: 24,
-                marginLeft: 24,
+                marginRight: fullBleedContent ? 0 : 24,
+                marginLeft: fullBleedContent ? 0 : 24,
                 background: '#ffffff',
               }}
             >
