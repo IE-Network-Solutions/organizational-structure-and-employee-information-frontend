@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
+import { useCanAccessRoute } from '@/utils/routePermissions';
 
 const toSlug = (v: string | number | null | undefined) =>
   String(v ?? 'na')
@@ -24,6 +25,7 @@ function getNotificationRoute(n: NotificationType): string | null {
 function NotificationBar() {
   const userId = useAuthenticationStore.getState().userId;
   const router = useRouter();
+  const canAccessRoute = useCanAccessRoute();
 
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
   const { data, isLoading } = useGetNotifications(userId ?? '');
@@ -38,9 +40,11 @@ function NotificationBar() {
   };
 
   const handleNotificationClick = (notification: NotificationType) => {
-    updateNotification(notification.id);
     const route = getNotificationRoute(notification);
-    if (route) router.push(route);
+    const path = route ? (route.startsWith('/') ? route : `/${route}`) : null;
+    if (path && !canAccessRoute(path)) return;
+    updateNotification(notification.id);
+    if (path) router.push(path);
   };
 
   const formatDateDifference = (updatedAt: string) => {
@@ -85,17 +89,29 @@ function NotificationBar() {
             ?.map((notification: NotificationType) => {
               const theme = getNotificationThemeClasses(notification);
               const slug = toSlug(notification.id);
+              const route = getNotificationRoute(notification);
+              const path = route
+                ? route.startsWith('/')
+                  ? route
+                  : `/${route}`
+                : null;
+              const hasAccess = !path || canAccessRoute(path);
               return (
                 <div
                   key={notification.id}
                   id={`notification-bar-item-${slug}`}
                   data-cy={`notification-bar-item-${slug}`}
-                  className={`flex justify-between gap-4 border-l-4 ${theme.border} ${theme.hover}`}
+                  className={`flex justify-between gap-4 border-l-4 ${theme.border} ${hasAccess ? theme.hover : ''}`}
                 >
                   <Menu.Item>
                     <div
                       data-cy={`components-navbar-notificationbar-tsx-notificationbar-div-78-${notification.id}`}
-                      className="flex items-center p-2 cursor-pointer"
+                      className={`flex items-center p-2 ${hasAccess ? 'cursor-pointer' : 'cursor-not-allowed opacity-80'}`}
+                      title={
+                        hasAccess
+                          ? undefined
+                          : "You don't have permission to view this page"
+                      }
                       onClick={() => handleNotificationClick(notification)}
                     >
                       <Avatar

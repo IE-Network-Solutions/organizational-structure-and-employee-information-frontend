@@ -19,8 +19,6 @@ import {
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
 import { Layout, Button, theme, Tree, Skeleton, Dropdown, message } from 'antd';
-
-const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { TbMessage2 } from 'react-icons/tb';
@@ -48,6 +46,8 @@ import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useCopilotStore } from '@/store/uistate/features/copilot';
 import CopilotModule from '@/components/copilot/CopilotModule';
 
+const { Header, Content, Sider } = Layout;
+
 interface CustomMenuItem {
   key: string;
   icon?: React.ReactNode;
@@ -71,9 +71,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const { userId } = useAuthenticationStore();
+  const { userId, userData } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
-  const { userData } = useAuthenticationStore();
   const okrMode = useOKRStore((state) => state.okrMode);
   const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
@@ -161,33 +160,21 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   // Separate array for routes that should be accessible but not shown in navigation
   const hiddenRoutes: { key: string; permissions: string[] }[] = [
-    {
-      key: '/dashboard',
-      permissions: [], // No permissions required
-    },
-    {
-      key: '/',
-      permissions: [], // No permissions required
-    },
-    {
-      key: '/employees/manage-employees/[id]',
-      permissions: [], // No permissions required
-    },
-    {
-      key: '/employee-information/[id]',
-      permissions: [], // Allow all users to access employee information
-    },
+    { key: '/dashboard', permissions: [] },
+    { key: '/', permissions: [] },
+    { key: '/employees/manage-employees/[id]', permissions: [] },
+    { key: '/employee-information/[id]', permissions: [] },
     {
       key: '/feedback/action-plan',
-      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+      permissions: ['view_feedback_conversation'],
     },
     {
       key: '/feedback/meeting',
-      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+      permissions: ['view_feedback_conversation'],
     },
     {
       key: '/feedback/categories',
-      permissions: ['view_feedback_conversation'], // Same permission as conversation page
+      permissions: ['view_feedback_conversation'],
     },
   ];
 
@@ -204,14 +191,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             permissions: item.permissions,
           });
         }
-
         if (item.children) {
           traverse(item.children);
         }
       });
     };
 
-    // First add hidden routes
     hiddenRoutes.forEach((route) => {
       if (route.key && route.permissions) {
         routes.push({
@@ -221,7 +206,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       }
     });
 
-    // Then add visible menu routes
     traverse(menuItems);
     return routes;
   };
@@ -950,14 +934,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
   const isRouteMatch = (routePattern: string, pathname: string) => {
-    // Match [id] to UUIDs (or any non-slash segment)
     if (routePattern.includes('[id]')) {
-      // UUID regex: [0-9a-fA-F-]{36} (simple version)
       const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
       const regex = new RegExp('^' + regexPattern + '$');
       return regex.test(pathname);
     }
-    // Generic dynamic segment: [something] => [^/]+
     if (routePattern.match(/\[.*?\]/g)) {
       const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
       const regex = new RegExp('^' + regexPattern + '$');
@@ -967,34 +948,26 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const checkPathnamePermissions = (pathname: string): boolean => {
-    // Get all routes and their permissions
     const routesWithPermissions = getRoutesAndPermissions(menuTreeData);
 
-    // Check if user is owner - owners have access to all routes
     const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
     if (isOwner) {
       return true;
     }
 
-    // First check if the pathname matches any defined route (supporting dynamic segments)
     const matchingRoute = routesWithPermissions.find((route) => {
       if (isRouteMatch(route.route, pathname)) {
         return true;
       }
-      // Check for parent-child relationship - allow any level of nesting
       if (pathname.startsWith(route.route + '/')) {
         return true;
       }
       return false;
     });
 
-    // If no matching route found, check if it's a deeply nested route
     if (!matchingRoute) {
-      // For deeply nested routes without explicit permissions,
-      // check if any parent route exists and has permissions
       const pathParts = pathname.split('/').filter(Boolean);
 
-      // Try to find a parent route that has permissions
       for (let i = pathParts.length - 1; i > 0; i--) {
         const parentPath = '/' + pathParts.slice(0, i).join('/');
         const parentRoute = routesWithPermissions.find((route) =>
@@ -1002,7 +975,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         );
 
         if (parentRoute) {
-          // Check if user has permissions for parent route
           const userPermissions = userData?.userPermissions || [];
           const hasParentPermissions = parentRoute.permissions.every(
             (requiredPermission: any) => {
@@ -1020,20 +992,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }
       }
 
-      // If no parent route found or no permissions, deny access
       return false;
     }
 
-    // If route exists but has no permissions, allow access
     if (!matchingRoute.permissions || matchingRoute.permissions.length === 0) {
       return true;
     }
 
-    // Get user's permissions from the authentication store
-
     const userPermissions = userData?.userPermissions || [];
-
-    // Check if user has ALL required permissions for this route
 
     const hasAllPermissions = matchingRoute.permissions.every(
       (requiredPermission: any) => {
@@ -1046,6 +1012,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     );
     return hasAllPermissions;
   };
+
   const { data: departments, isLoading: departmentsLoading } =
     useGetDepartments();
   const { data: employeeData, isLoading: employeeDataLoading } =
