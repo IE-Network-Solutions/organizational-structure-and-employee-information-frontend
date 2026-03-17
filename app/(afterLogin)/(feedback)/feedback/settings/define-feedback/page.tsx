@@ -9,6 +9,8 @@ import {
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
 import PerspectivesDetail from './_components/perspectivesDetail';
 import FeedbackTypeDetail from './_components/feedbackTypeDetail';
+import CustomDrawerLayout from '@/components/common/customDrawer';
+import CreateFeedback from './_components/createFeedback';
 
 const Page = () => {
   const {
@@ -18,8 +20,8 @@ const Page = () => {
     searchAppreciationQuery,
     searchReprimandQuery,
     pageSize,
+    setVariantType,
   } = ConversationStore();
-  const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
   const { data: perspectiveData } = useGetAllPerspectives();
   const { data: getAppreciationFeedbackTypesByVariant } =
     useFetchAllFeedbackTypesByVariant(
@@ -38,6 +40,7 @@ const Page = () => {
 
   const onChange = (key: string) => {
     setSettingActiveTab(key);
+    setVariantType(key as 'appreciation' | 'reprimand');
   };
 
   const items = [
@@ -94,7 +97,6 @@ const Page = () => {
       children: (
         <FeedbackTypeDetail
           feedbackTypeDetail={getAppreciationFeedbackTypesByVariant}
-          variant="appreciation"
         />
       ),
     },
@@ -151,7 +153,6 @@ const Page = () => {
       children: (
         <FeedbackTypeDetail
           feedbackTypeDetail={getReprimandFeedbackTypesByVariant}
-          variant="reprimand"
         />
       ),
     },
@@ -226,7 +227,8 @@ const Page = () => {
     [&_.ant-tabs-tab]:border-none
     [&_.ant-tabs-tab-active]:bg-white
   "
-      />{' '}
+      />
+      <CreateFeedback />
     </div>
   );
 };

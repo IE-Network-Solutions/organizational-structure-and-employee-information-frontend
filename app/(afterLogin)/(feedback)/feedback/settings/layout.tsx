@@ -7,7 +7,7 @@ import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname, useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
-
+import { ConversationStore } from '@/store/uistate/features/conversation';
 
 const { Title } = Typography;
 
@@ -29,7 +29,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const router = useRouter();
   const layoutSlug = toSlug(pathname || 'settings-layout');
   const { isMobile } = useIsMobile();
-
+  const { setOpen } = ConversationStore();
   // const showDrawer = () => {
   //   setIsEditMode(false);
   //   setEditingEmploymentType(null);
@@ -106,7 +106,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   //     },
   //     link: '/feedback/settings/define-feedback',
   //   },
-  
+
   //   {
   //     item: {
   //       key: 'recognition',
@@ -224,57 +224,75 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     //   </div>
     // </div>
     <div
-    className="min-h-screen"
-    id={`settings-layout-container-${layoutSlug}`}
-    data-cy={`settings-layout-container-${layoutSlug}`}
-  >
-    <div
-      className="w-full"
-      id={`settings-layout-content-${layoutSlug}`}
-      data-cy={`settings-layout-content-${layoutSlug}`}
+      className="min-h-screen"
+      id={`settings-layout-container-${layoutSlug}`}
+      data-cy={`settings-layout-container-${layoutSlug}`}
     >
       <div
-        className="pb-4 px-4 py-4"
-        data-cy={`settings-page-header-${layoutSlug}`}
+        className="w-full"
+        id={`settings-layout-content-${layoutSlug}`}
+        data-cy={`settings-layout-content-${layoutSlug}`}
       >
-        <Title level={4} className="!mb-1 !font-bold !text-gray-700">
-        Setting
-        </Title>
-        <Breadcrumb
-          className="text-sm text-gray-400"
-          items={[
-            {
-              title: <Link href="/feedback/conversation">CFR</Link>,
-            },
-            {
-              title: 'Settings',
-            },
-          ]}
-        />
-        <Divider className="!my-0 !mt-4 !border-gray-200" />
-      </div>
-
-      <div
-        id={`settings-layout-body-${layoutSlug}`}
-        data-cy={`settings-layout-body-${layoutSlug}`}
-      >
-        {/* <SidebarMenu menuItems={menuItems} data-cy="settings-sidebar-menu" /> */}
         <div
-          data-cy="settings-layout-tabs-container"
-          className="px-4 pr-6 mb-4"
+          className="pb-4 px-4 py-4"
+          data-cy={`settings-page-header-${layoutSlug}`}
         >
-          <Tabs
-            activeKey={getActiveKey()}
-            onChange={handleTabChange}
-            items={items}
-            tabBarStyle={{
-              marginBottom: 0,
-              marginLeft: 0,
-              paddingLeft: 0,
-              paddingRight: 0,
-            }}
-            tabBarExtraContent={
-              getActiveKey() === 'defineFeedback' ? (
+          <Title level={4} className="!mb-1 !font-bold !text-gray-700">
+            Setting
+          </Title>
+          <Breadcrumb
+            className="text-sm text-gray-400"
+            items={[
+              {
+                title: <Link href="/feedback/conversation">CFR</Link>,
+              },
+              {
+                title: 'Settings',
+              },
+            ]}
+          />
+          <Divider className="!my-0 !mt-4 !border-gray-200" />
+        </div>
+
+        <div
+          id={`settings-layout-body-${layoutSlug}`}
+          data-cy={`settings-layout-body-${layoutSlug}`}
+        >
+          {/* <SidebarMenu menuItems={menuItems} data-cy="settings-sidebar-menu" /> */}
+          <div
+            data-cy="settings-layout-tabs-container"
+            className="px-4 pr-6 mb-4"
+          >
+            <Tabs
+              activeKey={getActiveKey()}
+              onChange={handleTabChange}
+              items={items}
+              tabBarStyle={{
+                marginBottom: 0,
+                marginLeft: 0,
+                paddingLeft: 0,
+                paddingRight: 0,
+              }}
+              tabBarExtraContent={
+                getActiveKey() === 'defineFeedback' ? (
+                  <Button
+                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                    icon={
+                      <FaPlus
+                        data-cy="org-settings-branches-add-btn-icon"
+                        id="org-settings-branches-add-btn-icon"
+                      />
+                    }
+                    type="primary"
+                    onClick={() => {
+                      setOpen(true);
+                    }}
+                    data-cy="org-settings-branches-add-btn"
+                    id="org-settings-branches-add-btn"
+                  >
+                    {!isMobile && 'Add Feedback Type'}
+                  </Button>
+                ) : getActiveKey() === 'recognition' ? (
                   <Button
                     className={`h-10 ${isMobile ? 'ml-4' : ''}`}
                     icon={
@@ -288,67 +306,53 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                     data-cy="org-settings-branches-add-btn"
                     id="org-settings-branches-add-btn"
                   >
-                    {!isMobile && 'Add Type'}
-                  
+                    {!isMobile && 'Category'}
                   </Button>
-              ) : getActiveKey() === 'recognition' ? (<Button
-                className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                icon={
-                  <FaPlus
-                    data-cy="org-settings-branches-add-btn-icon"
-                    id="org-settings-branches-add-btn-icon"
-                  />
-                }
-                type="primary"
-                // onClick={showDrawer}
-                data-cy="org-settings-branches-add-btn"
-                id="org-settings-branches-add-btn"
-              >
-                {!isMobile && 'Category'}
-              </Button>
-              ) : getActiveKey() === 'targetAchievement' ? (<Button
-                className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                icon={
-                  <FaPlus
-                    data-cy="org-settings-branches-add-btn-icon"
-                    id="org-settings-branches-add-btn-icon"
-                  />
-                }
-                type="primary"
-                // onClick={showDrawer}
-                data-cy="org-settings-branches-add-btn"
-                id="org-settings-branches-add-btn"
-              >
-                {!isMobile && 'Employee Survey'}
-              </Button>
-              ) : getActiveKey() === 'meetingType' ? (<Button
-                className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                icon={
-                  <FaPlus
-                    data-cy="org-settings-branches-add-btn-icon"
-                    id="org-settings-branches-add-btn-icon"
-                  />
-                }
-                type="primary"
-                // onClick={showDrawer}
-                data-cy="org-settings-branches-add-btn"
-                id="org-settings-branches-add-btn"
-              >
-                {!isMobile && 'Meeting Type'}
-              </Button>
-              ) : null
-            }
-            className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
-            data-cy="org-settings-tabs"
-            id="org-settings-tabs"
-          />
-        </div>
-        <div className="sm:px-5 px-1" data-cy="settings-content-wrapper">
-          {children}
+                ) : getActiveKey() === 'targetAchievement' ? (
+                  <Button
+                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                    icon={
+                      <FaPlus
+                        data-cy="org-settings-branches-add-btn-icon"
+                        id="org-settings-branches-add-btn-icon"
+                      />
+                    }
+                    type="primary"
+                    // onClick={showDrawer}
+                    data-cy="org-settings-branches-add-btn"
+                    id="org-settings-branches-add-btn"
+                  >
+                    {!isMobile && 'Employee Survey'}
+                  </Button>
+                ) : getActiveKey() === 'meetingType' ? (
+                  <Button
+                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                    icon={
+                      <FaPlus
+                        data-cy="org-settings-branches-add-btn-icon"
+                        id="org-settings-branches-add-btn-icon"
+                      />
+                    }
+                    type="primary"
+                    // onClick={showDrawer}
+                    data-cy="org-settings-branches-add-btn"
+                    id="org-settings-branches-add-btn"
+                  >
+                    {!isMobile && 'Meeting Type'}
+                  </Button>
+                ) : null
+              }
+              className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+              data-cy="org-settings-tabs"
+              id="org-settings-tabs"
+            />
+          </div>
+          <div className="sm:px-5 px-1" data-cy="settings-content-wrapper">
+            {children}
+          </div>
         </div>
       </div>
     </div>
-  </div>
   );
 };
 

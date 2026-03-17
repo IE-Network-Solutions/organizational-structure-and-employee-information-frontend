@@ -39,7 +39,6 @@ const fetchAllFeedbackTypes = async () => {
   return result;
 };
 
-
 export const useFetchFeedbackTypeById = (id: string) => {
   return useQuery(
     ['feedbackType', id], // Include `id` in the query key for caching
@@ -63,11 +62,17 @@ export const useFetchAllFeedbackTypesByVariant = (
   variant: string,
   search?: string,
 ) => {
-  return useQuery(['feedbackTypes', page, limit, variant, search], () =>
-    fetchAllFeedbackTypesByVariant(variant, search ?? '', page, limit),
+  return useQuery(
+    ['feedbackTypesByVariant', page, limit, variant, search],
+    () => fetchAllFeedbackTypesByVariant(variant, search ?? '', page, limit),
   );
 };
-const fetchAllFeedbackTypesByVariant = async (variant: string, search: string, page: number, limit: number) => {
+const fetchAllFeedbackTypesByVariant = async (
+  variant: string,
+  search: string,
+  page: number,
+  limit: number,
+) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {

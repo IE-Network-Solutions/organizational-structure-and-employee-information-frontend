@@ -8,9 +8,10 @@ import {
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
 import CustomDrawerLayout from '@/components/common/customDrawer';
+import { IoMdClose } from 'react-icons/io';
 
 interface DataProps {
-  form: any;
+  form?: any;
   activeTabName?: string;
 }
 
@@ -76,15 +77,23 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
 
   const modalHeader = (
     <div
-      className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4"
+      className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4"
       data-cy="create-feedback-modal-header"
     >
-      <p data-cy="create-feedback-modal-header-title">
+      <div
+        className="flex items-center justify-center"
+        data-cy="create-feedback-modal-header-title"
+      >
         {selectedFeedback === null
-          ? `Add New ${activeTabName}`
+          ? `Add New ${variantType} Type`
           : `Edit New ${activeTabName}`}
-      </p>
-      <p data-cy="create-feedback-modal-header-subtitle">{variantType} type</p>
+      </div>
+      <div
+        data-cy="create-feedback-modal-header-close-button"
+        onClick={onCloseHandler}
+      >
+        <IoMdClose />
+      </div>
     </div>
   );
 
@@ -135,7 +144,7 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
           </div>
         </Form.Item>
       }
-      width="30%"
+      width="50%"
       data-cy="create-feedback-drawer"
     >
       <Form
