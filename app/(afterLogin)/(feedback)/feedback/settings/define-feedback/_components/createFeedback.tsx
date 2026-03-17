@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, InputNumber, Button, Select, Modal, Tabs } from 'antd';
+import { Form, Input, InputNumber, Button, Select, Modal } from 'antd';
 import { commonClass } from '@/types/enumTypes';
 import {
   useCreateFeedback,
@@ -9,6 +9,7 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import { useCreatePerspective } from '@/store/server/features/CFR/feedback/mutations';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const CreateFeedback: React.FC = () => {
   const [form] = Form.useForm();
@@ -19,6 +20,7 @@ const CreateFeedback: React.FC = () => {
     open,
     setOpen,
     setSelectedFeedback,
+    settingActiveTab,
     feedbackModalType,
     setFeedbackModalType,
   } = ConversationStore();
@@ -29,12 +31,32 @@ const CreateFeedback: React.FC = () => {
   const { data: perspectiveData, isLoading: getPerspectiveLoading } =
     useGetAllPerspectives();
   const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
+  const { data: departments, isLoading: getDepartmentsLoading } =
+    useGetDepartments();
+  const { mutate: addPerspective, isLoading: createPerspectiveLoading } =
+    useCreatePerspective();
 
   const onFinish = (values: {
     name: string;
     description: string;
-    weight: number;
+    weight?: number;
+    departmentId?: string;
   }) => {
+    if (settingActiveTab === 'perspective') {
+      const payload = {
+        name: values.name,
+        description: values.description,
+        departmentId: values.departmentId as string,
+      };
+      addPerspective(payload, {
+        onSuccess: () => {
+          form.resetFields();
+          setOpen(false);
+        },
+      });
+      return;
+    }
+
     const updatedValues = {
       ...values,
       variant: variantType,
@@ -82,9 +104,13 @@ const CreateFeedback: React.FC = () => {
       data-cy="create-feedback-modal-header"
     >
       <div className="" data-cy="create-feedback-modal-header-title">
-        {selectedFeedback === null
-          ? `Add New ${variantType} Type`
-          : `Edit ${variantType}`}
+        {settingActiveTab === 'perspective'
+          ? selectedFeedback === null
+            ? 'Add New Perspective'
+            : 'Edit Perspective'
+          : selectedFeedback === null
+            ? `Add New ${variantType} Type`
+            : `Edit ${variantType}`}
       </div>
     </div>
   );
@@ -115,7 +141,7 @@ const CreateFeedback: React.FC = () => {
           {selectedFeedback?.id ? (
             <Button
               type="primary"
-              loading={feedbackUpdateLoading}
+              loading={settingActiveTab === 'perspective' ? createPerspectiveLoading : feedbackUpdateLoading}
               onClick={() => form.submit()}
               data-cy="create-feedback-form-update-button"
               id="createFeedbackFormUpdateButton"
@@ -124,7 +150,7 @@ const CreateFeedback: React.FC = () => {
             </Button>
           ) : (
             <Button
-              loading={createFeedbackLoading}
+              loading={settingActiveTab === 'perspective' ? createPerspectiveLoading : createFeedbackLoading}
               type="primary"
               onClick={() => form.submit()}
               data-cy="create-feedback-form-submit-button"
@@ -149,27 +175,29 @@ const CreateFeedback: React.FC = () => {
       data-cy="create-feedback-modal"
     >
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-sm  font-medium">Select Type</span>
-          <div className="">
-            {getAllFeedbackTypes?.items?.map((item: any) => (
-              <button
-                type="button"
-                onClick={() => setFeedbackModalType(item.category)}
-                className={`px-5 py-1.5 text-sm rounded-lg transition-colors ${
-                  feedbackModalType === item.category
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-transparent'
-                }`}
-              >
-                {item.category}
-              </button>
-            ))}
+        {!settingActiveTab === 'perspective' && (
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-sm  font-medium">Select Type</span>
+            <div className="">
+              {getAllFeedbackTypes?.items?.map((item: any) => (
+                <button
+                  type="button"
+                  onClick={() => setFeedbackModalType(item.category)}
+                  className={`px-5 py-1.5 text-sm rounded-lg transition-colors ${
+                    feedbackModalType === item.category
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-transparent'
+                  }`}
+                >
+                  {item.category}
+                </button>
+              ))}
+            </div>
+            <p className="text-sm  mt-1 text-center max-w-xs">
+              Content about what {feedbackModalType} {variantType} is
+            </p>
           </div>
-          <p className="text-sm  mt-1 text-center max-w-xs">
-            Content about what {feedbackModalType} {variantType} is
-          </p>
-        </div>
+        )}
 
         <Form
           form={form}
@@ -179,9 +207,10 @@ const CreateFeedback: React.FC = () => {
           data-cy="create-feedback-form"
           id="createFeedbackForm"
         >
-          {/* Appreciation Type Name */}
-          {selectedFeedback?.id && <Form.Item name="id" />}
-          {/* Appreciation Type Name */}
+          {/* Hidden ID for editing feedback types (non-perspective) */}
+          {settingActiveTab !== 'perspective' && selectedFeedback?.id && <Form.Item name="id" />}
+
+          {/* Name / Objective */}
           <Form.Item
             className={commonClass}
             label={
@@ -189,14 +218,16 @@ const CreateFeedback: React.FC = () => {
                 className={commonClass}
                 data-cy="create-feedback-form-objective-label"
               >
-                Objective
+                {settingActiveTab === 'perspective' ? 'Name' : 'Objective'}
               </div>
             }
             name="name"
             rules={[
               {
                 required: true,
-                message: `Please enter the ${variantType} objective name!`,
+                message: settingActiveTab === 'perspective'
+                  ? 'Please enter the perspective name!'
+                  : `Please enter the ${variantType} objective name!`,
               },
               { max: 250, message: 'Name cannot exceed 250 characters.' },
             ]}
@@ -205,7 +236,9 @@ const CreateFeedback: React.FC = () => {
           >
             <Input
               className={commonClass}
-              placeholder="Enter type name"
+              placeholder={
+                settingActiveTab === 'perspective' ? 'Enter name' : 'Enter type name'
+              }
               data-cy="create-feedback-form-objective-input"
               id="createFeedbackFormObjectiveInput"
             />
@@ -240,68 +273,105 @@ const CreateFeedback: React.FC = () => {
               id="createFeedbackFormDescriptionTextarea"
             />
           </Form.Item>
-          <Form.Item
-            name="perspectiveId"
-            label="Select Perspective"
-            rules={[
-              {
-                required: feedbackModalType === 'KPI',
-                message: 'Please select a perspective!',
-              },
-            ]}
-            data-cy="create-feedback-form-perspective-field"
-            id="createFeedbackFormPerspectiveField"
-          >
-            <Select
-              loading={getPerspectiveLoading}
-              placeholder="Select a perspective"
-              data-cy="create-feedback-form-perspective-select"
-              id="createFeedbackFormPerspectiveSelect"
+
+          {settingActiveTab === 'perspective' ? (
+            // Perspective: Department selector
+            <Form.Item
+              name="departmentId"
+              label="Department"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a department!',
+                },
+              ]}
+              data-cy="create-feedback-form-department-field"
+              id="createFeedbackFormDepartmentField"
             >
-              {perspectiveData?.map((perspective: any) => (
-                <Select.Option
-                  key={perspective.id}
-                  value={perspective.id}
-                  data-cy={`create-feedback-form-perspective-option-${perspective.id}`}
-                  id={`createFeedbackFormPerspectiveOption${perspective.id}`}
-                >
-                  {perspective.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-          {/* Weight */}
-          <Form.Item
-            className={commonClass}
-            label={
-              <div
-                className={commonClass}
-                data-cy="create-feedback-form-weight-label"
+              <Select
+                loading={getDepartmentsLoading}
+                placeholder="Select"
+                data-cy="create-feedback-form-department-select"
+                id="createFeedbackFormDepartmentSelect"
               >
-                Weight
-              </div>
-            }
-            name="points"
-            rules={[
-              { required: true, message: 'Please enter a weight!' },
-              {
-                type: 'number',
-                min: 0,
-                max: 100,
-                message: 'Weight must be between 0 and 100.',
-              },
-            ]}
-            data-cy="create-feedback-form-weight-field"
-            id="createFeedbackFormWeightField"
-          >
-            <InputNumber
-              className={commonClass}
-              style={{ width: '100%' }}
-              placeholder="Enter weight (e.g., 50)"
-              data-cy="create-feedback-form-weight-input"
-              id="createFeedbackFormWeightInput"
-            />
-          </Form.Item>
+                {departments?.map((department: any) => (
+                  <Select.Option
+                    key={department.id}
+                    value={department.id}
+                    data-cy={`create-feedback-form-department-option-${department.id}`}
+                    id={`createFeedbackFormDepartmentOption${department.id}`}
+                  >
+                    {department.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          ) : (
+            <>
+              <Form.Item
+                name="perspectiveId"
+                label="Select Perspective"
+                rules={[
+                  {
+                    required: feedbackModalType === 'KPI',
+                    message: 'Please select a perspective!',
+                  },
+                ]}
+                data-cy="create-feedback-form-perspective-field"
+                id="createFeedbackFormPerspectiveField"
+              >
+                <Select
+                  loading={getPerspectiveLoading}
+                  placeholder="Select a perspective"
+                  data-cy="create-feedback-form-perspective-select"
+                  id="createFeedbackFormPerspectiveSelect"
+                >
+                  {perspectiveData?.map((perspective: any) => (
+                    <Select.Option
+                      key={perspective.id}
+                      value={perspective.id}
+                      data-cy={`create-feedback-form-perspective-option-${perspective.id}`}
+                      id={`createFeedbackFormPerspectiveOption${perspective.id}`}
+                    >
+                      {perspective.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              {/* Weight */}
+              <Form.Item
+                className={commonClass}
+                label={
+                  <div
+                    className={commonClass}
+                    data-cy="create-feedback-form-weight-label"
+                  >
+                    Weight
+                  </div>
+                }
+                name="points"
+                rules={[
+                  { required: true, message: 'Please enter a weight!' },
+                  {
+                    type: 'number',
+                    min: 0,
+                    max: 100,
+                    message: 'Weight must be between 0 and 100.',
+                  },
+                ]}
+                data-cy="create-feedback-form-weight-field"
+                id="createFeedbackFormWeightField"
+              >
+                <InputNumber
+                  className={commonClass}
+                  style={{ width: '100%' }}
+                  placeholder="Enter weight (e.g., 50)"
+                  data-cy="create-feedback-form-weight-input"
+                  id="createFeedbackFormWeightInput"
+                />
+              </Form.Item>
+            </>
+          )}
         </Form>
       </div>
     </Modal>
