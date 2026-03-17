@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, InputNumber, Button, Select } from 'antd';
+import { Form, Input, InputNumber, Button, Select, Modal, Tabs } from 'antd';
 import { commonClass } from '@/types/enumTypes';
 import {
   useCreateFeedback,
@@ -7,22 +7,20 @@ import {
 } from '@/store/server/features/feedback/feedback/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import { IoMdClose } from 'react-icons/io';
+import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
+import { useCreatePerspective } from '@/store/server/features/CFR/feedback/mutations';
 
-interface DataProps {
-  form?: any;
-  activeTabName?: string;
-}
+const CreateFeedback: React.FC = () => {
+  const [form] = Form.useForm();
 
-const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
   const {
     selectedFeedback,
     variantType,
-    activeTab,
     open,
     setOpen,
     setSelectedFeedback,
+    feedbackModalType,
+    setFeedbackModalType,
   } = ConversationStore();
   const { mutate: createFeedback, isLoading: createFeedbackLoading } =
     useCreateFeedback();
@@ -30,6 +28,7 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
     useUpdateFeedback();
   const { data: perspectiveData, isLoading: getPerspectiveLoading } =
     useGetAllPerspectives();
+  const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
 
   const onFinish = (values: {
     name: string;
@@ -39,7 +38,9 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
     const updatedValues = {
       ...values,
       variant: variantType,
-      feedbackTypeId: activeTab,
+      feedbackTypeId: getAllFeedbackTypes?.items?.find(
+        (item: any) => item.category === feedbackModalType,
+      )?.id,
     };
     if (selectedFeedback?.id) {
       updateFeedback(updatedValues, {
@@ -77,209 +78,233 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
 
   const modalHeader = (
     <div
-      className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4"
+      className="flex items-center justify-start text-xl font-extrabold text-gray-800 p-4"
       data-cy="create-feedback-modal-header"
     >
-      <div
-        className="flex items-center justify-center"
-        data-cy="create-feedback-modal-header-title"
-      >
+      <div className="" data-cy="create-feedback-modal-header-title">
         {selectedFeedback === null
           ? `Add New ${variantType} Type`
-          : `Edit New ${activeTabName}`}
-      </div>
-      <div
-        data-cy="create-feedback-modal-header-close-button"
-        onClick={onCloseHandler}
-      >
-        <IoMdClose />
+          : `Edit ${variantType}`}
       </div>
     </div>
   );
+  // const handleCancel = () => {
+  //   form.resetFields();
+  //   setEditingItem(null);
+  //   setAddPerspectiveModal(false);
+  // };
 
   return (
-    <CustomDrawerLayout
-      open={open || selectedFeedback?.id}
-      onClose={onCloseHandler}
-      modalHeader={modalHeader}
+    <Modal
+      open={Boolean(open || selectedFeedback?.id)}
+      onCancel={onCloseHandler}
       footer={
-        <Form.Item
-          data-cy="create-feedback-form-footer"
-          id="createFeedbackFormFooter"
+        <div
+          className="w-full flex justify-center space-x-5"
+          data-cy="create-feedback-form-actions"
+          id="createFeedbackFormActions"
         >
-          <div
-            className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5"
-            data-cy="create-feedback-form-actions"
-            id="createFeedbackFormActions"
+          <Button
+            onClick={onCloseHandler}
+            data-cy="create-feedback-form-cancel-button"
+            id="createFeedbackFormCancelButton"
           >
+            Cancel
+          </Button>
+
+          {selectedFeedback?.id ? (
             <Button
-              onClick={() => setOpen(false)}
-              data-cy="create-feedback-form-cancel-button"
-              id="createFeedbackFormCancelButton"
+              type="primary"
+              loading={feedbackUpdateLoading}
+              onClick={() => form.submit()}
+              data-cy="create-feedback-form-update-button"
+              id="createFeedbackFormUpdateButton"
             >
-              Cancel
+              Update
             </Button>
-
-            {selectedFeedback?.id ? (
-              <Button
-                type="primary"
-                loading={feedbackUpdateLoading}
-                onClick={() => form.submit()}
-                data-cy="create-feedback-form-update-button"
-                id="createFeedbackFormUpdateButton"
-              >
-                Update
-              </Button>
-            ) : (
-              <Button
-                loading={createFeedbackLoading}
-                type="primary"
-                onClick={() => form.submit()}
-                data-cy="create-feedback-form-submit-button"
-                id="createFeedbackFormSubmitButton"
-              >
-                Submit
-              </Button>
-            )}
-          </div>
-        </Form.Item>
+          ) : (
+            <Button
+              loading={createFeedbackLoading}
+              type="primary"
+              onClick={() => form.submit()}
+              data-cy="create-feedback-form-submit-button"
+              id="createFeedbackFormSubmitButton"
+            >
+              Submit
+            </Button>
+          )}
+        </div>
       }
-      width="50%"
-      data-cy="create-feedback-drawer"
+      title={modalHeader}
+      centered
+      width={523}
+      style={{ height: 552 }}
+      styles={{
+        body: {
+          maxHeight: 552,
+          overflowY: 'auto',
+        },
+      }}
+      maskClosable={false}
+      data-cy="create-feedback-modal"
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{ points: 0 }}
-        data-cy="create-feedback-form"
-        id="createFeedbackForm"
-      >
-        {/* Appreciation Type Name */}
-        {selectedFeedback?.id && <Form.Item name="id" />}
-        {/* Appreciation Type Name */}
-        <Form.Item
-          className={commonClass}
-          label={
-            <div
-              className={commonClass}
-              data-cy="create-feedback-form-objective-label"
-            >
-              Objective
-            </div>
-          }
-          name="name"
-          rules={[
-            {
-              required: true,
-              message: `Please enter the ${variantType} objective name!`,
-            },
-            { max: 250, message: 'Name cannot exceed 250 characters.' },
-          ]}
-          data-cy="create-feedback-form-objective-field"
-          id="createFeedbackFormObjectiveField"
-        >
-          <Input
-            className={commonClass}
-            placeholder="Enter type name"
-            data-cy="create-feedback-form-objective-input"
-            id="createFeedbackFormObjectiveInput"
-          />
-        </Form.Item>
-
-        {/* Description */}
-        <Form.Item
-          label={
-            <div
-              className={commonClass}
-              data-cy="create-feedback-form-description-label"
-            >
-              Description
-            </div>
-          }
-          name="description"
-          rules={[
-            { required: true, message: 'Please enter a description!' },
-            {
-              max: 250,
-              message: 'Description cannot exceed 250 characters.',
-            },
-          ]}
-          data-cy="create-feedback-form-description-field"
-          id="createFeedbackFormDescriptionField"
-        >
-          <Input.TextArea
-            className={commonClass}
-            rows={4}
-            placeholder="Enter description"
-            data-cy="create-feedback-form-description-textarea"
-            id="createFeedbackFormDescriptionTextarea"
-          />
-        </Form.Item>
-        <Form.Item
-          name="perspectiveId"
-          label="Select Perspective"
-          rules={[
-            {
-              required: activeTabName === 'KPI',
-              message: 'Please select a perspective!',
-            },
-          ]}
-          data-cy="create-feedback-form-perspective-field"
-          id="createFeedbackFormPerspectiveField"
-        >
-          <Select
-            loading={getPerspectiveLoading}
-            placeholder="Select a perspective"
-            data-cy="create-feedback-form-perspective-select"
-            id="createFeedbackFormPerspectiveSelect"
-          >
-            {perspectiveData?.map((perspective: any) => (
-              <Select.Option
-                key={perspective.id}
-                value={perspective.id}
-                data-cy={`create-feedback-form-perspective-option-${perspective.id}`}
-                id={`createFeedbackFormPerspectiveOption${perspective.id}`}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-sm  font-medium">Select Type</span>
+          <div className="">
+            {getAllFeedbackTypes?.items?.map((item: any) => (
+              <button
+                type="button"
+                onClick={() => setFeedbackModalType(item.category)}
+                className={`px-5 py-1.5 text-sm rounded-lg transition-colors ${
+                  feedbackModalType === item.category
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-transparent'
+                }`}
               >
-                {perspective.name}
-              </Select.Option>
+                {item.category}
+              </button>
             ))}
-          </Select>
-        </Form.Item>
-        {/* Weight */}
-        <Form.Item
-          className={commonClass}
-          label={
-            <div
-              className={commonClass}
-              data-cy="create-feedback-form-weight-label"
-            >
-              Weight
-            </div>
-          }
-          name="points"
-          rules={[
-            { required: true, message: 'Please enter a weight!' },
-            {
-              type: 'number',
-              min: 0,
-              max: 100,
-              message: 'Weight must be between 0 and 100.',
-            },
-          ]}
-          data-cy="create-feedback-form-weight-field"
-          id="createFeedbackFormWeightField"
+          </div>
+          <p className="text-sm  mt-1 text-center max-w-xs">
+            Content about what {feedbackModalType} {variantType} is
+          </p>
+        </div>
+
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={{ points: 0 }}
+          data-cy="create-feedback-form"
+          id="createFeedbackForm"
         >
-          <InputNumber
+          {/* Appreciation Type Name */}
+          {selectedFeedback?.id && <Form.Item name="id" />}
+          {/* Appreciation Type Name */}
+          <Form.Item
             className={commonClass}
-            style={{ width: '100%' }}
-            placeholder="Enter weight (e.g., 50)"
-            data-cy="create-feedback-form-weight-input"
-            id="createFeedbackFormWeightInput"
-          />
-        </Form.Item>
-      </Form>
-    </CustomDrawerLayout>
+            label={
+              <div
+                className={commonClass}
+                data-cy="create-feedback-form-objective-label"
+              >
+                Objective
+              </div>
+            }
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: `Please enter the ${variantType} objective name!`,
+              },
+              { max: 250, message: 'Name cannot exceed 250 characters.' },
+            ]}
+            data-cy="create-feedback-form-objective-field"
+            id="createFeedbackFormObjectiveField"
+          >
+            <Input
+              className={commonClass}
+              placeholder="Enter type name"
+              data-cy="create-feedback-form-objective-input"
+              id="createFeedbackFormObjectiveInput"
+            />
+          </Form.Item>
+
+          {/* Description */}
+          <Form.Item
+            label={
+              <div
+                className={commonClass}
+                data-cy="create-feedback-form-description-label"
+              >
+                Description
+              </div>
+            }
+            name="description"
+            rules={[
+              { required: true, message: 'Please enter a description!' },
+              {
+                max: 250,
+                message: 'Description cannot exceed 250 characters.',
+              },
+            ]}
+            data-cy="create-feedback-form-description-field"
+            id="createFeedbackFormDescriptionField"
+          >
+            <Input.TextArea
+              className={commonClass}
+              rows={4}
+              placeholder="Enter description"
+              data-cy="create-feedback-form-description-textarea"
+              id="createFeedbackFormDescriptionTextarea"
+            />
+          </Form.Item>
+          <Form.Item
+            name="perspectiveId"
+            label="Select Perspective"
+            rules={[
+              {
+                required: feedbackModalType === 'KPI',
+                message: 'Please select a perspective!',
+              },
+            ]}
+            data-cy="create-feedback-form-perspective-field"
+            id="createFeedbackFormPerspectiveField"
+          >
+            <Select
+              loading={getPerspectiveLoading}
+              placeholder="Select a perspective"
+              data-cy="create-feedback-form-perspective-select"
+              id="createFeedbackFormPerspectiveSelect"
+            >
+              {perspectiveData?.map((perspective: any) => (
+                <Select.Option
+                  key={perspective.id}
+                  value={perspective.id}
+                  data-cy={`create-feedback-form-perspective-option-${perspective.id}`}
+                  id={`createFeedbackFormPerspectiveOption${perspective.id}`}
+                >
+                  {perspective.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          {/* Weight */}
+          <Form.Item
+            className={commonClass}
+            label={
+              <div
+                className={commonClass}
+                data-cy="create-feedback-form-weight-label"
+              >
+                Weight
+              </div>
+            }
+            name="points"
+            rules={[
+              { required: true, message: 'Please enter a weight!' },
+              {
+                type: 'number',
+                min: 0,
+                max: 100,
+                message: 'Weight must be between 0 and 100.',
+              },
+            ]}
+            data-cy="create-feedback-form-weight-field"
+            id="createFeedbackFormWeightField"
+          >
+            <InputNumber
+              className={commonClass}
+              style={{ width: '100%' }}
+              placeholder="Enter weight (e.g., 50)"
+              data-cy="create-feedback-form-weight-input"
+              id="createFeedbackFormWeightInput"
+            />
+          </Form.Item>
+        </Form>
+      </div>
+    </Modal>
   );
 };
 

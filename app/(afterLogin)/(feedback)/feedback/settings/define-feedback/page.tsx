@@ -21,6 +21,7 @@ const Page = () => {
     searchReprimandQuery,
     pageSize,
     setVariantType,
+    variantType,
   } = ConversationStore();
   const { data: perspectiveData } = useGetAllPerspectives();
   const { data: getAppreciationFeedbackTypesByVariant } =

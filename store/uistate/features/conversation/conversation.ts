@@ -114,6 +114,9 @@ export interface CategoriesUseState {
 
   selectedRowKeys: React.Key[];
   setSelectedRowKeys: (keys: React.Key[]) => void;
+
+  feedbackModalType: 'Engagement' | 'KPI';
+  setFeedbackModalType: (type: 'Engagement' | 'KPI') => void;
 }
 const initialSearchField: SearchField[] = [
   {
@@ -241,4 +244,8 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   selectedRowKeys: [],
   setSelectedRowKeys: (keys) => set({ selectedRowKeys: keys }),
+
+  feedbackModalType: 'Engagement',
+  setFeedbackModalType: (feedbackModalType: 'Engagement' | 'KPI') =>
+    set({ feedbackModalType }),
 }));
