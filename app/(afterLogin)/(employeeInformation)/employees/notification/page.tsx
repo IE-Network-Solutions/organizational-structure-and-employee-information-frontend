@@ -90,14 +90,17 @@ const Notifications = () => {
           data-cy={`notification-breadcrumb-${pageSlug}`}
         />
       </div>
-      <div id={`notification-latest-divider-${pageSlug}`} data-cy={`notification-latest-divider-${pageSlug}`}>
-      <Divider orientation="left" orientationMargin="20">
-        <CustomBreadcrumb
-          subtitle=""
-          title="Latest Notifications"
-          data-cy={`notification-latest-breadcrumb-${pageSlug}`}
-        />
-      </Divider>
+      <div
+        id={`notification-latest-divider-${pageSlug}`}
+        data-cy={`notification-latest-divider-${pageSlug}`}
+      >
+        <Divider orientation="left" orientationMargin="20">
+          <CustomBreadcrumb
+            subtitle=""
+            title="Latest Notifications"
+            data-cy={`notification-latest-breadcrumb-${pageSlug}`}
+          />
+        </Divider>
       </div>
       {isLoading ? (
         <Spin
@@ -202,14 +205,17 @@ const Notifications = () => {
       ) : (
         <EmptyImage data-cy={`notification-unread-empty-${pageSlug}`} />
       )}
-      <div id={`notification-previous-divider-${pageSlug}`} data-cy={`notification-previous-divider-${pageSlug}`}>
-      <Divider orientation="left" orientationMargin="20">
-        <CustomBreadcrumb
-          subtitle=""
-          title="Previous Notifications"
-          data-cy={`notification-previous-breadcrumb-${pageSlug}`}
-        />
-      </Divider>
+      <div
+        id={`notification-previous-divider-${pageSlug}`}
+        data-cy={`notification-previous-divider-${pageSlug}`}
+      >
+        <Divider orientation="left" orientationMargin="20">
+          <CustomBreadcrumb
+            subtitle=""
+            title="Previous Notifications"
+            data-cy={`notification-previous-breadcrumb-${pageSlug}`}
+          />
+        </Divider>
       </div>
       {isLoading ? (
         <Spin

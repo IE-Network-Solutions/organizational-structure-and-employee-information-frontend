@@ -337,13 +337,22 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                 {
                   key: 'table',
                   label: (
-                    <span className="text-sm text-gray-600" data-cy="copilot-summary-show-table">
+                    <span
+                      className="text-sm text-gray-600"
+                      data-cy="copilot-summary-show-table"
+                    >
                       Show table ({tableData.rows.length} rows)
                     </span>
                   ),
                   children: (
-                    <div className="relative z-0">
-                      <div className="flex items-center justify-end gap-2 mb-2">
+                    <div
+                      className="relative z-0"
+                      data-cy="copilot-summary-table-content"
+                    >
+                      <div
+                        className="flex items-center justify-end gap-2 mb-2"
+                        data-cy="copilot-summary-table-actions"
+                      >
                         <Button
                           type="primary"
                           size="small"
@@ -356,7 +365,9 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                           type="link"
                           size="small"
                           icon={<ExpandOutlined />}
-                          onClick={() => setFullScreenTableMessageId(message.id)}
+                          onClick={() =>
+                            setFullScreenTableMessageId(message.id)
+                          }
                           data-cy="copilot-table-maximize"
                         >
                           Maximize
@@ -378,16 +389,33 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
           tableData.rows.length > 0 && (
             <div className="mt-3 mb-3" data-cy="copilot-message-list-container">
               {tableData.title && (
-                <Text strong className="text-base block mb-2" style={{ color: '#262626' }}>
+                <Text
+                  strong
+                  className="text-base block mb-2"
+                  style={{ color: '#262626' }}
+                >
                   {tableData.title}
                 </Text>
               )}
-              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+              <ul
+                className="list-disc pl-5 space-y-1 text-sm text-gray-700"
+                data-cy="copilot-message-list"
+              >
                 {tableData.rows.map((row, idx) => {
                   const userObj = row.user ?? row.userId;
                   let label: string;
-                  if (userObj && typeof userObj === 'object' && 'firstName' in userObj) {
-                    label = [userObj.firstName, userObj.middleName, userObj.lastName].filter(Boolean).join(' ');
+                  if (
+                    userObj &&
+                    typeof userObj === 'object' &&
+                    'firstName' in userObj
+                  ) {
+                    label = [
+                      userObj.firstName,
+                      userObj.middleName,
+                      userObj.lastName,
+                    ]
+                      .filter(Boolean)
+                      .join(' ');
                   } else {
                     // Prefer explicit person-name fields in flattened rows.
                     const flatName = [
@@ -395,16 +423,26 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                       row.middleName as string | undefined,
                       row.lastName as string | undefined,
                     ]
-                      .filter((v) => typeof v === 'string' && v.trim().length > 0)
+                      .filter(
+                        (v) => typeof v === 'string' && v.trim().length > 0,
+                      )
                       .join(' ');
                     if (flatName) {
                       label = flatName;
                     } else {
                       const firstDataCol = tableData.columns.find(
-                        (c) => !['order', '#'].includes((c.dataIndex || c.key || '').toLowerCase())
+                        (c) =>
+                          !['order', '#'].includes(
+                            (c.dataIndex || c.key || '').toLowerCase(),
+                          ),
                       );
-                      const val = firstDataCol ? row[firstDataCol.dataIndex ?? firstDataCol.key] : row.order;
-                      label = typeof val === 'object' && val !== null ? String((val as { name?: string }).name ?? '—') : String(val ?? '—');
+                      const val = firstDataCol
+                        ? row[firstDataCol.dataIndex ?? firstDataCol.key]
+                        : row.order;
+                      label =
+                        typeof val === 'object' && val !== null
+                          ? String((val as { name?: string }).name ?? '—')
+                          : String(val ?? '—');
                     }
                   }
                   return (
@@ -414,7 +452,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                   );
                 })}
               </ul>
-              <div className="mt-2">
+              <div className="mt-2" data-cy="copilot-message-list-actions">
                 <Button
                   type="link"
                   size="small"
@@ -440,7 +478,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               className="mt-4 mb-3 relative z-0"
               data-cy="copilot-message-table-container"
             >
-              <div className="flex items-center justify-between mb-3 gap-3">
+              <div
+                className="flex items-center justify-between mb-3 gap-3"
+                data-cy="copilot-message-table-header"
+              >
                 {tableData.title && (
                   <Text
                     strong
@@ -451,7 +492,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                     {tableData.title}
                   </Text>
                 )}
-                <div className="flex items-center gap-3 ml-auto">
+                <div
+                  className="flex items-center gap-3 ml-auto"
+                  data-cy="copilot-message-table-actions"
+                >
                   <Button
                     type="primary"
                     size="small"

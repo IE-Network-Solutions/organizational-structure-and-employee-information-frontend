@@ -233,7 +233,9 @@ export function normalizeCopilotResponse(
   // When user asked for summary, always surface the answer as main text even if table exists
   const displayText =
     responseType === 'summary'
-      ? (hasMeaningfulAnswer ? answer : COPILOT_ERROR_MESSAGES.NO_DATA)
+      ? hasMeaningfulAnswer
+        ? answer
+        : COPILOT_ERROR_MESSAGES.NO_DATA
       : tableData
         ? ''
         : hasMeaningfulAnswer

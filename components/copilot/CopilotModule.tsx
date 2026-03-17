@@ -618,7 +618,9 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
         const responseType = normalized.responseType;
         const displayText =
           responseType === 'summary'
-            ? (normalized.answerForMetadata || normalized.displayText || COPILOT_ERROR_MESSAGES.NO_DATA)
+            ? normalized.answerForMetadata ||
+              normalized.displayText ||
+              COPILOT_ERROR_MESSAGES.NO_DATA
             : tableData
               ? undefined
               : normalized.displayText || COPILOT_ERROR_MESSAGES.NO_DATA;
@@ -627,11 +629,12 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
           text: displayText,
           sender: 'copilot',
           timestamp: new Date(),
-          metadata: tableData && responseType !== 'summary'
-            ? undefined
-            : normalized.answerForMetadata
-              ? addMetadata(normalized.answerForMetadata)
-              : undefined,
+          metadata:
+            tableData && responseType !== 'summary'
+              ? undefined
+              : normalized.answerForMetadata
+                ? addMetadata(normalized.answerForMetadata)
+                : undefined,
           tableData: tableData ?? undefined,
           responseType,
         };
