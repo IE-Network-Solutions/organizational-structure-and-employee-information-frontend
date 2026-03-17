@@ -26,8 +26,7 @@ type OrgNode = Node<OrgNodeData, 'orgNode'>;
 export function OrgChartNode(props: NodeProps<OrgNode>) {
   const { data } = props;
   const orgChartActions = useOrgChartActions();
-  const { getNodes, fitView } = useReactFlow();
-  const storeApi = useStoreApi();
+  const { fitView } = useReactFlow();
   const setNodes = useDepartmentStore((s) => s.setNodes);
   const setEdges = useDepartmentStore((s) => s.setEdges);
   const setFocusViewRootId = useDepartmentStore((s) => s.setFocusViewRootId);
@@ -109,81 +108,21 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
   const handleFocusView = useCallback(() => {
     if (!data?.id) return;
     const focusedNodeId = data.id;
-    const state = useDepartmentStore.getState();
-    const fullNodes = state.fullNodes as {
-      id: string;
-      position?: { x: number; y: number };
-      [key: string]: unknown;
-    }[];
-    const fullEdges = state.fullEdges as {
-      source: string;
-      target: string;
-      [key: string]: unknown;
-    }[];
-    if (fullNodes.length === 0 || fullEdges.length === 0) return;
-
-    const subtreeIds = getSubtreeNodeIds(
-      fullEdges.map((e) => ({ source: e.source, target: e.target })),
-      focusedNodeId,
-    );
-    const subtreeNodes = fullNodes.filter((n) => subtreeIds.has(n.id));
-    const subtreeEdges = fullEdges.filter(
-      (e) => subtreeIds.has(e.source) && subtreeIds.has(e.target),
-    );
-    if (subtreeNodes.length === 0) return;
-
     if (isCollapsed) {
       toggleCollapse(data.id);
     }
-    // Show only the focused department and its children as the main org structure
+    // Show only the focused department and its children as the main org structure.
+    // The actual subtree layout is rebuilt centrally in OrgFlowContent based on focusViewRootId.
     setFocusViewRootId(focusedNodeId);
-    setNodes(subtreeNodes);
-    setEdges(subtreeEdges);
 
-    // After React has applied the new nodes, zoom in for a better view
+    // After React has applied the focused layout, zoom in for a better view.
     const runFitView = () => {
       fitView({
-        padding: 0.2,
-        maxZoom: 1.4,
+        padding: 0.12,
+        maxZoom: 0.8,
         minZoom: 0.35,
-        duration: 400,
+        duration: 350,
       });
-      // Position at top and center
-      const TOP_PADDING_PX = 56;
-      setTimeout(() => {
-        const flowState = storeApi.getState();
-        const { width, height, transform } = flowState;
-        if (
-          width === 0 ||
-          height === 0 ||
-          !transform ||
-          !Array.isArray(transform)
-        )
-          return;
-        const [, , zoom] = transform;
-
-        let minX = Infinity;
-        let minY = Infinity;
-        let maxX = -Infinity;
-        let maxY = -Infinity;
-        subtreeNodes.forEach((n) => {
-          const pos = n.position ?? { x: 0, y: 0 };
-          minX = Math.min(minX, pos.x);
-          minY = Math.min(minY, pos.y);
-          maxX = Math.max(maxX, pos.x + NODE_WIDTH);
-          maxY = Math.max(maxY, pos.y + NODE_HEIGHT);
-        });
-        if (!Number.isFinite(minX)) return;
-
-        const boundsCenterX = (minX + maxX) / 2;
-        const boundsTopY = minY;
-        const newX = width / 2 - boundsCenterX * zoom;
-        const newY = TOP_PADDING_PX - boundsTopY * zoom;
-
-        storeApi.setState({
-          transform: [newX, newY, zoom],
-        });
-      }, 450);
     };
 
     requestAnimationFrame(() => {
@@ -191,16 +130,7 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
         runFitView();
       });
     });
-  }, [
-    data?.id,
-    isCollapsed,
-    toggleCollapse,
-    fitView,
-    storeApi,
-    setNodes,
-    setEdges,
-    setFocusViewRootId,
-  ]);
+  }, [data?.id, isCollapsed, toggleCollapse, fitView, setFocusViewRootId]);
 
   if (!data) return null;
   const {
