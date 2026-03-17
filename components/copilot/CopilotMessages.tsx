@@ -389,11 +389,23 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                   if (userObj && typeof userObj === 'object' && 'firstName' in userObj) {
                     label = [userObj.firstName, userObj.middleName, userObj.lastName].filter(Boolean).join(' ');
                   } else {
-                    const firstDataCol = tableData.columns.find(
-                      (c) => !['order', '#'].includes((c.dataIndex || c.key || '').toLowerCase())
-                    );
-                    const val = firstDataCol ? row[firstDataCol.dataIndex ?? firstDataCol.key] : row.order;
-                    label = typeof val === 'object' && val !== null ? String((val as { name?: string }).name ?? '—') : String(val ?? '—');
+                    // Prefer explicit person-name fields in flattened rows.
+                    const flatName = [
+                      row.firstName as string | undefined,
+                      row.middleName as string | undefined,
+                      row.lastName as string | undefined,
+                    ]
+                      .filter((v) => typeof v === 'string' && v.trim().length > 0)
+                      .join(' ');
+                    if (flatName) {
+                      label = flatName;
+                    } else {
+                      const firstDataCol = tableData.columns.find(
+                        (c) => !['order', '#'].includes((c.dataIndex || c.key || '').toLowerCase())
+                      );
+                      const val = firstDataCol ? row[firstDataCol.dataIndex ?? firstDataCol.key] : row.order;
+                      label = typeof val === 'object' && val !== null ? String((val as { name?: string }).name ?? '—') : String(val ?? '—');
+                    }
                   }
                   return (
                     <li key={idx} data-cy="copilot-list-item">
