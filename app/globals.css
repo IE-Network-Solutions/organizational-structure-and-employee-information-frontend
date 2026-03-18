@@ -323,22 +323,6 @@ h6 {
   width: 100%;
 }
 
-.ql-container.ql-snow {
-  border: none !important;
-  font-family: 'Calibre', sans-serif;
-  @apply text-gray-900 font-medium text-sm;
-}
-
-.ql-container.ql-snow h3 {
-  font-size: 24px !important;
-}
-
-.ql-container .ql-editor.ql-blank::before {
-  font-style: normal;
-  color: rgba(0, 0, 0, 0.35);
-  @apply font-medium text-sm;
-}
-
 .ant-form-item-control .control {
   @apply mt-2.5 h-[54px] w-full;
 }
@@ -352,7 +336,9 @@ h6 {
 }
 
 .form-item {
-  @apply font-semibold text-xs;
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .menu-item-label {
@@ -408,12 +394,11 @@ h6 {
 
 .ant-tree-treenode .ant-tree-title {
   height: 2.25rem !important;
-  /* h-9 */
   width: 14rem !important;
-  /* w-60 */
   display: flex;
   align-items: center;
-  justify-content: start;
+  justify-content: flex-start;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .ant-tree-treenode-selected .ant-tree-title {
@@ -424,10 +409,6 @@ h6 {
 .ant-tree-treenode:hover .ant-tree-title {
   background-color: #f5f5f5 !important;
   /* Light grey on hover */
-}
-
-.ant-tree-treenode .ant-tree-title {
-  transition: background-color 0.2s ease-in-out;
 }
 
 /* Quill Editor styles */
@@ -466,12 +447,10 @@ h6 {
   max-height: 80px !important;
 }
 
-@layer components {
-  @media (max-width: 640px) {
-    /* Ant Design menu active item */
-    .ant-menu-item-selected {
-      @apply text-primary;
-    }
+@media (max-width: 640px) {
+  /* Ant Design menu active item (mobile) */
+  .ant-menu-item-selected {
+    color: #1677ff !important; /* AntD primary blue */
   }
 }
 
@@ -1434,6 +1413,8 @@ h6 {
 .recruitment-settings-input-type-description {
   font-size: 12px;
   color: rgba(0, 0, 0, 0.45);
+}
+
 .leave-management-table .ant-table-thead > tr > th {
   background: #f9fafb !important;
   color: #374151;
@@ -1599,6 +1580,7 @@ h6 {
   border-color: #D1D5DB !important;
   background: #fff !important;
   color: #374151 !important;
+}
 
 /* Org Structure: Add/Edit/Delete Department modals close button position */
 .org-structure-department-modal.ant-modal .ant-modal-close {
