@@ -7,12 +7,8 @@ import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
 import { IoCloseOutline } from 'react-icons/io5';
 import {
-  MdGridView,
-  MdDomain,
   MdPeople,
   MdPersonSearch,
-  MdOutlineAccessTime,
-  MdChat,
   MdSchool,
   MdAccountBalanceWallet,
   MdCardGiftcard,
@@ -20,7 +16,11 @@ import {
   MdHowToReg,
   MdAdminPanelSettings,
 } from 'react-icons/md';
-import AlbumOutlinedIcon from '@mui/icons-material/AlbumOutlined';
+import AlbumIcon from '@mui/icons-material/Album';
+import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
@@ -392,7 +392,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const treeData: CustomMenuItem[] = React.useMemo(
     () => [
       {
-        icon: <MdGridView style={{ fontSize: 20 }} />,
+        icon: <DashboardIcon style={{ fontSize: 20 }} />,
         title: 'Dashboard',
         key: '/dashboard',
         className: 'font-bold',
@@ -400,7 +400,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'DASHBOARD',
       },
       {
-        icon: <MdDomain style={{ fontSize: 20 }} />,
+        icon: <AccountTreeIcon style={{ fontSize: 20 }} />,
         title: 'Organization',
         key: '/organization',
         className: 'font-bold',
@@ -510,7 +510,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
-        icon: <AlbumOutlinedIcon style={{ fontSize: 20 }} />,
+        icon: <AlbumIcon style={{ fontSize: 20 }} />,
         title: 'OKR',
         key: '/okr-menu',
         className: 'font-bold',
@@ -557,7 +557,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
-        icon: <MdChat style={{ fontSize: 20 }} />,
+        icon: <ChatBubbleOutlinedIcon style={{ fontSize: 20 }} />,
         title: 'CFR',
         key: 'feedback-menu',
         className: 'font-bold',
@@ -658,7 +658,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
-        icon: <MdOutlineAccessTime style={{ fontSize: 20 }} />,
+        icon: <AccessTimeFilledIcon style={{ fontSize: 20 }} />,
         title: 'Time & Attendance',
         key: 'timesheet-menu',
         className: 'font-bold',
@@ -1404,8 +1404,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       >
                         <div
                           data-cy="nav-sider-group-label-skeleton"
-                            className="w-full font-light text-[#64748B] tracking-wide"
-                            style={{ fontSize: fontSizeSM }}
+                          className="w-full font-light text-[#64748B] tracking-wide"
+                          style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
                         </div>
@@ -1472,7 +1472,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             item={item}
                             collapsed={collapsed}
                             colorPrimary={colorPrimary}
-                              fontSize={fontSize}
+                            fontSize={fontSize}
                             selectedKeys={selectedKeys}
                             setSelectedKeys={setSelectedKeys}
                             router={router}
