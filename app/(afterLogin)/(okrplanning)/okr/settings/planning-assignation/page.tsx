@@ -1,5 +1,13 @@
 'use client';
-import { Input, Popconfirm, Avatar, Dropdown, MenuProps, Spin, Tag } from 'antd';
+import {
+  Input,
+  Popconfirm,
+  Avatar,
+  Dropdown,
+  MenuProps,
+  Spin,
+  Tag,
+} from 'antd';
 import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import PlanningAssignationModal from './_components/planning-assignation-drawer';

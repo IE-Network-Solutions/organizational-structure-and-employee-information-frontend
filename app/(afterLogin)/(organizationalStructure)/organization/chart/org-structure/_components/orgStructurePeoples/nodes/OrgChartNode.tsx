@@ -8,9 +8,10 @@ import type { MenuProps } from 'antd';
 import { User } from 'lucide-react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { MdOutlineAccountTree } from 'react-icons/md';
+import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import { FiPlus, FiEdit2, FiTrash2, FiEye } from 'react-icons/fi';
 import type { OrgNodeData } from '../layout';
-import { getSubtreeNodeIds, NODE_HEIGHT, NODE_WIDTH } from '../layout';
+import { NODE_HEIGHT, NODE_WIDTH } from '../layout';
 import { useOrgChartActions } from '../OrgChartActionsContext';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 
@@ -19,7 +20,8 @@ type OrgNode = Node<OrgNodeData, 'orgNode'>;
 export function OrgChartNode(props: NodeProps<OrgNode>) {
   const { data } = props;
   const orgChartActions = useOrgChartActions();
-  const { getNodes, getEdges, fitView } = useReactFlow();
+  const { fitView, getNodes } = useReactFlow();
+  const setFocusViewRootId = useDepartmentStore((s) => s.setFocusViewRootId);
   const collapsedDepartmentIds = useDepartmentStore(
     (s) => s.collapsedDepartmentIds,
   );
@@ -97,30 +99,30 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
 
   const handleFocusView = useCallback(() => {
     if (!data?.id) return;
-    const runFitView = () => {
-      const edges = getEdges();
-      const subtreeIds = getSubtreeNodeIds(
-        edges.map((e) => ({ source: e.source, target: e.target })),
-        data.id,
-      );
-      const nodesToFit = getNodes().filter((n) => subtreeIds.has(n.id));
-      if (nodesToFit.length > 0) {
-        fitView({
-          nodes: nodesToFit,
-          padding: 0.35,
-          maxZoom: 1.1,
-          duration: 400,
-        });
-      }
-    };
-
+    const focusedNodeId = data.id;
     if (isCollapsed) {
       toggleCollapse(data.id);
-      requestAnimationFrame(() => requestAnimationFrame(runFitView));
-    } else {
-      runFitView();
     }
-  }, [data?.id, isCollapsed, toggleCollapse, getNodes, getEdges, fitView]);
+    // Show only the focused department and its children as the main org structure.
+    // The actual subtree layout is rebuilt centrally in OrgFlowContent based on focusViewRootId.
+    setFocusViewRootId(focusedNodeId);
+
+    // After React has applied the focused layout, zoom in for a better view.
+    const runFitView = () => {
+      fitView({
+        padding: 0.12,
+        maxZoom: 0.8,
+        minZoom: 0.35,
+        duration: 350,
+      });
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        runFitView();
+      });
+    });
+  }, [data?.id, isCollapsed, toggleCollapse, fitView, setFocusViewRootId]);
 
   if (!data) return null;
   const {
@@ -334,7 +336,11 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
               }
               data-cy={`org-structure-node-badge-${data.id}`}
             >
-              <MdOutlineAccountTree size={14} className="shrink-0" />
+              {directReportCount > 0 ? (
+                <MdOutlineAccountTree size={14} className="shrink-0" />
+              ) : (
+                <Person2OutlinedIcon fontSize="small" className="shrink-0" />
+              )}
               {(directReportCount > 0
                 ? directReportCount
                 : (usersWithoutTeamLeadCount ?? 0)) > 0 && (

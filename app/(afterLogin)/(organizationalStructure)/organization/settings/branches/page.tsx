@@ -1,8 +1,8 @@
 'use client';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, Dropdown, Menu, Form, Popconfirm } from 'antd';
 import { BsThreeDots } from 'react-icons/bs';
-import { MdEdit, MdDelete } from 'react-icons/md';
+import { MdOutlineEdit, MdOutlineDelete } from 'react-icons/md';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import {
   useCreateBranch,
@@ -14,6 +14,7 @@ import { useBranchStore } from '@/store/uistate/features/organizationStructure/b
 import BranchForm from '@/app/(afterLogin)/(employeeInformation)/_components/branchForm';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { CloseOutlined } from '@ant-design/icons';
 
 const Branches = () => {
   const { data: branches, isLoading } = useGetBranches();
@@ -21,6 +22,9 @@ const Branches = () => {
   const { mutate: updateBranch, isLoading: updateLoading } = useUpdateBranch();
   const { mutate: deleteBranch } = useDeleteBranch();
   const [form] = Form.useForm();
+  const [openDeleteConfirmBranchId, setOpenDeleteConfirmBranchId] = useState<
+    string | null
+  >(null);
 
   const {
     editingBranch,
@@ -105,7 +109,7 @@ const Branches = () => {
             data-cy={`org-settings-branch-edit-${branchId}`}
             id={`org-settings-branch-edit-${branchId}`}
             className="bg-white hover:bg-gray-100 text-gray-600"
-            icon={<MdEdit />}
+            icon={<MdOutlineEdit />}
           >
             Edit
           </Menu.Item>
@@ -118,21 +122,62 @@ const Branches = () => {
           <Menu.Item
             data-cy={`org-settings-branch-delete-${branchId}`}
             id={`org-settings-branch-delete-${branchId}`}
-            className="bg-white hover:bg-gray-100  text-gray-600"
-            icon={<MdDelete />}
+            className="bg-white hover:bg-gray-100 text-gray-600"
+            icon={<MdOutlineDelete />}
           >
             <Popconfirm
-              title={`Are you sure you want to delete ${branch.name}?`}
+              icon={<></>}
+              open={openDeleteConfirmBranchId === branchId}
+              onOpenChange={(visible) =>
+                setOpenDeleteConfirmBranchId(visible ? branchId : null)
+              }
+              title={
+                <div
+                  className="flex items-center justify-between mb-3 mx-4"
+                  data-cy={`org-settings-branch-delete-popconfirm-title-${branchId}`}
+                >
+                  <p
+                    className="text-lg font-bold text-gray-700 m-0"
+                    data-cy={`org-settings-branch-delete-popconfirm-title-text-${branchId}`}
+                  >
+                    Delete Branch
+                  </p>
+                  <CloseOutlined
+                    className="text-gray-400 m-0 cursor-pointer hover:text-gray-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDeleteConfirmBranchId(null);
+                    }}
+                  />
+                </div>
+              }
+              description={
+                <p
+                  className="text-sm text-gray-500 m-0 my-1  mb-4 mx-4"
+                  data-cy={`org-settings-branch-delete-popconfirm-description-${branchId}`}
+                >
+                  Are you sure you want to delete {branch.name}?
+                </p>
+              }
               onConfirm={() => handleDelete(branch)}
               okText="Delete"
               okButtonProps={{
                 danger: true,
+                className: 'p-2 mr-4 mb-2 rounded-md',
                 'data-cy': `org-settings-branch-delete-popconfirm-ok-${branchId}`,
               }}
               cancelButtonProps={{
                 'data-cy': `org-settings-branch-delete-popconfirm-cancel-${branchId}`,
+                className: 'text-gray-200 m-0 p-2 mb-2 rounded-md',
               }}
-              cancelText="No"
+              cancelText={
+                <div
+                  className="text-gray-500 m-0"
+                  data-cy={`org-settings-branch-delete-popconfirm-cancel-text-${branchId}`}
+                >
+                  Cancel
+                </div>
+              }
               data-cy={`org-settings-branch-delete-popconfirm-${branchId}`}
             >
               <span
@@ -173,7 +218,7 @@ const Branches = () => {
               <Card
                 key={item.id || branchId}
                 loading={isLoading}
-                className="h-full pt-2 px-1 pb-4"
+                className="h-full pt-2 px-1 pb-4 border-gray-200"
                 data-cy={`org-settings-branch-card-${branchId}`}
                 id={`org-settings-branch-card-${branchId}`}
                 styles={{
@@ -237,26 +282,6 @@ const Branches = () => {
                   </div>
                   <div
                     className="flex flex-col flex-1 min-w-0"
-                    data-cy={`org-settings-branch-contact-number-${branchId}`}
-                    id={`org-settings-branch-contact-number-${branchId}`}
-                  >
-                    <span
-                      className="text-xs text-gray-400 mb-1"
-                      data-cy={`org-settings-branch-contact-number-label-${branchId}`}
-                      id={`org-settings-branch-contact-number-label-${branchId}`}
-                    >
-                      Contact Number
-                    </span>
-                    <span
-                      className="text-base text-gray-700 break-words"
-                      data-cy={`org-settings-branch-contact-number-value-${branchId}`}
-                      id={`org-settings-branch-contact-number-value-${branchId}`}
-                    >
-                      {item.contactNumber}
-                    </span>
-                  </div>
-                  <div
-                    className="flex flex-col flex-1 min-w-0"
                     data-cy={`org-settings-branch-contact-email-${branchId}`}
                     id={`org-settings-branch-contact-email-${branchId}`}
                   >
@@ -273,6 +298,26 @@ const Branches = () => {
                       id={`org-settings-branch-contact-email-value-${branchId}`}
                     >
                       {item.contactEmail}
+                    </span>
+                  </div>
+                  <div
+                    className="flex flex-col flex-1 min-w-0"
+                    data-cy={`org-settings-branch-contact-number-${branchId}`}
+                    id={`org-settings-branch-contact-number-${branchId}`}
+                  >
+                    <span
+                      className="text-xs text-gray-400 mb-1"
+                      data-cy={`org-settings-branch-contact-number-label-${branchId}`}
+                      id={`org-settings-branch-contact-number-label-${branchId}`}
+                    >
+                      Contact Number
+                    </span>
+                    <span
+                      className="text-base text-gray-700 break-words"
+                      data-cy={`org-settings-branch-contact-number-value-${branchId}`}
+                      id={`org-settings-branch-contact-number-value-${branchId}`}
+                    >
+                      {item.contactNumber}
                     </span>
                   </div>
                 </div>
