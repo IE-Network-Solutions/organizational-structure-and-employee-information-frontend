@@ -126,8 +126,8 @@ const RecognitionForm: React.FC<PropsData> = ({
     >
       <span data-cy="create-recognition-drawer-header-text">
         {selectedRecognitionType === ''
-          ? 'Add New Recognition'
-          : 'Update Recognition'}
+          ? 'Add New sami Recognition'
+          : 'Update sami Recognition'}
       </span>
     </div>
   );

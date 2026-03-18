@@ -8,6 +8,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname, useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
 import { ConversationStore } from '@/store/uistate/features/conversation';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Title } = Typography;
 
@@ -29,7 +30,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const router = useRouter();
   const layoutSlug = toSlug(pathname || 'settings-layout');
   const { isMobile } = useIsMobile();
-  const { setOpen } = ConversationStore();
+  const { setOpen, setOpenRecognitionType } = ConversationStore();
   const { variantType } = ConversationStore();
   const getActiveKey = () => {
     if (pathname.includes('/define-feedback')) return 'defineFeedback';
@@ -148,21 +149,27 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                     {!isMobile && `Add ${variantType}`}
                   </Button>
                 ) : getActiveKey() === 'recognition' ? (
-                  <Button
-                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                    icon={
-                      <FaPlus
-                        data-cy="org-settings-branches-add-btn-icon"
-                        id="org-settings-branches-add-btn-icon"
-                      />
-                    }
-                    type="primary"
-                    // onClick={showDrawer}
-                    data-cy="org-settings-branches-add-btn"
-                    id="org-settings-branches-add-btn"
+                  <AccessGuard
+                    permissions={[Permissions.CreateRecognition]}
+                    data-cy="settings-recognition-category-access-guard"
+                    id="settingsRecognitionCategoryAccessGuard"
                   >
-                    {!isMobile && 'Category'}
-                  </Button>
+                    <Button
+                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      icon={
+                        <FaPlus
+                          data-cy="org-settings-branches-add-btn-icon"
+                          id="org-settings-branches-add-btn-icon"
+                        />
+                      }
+                      type="primary"
+                      onClick={() => setOpenRecognitionType(true)}
+                      data-cy="org-settings-branches-add-btn"
+                      id="org-settings-branches-add-btn"
+                    >
+                      {!isMobile && 'Category'}
+                    </Button>
+                  </AccessGuard>
                 ) : getActiveKey() === 'targetAchievement' ? (
                   <Button
                     className={`h-10 ${isMobile ? 'ml-4' : ''}`}
