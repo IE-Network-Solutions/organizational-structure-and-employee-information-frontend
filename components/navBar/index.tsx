@@ -12,7 +12,6 @@ import {
   MdPeople,
   MdPersonSearch,
   MdOutlineAccessTime,
-  MdAdjust,
   MdChat,
   MdSchool,
   MdAccountBalanceWallet,
@@ -21,6 +20,7 @@ import {
   MdHowToReg,
   MdAdminPanelSettings,
 } from 'react-icons/md';
+import AlbumOutlinedIcon from '@mui/icons-material/AlbumOutlined';
 import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
@@ -84,6 +84,8 @@ interface MyComponentProps {
 const NavMenuItem: React.FC<{
   item: any;
   collapsed: boolean;
+  colorPrimary: string;
+  fontSize: number;
   selectedKeys: (string | number | bigint)[];
   setSelectedKeys: React.Dispatch<
     React.SetStateAction<(string | number | bigint)[]>
@@ -98,6 +100,8 @@ const NavMenuItem: React.FC<{
 }> = ({
   item,
   collapsed,
+  colorPrimary,
+  fontSize,
   selectedKeys,
   setSelectedKeys,
   router,
@@ -109,16 +113,19 @@ const NavMenuItem: React.FC<{
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedKeys.includes(item.key);
 
+  const bestMatchingChildKey = React.useMemo(() => {
+    if (!hasChildren) return undefined;
+    const matches = item.children
+      .map((child: any) => String(child.key))
+      .filter((key: string) => isRouteMatch(key, pathname));
+    if (matches.length === 0) return undefined;
+    return matches.sort((a: string, b: string) => b.length - a.length)[0];
+  }, [hasChildren, item.children, pathname]);
+
   // Check if this item or any of its children matches the current path
   const isDirectlyActive =
     selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
-  const isChildActive =
-    hasChildren &&
-    item.children.some(
-      (child: any) =>
-        selectedKeys.includes(child.key) ||
-        isRouteMatch(String(child.key), pathname),
-    );
+  const isChildActive = Boolean(bestMatchingChildKey);
   const isActive =
     isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
@@ -145,18 +152,20 @@ const NavMenuItem: React.FC<{
         data-cy="nav-menu-item"
         onClick={handleToggle}
         className={`
-          group flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200 rounded-xl
-          ${isActive ? 'text-[#1e40af] font-bold' : 'text-black font-medium'}
-          ${isDirectlyActive ? 'bg-[#E1EFFF]' : ''}
-          hover:bg-[#E1EFFF]
-          ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
+          group flex items-center gap-3 py-2 cursor-pointer transition-all duration-200 rounded-[6px]
+          ${
+            isActive ? 'font-bold' : 'text-black font-medium hover:bg-[#E6F4FF]'
+          }
+          ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
         `}
+        style={isActive ? { color: colorPrimary } : undefined}
       >
         <div
           data-cy="nav-menu-item-icon"
           className={`text-[21px] transition-colors ${
-            isActive ? 'text-[#1e40af]' : 'text-black'
+            isActive ? '' : 'text-black'
           }`}
+          style={isActive ? { color: colorPrimary } : undefined}
         >
           {item.icon}
         </div>
@@ -164,7 +173,8 @@ const NavMenuItem: React.FC<{
         {!collapsed && (
           <span
             data-cy="nav-menu-item-label"
-            className="flex-1 text-[14.5px] transition-colors"
+            className="flex-1 transition-colors"
+            style={{ fontSize }}
           >
             {item.label}
           </span>
@@ -179,7 +189,7 @@ const NavMenuItem: React.FC<{
           {item.children.map((child: any) => {
             const isChildSelected =
               selectedKeys.includes(child.key) ||
-              isRouteMatch(String(child.key), pathname);
+              String(child.key) === bestMatchingChildKey;
             return (
               <div
                 key={child.key}
@@ -193,13 +203,17 @@ const NavMenuItem: React.FC<{
                   }
                 }}
                 className={`
-                  py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
+                  py-2 cursor-pointer rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
                   ${
                     isChildSelected
-                      ? 'text-[#1e40af] font-normal text-[16px]'
-                      : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
+                      ? 'font-normal'
+                      : 'text-black font-medium hover:bg-[#E6F4FF]'
                   }
                 `}
+                style={{
+                  fontSize,
+                  ...(isChildSelected ? { color: colorPrimary } : {}),
+                }}
               >
                 {child.label}
               </div>
@@ -213,15 +227,16 @@ const NavMenuItem: React.FC<{
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
-    token: { borderRadiusLG },
+    token: { borderRadiusLG, colorPrimary, fontSize, fontSizeSM },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const fullBleedContent = pathname.startsWith('/organization/chart');
   const { userId } = useAuthenticationStore();
-  const { isLoading } = useGetEmployee(userId);
+  useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
   const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
@@ -336,40 +351,43 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
-  const getRoutesAndPermissions = (
-    menuItems: CustomMenuItem[],
-  ): { route: string; permissions: string[] }[] => {
-    const routes: { route: string; permissions: string[] }[] = [];
+  const getRoutesAndPermissions = React.useCallback(
+    (
+      menuItems: CustomMenuItem[],
+    ): { route: string; permissions: string[] }[] => {
+      const routes: { route: string; permissions: string[] }[] = [];
 
-    const traverse = (items: CustomMenuItem[]) => {
-      items.forEach((item) => {
-        if (item.key && item.permissions) {
+      const traverse = (items: CustomMenuItem[]) => {
+        items.forEach((item) => {
+          if (item.key && item.permissions) {
+            routes.push({
+              route: item.key,
+              permissions: item.permissions,
+            });
+          }
+
+          if (item.children) {
+            traverse(item.children);
+          }
+        });
+      };
+
+      // First add hidden routes
+      hiddenRoutes.forEach((route) => {
+        if (route.key && route.permissions) {
           routes.push({
-            route: item.key,
-            permissions: item.permissions,
+            route: route.key,
+            permissions: route.permissions,
           });
         }
-
-        if (item.children) {
-          traverse(item.children);
-        }
       });
-    };
 
-    // First add hidden routes
-    hiddenRoutes.forEach((route) => {
-      if (route.key && route.permissions) {
-        routes.push({
-          route: route.key,
-          permissions: route.permissions,
-        });
-      }
-    });
-
-    // Then add visible menu routes
-    traverse(menuItems);
-    return routes;
-  };
+      // Then add visible menu routes
+      traverse(menuItems);
+      return routes;
+    },
+    [hiddenRoutes],
+  );
 
   const treeData: CustomMenuItem[] = React.useMemo(
     () => [
@@ -492,7 +510,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
-        icon: <MdAdjust style={{ fontSize: 20 }} />,
+        icon: <AlbumOutlinedIcon style={{ fontSize: 20 }} />,
         title: 'OKR',
         key: '/okr-menu',
         className: 'font-bold',
@@ -1197,6 +1215,56 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     return menuItems;
   }, [treeData, modulesData]);
+
+  // Fallback skeleton structure used while modules data is not yet available
+  const skeletonMenuItems = React.useMemo(
+    () =>
+      groupedMenuItems.length > 0
+        ? groupedMenuItems
+        : [
+            {
+              type: 'group',
+              key: 'skeleton-overview',
+              label: 'Overview',
+              // Dashboard, Organization
+              children: [
+                { key: 'skeleton-overview-item-1' },
+                { key: 'skeleton-overview-item-2' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-people',
+              label: 'People',
+              children: [
+                { key: 'skeleton-people-item-1' },
+                { key: 'skeleton-people-item-2' },
+                { key: 'skeleton-people-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-performance',
+              label: 'Performance',
+              children: [
+                { key: 'skeleton-performance-item-1' },
+                { key: 'skeleton-performance-item-2' },
+                { key: 'skeleton-performance-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-finance',
+              label: 'Finance',
+              children: [
+                { key: 'skeleton-finance-item-1' },
+                { key: 'skeleton-finance-item-2' },
+                { key: 'skeleton-finance-item-3' },
+              ],
+            },
+          ],
+    [groupedMenuItems],
+  );
   const { mutate: employeeInfo } = useCreateEmployee();
   const handleUserInfoUpdate = () => {
     const fullName = employeeData?.firstName?.split(' ') || [];
@@ -1235,7 +1303,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       <Sider
         theme="light"
         width={280}
-        className="scrollbar-hide"
+        className="scrollbar-hide flex flex-col"
         style={{
           overflow: 'visible',
           height: '100vh',
@@ -1243,9 +1311,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 1010,
+          zIndex: 100,
           backgroundColor: '#F5fbff',
-          borderRight: '1px solid #E5E7EB',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
         }}
@@ -1262,72 +1329,117 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         collapsedWidth={80}
       >
         <div
-          data-cy="nav-sider-logo-wrap"
-          className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
+          data-cy="nav-sider-children-wrap"
+          className="relative flex flex-col flex-1 min-h-0"
         >
           <div
-            data-cy="nav-sider-logo"
-            className="relative h-10 w-full flex items-center"
+            data-cy="nav-sider-logo-wrap"
+            className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
           >
-            {collapsed ? (
-              <div
-                data-cy="nav-sider-logo-collapsed-container"
-                className="w-full flex justify-center"
-              >
+            <div
+              data-cy="nav-sider-logo"
+              className="relative h-10 w-full flex items-center"
+            >
+              {collapsed ? (
+                <div
+                  data-cy="nav-sider-logo-collapsed-container"
+                  className="w-full flex justify-center"
+                >
+                  <Image
+                    src="/image/selamnew-workspace-logo.svg"
+                    alt="SelamNew Workspace Logo"
+                    width={32}
+                    height={32}
+                    style={{ objectFit: 'contain' }}
+                  />
+                </div>
+              ) : (
                 <Image
-                  src="/image/Logo.png"
-                  alt="Logo"
-                  width={32}
-                  height={32}
+                  src="/image/selamnew-workspace-logo.svg"
+                  alt="SelamNew Workspace Logo"
+                  width={150}
+                  height={40}
                   style={{ objectFit: 'contain' }}
                 />
-              </div>
-            ) : (
-              <Image
-                src="/image/Logo.png"
-                alt="Logo"
-                width={150}
-                height={40}
-                style={{ objectFit: 'contain' }}
-              />
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        <button
-          data-cy="nav-sider-toggle"
-          onClick={toggleCollapsed}
-          className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-[#1D4ED8] text-white shadow-md hover:bg-[#1e40af] transition-all"
-          style={{ zIndex: 10001 }}
-        >
-          {collapsed ? (
-            <AiOutlineRight size={12} />
-          ) : (
-            <AiOutlineRight size={12} className="rotate-180" />
-          )}
-        </button>
-        <div
-          data-cy="nav-sider-menu-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
-          style={{ minHeight: 0 }}
-        >
-          <div
-            data-cy="nav-sider-menu-inner"
-            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-6 pr-3'}`}
+          <button
+            data-cy="nav-sider-toggle"
+            onClick={toggleCollapsed}
+            className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full text-white shadow-md transition-all hover:opacity-90"
+            style={{ zIndex: 101, backgroundColor: colorPrimary }}
           >
-            {!isMounted || isLoading ? (
-              <div
-                data-cy="nav-sider-loading"
-                className="px-5 w-full h-full flex justify-center items-center my-5"
-              >
-                <Skeleton active />
-              </div>
+            {collapsed ? (
+              <AiOutlineRight size={12} />
             ) : (
-              <div data-cy="nav-sider-groups" className="space-y-6">
-                {groupedMenuItems.map((group: any) => {
-                  const isExpanded = true;
+              <AiOutlineRight size={12} className="rotate-180" />
+            )}
+          </button>
 
-                  return (
+          <div
+            data-cy="nav-sider-menu-scroll"
+            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+            style={{ minHeight: 0 }}
+          >
+            <div
+              data-cy="nav-sider-menu-inner"
+              className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-10 pr-3'}`}
+            >
+              {!isMounted || isLoadingData ? (
+                <div
+                  data-cy="nav-sider-loading"
+                  className="space-y-4 max-w-[209px]"
+                >
+                  {skeletonMenuItems.map((group: any) => (
+                    <div
+                      data-cy="nav-sider-group-skeleton"
+                      key={group.key}
+                      className="space-y-1"
+                    >
+                      <div
+                        data-cy="nav-sider-group-header-skeleton"
+                        className="mb-2 mt-4 first:mt-2"
+                      >
+                        <div
+                          data-cy="nav-sider-group-label-skeleton"
+                          className="w-full font-light text-[#64748B] tracking-wide"
+                          style={{ fontSize: fontSizeSM }}
+                        >
+                          {group.label}
+                        </div>
+                      </div>
+
+                      <div
+                        data-cy="nav-sider-group-children-skeleton"
+                        className={`space-y-1 ${collapsed ? '' : 'pl-2'}`}
+                      >
+                        {group.children?.map((item: any) => (
+                          <div
+                            key={item.key}
+                            data-cy="nav-sider-menu-item-skeleton"
+                            className={`
+                              group flex items-center py-2 rounded-xl
+                              ${collapsed ? 'justify-center mx-[10px]' : ''}
+                            `}
+                          >
+                            <div
+                              data-cy="nav-sider-menu-item-skeleton-bar"
+                              className="h-[16px] w-full rounded-md bg-gray-200"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div
+                  data-cy="nav-sider-groups"
+                  className="space-y-4 max-w-[209px]"
+                >
+                  {groupedMenuItems.map((group: any) => (
                     <div
                       data-cy="nav-sider-group"
                       key={group.key}
@@ -1335,13 +1447,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       <div
                         data-cy="nav-sider-group-header"
-                        className="px-4 mb-2 mt-4 first:mt-2"
+                        className="mb-2 mt-4 first:mt-2"
                       >
                         <div
                           data-cy="nav-sider-group-label-wrap"
-                          className={`w-full text-[13px] font-light text-[#64748B] tracking-wide transition-colors ${
+                          className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
                             collapsed ? 'hidden' : ''
                           }`}
+                          style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
                         </div>
@@ -1349,15 +1462,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
                       <div
                         data-cy="nav-sider-group-children"
-                        className={`space-y-1 transition-all duration-300 ${
-                          isExpanded ? 'opacity-100' : 'hidden opacity-0'
-                        } ${collapsed ? '' : 'pl-2'}`}
+                        className={`space-y-1 transition-all duration-300 opacity-100 ${
+                          collapsed ? '' : 'pl-2'
+                        }`}
                       >
                         {group.children?.map((item: any) => (
                           <NavMenuItem
                             key={item.key}
                             item={item}
                             collapsed={collapsed}
+                            colorPrimary={colorPrimary}
+                            fontSize={fontSize}
                             selectedKeys={selectedKeys}
                             setSelectedKeys={setSelectedKeys}
                             router={router}
@@ -1369,15 +1484,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         ))}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div
             data-cy="nav-sider-admin-wrap"
-            className="w-full flex justify-center py-6 mt-10"
+            className="w-full flex justify-center py-6 mt-4 bg-[#F5fbff]"
           >
             <Button
               data-cy="nav-sider-admin-btn"
@@ -1385,13 +1500,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               size="large"
               icon={<MdHowToReg size={22} />}
               className={`
-                flex items-center justify-center bg-[#1e40af] hover:bg-[#173691] border-none shadow-lg transition-all duration-300
+                flex items-center justify-center border-none shadow-lg transition-all duration-300 font-normal hover:opacity-90
                 ${
                   collapsed
-                    ? 'w-[52px] h-[52px] rounded-xl'
-                    : 'w-[85%] h-12 rounded-xl text-[14px] font-semibold gap-2'
+                    ? 'w-[52px] h-[52px] rounded-[10px]'
+                    : 'w-[249px] h-[40px] rounded-[10px] text-[14px] gap-[10px] px-[10px]'
                 }
               `}
+              style={{ backgroundColor: colorPrimary }}
               onClick={() => router.push('/admin/dashboard')}
             >
               {!collapsed && 'Admin Console'}
@@ -1460,7 +1576,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
-            paddingRight: isMobile ? 0 : 24,
+            paddingRight: isMobile ? 0 : fullBleedContent ? 0 : 24,
             paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
@@ -1480,8 +1596,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                marginRight: 24,
-                marginLeft: 24,
+                marginRight: fullBleedContent ? 0 : 24,
+                marginLeft: fullBleedContent ? 0 : 24,
                 background: '#ffffff',
               }}
             >
