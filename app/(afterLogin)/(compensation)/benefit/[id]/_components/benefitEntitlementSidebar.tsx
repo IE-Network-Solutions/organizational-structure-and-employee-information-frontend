@@ -1,7 +1,6 @@
 'use client';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, InputNumber, Select, Spin, Table } from 'antd';
+import { Form, Input, InputNumber, Modal, Select, Spin, Table } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import { useCreateBenefitEntitlementSettlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
@@ -23,6 +22,7 @@ import DuplicateDeductionModal from '@/components/common/duplicateDeductionModal
 dayjs.extend(isBetween);
 
 const { Option } = Select;
+const inputClassName = 'w-full rounded-md border-gray-300';
 
 type BenefitEntitlementProps = {
   title: string;
@@ -363,75 +363,92 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
   return (
     <>
-      {isBenefitEntitlementSidebarOpen && (
-        <CustomDrawerLayout
-          data-cy="compensation-benefit-sidebar-layout"
-          open={isBenefitEntitlementSidebarOpen}
-          onClose={onClose}
-          modalHeader={
-            <CustomDrawerHeader
-              data-cy="compensation-benefit-sidebar-header"
-              className="flex justify-center"
+      <Modal
+        title={
+          <span
+            className="block text-base font-semibold text-gray-900 text-left"
+            id="compensation-benefit-sidebar-title"
+            data-cy="compensation-benefit-sidebar-title"
+          >
+            Add Benefit Entitlement
+          </span>
+        }
+        open={isBenefitEntitlementSidebarOpen}
+        onCancel={onClose}
+        closable
+        closeIcon={
+          <CloseOutlined
+            className="text-gray-500 hover:text-gray-700"
+            style={{ fontSize: 14 }}
+          />
+        }
+        footer={
+          <div
+            className="flex justify-end gap-2 pt-4"
+            id="compensation-benefit-sidebar-footer"
+            data-cy="compensation-benefit-sidebar-footer"
+          >
+            <Button
+              type="default"
+              className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50"
+              loading={createBenefitLoading}
+              onClick={onClose}
+              id="compensation-benefit-sidebar-cancel-button"
+              data-cy="compensation-benefit-sidebar-cancel-button"
             >
-              <span
-                className="text-2xl"
-                id="compensation-benefit-sidebar-title"
-                data-cy="compensation-benefit-sidebar-title"
-              >
-                {title}
-              </span>
-            </CustomDrawerHeader>
-          }
-          footer={
-            <div
-              className="flex flex-row gap-4 justify-center py-3"
-              id="compensation-benefit-sidebar-footer"
-              data-cy="compensation-benefit-sidebar-footer"
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              className="h-10 px-4 rounded-md"
+              loading={createBenefitLoading}
+              disabled={entitlementsLoading}
+              onClick={() => form.submit()}
+              id="compensation-benefit-sidebar-create-button"
+              data-cy="compensation-benefit-sidebar-create-button"
             >
-              <Button
-                type="default"
-                className="h-10 px-3 w-40"
-                size="large"
-                loading={createBenefitLoading}
-                onClick={() => onClose()}
-                id="compensation-benefit-sidebar-cancel-button"
-                data-cy="compensation-benefit-sidebar-cancel-button"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="primary"
-                key="create"
-                className="h-10 px-3 w-40"
-                size="large"
-                loading={createBenefitLoading}
-                disabled={entitlementsLoading}
-                onClick={() => form.submit()}
-                id="compensation-benefit-sidebar-create-button"
-                data-cy="compensation-benefit-sidebar-create-button"
-              >
-                Create
-              </Button>
-            </div>
-          }
-          width="35%"
-          customPadding="16px"
-        >
+              Create
+            </Button>
+          </div>
+        }
+        width={640}
+        centered
+        mask={true}
+        maskClosable={false}
+        zIndex={10002}
+        styles={{
+          content: {
+            borderRadius: 8,
+            border: '1px solid #e5e7eb',
+            boxShadow:
+              '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+          },
+          header: {
+            borderBottom: 'none',
+            padding: '12px 24px 8px',
+            textAlign: 'left',
+          },
+          body: { padding: '8px 12px' },
+          footer: { borderTop: 'none' },
+        }}
+        data-cy="compensation-benefit-sidebar-modal"
+      >
+        <div className="border border-gray-200 rounded-lg px-4 py-4">
           <Spin
             data-cy="compensation-benefit-sidebar-loading"
-            spinning={allUserLoading || payLoading}
+            spinning={allUserLoading || payLoading || depLoading}
           >
             <Form
               layout="vertical"
-              className="p-2"
               form={form}
               onFinish={onFormSubmit}
               requiredMark={CustomLabel}
               id="compensation-benefit-sidebar-form"
               data-cy="compensation-benefit-sidebar-form"
+              className="[&_.ant-form-item-label>label]:text-sm [&_.ant-form-item-label>label]:font-medium [&_.ant-form-item-label>label]:text-gray-700"
             >
               <div
-                className={`grid gap-4 ${benefitDatas?.isPeriodic === false ? 'grid-cols-1' : 'grid-cols-2'}`}
+                className={`grid gap-4 mb-5 ${benefitDatas?.isPeriodic === false ? 'grid-cols-1' : 'grid-cols-2'}`}
                 id="compensation-benefit-sidebar-amount-grid"
                 data-cy="compensation-benefit-sidebar-amount-grid"
               >
@@ -440,9 +457,10 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                   required
                   name="totalAmount"
                   label="Total Amount"
+                  className="mb-0"
                 >
                   <InputNumber
-                    className="w-full h-10 mt-1"
+                    className={`${inputClassName} h-10`}
                     value={totalAmount}
                     onChange={(value) => setTotalAmount(value || 0)}
                     id="compensation-benefit-sidebar-total-amount-input"
@@ -456,7 +474,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                     label={
                       benefitDatas?.mode === 'CREDIT' ? (
                         <span data-cy="benefit-sidebar-settlement-period-label">
-                          Settlement Period{' '}
+                          Settlement Period
                         </span>
                       ) : (
                         <span data-cy="benefit-sidebar-payout-period-label">
@@ -465,9 +483,10 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                       )
                     }
                     data-cy="compensation-benefit-sidebar-settlement-period-item"
+                    className="mb-0"
                   >
                     <InputNumber
-                      className="w-full h-10 mt-1"
+                      className={`${inputClassName} h-10`}
                       value={settlementPeriod}
                       onChange={(value) => setSettlementPeriod(value || 0)}
                       id="compensation-benefit-sidebar-settlement-input"
@@ -479,6 +498,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
               {data && data.length > 0 && (
                 <div
+                  className="border border-gray-200 rounded-lg px-4 py-4 mb-5"
                   id="compensation-benefit-sidebar-payments-table-wrapper"
                   data-cy="compensation-benefit-sidebar-payments-table-wrapper"
                 >
@@ -487,7 +507,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                     columns={columns}
                     dataSource={data}
                     bordered={false}
-                    className="mb-4"
+                    className="mb-0"
                     pagination={false}
                   />
                 </div>
@@ -495,36 +515,30 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
               <Form.Item
                 name="department"
-                label="Select Department"
-                className="form-item min-h-10"
+                label="Department"
+                className="mb-5"
                 id="compensation-benefit-sidebar-department-item"
                 data-cy="compensation-benefit-sidebar-department-item"
               >
                 <Select
                   loading={depLoading}
-                  placeholder="Select a department"
-                  className="w-full h-10 mt-1"
+                  placeholder="Select department"
+                  className={`${inputClassName} h-10`}
                   allowClear
                   showSearch
                   onChange={(value) => handleDepartmentChange(value)}
-                  filterOption={(input, option) =>
-                    (option?.children as any)
-                      .toLowerCase()
+                  filterOption={(input: string, option: any) =>
+                    (option?.label ?? '')
+                      ?.toLowerCase()
                       .includes(input.toLowerCase())
                   }
+                  options={departments?.map((dept: any) => ({
+                    value: dept.name,
+                    label: dept.name,
+                  }))}
                   id="compensation-benefit-sidebar-department-select"
                   data-cy="compensation-benefit-sidebar-department-select"
-                >
-                  {departments?.map((dept: any) => (
-                    <Option
-                      data-cy="compensation-benefit-sidebar-department-option"
-                      key={dept.id}
-                      value={dept.name}
-                    >
-                      {dept.name}
-                    </Option>
-                  ))}
-                </Select>
+                />
               </Form.Item>
 
               <Form.Item
@@ -533,12 +547,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 rules={[{ required: true, message: 'Please select employees' }]}
                 id="compensation-benefit-sidebar-employees-item"
                 data-cy="compensation-benefit-sidebar-employees-item"
+                className="mb-0"
               >
                 <Select
                   showSearch
-                  placeholder="Select a person"
+                  placeholder="Select employee"
                   mode="multiple"
-                  className="w-full h-10 mt-1"
+                  className="w-full min-h-10 rounded-md [&_.ant-select-selector]:rounded-md [&_.ant-select-selector]:border-gray-300"
                   allowClear
                   maxTagCount={1}
                   filterOption={(input: any, option: any) =>
@@ -550,11 +565,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                     ...item,
                     value: item?.id,
                     label:
-                      item?.firstName +
-                      ' ' +
-                      item?.middleName +
-                      ' ' +
-                      item?.lastName,
+                      `${item?.firstName ?? ''} ${item?.middleName ?? ''} ${item?.lastName ?? ''}`.trim(),
                   }))}
                   loading={allUserLoading}
                   id="compensation-benefit-sidebar-employees-select"
@@ -563,8 +574,8 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               </Form.Item>
             </Form>
           </Spin>
-        </CustomDrawerLayout>
-      )}
+        </div>
+      </Modal>
 
       {/* Duplicate Confirmation Modal */}
       <DuplicateDeductionModal

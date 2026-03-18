@@ -1,9 +1,4 @@
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, Radio, Select, Spin, Switch } from 'antd';
+import { Button, Form, Input, Modal, Radio, Select, Spin, Switch } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useEffect } from 'react';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
@@ -69,32 +64,38 @@ const BenefitypeSideBar = () => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    createAllowanceType({
-      name: formValues.name,
-      description: formValues.description,
-      type: 'MERIT',
-      mode: formValues.mode,
-      isRate: formValues.mode == 'CREDIT' ? formValues.isRate : false,
-      defaultAmount:
-        formValues.mode == 'CREDIT' ? Number(formValues.defaultAmount) : null,
-      applicableTo:
-        formValues.mode == 'CREDIT'
-          ? formValues.isAllEmployee
-            ? 'GLOBAL'
-            : 'PER-EMPLOYEE'
-          : 'PER-EMPLOYEE',
-      employeeIds: formValues.employees ? formValues.employees : [],
-      settlementPeriod: formValues.NoOfPayPeriod
-        ? Number(formValues.NoOfPayPeriod)
-        : null,
-      isPeriodic:
-        formValues.mode == 'DEBIT'
-          ? formValues.type === 'PERIODIC'
-            ? true
-            : false
-          : undefined,
-    });
-    onClose();
+    createAllowanceType(
+      {
+        name: formValues.name,
+        description: formValues.description,
+        type: 'MERIT',
+        mode: formValues.mode,
+        isRate: formValues.mode == 'CREDIT' ? formValues.isRate : false,
+        defaultAmount:
+          formValues.mode == 'CREDIT' ? Number(formValues.defaultAmount) : null,
+        applicableTo:
+          formValues.mode == 'CREDIT'
+            ? formValues.isAllEmployee
+              ? 'GLOBAL'
+              : 'PER-EMPLOYEE'
+            : 'PER-EMPLOYEE',
+        employeeIds: formValues.employees ? formValues.employees : [],
+        settlementPeriod: formValues.NoOfPayPeriod
+          ? Number(formValues.NoOfPayPeriod)
+          : null,
+        isPeriodic:
+          formValues.mode == 'DEBIT'
+            ? formValues.type === 'PERIODIC'
+              ? true
+              : false
+            : undefined,
+      },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      },
+    );
   };
 
   const handleModeChange = (e: RadioChangeEvent) => {
@@ -120,117 +121,106 @@ const BenefitypeSideBar = () => {
     setIsAllEmployee(checked);
   };
 
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-12',
-      size: 'large',
-      loading: false,
-      onClick: () => onClose(),
-    },
-    {
-      label: selectedBenefitRecord ? (
-        <span data-cy="compensation-settings-benefit-sidebar-update-button-label">
-          Update
-        </span>
-      ) : (
-        <span data-cy="compensation-settings-benefit-sidebar-create-button-label">
-          Create
-        </span>
-      ),
-      key: 'create',
-      className: 'h-12',
-      type: 'primary',
-      size: 'large',
-      loading: isLoading,
-      disabled: selectedBenefitRecord,
-      onClick: () => form.submit(),
-    },
-  ];
-
   return (
     isBenefitOpen && (
-      <CustomDrawerLayout
-        data-cy="compensation-settings-benefit-sidebar-drawer"
-        open={isBenefitOpen}
-        onClose={() => onClose()}
-        modalHeader={
-          <CustomDrawerHeader
-            className="flex justify-center"
-            data-cy="compensation-settings-benefit-sidebar-header"
+      <Modal
+        title={
+          <span
+            className="text-base font-semibold text-gray-900"
+            data-cy="compensation-settings-benefit-sidebar-header-title"
           >
-            {selectedBenefitRecord ? (
-              <span
-                id="compensation-settings-benefit-sidebar-header-title"
-                data-cy="compensation-settings-benefit-sidebar-header-title"
-              >
-                Edit Benefit Type
-              </span>
-            ) : (
-              <span
-                id="compensation-settings-benefit-sidebar-header-title"
-                data-cy="compensation-settings-benefit-sidebar-header-title"
-              >
-                Add Benefit Type
-              </span>
-            )}
-          </CustomDrawerHeader>
+            {selectedBenefitRecord ? 'Edit Benefit Type' : 'Add Benefit Type'}
+          </span>
         }
-        footer={
-          <CustomDrawerFooterButton
-            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
-            buttons={footerModalItems}
-            data-cy="compensation-settings-benefit-sidebar-footer"
+        open={isBenefitOpen}
+        onCancel={onClose}
+        closable
+        mask={true}
+        maskClosable={false}
+        zIndex={10002}
+        closeIcon={
+          <CloseOutlined
+            className="text-gray-500 hover:text-gray-700"
+            style={{ fontSize: 14 }}
           />
         }
-        width="30%"
+        footer={
+          <div className="flex justify-end gap-2 pt-4">
+            <Button
+              type="default"
+              className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50"
+              onClick={onClose}
+              data-cy="compensation-settings-benefit-sidebar-cancel"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              className="h-10 px-4 rounded-md"
+              loading={isLoading}
+              disabled={selectedBenefitRecord}
+              onClick={() => form.submit()}
+              data-cy="compensation-settings-benefit-sidebar-submit"
+            >
+              {selectedBenefitRecord ? 'Update' : 'Continue'}
+            </Button>
+          </div>
+        }
+        width={560}
+        centered
+        data-cy="compensation-settings-benefit-sidebar-modal"
+        styles={{
+          content: { borderRadius: 8 },
+          header: { borderBottom: 'none', padding: '16px 24px' },
+          body: { padding: '16px 24px 24px' },
+        }}
       >
         <Spin
           spinning={isLoading}
           data-cy="compensation-settings-benefit-sidebar-loading"
         >
-          <Form
-            layout="vertical"
-            form={form}
-            onFinish={onFormSubmit}
-            requiredMark={CustomLabel}
-            id="compensation-settings-benefit-sidebar-form"
-            data-cy="compensation-settings-benefit-sidebar-form"
-          >
-            <Form.Item
-              name="name"
-              label="Name"
-              rules={[{ required: true, message: 'Name is Required!' }]}
-              className="form-item"
-              id="compensation-settings-benefit-sidebar-name-item"
-              data-cy="compensation-settings-benefit-sidebar-name-item"
+          <div className="border border-gray-200 rounded-lg px-4 py-4">
+            <Form
+              layout="vertical"
+              form={form}
+              onFinish={onFormSubmit}
+              requiredMark={CustomLabel}
+              id="compensation-settings-benefit-sidebar-form"
+              data-cy="compensation-settings-benefit-sidebar-form"
             >
-              <Input
-                className="control"
-                placeholder="Benefit Name"
-                style={{ height: '40px', padding: '4px 8px' }}
-                id="compensation-settings-benefit-sidebar-name-input"
-                data-cy="compensation-settings-benefit-sidebar-name-input"
-              />
-            </Form.Item>
-            <Form.Item
-              name="description"
-              label="Description"
-              rules={[{ required: true, message: 'Description is Required!' }]}
-              className="form-item"
-              id="compensation-settings-benefit-sidebar-description-item"
-              data-cy="compensation-settings-benefit-sidebar-description-item"
-            >
-              <TextArea
-                className="control"
-                autoSize={{ minRows: 3, maxRows: 5 }}
-                placeholder="Description"
-                style={{ height: '32px', padding: '4px 8px' }}
-                id="compensation-settings-benefit-sidebar-description-input"
-                data-cy="compensation-settings-benefit-sidebar-description-input"
-              />
-            </Form.Item>
+              <Form.Item
+                name="name"
+                label="Name"
+                rules={[{ required: true, message: 'Name is Required!' }]}
+                className="form-item"
+                id="compensation-settings-benefit-sidebar-name-item"
+                data-cy="compensation-settings-benefit-sidebar-name-item"
+              >
+                <Input
+                  className="control"
+                  placeholder="Benefit Name"
+                  style={{ height: '40px', padding: '4px 8px' }}
+                  id="compensation-settings-benefit-sidebar-name-input"
+                  data-cy="compensation-settings-benefit-sidebar-name-input"
+                />
+              </Form.Item>
+              <Form.Item
+                name="description"
+                label="Description"
+                rules={[{ required: true, message: 'Description is Required!' }]}
+                className="form-item"
+                id="compensation-settings-benefit-sidebar-description-item"
+                data-cy="compensation-settings-benefit-sidebar-description-item"
+              >
+                <TextArea
+                  className="control"
+                  autoSize={{ minRows: 3, maxRows: 5 }}
+                  placeholder="Description"
+                  style={{ height: '32px', padding: '4px 8px' }}
+                  id="compensation-settings-benefit-sidebar-description-input"
+                  data-cy="compensation-settings-benefit-sidebar-description-input"
+                />
+              </Form.Item>
             <Form.Item
               name="mode"
               label="Mode"
@@ -462,9 +452,10 @@ const BenefitypeSideBar = () => {
                 )}
               </>
             )}
-          </Form>
+            </Form>
+          </div>
         </Spin>
-      </CustomDrawerLayout>
+      </Modal>
     )
   );
 };

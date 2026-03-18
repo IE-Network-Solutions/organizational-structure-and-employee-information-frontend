@@ -1,9 +1,9 @@
 'use client';
 import React from 'react';
-import { Button } from 'antd';
+import { Button, Divider } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import BenefitTypeTable from './_components/benefitTypeTable';
+import BenefitTypeCardGrid from './_components/benefitTypeCardGrid';
 import BenefitypeSideBar from './_components/benefitTypeSidebar';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import { FaPlus } from 'react-icons/fa';
@@ -13,17 +13,18 @@ const BenefitTypePage = () => {
 
   return (
     <div
-      className="bg-white rounded-lg px-1 py-4 sm:px-6"
+      className="bg-white rounded-lg px-4 py-6 sm:px-6"
       id="compensation-settings-benefit-type-wrapper"
       data-cy="compensation-settings-benefit-type-wrapper"
     >
+      <Divider className="!my-0 !border-gray-200" />
       <div
-        className="flex justify-between mb-3 items-center"
+        className="flex flex-wrap justify-between items-center gap-4 pt-4 pb-6"
         id="compensation-settings-benefit-type-header"
         data-cy="compensation-settings-benefit-type-header"
       >
         <h1
-          className="text-lg font-bold"
+          className="text-2xl font-bold text-gray-900 leading-8"
           id="compensation-settings-benefit-type-title"
           data-cy="compensation-settings-benefit-type-title"
         >
@@ -39,7 +40,7 @@ const BenefitTypePage = () => {
             icon={
               <FaPlus data-cy="compensation-settings-benefit-type-create-icon" />
             }
-            className="h-10"
+            className="h-10 text-sm font-medium rounded-md"
             onClick={() => {
               setIsBenefitOpen(true);
             }}
@@ -50,16 +51,17 @@ const BenefitTypePage = () => {
               id="compensation-settings-benefit-type-create-button-text"
               data-cy="compensation-settings-benefit-type-create-button-text"
             >
-              Benefit
+              Add Benefit Type
             </span>
           </Button>
         </AccessGuard>
       </div>
+      <Divider className="!my-0 !border-gray-200" />
       <div
-        id="compensation-settings-benefit-type-table-wrapper"
-        data-cy="compensation-settings-benefit-type-table-wrapper"
+        id="compensation-settings-benefit-type-card-grid-wrapper"
+        data-cy="compensation-settings-benefit-type-card-grid-wrapper"
       >
-        <BenefitTypeTable data-cy="compensation-settings-benefit-type-table" />
+        <BenefitTypeCardGrid data-cy="compensation-settings-benefit-type-card-grid" />
       </div>
       <BenefitypeSideBar data-cy="compensation-settings-benefit-type-sidebar" />
     </div>

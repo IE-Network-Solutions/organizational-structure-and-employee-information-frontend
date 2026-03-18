@@ -1,5 +1,8 @@
-import React from 'react';
-import { Spin, Table } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Spin, Table, Dropdown, Modal } from 'antd';
+import type { MenuProps } from 'antd';
+import { HiOutlineDotsHorizontal } from 'react-icons/hi';
+import { EditOutlined, DeleteOutlined, CloseOutlined } from '@ant-design/icons';
 import { TableColumnsType } from '@/types/table/table';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
@@ -13,13 +16,34 @@ import { EmployeeDetails } from '../../../_components/employeeDetails';
 import BenefitEntitlementSideBarEdit from './benefitEntitlementSidebarEdit';
 import BenefitTracking from './benefitTracker';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+
+const dotsButtonStyle: React.CSSProperties = {
+  height: 32,
+  width: 32,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 6,
+  border: '1px solid #D9D9D9',
+  background: '#fff',
+};
+
 type BenefitPropTypes = {
   title: string;
+  compact?: boolean;
 };
-const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
+type DeleteModalRecord = { id: string; userId: string } | null;
+
+const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
+  title,
+  compact = false,
+}) => {
+  const [deleteModalRecord, setDeleteModalRecord] =
+    useState<DeleteModalRecord>(null);
   const {
     setIsBenefitEntitlementSidebarUpdateOpen,
     currentPage,
@@ -33,7 +57,8 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
   const { id } = useParams();
   const { data: benefitEntitlementsData, isLoading } =
     useFetchBenefitEntitlement(id);
-  const { searchQuery } = useAllowanceEntitlementStore();
+  const { searchQuery, searchText } = useAllowanceEntitlementStore();
+  const { data: employeeData } = useGetAllUsers();
   const { employeeBenefitData, setEmployeeBenefitData } =
     useBenefitEntitlementStore();
   const transformedData = Array.isArray(benefitEntitlementsData)
@@ -56,6 +81,122 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
   const handleEmployeeData = (data: any) => {
     setEmployeeBenefitData(data);
   };
+
+  const getEmployeeName = (userId: string) => {
+    const emp = employeeData?.items?.find((e: any) => e.id === userId);
+    return emp
+      ? `${emp?.firstName ?? ''} ${emp?.lastName ?? ''}`.trim() || 'Employee'
+      : 'Employee';
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deleteModalRecord) {
+      deleteBenefitEntitlement(deleteModalRecord.id);
+      setDeleteModalRecord(null);
+    }
+  };
+
+  const columnsCompact: TableColumnsType<any> = [
+    {
+      title: 'Employee',
+      dataIndex: 'userId',
+      key: 'userId',
+      width: '40%',
+      minWidth: isMobile ? 120 : 200,
+      ellipsis: true,
+      render: (_: any, record: any) => (
+        <div
+          onClick={() => handleEmployeeData(record)}
+          className="cursor-pointer"
+        >
+          {(isMobile || isTablet) ? (
+            <span className="truncate block">
+              {getEmployeeName(record?.userId)}
+            </span>
+          ) : (
+            <EmployeeDetails empId={record?.userId} />
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Type',
+      dataIndex: 'isRate',
+      key: 'isRate',
+      width: isMobile ? 64 : 100,
+      render: (isRate: boolean) => (isRate ? 'Rate' : 'Fixed'),
+    },
+    {
+      title: 'Amount',
+      dataIndex: 'Amount',
+      key: 'Amount',
+      width: isMobile ? 90 : 140,
+      className: 'text-right',
+      render: (amount: string, record: any) =>
+        amount
+          ? (isMobile || isTablet)
+            ? String(amount)
+            : record.isRate
+              ? `${amount}% of base salary`
+              : `${amount} ETB`
+          : '-',
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      width: isMobile ? 56 : 72,
+      align: 'right',
+      render: (_: any, record: any) => {
+        const hasAmount =
+          record.Amount != null &&
+          record.Amount !== '' &&
+          Number(record.Amount) > 0;
+        const menuItems: MenuProps['items'] = [];
+        if (hasAmount) {
+          menuItems.push({
+            key: 'edit',
+            icon: <EditOutlined style={{ fontSize: 14, color: '#595959' }} />,
+            label: 'Edit',
+            onClick: () => handleEdit(record),
+          });
+        }
+        menuItems.push({
+          key: 'delete',
+          icon: <DeleteOutlined style={{ fontSize: 14, color: '#595959' }} />,
+          label: 'Delete',
+          onClick: () =>
+            setDeleteModalRecord({ id: record.id, userId: record.userId }),
+        });
+        return (
+          <AccessGuard
+            permissions={[
+              Permissions.UpdateBenefitEntitlement,
+              Permissions.DeleteBenefitEntitlement,
+            ]}
+          >
+            <Dropdown
+              menu={{ items: menuItems }}
+              trigger={['click']}
+              placement="bottomRight"
+              overlayStyle={{
+                borderRadius: 8,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              }}
+            >
+              <button
+                type="button"
+                style={dotsButtonStyle}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <HiOutlineDotsHorizontal size={20} />
+              </button>
+            </Dropdown>
+          </AccessGuard>
+        );
+      },
+    },
+  ];
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Employee',
@@ -177,9 +318,26 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
     },
   ];
 
-  const filteredDataSource = searchQuery
-    ? transformedData.filter((employee: any) => employee.userId === searchQuery)
-    : transformedData;
+  const filteredDataSource = useMemo(() => {
+    let data = transformedData;
+    if (compact && searchText.trim()) {
+      const searchLower = searchText.toLowerCase().trim();
+      const employeeItems = employeeData?.items ?? [];
+      const matchingIds = new Set(
+        employeeItems
+          .filter((e: any) =>
+            `${e?.firstName ?? ''} ${e?.middleName ?? ''} ${e?.lastName ?? ''}`
+              .toLowerCase()
+              .includes(searchLower),
+          )
+          .map((e: any) => e.id),
+      );
+      data = data.filter((row: any) => matchingIds.has(row.userId));
+    } else if (!compact && searchQuery) {
+      data = data.filter((row: any) => row.userId === searchQuery);
+    }
+    return data;
+  }, [transformedData, compact, searchText, searchQuery, employeeData?.items]);
 
   const paginatedData = filteredDataSource.slice(
     (currentPage - 1) * pageSize,
@@ -198,20 +356,22 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
         {employeeBenefitData == null ? (
           <>
             <div
-              className="overflow-x-auto scrollbar-hide"
+              className="overflow-x-auto scrollbar-hide -mx-3 sm:mx-0 px-3 sm:px-0 [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none"
               id="compensation-benefit-entitlement-table-scroll"
               data-cy="compensation-benefit-entitlement-table-scroll"
             >
               <Table
                 data-cy="compensation-benefit-entitlement-table"
-                className="mt-6"
-                columns={columns}
+                className={`benefit-entitlement-table !shadow-none ${compact ? '' : 'mt-6'} ${(isMobile || isTablet) && compact ? '[&_.ant-table]:text-sm [&_.ant-table-thead>tr>th]:px-2 [&_.ant-table-tbody>tr>td]:px-2 [&_.ant-table-cell]:py-2 [&_.ant-table-tbody>tr>td]:border-b-0 [&_.ant-table-tbody>tr:nth-child(even)]:bg-gray-50/80 [&_.ant-table-tbody>tr:nth-child(odd)]:bg-white' : ''}`}
+                columns={compact ? columnsCompact : columns}
                 dataSource={paginatedData}
                 pagination={false}
+                scroll={compact && (isMobile || isTablet) ? { x: 340 } : undefined}
               />
             </div>
             {isMobile || isTablet ? (
               <div
+                className="mt-3 px-0"
                 id="compensation-benefit-entitlement-mobile-pagination"
                 data-cy="compensation-benefit-entitlement-mobile-pagination"
               >
@@ -219,6 +379,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
                   data-cy="compensation-benefit-entitlement-mobile-pagination"
                   totalResults={filteredDataSource.length}
                   pageSize={pageSize}
+                  currentPage={currentPage}
                   onChange={(page, size) => {
                     setCurrentPage(page);
                     setPageSize(size);
@@ -277,6 +438,57 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
             title={title}
           />
         </div>
+
+        <Modal
+          title={
+            <span className="text-base font-semibold text-gray-900">
+              Delete Employee
+            </span>
+          }
+          open={deleteModalRecord !== null}
+          onCancel={() => setDeleteModalRecord(null)}
+          closable
+          closeIcon={
+            <CloseOutlined
+              className="text-gray-500 hover:text-gray-700"
+              style={{ fontSize: 14 }}
+            />
+          }
+          footer={
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDeleteModalRecord(null)}
+                className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50"
+                data-cy="compensation-benefit-delete-employee-modal-cancel"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConfirm}
+                className="h-10 px-4 rounded-md border-0 bg-red-500 text-white text-sm font-medium hover:bg-red-600"
+                data-cy="compensation-benefit-delete-employee-modal-confirm"
+              >
+                Delete
+              </button>
+            </div>
+          }
+          data-cy="compensation-benefit-delete-employee-modal"
+          styles={{
+            content: { borderRadius: 8 },
+            header: { borderBottom: '1px solid #f0f0f0', padding: '16px 24px' },
+            body: { padding: '16px 24px 24px' },
+          }}
+        >
+          {deleteModalRecord && (
+            <p className="text-gray-800 text-sm font-normal m-0 leading-normal">
+              Are you Sure you want to remove{' '}
+              <strong>{getEmployeeName(deleteModalRecord.userId)}</strong> from
+              this benefit type ?
+            </p>
+          )}
+        </Modal>
       </Spin>
     </div>
   );

@@ -271,7 +271,7 @@ const BenefitTypeTable = () => {
               setBenefitPageSize(size);
             }}
             onShowSizeChange={(size) => {
-              setBenefitPageSize(size);
+              setBenefitPageSize(9);
               setBenefitCurrentPage(1);
             }}
           />
