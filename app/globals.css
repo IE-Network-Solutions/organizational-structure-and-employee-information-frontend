@@ -187,7 +187,7 @@
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 .ant-popconfirm-message {
