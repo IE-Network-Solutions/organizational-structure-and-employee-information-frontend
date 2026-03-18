@@ -189,7 +189,8 @@ const LeaveRequestSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-8 text-sm !px-3 !py-0',
+      className:
+        'h-10 text-sm !px-4 !py-0 font-normal border-gray-300 text-gray-700',
       size: 'middle',
       onClick: () => onClose(),
       disabled: isLoadingRequest || isLoading,
@@ -199,9 +200,8 @@ const LeaveRequestSidebar = () => {
     {
       label: leaveRequest ? 'Update' : 'Submit Request',
       key: 'create',
-      className:
-        'h-8 text-sm !px-3 !py-0 bg-[#2563eb] border-[#2563eb] text-white hover:bg-[#1d4ed8] hover:border-[#1d4ed8] disabled:bg-[#2563eb] disabled:border-[#2563eb] disabled:text-white disabled:opacity-100 disabled:cursor-not-allowed',
-      size: 'middle',
+      className: 'h-10 text-sm !px-4 !py-0 font-normal',
+      size: 'large',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
       disabled: hasNoApprover && !leaveRequest,
@@ -357,7 +357,7 @@ const LeaveRequestSidebar = () => {
             >
               <Select
                 className={controlClass}
-                size="middle"
+                size="large"
                 options={typeOptions()}
                 placeholder="Select Leave Type"
                 disabled={leaveRequest?.status === LeaveRequestStatus.APPROVED}
@@ -415,7 +415,7 @@ const LeaveRequestSidebar = () => {
                 >
                   <DatePicker
                     className={controlClass}
-                    size="middle"
+                    size="large"
                     onChange={handleChange}
                     disabled={
                       leaveRequest?.status === LeaveRequestStatus.APPROVED
@@ -443,7 +443,7 @@ const LeaveRequestSidebar = () => {
                 >
                   <DatePicker
                     className={controlClass}
-                    size="middle"
+                    size="large"
                     onChange={handleChange}
                     disabled={
                       leaveRequest?.status === LeaveRequestStatus.APPROVED
@@ -476,14 +476,13 @@ const LeaveRequestSidebar = () => {
             <Form.Item
               name="delegatee"
               label="Delegate"
-              rules={[{ required: true, message: 'Required' }]}
               className={itemClass}
               id="time-attendance-leave-request-sidebar-delegatee"
               data-cy="time-attendance-leave-request-sidebar-delegatee"
             >
               <Select
                 showSearch
-                size="middle"
+                size="large"
                 placeholder="Select Delegate"
                 className={controlClass}
                 allowClear

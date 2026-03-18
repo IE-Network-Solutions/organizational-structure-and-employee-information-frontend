@@ -43,7 +43,7 @@ export default function AttendanceSummaryCards() {
     >
       <Card
         loading={isFetching}
-        className="bg-red-50 border-red-100 [&_.ant-card-body]:!p-3"
+        className="bg-red-50 border-[#FFD6A8] [&_.ant-card-body]:!p-3"
         data-cy="my-timesheet-attendance-summary-late-arrivals"
       >
         <div
@@ -81,7 +81,7 @@ export default function AttendanceSummaryCards() {
 
       <Card
         loading={isFetching}
-        className="bg-red-50 border-red-100 [&_.ant-card-body]:!p-3"
+        className="bg-red-50 border-[#FFD6A8] [&_.ant-card-body]:!p-3"
         data-cy="my-timesheet-attendance-summary-absents"
       >
         <div

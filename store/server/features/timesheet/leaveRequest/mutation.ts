@@ -146,6 +146,7 @@ export const useSetLeaveRequest = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
+      queryClient.refetchQueries('leave-request');
       queryClient.invalidateQueries('current_approval');
       queryClient.invalidateQueries('userLeaveRequests');
       const method = variables?.method?.toUpperCase();
@@ -189,6 +190,7 @@ export const useSetApproveLeaveRequest = () => {
   return useMutation(setApproveLeaveRequest, {
     onSuccess: (data, variables: any) => {
       queryClient.invalidateQueries('current_approval');
+      queryClient.refetchQueries('current_approval');
       queryClient.invalidateQueries('leave-request');
       queryClient.invalidateQueries('transferApprovalRequest');
       queryClient.invalidateQueries('myTransferRequest');
@@ -205,6 +207,8 @@ export const useSetFinalApproveLeaveRequest = () => {
   return useMutation(setFinalApproveLeaveRequest, {
     onSuccess: (variables: any) => {
       queryClient.invalidateQueries('current_approval');
+      queryClient.refetchQueries('current_approval');
+      queryClient.invalidateQueries('leave-request');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

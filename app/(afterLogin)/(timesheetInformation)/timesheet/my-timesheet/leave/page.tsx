@@ -8,7 +8,7 @@ export default function LeavePage() {
     <div
       id="time-attendance-my-timesheet-leave-page"
       data-cy="time-attendance-my-timesheet-leave-page"
-      className="space-y-6"
+      className="space-y-6 w-full max-w-full"
     >
       <section
         id="time-attendance-my-timesheet-leave-balance-section"

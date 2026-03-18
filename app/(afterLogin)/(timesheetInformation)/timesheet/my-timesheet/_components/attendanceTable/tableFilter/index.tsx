@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import { Button, Col, DatePicker, Form, Modal, Row, Select } from 'antd';
+import { CheckOutlined } from '@ant-design/icons';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
@@ -19,6 +20,8 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
   const [mobileForm] = Form.useForm();
   const { showLeaveHistoryFilter, setShowLeaveHistoryFilter } =
     useMyTimesheetStore();
+  const selectedType = Form.useWatch('type', form);
+  const mobileSelectedType = Form.useWatch('type', mobileForm);
 
   const handleSubmit = () => {
     const values = mobileForm.getFieldsValue();
@@ -102,7 +105,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               <Select
                 placeholder="Filter Status"
                 allowClear={true}
-                className="w-full h-[40px]"
+                className="w-full h-[40px] [&_.ant-select-selector]:!h-[40px] [&_.ant-select-selector]:!rounded-lg focus-within:[&_.ant-select-selector]:!bg-blue-50"
                 style={{ width: '100%' }}
                 suffixIcon={
                   <MdKeyboardArrowDown
@@ -112,6 +115,24 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                   />
                 }
                 options={attendanceRecordTypeOption}
+                optionRender={(option: any) => {
+                  const isSelected = option?.value === selectedType;
+                  return (
+                    <div
+                      className="flex items-center justify-between px-2 py-1 rounded"
+                      style={
+                        isSelected
+                          ? { backgroundColor: '#E6F4FF' }
+                          : undefined
+                      }
+                    >
+                      <span>{option?.label}</span>
+                      {isSelected ? (
+                        <CheckOutlined style={{ color: '#1E40AF' }} />
+                      ) : null}
+                    </div>
+                  );
+                }}
                 id="time-attendance-attendance-table-filter-type-select"
                 data-cy="time-attendance-attendance-table-filter-type-select"
               />
@@ -193,7 +214,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
             <Select
               placeholder="Filter Status"
               allowClear={true}
-              className="w-full h-[40px]"
+              className="w-full h-[40px] [&_.ant-select-selector]:!h-[40px] [&_.ant-select-selector]:!rounded-lg focus-within:[&_.ant-select-selector]:!bg-blue-50"
               suffixIcon={
                 <MdKeyboardArrowDown
                   data-cy="time-attendance-attendance-table-filter-mobile-type-select-icon"
@@ -201,7 +222,26 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                   className="text-gray-900"
                 />
               }
+              
               options={attendanceRecordTypeOption}
+              optionRender={(option: any) => {
+                const isSelected = option?.value === mobileSelectedType;
+                return (
+                  <div
+                    className="flex items-center justify-between px-2 py-1 rounded"
+                    style={
+                      isSelected
+                        ? { backgroundColor: '#E6F4FF' }
+                        : undefined
+                    }
+                  >
+                    <span>{option?.label}</span>
+                    {isSelected ? (
+                      <CheckOutlined style={{ color: '#1E40AF' }} />
+                    ) : null}
+                  </div>
+                );
+              }}
               id="time-attendance-attendance-table-filter-mobile-type-select"
               data-cy="time-attendance-attendance-table-filter-mobile-type-select"
             />

@@ -5,7 +5,7 @@ const LeaveBalanceCardSkeleton = () => {
   return (
     <div
       className="w-full min-h-[120px] rounded-xl my-2 py-3 px-3 sm:px-4 border border-gray-200"
-      style={{ backgroundColor: '#F9FAFB' }}
+      style={{ backgroundColor: '#FCFDFD' }}
       data-cy="time-attendance-leave-balance-card-skeleton"
     >
       <div

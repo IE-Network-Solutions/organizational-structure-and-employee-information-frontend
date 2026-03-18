@@ -424,7 +424,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
 
   return (
     <div
-      className="bg-white border border-gray-100 rounded"
+      className="bg-white border border-gray-300 rounded-md"
       id="time-attendance-attendance-table-container"
       data-cy="time-attendance-attendance-table-container"
     >

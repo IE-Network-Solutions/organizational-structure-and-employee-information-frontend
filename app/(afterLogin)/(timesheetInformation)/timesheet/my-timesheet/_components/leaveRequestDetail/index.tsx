@@ -13,6 +13,7 @@ import {
   Spin,
   Steps,
   Tag,
+  Tooltip,
 } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
@@ -74,6 +75,17 @@ const LeaveRequestDetail = () => {
   const userImage = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user?.profileImage;
+  };
+
+  const userName = (id: string) => {
+    const user = employeeData?.items?.find((item: any) => item.id === id);
+    if (!user) return '';
+    return (
+      [user?.firstName, user?.middleName, user?.lastName]
+        .filter(Boolean)
+        .join(' ')
+        .trim() || 'Unknown'
+    );
   };
 
   const onClose = () => {
@@ -393,13 +405,13 @@ const LeaveRequestDetail = () => {
               </div>
             ) : (
               <div
-                className="w-[70%] min-h-[72px] pt-4 -ml-11"
+                className="w-[70%] min-h-[72px] pt-4 -ml-9"
                 data-cy="time-attendance-leave-request-detail-approval-steps"
               >
                 <Steps
                   direction="horizontal"
                   labelPlacement="vertical"
-                  size="small"
+                  size="default"
                   responsive={false}
                   current={(() => {
                     const idx = sortedApprovalData.findIndex(
@@ -408,7 +420,7 @@ const LeaveRequestDetail = () => {
                     return idx >= 0 ? idx : sortedApprovalData.length;
                   })()}
                 >
-                  {sortedApprovalData.map((step: ApprovalRecord) => {
+                  {sortedApprovalData.map((step: ApprovalRecord, index: number) => {
                     const displayUserId =
                       step.displayUserId ?? step.approvedUserId ?? step.userId;
                     const stepStatus: 'wait' | 'process' | 'finish' | 'error' =
@@ -417,23 +429,55 @@ const LeaveRequestDetail = () => {
                         : step.status === 'Rejected'
                           ? 'error'
                           : 'process';
-                    // Red border for rejected; gray for finished/current
+                    // Only the first Pending step gets dashed blue; if any step is Rejected, there is no "current" pending
+                    const hasRejected = sortedApprovalData.some(
+                      (s) => s.status === 'Rejected',
+                    );
+                    const currentPendingIndex = hasRejected
+                      ? -1
+                      : sortedApprovalData.findIndex(
+                          (s) => s.status === 'Pending',
+                        );
 
                     return (
                       <Steps.Step
-                        className="m-0 p-0"
+                        className="m-[-4px] p-0"
                         key={step.stepOrder}
                         status={stepStatus}
                         icon={
-                          <Avatar
-                            size={32}
-                            src={
+                          <Tooltip
+                            title={
                               displayUserId
-                                ? userImage(String(displayUserId))
-                                : undefined
+                                ? userName(String(displayUserId))
+                                : 'Unknown'
                             }
-                            icon={<UserOutlined />}
-                          />
+                            placement="bottom"
+                          >
+                            <span className="inline-flex">
+                              <Avatar
+                                size={36}
+                                src={
+                                  displayUserId
+                                    ? userImage(String(displayUserId))
+                                    : undefined
+                                }
+                                icon={<UserOutlined />}
+                                data-cy={`time-attendance-leave-request-detail-approval-avatar-${step.stepOrder}`}
+                                style={{
+                                  border:
+                                    index === currentPendingIndex
+                                      ? '3px dashed #1E40AF' // dashed only for current pending step
+                                      : `3px solid ${
+                                          step.status === 'Rejected'
+                                            ? '#dc2626' // red for rejected
+                                            : step.status === 'Approved'
+                                              ? '#1E40AF' // primary for approved
+                                              : '#9CA3AF' // gray for upcoming pending steps
+                                        }`,
+                                }}
+                              />
+                            </span>
+                          </Tooltip>
                         }
                       />
                     );
@@ -455,17 +499,19 @@ const LeaveRequestDetail = () => {
                   data-cy="time-attendance-leave-request-detail-rejection-reason-content"
                 >
                   {rejectionUserId && (
-                    <div
-                      className="rounded-full w-10 h-10 shrink-0 ring-2 ring-red-500 overflow-hidden bg-gray-100 flex items-center justify-center"
-                      data-cy="time-attendance-leave-request-detail-rejection-avatar"
-                    >
-                      <Avatar
-                        size={40}
-                        src={userImage(String(rejectionUserId))}
-                        icon={<UserOutlined />}
-                        className="!flex !items-center !justify-center"
-                      />
-                    </div>
+                    <Tooltip title={userName(String(rejectionUserId))}>
+                      <div
+                        className="rounded-full w-10 h-10 shrink-0 ring-2 ring-red-500 overflow-hidden bg-gray-100 flex items-center justify-center"
+                        data-cy="time-attendance-leave-request-detail-rejection-avatar"
+                      >
+                        <Avatar
+                          size={40}
+                          src={userImage(String(rejectionUserId))}
+                          icon={<UserOutlined />}
+                          className="!flex !items-center !justify-center"
+                        />
+                      </div>
+                    </Tooltip>
                   )}
                   <div data-cy="time-attendance-leave-request-detail-rejection-reason-text">
                     <div
@@ -522,6 +568,7 @@ const LeaveRequestDetail = () => {
                     size="middle"
                     onChange={handleDateChange}
                     format={DATE_FORMAT}
+                    disabled={disableActions || approvalHasStarted}
                   />
                 </Form.Item>
               </Col>
@@ -537,6 +584,7 @@ const LeaveRequestDetail = () => {
                     size="middle"
                     onChange={handleDateChange}
                     format={DATE_FORMAT}
+                    disabled={disableActions || approvalHasStarted}
                   />
                 </Form.Item>
               </Col>
@@ -564,7 +612,6 @@ const LeaveRequestDetail = () => {
             <Form.Item
               name="delegatee"
               label="Delegate"
-              rules={[{ required: true }]}
               className={itemClass}
             >
               <Select

@@ -103,11 +103,11 @@ const ApprovalTable = () => {
   // Normalize response: support both { items, meta } and { data: { items, meta } }
   const payload = approvalData?.data ?? approvalData;
   const rawItems = payload?.items ?? approvalData?.items ?? [];
-  const finalApproval: any = (e: {
-    leaveRequestId: string;
-    status: string;
-  }) => {
-    finalApprover(e);
+  const finalApproval: any = (
+    e: { leaveRequestId: string; status: string },
+    options?: { onSuccess?: () => void },
+  ) => {
+    finalApprover(e, { onSuccess: () => options?.onSuccess?.() });
   };
   const reject: any = (e: {
     approvalWorkflowId: string;
@@ -122,8 +122,10 @@ const ApprovalTable = () => {
     editApprover(e, {
       onSuccess: () => {
         setRejectComment('');
-        finalApproval({ leaveRequestId: e.requestId, status: 'declined' });
-        refetch();
+        finalApproval(
+          { leaveRequestId: e.requestId, status: 'declined' },
+          { onSuccess: () => refetch() },
+        );
       },
     });
   };
@@ -139,13 +141,14 @@ const ApprovalTable = () => {
   }) => {
     editApprover(e, {
       onSuccess: (data) => {
-        if (data?.last == true) {
-          finalApproval({
-            leaveRequestId: e.requestId,
-            status: 'approved',
-          });
+        if (data?.last === true) {
+          finalApproval(
+            { leaveRequestId: e.requestId, status: 'approved' },
+            { onSuccess: () => refetch() },
+          );
+        } else {
+          refetch();
         }
-        refetch();
       },
     });
   };

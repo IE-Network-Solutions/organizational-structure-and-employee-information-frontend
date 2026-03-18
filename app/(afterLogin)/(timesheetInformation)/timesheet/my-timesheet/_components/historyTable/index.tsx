@@ -43,7 +43,7 @@ const HistoryTable = () => {
     setLimit,
     setOrderBy,
     setOrderDirection,
-  } = usePagination(1, 10);
+  } = usePagination(1, 5);
   const [filter, setFilter] =
     useState<Partial<LeaveRequestBody['filter']>>(userFilter);
   const { data, isFetching } = useGetLeaveRequest(
@@ -112,17 +112,20 @@ const HistoryTable = () => {
     setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId ?? null);
   };
 
+  const rowCellClass = 'text-sm py-2';
+  const cellStyle = { paddingTop: 8, paddingBottom: 8 };
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Type',
       dataIndex: 'leaveType',
       key: 'leaveType',
-      sorter: true,
+      onCell: () => ({ style: cellStyle }),
       render: (text: string, record: { action?: LeaveRequest }) => (
         <button
           type="button"
           onClick={() => record.action && openDetail(record.action)}
-          className="text-sm text-primary hover:underline py-4 text-left w-full cursor-pointer"
+          className={`${rowCellClass} text-gray-600 hover:text-gray-900 hover:underline text-left w-full cursor-pointer`}
           data-cy="time-attendance-leave-requests-table-type"
         >
           {text}
@@ -133,10 +136,10 @@ const HistoryTable = () => {
       title: 'Start Date',
       dataIndex: 'startAt',
       key: 'startAt',
-      sorter: true,
+      onCell: () => ({ style: cellStyle }),
       render: (date: string) => (
         <div
-          className="text-sm text-gray-900 py-4"
+          className={`${rowCellClass} text-gray-900`}
           data-cy="time-attendance-leave-requests-table-start-date"
         >
           {date ? dayjs(date).format(DATE_DISPLAY_FORMAT) : '-'}
@@ -147,10 +150,10 @@ const HistoryTable = () => {
       title: 'End Date',
       dataIndex: 'endAt',
       key: 'endAt',
-      sorter: true,
+      onCell: () => ({ style: cellStyle }),
       render: (date: string) => (
         <div
-          className="text-sm text-gray-900 py-4"
+          className={`${rowCellClass} text-gray-900`}
           data-cy="time-attendance-leave-requests-table-end-date"
         >
           {date ? dayjs(date).format(DATE_DISPLAY_FORMAT) : '-'}
@@ -161,10 +164,10 @@ const HistoryTable = () => {
       title: 'Days',
       dataIndex: 'days',
       key: 'days',
-      sorter: true,
+      onCell: () => ({ style: cellStyle }),
       render: (text: number) => (
         <div
-          className="text-sm text-gray-900 py-4"
+          className={`${rowCellClass} text-gray-900`}
           data-cy="time-attendance-leave-requests-table-days"
         >
           {text}
@@ -175,9 +178,10 @@ const HistoryTable = () => {
       title: 'Reason',
       dataIndex: 'reason',
       key: 'reason',
+      onCell: () => ({ style: cellStyle }),
       render: (text: string) => (
         <div
-          className="text-sm text-gray-900 py-4 max-w-[200px] truncate"
+          className={`${rowCellClass} text-gray-900 max-w-[200px] truncate`}
           data-cy="time-attendance-leave-requests-table-reason"
           title={text}
         >
@@ -189,6 +193,7 @@ const HistoryTable = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      onCell: () => ({ style: cellStyle }),
       render: (text: LeaveRequestStatus) => {
         const config = statusTagConfig[text] ?? {
           color: 'default',
@@ -196,7 +201,7 @@ const HistoryTable = () => {
         };
         return (
           <div
-            className="py-4"
+            className={`${rowCellClass}`}
             data-cy="time-attendance-leave-requests-table-status"
           >
             <Tag
@@ -233,7 +238,7 @@ const HistoryTable = () => {
 
   return (
     <div
-      className="bg-white p-5 px-3 sm:p-6 rounded-lg"
+      className="bg-white rounded-lg"
       id="time-attendance-history-table-container"
       data-cy="time-attendance-history-table-container"
     >
@@ -304,13 +309,6 @@ const HistoryTable = () => {
             loading={isFetching}
             dataSource={tableData}
             pagination={false}
-            onChange={(paginationUnused, filtersUnused, sorter: any) => {
-              void paginationUnused;
-              void filtersUnused;
-              setOrderDirection(sorter['order']);
-              setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-            }}
-            scroll={{ x: 'max-content' }}
             id="time-attendance-history-table"
             data-cy="time-attendance-history-table"
           />

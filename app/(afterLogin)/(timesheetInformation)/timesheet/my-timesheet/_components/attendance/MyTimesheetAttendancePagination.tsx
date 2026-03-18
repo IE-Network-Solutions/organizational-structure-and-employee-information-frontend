@@ -12,7 +12,7 @@ interface MyTimesheetAttendancePaginationProps {
   total: number;
   pageSize: number;
   onChange: (page: number, pageSize: number) => void;
-  onShowSizeChange: (size: number) => void;
+  onShowSizeChange: (size: number) => void; // legacy: kept for compatibility, not used (go-to control jumps pages)
   id?: string;
   'data-cy'?: string;
 }
@@ -26,29 +26,30 @@ export default function MyTimesheetAttendancePagination({
   id,
   'data-cy': dataCy,
 }: MyTimesheetAttendancePaginationProps) {
-  const [pageSizeInput, setPageSizeInput] = useState(String(pageSize));
+  const [goToPageInput, setGoToPageInput] = useState(String(current));
   const totalPages = Math.ceil(total / pageSize) || 1;
 
   useEffect(() => {
-    setPageSizeInput(String(pageSize));
-  }, [pageSize]);
+    setGoToPageInput(String(current));
+  }, [current]);
 
   const handlePageChange = (page: number) => {
     onChange(page, pageSize);
   };
 
-  const commitPageSize = () => {
-    const num = parseInt(pageSizeInput, 10);
-    if (!Number.isNaN(num) && num >= MIN_PAGE_SIZE && num <= MAX_PAGE_SIZE) {
-      onShowSizeChange(num);
-    } else {
-      setPageSizeInput(String(pageSize));
+  const commitGoToPage = () => {
+    const num = parseInt(goToPageInput, 10);
+    if (!Number.isNaN(num)) {
+      const clamped = Math.min(Math.max(num, 1), totalPages);
+      onChange(clamped, pageSize);
+      return;
     }
+    setGoToPageInput(String(current));
   };
 
-  const handleSizeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGoToInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
-    if (v === '' || /^\d+$/.test(v)) setPageSizeInput(v);
+    if (v === '' || /^\d+$/.test(v)) setGoToPageInput(v);
   };
 
   const renderPageNumbers = () => {
@@ -61,10 +62,10 @@ export default function MyTimesheetAttendancePagination({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
+            className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium border transition-colors ${
               current === i
-                ? 'bg-[#F8F8F8] text-[#111827]'
-                : 'bg-white text-[#111827] hover:bg-gray-100'
+                ? 'bg-white text-primary border-primary'
+                : 'bg-white text-[#111827] border-gray-200 hover:bg-gray-100'
             }`}
             data-cy={`my-timesheet-attendance-pagination-page-button-${i}`}
           >
@@ -77,10 +78,10 @@ export default function MyTimesheetAttendancePagination({
         <button
           key={1}
           onClick={() => handlePageChange(1)}
-          className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
+          className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium border transition-colors ${
             current === 1
-              ? 'bg-[#F8F8F8] text-[#111827]'
-              : 'bg-white text-[#111827] hover:bg-gray-100'
+              ? 'bg-white text-primary border-primary'
+              : 'bg-white text-[#111827] border-gray-200 hover:bg-gray-100'
           }`}
           data-cy="my-timesheet-attendance-pagination-page-button-1"
         >
@@ -110,10 +111,10 @@ export default function MyTimesheetAttendancePagination({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors ${
+            className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium border transition-colors ${
               current === i
-                ? 'bg-[#F8F8F8] text-[#111827]'
-                : 'bg-white text-[#111827] hover:bg-gray-100'
+                ? 'bg-white text-primary border-primary'
+                : 'bg-white text-[#111827] border-gray-200 hover:bg-gray-100'
             }`}
             data-cy={`my-timesheet-attendance-pagination-page-button-${i}`}
           >
@@ -138,10 +139,10 @@ export default function MyTimesheetAttendancePagination({
         <button
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
-          className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
+          className={`w-8 h-8 flex items-center justify-center rounded-[10px] border ${
             current === totalPages
-              ? 'bg-[#F8F8F8] text-[#111827]'
-              : 'bg-white text-[#111827] hover:bg-gray-100'
+              ? 'bg-white text-primary border-primary'
+              : 'bg-white text-[#111827] border-gray-200 hover:bg-gray-100'
           }`}
           data-cy={`my-timesheet-attendance-pagination-page-button-${totalPages}`}
         >
@@ -163,12 +164,6 @@ export default function MyTimesheetAttendancePagination({
         className="flex items-center gap-4"
         data-cy="my-timesheet-attendance-pagination-left"
       >
-        <span
-          className="text-sm text-gray-600 whitespace-nowrap"
-          data-cy="my-timesheet-attendance-pagination-page-of"
-        >
-          Page {current} of {totalPages}
-        </span>
         <div
           className="flex items-center space-x-2"
           data-cy="my-timesheet-attendance-pagination-controls"
@@ -221,10 +216,10 @@ export default function MyTimesheetAttendancePagination({
         <Input
           type="text"
           inputMode="numeric"
-          value={pageSizeInput}
-          onChange={handleSizeInputChange}
-          onBlur={commitPageSize}
-          onPressEnter={commitPageSize}
+          value={goToPageInput}
+          onChange={handleGoToInputChange}
+          onBlur={commitGoToPage}
+          onPressEnter={commitGoToPage}
           className="w-16 text-center"
           size="middle"
           data-cy="my-timesheet-attendance-pagination-page-size-input"

@@ -23,7 +23,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
   return (
     <div
       className="w-full min-h-[120px] rounded-xl my-2 py-3 px-3 sm:px-4 border border-gray-200 transition-shadow duration-200"
-      style={{ backgroundColor: '#F9FAFB' }}
+      style={{ backgroundColor: '#FCFDFD' }}
       id={`time-attendance-leave-balance-card-${title}-container`}
       data-cy={
         dataCy ?? `time-attendance-leave-balance-card-${title}-container`
@@ -46,27 +46,31 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
               {title}
             </div>
           </Tooltip>
-          <div
-            className="text-xs font-medium text-gray-500"
-            data-cy={`time-attendance-leave-balance-card-${title}-available-label`}
-          >
-            Available
-          </div>
+        <div
+          className="text-xs font-medium text-gray-500"
+          data-cy={`time-attendance-leave-balance-card-${title}-available-label`}
+        >
+          Available
+        </div>
         </div>
         <div
-          className="text-xl sm:text-2xl font-bold shrink-0"
-          style={{ color: '#1677FF' }}
+          className="shrink-0 text-right"
           id={`time-attendance-leave-balance-card-${title}-available`}
           data-cy={`time-attendance-leave-balance-card-${title}-available`}
         >
-          {toOneDecimal(available)}
-          <span
-            className="text-sm font-medium ml-1"
+          <div
+            className="text-xl sm:text-2xl font-bold"
+            style={{ color: '#1677FF' }}
+          >
+            {toOneDecimal(available)}
+          </div>
+          <div
+            className="text-sm font-medium"
             style={{ color: '#1677FF' }}
             data-cy={`time-attendance-leave-balance-card-${title}-available-unit`}
           >
             days
-          </span>
+          </div>
         </div>
       </div>
       <div

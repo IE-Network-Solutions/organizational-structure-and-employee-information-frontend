@@ -16,7 +16,7 @@ const RECENT_LIMIT = 5;
 const DATE_FORMAT = 'MMM D, YYYY';
 
 const LEAVE_STATUS_TAG_COLOR: Record<LeaveRequestStatus, string> = {
-  [LeaveRequestStatus.PENDING]: 'default',
+  [LeaveRequestStatus.PENDING]: 'warning',
   [LeaveRequestStatus.APPROVED]: 'blue',
   [LeaveRequestStatus.DECLINED]: 'error',
 };
@@ -63,7 +63,7 @@ export default function RecentLeaveRequestCard() {
           </span>
           <Link
             href="/timesheet/my-timesheet/leave"
-            className="text-primary text-xs font-medium mt-1 inline-block underline"
+            className="text-[#1A64DC] text-xs font-medium mt-1 inline-block underline"
             data-cy="my-timesheet-overview-recent-leave-view-all"
           >
             View All
@@ -105,7 +105,7 @@ export default function RecentLeaveRequestCard() {
                   data-cy={`my-timesheet-overview-recent-leave-row-content-${item.id}`}
                 >
                   <Text
-                    className="block text-gray-900 text-sm font-medium mb-1"
+                    className="block text-gray-900 text-sm font-medium mb-2"
                     data-cy={`my-timesheet-overview-recent-leave-row-type-${item.id}`}
                   >
                     {typeof item.leaveType === 'object' && item.leaveType?.title
@@ -113,7 +113,7 @@ export default function RecentLeaveRequestCard() {
                       : '—'}
                   </Text>
                   <Text
-                    className="block text-gray-600 text-xs"
+                    className="block text-gray-600 text-xs mt-0.5"
                     data-cy={`my-timesheet-overview-recent-leave-row-dates-${item.id}`}
                   >
                     {dayjs(item.startAt).format(DATE_FORMAT)} -{' '}

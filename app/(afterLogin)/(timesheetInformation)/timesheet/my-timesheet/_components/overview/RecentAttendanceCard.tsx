@@ -100,7 +100,7 @@ export default function RecentAttendanceCard() {
         </span>
         <Link
           href="/timesheet/my-timesheet/attendance"
-          className="text-primary text-xs font-medium inline-block underline"
+          className="text-[#1A64DC] text-xs font-medium inline-block underline"
           data-cy="my-timesheet-overview-recent-attendance-view-all"
         >
           View All
@@ -130,13 +130,13 @@ export default function RecentAttendanceCard() {
                   data-cy={`my-timesheet-overview-recent-attendance-row-content-${record.id}`}
                 >
                   <Text
-                    className="block text-gray-900 text-sm mb-1"
+                    className="block text-gray-900 text-sm mb-2"
                     data-cy={`my-timesheet-overview-recent-attendance-row-date-${record.id}`}
                   >
                     {dayjs(record.createdAt).format(DATE_FORMAT)}
                   </Text>
                   <Text
-                    className="block   text-xs"
+                    className="block text-gray-600 text-xs mt-0.5"
                     data-cy={`my-timesheet-overview-recent-attendance-row-time-${record.id}`}
                   >
                     {renderTimeDisplay(record)}

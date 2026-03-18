@@ -84,7 +84,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
       key: 'overview',
       label: (
         <div
-          className={`text-base m-0 ${activeKey === 'overview' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base m-0 ${activeKey === 'overview' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="my-timesheet-overview-tab-label"
           id="my-timesheet-overview-tab-label"
         >
@@ -96,7 +96,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
       key: 'attendance',
       label: (
         <div
-          className={`text-base m-0 ${activeKey === 'attendance' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base m-0 ${activeKey === 'attendance' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="my-timesheet-attendance-tab-label"
           id="my-timesheet-attendance-tab-label"
         >
@@ -108,7 +108,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
       key: 'leave',
       label: (
         <div
-          className={`text-base m-0 ${activeKey === 'leave' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base m-0 ${activeKey === 'leave' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="my-timesheet-leave-tab-label"
           id="my-timesheet-leave-tab-label"
         >
@@ -120,7 +120,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
       key: 'my-approvals',
       label: (
         <div
-          className={`text-base m-0 ${activeKey === 'my-approvals' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base m-0 ${activeKey === 'my-approvals' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="my-timesheet-my-approvals-tab-label"
           id="my-timesheet-my-approvals-tab-label"
         >
@@ -142,7 +142,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
         id="time-attendance-my-timesheet-layout-inner"
       >
         <div
-          className="px-4 pt-4"
+          className="px-4 pt-4 pb-4 border-b border-gray-200"
           data-cy="time-attendance-my-timesheet-header-container"
           id="time-attendance-my-timesheet-header-container"
         >
@@ -159,7 +159,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
                 My Timesheet
               </h3>
               <Breadcrumb
-                className="mt-2 mb-4"
+                className="mt-2 mb-0"
                 items={[
                   {
                     title: (
@@ -228,7 +228,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
         </div>
 
         <div
-          className="px-4 pr-4 sm:pr-6 pb-6"
+          className="px-4 pr-4 sm:pr-4 pb-6"
           data-cy="time-attendance-my-timesheet-content-wrapper"
           id="time-attendance-my-timesheet-content-wrapper"
         >
