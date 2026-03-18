@@ -12,7 +12,6 @@ import {
   MdPeople,
   MdPersonSearch,
   MdOutlineAccessTime,
-  MdAdjust,
   MdChat,
   MdSchool,
   MdAccountBalanceWallet,
@@ -21,6 +20,7 @@ import {
   MdHowToReg,
   MdAdminPanelSettings,
 } from 'react-icons/md';
+import AlbumOutlinedIcon from '@mui/icons-material/AlbumOutlined';
 import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
@@ -85,6 +85,7 @@ const NavMenuItem: React.FC<{
   item: any;
   collapsed: boolean;
   colorPrimary: string;
+  fontSize: number;
   selectedKeys: (string | number | bigint)[];
   setSelectedKeys: React.Dispatch<
     React.SetStateAction<(string | number | bigint)[]>
@@ -100,6 +101,7 @@ const NavMenuItem: React.FC<{
   item,
   collapsed,
   colorPrimary,
+  fontSize,
   selectedKeys,
   setSelectedKeys,
   router,
@@ -111,16 +113,19 @@ const NavMenuItem: React.FC<{
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedKeys.includes(item.key);
 
+  const bestMatchingChildKey = React.useMemo(() => {
+    if (!hasChildren) return undefined;
+    const matches = item.children
+      .map((child: any) => String(child.key))
+      .filter((key: string) => isRouteMatch(key, pathname));
+    if (matches.length === 0) return undefined;
+    return matches.sort((a: string, b: string) => b.length - a.length)[0];
+  }, [hasChildren, item.children, pathname]);
+
   // Check if this item or any of its children matches the current path
   const isDirectlyActive =
     selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
-  const isChildActive =
-    hasChildren &&
-    item.children.some(
-      (child: any) =>
-        selectedKeys.includes(child.key) ||
-        isRouteMatch(String(child.key), pathname),
-    );
+  const isChildActive = Boolean(bestMatchingChildKey);
   const isActive =
     isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
@@ -168,7 +173,8 @@ const NavMenuItem: React.FC<{
         {!collapsed && (
           <span
             data-cy="nav-menu-item-label"
-            className="flex-1 text-[14.5px] transition-colors"
+            className="flex-1 transition-colors"
+            style={{ fontSize }}
           >
             {item.label}
           </span>
@@ -183,7 +189,7 @@ const NavMenuItem: React.FC<{
           {item.children.map((child: any) => {
             const isChildSelected =
               selectedKeys.includes(child.key) ||
-              isRouteMatch(String(child.key), pathname);
+              String(child.key) === bestMatchingChildKey;
             return (
               <div
                 key={child.key}
@@ -200,11 +206,14 @@ const NavMenuItem: React.FC<{
                   py-2 cursor-pointer rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
                   ${
                     isChildSelected
-                      ? 'font-normal text-[16px]'
-                      : 'text-black font-medium text-[14.5px] hover:bg-[#E6F4FF]'
+                      ? 'font-normal'
+                      : 'text-black font-medium hover:bg-[#E6F4FF]'
                   }
                 `}
-                style={isChildSelected ? { color: colorPrimary } : undefined}
+                style={{
+                  fontSize,
+                  ...(isChildSelected ? { color: colorPrimary } : {}),
+                }}
               >
                 {child.label}
               </div>
@@ -218,7 +227,7 @@ const NavMenuItem: React.FC<{
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
-    token: { borderRadiusLG, colorPrimary },
+    token: { borderRadiusLG, colorPrimary, fontSize, fontSizeSM },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -501,7 +510,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
-        icon: <MdAdjust style={{ fontSize: 20 }} />,
+        icon: <AlbumOutlinedIcon style={{ fontSize: 20 }} />,
         title: 'OKR',
         key: '/okr-menu',
         className: 'font-bold',
@@ -1302,9 +1311,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 9000,
+          zIndex: 100,
           backgroundColor: '#F5fbff',
-          borderRight: '1px solid #E5E7EB',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
         }}
@@ -1361,7 +1369,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             data-cy="nav-sider-toggle"
             onClick={toggleCollapsed}
             className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full text-white shadow-md transition-all hover:opacity-90"
-            style={{ zIndex: 9999, backgroundColor: colorPrimary }}
+            style={{ zIndex: 101, backgroundColor: colorPrimary }}
           >
             {collapsed ? (
               <AiOutlineRight size={12} />
@@ -1396,7 +1404,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       >
                         <div
                           data-cy="nav-sider-group-label-skeleton"
-                          className="w-full text-[13px] font-light text-[#64748B] tracking-wide"
+                            className="w-full font-light text-[#64748B] tracking-wide"
+                            style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
                         </div>
@@ -1442,9 +1451,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       >
                         <div
                           data-cy="nav-sider-group-label-wrap"
-                          className={`w-full text-[13px] font-light text-[#64748B] tracking-wide transition-colors ${
+                          className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
                             collapsed ? 'hidden' : ''
                           }`}
+                          style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
                         </div>
@@ -1462,6 +1472,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             item={item}
                             collapsed={collapsed}
                             colorPrimary={colorPrimary}
+                              fontSize={fontSize}
                             selectedKeys={selectedKeys}
                             setSelectedKeys={setSelectedKeys}
                             router={router}
