@@ -142,7 +142,7 @@ const ApprovalStatus: FC = () => {
                   startAt={request.startAt}
                   endAt={request.endAt}
                   isHalfDay={request.isHalfDay}
-                  leaveType={request.leaveType.title}
+                  leaveType={request?.leaveType?.title || ''}
                   approvalWorkflowId={request.approvalWorkflowId}
                   nextApprover={request.nextApprover?.[0]?.stepOrder}
                   requestType={approverType}

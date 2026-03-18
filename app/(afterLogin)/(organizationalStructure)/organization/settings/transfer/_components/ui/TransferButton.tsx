@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Button } from 'antd';
-import { IoIosArrowForward } from 'react-icons/io';
+import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io';
 
 interface TransferButtonProps {
   disabled: boolean;
@@ -56,15 +56,22 @@ const TransferButton: React.FC<TransferButtonProps> = ({
           onClick={onClick}
           disabled={disabled}
           loading={loading}
-          className={`px-4 h-9 flex items-center gap-2 ${borderColorClass} ${textColorClass}`}
+          className={`px-4 h-9 flex items-center gap-2 bg-transparent hover:!bg-gray-50 ${borderColorClass} ${textColorClass}`}
           data-cy="org-settings-transfer-submit-btn"
           id="org-settings-transfer-submit-btn"
         >
-          <span className={textColorClass} data-cy="transfer-button-text">
+          <span
+            className={`font-normal ${textColorClass}`}
+            data-cy="transfer-button-text"
+          >
             Transfer
           </span>
+          <IoIosArrowDown
+            className={`lg:hidden ${textColorClass}`}
+            data-cy="transfer-button-arrow-icon-mobile"
+          />
           <IoIosArrowForward
-            className={textColorClass}
+            className={`hidden lg:inline-block ${textColorClass}`}
             data-cy="transfer-button-arrow-icon"
           />
         </Button>
