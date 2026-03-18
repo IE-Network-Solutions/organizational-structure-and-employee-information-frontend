@@ -12,11 +12,12 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
-import { Button, DatePicker, Row, Col, Select, Popover } from 'antd';
+import { Button, Card, DatePicker, Row, Col, Select, Popover } from 'antd';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import dayjs, { Dayjs } from 'dayjs';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -308,36 +309,52 @@ const AllCandidates: React.FC = () => {
     <div
       id="talent-acquisition-candidate-page-div-container"
       data-cy="talent-acquisition-candidate-page-div-container"
-      className="h-auto w-full px-2 sm:px-6 py-4 sm:py-6"
+      className="h-auto w-full py-4 sm:py-6"
     >
-      <div
-        id="talent-acquisition-candidate-page-div-header"
-        data-cy="talent-acquisition-candidate-page-div-header"
-        className="flex flex-wrap justify-between items-center gap-4"
-      >
-        <div
-          className="min-w-0 flex flex-col justify-start items-start gap-1 py-2 sm:py-4"
-          id="talent-acquisition-candidate-page-breadcrumb"
-          data-cy="talent-acquisition-candidate-page-breadcrumb"
-        >
-          <h1
-            className="text-gray-900 text-xl sm:text-2xl font-bold leading-tight m-0"
-            data-cy="talent-acquisition-candidate-page-title"
+      <Card
+        data-cy="talent-acquisition-candidate-card"
+        className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1.5 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
+        title={
+          <div
+            className="py-0.5"
+            data-cy="talent-acquisition-candidate-breadcrumb-container"
           >
-            Candidates
-          </h1>
-          <p
-            className="text-gray-500 text-xs sm:text-sm font-normal leading-snug m-0"
-            data-cy="talent-acquisition-candidate-page-breadcrumb-trail"
+            <CustomBreadcrumb
+              compact
+              title={
+                <span
+                  className="text-lg sm:text-2xl font-bold text-[#000000B2]"
+                  data-cy="talent-acquisition-candidate-breadcrumb-title"
+                >
+                  Candidates
+                </span>
+              }
+              subtitle={
+                <>
+                  <span
+                    className="text-slate-500"
+                    data-cy="talent-acquisition-candidate-breadcrumb-prefix"
+                  >
+                    Talent Acquisition /{' '}
+                  </span>
+                  <span
+                    className="text-[#000000B2]"
+                    data-cy="talent-acquisition-candidate-breadcrumb-current"
+                  >
+                    Candidates
+                  </span>
+                </>
+              }
+              data-cy="talent-acquisition-candidate-breadcrumb"
+            />
+          </div>
+        }
+        extra={
+          <div
+            id="talent-acquisition-candidate-page-div-buttons"
+            data-cy="talent-acquisition-candidate-page-div-buttons"
+            className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 my-2 sm:my-4 px-4 sm:px-6"
           >
-            Talent Acquisition / Candidates
-          </p>
-        </div>
-        <div
-          id="talent-acquisition-candidate-page-div-buttons"
-          data-cy="talent-acquisition-candidate-page-div-buttons"
-          className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 my-2 sm:my-4"
-        >
           {selectedCandidate?.length > 0 && (
             <div
               id="talent-acquisition-candidate-page-div-move-button"
@@ -360,8 +377,9 @@ const AllCandidates: React.FC = () => {
                 icon={
                   <ForwardIcon className="md:mr-0 ml-2" fontSize="medium" />
                 }
-                onClick={handleMoveToTalentsPool}
-                className="bg-blue-600 hover:bg-blue-700 h-10 w-10 sm:w-auto sm:px-4"
+                  onClick={handleMoveToTalentsPool}
+                  style={{ height: 40 }}
+                  className="h-10 w-[152px] rounded-lg border border-[#1E40AF] bg-[#1E40AF] hover:border-[#1E40AF] hover:bg-[#4096FF] text-white"
               />
             </div>
           )}
@@ -386,27 +404,30 @@ const AllCandidates: React.FC = () => {
                 />
               }
               onClick={showDrawer}
-              className="bg-blue-600 hover:bg-blue-700 h-10 w-10 sm:w-auto sm:px-4"
+              style={{ height: 40 }}
+              className="h-10 w-[152px] rounded-lg bg-[#1E40AF] hover:bg-[#1D4ED8] text-white"
             />
             <CreateCandidate
               data-cy="talent-acquisition-candidate-page-create-candidate"
               onClose={onClose}
             />
           </AccessGuard>
-        </div>
-      </div>
-      <div
-        id="talent-acquisition-candidate-page-div-table"
-        data-cy="talent-acquisition-candidate-page-div-table"
-        className="mt-4 sm:mt-6 w-full h-auto bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden"
+          </div>
+        }
       >
         <div
-          className="px-2 sm:px-4 py-4 border-b border-gray-100 bg-white"
+          id="talent-acquisition-candidate-page-div-table"
+          data-cy="talent-acquisition-candidate-page-div-table"
+          className="mt-0 sm:mt-2 w-full h-auto bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden"
+        >
+        <div
+          className="px-0 sm:px-0 py-4 bg-white"
           id="talent-acquisition-candidate-page-table-toolbar"
           data-cy="talent-acquisition-candidate-page-table-toolbar"
+          style={{ borderBottom: 'none' }}
         >
           <div
-            className="flex flex-wrap items-center justify-between gap-3 sm:gap-4"
+            className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 px-4"
             data-cy="talent-acquisition-candidate-page-toolbar-inner"
           >
             <div
@@ -445,12 +466,15 @@ const AllCandidates: React.FC = () => {
                     className="text-gray-600"
                   />
                 }
-                className="h-10 flex items-center gap-2 border border-gray-200 text-gray-700 bg-white text-xs sm:text-sm transition-colors hover:border-[#4096FF] hover:text-[#4096FF] hover:[&_.ant-btn-icon]:text-[#4096FF] shrink-0"
+                className="h-8 sm:h-10 flex items-center gap-2 rounded-lg border border-[#D9D9D9] text-gray-700 bg-white text-xs sm:text-sm transition-colors hover:border-[#4096FF] hover:text-[#4096FF] hover:[&_.ant-btn-icon]:text-[#4096FF] shrink-0"
                 id="talent-acquisition-candidate-page-filter-button"
                 data-cy="talent-acquisition-candidate-page-filter-button"
               >
                 {!(isMobile || isTablet) && (
-                  <span data-cy="talent-acquisition-candidate-page-filter-button-text">
+                  <span
+                    className="font-normal"
+                    data-cy="talent-acquisition-candidate-page-filter-button-text"
+                  >
                     Filter
                   </span>
                 )}
@@ -459,13 +483,14 @@ const AllCandidates: React.FC = () => {
           </div>
         </div>
         <div
-          className="px-2 sm:px-4 pb-4"
+          className="px-0 sm:px-0 pb-4"
           id="talent-acquisition-candidate-page-table-container"
           data-cy="talent-acquisition-candidate-page-table-container"
         >
           <AllCandidateTable data-cy="talent-acquisition-candidate-page-table" />
         </div>
-      </div>
+        </div>
+      </Card>
     </div>
   );
 };

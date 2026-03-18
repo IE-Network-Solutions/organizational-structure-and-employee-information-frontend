@@ -6,7 +6,7 @@ import {
   CandidateData,
   useCandidateState,
 } from '@/store/uistate/features/recruitment/candidate';
-import { Dropdown, Table, TableColumnsType, Tag } from 'antd';
+import { Dropdown, Skeleton, Table, TableColumnsType, Tag } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { EyeOutlined } from '@ant-design/icons';
@@ -260,6 +260,26 @@ const AllCandidateTable: React.FC = () => {
     }
   };
 
+  if (isResponseLoading) {
+    return (
+      <div
+        className="space-y-3"
+        data-cy="talent-acquisition-candidate-table-skeleton"
+      >
+        <Skeleton
+          active
+          title={false}
+          paragraph={{ rows: isMobile || isTablet ? 5 : 3 }}
+        />
+        <Skeleton
+          active
+          title={false}
+          paragraph={{ rows: isMobile || isTablet ? 6 : 4 }}
+        />
+      </div>
+    );
+  }
+
   const data = candidateList?.items?.map((item: any, index: any) => {
     const editDeleteItems = [
       {
@@ -441,7 +461,7 @@ const AllCandidateTable: React.FC = () => {
         <Table
           id="talent-acquisition-candidate-table-table"
           data-cy="talent-acquisition-candidate-table-table"
-          className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table-tbody_.ant-table-row]:cursor-pointer"
+          className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table-thead_.ant-table-cell]:px-4 [&_.ant-table-thead_.ant-table-cell]:text-[14px] [&_.ant-table-thead_.ant-table-cell]:text-[#000000B2] [&_.ant-table-tbody_.ant-table-cell]:px-4 [&_.ant-table-tbody_.ant-table-row]:cursor-pointer"
           rowClassName={() => 'h-[60px]'}
           columns={columns}
           dataSource={data}
