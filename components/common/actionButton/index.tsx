@@ -8,6 +8,8 @@ import DeletePopover from '@/components/common/actionButton/deletePopover';
 export interface ActionButtonProps {
   onOpen?: (e?: any) => void;
   onEdit?: (e?: any) => void;
+  onStatusToggle?: (e?: any) => void;
+  statusToggleLabel?: string;
   onDelete?: (e?: any) => void;
   onCancelDelete?: (e?: any) => void;
   className?: string;
@@ -17,6 +19,8 @@ export interface ActionButtonProps {
 const ActionButton: FC<ActionButtonProps> = ({
   onOpen,
   onEdit,
+  onStatusToggle,
+  statusToggleLabel,
   onDelete,
   onCancelDelete,
   className = '',
@@ -75,6 +79,27 @@ const ActionButton: FC<ActionButtonProps> = ({
           }}
         >
           Edit
+        </Button>
+      ),
+      className: 'p-0 hover:bg-transparent',
+    });
+  }
+
+  if (onStatusToggle) {
+    items.push({
+      key: '1.5',
+      label: (
+        <Button
+          size="large"
+          id={`${id}actionButtonForStatusToggleId`}
+          className="w-full justify-normal"
+          type="text"
+          onClick={(e) => {
+            setOpen(false);
+            onStatusToggle(e);
+          }}
+        >
+          {statusToggleLabel || 'Toggle Status'}
         </Button>
       ),
       className: 'p-0 hover:bg-transparent',
