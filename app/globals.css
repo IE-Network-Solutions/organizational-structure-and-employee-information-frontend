@@ -7,7 +7,9 @@
 .org-structure-flow .xyflow__node {
   transition: transform 260ms ease;
 }
-
+.transition-all {
+  will-change: transform, opacity;
+}
 .org-structure-flow .react-flow__edge-path,
 .org-structure-flow .xyflow__edge-path {
   transition: opacity 220ms ease;

@@ -1,6 +1,6 @@
 // components/ApprovalRequestCard.tsx
 import { FC } from 'react';
-import { Input, Popconfirm } from 'antd';
+import { Avatar, Input, Popconfirm } from 'antd';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetApproveLeaveRequest,
@@ -10,13 +10,13 @@ import {
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import Image from 'next/image';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+import genderNeutralAvatar from '@/public/gender_neutral_avatar.jpg';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { MdOutlineFileDownload } from 'react-icons/md';
 
 interface ApprovalRequestCardProps {
+  isLoading: boolean;
   name: string;
   days?: number;
   startAt: string;
@@ -32,6 +32,7 @@ interface ApprovalRequestCardProps {
 }
 
 const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
+  isLoading,
   name,
   days,
   startAt,
@@ -166,7 +167,8 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           className="relative w-[36px] h-[36px] rounded-full overflow-hidden"
           data-cy="approval-status-card-avatar"
         >
-          <Image
+          <Avatar
+            size={36}
             src={
               employeeData?.profileImage &&
               typeof employeeData?.profileImage === 'string'
@@ -175,18 +177,16 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
                       const parsed = JSON.parse(employeeData.profileImage);
                       return parsed.url && parsed.url.startsWith('http')
                         ? parsed.url
-                        : Avatar;
+                        : genderNeutralAvatar.src;
                     } catch {
                       return employeeData.profileImage.startsWith('http')
                         ? employeeData.profileImage
-                        : Avatar;
+                        : genderNeutralAvatar.src;
                     }
                   })()
-                : Avatar
+                : genderNeutralAvatar.src
             }
             alt="Description of image"
-            layout="fill"
-            className="object-cover"
           />
         </div>
         <div
@@ -286,6 +286,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             type="button"
             className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-[#52C41A] text-[#52C41A]"
             disabled={
+              isLoading ||
               isLoadingEditApprover ||
               isLoadingFinalLeaveApprover ||
               isLoadingFinalBranchApprover
@@ -341,12 +342,13 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           onCancel={cancel}
           okText="Reject"
           cancelText="Cancel"
-          okButtonProps={{ disabled: !rejectComment }}
+          okButtonProps={{ disabled: isLoading || !rejectComment }}
         >
           <button
             type="button"
             className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-[#FF4D4F] text-[#FF4D4F]"
             disabled={
+              isLoading ||
               isLoadingEditApprover ||
               isLoadingFinalLeaveApprover ||
               isLoadingFinalBranchApprover

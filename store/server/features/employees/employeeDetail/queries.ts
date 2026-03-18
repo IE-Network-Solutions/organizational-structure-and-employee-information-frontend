@@ -114,6 +114,9 @@ export const useGetEmployee = (empId: string) => {
   const token = useAuthenticationStore.getState().token;
   return useQuery<any>(['employeeItemData', empId], () => getEmployee(empId), {
     keepPreviousData: true,
-    enabled: empId?.length > 0 || !!token,
+    // Only fetch when we have a real employee id.
+    // Otherwise the queryFn calls getEmployee(empId) which throws for invalid ids.
+    enabled:
+      !!empId && empId !== 'undefined' && empId.length > 0 && !!token,
   });
 };

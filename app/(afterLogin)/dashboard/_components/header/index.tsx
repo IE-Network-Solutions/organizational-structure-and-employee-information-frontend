@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetPersonalRecognition } from '@/store/server/features/CFR/recognition/queries';
 import { Card, Progress } from 'antd';
 import { useRouter } from 'next/navigation';
@@ -11,21 +10,14 @@ import { MdOutlineMilitaryTech, MdReportGmailerrorred } from 'react-icons/md';
 import { IoMdTrendingDown, IoMdTrendingUp } from 'react-icons/io';
 
 const Header = () => {
-  const { userId, tenantId } = useAuthenticationStore();
-  const { data: subscriptionResp } = useGetSubscriptionByTenant(
-    tenantId as string,
-    !!tenantId,
-  );
-  const hasOKR = !!(subscriptionResp as any)?.plan?.modules?.some(
-    (m: any) => m?.module?.description === '/okr',
-  );
+  const { userId } = useAuthenticationStore();
   const { data: objectiveDashboard, isLoading } = useGetUserObjectiveDashboard(
     userId,
     undefined,
     undefined,
-    hasOKR,
+    !!userId,
   );
-  const { data: vpScore } = useGetVPScore(userId, hasOKR);
+  const { data: vpScore } = useGetVPScore(userId, !!userId);
   const router = useRouter();
   const { data: personalRecognition, isLoading: isPersonalRecognitionLoading } =
     useGetPersonalRecognition();
@@ -112,26 +104,22 @@ const Header = () => {
   }, [appreciationStats.length, reprimandStats.length]);
 
   useEffect(() => {
-    if (!hasOKR) return;
-
     setIsAppreciationAnimating(true);
     const timeout = setTimeout(() => {
       setIsAppreciationAnimating(false);
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [appreciationIndex, hasOKR]);
+  }, [appreciationIndex]);
 
   useEffect(() => {
-    if (!hasOKR) return;
-
     setIsReprimandAnimating(true);
     const timeout = setTimeout(() => {
       setIsReprimandAnimating(false);
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [reprimandIndex, hasOKR]);
+  }, [reprimandIndex]);
 
   const currentAppreciation = appreciationStats[appreciationIndex];
   const currentReprimand = reprimandStats[reprimandIndex];
@@ -139,10 +127,10 @@ const Header = () => {
   const onDetail = () => {
     router.push(`/dashboard/vp`);
   };
-
+  console.log(objectiveDashboard,'isLoading');
   return (
     <>
-      {hasOKR && (
+   
         <div
           className="w-full pb-6 flex flex-nowrap gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-none md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5"
           data-cy="okr-header-cards"
@@ -331,9 +319,9 @@ const Header = () => {
                 />
               </div>
               <div
-                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${
+                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-500 ease-in-out ${
                   isAppreciationAnimating
-                    ? 'opacity-0 translate-x-1'
+                    ? 'opacity-0 -translate-x-4'
                     : 'opacity-100 translate-x-0'
                 }`}
                 data-cy="okr-card-appreciation-value"
@@ -356,9 +344,9 @@ const Header = () => {
                 data-cy="okr-card-appreciation-trend-row"
               >
                 <span
-                  className={`text-gray-500 transition-all duration-300 ${
+                  className={`text-gray-500 transition-all duration-500 ease-in-out ${
                     isAppreciationAnimating
-                      ? 'opacity-0 translate-x-1'
+                      ? 'opacity-0 -translate-x-4'
                       : 'opacity-100 translate-x-0'
                   }`}
                   data-cy="okr-card-appreciation-dimension"
@@ -370,9 +358,9 @@ const Header = () => {
                     currentAppreciation.trendDirection === 'up'
                       ? 'text-[#52C41A]'
                       : 'text-red-500'
-                  } flex items-center gap-1 transition-all duration-300 ${
+                  } flex items-center gap-1 transition-all duration-500 ease-in-out ${
                     isAppreciationAnimating
-                      ? 'opacity-0 translate-x-1'
+                      ? 'opacity-0 -translate-x-4'
                       : 'opacity-100 translate-x-0'
                   }`}
                   data-cy="okr-card-appreciation-trend"
@@ -417,9 +405,9 @@ const Header = () => {
                 />
               </div>
               <div
-                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${
+                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-500 ease-in-out ${
                   isReprimandAnimating
-                    ? 'opacity-0 translate-x-1'
+                    ? 'opacity-0 -translate-x-4'
                     : 'opacity-100 translate-x-0'
                 }`}
                 data-cy="okr-card-reprimand-value"
@@ -442,9 +430,9 @@ const Header = () => {
                 data-cy="okr-card-reprimand-trend-row"
               >
                 <span
-                  className={`text-gray-500 transition-all duration-300 ${
+                  className={`text-gray-500 transition-all duration-500 ease-in-out ${
                     isReprimandAnimating
-                      ? 'opacity-0 translate-x-1'
+                      ? 'opacity-0 -translate-x-4'
                       : 'opacity-100 translate-x-0'
                   }`}
                   data-cy="okr-card-reprimand-dimension"
@@ -456,9 +444,9 @@ const Header = () => {
                     currentReprimand.trendDirection === 'down'
                       ? 'text-red-500'
                       : 'text-[#52C41A]'
-                  } flex items-center gap-1 transition-all duration-300 ${
+                  } flex items-center gap-1 transition-all duration-500 ease-in-out ${
                     isReprimandAnimating
-                      ? 'opacity-0 translate-x-1'
+                      ? 'opacity-0 -translate-x-4'
                       : 'opacity-100 translate-x-0'
                   }`}
                   data-cy="okr-card-reprimand-trend"
@@ -599,7 +587,6 @@ const Header = () => {
             </div>
           </Card>
         </div>
-      )}
     </>
   );
 };

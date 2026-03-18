@@ -114,7 +114,16 @@ const ApprovalStatus: FC = () => {
         {approverType === 'Personal' ? (
           <MyLeaveRequestDashboard />
         ) : approverType === 'BranchTransfer' ? (
-          BranchTransferData?.items?.length ? (
+          isLoadingBranchTransfer ? (
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingBranchTransfer}
+              data-cy="dashboard-approval-status-branch-transfer-card"
+            >
+              <div style={{ height: 250 }} />
+            </Card>
+          ) : BranchTransferData?.items?.length ? (
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
@@ -123,6 +132,7 @@ const ApprovalStatus: FC = () => {
             >
               {BranchTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
+                  isLoading={isLoadingBranchTransfer}
                   key={index}
                   id={request.id}
                   name={request.name}
@@ -152,7 +162,16 @@ const ApprovalStatus: FC = () => {
             </div>
           )
         ) : approverType === 'Leave' ? (
-          LeaveTransferData?.items?.length ? (
+          isLoadingLeaveTransfer ? (
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingLeaveTransfer}
+              data-cy="dashboard-approval-status-leave-card"
+            >
+              <div style={{ height: 250 }} />
+            </Card>
+          ) : LeaveTransferData?.items?.length ? (
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
@@ -161,6 +180,7 @@ const ApprovalStatus: FC = () => {
             >
               {LeaveTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
+                  isLoading={isLoadingLeaveTransfer}
                   key={index}
                   id={request.id}
                   name={request.name}

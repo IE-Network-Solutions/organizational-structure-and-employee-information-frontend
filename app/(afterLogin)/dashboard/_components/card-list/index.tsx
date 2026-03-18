@@ -16,6 +16,7 @@ interface CardPerson {
     firstName?: string;
     middleName?: string | null;
     profileImage?: string | null;
+    employeeJobInformation?: Array<{ position?: { name?: string } }>;
   };
 }
 
@@ -25,47 +26,38 @@ interface CardListProps {
   loading: boolean;
   type: string;
 }
+
 const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
   const [currentPersonIndex, setCurrentPersonIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const cardsPerPage = 1;
+  // Direction is set by click handlers so left/right arrows always match.
+  const [direction, setDirection] = useState<'next' | 'prev'>('next');
 
+  const cardsPerPage = 1;
   const totalCards = people?.length || 0;
   const maxIndex = totalCards - cardsPerPage;
+
+  useEffect(() => {
+    if (!totalCards) return;
+    setIsAnimating(true);
+    // Match the CSS transition duration for a smooth finish.
+    const timeout = setTimeout(() => setIsAnimating(false), 900);
+    return () => clearTimeout(timeout);
+  }, [currentPersonIndex, totalCards]);
 
   const getHeaderIcon = () => {
     switch (type) {
       case 'birthday':
-        return {
-          icon: <MdOutlineCake />,
-          bg: 'bg-[#FFF0F6]',
-          text: 'text-[#F759AB]',
-        };
+        return { icon: <MdOutlineCake />, bg: 'bg-[#FFF0F6]', text: 'text-[#F759AB]' };
       case 'anniversary':
-        return {
-          icon: <MdCardGiftcard />,
-          bg: 'bg-[#F6FFED]',
-          text: 'text-[#52C41A]',
-        };
+        return { icon: <MdCardGiftcard />, bg: 'bg-[#F6FFED]', text: 'text-[#52C41A]' };
       case 'Leader':
-        return {
-          icon: <MdOutlineEmojiEvents />,
-          bg: 'bg-[#FFFBE6]',
-          text: 'text-[#FAAD14]',
-        };
+        return { icon: <MdOutlineEmojiEvents />, bg: 'bg-[#FFFBE6]', text: 'text-[#FAAD14]' };
       case 'Employee':
-        return {
-          icon: <MdStarOutline />,
-          bg: 'bg-[#E6F7FF]',
-          text: 'text-primary',
-        };
+        return { icon: <MdStarOutline />, bg: 'bg-[#E6F7FF]', text: 'text-primary' };
       default:
-        return {
-          icon: <MdOutlineCake />,
-          bg: 'bg-gray-100',
-          text: 'text-gray-500',
-        };
+        return { icon: <MdOutlineCake />, bg: 'bg-gray-100', text: 'text-gray-500' };
     }
   };
 
@@ -73,25 +65,18 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
 
   const handlePrevious = () => {
     if (currentPersonIndex === 0) return;
+    setDirection('prev');
     setCurrentPersonIndex((prev) => Math.max(prev - 1, 0));
   };
 
   const handleNext = () => {
     if (currentPersonIndex >= maxIndex) return;
+    setDirection('next');
     setCurrentPersonIndex((prev) => Math.min(prev + 1, maxIndex));
   };
 
-  useEffect(() => {
-    if (!totalCards) return;
-    setIsAnimating(true);
-    const timeout = setTimeout(() => setIsAnimating(false), 200);
-    return () => clearTimeout(timeout);
-  }, [currentPersonIndex, totalCards]);
+  const visiblePerson = people[currentPersonIndex];
 
-  const visibleCards = people?.slice(
-    currentPersonIndex,
-    currentPersonIndex + cardsPerPage,
-  );
   return (
     <Card
       bordered={false}
@@ -102,24 +87,15 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className="flex items-center justify-between px-4 pt-3 pb-1"
-        data-cy="dashboard-card-list-title"
-      >
-        <div
-          className="flex items-center gap-2"
-          data-cy="dashboard-card-list-title-left"
-        >
+      <div className="flex items-center justify-between px-4 pt-3 pb-1" data-cy="dashboard-card-list-title">
+        <div className="flex items-center gap-2" data-cy="dashboard-card-list-title-left">
           <span
             className={`inline-flex items-center justify-center w-7 h-7 rounded-sm text-lg ${bg} ${text}`}
             data-cy="dashboard-card-list-title-emoji"
           >
             {icon}
           </span>
-          <span
-            className="text-sm font-semibold text-gray-900"
-            data-cy="dashboard-card-list-title-text"
-          >
+          <span className="text-sm font-semibold text-gray-900" data-cy="dashboard-card-list-title-text">
             {title}
           </span>
         </div>
@@ -131,106 +107,71 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
         </span>
       </div>
 
-      <div
-        className="flex-1 px-4 pb-3 flex items-center justify-center relative"
-        data-cy="dashboard-card-list-content"
-      >
-        {visibleCards?.length > 0 ? (
-          <div
-            className="w-full flex items-center justify-between"
-            data-cy="dashboard-card-list-cards"
-          >
-            {isHovered && (
-              <Button
-                onClick={handlePrevious}
-                icon={
-                  <MdKeyboardArrowLeft
-                    size={24}
-                    data-cy="dashboard-card-list-previous-icon"
-                  />
-                }
-                disabled={
-                  !(
-                    isHovered &&
-                    totalCards > cardsPerPage &&
-                    currentPersonIndex > 0
-                  )
-                }
-                className="bg-white shadow-sm md:w-6 md:h-6 w-5 h-5 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary"
-                data-cy="dashboard-card-list-previous-button"
-              />
+      <div className="flex-1 px-4 pb-3 flex items-center justify-center relative" data-cy="dashboard-card-list-content">
+        {totalCards > 0 && visiblePerson ? (
+          <div className="w-full relative overflow-hidden" data-cy="dashboard-card-list-cards">
+            {/* Navigation buttons */}
+            {isHovered && totalCards > 1 && (
+              <>
+                <Button
+                  onClick={handlePrevious}
+                  icon={<MdKeyboardArrowLeft data-cy="dashboard-card-list-previous-icon" />}
+                  disabled={currentPersonIndex === 0}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-sm w-8 h-8 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary"
+                  data-cy="dashboard-card-list-previous-button"
+                />
+                <Button
+                  onClick={handleNext}
+                  icon={<MdKeyboardArrowRight data-cy="dashboard-card-list-next-icon" />}
+                  disabled={currentPersonIndex >= maxIndex}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-sm w-8 h-8 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary"
+                  data-cy="dashboard-card-list-next-button"
+                />
+              </>
             )}
 
-            {visibleCards?.map((item: any, index: number) => (
-              <div
-                key={`${currentPersonIndex}-${index}`}
-                className={`flex flex-col items-center gap-1 mx-auto transition-all duration-200 ease-out transform ${
-                  isAnimating
-                    ? 'opacity-0 translate-y-1'
-                    : 'opacity-100 translate-y-0'
-                }`}
-                data-cy={`dashboard-card-list-card-${index}`}
-              >
-                {item?.user?.profileImage ? (
-                  <Avatar
-                    src={item?.user?.profileImage}
-                    alt={`${item?.user?.firstName || ''}`}
-                    className="w-10 2xl:w-12 h-10 2xl:h-12 rounded-full"
-                    data-cy={`dashboard-card-list-card-avatar-${index}`}
-                  />
-                ) : (
-                  <Avatar
-                    icon={
-                      <UserOutlined
-                        size={40}
-                        data-cy={`dashboard-card-list-card-avatar-icon-${index}`}
-                      />
-                    }
-                    className="w-10 2xl:w-12 h-10 2xl:h-12 rounded-full"
-                    data-cy={`dashboard-card-list-card-avatar-default-${index}`}
-                  />
-                )}
-                <p
-                  className="font-medium text-center text-[12px] text-gray-900"
-                  data-cy={`dashboard-card-list-card-name-${index}`}
-                >
-                  <span data-cy={`dashboard-card-list-card-name-text-${index}`}>
-                    {`${item?.user?.firstName || ''} ${item?.user?.middleName || ''}`}
-                  </span>
-                </p>
-                <p
-                  className="text-[11px] text-gray-500 text-center"
-                  data-cy={`dashboard-card-list-card-position-${index}`}
-                >
-                  {item?.user?.employeeJobInformation[0]?.position?.name || ''}
-                </p>
-              </div>
-            ))}
-            {isHovered && (
-              <Button
-                onClick={handleNext}
-                icon={
-                  <MdKeyboardArrowRight
-                    size={24}
-                    data-cy="dashboard-card-list-next-icon"
-                  />
+            {/* Sliding card */}
+            <div
+              key={currentPersonIndex}
+              className={`
+                flex flex-col items-center gap-1 mx-auto w-full
+                transition-all duration-[900ms] ease-[cubic-bezier(0.4,0,0.2,1)]
+                ${isAnimating
+                  ? direction === 'next'
+                    ? 'translate-x-[90%] opacity-0 scale-95'
+                    : '-translate-x-[90%] opacity-0 scale-95'
+                  : 'translate-x-0 opacity-100 scale-100'
                 }
-                className="bg-white shadow-sm w-6 h-6 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary"
-                data-cy="dashboard-card-list-next-button"
-                disabled={
-                  !(totalCards > cardsPerPage && currentPersonIndex < maxIndex)
-                }
-              />
-            )}
+              `}
+              data-cy={`dashboard-card-list-card-${currentPersonIndex}`}
+            >
+              {visiblePerson.user?.profileImage ? (
+                <Avatar
+                  src={visiblePerson.user.profileImage}
+                  alt={`${visiblePerson.user.firstName || ''}`}
+                  className="w-10 2xl:w-12 h-10 2xl:h-12 rounded-full"
+                  data-cy="dashboard-card-list-card-avatar"
+                />
+              ) : (
+                <Avatar
+                  icon={<UserOutlined data-cy="dashboard-card-list-card-avatar-icon" />}
+                  className="w-10 2xl:w-12 h-10 2xl:h-12 rounded-full"
+                  data-cy="dashboard-card-list-card-avatar-default"
+                />
+              )}
+
+              <p className="font-medium text-center text-[12px] text-gray-900" data-cy="dashboard-card-list-card-name">
+                {`${visiblePerson.user?.firstName || ''} ${visiblePerson.user?.middleName || ''}`.trim()}
+              </p>
+
+              <p className="text-[11px] text-gray-500 text-center" data-cy="dashboard-card-list-card-position">
+                {visiblePerson.user?.employeeJobInformation?.[0]?.position?.name || ''}
+              </p>
+            </div>
           </div>
         ) : (
-          <div
-            className="text-sm font-light flex min-h-20 justify-center items-center "
-            data-cy="dashboard-card-list-empty"
-          >
-            <span data-cy="dashboard-card-list-empty-text">
-              No {type} today
-            </span>
+          <div className="text-sm font-light flex min-h-20 justify-center items-center" data-cy="dashboard-card-list-empty">
+            <span data-cy="dashboard-card-list-empty-text">No {type} today</span>
           </div>
         )}
       </div>
