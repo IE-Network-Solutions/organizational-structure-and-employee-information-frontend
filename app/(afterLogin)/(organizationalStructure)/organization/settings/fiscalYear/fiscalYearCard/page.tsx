@@ -369,12 +369,12 @@ const FiscalYearListCard: React.FC = () => {
                           )}
                         </div>
                         <div
-                          className="flex items-center gap-4 text-xs"
+                          className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs"
                           data-cy={`org-settings-fiscal-year-meta-${fiscalYearId}`}
                           id={`org-settings-fiscal-year-meta-${fiscalYearId}`}
                         >
                           <div
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 min-w-0"
                             data-cy={`org-settings-fiscal-year-date-range-${fiscalYearId}`}
                           >
                             <MdCalendarToday
@@ -386,7 +386,7 @@ const FiscalYearListCard: React.FC = () => {
                               data-cy={`org-settings-fiscal-year-date-range-icon-${fiscalYearId}`}
                             />
                             <span
-                              className="text-sm text-gray-500"
+                              className="text-sm text-gray-500 truncate"
                               data-cy={`org-settings-fiscal-year-date-range-text-${fiscalYearId}`}
                             >
                               {dayjs(fYear.startDate).format('DD MMM, YYYY')} -{' '}
@@ -394,7 +394,7 @@ const FiscalYearListCard: React.FC = () => {
                             </span>
                           </div>
                           <div
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-2 min-w-0"
                             data-cy={`org-settings-fiscal-year-frequency-${fiscalYearId}`}
                           >
                             <MdBarChart
@@ -406,7 +406,7 @@ const FiscalYearListCard: React.FC = () => {
                               data-cy={`org-settings-fiscal-year-frequency-icon-${fiscalYearId}`}
                             />
                             <span
-                              className="text-sm text-gray-500"
+                              className="text-sm text-gray-500 truncate"
                               data-cy={`org-settings-fiscal-year-frequency-text-${fiscalYearId}`}
                             >
                               {getCalendarFrequency(fYear.sessions)}
