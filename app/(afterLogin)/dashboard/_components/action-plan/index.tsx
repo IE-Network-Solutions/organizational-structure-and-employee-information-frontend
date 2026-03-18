@@ -11,7 +11,7 @@ export default function ActionPlans() {
       >
         Schedule
       </div>
-      <Calender />
+      
       <Lists />
     </Card>
   );
