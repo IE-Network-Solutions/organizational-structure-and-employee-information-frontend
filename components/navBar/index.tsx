@@ -143,20 +143,18 @@ const NavMenuItem: React.FC<{
         data-cy="nav-menu-item"
         onClick={handleToggle}
         className={`
-          group flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200 rounded-xl
+          group flex items-center gap-3 py-2 cursor-pointer transition-all duration-200 rounded-[6px]
           ${isActive
-              ? 'text-[#1e40af] font-bold'
-              : 'text-black font-medium'
+              ? 'text-[#1E40AF] font-bold'
+              : 'text-black font-medium hover:bg-[#E6F4FF]'
             }
-          ${isDirectlyActive ? 'bg-[#E1EFFF]' : ''}
-          hover:bg-[#E1EFFF]
-          ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
+          ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
         `}
       >
         <div
           data-cy="nav-menu-item-icon"
           className={`text-[21px] transition-colors ${isActive
-            ? 'text-[#1e40af]'
+            ? 'text-[#1E40AF]'
             : 'text-black'
             }`}
         >
@@ -195,10 +193,10 @@ const NavMenuItem: React.FC<{
                   }
                 }}
                 className={`
-                  py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
+                  py-2 cursor-pointer rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
                   ${isChildSelected
-                    ? 'text-[#1e40af] font-normal text-[16px]'
-                    : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
+                    ? 'text-[#1E40AF] font-normal text-[16px]'
+                    : 'text-black font-medium text-[14.5px] hover:bg-[#E6F4FF]'
                   }
                 `}
               >
@@ -1195,6 +1193,56 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     return menuItems;
   }, [treeData, modulesData]);
+
+  // Fallback skeleton structure used while modules data is not yet available
+  const skeletonMenuItems = React.useMemo(
+    () =>
+      groupedMenuItems.length > 0
+        ? groupedMenuItems
+        : [
+            {
+              type: 'group',
+              key: 'skeleton-overview',
+              label: 'Overview',
+              // Dashboard, Organization
+              children: [
+                { key: 'skeleton-overview-item-1' },
+                { key: 'skeleton-overview-item-2' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-people',
+              label: 'People',
+              children: [
+                { key: 'skeleton-people-item-1' },
+                { key: 'skeleton-people-item-2' },
+                { key: 'skeleton-people-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-performance',
+              label: 'Performance',
+              children: [
+                { key: 'skeleton-performance-item-1' },
+                { key: 'skeleton-performance-item-2' },
+                { key: 'skeleton-performance-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-finance',
+              label: 'Finance',
+              children: [
+                { key: 'skeleton-finance-item-1' },
+                { key: 'skeleton-finance-item-2' },
+                { key: 'skeleton-finance-item-3' },
+              ],
+            },
+          ],
+    [groupedMenuItems],
+  );
   const { mutate: employeeInfo } = useCreateEmployee();
   const handleUserInfoUpdate = () => {
     const fullName = employeeData?.firstName?.split(' ') || [];
@@ -1233,7 +1281,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       <Sider
         theme="light"
         width={280}
-        className="scrollbar-hide"
+        className="scrollbar-hide flex flex-col"
         style={{
           overflow: 'visible',
           height: '100vh',
@@ -1241,7 +1289,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 1010,
+          zIndex: 9000,
           backgroundColor: '#F5fbff',
           borderRight: '1px solid #E5E7EB',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
@@ -1259,63 +1307,103 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }}
         collapsedWidth={80}
       >
-        <div
-          data-cy="nav-sider-logo-wrap"
-          className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
-        >
-          <div data-cy="nav-sider-logo" className="relative h-10 w-full flex items-center">
-            {collapsed ? (
-              <div data-cy="nav-sider-logo-collapsed-container" className="w-full flex justify-center">
+        <div className="relative flex flex-col flex-1 min-h-0">
+          <div
+            data-cy="nav-sider-logo-wrap"
+            className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
+          >
+            <div data-cy="nav-sider-logo" className="relative h-10 w-full flex items-center">
+              {collapsed ? (
+                <div data-cy="nav-sider-logo-collapsed-container" className="w-full flex justify-center">
+                  <Image
+                    src="/image/selamnew-workspace-logo.svg"
+                    alt="SelamNew Workspace Logo"
+                    width={32}
+                    height={32}
+                    style={{ objectFit: 'contain' }}
+                  />
+                </div>
+              ) : (
                 <Image
-                  src="/image/Logo.png"
-                  alt="Logo"
-                  width={32}
-                  height={32}
+                  src="/image/selamnew-workspace-logo.svg"
+                  alt="SelamNew Workspace Logo"
+                  width={150}
+                  height={40}
                   style={{ objectFit: 'contain' }}
                 />
-              </div>
-            ) : (
-              <Image
-                src="/image/Logo.png"
-                alt="Logo"
-                width={150}
-                height={40}
-                style={{ objectFit: 'contain' }}
-              />
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        <button
-          data-cy="nav-sider-toggle"
-          onClick={toggleCollapsed}
-          className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-[#1D4ED8] text-white shadow-md hover:bg-[#1e40af] transition-all"
-          style={{ zIndex: 10001 }}
-        >
-          {collapsed ? (
-            <AiOutlineRight size={12} />
-          ) : (
-            <AiOutlineRight size={12} className="rotate-180" />
-          )}
-        </button>
-        <div
-          data-cy="nav-sider-menu-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
-          style={{ minHeight: 0 }}
-        >
+          <button
+            data-cy="nav-sider-toggle"
+            onClick={toggleCollapsed}
+            className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-[#1E40AF] text-white shadow-md hover:bg-[#1E40AF] transition-all"
+            style={{ zIndex: 9999 }}
+          >
+            {collapsed ? (
+              <AiOutlineRight size={12} />
+            ) : (
+              <AiOutlineRight size={12} className="rotate-180" />
+            )}
+          </button>
+
+          <div
+            data-cy="nav-sider-menu-scroll"
+            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+            style={{ minHeight: 0 }}
+          >
           <div
             data-cy="nav-sider-menu-inner"
-            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-6 pr-3'}`}
+            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-10 pr-3'}`}
           >
-            {!isMounted || isLoading ? (
+            {!isMounted || isLoadingData ? (
               <div
                 data-cy="nav-sider-loading"
-                className="px-5 w-full h-full flex justify-center items-center my-5"
+                className="space-y-4 max-w-[209px]"
               >
-                <Skeleton active />
+                {skeletonMenuItems.map((group: any) => {
+                  const isExpanded = true;
+
+                  return (
+                    <div
+                      data-cy="nav-sider-group-skeleton"
+                      key={group.key}
+                      className="space-y-1"
+                    >
+                      <div
+                        data-cy="nav-sider-group-header-skeleton"
+                        className="mb-2 mt-4 first:mt-2"
+                      >
+                        <div
+                          className="w-full text-[13px] font-light text-[#64748B] tracking-wide"
+                        >
+                          {group.label}
+                        </div>
+                      </div>
+
+                      <div
+                        data-cy="nav-sider-group-children-skeleton"
+                        className={`space-y-1 ${collapsed ? '' : 'pl-2'}`}
+                      >
+                        {group.children?.map((item: any) => (
+                          <div
+                            key={item.key}
+                            className={`
+                              group flex items-center py-2 rounded-xl
+                              ${collapsed ? 'justify-center mx-[10px]' : ''}
+                            `}
+                          >
+                            <div className="h-[16px] w-full rounded-md bg-gray-200" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
-              <div data-cy="nav-sider-groups" className="space-y-6">
+              <div data-cy="nav-sider-groups" className="space-y-4 max-w-[209px]">
                 {groupedMenuItems.map((group: any) => {
                   const isExpanded = true;
 
@@ -1327,7 +1415,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       <div
                         data-cy="nav-sider-group-header"
-                        className="px-4 mb-2 mt-4 first:mt-2"
+                        className="mb-2 mt-4 first:mt-2"
                       >
                         <div
                           data-cy="nav-sider-group-label-wrap"
@@ -1341,8 +1429,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
                       <div
                         data-cy="nav-sider-group-children"
-                        className={`space-y-1 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'hidden opacity-0'
-                          } ${collapsed ? '' : 'pl-2'}`}
+                        className={`space-y-1 transition-all duration-300 ${
+                          isExpanded ? 'opacity-100' : 'hidden opacity-0'
+                        } ${collapsed ? '' : 'pl-2'}`}
                       >
                         {group.children?.map((item: any) => (
                           <NavMenuItem
@@ -1366,9 +1455,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             )}
           </div>
 
+          </div>
+
           <div
             data-cy="nav-sider-admin-wrap"
-            className="w-full flex justify-center py-6 mt-10"
+            className="w-full flex justify-center py-6 mt-4 bg-[#F5fbff]"
           >
             <Button
               data-cy="nav-sider-admin-btn"
@@ -1376,10 +1467,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               size="large"
               icon={<MdHowToReg size={22} />}
               className={`
-                flex items-center justify-center bg-[#1e40af] hover:bg-[#173691] border-none shadow-lg transition-all duration-300
+                flex items-center justify-center bg-[#1E40AF] hover:bg-[#1E40AF] border-none shadow-lg transition-all duration-300 font-normal
                 ${collapsed
-                  ? 'w-[52px] h-[52px] rounded-xl'
-                  : 'w-[85%] h-12 rounded-xl text-[14px] font-semibold gap-2'
+                  ? 'w-[52px] h-[52px] rounded-[10px]'
+                  : 'w-[249px] h-[40px] rounded-[10px] text-[14px] gap-[10px] px-[10px]'
                 }
               `}
               onClick={() => router.push('/admin/dashboard')}
@@ -1388,8 +1479,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </Button>
           </div>
         </div>
-
-
       </Sider>
       <Layout
         style={{
