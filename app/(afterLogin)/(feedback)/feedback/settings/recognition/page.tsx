@@ -8,14 +8,17 @@ import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/r
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
+import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
 
 const Page = () => {
-  const { setOpen, openRecognitionType } = ConversationStore();
+  const { setOpenRecognitionCategoryModal, setRecognitionCategoryEditId } =
+    ConversationStore();
   const router = useRouter();
+  const { mutate: deleteRecognitionType, isLoading: isDeleting } =
+    useDeleteRecognitionType();
 
   const { data: recognitionType, isLoading } =
     useGetAllRecognitionWithRelations();
-  console.log('[Fast recognition type]', recognitionType);
   return (
     <div
       className="p-5 rounded-2xl bg-white h-full"
@@ -74,60 +77,63 @@ const Page = () => {
                       </div>
                     </div>
 
-                    <Dropdown
-                      trigger={['click']}
-                      menu={{
-                        items: [
-                          {
-                            key: 'edit',
-                            label: 'Edit',
-                            icon: <Edit2Icon className="w-4 h-4 text-xs" />,
-                            onClick: () => {
-                              // TODO: wire edit action later
-                              // setSelectedRecognitionType(item);
-                              // setOpen(true);
-                            },
-                          },
-                          {
-                            key: 'delete',
-                            label: (
-                              <Popconfirm
-                                title="Are you sure you want to delete?"
-                                onConfirm={() => {
-                                  // TODO: wire delete action later
-                                  // deleteRecognitionType(item?.id);
-                                }}
-                                okText="Yes"
-                                cancelText="No"
-                                data-cy={`settings-recognition-card-delete-confirm-${item?.id}`}
-                                id={`settingsRecognitionCardDeleteConfirm${item?.id}`}
-                              >
-                                <span
-                                  className="flex items-center gap-2"
-                                  data-cy={`settings-recognition-card-delete-${item?.id}`}
-                                >
-                                  <MdDeleteOutline className="w-4 h-4" />
-                                  Delete
-                                </span>
-                              </Popconfirm>
-                            ),
-                          },
-                        ],
-                      }}
+                    <div
+                      className="shrink-0"
+                      data-cy={`settings-recognition-card-actions-wrap-${item?.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
                     >
-                      <Button
-                        type="text"
-                        size="small"
-                        aria-label="Recognition actions"
-                        icon={<MoreOutlined />}
-                        className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
-                        data-cy={`settings-recognition-card-actions-${item?.id}`}
-                        id={`settingsRecognitionCardActions${item?.id}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
+                      <Dropdown
+                        trigger={['click']}
+                        menu={{
+                          items: [
+                            {
+                              key: 'edit',
+                              label: 'Edit',
+                              icon: <Edit2Icon className="w-4 h-4 text-xs" />,
+                              onClick: () => {
+                                setRecognitionCategoryEditId(String(item?.id));
+                                setOpenRecognitionCategoryModal(true);
+                              },
+                            },
+                            {
+                              key: 'delete',
+                              label: (
+                                <Popconfirm
+                                  title="Are you sure you want to delete?"
+                                  onConfirm={() => {
+                                    deleteRecognitionType(String(item?.id));
+                                  }}
+                                  okText="Yes"
+                                  cancelText="No"
+                                  okButtonProps={{ loading: isDeleting }}
+                                  data-cy={`settings-recognition-card-delete-confirm-${item?.id}`}
+                                  id={`settingsRecognitionCardDeleteConfirm${item?.id}`}
+                                >
+                                  <span
+                                    className="flex items-center gap-2"
+                                    data-cy={`settings-recognition-card-delete-${item?.id}`}
+                                  >
+                                    <MdDeleteOutline className="w-4 h-4" />
+                                    Delete
+                                  </span>
+                                </Popconfirm>
+                              ),
+                            },
+                          ],
                         }}
-                      />
-                    </Dropdown>
+                      >
+                        <Button
+                          type="text"
+                          size="small"
+                          aria-label="Recognition actions"
+                          icon={<MoreOutlined />}
+                          className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
+                          data-cy={`settings-recognition-card-actions-${item?.id}`}
+                          id={`settingsRecognitionCardActions${item?.id}`}
+                        />
+                      </Dropdown>
+                    </div>
                   </div>
                 </Card>
               ))}
@@ -135,11 +141,6 @@ const Page = () => {
           </div>
         </div>
       </Spin>
-      <RecognitionForm
-        createCategory={openRecognitionType}
-        onClose={() => setOpen(false)}
-        data-cy="settings-recognition-form"
-      />
     </div>
   );
 };

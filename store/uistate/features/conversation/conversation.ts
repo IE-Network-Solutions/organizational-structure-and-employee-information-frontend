@@ -31,6 +31,12 @@ export interface CategoriesUseState {
   openRecognitionType: boolean;
   setOpenRecognitionType: (vlaue: boolean) => void;
 
+  openRecognitionCategoryModal: boolean;
+  setOpenRecognitionCategoryModal: (value: boolean) => void;
+
+  recognitionCategoryEditId: string;
+  setRecognitionCategoryEditId: (value: string) => void;
+
   setCurrent: (value: number) => void;
 
   setOpen: (open: boolean) => void;
@@ -234,6 +240,14 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   openRecognitionType: false,
   setOpenRecognitionType: (openRecognitionType: boolean) =>
     set({ openRecognitionType }),
+
+  openRecognitionCategoryModal: false,
+  setOpenRecognitionCategoryModal: (openRecognitionCategoryModal: boolean) =>
+    set({ openRecognitionCategoryModal }),
+
+  recognitionCategoryEditId: '',
+  setRecognitionCategoryEditId: (recognitionCategoryEditId: string) =>
+    set({ recognitionCategoryEditId }),
 
   editingItem: null,
   setEditingItem: (editingItem: any) => set({ editingItem }),

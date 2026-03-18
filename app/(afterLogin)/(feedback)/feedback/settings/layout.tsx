@@ -1,7 +1,16 @@
 'use client';
-import React, { FC, ReactNode } from 'react';
+import React, { FC, ReactNode, useEffect } from 'react';
 import Link from 'next/link';
-import { Typography, Breadcrumb, Divider, Tabs, Button } from 'antd';
+import {
+  Typography,
+  Breadcrumb,
+  Divider,
+  Tabs,
+  Button,
+  Form,
+  Input,
+  Modal,
+} from 'antd';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -9,6 +18,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { Permissions } from '@/types/commons/permissionEnum';
+import {
+  useAddRecognitionType,
+  useUpdateRecognitionType,
+} from '@/store/server/features/CFR/recognition/mutation';
+import { useGetRecognitionTypeById } from '@/store/server/features/CFR/recognition/queries';
 
 const { Title } = Typography;
 
@@ -30,8 +44,46 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const router = useRouter();
   const layoutSlug = toSlug(pathname || 'settings-layout');
   const { isMobile } = useIsMobile();
-  const { setOpen, setOpenRecognitionType } = ConversationStore();
+  const {
+    setOpen,
+    openRecognitionCategoryModal,
+    setOpenRecognitionCategoryModal,
+    recognitionCategoryEditId,
+    setRecognitionCategoryEditId,
+  } = ConversationStore();
   const { variantType } = ConversationStore();
+  const [categoryForm] = Form.useForm();
+  const isRecognitionDetailRoute =
+    pathname?.includes('/feedback/settings/recognition/') &&
+    !pathname?.endsWith('/feedback/settings/recognition');
+
+  const { data: categoryById, isLoading: isCategoryLoading } =
+    useGetRecognitionTypeById(
+      recognitionCategoryEditId?.trim() ? recognitionCategoryEditId : null,
+    );
+  const { mutate: createCategory, isLoading: isCreatingCategory } =
+    useAddRecognitionType();
+  const { mutate: updateCategory, isLoading: isUpdatingCategory } =
+    useUpdateRecognitionType();
+
+  useEffect(() => {
+    if (!openRecognitionCategoryModal) return;
+
+    // if editing, prefill; otherwise reset
+    if (recognitionCategoryEditId?.trim() && categoryById) {
+      categoryForm.setFieldsValue({
+        name: categoryById?.name ?? '',
+        description: categoryById?.description ?? '',
+      });
+    } else {
+      categoryForm.resetFields();
+    }
+  }, [
+    openRecognitionCategoryModal,
+    recognitionCategoryEditId,
+    categoryById,
+    categoryForm,
+  ]);
   const getActiveKey = () => {
     if (pathname.includes('/define-feedback')) return 'defineFeedback';
     if (pathname.includes('/recognition')) return 'recognition';
@@ -154,21 +206,26 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                     data-cy="settings-recognition-category-access-guard"
                     id="settingsRecognitionCategoryAccessGuard"
                   >
-                    <Button
-                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                      icon={
-                        <FaPlus
-                          data-cy="org-settings-branches-add-btn-icon"
-                          id="org-settings-branches-add-btn-icon"
-                        />
-                      }
-                      type="primary"
-                      onClick={() => setOpenRecognitionType(true)}
-                      data-cy="org-settings-branches-add-btn"
-                      id="org-settings-branches-add-btn"
-                    >
-                      {!isMobile && 'Category'}
-                    </Button>
+                    {!isRecognitionDetailRoute && (
+                      <Button
+                        className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                        icon={
+                          <FaPlus
+                            data-cy="org-settings-branches-add-btn-icon"
+                            id="org-settings-branches-add-btn-icon"
+                          />
+                        }
+                        type="primary"
+                        onClick={() => {
+                          setRecognitionCategoryEditId('');
+                          setOpenRecognitionCategoryModal(true);
+                        }}
+                        data-cy="org-settings-branches-add-btn"
+                        id="org-settings-branches-add-btn"
+                      >
+                        {!isMobile && 'Category'}
+                      </Button>
+                    )}
                   </AccessGuard>
                 ) : getActiveKey() === 'targetAchievement' ? (
                   <Button
@@ -214,6 +271,93 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           </div>
         </div>
       </div>
+
+      <Modal
+        title={
+          <span data-cy="recognition-category-modal-title">
+            {recognitionCategoryEditId?.trim()
+              ? 'Edit Category'
+              : 'New Category'}
+          </span>
+        }
+        centered
+        open={openRecognitionCategoryModal}
+        onCancel={() => {
+          setOpenRecognitionCategoryModal(false);
+          setRecognitionCategoryEditId('');
+          categoryForm.resetFields();
+        }}
+        okText={recognitionCategoryEditId?.trim() ? 'Update' : 'Create'}
+        confirmLoading={isCreatingCategory || isUpdatingCategory}
+        onOk={() => categoryForm.submit()}
+        styles={{ body: { paddingTop: 8 } }}
+        destroyOnClose
+        data-cy="recognition-category-modal"
+      >
+        <Form
+          form={categoryForm}
+          layout="vertical"
+          onFinish={(values) => {
+            const payload = {
+              ...values,
+            };
+
+            if (recognitionCategoryEditId?.trim()) {
+              updateCategory(
+                { ...payload, id: recognitionCategoryEditId },
+                {
+                  onSuccess: () => {
+                    setOpenRecognitionCategoryModal(false);
+                    setRecognitionCategoryEditId('');
+                    categoryForm.resetFields();
+                  },
+                },
+              );
+              return;
+            }
+
+            createCategory(payload, {
+              onSuccess: () => {
+                setOpenRecognitionCategoryModal(false);
+                categoryForm.resetFields();
+              },
+            });
+          }}
+          data-cy="recognition-category-form"
+        >
+          <Form.Item
+            label={<span className="text-xs font-semibold">Name</span>}
+            name="name"
+            rules={[{ required: true, message: 'Please enter a name' }]}
+            data-cy="recognition-category-form-name"
+          >
+            <Input
+              placeholder="Category name"
+              data-cy="recognition-category-form-name-input"
+            />
+          </Form.Item>
+          <Form.Item
+            label={<span className="text-xs font-semibold">Description</span>}
+            name="description"
+            data-cy="recognition-category-form-description"
+          >
+            <Input.TextArea
+              rows={3}
+              placeholder="Description"
+              data-cy="recognition-category-form-description-input"
+            />
+          </Form.Item>
+
+          {isCategoryLoading && recognitionCategoryEditId?.trim() && (
+            <div
+              className="text-xs text-gray-500"
+              data-cy="recognition-category-loading"
+            >
+              Loading...
+            </div>
+          )}
+        </Form>
+      </Modal>
     </div>
   );
 };

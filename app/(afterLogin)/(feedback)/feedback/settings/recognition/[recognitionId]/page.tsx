@@ -11,6 +11,8 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useMemo, useState } from 'react';
+import { ConversationStore } from '@/store/uistate/features/conversation';
+import RecognitionForm from '../../_components/recognition/createRecognition';
 
 type RecognitionCriterion = {
   id?: string;
@@ -33,6 +35,7 @@ type RecognitionChild = {
 };
 
 export default function RecognitionDetailPage() {
+  const { setOpen } = ConversationStore();
   const params = useParams<{ recognitionId: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -40,6 +43,11 @@ export default function RecognitionDetailPage() {
 
   const recognitionId = params?.recognitionId;
   const recognitionName = searchParams?.get('name') ?? '';
+  const {
+    setOpenRecognitionType,
+    setParentRecognitionTypeId,
+    setSelectedRecognitionType,
+  } = ConversationStore();
 
   const { data: recognitionType, isLoading } =
     useGetAllRecognitionWithRelations();
@@ -98,7 +106,9 @@ export default function RecognitionDetailPage() {
           className="rounded-md"
           data-cy="recognition-detail-new"
           onClick={() => {
-            // TODO: wire "New Recognition" later
+            setSelectedRecognitionType('');
+            setParentRecognitionTypeId(String(recognitionId ?? ''));
+            setOpenRecognitionType(true);
           }}
         >
           New Recognition
@@ -450,6 +460,11 @@ export default function RecognitionDetailPage() {
           </div>
         </Spin>
       </div>
+      <RecognitionForm
+        createCategory={false}
+        onClose={() => setOpen(false)}
+        data-cy="settings-recognition-form"
+      />
     </div>
   );
 }
