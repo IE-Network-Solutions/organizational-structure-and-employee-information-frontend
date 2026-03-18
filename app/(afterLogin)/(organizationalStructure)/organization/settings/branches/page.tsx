@@ -218,7 +218,7 @@ const Branches = () => {
               <Card
                 key={item.id || branchId}
                 loading={isLoading}
-                className="h-full pt-2 px-1 pb-4 border-gray-200"
+                className="h-full pt-2 px-1 pb-4 border-[#D9D9D9]"
                 data-cy={`org-settings-branch-card-${branchId}`}
                 id={`org-settings-branch-card-${branchId}`}
                 styles={{
@@ -282,26 +282,6 @@ const Branches = () => {
                   </div>
                   <div
                     className="flex flex-col flex-1 min-w-0"
-                    data-cy={`org-settings-branch-contact-email-${branchId}`}
-                    id={`org-settings-branch-contact-email-${branchId}`}
-                  >
-                    <span
-                      className="text-xs text-gray-400 mb-1"
-                      data-cy={`org-settings-branch-contact-email-label-${branchId}`}
-                      id={`org-settings-branch-contact-email-label-${branchId}`}
-                    >
-                      Contact Email
-                    </span>
-                    <span
-                      className="text-sm text-gray-700 break-words"
-                      data-cy={`org-settings-branch-contact-email-value-${branchId}`}
-                      id={`org-settings-branch-contact-email-value-${branchId}`}
-                    >
-                      {item.contactEmail}
-                    </span>
-                  </div>
-                  <div
-                    className="flex flex-col flex-1 min-w-0"
                     data-cy={`org-settings-branch-contact-number-${branchId}`}
                     id={`org-settings-branch-contact-number-${branchId}`}
                   >
@@ -318,6 +298,26 @@ const Branches = () => {
                       id={`org-settings-branch-contact-number-value-${branchId}`}
                     >
                       {item.contactNumber}
+                    </span>
+                  </div>
+                  <div
+                    className="flex flex-col flex-1 min-w-0"
+                    data-cy={`org-settings-branch-contact-email-${branchId}`}
+                    id={`org-settings-branch-contact-email-${branchId}`}
+                  >
+                    <span
+                      className="text-xs text-gray-400 mb-1"
+                      data-cy={`org-settings-branch-contact-email-label-${branchId}`}
+                      id={`org-settings-branch-contact-email-label-${branchId}`}
+                    >
+                      Contact Email
+                    </span>
+                    <span
+                      className="text-sm text-gray-700 break-words"
+                      data-cy={`org-settings-branch-contact-email-value-${branchId}`}
+                      id={`org-settings-branch-contact-email-value-${branchId}`}
+                    >
+                      {item.contactEmail}
                     </span>
                   </div>
                 </div>

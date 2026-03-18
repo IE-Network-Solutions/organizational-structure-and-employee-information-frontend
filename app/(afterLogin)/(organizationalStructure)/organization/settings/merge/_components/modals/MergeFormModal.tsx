@@ -83,6 +83,16 @@ const MergeFormModal: React.FC<MergeFormModalProps> = ({
       <Form
         form={form}
         layout="vertical"
+        requiredMark={(label, { required }) =>
+          required ? (
+            <>
+              {label}
+              <span className="text-red-500 ml-1" aria-hidden>*</span>
+            </>
+          ) : (
+            label
+          )
+        }
         className="mt-4"
         data-cy="merge-form-modal-form"
       >

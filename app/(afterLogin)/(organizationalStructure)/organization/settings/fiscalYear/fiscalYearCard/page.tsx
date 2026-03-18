@@ -308,7 +308,7 @@ const FiscalYearListCard: React.FC = () => {
               <Col xs={24} sm={24} md={12} lg={12} xl={12} key={fYear?.id}>
                 <Card
                   key={fYear?.id}
-                  className="my-3 h-fit"
+                  className="my-3 h-fit border-[#D9D9D9]"
                   bodyStyle={{ padding: '12px 14px' }}
                   data-cy={`org-settings-fiscal-year-card-${fiscalYearId}`}
                   id="org-settings-fiscal-year-card"
@@ -359,8 +359,7 @@ const FiscalYearListCard: React.FC = () => {
                           </h3>
                           {fYear?.isActive && (
                             <Tag
-                              color="success"
-                              className="text-[#237804] border-[#237804]"
+                              className="!text-[#237804] !border-[#237804] !bg-[rgba(35,120,4,0.1)]"
                               data-cy={`org-settings-fiscal-year-active-badge-${fiscalYearId}`}
                               id={`org-settings-fiscal-year-active-badge-${fiscalYearId}`}
                             >
@@ -434,14 +433,14 @@ const FiscalYearListCard: React.FC = () => {
                         >
                           <button
                             type="button"
-                            className="cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400 h-9 w-9 shrink-0"
+                            className="cursor-pointer text-black hover:text-black p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9] h-9 w-9 shrink-0"
                             id={`org-settings-fiscal-year-actions-button-${fiscalYearId}`}
                             data-cy={`org-settings-fiscal-year-actions-button-${fiscalYearId}`}
                           >
                             <BsThreeDots
                               id={`org-settings-fiscal-year-actions-${fiscalYearId}`}
                               data-cy={`org-settings-fiscal-year-actions-${fiscalYearId}`}
-                              className="text-lg"
+                              className="text-lg text-black"
                             />
                           </button>
                         </Dropdown>
@@ -459,7 +458,7 @@ const FiscalYearListCard: React.FC = () => {
                         return (
                           <div
                             key={session.id}
-                            className="mt-3 border border-gray-200 rounded-md"
+                            className="mt-3 border border-[#D9D9D9] rounded-md"
                             style={{ marginLeft: '0px' }}
                             data-cy={`org-settings-fiscal-year-session-${sessionId}`}
                             id={`org-settings-fiscal-year-session-${sessionId}`}
@@ -505,7 +504,7 @@ const FiscalYearListCard: React.FC = () => {
                               >
                                 {session?.active && (
                                   <Tag
-                                    color="success"
+                                    className="!text-[#237804] !border-[#237804] !bg-[rgba(35,120,4,0.1)]"
                                     data-cy={`org-settings-fiscal-year-session-active-badge-${sessionId}`}
                                     id={`org-settings-fiscal-year-session-active-badge-${sessionId}`}
                                   >

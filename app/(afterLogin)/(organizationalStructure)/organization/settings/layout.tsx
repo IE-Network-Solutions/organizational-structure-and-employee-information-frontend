@@ -257,11 +257,12 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                     id="org-settings-fiscal-year-create-btn-guard"
                   >
                     <Button
-                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      className={`h-10 font-normal ${isMobile ? 'ml-4' : ''}`}
                       icon={
                         <FaPlus
                           data-cy="org-settings-fiscal-year-create-btn-icon"
                           id="org-settings-fiscal-year-create-btn-icon"
+                          className="font-normal"
                         />
                       }
                       type="primary"

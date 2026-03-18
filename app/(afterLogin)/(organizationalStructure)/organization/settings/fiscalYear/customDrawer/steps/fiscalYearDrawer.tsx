@@ -689,7 +689,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                 <Button
                   type="default"
                   onClick={handleClose}
-                  className="flex justify-center text-sm font-normal h-10 px-6 border-gray-300"
+                  className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 border-gray-300"
                   data-cy="org-settings-fiscal-year-cancel-btn"
                   id="org-settings-fiscal-year-cancel-btn"
                 >
@@ -714,7 +714,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                     onClick={handleNext}
                     disabled={!isFormValid || hasOverlapError}
                     type="primary"
-                    className="flex justify-center text-sm font-normal h-10 px-6 min-w-[100px]"
+                    className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 min-w-[100px]"
                   >
                     Continue
                   </Button>

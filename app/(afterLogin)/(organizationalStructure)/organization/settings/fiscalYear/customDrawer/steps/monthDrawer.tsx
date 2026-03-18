@@ -4,6 +4,7 @@ import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { RangePicker } = DatePicker;
 
@@ -52,6 +53,7 @@ const MonthDrawer: React.FC<
   onSubmit, // <-- destructure this
   open, // <-- add this
 }) => {
+  const { isMobile } = useIsMobile();
   const {
     setCurrent,
     fiscalYearStart,
@@ -549,7 +551,9 @@ const MonthDrawer: React.FC<
                               data-cy={`org-settings-fiscal-year-month-row-${monthInfo.monthNumber}`}
                             >
                               <Col
-                                span={12}
+                                span={isMobile ? undefined : 12}
+                                flex={isMobile ? 'auto' : undefined}
+                                style={isMobile ? { minWidth: 0 } : undefined}
                                 data-cy={`org-settings-fiscal-year-month-name-col-${monthInfo.monthNumber}`}
                               >
                                 <Form.Item
@@ -566,14 +570,15 @@ const MonthDrawer: React.FC<
                                 >
                                   <Input
                                     size="middle"
-                                    className="w-full text-sm h-10"
+                                    className="w-full text-sm h-8"
                                     placeholder={`Enter name for ${monthInfo.monthName}`}
                                     data-cy={`org-settings-fiscal-year-month-name-input-${monthInfo.monthNumber}`}
                                   />
                                 </Form.Item>
                               </Col>
                               <Col
-                                span={12}
+                                span={isMobile ? undefined : 12}
+                                flex={isMobile ? 'none' : undefined}
                                 data-cy={`org-settings-fiscal-year-month-date-range-col-${monthInfo.monthNumber}`}
                               >
                                 <Form.Item
@@ -742,7 +747,11 @@ const MonthDrawer: React.FC<
                                   className="mb-0"
                                 >
                                   <RangePicker
-                                    className="w-full h-10 [&_.ant-picker-input]:h-8"
+                                    className={
+                                      isMobile
+                                        ? "h-10 w-11 min-w-11 px-0 justify-center [&_.ant-picker-input]:hidden [&_.ant-picker-range-separator]:hidden [&_.ant-picker-active-bar]:hidden [&_.ant-picker-suffix]:m-0"
+                                        : 'w-full h-8 [&_.ant-picker-input]:h-8'
+                                    }
                                     size="middle"
                                     disabledDate={(current) => {
                                       if (!current) return false;
@@ -810,7 +819,7 @@ const MonthDrawer: React.FC<
                 }
                 setCurrent(1); // Go to previous step
               }}
-              className="flex justify-center text-sm font-normal h-10 px-6 border-gray-300 bg-transparent hover:bg-gray-50"
+              className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 border-gray-300 bg-transparent hover:bg-gray-50"
               data-cy="org-settings-fiscal-year-month-previous-btn"
               id="org-settings-fiscal-year-month-previous-btn"
             >
@@ -820,7 +829,7 @@ const MonthDrawer: React.FC<
               type="primary"
               htmlType="submit"
               loading={isCreateLoading || isUpdateLoading}
-              className="flex justify-center text-sm font-normal h-10 px-6 min-w-[100px]"
+              className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 min-w-[100px]"
               data-cy="org-settings-fiscal-year-month-next-btn"
               id="org-settings-fiscal-year-month-next-btn"
             >
