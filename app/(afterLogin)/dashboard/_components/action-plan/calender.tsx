@@ -2,18 +2,38 @@ import React from 'react';
 import type { BadgeProps, CalendarProps } from 'antd';
 import { Badge, Calendar, Radio, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
+import { useRouter } from 'next/navigation';
 import { useDelegationState } from '@/store/uistate/features/dashboard/delegation';
-import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { useGetSchedule } from '@/store/server/features/dashboard/survey/queries';
+
+type ScheduleCategory = 'meetings' | 'surveys' | 'actionPlans';
 
 type ListItem = {
   type: BadgeProps['status'];
   content: string;
+  category: ScheduleCategory;
+  /** meeting id or survey formId; unused for action plans */
+  routeId?: string;
 };
 
 const Calender = () => {
+  const router = useRouter();
   const { data: scheduleData } = useGetSchedule();
   const { setSelectedDate } = useDelegationState();
+
+  const navigateForCategory = (category: ScheduleCategory, routeId?: string) => {
+    if (category === 'actionPlans') {
+      router.push('/feedback/action-plan');
+      return;
+    }
+    if (category === 'meetings' && routeId) {
+      router.push(`/feedback/meeting/${routeId}`);
+      return;
+    }
+    if (category === 'surveys' && routeId) {
+      router.push(`/feedback/categories/${routeId}`);
+    }
+  };
 
   // Convert category to badge type
   const getBadgeType = (category: string): BadgeProps['status'] => {
@@ -60,16 +80,23 @@ const Calender = () => {
     );
 
     if (hasMeetings) {
+      const first = eventsForDay.find((e) => e.category === 'meetings');
       listData.push({
         type: getBadgeType('meetings'),
         content: 'Meeting',
+        category: 'meetings',
+        routeId: first?.id != null ? String(first.id) : undefined,
       });
     }
 
     if (hasSurveys) {
+      const first = eventsForDay.find((e) => e.category === 'surveys');
+      const formId = first?.formId ?? first?.id;
       listData.push({
         type: getBadgeType('surveys'),
         content: 'Survey',
+        category: 'surveys',
+        routeId: formId != null ? String(formId) : undefined,
       });
     }
 
@@ -77,6 +104,7 @@ const Calender = () => {
       listData.push({
         type: getBadgeType('actionPlans'),
         content: 'Action plan',
+        category: 'actionPlans',
       });
     }
 
@@ -90,11 +118,31 @@ const Calender = () => {
 
     return (
       <ul className="m-0 p-0 list-none space-y-1" data-cy="calendar-cell">
-        {listData.map((item) => (
-          <li key={`${value.toString()}-${item.type}-${item.content}`}>
-            <Badge status={item.type} text={item.content} />
-          </li>
-        ))}
+        {listData.map((item) => {
+          const canNavigate =
+            item.category === 'actionPlans' ||
+            (item.category === 'meetings' && item.routeId) ||
+            (item.category === 'surveys' && item.routeId);
+          return (
+            <li key={`${value.toString()}-${item.category}-${item.content}`}>
+              {canNavigate ? (
+                <button
+                  type="button"
+                  className="m-0 cursor-pointer border-0 bg-transparent p-0 text-left hover:opacity-80"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateForCategory(item.category, item.routeId);
+                  }}
+                  data-cy={`calendar-nav-${item.category}`}
+                >
+                  <Badge status={item.type} text={item.content} />
+                </button>
+              ) : (
+                <Badge status={item.type} text={item.content} />
+              )}
+            </li>
+          );
+        })}
       </ul>
     );
   };

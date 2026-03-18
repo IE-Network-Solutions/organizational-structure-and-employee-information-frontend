@@ -32,7 +32,7 @@ const Header = () => {
   );
   const { data: vpScore } = useGetVPScore(userId, hasOKR);
   const router = useRouter();
-  const { data: personalRecognition } = useGetPersonalRecognition();
+  const { data: personalRecognition, isLoading: isPersonalRecognitionLoading } = useGetPersonalRecognition();
 
   const totalAppreciationEngagement =
     (personalRecognition?.feedbackIssued?.Engagement?.appreciations || 0) +
@@ -131,14 +131,14 @@ const Header = () => {
     <>
       {hasOKR && (
         <div
-          className="w-full pb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5 gap-4 overflow-x-auto scrollbar-none"
+          className="w-full pb-6 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5 gap-4 flex flex-row  gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-none"
           data-cy="okr-header-cards"
         >
           <Card
             loading={isLoading}
             bordered={false}
             bodyStyle={{ padding: 0 }}
-            className="flex flex-col gap-4 h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0"
+            className="flex flex-col gap-4  h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0"
             data-cy="okr-card-average-okr"
           >
             <div className="flex items-center justify-between" data-cy="okr-card-header">
@@ -235,16 +235,16 @@ const Header = () => {
           <Card
             bordered={false}
             bodyStyle={{ padding: 0 }}
+            loading={isPersonalRecognitionLoading}
             className={`flex flex-col gap-4 h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0 transition-transform duration-300 `}
           >
             <div className="flex items-center justify-between">
               <div className="rounded-xl bg-[#F6FFED] flex items-center justify-center w-10 h-10">
-              <MdOutlineMilitaryTech size={24} className="text-green-500" />
+                <MdOutlineMilitaryTech size={24} className="text-green-500" />
               </div>
               <div
-                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${
-                  isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                }`}
+                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                  }`}
               >
                 {currentAppreciation.value}
               </div>
@@ -254,16 +254,14 @@ const Header = () => {
                 Appreciation
               </div>
               <div className="flex items-center justify-between text-xs mt-2">
-                <span className={`text-gray-500 transition-all duration-300 ${
-                  isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                }`}>{currentAppreciation.label}</span>
+                <span className={`text-gray-500 transition-all duration-300 ${isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                  }`}>{currentAppreciation.label}</span>
                 <span
                   className={
                     `${currentAppreciation.trendDirection === 'up'
                       ? 'text-[#52C41A]'
                       : 'text-red-500'
-                    } flex items-center gap-1 transition-all duration-300 ${
-                      isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                    } flex items-center gap-1 transition-all duration-300 ${isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
                     }`
                   }
                 >
@@ -274,18 +272,18 @@ const Header = () => {
             </div>
           </Card>
           <Card
+            loading={isPersonalRecognitionLoading}
             bordered={false}
             bodyStyle={{ padding: 0 }}
             className={`flex flex-col gap-4 h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0 transition-transform duration-300`}
           >
             <div className="flex items-center justify-between">
               <div className="rounded-xl bg-[#FFF2F0] flex items-center justify-center w-10 h-10">
-              <MdReportGmailerrorred size={24} className="text-red-500" />
+                <MdReportGmailerrorred size={24} className="text-red-500" />
               </div>
               <div
-                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${
-                  isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                }`}
+                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                  }`}
               >
                 {currentReprimand.value}
               </div>
@@ -295,20 +293,18 @@ const Header = () => {
                 Reprimand
               </div>
               <div className="flex items-center justify-between text-xs mt-2">
-                <span className={`text-gray-500 transition-all duration-300 ${
-                  isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                }`}>{currentReprimand.label}</span>
+                <span className={`text-gray-500 transition-all duration-300 ${isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                  }`}>{currentReprimand.label}</span>
                 <span
                   className={
                     `${currentReprimand.trendDirection === 'down'
                       ? 'text-red-500'
                       : 'text-[#52C41A]'
-                    } flex items-center gap-1 transition-all duration-300 ${
-                      isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
+                    } flex items-center gap-1 transition-all duration-300 ${isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
                     }`
                   }
                 >
-                    <IoMdTrendingDown size={14} className={currentReprimand.trendDirection === 'down' ? 'text-red-500' : 'text-[#52C41A]'} />
+                  <IoMdTrendingDown size={14} className={currentReprimand.trendDirection === 'down' ? 'text-red-500' : 'text-[#52C41A]'} />
                   {currentReprimand.trendLabel}
                 </span>
               </div>
@@ -391,7 +387,7 @@ const Header = () => {
               </div>
             </div>
           </Card>
-          
+
         </div>
       )}
     </>
