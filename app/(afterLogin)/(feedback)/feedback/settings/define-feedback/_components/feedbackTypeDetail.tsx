@@ -1,10 +1,9 @@
 import CustomPagination from '@/components/customPagination';
 import { useDeleteFeedback } from '@/store/server/features/feedback/feedback/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { Button, Card, Popconfirm, Tabs, Input, Dropdown } from 'antd';
+import { Button, Card, Input, Dropdown, Modal } from 'antd';
 import { Edit2Icon } from 'lucide-react';
 import React from 'react';
-import { BiPlus } from 'react-icons/bi';
 import { MdDeleteOutline } from 'react-icons/md';
 import { MoreOutlined } from '@ant-design/icons';
 
@@ -26,12 +25,12 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
     setSearchReprimandQuery,
   } = ConversationStore();
 
-  // const handleDelete = (id: string) => {
-  //   deleteFeedback(id);
-  // };
-  // const editHandler = (item: string) => {
-  //   setSelectedFeedback(item);
-  // };
+  const handleDelete = (id: string) => {
+    deleteFeedback(id);
+  };
+  const handleEdit = (item: any) => {
+    setSelectedFeedback(item);
+  };
 
   // Sort by createdAt in descending order (latest first)
 
@@ -106,25 +105,19 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
                       key: 'edit',
                       label: 'Edit',
                       icon: <Edit2Icon className="w-4 h-4 text-xs" />,
-                      // onClick: () => handleEdit(item),
+                      onClick: () => handleEdit(item),
                     },
                     {
                       key: 'delete',
                       label: 'Delete',
-                      icon: (
-                        <Popconfirm
-                          title="Are you sure you want to delete?"
-                          // onConfirm={() => handleDelete(item?.id)}
-                          okText="Yes"
-                          cancelText="No"
-                          data-cy={`feedback-type-detail-${variantType}-card-delete-confirm-${item.id}`}
-                          id={`feedbackTypeDetail${variantType}CardDeleteConfirm${item.id}`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <MdDeleteOutline className="w-4 h-4" />
-                          </span>
-                        </Popconfirm>
-                      ),
+                      icon: <MdDeleteOutline className="w-4 h-4" />,
+                      onClick: () =>
+                        Modal.confirm({
+                          title: 'Are you sure you want to delete?',
+                          okText: 'Yes',
+                          cancelText: 'No',
+                          onOk: () => handleDelete(item?.id),
+                        }),
                     },
                   ],
                 }}

@@ -7,6 +7,10 @@ import { MoreOutlined } from '@ant-design/icons';
 import CustomPagination from '@/components/customPagination';
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
+import {
+  useDeletePerspective,
+  useUpdatePerspective,
+} from '@/store/server/features/CFR/feedback/mutations';
 
 interface PerspectivesDetailProps {
   perspectivesDetail: any;
@@ -15,8 +19,15 @@ const PerspectivesDetail = ({
   perspectivesDetail,
 }: PerspectivesDetailProps) => {
   const { data: departments } = useGetDepartments();
-  const { editingItem, setEditingItem, pageSize, setPageSize, page, setPage } =
-    ConversationStore();
+  const {
+    pageSize,
+    setPageSize,
+    page,
+    setPage,
+    setOpen,
+    setSelectedFeedback,
+  } = ConversationStore();
+  const { mutate: deletePerspective } = useDeletePerspective();
   const paginatedData = perspectivesDetail?.slice(
     (page - 1) * pageSize,
     page * pageSize,
@@ -84,31 +95,35 @@ const PerspectivesDetail = ({
             <Dropdown
               trigger={['click']}
               menu={{
-                items: [
-                  {
-                    key: 'edit',
-                    label: 'Edit',
-                    icon: <Edit2Icon className="w-4 h-4 text-xs" />,
-                  },
-                  {
-                    key: 'delete',
-                    label: (
-                      <Popconfirm
-                        title="Are you sure you want to delete?"
-                        // onConfirm={() => handleDelete(item?.id)}
-                        okText="Yes"
-                        cancelText="No"
-                        data-cy={`perspective-type-detail-card-delete-confirm-${item.id}`}
-                        id={`perspectiveTypeDetailCardDeleteConfirm${item.id}`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <MdDeleteOutline className="w-4 h-4" />
-                          Delete
-                        </span>
-                      </Popconfirm>
-                    ),
-                  },
-                ],
+                  items: [
+                    {
+                      key: 'edit',
+                      label: 'Edit',
+                      icon: <Edit2Icon className="w-4 h-4 text-xs" />,
+                      onClick: () => {
+                        setSelectedFeedback(item);
+                        setOpen(true);
+                      },
+                    },
+                    {
+                      key: 'delete',
+                      label: (
+                        <Popconfirm
+                          title="Are you sure you want to delete?"
+                          onConfirm={() => deletePerspective(item?.id)}
+                          okText="Yes"
+                          cancelText="No"
+                          data-cy={`perspective-type-detail-card-delete-confirm-${item.id}`}
+                          id={`perspectiveTypeDetailCardDeleteConfirm${item.id}`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <MdDeleteOutline className="w-4 h-4" />
+                            Delete
+                          </span>
+                        </Popconfirm>
+                      ),
+                    },
+                  ],
               }}
             >
               <Button size="small" icon={<MoreOutlined />} />

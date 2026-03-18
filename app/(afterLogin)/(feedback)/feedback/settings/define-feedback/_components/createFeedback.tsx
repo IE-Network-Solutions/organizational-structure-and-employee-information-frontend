@@ -8,7 +8,10 @@ import {
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
-import { useCreatePerspective } from '@/store/server/features/CFR/feedback/mutations';
+import {
+  useCreatePerspective,
+  useUpdatePerspective,
+} from '@/store/server/features/CFR/feedback/mutations';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const CreateFeedback: React.FC = () => {
@@ -35,6 +38,8 @@ const CreateFeedback: React.FC = () => {
     useGetDepartments();
   const { mutate: addPerspective, isLoading: createPerspectiveLoading } =
     useCreatePerspective();
+  const { mutate: updatePerspective, isLoading: updatePerspectiveLoading } =
+    useUpdatePerspective();
 
   const onFinish = (values: {
     name: string;
@@ -44,13 +49,18 @@ const CreateFeedback: React.FC = () => {
   }) => {
     if (settingActiveTab === 'perspective') {
       const payload = {
+        id: selectedFeedback?.id,
         name: values.name,
         description: values.description,
         departmentId: values.departmentId as string,
       };
-      addPerspective(payload, {
+
+      const mutation = selectedFeedback?.id ? updatePerspective : addPerspective;
+
+      mutation(payload, {
         onSuccess: () => {
           form.resetFields();
+          setSelectedFeedback(null);
           setOpen(false);
         },
       });
@@ -82,12 +92,22 @@ const CreateFeedback: React.FC = () => {
   };
   useEffect(() => {
     if (selectedFeedback?.id) {
-      form?.setFieldsValue({
-        id: selectedFeedback?.id,
-        name: selectedFeedback?.name,
-        description: selectedFeedback?.description,
-        points: selectedFeedback?.points,
-      });
+      if (settingActiveTab === 'perspective') {
+        form?.setFieldsValue({
+          id: selectedFeedback?.id,
+          name: selectedFeedback?.name,
+          description: selectedFeedback?.description,
+          departmentId: selectedFeedback?.departmentId,
+        });
+      } else {
+        form?.setFieldsValue({
+          id: selectedFeedback?.id,
+          name: selectedFeedback?.name,
+          description: selectedFeedback?.description,
+          points: selectedFeedback?.points,
+          perspectiveId: selectedFeedback?.perspectiveId,
+        });
+      }
     } else {
       form?.resetFields();
     }
@@ -141,7 +161,11 @@ const CreateFeedback: React.FC = () => {
           {selectedFeedback?.id ? (
             <Button
               type="primary"
-              loading={settingActiveTab === 'perspective' ? createPerspectiveLoading : feedbackUpdateLoading}
+              loading={
+                settingActiveTab === 'perspective'
+                  ? updatePerspectiveLoading
+                  : feedbackUpdateLoading
+              }
               onClick={() => form.submit()}
               data-cy="create-feedback-form-update-button"
               id="createFeedbackFormUpdateButton"
@@ -150,7 +174,11 @@ const CreateFeedback: React.FC = () => {
             </Button>
           ) : (
             <Button
-              loading={settingActiveTab === 'perspective' ? createPerspectiveLoading : createFeedbackLoading}
+              loading={
+                settingActiveTab === 'perspective'
+                  ? createPerspectiveLoading
+                  : createFeedbackLoading
+              }
               type="primary"
               onClick={() => form.submit()}
               data-cy="create-feedback-form-submit-button"
@@ -175,7 +203,7 @@ const CreateFeedback: React.FC = () => {
       data-cy="create-feedback-modal"
     >
       <div className="flex flex-col gap-4">
-        {!settingActiveTab === 'perspective' && (
+        {settingActiveTab !== 'perspective' && (
           <div className="flex flex-col items-center gap-2">
             <span className="text-sm  font-medium">Select Type</span>
             <div className="">
@@ -208,7 +236,9 @@ const CreateFeedback: React.FC = () => {
           id="createFeedbackForm"
         >
           {/* Hidden ID for editing feedback types (non-perspective) */}
-          {settingActiveTab !== 'perspective' && selectedFeedback?.id && <Form.Item name="id" />}
+          {settingActiveTab !== 'perspective' && selectedFeedback?.id && (
+            <Form.Item name="id" />
+          )}
 
           {/* Name / Objective */}
           <Form.Item
@@ -225,9 +255,10 @@ const CreateFeedback: React.FC = () => {
             rules={[
               {
                 required: true,
-                message: settingActiveTab === 'perspective'
-                  ? 'Please enter the perspective name!'
-                  : `Please enter the ${variantType} objective name!`,
+                message:
+                  settingActiveTab === 'perspective'
+                    ? 'Please enter the perspective name!'
+                    : `Please enter the ${variantType} objective name!`,
               },
               { max: 250, message: 'Name cannot exceed 250 characters.' },
             ]}
@@ -237,7 +268,9 @@ const CreateFeedback: React.FC = () => {
             <Input
               className={commonClass}
               placeholder={
-                settingActiveTab === 'perspective' ? 'Enter name' : 'Enter type name'
+                settingActiveTab === 'perspective'
+                  ? 'Enter name'
+                  : 'Enter type name'
               }
               data-cy="create-feedback-form-objective-input"
               id="createFeedbackFormObjectiveInput"
