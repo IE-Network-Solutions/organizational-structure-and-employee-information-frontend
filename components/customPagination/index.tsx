@@ -14,6 +14,8 @@ interface CustomPaginationProps {
   id?: string;
   'data-cy'?: string;
   grayBackground?: boolean; // Only for planning and reporting page
+  /** Hide page size select and show only "Go to page" on the right */
+  hidePageSizeSelect?: boolean;
 }
 
 const CustomPagination: React.FC<CustomPaginationProps> = ({
@@ -25,6 +27,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   id,
   'data-cy': dataCy,
   grayBackground = false,
+  hidePageSizeSelect = false,
 }) => {
   const handlePageChange = (page: number) => {
     onChange(page, pageSize);
@@ -208,7 +211,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
 
-        {!isMobile && totalPages > 0 && (
+        {!isMobile && totalPages > 0 && !hidePageSizeSelect && (
           <div
             className="flex items-center gap-2 ml-4"
             data-cy="pagination-goto"
@@ -239,24 +242,13 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         )}
       </div>
 
-      {/* Info and Page Size Selector */}
+      {/* Info and Page Size Selector (or Go to page when hidePageSizeSelect) */}
       <div
         className={`flex items-center ${
           isMobile ? 'justify-between order-2' : 'justify-end'
         }`}
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-        {/* {!isMobile && (
-          <span
-            data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
-            className="mr-2 text-xs text-[#718096]"
-          >
-            Showing {Math.min(total, (current - 1) * pageSize + 1) || 0} -{' '}
-            {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
-            entries
-          </span>
-        )} */}
-
         {/* Mobile info - more compact */}
         {isMobile && (
           <span
@@ -268,6 +260,37 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           </span>
         )}
 
+        {hidePageSizeSelect && !isMobile && totalPages > 0 && (
+          <div
+            className="flex items-center gap-2"
+            data-cy="pagination-goto"
+          >
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
+            <Input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={goToPageValue}
+              onChange={(e) => setGoToPageValue(e.target.value)}
+              onPressEnter={handleGoToPage}
+              className="w-12 h-8 text-center text-sm px-1 border-gray-100"
+              data-cy="pagination-goto-input"
+            />
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-page-label-number-of-page"
+            >
+              Page
+            </span>
+          </div>
+        )}
+
+        {!hidePageSizeSelect && (
         <Select
           value={pageSize}
           className={isMobile ? 'w-20' : 'w-24'}
@@ -323,6 +346,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             </span>
           </Option>
         </Select>
+        )}
       </div>
     </div>
   );

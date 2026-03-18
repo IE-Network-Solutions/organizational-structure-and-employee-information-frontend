@@ -10,11 +10,15 @@ import {
   Subscription,
 } from '@/types/tenant-management';
 import { useState, useEffect } from 'react';
-import { RightOutlined, LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined } from '@ant-design/icons';
+import { MdOutlineFileDownload } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 dayjs.extend(isBetween);
 
@@ -27,6 +31,10 @@ interface InvoicesTableProps {
   plans: Plan[];
   currencies: Currency[];
   subscriptions?: Subscription[];
+  /** When provided, row click opens this callback (e.g. open modal) instead of navigating to invoice page */
+  onInvoiceClick?: (invoiceId: string) => void;
+  /** Hide search and filters (e.g. for dashboard "Recent Billing History") */
+  hideFilters?: boolean;
 }
 
 const InvoicesTable = ({
@@ -34,6 +42,8 @@ const InvoicesTable = ({
   loading = false,
   currencies,
   subscriptions = [],
+  onInvoiceClick,
+  hideFilters = false,
 }: InvoicesTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -52,6 +62,7 @@ const InvoicesTable = ({
     string | null
   >(null);
   const router = useRouter();
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: invoiceDetail } = useGetInvoiceDetail(
     selectedInvoiceId || '',
@@ -87,7 +98,11 @@ const InvoicesTable = ({
   };
 
   const handleRowClick = (id: string) => {
-    router.push(`/admin/invoice/${id}`);
+    if (onInvoiceClick) {
+      onInvoiceClick(id);
+    } else {
+      router.push(`/admin/invoice/${id}`);
+    }
   };
 
   const getPlanName = (subscriptionId: string) => {
@@ -160,7 +175,6 @@ const InvoicesTable = ({
     {
       title: 'Invoice ID',
       dataIndex: 'invoiceNumber',
-      sorter: (a, b) => a.invoiceNumber - b.invoiceNumber,
       render: (invoiceNumber: string) => (
         <span
           id={`invoice-number-${invoiceNumber}`}
@@ -169,23 +183,15 @@ const InvoicesTable = ({
           #{invoiceNumber}
         </span>
       ),
-      defaultSortOrder: 'descend',
     },
     {
       title: 'Issue Date',
       dataIndex: 'invoiceAt',
-      sorter: (a, b) =>
-        new Date(a.invoiceAt).getTime() - new Date(b.invoiceAt).getTime(),
       render: (date: string) => dayjs(date).format('MMMM D, YYYY'),
     },
     {
       title: 'Plan',
       dataIndex: 'subscriptionId',
-      sorter: (a, b) => {
-        const planNameA = getPlanName(a.subscriptionId);
-        const planNameB = getPlanName(b.subscriptionId);
-        return planNameA.localeCompare(planNameB);
-      },
       render: (subscriptionId: string) => (
         <div
           id={`invoice-plan-${subscriptionId}`}
@@ -209,7 +215,6 @@ const InvoicesTable = ({
     {
       title: 'Amount',
       dataIndex: 'totalAmount',
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
       render: (total: number, record: Invoice) => (
         <span
           id={`invoice-amount-${record.id}`}
@@ -223,7 +228,6 @@ const InvoicesTable = ({
     {
       title: 'Currency',
       dataIndex: 'currencyId',
-      sorter: (a, b) => a.currencyId.localeCompare(b.currencyId),
       render: (currencyId: string) => {
         const currency = currencies?.find((c) => c.id === currencyId);
         return (
@@ -237,17 +241,8 @@ const InvoicesTable = ({
       },
     },
     {
-      title: 'Payment Date',
-      dataIndex: 'paymentAt',
-      sorter: (a, b) =>
-        new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime(),
-      render: (date: string) =>
-        date ? dayjs(date).format('MMMM D, YYYY') : '-',
-    },
-    {
       title: 'Status',
       dataIndex: 'status',
-      sorter: (a, b) => a.status.localeCompare(b.status),
       render: (status: InvoiceStatus) => {
         let className = '';
 
@@ -280,6 +275,12 @@ const InvoicesTable = ({
       },
     },
     {
+      title: 'Payment Date',
+      dataIndex: 'paymentAt',
+      render: (date: string) =>
+        date ? dayjs(date).format('MMMM D, YYYY') : '-',
+    },
+    {
       title: '',
       dataIndex: 'actions',
       width: 100,
@@ -308,28 +309,12 @@ const InvoicesTable = ({
                   spin
                 />
               ) : (
-                <img
-                  src="/icons/file-download.svg"
-                  alt="Download PDF"
+                <MdOutlineFileDownload
                   id={`invoice-download-icon-${record.id}`}
                   data-cy={`invoice-download-icon-${record.id}`}
-                  className="w-5 h-5 min-w-5 min-h-5"
+                  className="w-5 h-5 min-w-5 min-h-5 text-primary"
                 />
               )}
-            </button>
-            <button
-              id={`invoice-view-${record.id}`}
-              data-cy={`invoice-view-${record.id}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRowClick(record.id);
-              }}
-              className="text-gray-500 hover:text-primary transition-colors hover:translate-x-1 transition-transform duration-300"
-            >
-              <RightOutlined
-                id={`invoice-view-icon-${record.id}`}
-                data-cy={`invoice-view-icon-${record.id}`}
-              />
             </button>
           </div>
         );
@@ -339,89 +324,96 @@ const InvoicesTable = ({
 
   return (
     <div id="invoices-table-container" data-cy="invoices-table-container">
-      <div
-        id="invoices-table-filters"
-        data-cy="invoices-table-filters"
-        className="flex flex-col md:flex-row gap-4 mb-6"
-      >
-        <Search
-          id="invoices-table-search"
-          data-cy="invoices-table-search"
-          placeholder="Search by Invoice ID"
-          allowClear
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          className="w-full md:w-1/3"
-        />
+      {!hideFilters && (
+        <div
+          id="invoices-table-filters"
+          data-cy="invoices-table-filters"
+          className="flex flex-col md:flex-row gap-4 mb-6"
+        >
+          <Search
+            id="invoices-table-search"
+            data-cy="invoices-table-search"
+            placeholder="Search by Invoice ID"
+            allowClear
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="w-full md:w-1/3"
+          />
 
-        <Select
-          id="invoices-table-status-filter"
-          data-cy="invoices-table-status-filter"
-          placeholder="Filter by Status"
-          allowClear
-          options={statusOptions}
-          value={statusFilter}
-          onChange={setStatusFilter}
-          className="w-full md:w-1/4"
-        />
+          <Select
+            id="invoices-table-status-filter"
+            data-cy="invoices-table-status-filter"
+            placeholder="Filter by Status"
+            allowClear
+            options={statusOptions}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            className="w-full md:w-1/4"
+          />
 
-        <RangePicker
-          id="invoices-table-payment-date-range"
-          data-cy="invoices-table-payment-date-range"
-          placeholder={['Start Payment Date', 'End Payment Date']}
-          value={paymentDateRange}
-          onChange={(dates) =>
-            setPaymentDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
-          }
-          className="w-full md:w-1/4"
-        />
+          <RangePicker
+            id="invoices-table-payment-date-range"
+            data-cy="invoices-table-payment-date-range"
+            placeholder={['Start Payment Date', 'End Payment Date']}
+            value={paymentDateRange}
+            onChange={(dates) =>
+              setPaymentDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
+            }
+            className="w-full md:w-1/4"
+          />
 
-        <RangePicker
-          id="invoices-table-issue-date-range"
-          data-cy="invoices-table-issue-date-range"
-          placeholder={['Start Issue Date', 'End Issue Date']}
-          value={voiceDateRange}
-          onChange={(dates) =>
-            setVoiceDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
-          }
-          className="w-full md:w-1/4"
-        />
-      </div>
+          <RangePicker
+            id="invoices-table-issue-date-range"
+            data-cy="invoices-table-issue-date-range"
+            placeholder={['Start Issue Date', 'End Issue Date']}
+            value={voiceDateRange}
+            onChange={(dates) =>
+              setVoiceDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
+            }
+            className="w-full md:w-1/4"
+          />
+        </div>
+      )}
 
       <Table
         id="invoices-table"
         data-cy="invoices-table"
         columns={columns}
-        dataSource={filteredData}
+        dataSource={filteredData.slice(
+          (currentPage - 1) * pageSize,
+          currentPage * pageSize,
+        )}
         rowKey="id"
         scroll={{ x: true }}
         loading={loading}
         onRow={(record) => ({
           onClick: () => handleRowClick(record.id),
         })}
-        pagination={{
-          total: filteredData.length,
-          current: currentPage,
-          pageSize: pageSize,
-          showSizeChanger: true,
-          showQuickJumper: false,
-          className: 'px-4 py-3 invoice-table',
-          showTotal: (total, range) =>
-            `Showing ${range[0]} to ${range[1]} of ${total} entries`,
-          position: ['bottomLeft', 'bottomRight'],
-          style: {
-            margin: 0,
-            padding: '16px 0',
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            width: '100%',
-          },
-          onChange: handlePageChange,
-          onShowSizeChange: handlePageChange,
-          pageSizeOptions: ['5', '10', '20', '50'],
-        }}
+        rowClassName={() => 'cursor-pointer'}
+        pagination={false}
       />
+      {filteredData.length > 0 && (
+        <>
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={filteredData.length}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onChange={handlePageChange}
+              onShowSizeChange={(page, size) => handlePageChange(page, size)}
+            />
+          ) : (
+            <CustomPagination
+              current={currentPage}
+              total={filteredData.length}
+              pageSize={pageSize}
+              onChange={handlePageChange}
+              onShowSizeChange={(size) => handlePageChange(1, size)}
+              hidePageSizeSelect
+            />
+          )}
+        </>
+      )}
     </div>
   );
 };

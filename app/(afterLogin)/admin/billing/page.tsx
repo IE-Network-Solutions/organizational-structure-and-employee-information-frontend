@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import InvoicesTable from '../_components/invoicesTable/invoicesTable';
 import { useEffect, useState } from 'react';
-import { Card, Skeleton } from 'antd';
+import { Card, Divider, Skeleton } from 'antd';
 import React from 'react';
 import {
   Currency,
@@ -371,6 +371,8 @@ const BillingPage = () => {
           );
         })}
       </div>
+
+      <Divider className="my-6" />
 
       <div
         id="billing-invoices-section"
