@@ -6,15 +6,14 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useFiscalYearRedirect } from '@/hooks/useFiscalYearRedirect';
 import LeftBar from './_components/leftBar';
 import RightBar from './_components/rightBar';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useDashboardStore } from '@/store/uistate/features/dashboard';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import AccessGuard from '@/utils/permissionGuard';
-import CustomDashboardModal from './_components/customDashbordModal';
 import CardList from './_components/card-list';
 import { useGetBirthDay } from '@/store/server/features/dashboard/birthday/queries';
 import { useGetWorkAnniversary } from '@/store/server/features/dashboard/work-anniversary/queries';
-import { useGetRockStar, useGetWeeklyLeader } from '@/store/server/features/dashboard/recognitions/queries';
+import {
+  useGetRockStar,
+  useGetWeeklyLeader,
+} from '@/store/server/features/dashboard/recognitions/queries';
 import Calender from './_components/action-plan/calender';
 
 export default function Home() {
@@ -29,25 +28,17 @@ export default function Home() {
       refetchInterval: 30000, // Keep polling for banner display
     });
 
-  const userData = useAuthenticationStore.getState().userData;
-
-  const { isOpen, setIsOpen } = useDashboardStore();
-  const { isMobile, isTablet } = useIsMobile();
-
   const hasEndedFiscalYear =
     activeCalender?.isActive &&
     activeCalender?.endDate &&
     new Date(activeCalender?.endDate) < new Date();
-  const showAnnouncements = () => {
-    setIsOpen(!isOpen);
-  };
 
   const mainLayout = (
-    <div
-      className="min-h-screen"
-      data-cy="dashboard-main-layout"
-    >
-      <div className="border-b border-gray-200 my-5 " data-cy="dashboard-header">
+    <div className="min-h-screen" data-cy="dashboard-main-layout">
+      <div
+        className="border-b border-gray-200 my-5 "
+        data-cy="dashboard-header"
+      >
         <h1
           className="text-2xl font-bold text-gray-900"
           data-cy="dashboard-header-title"
@@ -62,88 +53,74 @@ export default function Home() {
         </p>
       </div>
       <Header />
-      {isMobile || isTablet ? (
-        <div className="grid grid-cols-1 pb-3" data-cy="dashboard-mobile-grid">
-          {isOpen ? (
-            <CustomDashboardModal
-              open={isOpen}
-              onClose={showAnnouncements}
-              width="400px"
-            >
-              <div
-                className="col-span-12 "
-                data-cy="dashboard-mobile-rightbar-container"
-              >
-                <RightBar />
-              </div>
-            </CustomDashboardModal>
-          ) : (
-            ''
-          )}
+      <div data-cy="dashboard-content">
+        <div
+          className="grid grid-cols-12 gap-4 pb-5"
+          data-cy="dashboard-desktop-grid"
+        >
           <div
-            className="col-span-12  "
-            data-cy="dashboard-mobile-leftbar-container"
+            className="md:col-span-7 col-span-12"
+            data-cy="dashboard-desktop-leftbar-container"
           >
             <LeftBar />
           </div>
-        </div>
-      ) : (
-        <div>
           <div
-            className="grid grid-cols-12 gap-4 pb-5"
-            data-cy="dashboard-desktop-grid"
+            className="md:col-span-5 col-span-12"
+            data-cy="dashboard-desktop-rightbar-container"
           >
-            <div
-              className="col-span-7"
-              data-cy="dashboard-desktop-leftbar-container"
-            >
-              <LeftBar />
-            </div>
-            <div
-              className="col-span-5"
-              data-cy="dashboard-desktop-rightbar-container"
-            >
-              <RightBar />
-            </div>
-          </div>
-          <div
-            className="grid grid-cols-12 gap-4 pb-5"
-            data-cy="dashboard-left-bar-cards"
-          >
-            <div className="col-span-3">
-              <CardList
-                type="birthday"
-                title="Today's Birthday"
-                people={birthDays || []}
-                loading={birthdayLoading}
-              />
-            </div>
-            <div className="col-span-3">
-              <CardList
-                type="anniversary"
-                title="Work Anniversary"
-                people={workAnniversary || []}
-                loading={workLoading}
-              /></div>
-            <div className="col-span-3">
-              <CardList
-                type="Leader"
-                title="Leader of the Week"
-                people={weeklyLeaderData || []}
-                loading={workLoading}
-              />
-            </div>
-            <div className="col-span-3">
-              <CardList
-                type="Employee"
-                title="Employee of the Week"
-                people={rockStarData || []}
-                loading={workLoading}
-              />
-            </div>
+            <RightBar />
           </div>
         </div>
-      )}
+        <div
+          className="flex flex-nowrap gap-4 pb-5 overflow-x-auto scrollbar-none md:grid md:grid-cols-12"
+          data-cy="dashboard-left-bar-cards"
+        >
+          <div
+            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3"
+            data-cy="dashboard-card-birthday"
+          >
+            <CardList
+              type="birthday"
+              title="Today's Birthday"
+              people={birthDays || []}
+              loading={birthdayLoading}
+            />
+          </div>
+          <div
+            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3"
+            data-cy="dashboard-card-anniversary"
+          >
+            <CardList
+              type="anniversary"
+              title="Work Anniversary"
+              people={workAnniversary || []}
+              loading={workLoading}
+            />
+          </div>
+          <div
+            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3"
+            data-cy="dashboard-card-weekly-leader"
+          >
+            <CardList
+              type="Leader"
+              title="Leader of the Week"
+              people={weeklyLeaderData || []}
+              loading={workLoading}
+            />
+          </div>
+          <div
+            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3"
+            data-cy="dashboard-card-rockstar"
+          >
+            <CardList
+              type="Employee"
+              title="Employee of the Week"
+              people={rockStarData || []}
+              loading={workLoading}
+            />
+          </div>
+        </div>
+      </div>
       <Calender />
     </div>
   );

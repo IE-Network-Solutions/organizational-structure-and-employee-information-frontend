@@ -7,11 +7,6 @@ import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-manag
 import { useGetPersonalRecognition } from '@/store/server/features/CFR/recognition/queries';
 import { Card, Progress } from 'antd';
 import { useRouter } from 'next/navigation';
-import { GoGoal } from 'react-icons/go';
-import { PiUsersThreeBold } from 'react-icons/pi';
-import { PiBuildingOfficeBold } from 'react-icons/pi';
-import { PiShuffleAngularBold } from 'react-icons/pi';
-import { PiCurrencyDollarSimpleBold } from 'react-icons/pi';
 import { MdOutlineMilitaryTech, MdReportGmailerrorred } from 'react-icons/md';
 import { IoMdTrendingDown, IoMdTrendingUp } from 'react-icons/io';
 
@@ -32,38 +27,58 @@ const Header = () => {
   );
   const { data: vpScore } = useGetVPScore(userId, hasOKR);
   const router = useRouter();
-  const { data: personalRecognition, isLoading: isPersonalRecognitionLoading } = useGetPersonalRecognition();
+  const { data: personalRecognition, isLoading: isPersonalRecognitionLoading } =
+    useGetPersonalRecognition();
 
   const totalAppreciationEngagement =
-    (personalRecognition?.feedbackIssued?.Engagement?.appreciations || 0) +
-    (personalRecognition?.feedbackReceived?.Engagement?.appreciations || 0);
+    personalRecognition?.feedbackReceived?.Engagement?.appreciations || 0;
 
   const totalAppreciationKpi =
-    (personalRecognition?.feedbackIssued?.KPI?.appreciations || 0) +
-    (personalRecognition?.feedbackReceived?.KPI?.appreciations || 0);
+    personalRecognition?.feedbackReceived?.KPI?.appreciations || 0;
 
   const totalReprimandEngagement =
-    (personalRecognition?.feedbackIssued?.Engagement?.reprimands || 0) +
-    (personalRecognition?.feedbackReceived?.Engagement?.reprimands || 0);
+    personalRecognition?.feedbackReceived?.Engagement?.reprimands || 0;
 
   const totalReprimandKpi =
-    (personalRecognition?.feedbackIssued?.KPI?.reprimands || 0) +
-    (personalRecognition?.feedbackReceived?.KPI?.reprimands || 0);
+    personalRecognition?.feedbackReceived?.KPI?.reprimands || 0;
+
+  type TrendDirection = 'up' | 'down';
+  const getTrendMeta = (
+    difference: number,
+  ): { trendLabel: string; trendDirection: TrendDirection } => {
+    return {
+      trendLabel: `${Math.abs(difference)}% Last Month`,
+      trendDirection: difference < 0 ? 'down' : 'up',
+    };
+  };
+
+  const monthOverMonthDifference = (personalRecognition as any)
+    ?.monthOverMonthDifference;
+
+  const appreciationEngagementDifference =
+    monthOverMonthDifference?.feedbackReceived?.Engagement?.appreciations || 0;
+
+  const appreciationKpiDifference =
+    monthOverMonthDifference?.feedbackReceived?.KPI?.appreciations || 0;
+
+  const reprimandEngagementDifference =
+    monthOverMonthDifference?.feedbackReceived?.Engagement?.reprimands || 0;
+
+  const reprimandKpiDifference =
+    monthOverMonthDifference?.feedbackReceived?.KPI?.reprimands || 0;
 
   const appreciationStats = [
     {
       id: 'engagement',
       label: 'Engagement',
       value: totalAppreciationEngagement,
-      trendLabel: '5% Last Week',
-      trendDirection: 'up' as const,
+      ...getTrendMeta(appreciationEngagementDifference),
     },
     {
       id: 'kpi',
       label: 'KPI',
       value: totalAppreciationKpi,
-      trendLabel: '5% Last Week',
-      trendDirection: 'up' as const,
+      ...getTrendMeta(appreciationKpiDifference),
     },
   ];
 
@@ -72,15 +87,13 @@ const Header = () => {
       id: 'engagement',
       label: 'Engagement',
       value: totalReprimandEngagement,
-      trendLabel: '5% Last Week',
-      trendDirection: 'down' as const,
+      ...getTrendMeta(reprimandEngagementDifference),
     },
     {
       id: 'kpi',
       label: 'KPI',
       value: totalReprimandKpi,
-      trendLabel: '5% Last Week',
-      trendDirection: 'down' as const,
+      ...getTrendMeta(reprimandKpiDifference),
     },
   ];
 
@@ -96,7 +109,7 @@ const Header = () => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [appreciationStats.length, reprimandStats.length]);
 
   useEffect(() => {
     if (!hasOKR) return;
@@ -131,20 +144,38 @@ const Header = () => {
     <>
       {hasOKR && (
         <div
-          className="w-full pb-6 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5 gap-4 flex flex-row  gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-none"
+          className="w-full pb-6 flex flex-nowrap gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-none md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5"
           data-cy="okr-header-cards"
         >
           <Card
             loading={isLoading}
             bordered={false}
             bodyStyle={{ padding: 0 }}
-            className="flex flex-col gap-4  h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0"
+            className="flex flex-col gap-4 h-[115px] min-w-[260px] flex-none shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 md:min-w-0"
             data-cy="okr-card-average-okr"
           >
-            <div className="flex items-center justify-between" data-cy="okr-card-header">
-              <div className="rounded-xl bg-[#e6edff] flex items-center justify-center w-10 h-10" data-cy="okr-card-icon-container">
+            <div
+              className="flex items-center justify-between"
+              data-cy="okr-card-header"
+            >
+              <div
+                className="rounded-xl bg-[#e6edff] flex items-center justify-center w-10 h-10"
+                data-cy="okr-card-icon-container"
+              >
                 {/* <GoGoal size={18} className="text-[#2952e3]" /> */}
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1E40AF"><path d="M480-300q75 0 127.5-52.5T660-480q0-75-52.5-127.5T480-660q-75 0-127.5 52.5T300-480q0 75 52.5 127.5T480-300Zm-28.5-151.5Q440-463 440-480t11.5-28.5Q463-520 480-520t28.5 11.5Q520-497 520-480t-11.5 28.5Q497-440 480-440t-28.5-11.5ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" /></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24px"
+                  viewBox="0 -960 960 960"
+                  width="24px"
+                  fill="#1E40AF"
+                  data-cy="okr-card-average-okr-icon"
+                >
+                  <path
+                    d="M480-300q75 0 127.5-52.5T660-480q0-75-52.5-127.5T480-660q-75 0-127.5 52.5T300-480q0 75 52.5 127.5T480-300Zm-28.5-151.5Q440-463 440-480t11.5-28.5Q463-520 480-520t28.5 11.5Q520-497 520-480t-11.5 28.5Q497-440 480-440t-28.5-11.5ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
+                    data-cy="okr-card-average-okr-icon-path"
+                  />
+                </svg>
               </div>
               <div
                 className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
@@ -153,18 +184,30 @@ const Header = () => {
                 {Number(objectiveDashboard?.userOkr?.toFixed(0) || 0)}%
               </div>
             </div>
-            <div className="flex flex-col mt-3">
-              <div className=" text-gray-500 w-full text-start text-sm" data-cy="okr-card-label">
+            <div
+              className="flex flex-col mt-3"
+              data-cy="okr-card-average-okr-body"
+            >
+              <div
+                className=" text-gray-500 w-full text-start text-sm"
+                data-cy="okr-card-label"
+              >
                 Your Average OKR
               </div>
-              <div className=" flex gap-2 items-center" data-cy="okr-card-details">
+              <div
+                className=" flex gap-2 items-center"
+                data-cy="okr-card-details"
+              >
                 <Progress
                   percent={Number(objectiveDashboard?.userOkr || 0)}
                   showInfo={false}
                   strokeColor="#1f4fd8"
                   trailColor="#e5e7eb"
                 />
-                <div className="flex justify-end text-sm text-gray-500">
+                <div
+                  className="flex justify-end text-sm text-gray-500"
+                  data-cy="okr-card-average-okr-percent"
+                >
                   {Number(objectiveDashboard?.userOkr?.toFixed(0) || 0)}%
                 </div>
               </div>
@@ -205,28 +248,62 @@ const Header = () => {
             loading={isLoading}
             bordered={false}
             bodyStyle={{ padding: 0 }}
-            className="flex flex-col gap-4 h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0"
+            className="flex flex-col gap-4 h-[115px] min-w-[260px] flex-none shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 md:min-w-0"
             data-cy="okr-card-company-okr"
           >
-            <div className="flex items-center justify-between" data-cy="okr-card-header">
-              <div className="rounded-xl bg-[#F9F0FF] flex items-center justify-center w-10 h-10" data-cy="okr-card-icon-container">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#722ED1"><path d="M80-120v-720h400v160h400v560H80Zm80-80h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 480h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 480h320v-400H480v80h80v80h-80v80h80v80h-80v80Zm160-240v-80h80v80h-80Zm0 160v-80h80v80h-80Z" /></svg>              </div>
-              <div className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900" data-cy="okr-card-value">
+            <div
+              className="flex items-center justify-between"
+              data-cy="okr-card-header"
+            >
+              <div
+                className="rounded-xl bg-[#F9F0FF] flex items-center justify-center w-10 h-10"
+                data-cy="okr-card-icon-container"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24px"
+                  viewBox="0 -960 960 960"
+                  width="24px"
+                  fill="#722ED1"
+                  data-cy="okr-card-company-okr-icon"
+                >
+                  <path
+                    d="M80-120v-720h400v160h400v560H80Zm80-80h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 480h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 480h320v-400H480v80h80v80h-80v80h80v80h-80v80Zm160-240v-80h80v80h-80Zm0 160v-80h80v80h-80Z"
+                    data-cy="okr-card-company-okr-icon-path"
+                  />
+                </svg>{' '}
+              </div>
+              <div
+                className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
+                data-cy="okr-card-value"
+              >
                 {Number(objectiveDashboard?.companyOkr?.toFixed(0) || 0)}%
               </div>
             </div>
-            <div className="flex flex-col mt-3">
-              <div className=" text-gray-500 w-full text-start text-sm" data-cy="okr-card-label">
+            <div
+              className="flex flex-col mt-3"
+              data-cy="okr-card-company-okr-body"
+            >
+              <div
+                className=" text-gray-500 w-full text-start text-sm"
+                data-cy="okr-card-label"
+              >
                 Company OKR
               </div>
-              <div className=" flex gap-2 items-center" data-cy="okr-card-details">
+              <div
+                className=" flex gap-2 items-center"
+                data-cy="okr-card-details"
+              >
                 <Progress
                   percent={Number(objectiveDashboard?.companyOkr || 0)}
                   showInfo={false}
                   strokeColor="#1f4fd8"
                   trailColor="#e5e7eb"
                 />
-                <div className="flex justify-end text-sm text-gray-500">
+                <div
+                  className="flex justify-end text-sm text-gray-500"
+                  data-cy="okr-card-company-okr-percent"
+                >
                   {Number(objectiveDashboard?.companyOkr?.toFixed(0) || 0)}%
                 </div>
               </div>
@@ -236,36 +313,83 @@ const Header = () => {
             bordered={false}
             bodyStyle={{ padding: 0 }}
             loading={isPersonalRecognitionLoading}
-            className={`flex flex-col gap-4 h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0 transition-transform duration-300 `}
+            className="flex flex-col gap-4 h-[115px] min-w-[260px] flex-none shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 transition-transform duration-300 md:min-w-0"
+            data-cy="okr-card-appreciation"
           >
-            <div className="flex items-center justify-between">
-              <div className="rounded-xl bg-[#F6FFED] flex items-center justify-center w-10 h-10">
-                <MdOutlineMilitaryTech size={24} className="text-green-500" />
+            <div
+              className="flex items-center justify-between"
+              data-cy="okr-card-appreciation-header"
+            >
+              <div
+                className="rounded-xl bg-[#F6FFED] flex items-center justify-center w-10 h-10"
+                data-cy="okr-card-appreciation-icon-container"
+              >
+                <MdOutlineMilitaryTech
+                  size={24}
+                  className="text-green-500"
+                  data-cy="okr-card-appreciation-icon"
+                />
               </div>
               <div
-                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                  }`}
+                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${
+                  isAppreciationAnimating
+                    ? 'opacity-0 translate-x-1'
+                    : 'opacity-100 translate-x-0'
+                }`}
+                data-cy="okr-card-appreciation-value"
               >
                 {currentAppreciation.value}
               </div>
             </div>
-            <div className="flex flex-col mt-3">
-              <div className="text-gray-500 w-full text-start text-sm">
+            <div
+              className="flex flex-col mt-3"
+              data-cy="okr-card-appreciation-body"
+            >
+              <div
+                className="text-gray-500 w-full text-start text-sm"
+                data-cy="okr-card-appreciation-label"
+              >
                 Appreciation
               </div>
-              <div className="flex items-center justify-between text-xs mt-2">
-                <span className={`text-gray-500 transition-all duration-300 ${isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                  }`}>{currentAppreciation.label}</span>
+              <div
+                className="flex items-center justify-between text-xs mt-2"
+                data-cy="okr-card-appreciation-trend-row"
+              >
                 <span
-                  className={
-                    `${currentAppreciation.trendDirection === 'up'
+                  className={`text-gray-500 transition-all duration-300 ${
+                    isAppreciationAnimating
+                      ? 'opacity-0 translate-x-1'
+                      : 'opacity-100 translate-x-0'
+                  }`}
+                  data-cy="okr-card-appreciation-dimension"
+                >
+                  {currentAppreciation.label}
+                </span>
+                <span
+                  className={`${
+                    currentAppreciation.trendDirection === 'up'
                       ? 'text-[#52C41A]'
                       : 'text-red-500'
-                    } flex items-center gap-1 transition-all duration-300 ${isAppreciationAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                    }`
-                  }
+                  } flex items-center gap-1 transition-all duration-300 ${
+                    isAppreciationAnimating
+                      ? 'opacity-0 translate-x-1'
+                      : 'opacity-100 translate-x-0'
+                  }`}
+                  data-cy="okr-card-appreciation-trend"
                 >
-                  <IoMdTrendingUp size={14} className={currentAppreciation.trendDirection === 'up' ? 'text-[#52C41A]' : 'text-red-500'} />
+                  {currentAppreciation.trendDirection === 'up' ? (
+                    <IoMdTrendingUp
+                      size={14}
+                      className="text-[#52C41A]"
+                      data-cy="okr-card-appreciation-trend-icon-up"
+                    />
+                  ) : (
+                    <IoMdTrendingDown
+                      size={14}
+                      className="text-red-500"
+                      data-cy="okr-card-appreciation-trend-icon-down"
+                    />
+                  )}
                   {currentAppreciation.trendLabel}
                 </span>
               </div>
@@ -275,36 +399,83 @@ const Header = () => {
             loading={isPersonalRecognitionLoading}
             bordered={false}
             bodyStyle={{ padding: 0 }}
-            className={`flex flex-col gap-4 h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0 transition-transform duration-300`}
+            className="flex flex-col gap-4 h-[115px] min-w-[260px] flex-none shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 transition-transform duration-300 md:min-w-0"
+            data-cy="okr-card-reprimand"
           >
-            <div className="flex items-center justify-between">
-              <div className="rounded-xl bg-[#FFF2F0] flex items-center justify-center w-10 h-10">
-                <MdReportGmailerrorred size={24} className="text-red-500" />
+            <div
+              className="flex items-center justify-between"
+              data-cy="okr-card-reprimand-header"
+            >
+              <div
+                className="rounded-xl bg-[#FFF2F0] flex items-center justify-center w-10 h-10"
+                data-cy="okr-card-reprimand-icon-container"
+              >
+                <MdReportGmailerrorred
+                  size={24}
+                  className="text-red-500"
+                  data-cy="okr-card-reprimand-icon"
+                />
               </div>
               <div
-                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                  }`}
+                className={`font-semibold text-[27px] leading-7 tracking-normal text-gray-900 transition-all duration-300 ${
+                  isReprimandAnimating
+                    ? 'opacity-0 translate-x-1'
+                    : 'opacity-100 translate-x-0'
+                }`}
+                data-cy="okr-card-reprimand-value"
               >
                 {currentReprimand.value}
               </div>
             </div>
-            <div className="flex flex-col mt-3">
-              <div className="text-gray-500 w-full text-start text-sm">
+            <div
+              className="flex flex-col mt-3"
+              data-cy="okr-card-reprimand-body"
+            >
+              <div
+                className="text-gray-500 w-full text-start text-sm"
+                data-cy="okr-card-reprimand-label"
+              >
                 Reprimand
               </div>
-              <div className="flex items-center justify-between text-xs mt-2">
-                <span className={`text-gray-500 transition-all duration-300 ${isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                  }`}>{currentReprimand.label}</span>
+              <div
+                className="flex items-center justify-between text-xs mt-2"
+                data-cy="okr-card-reprimand-trend-row"
+              >
                 <span
-                  className={
-                    `${currentReprimand.trendDirection === 'down'
+                  className={`text-gray-500 transition-all duration-300 ${
+                    isReprimandAnimating
+                      ? 'opacity-0 translate-x-1'
+                      : 'opacity-100 translate-x-0'
+                  }`}
+                  data-cy="okr-card-reprimand-dimension"
+                >
+                  {currentReprimand.label}
+                </span>
+                <span
+                  className={`${
+                    currentReprimand.trendDirection === 'down'
                       ? 'text-red-500'
                       : 'text-[#52C41A]'
-                    } flex items-center gap-1 transition-all duration-300 ${isReprimandAnimating ? 'opacity-0 translate-x-1' : 'opacity-100 translate-x-0'
-                    }`
-                  }
+                  } flex items-center gap-1 transition-all duration-300 ${
+                    isReprimandAnimating
+                      ? 'opacity-0 translate-x-1'
+                      : 'opacity-100 translate-x-0'
+                  }`}
+                  data-cy="okr-card-reprimand-trend"
                 >
-                  <IoMdTrendingDown size={14} className={currentReprimand.trendDirection === 'down' ? 'text-red-500' : 'text-[#52C41A]'} />
+                  {currentReprimand.trendDirection === 'down' ? (
+                    <IoMdTrendingDown
+                      size={14}
+                      className="text-red-500"
+                      data-cy="okr-card-reprimand-trend-icon-down"
+                    />
+                  ) : (
+                    <IoMdTrendingUp
+                      size={14}
+                      className="text-[#52C41A]"
+                      data-cy="okr-card-reprimand-trend-icon-up"
+                    />
+                  )}
                   {currentReprimand.trendLabel}
                 </span>
               </div>
@@ -360,34 +531,73 @@ const Header = () => {
             loading={isLoading}
             bordered={false}
             bodyStyle={{ padding: 0 }}
-            className="flex flex-col gap-4 h-[115px] shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 sm:shrink-0"
+            className="flex flex-col gap-4 h-[115px] min-w-[260px] flex-none shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 md:min-w-0"
             onClick={() => onDetail()}
             data-cy="okr-card-vp-score"
           >
-            <div className="flex items-center justify-between" data-cy="okr-card-header">
-              <div className="rounded-xl bg-[#FFF2F0] flex items-center justify-center w-10 h-10" data-cy="okr-card-icon-container">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FF4D4F"><path d="M441-120v-86q-53-12-91.5-46T293-348l74-30q15 48 44.5 73t77.5 25q41 0 69.5-18.5T587-356q0-35-22-55.5T463-458q-86-27-118-64.5T313-614q0-65 42-101t86-41v-84h80v84q50 8 82.5 36.5T651-650l-74 32q-12-32-34-48t-60-16q-44 0-67 19.5T393-614q0 33 30 52t104 40q69 20 104.5 63.5T667-358q0 71-42 108t-104 46v84h-80Z" /></svg>              </div>
-              <div className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900" data-cy="okr-card-value">
+            <div
+              className="flex items-center justify-between"
+              data-cy="okr-card-header"
+            >
+              <div
+                className="rounded-xl bg-[#FFF2F0] flex items-center justify-center w-10 h-10"
+                data-cy="okr-card-icon-container"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24px"
+                  viewBox="0 -960 960 960"
+                  width="24px"
+                  fill="#FF4D4F"
+                  data-cy="okr-card-vp-score-icon"
+                >
+                  <path
+                    d="M441-120v-86q-53-12-91.5-46T293-348l74-30q15 48 44.5 73t77.5 25q41 0 69.5-18.5T587-356q0-35-22-55.5T463-458q-86-27-118-64.5T313-614q0-65 42-101t86-41v-84h80v84q50 8 82.5 36.5T651-650l-74 32q-12-32-34-48t-60-16q-44 0-67 19.5T393-614q0 33 30 52t104 40q69 20 104.5 63.5T667-358q0 71-42 108t-104 46v84h-80Z"
+                    data-cy="okr-card-vp-score-icon-path"
+                  />
+                </svg>{' '}
+              </div>
+              <div
+                className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
+                data-cy="okr-card-value"
+              >
                 {Number(vpScore?.score || 0)}%
               </div>
             </div>
-            <div className="flex flex-col mt-3">  <div className=" text-gray-500 w-full text-start text-sm" data-cy="okr-card-label">
-              Total Variable Pay
-            </div>
-              <div className=" flex gap-2 items-center" data-cy="okr-card-details">
+            <div
+              className="flex flex-col mt-3"
+              data-cy="okr-card-vp-score-body"
+            >
+              {' '}
+              <div
+                className=" text-gray-500 w-full text-start text-sm"
+                data-cy="okr-card-label"
+              >
+                Total Variable Pay
+              </div>
+              <div
+                className=" flex gap-2 items-center"
+                data-cy="okr-card-details"
+              >
                 <Progress
-                  percent={(Number(vpScore?.score || 0) / Number(vpScore?.maxScore || 100)) * 100}
+                  percent={
+                    (Number(vpScore?.score || 0) /
+                      Number(vpScore?.maxScore || 100)) *
+                    100
+                  }
                   showInfo={false}
                   strokeColor="#1f4fd8"
                   trailColor="#e5e7eb"
                 />
-                <div className="flex justify-end text-sm text-gray-500">
+                <div
+                  className="flex justify-end text-sm text-gray-500"
+                  data-cy="okr-card-vp-score-percent"
+                >
                   {Number(vpScore?.score || 0)}%
                 </div>
               </div>
             </div>
           </Card>
-
         </div>
       )}
     </>

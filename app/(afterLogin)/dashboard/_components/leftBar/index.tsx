@@ -1,23 +1,10 @@
 'use client';
 import React from 'react';
-import CardList from '../card-list';
-import { useGetBirthDay } from '@/store/server/features/dashboard/birthday/queries';
-import { useGetWorkAnniversary } from '@/store/server/features/dashboard/work-anniversary/queries';
 import Plan from '../plan';
-import SelfAttendance from '../self-attendance';
-import EmploymentStats from '../employee-status';
-import CoursePermitted from '../course-permitted';
-
-import Appreciation from '../appreciation';
-import Incentive from '../incentive';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const LeftBar = () => {
-
-  const { isMobile, isTablet } = useIsMobile();
-
   return (
-    <div>
+    <div data-cy="dashboard-left-bar-wrapper">
       <div
         className="col-span-1 lg:col-span-5 flex flex-col gap-6"
         data-cy="dashboard-left-bar"
@@ -51,9 +38,7 @@ const LeftBar = () => {
         <CoursePermitted />
       </div> */}
       </div>
-
     </div>
-
   );
 };
 

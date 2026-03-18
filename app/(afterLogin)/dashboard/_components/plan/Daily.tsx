@@ -1,6 +1,5 @@
 import React from 'react';
 import { Checkbox } from 'antd';
-import { BsKey } from 'react-icons/bs';
 import { useUpdateStatus } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useDefaultPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useDashboardPlanStore } from '@/store/uistate/features/dashboard/plan';
@@ -159,10 +158,11 @@ const Daily = ({
                         data-cy={`dashboard-plan-daily-task-checkbox-${dailyTask?.id}`}
                       >
                         <div
-                          className={`text-sm font-medium truncate max-w-full ${dailyTask?.status == 'pre_achieved'
-                            ? 'line-through text-gray-400'
-                            : 'text-gray-900'
-                            }`}
+                          className={`text-sm font-medium truncate max-w-full ${
+                            dailyTask?.status == 'pre_achieved'
+                              ? 'line-through text-gray-400'
+                              : 'text-gray-900'
+                          }`}
                           data-cy={`dashboard-plan-daily-task-text-${dailyTask?.id}`}
                           title={dailyTask?.task}
                         >

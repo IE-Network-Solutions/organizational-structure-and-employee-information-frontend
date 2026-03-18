@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { Card, Spin, Tag } from 'antd';
+import { Spin, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetUserLeaveRequests } from '@/store/server/features/timesheet/dashboard/queries';
@@ -50,14 +50,23 @@ const MyLeaveRequestDashboard: React.FC = () => {
         data-cy="dashboard-my-leave-request-list"
       >
         {isLoading && (
-          <div className="flex justify-center items-center h-32">
-            <Spin />
+          <div
+            className="flex justify-center items-center h-32"
+            data-cy="dashboard-my-leave-request-loading"
+          >
+            <Spin data-cy="dashboard-my-leave-request-loading-spinner" />
           </div>
         )}
 
         {!isLoading && items.length === 0 && (
-          <div className="flex justify-center items-center h-24">
-            <p className="text-xs text-gray-500 font-medium">
+          <div
+            className="flex justify-center items-center h-24"
+            data-cy="dashboard-my-leave-request-empty"
+          >
+            <p
+              className="text-xs text-gray-500 font-medium"
+              data-cy="dashboard-my-leave-request-empty-text"
+            >
               No leave requests found
             </p>
           </div>
@@ -81,17 +90,29 @@ const MyLeaveRequestDashboard: React.FC = () => {
                 className="flex items-center justify-between rounded-lg px-3 py-2 bg-white border border-gray-200"
                 data-cy={`dashboard-my-leave-request-record-${req.id}`}
               >
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[12px] font-semibold text-gray-800">
+                <div
+                  className="flex flex-col gap-0.5"
+                  data-cy={`dashboard-my-leave-request-record-${req.id}-details`}
+                >
+                  <span
+                    className="text-[12px] font-semibold text-gray-800"
+                    data-cy={`dashboard-my-leave-request-record-${req.id}-leave-type`}
+                  >
                     {req.leaveType.title}
                   </span>
-                  <span className="text-[12px] text-gray-500">
-                    {formatDateRange(req.startDate, req.endDate)} (
-                    {req.days} {req.days === 1 ? 'day' : 'days'}
+                  <span
+                    className="text-[12px] text-gray-500"
+                    data-cy={`dashboard-my-leave-request-record-${req.id}-date-range`}
+                  >
+                    {formatDateRange(req.startDate, req.endDate)} ({req.days}{' '}
+                    {req.days === 1 ? 'day' : 'days'}
                     {req.isHalfday ? ', half day' : ''})
                   </span>
                 </div>
-                <div className="flex items-center justify-end">
+                <div
+                  className="flex items-center justify-end"
+                  data-cy={`dashboard-my-leave-request-record-${req.id}-status`}
+                >
                   <Tag
                     className={`text-[12px] font-medium px-2 py-0 rounded-md ${statusClasses}`}
                     style={{ marginInlineEnd: 0 }}
@@ -109,4 +130,3 @@ const MyLeaveRequestDashboard: React.FC = () => {
 };
 
 export default MyLeaveRequestDashboard;
-

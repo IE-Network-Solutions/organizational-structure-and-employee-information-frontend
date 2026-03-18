@@ -1,7 +1,6 @@
 // components/CardList.tsx
 import { FC, useEffect, useState } from 'react';
-import { Avatar, Button, Badge, Card } from 'antd';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { Avatar, Button, Card } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import {
   MdOutlineCake,
@@ -107,7 +106,10 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
         className="flex items-center justify-between px-4 pt-3 pb-1"
         data-cy="dashboard-card-list-title"
       >
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2"
+          data-cy="dashboard-card-list-title-left"
+        >
           <span
             className={`inline-flex items-center justify-center w-7 h-7 rounded-sm text-lg ${bg} ${text}`}
             data-cy="dashboard-card-list-title-emoji"
@@ -138,11 +140,14 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
             className="w-full flex items-center justify-between"
             data-cy="dashboard-card-list-cards"
           >
-            {isHovered &&
+            {isHovered && (
               <Button
                 onClick={handlePrevious}
                 icon={
-                  <MdKeyboardArrowLeft data-cy="dashboard-card-list-previous-icon" />
+                  <MdKeyboardArrowLeft
+                    size={24}
+                    data-cy="dashboard-card-list-previous-icon"
+                  />
                 }
                 disabled={
                   !(
@@ -151,16 +156,18 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
                     currentPersonIndex > 0
                   )
                 }
-                className="bg-white shadow-sm w-6 h-6 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary"
+                className="bg-white shadow-sm md:w-6 md:h-6 w-5 h-5 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary"
                 data-cy="dashboard-card-list-previous-button"
               />
-            }
+            )}
 
             {visibleCards?.map((item: any, index: number) => (
               <div
                 key={`${currentPersonIndex}-${index}`}
                 className={`flex flex-col items-center gap-1 mx-auto transition-all duration-200 ease-out transform ${
-                  isAnimating ? 'opacity-0 translate-y-1' : 'opacity-100 translate-y-0'
+                  isAnimating
+                    ? 'opacity-0 translate-y-1'
+                    : 'opacity-100 translate-y-0'
                 }`}
                 data-cy={`dashboard-card-list-card-${index}`}
               >
@@ -191,26 +198,30 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
                     {`${item?.user?.firstName || ''} ${item?.user?.middleName || ''}`}
                   </span>
                 </p>
-                <p className="text-[11px] text-gray-500 text-center">
-                  Product Designer
+                <p
+                  className="text-[11px] text-gray-500 text-center"
+                  data-cy={`dashboard-card-list-card-position-${index}`}
+                >
+                  {item?.user?.employeeJobInformation[0]?.position?.name || ''}
                 </p>
               </div>
             ))}
-            {isHovered &&
+            {isHovered && (
               <Button
                 onClick={handleNext}
-                icon={<MdKeyboardArrowRight data-cy="dashboard-card-list-next-icon" />}
+                icon={
+                  <MdKeyboardArrowRight
+                    size={24}
+                    data-cy="dashboard-card-list-next-icon"
+                  />
+                }
                 className="bg-white shadow-sm w-6 h-6 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary"
                 data-cy="dashboard-card-list-next-button"
                 disabled={
-                  !(
-
-                    totalCards > cardsPerPage &&
-                    currentPersonIndex < maxIndex
-                  )
+                  !(totalCards > cardsPerPage && currentPersonIndex < maxIndex)
                 }
               />
-            }
+            )}
           </div>
         ) : (
           <div

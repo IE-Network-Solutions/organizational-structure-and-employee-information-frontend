@@ -1,7 +1,7 @@
 // components/ApprovalStatus.tsx
-import { FC, useState } from 'react';
-import { Button, Card, Select } from 'antd';
-import { Clock3, Eye } from 'lucide-react';
+import { FC } from 'react';
+import { Button, Card } from 'antd';
+import { Clock3 } from 'lucide-react';
 import ApprovalRequestCard from './approval-status-card';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
@@ -44,10 +44,13 @@ const ApprovalStatus: FC = () => {
           className="flex items-center gap-2"
           data-cy="dashboard-approval-status-title-section"
         >
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full">
+          <span
+            className="inline-flex items-center justify-center w-6 h-6 rounded-full"
+            data-cy="dashboard-approval-status-icon"
+          >
             <Clock3 className="w-4 h-4" />
           </span>
-          <div>
+          <div data-cy="dashboard-approval-status-title-wrapper">
             <div
               className="text-sm lg:text-base font-bold text-gray-900"
               data-cy="dashboard-approval-status-title"
@@ -87,7 +90,7 @@ const ApprovalStatus: FC = () => {
           <Button
             type="primary"
             size="small"
-            className="inline-flex items-center gap-1 px-3 py-1 rounded-sm font-medium shadow-none"
+            className="inline-flex items-center gap-1 px-3 md:py-2 py-0 rounded-sm font-medium shadow-none"
             data-cy="dashboard-approval-status-personal-pill"
             icon={
               approverType === 'Personal' ? (

@@ -1,5 +1,4 @@
 import { Card } from 'antd';
-import Calender from './calender';
 import Lists from './Lists';
 
 export default function ActionPlans() {
@@ -11,7 +10,7 @@ export default function ActionPlans() {
       >
         Schedule
       </div>
-      
+
       <Lists />
     </Card>
   );

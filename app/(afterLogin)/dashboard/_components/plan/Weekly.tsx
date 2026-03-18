@@ -3,7 +3,6 @@ import { useDefaultPlanningPeriods } from '@/store/server/features/okrPlanningAn
 import { useDashboardPlanStore } from '@/store/uistate/features/dashboard/plan';
 import { Checkbox } from 'antd';
 import React from 'react';
-import { BsKey } from 'react-icons/bs';
 
 const Weekly = ({
   allPlannedTaskForReport,
@@ -73,7 +72,10 @@ const Weekly = ({
                 {item?.task?.[0]?.keyResult?.title}
               </span>
             </div> */}
-            <div className="ml-3" data-cy="dashboard-plan-weekly-tasks-container">
+            <div
+              className="ml-3"
+              data-cy="dashboard-plan-weekly-tasks-container"
+            >
               {item?.task?.map((task: any) => (
                 <div
                   className=""
@@ -88,12 +90,13 @@ const Weekly = ({
                     }
                     disabled={task?.status == 'completed'}
                     data-cy={`dashboard-plan-weekly-task-checkbox-${task?.id}`}
-                    >
+                  >
                     <div
-                      className={`text-sm font-medium truncate max-w-full ${task?.status == 'pre_achieved'
-                        ? 'line-through text-gray-400'
-                        : 'text-gray-900'
-                        }`}
+                      className={`text-sm font-medium truncate max-w-full ${
+                        task?.status == 'pre_achieved'
+                          ? 'line-through text-gray-400'
+                          : 'text-gray-900'
+                      }`}
                       data-cy={`dashboard-plan-weekly-task-text-${task?.id}`}
                       title={task?.task}
                     >
