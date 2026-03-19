@@ -25,15 +25,8 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
     {
       key: 'edit',
       icon: <Edit2Icon className="w-4 h-4 text-xs" />,
-      label: (
-        <span
-          onClick={() => onClick()}
-          data-cy="meeting-template-card-edit-menu-item"
-          id="meetingTemplateCardEditMenuItem"
-        >
-          Edit
-        </span>
-      ),
+      label: 'Edit',
+      onClick: onClick,
     },
     {
       key: 'delete',
@@ -67,6 +60,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
       className="relative cursor-pointer p-4 border rounded-lg shadow-sm hover:shadow-md transition w-full"
       data-cy="meeting-template-card"
       id="meetingTemplateCard"
+      onClick={onClick}
     >
       <div
         className="flex justify-between items-start mb-2"

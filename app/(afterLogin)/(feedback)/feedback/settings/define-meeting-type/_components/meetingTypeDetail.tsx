@@ -49,20 +49,32 @@ const MeetingTypeDetail: React.FC = () => {
 
   const handleOpen = () => {
     setEditingTemplate(null);
+    form.resetFields();
     setDrawerOpen(true);
   };
 
   const handleEdit = (template: TemplateData) => {
+    const normalizedAgendaItems = (template.agendaItems || [])
+      .map((item: any) => (typeof item === 'string' ? item : item?.agenda))
+      .filter(Boolean);
+
     setEditingTemplate({
       ...template,
       meetingTypeId: meetingTypeDetailData?.id,
-      agendaItems: template.agendaItems?.map((item: any) => item?.agenda),
+      agendaItems: normalizedAgendaItems,
     });
+    form.resetFields();
     setDrawerOpen(true);
   };
 
   const handleDelete = (templateId: string) => {
     deleteMeetingAgendaTemplate(templateId);
+  };
+
+  const handleCloseTemplateModal = () => {
+    setDrawerOpen(false);
+    setEditingTemplate(null);
+    form.resetFields();
   };
 
   const handleFinish = (values: TemplateData) => {
@@ -80,6 +92,7 @@ const MeetingTypeDetail: React.FC = () => {
           onSuccess() {
             form.resetFields();
             setDrawerOpen(false);
+            setEditingTemplate(null);
           },
         },
       );
@@ -97,6 +110,7 @@ const MeetingTypeDetail: React.FC = () => {
           onSuccess() {
             form.resetFields();
             setDrawerOpen(false);
+            setEditingTemplate(null);
           },
         },
       );
@@ -194,7 +208,7 @@ const MeetingTypeDetail: React.FC = () => {
 
       <MeetingTemplateDrawer
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={handleCloseTemplateModal}
         onFinish={handleFinish}
         initialValues={editingTemplate || undefined}
         loading={
