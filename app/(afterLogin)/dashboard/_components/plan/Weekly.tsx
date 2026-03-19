@@ -57,7 +57,7 @@ const Weekly = ({
         planTaskArray?.map((item: any) => (
           <div
             key={item?.keyResultId}
-            className="flex flex-col mb-3"
+            className="flex flex-col"
             data-cy="dashboard-plan-weekly-key-result-group"
           >
             {/* <div
@@ -73,12 +73,12 @@ const Weekly = ({
               </span>
             </div> */}
             <div
-              className="ml-3"
+              className="ml-0"
               data-cy="dashboard-plan-weekly-tasks-container"
             >
               {item?.task?.map((task: any) => (
                 <div
-                  className=""
+                  className="mb-3"
                   key={task?.id}
                   data-cy={`dashboard-plan-weekly-task-item-${task?.id}`}
                 >
@@ -115,7 +115,7 @@ const Weekly = ({
         ))
       ) : (
         <div
-          className="text-lg font-light flex h-full justify-center items-center "
+          className="text-lg font-light flex min-h-[190px] justify-center items-center "
           data-cy="dashboard-plan-weekly-empty"
         >
           <span data-cy="dashboard-plan-weekly-empty-text">

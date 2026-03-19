@@ -39,7 +39,7 @@ const Header = () => {
     difference: number,
   ): { trendLabel: string; trendDirection: TrendDirection } => {
     return {
-      trendLabel: `${Math.abs(difference)}% Last Month`,
+      trendLabel: `${Math.abs(difference)}%`,
       trendDirection: difference < 0 ? 'down' : 'up',
     };
   };
@@ -351,6 +351,7 @@ const Header = () => {
                   >
                     {stat.label}
                   </span>
+                  <div className="flex items-center gap-1">
                   <span
                     className={`${
                       stat.trendDirection === 'up'
@@ -374,6 +375,9 @@ const Header = () => {
                     )}
                     {stat.trendLabel}
                   </span>
+                  <span className="text-gray-500">Last Month</span>
+                  </div>
+                 
                 </div>
               ))}
             </div>
@@ -467,6 +471,7 @@ const Header = () => {
                   >
                     {stat.label}
                   </span>
+                  <div className="flex items-center gap-1">
                   <span
                     className={`${
                       stat.trendDirection === 'down'
@@ -490,6 +495,8 @@ const Header = () => {
                     )}
                     {stat.trendLabel}
                   </span>
+                  <span className="text-gray-500">Last Month</span>
+                  </div>
                 </div>
               ))}
             </div>
