@@ -1,5 +1,3 @@
-import CustomButton from '@/components/common/buttons/customButton';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   useCreateMeetingType,
   useUpdateMeetingType,
@@ -7,7 +5,7 @@ import {
 
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 
-import { Form, Input } from 'antd';
+import { Button, Form, Input, Modal } from 'antd';
 import React, { useEffect } from 'react';
 
 interface MeetingTypeDrawerProps {
@@ -43,16 +41,6 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
     }
   }, [meetType, form]);
 
-  const modalHeader = (
-    <div
-      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
-      data-cy="meeting-type-drawer-header"
-      id="meetingTypeDrawerHeader"
-    >
-      {meetType ? 'Update Meeting Type' : 'Add New Meeting Type'}
-    </div>
-  );
-
   const onFinish = (values: any) => {
     meetType == null
       ? createMeetingType(values, {
@@ -71,40 +59,24 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
   };
   const loading = createLoading || updateLoading;
 
-  const footer = (
-    <div
-      className="w-full flex justify-center items-center gap-4 pt-8"
-      data-cy="meeting-type-drawer-footer"
-      id="meetingTypeDrawerFooter"
-    >
-      <CustomButton
-        type="default"
-        title="Cancel"
-        onClick={handleDrawerClose}
-        style={{ marginRight: 8 }}
-        loading={loading}
-        data-cy="meeting-type-drawer-cancel-button"
-        id="meetingTypeDrawerCancelButton"
-      />
-      <CustomButton
-        htmlType="submit"
-        title={meetType ? 'Update' : 'Submit'}
-        type="primary"
-        onClick={() => form.submit()}
-        loading={loading}
-        data-cy="meeting-type-drawer-submit-button"
-        id="meetingTypeDrawerSubmitButton"
-      />
-    </div>
-  );
-
   return (
-    <CustomDrawerLayout
+    <Modal
       open={open}
-      onClose={handleDrawerClose}
-      modalHeader={modalHeader}
-      footer={footer}
-      width="40%"
+      onCancel={handleDrawerClose}
+      footer={null}
+      centered
+      width={780}
+      destroyOnClose
+      bodyStyle={{ paddingTop: 8 }}
+      title={
+        <div
+          className="text-4 font-semibold text-gray-700"
+          data-cy="meeting-type-drawer-header"
+          id="meetingTypeDrawerHeader"
+        >
+          Meeting Type
+        </div>
+      }
       data-cy="meeting-type-drawer"
     >
       <Form
@@ -126,9 +98,10 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
           id="meetingTypeDrawerNameField"
         >
           <Input
-            placeholder="Enter name"
+            placeholder="Input"
             data-cy="meeting-type-drawer-name-input"
             id="meetingTypeDrawerNameInput"
+            className="h-12"
           />
         </Form.Item>
 
@@ -143,14 +116,41 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
           id="meetingTypeDrawerDescriptionField"
         >
           <Input.TextArea
-            rows={4}
-            placeholder="Enter description"
+            rows={3}
+            placeholder="Textarea"
             data-cy="meeting-type-drawer-description-textarea"
             id="meetingTypeDrawerDescriptionTextarea"
           />
         </Form.Item>
+
+        <div
+          className="w-full flex justify-end items-center gap-3 pt-4"
+          data-cy="meeting-type-drawer-footer"
+          id="meetingTypeDrawerFooter"
+        >
+          <Button
+            onClick={handleDrawerClose}
+            loading={loading}
+            className="h-10 px-6"
+            data-cy="meeting-type-drawer-cancel-button"
+            id="meetingTypeDrawerCancelButton"
+          >
+            Cancel
+          </Button>
+          <Button
+            htmlType="submit"
+            type="primary"
+            onClick={() => form.submit()}
+            loading={loading}
+            className="h-10 px-6"
+            data-cy="meeting-type-drawer-submit-button"
+            id="meetingTypeDrawerSubmitButton"
+          >
+            {meetType ? 'Update' : 'Create'}
+          </Button>
+        </div>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 
