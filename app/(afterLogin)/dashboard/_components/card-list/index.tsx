@@ -33,7 +33,7 @@ const PersonSlide: FC<{ person: CardPerson; slideIndex: number }> = ({
   slideIndex,
 }) => (
   <div
-    className="flex flex-col items-center gap-1 mx-auto max-w-[260px] py-0.5"
+    className="flex flex-col items-center gap-1 mx-auto max-w-[260px] md:max-w-none py-0.5"
     data-cy={`dashboard-card-list-card-${slideIndex}`}
   >
     {person.user?.profileImage ? (
@@ -172,7 +172,7 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
       </div>
 
       <div
-        className="flex-1 px-4 pb-2 flex items-center justify-center relative min-h-0 max-w-[260px]"
+        className="flex-1 px-4 pb-2 flex items-center justify-center relative min-h-0 max-w-[260px] md:max-w-none"
         data-cy="dashboard-card-list-content"
       >
         {totalCards > 0 ? (
