@@ -116,7 +116,6 @@ export const useGetEmployee = (empId: string) => {
     keepPreviousData: true,
     // Only fetch when we have a real employee id.
     // Otherwise the queryFn calls getEmployee(empId) which throws for invalid ids.
-    enabled:
-      !!empId && empId !== 'undefined' && empId.length > 0 && !!token,
+    enabled: !!empId && empId !== 'undefined' && empId.length > 0 && !!token,
   });
 };

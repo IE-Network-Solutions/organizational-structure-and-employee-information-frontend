@@ -129,10 +129,10 @@ export const useGetReconciliationDetails = ({
       }),
     enabled: Boolean(
       previousPayPeriodId &&
-      currentPayPeriodId &&
-      componentType &&
-      pageSize &&
-      currentPage,
+        currentPayPeriodId &&
+        componentType &&
+        pageSize &&
+        currentPage,
     ),
     keepPreviousData: true,
     staleTime: 30_000,

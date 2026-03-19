@@ -91,8 +91,6 @@ const Header = () => {
 
   const [appreciationIndex, setAppreciationIndex] = useState(0);
   const [reprimandIndex, setReprimandIndex] = useState(0);
-  const [isAppreciationAnimating, setIsAppreciationAnimating] = useState(false);
-  const [isReprimandAnimating, setIsReprimandAnimating] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -103,26 +101,8 @@ const Header = () => {
     return () => clearInterval(interval);
   }, [appreciationStats.length, reprimandStats.length]);
 
-  useEffect(() => {
-    setIsAppreciationAnimating(true);
-    const timeout = setTimeout(() => {
-      setIsAppreciationAnimating(false);
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [appreciationIndex]);
-
-  useEffect(() => {
-    setIsReprimandAnimating(true);
-    const timeout = setTimeout(() => {
-      setIsReprimandAnimating(false);
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [reprimandIndex]);
-
-  const currentAppreciation = appreciationStats[appreciationIndex];
-  const currentReprimand = reprimandStats[reprimandIndex];
+  const slidePercent = (index: number, length: number) =>
+    length > 0 ? (index * 100) / length : 0;
 
   const onDetail = () => {
     router.push(`/dashboard/vp`);
@@ -130,7 +110,6 @@ const Header = () => {
   console.log(objectiveDashboard, 'isLoading');
   return (
     <>
-
       <div
         className="w-full pb-6 flex flex-nowrap gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-none md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5"
         data-cy="okr-header-cards"
@@ -165,7 +144,12 @@ const Header = () => {
                 />
               </svg>
             </div>
-
+            <div
+              className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
+              data-cy="okr-card-value"
+            >
+              {Number(objectiveDashboard?.userOkr?.toFixed(0) || 0)}%
+            </div>
           </div>
           <div
             className="flex flex-col mt-3"
@@ -187,7 +171,6 @@ const Header = () => {
                 strokeColor="#1f4fd8"
                 trailColor="#e5e7eb"
               />
-
             </div>
           </div>
         </Card>
@@ -278,7 +261,6 @@ const Header = () => {
                 strokeColor="#1f4fd8"
                 trailColor="#e5e7eb"
               />
-
             </div>
           </div>
         </Card>
@@ -293,7 +275,7 @@ const Header = () => {
             className="flex items-center justify-between"
             data-cy="okr-card-appreciation-header"
           >
-            <div className='grid grid-cols-12 items-center gap-2'>
+            <div className="grid grid-cols-12 items-center gap-2">
               <div
                 className="col-span-4 rounded-xl bg-[#F6FFED] flex items-center justify-center w-10 h-10"
                 data-cy="okr-card-appreciation-icon-container"
@@ -313,57 +295,79 @@ const Header = () => {
             </div>
 
             <div
-              className={`font-semibold flex items-center text-[27px] leading-none tracking-normal text-gray-900 transition-all duration-500 ease-in-out ${isAppreciationAnimating
-                ? 'opacity-0 -translate-x-4'
-                : 'opacity-100 translate-x-0'
-                }`}
+              className="min-w-[3rem] max-w-[40%] flex-none overflow-hidden text-right"
               data-cy="okr-card-appreciation-value"
             >
-              {currentAppreciation.value}
+              <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{
+                  width: `${appreciationStats.length * 100}%`,
+                  transform: `translateX(-${slidePercent(appreciationIndex, appreciationStats.length)}%)`,
+                }}
+              >
+                {appreciationStats.map((stat) => (
+                  <div
+                    key={stat.id}
+                    className="flex shrink-0 items-center justify-end tabular-nums"
+                    style={{ width: `${100 / appreciationStats.length}%` }}
+                  >
+                    <span className="font-semibold text-[27px] leading-none tracking-normal text-gray-900">
+                      {stat.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <div
-            className="flex flex-col mt-3"
+            className="mt-3 overflow-hidden"
             data-cy="okr-card-appreciation-body"
           >
             <div
-              className="flex items-center justify-between text-xs mt-6"
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{
+                width: `${appreciationStats.length * 100}%`,
+                transform: `translateX(-${slidePercent(appreciationIndex, appreciationStats.length)}%)`,
+              }}
               data-cy="okr-card-appreciation-trend-row"
             >
-              <span
-                className={`text-gray-500 transition-all duration-500 ease-in-out ${isAppreciationAnimating
-                  ? 'opacity-0 -translate-x-4'
-                  : 'opacity-100 translate-x-0'
-                  }`}
-                data-cy="okr-card-appreciation-dimension"
-              >
-                {currentAppreciation.label}
-              </span>
-              <span
-                className={`${currentAppreciation.trendDirection === 'up'
-                  ? 'text-[#52C41A]'
-                  : 'text-red-500'
-                  } flex items-center gap-1 transition-all duration-500 ease-in-out ${isAppreciationAnimating
-                    ? 'opacity-0 -translate-x-4'
-                    : 'opacity-100 translate-x-0'
-                  }`}
-                data-cy="okr-card-appreciation-trend"
-              >
-                {currentAppreciation.trendDirection === 'up' ? (
-                  <IoMdTrendingUp
-                    size={14}
-                    className="text-[#52C41A]"
-                    data-cy="okr-card-appreciation-trend-icon-up"
-                  />
-                ) : (
-                  <IoMdTrendingDown
-                    size={14}
-                    className="text-red-500"
-                    data-cy="okr-card-appreciation-trend-icon-down"
-                  />
-                )}
-                {currentAppreciation.trendLabel}
-              </span>
+              {appreciationStats.map((stat) => (
+                <div
+                  key={stat.id}
+                  className="flex shrink-0 items-center justify-between text-xs mt-6"
+                  style={{ width: `${100 / appreciationStats.length}%` }}
+                >
+                  <span
+                    className="text-gray-500"
+                    data-cy="okr-card-appreciation-dimension"
+                  >
+                    {stat.label}
+                  </span>
+                  <span
+                    className={`${
+                      stat.trendDirection === 'up'
+                        ? 'text-[#52C41A]'
+                        : 'text-red-500'
+                    } flex items-center gap-1`}
+                    data-cy="okr-card-appreciation-trend"
+                  >
+                    {stat.trendDirection === 'up' ? (
+                      <IoMdTrendingUp
+                        size={14}
+                        className="text-[#52C41A]"
+                        data-cy="okr-card-appreciation-trend-icon-up"
+                      />
+                    ) : (
+                      <IoMdTrendingDown
+                        size={14}
+                        className="text-red-500"
+                        data-cy="okr-card-appreciation-trend-icon-down"
+                      />
+                    )}
+                    {stat.trendLabel}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </Card>
@@ -378,7 +382,7 @@ const Header = () => {
             className="flex items-center justify-between"
             data-cy="okr-card-reprimand-header"
           >
-            <div className='grid grid-cols-12 items-center gap-2'>
+            <div className="grid grid-cols-12 items-center gap-2">
               <div
                 className="col-span-4 rounded-xl bg-[#FFF2F0] flex items-center justify-center max-w-10 max-h-10 w-10 h-10"
                 data-cy="okr-card-reprimand-icon-container"
@@ -398,58 +402,79 @@ const Header = () => {
             </div>
 
             <div
-              className={`font-semibold flex items-center text-[27px] leading-none tracking-normal text-gray-900 transition-all duration-500 ease-in-out ${isReprimandAnimating
-                ? 'opacity-0 -translate-x-4'
-                : 'opacity-100 translate-x-0'
-                }`}
+              className="min-w-[3rem] max-w-[40%] flex-none overflow-hidden text-right"
               data-cy="okr-card-reprimand-value"
             >
-              {currentReprimand.value}
+              <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{
+                  width: `${reprimandStats.length * 100}%`,
+                  transform: `translateX(-${slidePercent(reprimandIndex, reprimandStats.length)}%)`,
+                }}
+              >
+                {reprimandStats.map((stat) => (
+                  <div
+                    key={stat.id}
+                    className="flex shrink-0 items-center justify-end tabular-nums"
+                    style={{ width: `${100 / reprimandStats.length}%` }}
+                  >
+                    <span className="font-semibold text-[27px] leading-none tracking-normal text-gray-900">
+                      {stat.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <div
-            className="flex flex-col mt-3"
+            className="mt-3 overflow-hidden"
             data-cy="okr-card-reprimand-body"
           >
-
             <div
-              className="flex items-center justify-between text-xs mt-6"
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{
+                width: `${reprimandStats.length * 100}%`,
+                transform: `translateX(-${slidePercent(reprimandIndex, reprimandStats.length)}%)`,
+              }}
               data-cy="okr-card-reprimand-trend-row"
             >
-              <span
-                className={`text-gray-500 transition-all duration-500 ease-in-out ${isReprimandAnimating
-                  ? 'opacity-0 -translate-x-4'
-                  : 'opacity-100 translate-x-0'
-                  }`}
-                data-cy="okr-card-reprimand-dimension"
-              >
-                {currentReprimand.label}
-              </span>
-              <span
-                className={`${currentReprimand.trendDirection === 'down'
-                  ? 'text-red-500'
-                  : 'text-[#52C41A]'
-                  } flex items-center gap-1 transition-all duration-500 ease-in-out ${isReprimandAnimating
-                    ? 'opacity-0 -translate-x-4'
-                    : 'opacity-100 translate-x-0'
-                  }`}
-                data-cy="okr-card-reprimand-trend"
-              >
-                {currentReprimand.trendDirection === 'down' ? (
-                  <IoMdTrendingDown
-                    size={14}
-                    className="text-red-500"
-                    data-cy="okr-card-reprimand-trend-icon-down"
-                  />
-                ) : (
-                  <IoMdTrendingUp
-                    size={14}
-                    className="text-[#52C41A]"
-                    data-cy="okr-card-reprimand-trend-icon-up"
-                  />
-                )}
-                {currentReprimand.trendLabel}
-              </span>
+              {reprimandStats.map((stat) => (
+                <div
+                  key={stat.id}
+                  className="flex shrink-0 items-center justify-between text-xs mt-6"
+                  style={{ width: `${100 / reprimandStats.length}%` }}
+                >
+                  <span
+                    className="text-gray-500"
+                    data-cy="okr-card-reprimand-dimension"
+                  >
+                    {stat.label}
+                  </span>
+                  <span
+                    className={`${
+                      stat.trendDirection === 'down'
+                        ? 'text-red-500'
+                        : 'text-[#52C41A]'
+                    } flex items-center gap-1`}
+                    data-cy="okr-card-reprimand-trend"
+                  >
+                    {stat.trendDirection === 'down' ? (
+                      <IoMdTrendingDown
+                        size={14}
+                        className="text-red-500"
+                        data-cy="okr-card-reprimand-trend-icon-down"
+                      />
+                    ) : (
+                      <IoMdTrendingUp
+                        size={14}
+                        className="text-[#52C41A]"
+                        data-cy="okr-card-reprimand-trend-icon-up"
+                      />
+                    )}
+                    {stat.trendLabel}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </Card>
@@ -536,10 +561,7 @@ const Header = () => {
               {Number(vpScore?.score || 0)}%
             </div>
           </div>
-          <div
-            className="flex flex-col mt-3"
-            data-cy="okr-card-vp-score-body"
-          >
+          <div className="flex flex-col mt-3" data-cy="okr-card-vp-score-body">
             {' '}
             <div
               className=" text-gray-500 w-full text-start text-sm"
@@ -561,7 +583,6 @@ const Header = () => {
                 strokeColor="#1f4fd8"
                 trailColor="#e5e7eb"
               />
-
             </div>
           </div>
         </Card>

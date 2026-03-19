@@ -1,7 +1,7 @@
 // components/ApprovalRequestCard.tsx
 import { FC } from 'react';
 import { Avatar, Input, Popconfirm } from 'antd';
-import { CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetApproveLeaveRequest,
@@ -198,12 +198,21 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             className="flex items-center justify-between gap-2"
             data-cy="approval-status-card-top-row"
           >
-            <p
-              className="font-semibold text-xs text-gray-900 truncate"
-              data-cy="approval-status-card-employee-name"
-            >
-              {employeeData?.firstName} {employeeData?.middleName}
-            </p>
+            <div className="flex items-center gap-1">
+              <p
+                className="font-semibold text-xs text-gray-900 truncate"
+                data-cy="approval-status-card-employee-name"
+              >
+                {employeeData?.firstName || '-'}
+              </p>
+              <p
+                className="font-semibold text-xs text-gray-900 truncate md:block hidden"
+                data-cy="approval-status-card-employee-name"
+              >
+                {employeeData?.middleName || '-'}
+              </p>
+            </div>
+
             <div className="flex gap-2 " data-cy="approval-status-card-meta">
               <span
                 className="truncate inline-flex items-center px-2.5 py-0.5 rounded-sm text-[10px] font-medium border bg-gray-50 text-gray-700 border-gray-200"
@@ -266,9 +275,15 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
         data-cy="approval-status-card-actions"
       >
         <Popconfirm
-          title="Approve"
+          icon={null}
           description="Are you sure you want to approve this leave request ?"
-          icon={<CheckCircleFilled style={{ color: '#52C41A' }} />}
+          placement="bottomRight"
+          title={
+            <span className="flex items-center gap-1">
+              <CheckCircleFilled className="text-[#52C41A]" />
+              <span>Approve</span>
+            </span>
+          }
           onConfirm={() => {
             confirm({
               approvalWorkflowId: approvalWorkflowId,
@@ -311,7 +326,14 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           </button>
         </Popconfirm>
         <Popconfirm
-          title="Reject Request"
+          icon={null}
+          title={
+            <span className="flex items-center gap-1">
+              <CloseCircleFilled className="text-[#FF4D4F]" />
+              <span>Decline</span>
+            </span>
+          }
+          placement="bottomRight"
           description={
             <>
               <p data-cy="approval-status-card-reject-confirmation">
@@ -342,7 +364,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             });
           }}
           onCancel={cancel}
-          okText="Reject"
+          okText="OK"
           cancelText="Cancel"
           okButtonProps={{ disabled: isLoading || !rejectComment }}
         >

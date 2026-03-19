@@ -25,11 +25,11 @@ const ApprovalStatus: FC = () => {
   const pendingCount =
     approverType === 'BranchTransfer'
       ? BranchTransferData?.meta?.totalItems ||
-      BranchTransferData?.items?.length ||
-      0
+        BranchTransferData?.items?.length ||
+        0
       : LeaveTransferData?.meta?.totalItems ||
-      LeaveTransferData?.items?.length ||
-      0;
+        LeaveTransferData?.items?.length ||
+        0;
 
   return (
     <div
