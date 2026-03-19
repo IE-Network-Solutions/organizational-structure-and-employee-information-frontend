@@ -6,12 +6,12 @@ import {
   Select,
   Button,
   Avatar,
-  Tooltip,
   Popconfirm,
   Popover,
   Tag,
+  Dropdown,
 } from 'antd';
-import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
+import { LoadingOutlined, UserOutlined, MoreOutlined } from '@ant-design/icons';
 import {
   useGetAllUsers,
   useGetEmployee,
@@ -23,7 +23,8 @@ import EmployeeSurveyDrawer from './EmployeeSurveyDrawer';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 import { useGetEmployeeSurvey } from '@/store/server/features/conversation/survey/queries';
 import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
-import { MdDelete, MdEdit } from 'react-icons/md';
+import { MdDeleteOutline } from 'react-icons/md';
+import { Edit2Icon } from 'lucide-react';
 import EmployeeSurveyModal from './EmployeeSurveyModal';
 import { useDeleteEmployeeSurvey } from '@/store/server/features/conversation/survey/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -83,30 +84,34 @@ const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
   );
 };
 const getScoreTag = (score: number): JSX.Element => {
+  const baseClasses =
+    'inline-flex items-center justify-center rounded-lg border px-4 py-1.5 text-sm font-medium';
+  const scoreText = score != null ? `${Number(score).toFixed(2)}%` : '—';
+
   if (score >= 10)
     return (
       <span
-        className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold"
+        className={`${baseClasses} border-green-300 bg-green-50 text-green-600`}
         data-cy={`employee-survey-table-score-tag-green-${score}`}
       >
-        {score?.toLocaleString()}%
+        {scoreText}
       </span>
     );
   if (score >= 7.5)
     return (
       <span
-        className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold"
+        className={`${baseClasses} border-yellow-300 bg-yellow-50 text-yellow-700`}
         data-cy={`employee-survey-table-score-tag-yellow-${score}`}
       >
-        {score?.toLocaleString()}%
+        {scoreText}
       </span>
     );
   return (
     <span
-      className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold"
+      className={`${baseClasses} border-red-300 bg-red-50 text-red-600`}
       data-cy={`employee-survey-table-score-tag-red-${score}`}
     >
-      {score?.toLocaleString()}%
+      {scoreText}
     </span>
   );
 };
@@ -282,53 +287,50 @@ const EmployeeSurveyTable: React.FC = () => {
       dataIndex: 'action',
       key: 'action',
       render: (ruleData: any, record: any) =>
-        record?.monthId == month?.id && (
-          <div
-            className="flex gap-2"
-            data-cy="employee-survey-table-action-buttons"
-            id="employeeSurveyTableActionButtons"
+        record?.monthId == month?.id ? (
+          <Dropdown
+            trigger={['click']}
+            menu={{
+              items: [
+                {
+                  key: 'edit',
+                  label: 'Edit',
+                  icon: <Edit2Icon className="w-4 h-4 text-xs" />,
+                  onClick: () => handleVisibilityEdit(record),
+                },
+                {
+                  key: 'delete',
+                  label: (
+                    <Popconfirm
+                      title="Are you sure you want to remove survey score?"
+                      onConfirm={() => handleSurveyScore(record?.id)}
+                      okText="Yes"
+                      cancelText="No"
+                      placement="top"
+                      data-cy="employee-survey-table-delete-popconfirm"
+                      id="employeeSurveyTableDeletePopconfirm"
+                    >
+                      <span
+                        className="flex items-center gap-2"
+                        data-cy="employee-survey-table-delete-menu-item"
+                      >
+                        <MdDeleteOutline className="w-4 h-4" />
+                        Delete
+                      </span>
+                    </Popconfirm>
+                  ),
+                },
+              ],
+            }}
           >
-            <Tooltip
-              title="Edit"
-              data-cy="employee-survey-table-edit-tooltip"
-              id="employeeSurveyTableEditTooltip"
-            >
-              <Button
-                onClick={() => handleVisibilityEdit(record)}
-                type="primary"
-                icon={<MdEdit data-cy="employee-survey-table-edit-icon" />}
-                data-cy="employee-survey-table-edit-button"
-                id="employeeSurveyTableEditButton"
-              ></Button>
-            </Tooltip>
-
-            <Tooltip
-              title="Delete"
-              data-cy="employee-survey-table-delete-tooltip"
-              id="employeeSurveyTableDeleteTooltip"
-            >
-              <Popconfirm
-                title="Are you sure you want to remove survey score?"
-                onConfirm={() => handleSurveyScore(record?.id)}
-                okText={'Yes'}
-                cancelText="No"
-                placement="top"
-                data-cy="employee-survey-table-delete-popconfirm"
-                id="employeeSurveyTableDeletePopconfirm"
-              >
-                <Button
-                  loading={deleteLoading}
-                  className="text-red-100 bg-red-600 border-none"
-                  icon={
-                    <MdDelete data-cy="employee-survey-table-delete-icon" />
-                  }
-                  data-cy="employee-survey-table-delete-button"
-                  id="employeeSurveyTableDeleteButton"
-                ></Button>
-              </Popconfirm>
-            </Tooltip>
-          </div>
-        ),
+            <Button
+              size="small"
+              icon={<MoreOutlined />}
+              data-cy="employee-survey-table-action-button"
+              id="employeeSurveyTableActionButton"
+            />
+          </Dropdown>
+        ) : null,
     },
   ];
   const onPageChange = (page: number, pageSize?: number) => {
@@ -339,7 +341,7 @@ const EmployeeSurveyTable: React.FC = () => {
   };
   return (
     <div
-      className="p-6 bg-white rounded-lg"
+      className="py-2 rounded-lg border-[1px]"
       data-cy="employee-survey-table-page"
       id="employeeSurveyTablePage"
     >
