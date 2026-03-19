@@ -8,7 +8,7 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useGetAllCandidates } from '@/store/server/features/recruitment/candidate/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import HtmlStringDisplayer from '@/components/HtmlStringDisplayer';
-import { Button, Select } from 'antd';
+import { Button, Card, Select } from 'antd';
 import React from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -76,7 +76,7 @@ const CandidateDetailPage: React.FC = () => {
   if (!candidateId) {
     return (
       <div
-        className="px-2 sm:px-6 py-4 sm:py-6"
+        className="py-4 sm:py-6"
         data-cy="talent-acquisition-candidate-detail-page-missing-id"
       >
         <p
@@ -99,7 +99,7 @@ const CandidateDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <div
-        className="px-2 sm:px-6 py-4 sm:py-6"
+        className="py-4 sm:py-6"
         data-cy="talent-acquisition-candidate-detail-page-loading"
       >
         <div
@@ -126,7 +126,7 @@ const CandidateDetailPage: React.FC = () => {
   if (!selectedCandidate) {
     return (
       <div
-        className="px-2 sm:px-6 py-4 sm:py-6"
+        className="py-4 sm:py-6"
         data-cy="talent-acquisition-candidate-detail-page-not-found"
       >
         <p
@@ -152,17 +152,17 @@ const CandidateDetailPage: React.FC = () => {
 
   return (
     <div
-      className="w-full px-2 sm:px-6 py-4 sm:py-6 space-y-4"
+      className="w-full space-y-4"
       id="talent-acquisition-candidate-detail-page"
       data-cy="talent-acquisition-candidate-detail-page"
     >
-      <div
-        className="flex flex-col gap-2 mb-2 sm:mb-4"
-        data-cy="talent-acquisition-candidate-detail-page-header-top"
-      >
+      <Card
+        data-cy="talent-acquisition-candidate-detail-page-header-card"
+        className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1.5 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
+        title={
         <div
-          className="flex flex-wrap items-center gap-2"
-          data-cy="talent-acquisition-candidate-detail-page-header-actions"
+          className="px-4 sm:px-6 py-0.5 flex items-center gap-2"
+          data-cy="talent-acquisition-candidate-detail-page-breadcrumb-container"
         >
           <Button
             type="text"
@@ -172,18 +172,36 @@ const CandidateDetailPage: React.FC = () => {
             data-cy="talent-acquisition-candidate-detail-page-back"
           />
           <CustomBreadcrumb
+            compact
             title={
               <span
-                className="text-base sm:text-lg"
+                className="text-lg sm:text-2xl font-bold text-[#000000B2]"
                 data-cy="talent-acquisition-candidate-detail-page-breadcrumb-title"
               >
                 Candidate Detail
               </span>
             }
-            subtitle="Talent Acquisition / Candidates"
+            subtitle={
+              <>
+                <span
+                  className="text-slate-500"
+                  data-cy="talent-acquisition-candidate-detail-page-breadcrumb-prefix"
+                >
+                  Talent Acquisition /{' '}
+                </span>
+                <span
+                  className="text-[#000000B2]"
+                  data-cy="talent-acquisition-candidate-detail-page-breadcrumb-current"
+                >
+                  Candidates
+                </span>
+              </>
+            }
+            data-cy="talent-acquisition-candidate-detail-page-breadcrumb"
           />
         </div>
-      </div>
+        }
+      />
 
       {/* Section 1: Candidate header (name, status, nav, contact grid) */}
       <div
@@ -215,10 +233,9 @@ const CandidateDetailPage: React.FC = () => {
                 <Select
                   value={currentStageId}
                   onChange={handleStatusChange}
-                  suffixIcon={
-                    <KeyboardArrowDownOutlinedIcon className="text-gray-400 text-sm" />
-                  }
-                  className="w-full sm:w-[180px] [&_.ant-select-selector]:!border-gray-200 hover:[&_.ant-select-selector]:!border-[#4096FF] [&_.ant-select-selection-item]:text-gray-800 hover:[&_.ant-select-selection-item]:text-[#4096FF]"
+                  size="large"
+                  className="w-full sm:w-[180px]"
+                  popupClassName="org-structure-branch-select-dropdown"
                   options={statusStages?.items?.map((stage: any) => ({
                     value: stage.id,
                     label: stage.title,
@@ -261,7 +278,7 @@ const CandidateDetailPage: React.FC = () => {
             </div>
 
             <div
-              className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-3 sm:gap-4 pt-2 border-t border-gray-100"
+              className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-3 sm:gap-4 pt-2"
               data-cy="talent-acquisition-candidate-detail-page-info-grid"
             >
               <div
@@ -347,11 +364,11 @@ const CandidateDetailPage: React.FC = () => {
 
       {/* Section 2: CV (file name on left, download icon on right) */}
       <div
-        className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm"
+        className="bg-white rounded-lg overflow-hidden border border-transparent"
         data-cy="talent-acquisition-candidate-detail-page-cv-section"
       >
         <div
-          className="p-4 sm:p-6 flex flex-row items-center justify-between gap-3"
+          className="py-4 sm:py-6 px-0 flex flex-row items-center justify-between gap-3"
           data-cy="talent-acquisition-candidate-detail-page-cv-inner"
         >
           <div
@@ -370,7 +387,7 @@ const CandidateDetailPage: React.FC = () => {
               href={selectedCandidate.resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-[#4096FF] hover:text-[#4096FF] text-sm font-medium shrink-0"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-[#4096FF] hover:text-[#4096FF] text-sm font-medium shrink-0 no-underline hover:no-underline"
               data-cy="talent-acquisition-candidate-detail-page-cv-download"
               title="Download"
             >
@@ -395,14 +412,8 @@ const CandidateDetailPage: React.FC = () => {
           className="p-4 sm:p-6"
           data-cy="talent-acquisition-candidate-detail-page-cover-letter-inner"
         >
-          <h2
-            className="text-base font-bold text-gray-900 mb-3"
-            data-cy="talent-acquisition-candidate-detail-page-cover-letter-title"
-          >
-            Cover Letter
-          </h2>
           <div
-            className="text-sm text-gray-700 leading-relaxed"
+            className="text-sm text-gray-700 leading-relaxed text-left"
             data-cy="talent-acquisition-candidate-detail-page-cover-letter"
           >
             <HtmlStringDisplayer

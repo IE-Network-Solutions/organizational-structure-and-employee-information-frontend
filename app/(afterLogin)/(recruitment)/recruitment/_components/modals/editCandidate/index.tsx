@@ -8,6 +8,7 @@ import {
   InputNumber,
   Modal,
   Row,
+  Select,
   Upload,
 } from 'antd';
 
@@ -20,6 +21,7 @@ import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
 const { Dragger } = Upload;
+const { Option } = Select;
 
 const EditCandidate: React.FC = () => {
   const [form] = Form.useForm();
@@ -38,10 +40,40 @@ const EditCandidate: React.FC = () => {
     pageSize,
   } = useCandidateState();
 
-  useGetJobs(searchParams?.whatYouNeed || '', currentPage, pageSize);
+  const { data: jobList } = useGetJobs(
+    searchParams?.whatYouNeed || '',
+    currentPage,
+    pageSize,
+  );
   const { mutate: updateCandidate } = useUpdateCandidate();
 
   const updatedBy = useAuthenticationStore.getState().userId;
+
+  const jobsForSelect = React.useMemo(() => {
+    const items = (jobList as any)?.items ?? [];
+    const now = Date.now();
+    const openJobs = items.filter((job: any) => {
+      const deadline = job?.jobDeadline ? new Date(job.jobDeadline).getTime() : null;
+      const deadlinePassed =
+        typeof deadline === 'number' && Number.isFinite(deadline) ? deadline < now : false;
+      return job?.jobStatus === 'Open' && !deadlinePassed;
+    });
+
+    const currentJob = editCandidate?.jobCandidate?.[0]?.jobInformation;
+    const currentJobId = editCandidate?.jobCandidate?.[0]?.jobInformationId;
+    const hasCurrent =
+      currentJobId && openJobs.some((j: any) => j?.id === currentJobId);
+
+    return hasCurrent || !currentJobId
+      ? openJobs
+      : [
+          ...openJobs,
+          {
+            id: currentJobId,
+            jobTitle: currentJob?.jobTitle ?? 'Current job',
+          },
+        ];
+  }, [jobList, editCandidate]);
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -76,7 +108,8 @@ const EditCandidate: React.FC = () => {
     const formattedValues = {
       ...formValues,
       jobCandidateId: editCandidate?.jobCandidate?.[0]?.id,
-      jobInformationId: editCandidate?.jobCandidate?.[0]?.jobInformationId,
+      jobInformationId:
+        formValues?.jobInformationId ?? editCandidate?.jobCandidate?.[0]?.jobInformationId,
       updatedBy: updatedBy,
     };
     formData.append('newFormData', JSON.stringify(formattedValues));
@@ -84,6 +117,9 @@ const EditCandidate: React.FC = () => {
       { data: formData, id: selectedCandidateId },
       {
         onSuccess: () => {
+          const selectedJobId = formValues?.jobInformationId;
+          const selectedJob = jobsForSelect?.find?.((j: any) => j?.id === selectedJobId);
+
           // Update the selected candidate with the new data
           const updatedCandidate = {
             ...editCandidate,
@@ -94,6 +130,16 @@ const EditCandidate: React.FC = () => {
             jobCandidate: [
               {
                 ...editCandidate?.jobCandidate?.[0],
+                jobInformationId:
+                  selectedJobId ?? editCandidate?.jobCandidate?.[0]?.jobInformationId,
+                jobInformation: selectedJob
+                  ? {
+                      ...(editCandidate?.jobCandidate?.[0]?.jobInformation ?? {}),
+                      jobTitle:
+                        selectedJob?.jobTitle ??
+                        editCandidate?.jobCandidate?.[0]?.jobInformation?.jobTitle,
+                    }
+                  : editCandidate?.jobCandidate?.[0]?.jobInformation,
                 coverLetter: formValues.coverLetter,
               },
             ],
@@ -106,13 +152,12 @@ const EditCandidate: React.FC = () => {
   };
   useEffect(() => {
     if (editCandidate && selectedCandidateId) {
+      const candidateJob = editCandidate?.jobCandidate?.[0];
       form.setFieldsValue({
         fullName: editCandidate?.fullName,
         email: editCandidate?.email,
         phone: editCandidate?.phone || editCandidate?.phoneNumber,
-        jobInformationId: editCandidate?.jobCandidate?.map(
-          (item: any) => item?.jobInformation?.jobTitle,
-        ),
+        jobInformationId: candidateJob?.jobInformationId,
         CGPA: editCandidate?.CGPA,
         coverLetter: editCandidate?.jobCandidate?.[0]?.coverLetter || '',
         resumeUrl: editCandidate?.resumeUrl
@@ -133,6 +178,7 @@ const EditCandidate: React.FC = () => {
       onCancel={() => setEditCandidateModal(false)}
       footer={null}
       width={630}
+      className="ta-candidate-modal"
       title={
         <div
           id="talent-acquisition-edit-candidate-div-header"
@@ -147,7 +193,7 @@ const EditCandidate: React.FC = () => {
       styles={{
         body: {
           backgroundColor: '#FFFFFF',
-          padding: 32,
+          padding: 16,
         },
       }}
       data-cy="talent-acquisition-edit-candidate-modal"
@@ -158,26 +204,40 @@ const EditCandidate: React.FC = () => {
         data-cy="talent-acquisition-edit-candidate-form"
         form={form}
         layout="vertical"
+        requiredMark={false}
         initialValues={editCandidate}
         onFinish={() => {
           handleFormSubmit();
         }}
       >
         <div
-          className="bg-white border border-[#D9D9D9] rounded-lg px-4 py-2"
+          className="bg-white border border-[#D9D9D9] rounded-lg -mx-3 sm:mx-0"
           data-cy="talent-acquisition-edit-candidate-form-container"
         >
+          <div className="px-3 sm:px-4 py-2">
           <Form.Item
             id="fullNameId"
             data-cy="talent-acquisition-edit-candidate-form-item-full-name"
             name="fullName"
             label={
-              <span
-                data-cy="-components-modals-editcandidate-index-tsx-index-span-169"
-                className="text-sm font-medium text-gray-700"
+              <div
+                className="flex items-center justify-between"
+                data-cy="talent-acquisition-edit-candidate-full-name-label"
               >
-                Full Name{' '}
-              </span>
+                <span
+                  data-cy="talent-acquisition-edit-candidate-full-name-label-text"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Full Name
+                </span>
+                <span
+                  className="text-red-500"
+                  aria-hidden
+                  data-cy="talent-acquisition-edit-candidate-full-name-required"
+                >
+                  *
+                </span>
+              </div>
             }
             rules={[{ required: true, message: 'Please input full name!' }]}
           >
@@ -195,12 +255,24 @@ const EditCandidate: React.FC = () => {
                 data-cy="talent-acquisition-edit-candidate-form-item-email"
                 name="email"
                 label={
-                  <span
-                    data-cy="-components-modals-editcandidate-index-tsx-index-span-189"
-                    className="text-sm font-medium text-gray-700"
+                  <div
+                    className="flex items-center justify-between"
+                    data-cy="talent-acquisition-edit-candidate-email-label"
                   >
-                    Email{' '}
-                  </span>
+                    <span
+                      data-cy="talent-acquisition-edit-candidate-email-label-text"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Email
+                    </span>
+                    <span
+                      className="text-red-500"
+                      aria-hidden
+                      data-cy="talent-acquisition-edit-candidate-email-required"
+                    >
+                      *
+                    </span>
+                  </div>
                 }
                 rules={[
                   {
@@ -228,12 +300,24 @@ const EditCandidate: React.FC = () => {
                 data-cy="talent-acquisition-edit-candidate-form-item-phone"
                 name="phone"
                 label={
-                  <span
-                    data-cy="-components-modals-editcandidate-index-tsx-index-span-219"
-                    className="text-sm font-medium text-gray-700"
+                  <div
+                    className="flex items-center justify-between"
+                    data-cy="talent-acquisition-edit-candidate-phone-label"
                   >
-                    Phone Number{' '}
-                  </span>
+                    <span
+                      data-cy="talent-acquisition-edit-candidate-phone-label-text"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Phone Number
+                    </span>
+                    <span
+                      className="text-red-500"
+                      aria-hidden
+                      data-cy="talent-acquisition-edit-candidate-phone-required"
+                    >
+                      *
+                    </span>
+                  </div>
                 }
                 rules={[
                   { required: true, message: 'Please input the phone number!' },
@@ -265,15 +349,75 @@ const EditCandidate: React.FC = () => {
           <Row gutter={16}>
             <Col xs={24} sm={24} lg={12} md={12} xl={12}>
               <Form.Item
+                id="jobId"
+                data-cy="talent-acquisition-edit-candidate-form-item-job"
+                name="jobInformationId"
+                label={
+                  <div
+                    className="flex items-center justify-between"
+                    data-cy="talent-acquisition-edit-candidate-job-label"
+                  >
+                    <span
+                      data-cy="talent-acquisition-edit-candidate-job-label-text"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Job
+                    </span>
+                    <span
+                      className="text-red-500"
+                      aria-hidden
+                      data-cy="talent-acquisition-edit-candidate-job-required"
+                    >
+                      *
+                    </span>
+                  </div>
+                }
+                rules={[{ required: true, message: 'Please select a job' }]}
+              >
+                <Select
+                  id="talent-acquisition-edit-candidate-select-job"
+                  data-cy="talent-acquisition-edit-candidate-select-job"
+                  size="large"
+                  className="w-full"
+                  placeholder="Select a job type"
+                  popupClassName="org-structure-branch-select-dropdown"
+                >
+                  {jobsForSelect?.map((job: any) => (
+                    <Option
+                      key={job?.id}
+                      value={job?.id}
+                      id={`talent-acquisition-edit-candidate-option-job-${job?.id}`}
+                      data-cy={`talent-acquisition-edit-candidate-option-job-${job?.id}`}
+                    >
+                      {job?.jobTitle}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+              <Form.Item
                 id="cgpaId"
                 name="CGPA"
                 label={
-                  <span
-                    data-cy="-components-modals-editcandidate-index-tsx-index-span-279"
-                    className="text-sm font-medium text-gray-700"
+                  <div
+                    className="flex items-center justify-between"
+                    data-cy="talent-acquisition-edit-candidate-cgpa-label"
                   >
-                    CGPA{' '}
-                  </span>
+                    <span
+                      data-cy="talent-acquisition-edit-candidate-cgpa-label-text"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      CGPA
+                    </span>
+                    <span
+                      className="text-red-500"
+                      aria-hidden
+                      data-cy="talent-acquisition-edit-candidate-cgpa-required"
+                    >
+                      *
+                    </span>
+                  </div>
                 }
                 rules={[{ required: true, message: 'Please input CGPA' }]}
               >
@@ -309,12 +453,24 @@ const EditCandidate: React.FC = () => {
             data-cy="talent-acquisition-edit-candidate-form-item-upload-cv"
             name="resumeUrl"
             label={
-              <span
-                data-cy="-components-modals-editcandidate-index-tsx-index-span-335"
-                className="text-sm font-medium text-gray-700"
+              <div
+                className="flex items-center justify-between"
+                data-cy="talent-acquisition-edit-candidate-cv-label"
               >
-                CV{' '}
-              </span>
+                <span
+                  data-cy="talent-acquisition-edit-candidate-cv-label-text"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  CV
+                </span>
+                <span
+                  className="text-red-500"
+                  aria-hidden
+                  data-cy="talent-acquisition-edit-candidate-cv-required"
+                >
+                  *
+                </span>
+              </div>
             }
             rules={[
               { required: true, message: 'Please choose the document type' },
@@ -393,6 +549,7 @@ const EditCandidate: React.FC = () => {
               </span>
             )}
           </Form.Item>
+          </div>
         </div>
         <Form.Item>
           <div

@@ -102,22 +102,62 @@ export const useCreateCandidate = () => {
 
       if (error?.response?.data) {
         const errorData = error.response.data;
+        const status = error?.response?.status;
+
+        const asText = (val: unknown) => {
+          if (val == null) return '';
+          if (typeof val === 'string') return val;
+          if (Array.isArray(val))
+            return val
+              .map((x) =>
+                typeof x === 'string' ? x : ((x as any)?.message ?? x),
+              )
+              .filter(Boolean)
+              .join(', ');
+          if (typeof val === 'object') {
+            // Common backend shapes: { message, error, details, errors }
+            const msg = (val as any)?.message;
+            const err = (val as any)?.error;
+            const det = (val as any)?.details;
+            const errs = (val as any)?.errors;
+            return (
+              asText(errs) || asText(det) || asText(err) || asText(msg) || ''
+            );
+          }
+          return String(val);
+        };
 
         // Handle different error response formats
         if (typeof errorData === 'string') {
           errorMessage = errorData;
         } else if (errorData.message) {
-          errorMessage = errorData.message;
-          errorDescription = errorData.details || errorData.error || '';
+          const msgText = asText(errorData.message);
+          const detailsText =
+            asText((errorData as any).errors) ||
+            asText((errorData as any).details) ||
+            asText((errorData as any).error);
+
+          // Avoid showing generic "Bad Request" when backend has better detail.
+          const isGenericBadRequest =
+            msgText.toLowerCase() === 'bad request' ||
+            msgText.toLowerCase() === 'bad_request';
+
+          errorMessage = isGenericBadRequest
+            ? 'Failed to create candidate'
+            : msgText;
+          errorDescription =
+            detailsText ||
+            (isGenericBadRequest && status ? `Request failed (${status})` : '');
         } else if (errorData.error) {
-          errorMessage = errorData.error;
+          errorMessage = asText(errorData.error) || errorMessage;
         }
 
         // Handle specific validation errors
         if (errorData.errors && Array.isArray(errorData.errors)) {
-          errorMessage = errorData.errors
-            .map((err: any) => err.message || err)
-            .join(', ');
+          const errText = asText(errorData.errors);
+          if (errText) {
+            errorMessage = errText;
+          }
         }
 
         // Handle duplicate field errors

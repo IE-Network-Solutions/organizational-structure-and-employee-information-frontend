@@ -124,30 +124,38 @@ const MoveToTalentPool: React.FC = () => {
           data-cy="talent-acquisition-move-talent-pool-form"
           form={form}
           layout="vertical"
+          requiredMark={false}
+          className="[&_.ant-form-item]:mb-4 [&_.ant-form-item:last-of-type]:mb-0"
         >
           <div
             id="talent-acquisition-move-talent-pool-div-form-container"
             data-cy="talent-acquisition-move-talent-pool-div-form-container"
-            className="bg-white border border-[#D9D9D9] rounded-lg px-4 py-2"
+            className="bg-white border border-[#D9D9D9] rounded-lg -mx-8 sm:mx-0"
           >
+            <div className="px-3 sm:px-4 py-2">
             <Form.Item
               id="jobCandidateInformationId"
               data-cy="talent-acquisition-move-talent-pool-form-item-candidates"
               name="jobCandidateInformationId"
               label={
-                <span
-                  data-cy="-components-modals-movetotalentpool-index-tsx-index-span-146"
-                  className="text-sm font-medium text-gray-700"
+                <div
+                  className="flex items-center justify-between"
+                  data-cy="talent-acquisition-move-talent-pool-candidate-label"
                 >
-                  Candidate{' '}
+                  <span
+                    data-cy="talent-acquisition-move-talent-pool-candidate-label-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Candidate
+                  </span>
                   <span
                     className="text-red-500"
                     aria-hidden
-                    data-cy="talent-acquisition-move-talent-pool-required-mark"
+                    data-cy="talent-acquisition-move-talent-pool-candidate-required"
                   >
                     *
                   </span>
-                </span>
+                </div>
               }
               rules={[
                 {
@@ -160,8 +168,10 @@ const MoveToTalentPool: React.FC = () => {
                 id="talent-acquisition-move-talent-pool-select-candidates"
                 data-cy="talent-acquisition-move-talent-pool-select-candidates"
                 mode="multiple"
-                className="text-sm w-full min-h-10"
+                size="large"
+                className="w-full"
                 placeholder="select candidate"
+                popupClassName="org-structure-branch-select-dropdown"
                 value={(Array.isArray(selectedCandidate)
                   ? selectedCandidate
                   : []
@@ -217,12 +227,24 @@ const MoveToTalentPool: React.FC = () => {
               data-cy="talent-acquisition-move-talent-pool-form-item-category"
               name="talentPoolCategoryId"
               label={
-                <span
-                  data-cy="-components-modals-movetotalentpool-index-tsx-index-span-237"
-                  className="text-sm font-medium text-gray-700"
+                <div
+                  className="flex items-center justify-between"
+                  data-cy="talent-acquisition-move-talent-pool-category-label"
                 >
-                  Talent Pool Category
-                </span>
+                  <span
+                    data-cy="talent-acquisition-move-talent-pool-category-label-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Talent Pool Category
+                  </span>
+                  <span
+                    className="text-red-500"
+                    aria-hidden
+                    data-cy="talent-acquisition-move-talent-pool-category-required"
+                  >
+                    *
+                  </span>
+                </div>
               }
               rules={[
                 {
@@ -234,8 +256,10 @@ const MoveToTalentPool: React.FC = () => {
               <Select
                 id="talent-acquisition-move-talent-pool-select-category"
                 data-cy="talent-acquisition-move-talent-pool-select-category"
-                className="text-sm w-full h-10"
+                size="large"
+                className="w-full"
                 placeholder="Select talent pool category"
+                popupClassName="org-structure-branch-select-dropdown"
               >
                 {talentPool?.items?.map((item: any) => (
                   <Option
@@ -254,12 +278,24 @@ const MoveToTalentPool: React.FC = () => {
               data-cy="talent-acquisition-move-talent-pool-form-item-reason"
               name="reason"
               label={
-                <span
-                  data-cy="-components-modals-movetotalentpool-index-tsx-index-span-271"
-                  className="text-sm font-medium text-gray-700"
+                <div
+                  className="flex items-center justify-between"
+                  data-cy="talent-acquisition-move-talent-pool-reason-label"
                 >
-                  Reason
-                </span>
+                  <span
+                    data-cy="talent-acquisition-move-talent-pool-reason-label-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Reason
+                  </span>
+                  <span
+                    className="text-red-500"
+                    aria-hidden
+                    data-cy="talent-acquisition-move-talent-pool-reason-required"
+                  >
+                    *
+                  </span>
+                </div>
               }
               rules={[{ required: true, message: 'Please input your reason' }]}
             >
@@ -271,9 +307,10 @@ const MoveToTalentPool: React.FC = () => {
                 className="text-sm"
               />
             </Form.Item>
+            </div>
           </div>
 
-          <Form.Item>
+          <Form.Item style={{ marginBottom: 0 }}>
             <div
               id="talent-acquisition-move-talent-pool-div-footer"
               data-cy="talent-acquisition-move-talent-pool-div-footer"
