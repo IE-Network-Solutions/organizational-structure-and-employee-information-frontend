@@ -104,7 +104,7 @@ export const useCreateCandidate = () => {
         const errorData = error.response.data;
         const status = error?.response?.status;
 
-        const asText = (val: unknown) => {
+        const asText = (val: unknown): string => {
           if (val == null) return '';
           if (typeof val === 'string') return val;
           if (Array.isArray(val))
