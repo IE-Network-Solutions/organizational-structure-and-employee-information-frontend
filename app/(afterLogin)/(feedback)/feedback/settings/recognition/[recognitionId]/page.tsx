@@ -60,6 +60,7 @@ export default function RecognitionDetailPage() {
     () => recognitionName || selectedRecognition?.name || 'Recognition',
     [recognitionName, selectedRecognition?.name],
   );
+  const description = selectedRecognition?.description || '';
 
   return (
     <div
@@ -95,7 +96,7 @@ export default function RecognitionDetailPage() {
               className="text-xs text-gray-500 mt-1"
               data-cy="recognition-detail-subtitle"
             >
-              Recognition programs and criteria
+              {description || 'Recognition programs and criteria'}
             </div>
           </div>
         </div>
