@@ -4,7 +4,6 @@ import { TableColumnsType } from '@/types/table/table';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import VariablePayModal from './VariablePayModal';
-import Link from 'next/link';
 import { FaRegEye, FaEyeSlash } from 'react-icons/fa';
 import { AiOutlineReload } from 'react-icons/ai';
 import {
@@ -30,8 +29,11 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[136px] w-full items-center justify-center">
-        <Spin />
+      <div
+        className="flex min-h-[136px] w-full items-center justify-center"
+        data-cy="expanded-vp-details-loading-wrapper"
+      >
+        <Spin data-cy="expanded-vp-details-loading-spinner" />
       </div>
     );
   }
@@ -55,8 +57,9 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
   }
 
   return (
-    <div className="w-full">
-      <style>{`
+    <div className="w-full" data-cy="expanded-vp-details-wrapper">
+      <style data-cy="expanded-vp-details-style">
+        {`
         @keyframes slideDownCards {
           0% { opacity: 0; transform: translateY(-10px); }
           100% { opacity: 1; transform: translateY(0); }
@@ -64,24 +67,44 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
         .animate-slideDownCards {
           animation: slideDownCards 0.3s ease-out forwards;
         }
-      `}</style>
-      <div className="grid grid-cols-4 gap-4 lg:gap-6 w-full items-center animate-slideDownCards">
+      `}
+      </style>
+      <div
+        className="grid grid-cols-4 gap-4 lg:gap-6 w-full items-center animate-slideDownCards"
+        data-cy="expanded-vp-details-cards-grid"
+      >
         {/* Card 1: Total VP */}
         <div
           className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-full max-w-[256px]"
           style={{ height: '136px', borderRadius: '8px' }}
+          data-cy="expanded-vp-details-total-card"
         >
-          <div className="flex justify-between items-center">
-            <span className="text-gray-500 text-[13px] font-medium">
+          <div
+            className="flex justify-between items-center"
+            data-cy="expanded-vp-details-total-card-header"
+          >
+            <span
+              className="text-gray-500 text-[13px] font-medium"
+              data-cy="expanded-vp-details-total-card-title"
+            >
               Total VP
             </span>
-            <span className="text-gray-500 text-[13px] font-medium">
+            <span
+              className="text-gray-500 text-[13px] font-medium"
+              data-cy="expanded-vp-details-total-card-subtitle"
+            >
               Out of {totalWeight}%
             </span>
           </div>
 
-          <div className="flex items-center gap-10">
-            <span className="text-[28px] font-bold text-gray-800 leading-none">
+          <div
+            className="flex items-center gap-10"
+            data-cy="expanded-vp-details-total-card-score-row"
+          >
+            <span
+              className="text-[28px] font-bold text-gray-800 leading-none"
+              data-cy="expanded-vp-details-total-card-score"
+            >
               {Number(totalScore).toFixed(2)}
             </span>
             <Progress
@@ -90,18 +113,28 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
               strokeColor="#1e3a8a"
               trailColor="#f3f4f6"
               className="flex-1 m-0 [&_.ant-progress-inner]:!bg-gray-100"
+              data-cy="expanded-vp-details-total-card-progress"
               strokeWidth={8}
               strokeLinecap="round"
             />
           </div>
 
-          <div className="flex justify-between items-center">
+          <div
+            className="flex justify-between items-center"
+            data-cy="expanded-vp-details-total-card-change-row"
+          >
             <span
               className={`text-[12px] font-medium ${!isNegative ? 'text-green-500' : 'text-red-500'}`}
+              data-cy="expanded-vp-details-total-card-change"
             >
               {!isNegative ? '+' : ''}
               {change}{' '}
-              <span className="text-gray-400 font-normal">vs last month</span>
+              <span
+                className="text-gray-400 font-normal"
+                data-cy="expanded-vp-details-total-card-change-subtext"
+              >
+                vs last month
+              </span>
             </span>
             <Button
               type="text"
@@ -116,6 +149,7 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
               onClick={() => refetch()}
               disabled={isRefreshLoading || isRefetching}
               className="text-gray-500 hover:text-gray-700 border border-gray-200 flex items-center justify-center p-0 w-7 h-7 rounded bg-transparent shadow-none"
+              data-cy="expanded-vp-details-total-card-refresh-button"
             />
           </div>
         </div>
@@ -131,35 +165,61 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
               key={index}
               className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-full max-w-[256px]"
               style={{ height: '108px', borderRadius: '8px' }}
+              data-cy={`expanded-vp-details-metric-card-${index}`}
             >
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 text-[13px] font-medium truncate pr-2">
+              <div
+                className="flex justify-between items-center"
+                data-cy={`expanded-vp-details-metric-card-header-${index}`}
+              >
+                <span
+                  className="text-gray-500 text-[13px] font-medium truncate pr-2"
+                  data-cy={`expanded-vp-details-metric-card-title-${index}`}
+                >
                   {card?.name || 'OKR'}
                 </span>
-                <span className="text-gray-500 text-[13px] font-medium flex-shrink-0">
+                <span
+                  className="text-gray-500 text-[13px] font-medium flex-shrink-0"
+                  data-cy={`expanded-vp-details-metric-card-subtitle-${index}`}
+                >
                   Out of {weight.toFixed(2)}%
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div
+                className="flex items-center gap-3"
+                data-cy={`expanded-vp-details-metric-card-progress-row-${index}`}
+              >
                 <Progress
                   percent={curPercentage}
                   showInfo={false}
                   strokeColor="#1c3ca5"
                   trailColor="#f3f4f6"
                   className="flex-1 m-0 [&_.ant-progress-inner]:!bg-gray-100"
+                  data-cy={`expanded-vp-details-metric-card-progress-${index}`}
                   strokeWidth={8}
                   strokeLinecap="round"
                 />
-                <span className="text-gray-600 text-[13px] font-medium w-8 text-right">
+                <span
+                  className="text-gray-600 text-[13px] font-medium w-8 text-right"
+                  data-cy={`expanded-vp-details-metric-card-progress-value-${index}`}
+                >
                   {curPercentage.toFixed(0)}%
                 </span>
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="text-[12px] text-green-500 font-medium">
+              <div
+                className="flex justify-between items-center"
+                data-cy={`expanded-vp-details-metric-card-footer-${index}`}
+              >
+                <span
+                  className="text-[12px] text-green-500 font-medium"
+                  data-cy={`expanded-vp-details-metric-card-footer-text-${index}`}
+                >
                   +0.00{' '}
-                  <span className="text-gray-400 font-normal">
+                  <span
+                    className="text-gray-400 font-normal"
+                    data-cy={`expanded-vp-details-metric-card-footer-subtext-${index}`}
+                  >
                     vs last month
                   </span>
                 </span>
@@ -281,10 +341,13 @@ const VariablePayTable = () => {
       title: 'Action',
       key: 'Action',
       align: 'left',
-      render: (_: any, record: any) => {
+      render: (value: any, record: any) => {
         const isExpanded = expandedRowKeys.includes(record.key);
         return (
-          <div className="flex justify-start">
+          <div
+            className="flex justify-start"
+            data-cy={`variable-pay-table-action-wrapper-${record.userId}`}
+          >
             <div
               onClick={() => {
                 if (isExpanded) {
@@ -300,9 +363,11 @@ const VariablePayTable = () => {
                   ? 'border-gray-300 bg-gray-100 shadow-inner'
                   : 'border-gray-200 hover:bg-gray-50 hover:shadow-sm'
               }`}
+              data-cy={`variable-pay-table-action-button-${record.userId}`}
             >
               <div
                 className={`flex items-center justify-center transform transition-transform duration-300 ${isExpanded ? 'rotate-180 scale-110 text-gray-600' : 'rotate-0 scale-100 text-gray-400 hover:text-gray-600'}`}
+                data-cy={`variable-pay-table-action-icon-${record.userId}`}
               >
                 {isExpanded ? (
                   <FaEyeSlash

@@ -9,7 +9,6 @@ import {
   useGetVpScoreCalculate,
 } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import Link from 'next/link';
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -88,9 +87,18 @@ const VPScoreCard: React.FC = () => {
       data-cy="variable-pay-score-card-container"
     >
       {isLoading ? (
-        <Skeleton active paragraph={{ rows: 3 }} />
+        <div data-cy="variable-pay-score-card-loading">
+          <Skeleton
+            active
+            paragraph={{ rows: 3 }}
+            data-cy="variable-pay-score-card-loading-skeleton"
+          />
+        </div>
       ) : (
-        <div className="flex flex-row items-center gap-3 md:items-start md:gap-6">
+        <div
+          className="flex flex-row items-center gap-3 md:items-start md:gap-6"
+          data-cy="variable-pay-score-card-body"
+        >
           {/* Left: Donut chart */}
           <div
             className="relative mt-0 h-[80px] w-[80px] flex-shrink-0 md:mt-2 md:h-[130px] md:w-[130px]"
@@ -108,21 +116,30 @@ const VPScoreCard: React.FC = () => {
               id="variable-pay-score-card-donut-center"
               data-cy="variable-pay-score-card-donut-center"
             >
-              <span className="text-xl font-bold text-gray-900">
+              <span
+                className="text-xl font-bold text-gray-900"
+                data-cy="variable-pay-score-card-donut-center-value"
+              >
                 {Number(totalScore).toFixed(1)}
               </span>
             </div>
           </div>
 
           {/* Right: Everything else */}
-          <div className="flex-1 min-w-0">
+          <div
+            className="flex-1 min-w-0"
+            data-cy="variable-pay-score-card-right"
+          >
             {/* Top row: Title + badge on left, Refresh VP on right */}
             <div
               className="mb-3 flex min-w-0 items-center justify-between gap-2"
               id="variable-pay-score-card-header"
               data-cy="variable-pay-score-card-header"
             >
-              <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3">
+              <div
+                className="flex min-w-0 flex-1 items-center gap-2 md:gap-3"
+                data-cy="variable-pay-score-card-header-left"
+              >
                 <span
                   className="font-sans text-[14px] leading-[22px] font-normal text-gray-700 hidden md:inline"
                   data-cy="variable-pay-score-card-title-desktop"
@@ -161,7 +178,12 @@ const VPScoreCard: React.FC = () => {
                 data-cy="variable-pay-score-card-refresh-button"
                 id="variable-pay-score-card-refresh-button"
               >
-                <span className="hidden md:inline">Refresh VP</span>
+                <span
+                  className="hidden md:inline"
+                  data-cy="variable-pay-score-card-refresh-button-text"
+                >
+                  Refresh VP
+                </span>
               </Button>
             </div>
 
@@ -171,7 +193,10 @@ const VPScoreCard: React.FC = () => {
               id="variable-pay-score-card-criteria-grid"
               data-cy="variable-pay-score-card-criteria-grid"
             >
-              <div className="grid grid-flow-col grid-rows-2 auto-cols-[280px] gap-x-4 gap-y-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
+              <div
+                className="grid grid-flow-col grid-rows-2 auto-cols-[280px] gap-x-4 gap-y-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden"
+                data-cy="variable-pay-score-card-criteria-grid-mobile-track"
+              >
                 {displayCriteria.map((item: any, index: number) => {
                   const score = Number(item?.score ?? 0).toFixed(0);
                   const weight = Number(item?.weight ?? 5);
@@ -186,12 +211,18 @@ const VPScoreCard: React.FC = () => {
                       id={`variable-pay-criteria-item-${index}`}
                       data-cy={`variable-pay-criteria-item-${index}`}
                     >
-                      <span className="truncate whitespace-nowrap font-sans text-[14px] font-normal leading-[22px] text-gray-700">
+                      <span
+                        className="truncate whitespace-nowrap font-sans text-[14px] font-normal leading-[22px] text-gray-700"
+                        data-cy={`variable-pay-criteria-item-title-${index}`}
+                      >
                         {item?.name?.length > 32
                           ? item.name.slice(0, 32) + '...'
                           : item?.name}
                       </span>
-                      <div className="flex min-w-0 items-center gap-2">
+                      <div
+                        className="flex min-w-0 items-center gap-2"
+                        data-cy={`variable-pay-criteria-item-progress-row-${index}`}
+                      >
                         <Progress
                           percent={percentage}
                           showInfo={false}
@@ -201,14 +232,20 @@ const VPScoreCard: React.FC = () => {
                           strokeWidth={8}
                           data-cy={`variable-pay-criteria-progress-${index}`}
                         />
-                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                        <span
+                          className="text-xs text-gray-500 whitespace-nowrap"
+                          data-cy={`variable-pay-criteria-item-score-${index}`}
+                        >
                           {score}/{weight}
                         </span>
                       </div>
                     </div>
                   );
                 })}
-                <div className="flex items-end justify-start">
+                <div
+                  className="flex items-end justify-start"
+                  data-cy="variable-pay-score-card-view-all-mobile-wrapper"
+                >
                   <span
                     onClick={() => setShowAll(!showAll)}
                     className="cursor-pointer text-sm font-medium text-[#1677ff] hover:text-blue-800"
@@ -221,7 +258,10 @@ const VPScoreCard: React.FC = () => {
               </div>
             </div>
 
-            <div className="hidden md:grid md:grid-flow-row md:grid-cols-4 md:grid-rows-none md:gap-x-6 md:gap-y-2 md:overflow-visible">
+            <div
+              className="hidden md:grid md:grid-flow-row md:grid-cols-4 md:grid-rows-none md:gap-x-6 md:gap-y-2 md:overflow-visible"
+              data-cy="variable-pay-score-card-criteria-grid-desktop"
+            >
               {displayCriteria.map((item: any, index: number) => {
                 const score = Number(item?.score ?? 0).toFixed(0);
                 const weight = Number(item?.weight ?? 5);
@@ -236,12 +276,18 @@ const VPScoreCard: React.FC = () => {
                     id={`variable-pay-criteria-item-${index}`}
                     data-cy={`variable-pay-criteria-item-${index}`}
                   >
-                    <span className="truncate whitespace-nowrap font-sans text-[14px] font-normal leading-[22px] text-gray-700">
+                    <span
+                      className="truncate whitespace-nowrap font-sans text-[14px] font-normal leading-[22px] text-gray-700"
+                      data-cy={`variable-pay-criteria-item-title-desktop-${index}`}
+                    >
                       {item?.name?.length > 32
                         ? item.name.slice(0, 32) + '...'
                         : item?.name}
                     </span>
-                    <div className="flex min-w-0 items-center gap-2">
+                    <div
+                      className="flex min-w-0 items-center gap-2"
+                      data-cy={`variable-pay-criteria-item-progress-row-desktop-${index}`}
+                    >
                       <Progress
                         percent={percentage}
                         showInfo={false}
@@ -251,14 +297,20 @@ const VPScoreCard: React.FC = () => {
                         strokeWidth={8}
                         data-cy={`variable-pay-criteria-progress-${index}`}
                       />
-                      <span className="text-xs text-gray-500 whitespace-nowrap">
+                      <span
+                        className="text-xs text-gray-500 whitespace-nowrap"
+                        data-cy={`variable-pay-criteria-item-score-desktop-${index}`}
+                      >
                         {score}/{weight}
                       </span>
                     </div>
                   </div>
                 );
               })}
-              <div className="mt-1 hidden items-end justify-start md:flex">
+              <div
+                className="mt-1 hidden items-end justify-start md:flex"
+                data-cy="variable-pay-score-card-view-all-desktop-wrapper"
+              >
                 <span
                   onClick={() => setShowAll(!showAll)}
                   className="cursor-pointer text-sm font-medium text-[#1677ff] hover:text-blue-800"

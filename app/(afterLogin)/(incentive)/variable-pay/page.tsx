@@ -16,7 +16,10 @@ const VariablePayPage = () => {
         title="Variable Pay"
         description="VP"
       />
-      <div className="mt-4 border-b border-gray-100" />
+      <div
+        className="mt-4 border-b border-gray-100"
+        data-cy="variable-pay-page-header-separator"
+      />
       <VPScoreCard />
       <VariablePayTable data-cy="variable-pay-table" />
     </div>
