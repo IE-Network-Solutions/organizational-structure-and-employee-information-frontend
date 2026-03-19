@@ -82,9 +82,9 @@ const ApprovalFilterComponent = ({
           allowClear
           suffix={
             <div
-            className="text-gray-400 border-l border-gray-300 py-1 px-2"
-            data-cy="components-approval-approvalfiltercomponent-index-tsx-index-search-input-suffix"
-          >
+              className="text-gray-400 border-l border-gray-300 py-1 px-2"
+              data-cy="components-approval-approvalfiltercomponent-index-tsx-index-search-input-suffix"
+            >
               <SearchOutlined />
             </div>
           }

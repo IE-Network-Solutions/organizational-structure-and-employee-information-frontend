@@ -341,14 +341,12 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
           data-cy="time-attendance-settings-tabs-container"
           id="time-attendance-settings-tabs-container"
         >
-          <div
-            data-cy="time-attendance-settings-tabs-wrapper"
-          >
+          <div data-cy="time-attendance-settings-tabs-wrapper">
             <Tabs
               activeKey={activeKey}
               onChange={handleTabChange}
               items={items}
-              moreIcon={false} 
+              moreIcon={false}
               tabBarStyle={{
                 marginBottom: 0,
                 marginLeft: 0,

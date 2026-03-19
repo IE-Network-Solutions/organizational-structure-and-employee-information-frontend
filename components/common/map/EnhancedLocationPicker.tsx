@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { InputNumber, message, Slider, Space, Typography } from 'antd';
+import { InputNumber, Slider, Space, Typography } from 'antd';
 import dynamic from 'next/dynamic';
 import LocationSearch from './LocationSearch';
 
@@ -106,25 +106,6 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
 
   const handleSearchSelect = (lat: number, lng: number) => {
     handleLocationChange(lat, lng);
-  };
-
-  const handleUseCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          handleLocationChange(latitude, longitude);
-          message.success('Current location set successfully!');
-        },
-        () => {
-          message.error(
-            'Unable to get current location. Please select manually.',
-          );
-        },
-      );
-    } else {
-      message.error('Geolocation is not supported by this browser.');
-    }
   };
 
   return (

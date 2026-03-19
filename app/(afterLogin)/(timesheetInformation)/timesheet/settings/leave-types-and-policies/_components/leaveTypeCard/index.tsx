@@ -1,9 +1,6 @@
 import React, { FC } from 'react';
 import { Spin, Tag } from 'antd';
 import ActionButton from '@/components/common/actionButton';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
 import { LeaveType } from '@/types/timesheet/settings';
 import {
   useDeleteLeaveType,
@@ -60,9 +57,11 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
             >
               {item.title}
             </span>
-              <Tag
+            <Tag
               className={`h-5 text-xs px-2 rounded-[4px] ${
-                item.isPaid ? 'border border-[#b7eb8f] text-[#52c41a] bg-[#f6ffed]' : 'bg-[#FFE6E6] text-[#EF4444] border border-[#ffa39e]'
+                item.isPaid
+                  ? 'border border-[#b7eb8f] text-[#52c41a] bg-[#f6ffed]'
+                  : 'bg-[#FFE6E6] text-[#EF4444] border border-[#ffa39e]'
               }`}
               data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-status-badge`}
             >

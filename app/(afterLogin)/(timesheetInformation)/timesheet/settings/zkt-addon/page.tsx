@@ -90,7 +90,7 @@ const ZKTAddonPage = () => {
             className="flex items-center"
           >
             <Logo type="selamnew" width={140} height={48} />
-          </div> 
+          </div>
           <InsertLinkOutlinedIcon />
           <div
             data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-85"
@@ -98,10 +98,13 @@ const ZKTAddonPage = () => {
           >
             <Image src={ZKTeco} alt="zkt" width={140} height={48} />
           </div>
-        </div> 
-        <div className="text-center mb-4">
-        <p className="text-sm text-black">
-          Link ZKTeco time and attendance information with selamnew workspace, All you need to do is add the link for your dashboard on ZKT and add your username and password and we will handle the rest</p>
+        </div>
+        <div data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-86" className="text-center mb-4">
+          <p data-cy="timesheet-settings-zkt-addon-page-tsx-page-p-87" className="text-sm text-black">
+            Link ZKTeco time and attendance information with selamnew workspace,
+            All you need to do is add the link for your dashboard on ZKT and add
+            your username and password and we will handle the rest
+          </p>
         </div>
         <div
           data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-89"
@@ -145,56 +148,56 @@ const ZKTAddonPage = () => {
               </Form.Item>
               <Row gutter={16}>
                 <Col span={12}>
-                <Form.Item
-                name="username"
-                required={false}
-                label={
-                  <span
-                    data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-122"
-                    className="text-sm font-medium text-gray-700 pb-2"
+                  <Form.Item
+                    name="username"
+                    required={false}
+                    label={
+                      <span
+                        data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-122"
+                        className="text-sm font-medium text-gray-700 pb-2"
+                      >
+                        Username{' '}
+                        <span
+                          data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-123"
+                          className="text-red-500"
+                        >
+                          *
+                        </span>
+                      </span>
+                    }
+                    rules={[
+                      { required: true, message: 'Please enter username!' },
+                    ]}
                   >
-                    Username{' '}
-                    <span
-                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-123"
-                      className="text-red-500"
-                    >
-                      *
-                    </span>
-                  </span>
-                }
-                rules={[{ required: true, message: 'Please enter username!' }]}
-              >
-                <Input placeholder="Username" className="h-10" />
-              </Form.Item>
+                    <Input placeholder="Username" className="h-10" />
+                  </Form.Item>
                 </Col>
                 <Col span={12}>
-                <Form.Item
-                name="password"
-                required={false}
-                label={
-                  <span
-                    data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-135"
-                    className="text-sm font-medium text-gray-700 pb-2"
+                  <Form.Item
+                    name="password"
+                    required={false}
+                    label={
+                      <span
+                        data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-135"
+                        className="text-sm font-medium text-gray-700 pb-2"
+                      >
+                        Password{' '}
+                        <span
+                          data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-136"
+                          className="text-red-500"
+                        >
+                          *
+                        </span>
+                      </span>
+                    }
+                    rules={[
+                      { required: true, message: 'Please enter password!' },
+                    ]}
                   >
-                 Password{' '}
-                    <span
-                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-136"
-                      className="text-red-500"
-                    >
-                      *
-                    </span>
-                  </span>
-                }
-                rules={[{ required: true, message: 'Please enter password!' }]}
-              >
-                <Input.Password placeholder="..." className="h-10" />
-              </Form.Item>
+                    <Input.Password placeholder="..." className="h-10" />
+                  </Form.Item>
                 </Col>
               </Row>
-
-              
-
-              
 
               {/* Buttons */}
               <Form.Item className="mt-4 mb-0">

@@ -256,9 +256,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           smoothZoom={smoothZoom}
           radius={currentRadius}
         />
-        <Marker
-          position={position}
-        />
+        <Marker position={position} />
         <Circle
           center={position}
           radius={currentRadius * 1000} // Convert km to meters
@@ -268,7 +266,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
             fillOpacity: 0.15,
             weight: 1,
           }}
-        />     
+        />
       </MapContainer>
     </div>
   );

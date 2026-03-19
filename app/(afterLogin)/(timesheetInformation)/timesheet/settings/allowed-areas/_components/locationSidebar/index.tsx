@@ -255,18 +255,17 @@ const LocationSidebar = () => {
                   id="time-attendance-settings-allowed-areas-sidebar-info-banner"
                   data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner"
                 >
-                  
                   <div
                     data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text"
                     id="time-attendance-settings-allowed-areas-sidebar-info-banner-text"
                     className="flex gap-2 mb-2 items-center"
                   >
                     <div
-                    data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-icon"
-                    className="h-4 w-4 flex items-center justify-center rounded-full border border-[#1E40AF] text-[#1E40AF] text-xs font-semibold"
-                  >
-                    i
-                  </div>
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-icon"
+                      className="h-4 w-4 flex items-center justify-center rounded-full border border-[#1E40AF] text-[#1E40AF] text-xs font-semibold"
+                    >
+                      i
+                    </div>
                     <div
                       data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text-title"
                       id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-title"
@@ -276,15 +275,14 @@ const LocationSidebar = () => {
                     </div>
                   </div>
                   <p
-                      data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
-                      id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
-                      className=" bg-[#e6f4ff] m-0 text-sm font-normal text-[#2748b3]"
-                    >
-                      Click anywhere on the map to set your location. Adjust the
-                      radius slider to define the area coverage, or use the
-                      &quot;Use Current Location&quot; button for quick setup.
-                    </p>
-                 
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
+                    id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
+                    className=" bg-[#e6f4ff] m-0 text-sm font-normal text-[#2748b3]"
+                  >
+                    Click anywhere on the map to set your location. Adjust the
+                    radius slider to define the area coverage, or use the
+                    &quot;Use Current Location&quot; button for quick setup.
+                  </p>
                 </div>
 
                 {/* Map Section */}
@@ -378,13 +376,12 @@ const LocationSidebar = () => {
                       id="time-attendance-settings-allowed-areas-sidebar-radius-input-container"
                       className="flex items-center gap-2"
                     >
-                      
                       <Tag
-              data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-span-196"
-              className="bg-[#e6f4ff] text-[#237fff] border border-[#bcdfff] py-1 px-2 rounded-[4px]"
-            >
-              {formValues.distance} km
-            </Tag>
+                        data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-span-196"
+                        className="bg-[#e6f4ff] text-[#237fff] border border-[#bcdfff] py-1 px-2 rounded-[4px]"
+                      >
+                        {formValues.distance} km
+                      </Tag>
                     </div>
                   </div>
                   <Slider

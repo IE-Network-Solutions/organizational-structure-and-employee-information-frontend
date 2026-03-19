@@ -37,46 +37,45 @@ const Page = () => {
         id="time-attendance-settings-accrual-rule-table-container"
         data-cy="time-attendance-settings-accrual-rule-table-container"
       >
-       
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-            data-cy="time-attendance-settings-accrual-rule-cards-grid"
-          >
-            {tableData().map((item) => (
-              <Card
-                key={item.key}
-                className="rounded-xl border border-gray-200 !shadow-none"
-                bodyStyle={{ padding: 12 }}
-                id={`time-attendance-settings-accrual-rule-card-${item.key}`}
-                data-cy={`time-attendance-settings-accrual-rule-card-${item.key}`}
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          data-cy="time-attendance-settings-accrual-rule-cards-grid"
+        >
+          {tableData().map((item) => (
+            <Card
+              key={item.key}
+              className="rounded-xl border border-gray-200 !shadow-none"
+              bodyStyle={{ padding: 12 }}
+              id={`time-attendance-settings-accrual-rule-card-${item.key}`}
+              data-cy={`time-attendance-settings-accrual-rule-card-${item.key}`}
+            >
+              <div
+                id="time-attendance-settings-accrual-rule-card-header"
+                data-cy="time-attendance-settings-accrual-rule-card-header"
+                className="flex items-start justify-between gap-2"
               >
                 <div
-                  id="time-attendance-settings-accrual-rule-card-header"
-                  data-cy="time-attendance-settings-accrual-rule-card-header"
-                  className="flex items-start justify-between gap-2"
+                  className="text-base font-semibold text-[#4d4d4d] leading-5"
+                  data-cy="time-attendance-settings-accrual-rule-card-title"
                 >
-                  <div
-                    className="text-base font-semibold text-[#4d4d4d] leading-5"
-                    data-cy="time-attendance-settings-accrual-rule-card-title"
-                  >
-                    {item.title}
-                  </div>
-                  <Tag
-                    className=" bg-[#fafafa] text-xs text-[#4b4b4b] border border-[#d9d9d9] rounded-[4px] px-2 py-0.5"
-                    data-cy="time-attendance-settings-accrual-rule-card-period"
-                  >
-                    {item.period}
-                  </Tag>
+                  {item.title}
                 </div>
-                <div
-                  className="mt-2 text-sm text-black"
-                  data-cy="time-attendance-settings-accrual-rule-card-date"
+                <Tag
+                  className=" bg-[#fafafa] text-xs text-[#4b4b4b] border border-[#d9d9d9] rounded-[4px] px-2 py-0.5"
+                  data-cy="time-attendance-settings-accrual-rule-card-period"
                 >
-                  {dayjs(item.createdAt).format(DATE_FORMAT)}
-                </div>
-              </Card>
-            ))}
-          </div>
+                  {item.period}
+                </Tag>
+              </div>
+              <div
+                className="mt-2 text-sm text-black"
+                data-cy="time-attendance-settings-accrual-rule-card-date"
+              >
+                {dayjs(item.createdAt).format(DATE_FORMAT)}
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
 
       <NewAccrualRuleSidebar data-cy="time-attendance-settings-accrual-rule-sidebar" />

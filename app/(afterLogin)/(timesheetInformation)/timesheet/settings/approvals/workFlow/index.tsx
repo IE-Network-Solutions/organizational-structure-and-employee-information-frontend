@@ -29,7 +29,7 @@ const ApprovalWorkflowSteps = React.memo(({ current }: { current: number }) => {
   );
   return (
     <>
-    <style data-cy="user-sidebar-steps-style">{`
+      <style data-cy="user-sidebar-steps-style">{`
       /* Keep step labels on a single line */
       .user-sidebar-steps .ant-steps-item-title {
         white-space: nowrap !important;
@@ -46,15 +46,15 @@ const ApprovalWorkflowSteps = React.memo(({ current }: { current: number }) => {
         color: #d9d9d9 !important;
       }
     `}</style>
-    <Steps
-      responsive={false}
-      labelPlacement="vertical"
-      progressDot
-      current={current}
-      className="user-sidebar-steps px-4 mx-auto max-w-5xl hidden sm:flex"
-      data-cy="approval-workflow-steps"
-      items={stepItems}
-    />
+      <Steps
+        responsive={false}
+        labelPlacement="vertical"
+        progressDot
+        current={current}
+        className="user-sidebar-steps px-4 mx-auto max-w-5xl hidden sm:flex"
+        data-cy="approval-workflow-steps"
+        items={stepItems}
+      />
     </>
   );
 });
@@ -200,12 +200,6 @@ const ApprovalWorkFlowModal = ({
     setSelections({ SectionItemType: updatedSelections });
   };
 
-  const handleApproverChange = (value: string | string[], index: number) => {
-    const updatedSelections = [...selections.SectionItemType];
-    updatedSelections[index] = { ...updatedSelections[index], user: value };
-    setSelections({ SectionItemType: updatedSelections });
-  };
-
   const assigneeOptions = useMemo(() => {
     return (
       usersData?.items
@@ -224,7 +218,9 @@ const ApprovalWorkFlowModal = ({
 
   const handleAssigneeSelect = (userId: string | undefined) => {
     if (userId == null) return;
-    const list = selections.SectionItemType as { user: string | string[] | null }[];
+    const list = selections.SectionItemType as {
+      user: string | string[] | null;
+    }[];
     const firstEmptyIndex = list.findIndex((item) => {
       const u = item?.user;
       if (u == null) return true;
@@ -253,7 +249,7 @@ const ApprovalWorkFlowModal = ({
       selections.SectionItemType.map((item) => {
         const u = item?.user;
         if (u == null) return null;
-        return Array.isArray(u) ? u[0] ?? null : u;
+        return Array.isArray(u) ? (u[0] ?? null) : u;
       }),
     [selections.SectionItemType],
   );
@@ -637,11 +633,16 @@ const ApprovalWorkFlowModal = ({
         >
           <Form.Item
             name="level"
-            label={<span className="text-sm text-[#4d4d4d]">Levels</span>}
+            label={
+              <span
+                data-cy="approval-workflow-levels-label"
+                className="text-sm text-[#4d4d4d]"
+              >
+                Levels
+              </span>
+            }
             required
-            rules={[
-              { required: true, message: 'Please select levels' },
-            ]}
+            rules={[{ required: true, message: 'Please select levels' }]}
             initialValue={level}
             data-cy="approval-workflow-levels-field"
           >
@@ -658,7 +659,7 @@ const ApprovalWorkFlowModal = ({
               })}
               data-cy="approval-workflow-levels-select"
             />
-              <p
+            <p
               className="text-sm text-[#4d4d4d] mt-1"
               data-cy="approval-workflow-assignee-instruction"
             >
@@ -667,66 +668,63 @@ const ApprovalWorkFlowModal = ({
             </p>
           </Form.Item>
           {level > 0 && (
-          <div
-            className="mb-3 flex flex-col gap-2"
-            data-cy="approval-workflow-assignee-section"
-          >
-           
-            <Form.Item
-              label="Assignee"
-              required
-              validateTrigger="onSubmit"
-              rules={[
-                {
-                  validator: () => {
-                    const filled = assignedUserIds.filter(Boolean).length;
-                    if (filled < level) {
-                      return Promise.reject(
-                        `Please select ${level} assignee(s) for ${level} level(s)`,
-                      );
-                    }
-                    return Promise.resolve();
-                  },
-                },
-              ]}
-              data-cy="approval-workflow-assignee-field"
-            >
-              <Select
-                placeholder="Select"
-                showSearch
-                className="h-10 w-full"
-                optionFilterProp="label"
-                options={assigneeOptions}
-                onSelect={handleAssigneeSelect}
-                value={undefined}
-                data-cy="approval-workflow-assignee-select"
-                disabled={assignedUserIds.filter(Boolean).length >= level}
-              />
-            </Form.Item>
             <div
-              className="flex flex-wrap gap-2"
-              data-cy="approval-workflow-assignee-tags"
+              className="mb-3 flex flex-col gap-2"
+              data-cy="approval-workflow-assignee-section"
             >
-              {assignedUserIds.map(
-                (userId, index) =>
-                  userId && (
-                    <Tag
-                      key={`${userId}-${index}`}
-                      closable
-                      onClose={() => handleAssigneeRemove(index)}
-                      className="inline-flex items-center gap-1 rounded-md border border-[#d9d9d9] bg-[#fafafa] px-2 py-1 text-sm"
-                      data-cy={`approval-workflow-assignee-tag-${index}`}
-                    >
-                      {getUserFullName(userId)}
-                    </Tag>
-                  ),
-              )}
+              <Form.Item
+                label="Assignee"
+                required
+                validateTrigger="onSubmit"
+                rules={[
+                  {
+                    validator: () => {
+                      const filled = assignedUserIds.filter(Boolean).length;
+                      if (filled < level) {
+                        return Promise.reject(
+                          `Please select ${level} assignee(s) for ${level} level(s)`,
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                data-cy="approval-workflow-assignee-field"
+              >
+                <Select
+                  placeholder="Select"
+                  showSearch
+                  className="h-10 w-full"
+                  optionFilterProp="label"
+                  options={assigneeOptions}
+                  onSelect={handleAssigneeSelect}
+                  value={undefined}
+                  data-cy="approval-workflow-assignee-select"
+                  disabled={assignedUserIds.filter(Boolean).length >= level}
+                />
+              </Form.Item>
+              <div
+                className="flex flex-wrap gap-2"
+                data-cy="approval-workflow-assignee-tags"
+              >
+                {assignedUserIds.map(
+                  (userId, index) =>
+                    userId && (
+                      <Tag
+                        key={`${userId}-${index}`}
+                        closable
+                        onClose={() => handleAssigneeRemove(index)}
+                        className="inline-flex items-center gap-1 rounded-md border border-[#d9d9d9] bg-[#fafafa] px-2 py-1 text-sm"
+                        data-cy={`approval-workflow-assignee-tag-${index}`}
+                      >
+                        {getUserFullName(userId)}
+                      </Tag>
+                    ),
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
         </div>
-
-       
       </Form>
 
       {current === 2 && (

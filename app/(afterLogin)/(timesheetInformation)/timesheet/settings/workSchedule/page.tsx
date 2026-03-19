@@ -2,11 +2,7 @@
 import React from 'react';
 import { Button, Dropdown, Input } from 'antd';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
-import {
-  CalendarOutlined,
-  MoreOutlined,
-  SearchOutlined,
-} from '@ant-design/icons';
+import { CalendarOutlined, SearchOutlined } from '@ant-design/icons';
 import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import { ScheduleDetail as StoreScheduleDetail } from '@/store/uistate/features/organizationStructure/workSchedule/interface';
@@ -208,12 +204,11 @@ function WorkScheduleTab() {
           <Input
             placeholder="Search work schedule"
             className="w-[300px] pr-0 py-0 h-8 mb-4"
-
             suffix={
               <div
-              className="text-gray-400 border-l border-gray-300 py-1 px-2"
-              data-cy="time-attendance-settings-work-schedule-search-input-suffix"
-            >
+                className="text-gray-400 border-l border-gray-300 py-1 px-2"
+                data-cy="time-attendance-settings-work-schedule-search-input-suffix"
+              >
                 <SearchOutlined />
               </div>
             }
@@ -282,10 +277,10 @@ function WorkScheduleTab() {
                         id={`org-settings-work-schedule-actions-${scheduleId}`}
                         data-cy={`org-settings-work-schedule-actions-${scheduleId}`}
                       >
-                      <MoreHorizIcon
-                        data-cy={`org-settings-work-schedule-actions-${scheduleId}`}
-                        id={`org-settings-work-schedule-actions-${scheduleId}`}
-                      />
+                        <MoreHorizIcon
+                          data-cy={`org-settings-work-schedule-actions-${scheduleId}`}
+                          id={`org-settings-work-schedule-actions-${scheduleId}`}
+                        />
                       </Button>
                     </Dropdown>
                   </div>

@@ -81,8 +81,8 @@ const ActionButton: FC<ActionButtonProps> = ({
             onEdit(e);
           }}
         >
-         < EditOutlinedIcon className="text-sm text-black"/>
-         Edit
+          <EditOutlinedIcon className="text-sm text-black" />
+          Edit
         </Button>
       ),
       className: 'p-0 hover:bg-transparent',
@@ -106,7 +106,7 @@ const ActionButton: FC<ActionButtonProps> = ({
             className="w-full justify-normal flex items-center gap-2 text-[#4d4d4d] text-sm font-normal"
             type="text"
           >
-            <DeleteOutlinedIcon className="text-sm text-black"/>
+            <DeleteOutlinedIcon className="text-sm text-black" />
             Delete
           </Button>
         </DeletePopover>
@@ -129,15 +129,13 @@ const ActionButton: FC<ActionButtonProps> = ({
             onStatusToggle(e);
           }}
         >
-          <PowerSettingsNewOutlinedIcon className="text-sm text-black"/>
+          <PowerSettingsNewOutlinedIcon className="text-sm text-black" />
           {statusToggleLabel || 'Toggle Status'}
-        </Button> 
+        </Button>
       ),
       className: 'p-0 hover:bg-transparent',
     });
   }
-
- 
 
   return (
     <Dropdown
@@ -148,7 +146,7 @@ const ActionButton: FC<ActionButtonProps> = ({
       className={classNames(className)}
     >
       <Button
-      type="default"
+        type="default"
         className="border border-[#D9D9D9] h-7 w-6"
         id={`${id}buttonDropDownActionId`}
         onClick={(e) => {

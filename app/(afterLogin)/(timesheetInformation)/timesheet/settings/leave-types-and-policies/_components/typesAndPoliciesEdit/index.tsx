@@ -14,11 +14,7 @@ import {
   Modal,
   Button,
 } from 'antd';
-import {
-  CheckOutlined,
-  CloseOutlined,
-  InfoCircleOutlined,
-} from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useGetLeaveTypeById } from '@/store/server/features/timesheet/leaveType/queries';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useGetCarryOverRules } from '@/store/server/features/timesheet/carryOverRule/queries';
@@ -89,8 +85,6 @@ const TypesAndPoliciesEdit = () => {
 
   const isIncremental = Form.useWatch('isIncremental', form);
   const isDeductible = Form.useWatch('isDeductible', form);
-  const incrementalYear = Form.useWatch('incrementalYear', form);
-  const incrementAmount = Form.useWatch('incrementAmount', form);
   const selectedPlan = Form.useWatch('plan', form); // 'paid' | 'unpaid' | undefined
 
   const radioItemClass = (value: 'paid' | 'unpaid') =>
@@ -194,7 +188,10 @@ const TypesAndPoliciesEdit = () => {
               id={`TypesAndPoliciesTitleFieldId`}
               data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-title-field-id"
               label={
-                <span className="text-sm font-normal text-black pr-1">
+                <span
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-title-label-id"
+                  className="text-sm font-normal text-black pr-1"
+                >
                   Type Name
                 </span>
               }
@@ -208,7 +205,10 @@ const TypesAndPoliciesEdit = () => {
             </Form.Item>
             <Form.Item
               label={
-                <span className="text-sm font-normal text-black pr-1">
+                <span
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-paid-unpaid-label-id"
+                  className="text-sm font-normal text-black pr-1"
+                >
                   Paid or Unpaid
                 </span>
               }
@@ -261,7 +261,10 @@ const TypesAndPoliciesEdit = () => {
             </Form.Item>
             <Form.Item
               label={
-                <span className="text-sm font-normal text-black pr-1">
+                <span
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-entitled-days-year-label-id"
+                  className="text-sm font-normal text-black pr-1"
+                >
                   Entitled Days/Year
                 </span>
               }
@@ -472,7 +475,10 @@ const TypesAndPoliciesEdit = () => {
               id={`TypesAndPoliciesMinAllowedDaysFieldId`}
               data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-min-allowed-days-field-id"
               label={
-                <span className="text-sm font-normal text-black pr-1">
+                <span
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-min-allowed-days-label-id"
+                  className="text-sm font-normal text-black pr-1"
+                >
                   Minimum notifying period(days)
                 </span>
               }
@@ -490,7 +496,10 @@ const TypesAndPoliciesEdit = () => {
               id={`TypesAndPoliciesMaxConsecuativeAllowedDaysFieldId`}
               data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-max-allowed-consecutive-days-field-id"
               label={
-                <span className="text-sm font-normal text-black pr-1">
+                <span
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-max-allowed-consecutive-days-label-id"
+                  className="text-sm font-normal text-black pr-1"
+                >
                   Maximum allowed consecutive days
                 </span>
               }
@@ -506,7 +515,10 @@ const TypesAndPoliciesEdit = () => {
             </Form.Item>
             <Form.Item
               label={
-                <span className="text-sm font-normal text-black pr-1">
+                <span
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-accrual-rule-label-id"
+                  className="text-sm font-normal text-black pr-1"
+                >
                   Accrual Rule
                 </span>
               }
@@ -535,7 +547,10 @@ const TypesAndPoliciesEdit = () => {
             </Form.Item>
             <Form.Item
               label={
-                <span className="text-sm font-normal text-black pr-1">
+                <span
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-carry-over-rule-label-id"
+                  className="text-sm font-normal text-black pr-1"
+                >
                   Carry-Over Rule
                 </span>
               }
@@ -564,7 +579,10 @@ const TypesAndPoliciesEdit = () => {
             </Form.Item>
             <Form.Item
               label={
-                <span className="text-sm font-normal text-black pr-1">
+                <span
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-description-label-id"
+                  className="text-sm font-normal text-black pr-1"
+                >
                   Description
                 </span>
               }
