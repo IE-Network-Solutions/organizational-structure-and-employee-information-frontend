@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide scrollbars (keep scrolling) */
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Candidate table: hide AntD inner horizontal scrollbar */
+#talent-acquisition-candidate-table-scroll-wrapper .ant-table-content,
+#talent-acquisition-candidate-table-scroll-wrapper .ant-table-body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#talent-acquisition-candidate-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
+#talent-acquisition-candidate-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Org Structure chart: smooth layout transitions on collapse/expand */
+.org-structure-flow .react-flow__node,
+.org-structure-flow .xyflow__node {
+  transition: transform 260ms ease;
+}
+.transition-all {
+  will-change: transform, opacity;
+}
+.org-structure-flow .react-flow__edge-path,
+.org-structure-flow .xyflow__edge-path {
+  transition: opacity 220ms ease;
+}
+
 /* Calibre font family - local OTF files */
 @font-face {
   font-family: 'Calibre';
@@ -115,9 +148,17 @@
   src: url('/calibre/Calibre-BlackItalic.otf') format('opentype');
 }
 
-/* Hide scrollbar for webkit browsers */
+/* Hide scrollbar while maintaining scroll functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+  /* Safari and Chrome */
 }
 
 /* Leaflet Map Styles */
@@ -161,6 +202,14 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
   /* Safari and Chrome */
+}
+
+/* Ensure Ant Design Sider children allow for flex scrolling */
+.ant-layout-sider-children {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: visible !important;
 }
 
 .ant-popconfirm-message {
@@ -347,7 +396,7 @@ h6 {
   @apply text-[#4DAEF0] !important;
 }
 
-.ant-collapse>.ant-collapse-item>.ant-collapse-header {
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
   align-items: center !important;
 }
 
@@ -452,7 +501,6 @@ h6 {
 
 @layer components {
   @media (max-width: 640px) {
-
     /* Ant Design menu active item */
     .ant-menu-item-selected {
       @apply text-primary;
@@ -607,7 +655,6 @@ h6 {
 
 /* Floating button animation */
 @keyframes floatPulse {
-
   0%,
   100% {
     box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4);
@@ -785,7 +832,6 @@ h6 {
   }
 
   @keyframes float {
-
     0%,
     100% {
       transform: translateY(0px) rotate(0deg);
@@ -827,7 +873,6 @@ h6 {
   }
 
   @keyframes dotBounce {
-
     0%,
     60%,
     100% {
@@ -878,7 +923,6 @@ h6 {
   }
 
   @media (prefers-reduced-motion: reduce) {
-
     .pwa-splash-container,
     .pwa-logo-animation,
     .pwa-text-animation,
@@ -927,11 +971,16 @@ h6 {
 
 /* Mobile PWA optimizations */
 @media (max-width: 768px) {
-
   /* Touch target sizes for better mobile interaction */
   .ant-btn {
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 32px;
+    min-width: 32px;
+  }
+
+  /* Org Structure page: let modals control button height (32px) */
+  #org-structure-layout .ant-btn {
+    min-height: 32px;
+    min-width: auto;
   }
 
   .ant-menu-item {
@@ -997,7 +1046,6 @@ h6 {
 
 /* iOS specific adjustments */
 @supports (-webkit-touch-callout: none) {
-
   /* iOS Safari specific styles */
   .ios-install-instructions {
     background: #f0f8ff;
@@ -1017,7 +1065,9 @@ h6 {
 @media (display-mode: window-controls-overlay) {
   .app-header {
     padding-left: env(titlebar-area-x);
-    padding-right: calc(100vw - env(titlebar-area-x) - env(titlebar-area-width));
+    padding-right: calc(
+      100vw - env(titlebar-area-x) - env(titlebar-area-width)
+    );
     padding-top: env(titlebar-area-y);
     min-height: env(titlebar-area-height);
   }
@@ -1036,7 +1086,6 @@ h6 {
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-
   .install-modal .ant-modal-content,
   .update-notification,
   .offline-indicator {
@@ -1046,7 +1095,6 @@ h6 {
 
 /* Print styles for PWA */
 @media print {
-
   .install-button-minimal,
   .offline-indicator,
   .update-notification {
@@ -1056,7 +1104,6 @@ h6 {
 
 /* FORCE HIDE URL BAR COMPLETELY - ALLOW SCROLLING */
 @media screen {
-
   /* Hide all browser UI elements but allow scrolling */
   html {
     width: 100%;
@@ -1074,9 +1121,7 @@ h6 {
 }
 
 /* PWA Mode - Complete URL Bar Removal WITH SCROLLING */
-@media (display-mode: standalone),
-(display-mode: fullscreen) {
-
+@media (display-mode: standalone), (display-mode: fullscreen) {
   html,
   body {
     height: 100vh !important;
@@ -1132,8 +1177,136 @@ h6 {
 }
 
 /* Hide the selected checkmark icon in Select dropdown */
-.ant-select-item-option-selected:not(.ant-select-item-option-disabled) .ant-select-item-option-state {
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
   display: none;
+}
+
+/* Delete Candidate (mobile): center dropdown panel */
+@media screen and (max-width: 768px) {
+  .delete-candidate-dropdown-overlay.ant-dropdown {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .delete-candidate-dropdown-content {
+    width: calc(100vw - 48px);
+    max-width: 520px;
+  }
+}
+
+/* Recruitment: Add/Edit Candidate modal - tighter mobile spacing */
+.ta-candidate-modal.ant-modal {
+  width: calc(100vw - 24px) !important;
+  max-width: 630px;
+  margin: 12px auto !important;
+}
+
+.ta-candidate-modal .ant-modal-body {
+  padding: 16px !important;
+}
+
+@media (min-width: 640px) {
+  .ta-candidate-modal.ant-modal {
+    width: 630px !important;
+    margin: 0 auto !important;
+  }
+  .ta-candidate-modal .ant-modal-body {
+    padding: 32px !important;
+  }
+}
+
+/* Org Structure: Department Branch Select dropdown styling */
+.org-structure-branch-select-dropdown.ant-select-dropdown {
+  border-radius: 12px;
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(148, 163, 184, 0.12);
+}
+
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: #e6f4ff !important; /* light blue background */
+}
+
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-content {
+  color: #111827 !important; /* keep text dark */
+  font-weight: 400;
+}
+
+/* Re-enable the checkmark icon inside this dropdown only */
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  color: #1677ff !important; /* AntD primary blue */
+  font-size: 14px;
+}
+
+/* Fallback: draw a custom checkmark on the right for selected option */
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(
+    .ant-select-item-option-disabled
+  )::after {
+  content: '✓';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #1677ff;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* Org Structure: Department Branch Select dropdown styling */
+.org-structure-branch-select-dropdown.ant-select-dropdown {
+  border-radius: 12px;
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(148, 163, 184, 0.12);
+}
+
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: #e6f4ff !important; /* light blue background */
+}
+
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-content {
+  color: #111827 !important; /* keep text dark */
+  font-weight: 400;
+}
+
+/* Re-enable the checkmark icon inside this dropdown only */
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  color: #1677ff !important; /* AntD primary blue */
+  font-size: 14px;
+}
+
+/* Fallback: draw a custom checkmark on the right for selected option */
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(
+    .ant-select-item-option-disabled
+  )::after {
+  content: '✓';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #1677ff;
+  font-size: 14px;
+  pointer-events: none;
 }
 
 .ql-container {
@@ -1154,13 +1327,18 @@ h6 {
   left: -14px !important;
 }
 
-.mobile-switcher .ant-tree-switcher-open .ant-tree-node-content-wrapper .ant-tree-node-content-wrapper-open {
+.mobile-switcher
+  .ant-tree-switcher-open
+  .ant-tree-node-content-wrapper
+  .ant-tree-node-content-wrapper-open {
   left: -10px !important;
 }
 
 /* Align parent task icon with tree lines in mobile view */
 @media (max-width: 768px) {
-  .mobile-switcher .ant-tree-treenode:first-child .ant-tree-node-content-wrapper {
+  .mobile-switcher
+    .ant-tree-treenode:first-child
+    .ant-tree-node-content-wrapper {
     padding-left: 4px !important;
   }
 
@@ -1237,14 +1415,12 @@ h6 {
   .ant-dropdown-menu {
   font-weight: normal;
 }
-.talent-acquisition-candidate-table-action-dropdown
-  .ant-dropdown-menu-item {
+.talent-acquisition-candidate-table-action-dropdown .ant-dropdown-menu-item {
   font-weight: normal;
 }
 
 /* Override Ant Design's mobile styles */
 @media (max-width: 768px) {
-
   .action-button-edit,
   .action-button-delete {
     min-height: unset !important;
@@ -1257,7 +1433,7 @@ h6 {
   border: none !important;
 }
 
-.leave-management-table .ant-table-thead>tr>th {
+.leave-management-table .ant-table-thead > tr > th {
   background: #f9fafb !important;
   color: #374151;
   font-weight: 700 !important;
@@ -1265,35 +1441,42 @@ h6 {
   border-right: none !important;
 }
 
-.leave-management-table .ant-table-thead>tr>th,
-.leave-management-table .ant-table-thead>tr>th * {
+.leave-management-table .ant-table-thead > tr > th,
+.leave-management-table .ant-table-thead > tr > th * {
   font-weight: 700 !important;
 }
 
-.leave-management-table .ant-table-tbody>tr>td {
+.leave-management-table .ant-table-tbody > tr > td {
   border-bottom: 1px solid #f3f4f6 !important;
   border-right: none !important;
 }
 
 /* Employee names in first column: not bold (override UserCard font-semibold) */
 .leave-management-table .ant-table-tbody td:first-child .font-semibold,
-.leave-management-table .ant-table-tbody td:first-child [data-cy='components-common-usercard-usercard-tsx-usercard-div-38'] {
+.leave-management-table
+  .ant-table-tbody
+  td:first-child
+  [data-cy='components-common-usercard-usercard-tsx-usercard-div-38'] {
   font-weight: 400 !important;
 }
 
-.leave-management-table .ant-table-tbody>tr:last-child>td {
+.leave-management-table .ant-table-tbody > tr:last-child > td {
   border-bottom: none !important;
 }
 
 /* Leave Management toolbar: thin light gray borders on search/filter controls */
-#time-attendance-leave-management-search-employee.ant-select .ant-select-selector,
-#time-attendance-leave-management-search-employee.ant-select:hover .ant-select-selector,
-#time-attendance-leave-management-search-employee.ant-select.ant-select-open .ant-select-selector {
+#time-attendance-leave-management-search-employee.ant-select
+  .ant-select-selector,
+#time-attendance-leave-management-search-employee.ant-select:hover
+  .ant-select-selector,
+#time-attendance-leave-management-search-employee.ant-select.ant-select-open
+  .ant-select-selector {
   border-color: #f3f4f6 !important;
   border-width: 1px !important;
 }
 
-#time-attendance-leave-management-search-employee.ant-select.ant-select-focused .ant-select-selector {
+#time-attendance-leave-management-search-employee.ant-select.ant-select-focused
+  .ant-select-selector {
   border-color: #e5e7eb !important;
   box-shadow: 0 0 0 1px #e5e7eb !important;
 }
@@ -1333,4 +1516,19 @@ h6 {
 
 .leave-request-detail-modal.ant-modal .ant-modal-close:hover {
   color: #111827;
+}
+
+/* Org Structure: Add/Edit/Delete Department modals close button position */
+.org-structure-department-modal.ant-modal .ant-modal-close {
+  top: 15px !important;
+  right: 16px !important;
+  color: #00000073 !important;
+}
+
+/* Prevent close (×) button overflow on mobile */
+@media (max-width: 640px) {
+  .org-structure-department-modal.ant-modal .ant-modal-close {
+    left: auto !important;
+    right: 12px !important;
+  }
 }

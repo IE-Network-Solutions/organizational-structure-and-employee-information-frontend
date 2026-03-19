@@ -1,9 +1,8 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Select, Input, Form, Modal, Tooltip, Row, Col } from 'antd';
+import { Select, Input, Form, Modal, Tooltip, Row, Col, Button } from 'antd';
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
-import CustomButton from '@/components/common/buttons/customButton';
 import { useGetCriteriaTargets } from '@/store/server/features/okrplanning/okr/criteria/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
@@ -107,26 +106,28 @@ const AssignTargetModal: React.FC = () => {
 
   const footer = (
     <div
-      className="flex justify-end gap-3 mt-4"
+      className="flex justify-end gap-3"
       data-cy="okr-target-modal-footer"
     >
-      <CustomButton
+      <Button
         type="default"
-        title="Cancel"
         onClick={handleModalClose}
-        className="h-10 px-6 rounded-lg"
+        className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
         id="okr-target-modal-cancel-button"
         data-cy="okr-target-modal-cancel-button"
-      />
-      <CustomButton
-        onClick={() => form.submit()}
-        title={currentId ? 'Update' : 'Create'}
+      >
+        Cancel
+      </Button>
+      <Button
         type="primary"
+        onClick={() => form.submit()}
         loading={isCreateLoading || isUpdateLoading}
-        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2]"
+        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
         id="okr-target-modal-submit-button"
         data-cy="okr-target-modal-submit-button"
-      />
+      >
+        {currentId ? 'Update' : 'Create'}
+      </Button>
     </div>
   );
 
@@ -158,7 +159,7 @@ const AssignTargetModal: React.FC = () => {
         form={form}
         layout="vertical"
         onFinish={onSubmit}
-        className="pt-4"
+        className=""
         id="okr-target-modal-form"
         data-cy="okr-target-modal-form"
       >
@@ -176,12 +177,6 @@ const AssignTargetModal: React.FC = () => {
                   >
                     Department
                   </span>
-                  <span
-                    className="text-red-500"
-                    data-cy="okr-target-modal-department-required-indicator"
-                  >
-                    *
-                  </span>
                   <Tooltip title="Select the department for this assignment.">
                     <QuestionCircleOutlined
                       className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
@@ -191,6 +186,7 @@ const AssignTargetModal: React.FC = () => {
                 </div>
               }
               name="department"
+              required
               rules={[{ required: true, message: 'Please select department' }]}
               data-cy="okr-target-modal-department-field"
             >
@@ -225,12 +221,6 @@ const AssignTargetModal: React.FC = () => {
                   >
                     Criteria
                   </span>
-                  <span
-                    className="text-red-500"
-                    data-cy="okr-target-modal-criteria-required-indicator"
-                  >
-                    *
-                  </span>
                   <Tooltip title="Select the criteria for this assignment.">
                     <QuestionCircleOutlined
                       className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
@@ -240,6 +230,7 @@ const AssignTargetModal: React.FC = () => {
                 </div>
               }
               name="criteria"
+              required
               rules={[{ required: true, message: 'Please select criteria' }]}
               data-cy="okr-target-modal-criteria-field"
             >
@@ -283,15 +274,10 @@ const AssignTargetModal: React.FC = () => {
                     >
                       {month} Target
                     </span>
-                    <span
-                      className="text-red-500"
-                      data-cy={`okr-target-modal-month-required-indicator-${month}`}
-                    >
-                      *
-                    </span>
                   </div>
                 }
                 name={month}
+                required
                 rules={[{ required: true, message: 'Required' }]}
                 data-cy={`okr-target-modal-month-field-${month}`}
               >
@@ -331,14 +317,14 @@ const AssignTargetModal: React.FC = () => {
           }
           .okr-settings-modal .ant-modal-header {
             padding: 20px 24px 16px 24px !important;
-            border-bottom: 1px solid #f0f0f0 !important;
+            border-bottom: none !important;
           }
           .okr-settings-modal .ant-modal-body {
             padding: 24px !important;
           }
           .okr-settings-modal .ant-modal-footer {
-            padding: 16px 24px 24px 24px !important;
-            border-top: 1px solid #f0f0f0 !important;
+            padding: 8px 24px 24px 24px !important;
+            border-top: none !important;
           }
           .okr-settings-modal .ant-form-item-label > label {
             height: auto !important;

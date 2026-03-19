@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-import { Button, Form, Modal, Select, Tooltip } from 'antd';
+import { Button, Dropdown, Form, Modal, Select, Tooltip } from 'antd';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaPencil } from 'react-icons/fa6';
 import {
@@ -27,6 +27,7 @@ import ApproverListTable from '@/components/Approval/ApprovalListTable';
 import { APPROVALTYPES, commonClass } from '@/types/enumTypes';
 import { IoMdSwap } from 'react-icons/io';
 import WorkflowModal from '../workflowModal';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const ApprovalListTable = () => {
   const { data: employeeData, isLoading: isEmployeeDataLoading } =
@@ -112,8 +113,7 @@ const ApprovalListTable = () => {
     });
   };
 
-  const MAX_NAME_LENGTH = 10;
-  const MAX_EMAIL_LENGTH = 5;
+  const MAX_NAME_LENGTH = 40;
   useEffect(() => {
     if (allFilterData?.items && selectedItem?.id) {
       const foundItem = allFilterData?.items?.find(
@@ -171,13 +171,7 @@ const ApprovalListTable = () => {
 
             assigned: (
               <div
-                className="flex flex-col gap-2 max-h-20 overflow-y-auto"
-                style={{
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none',
-                  overflow: 'hidden',
-                  overflowY: 'scroll',
-                }}
+                className="flex flex-wrap items-center gap-2"
                 id={`time-attendance-settings-approvals-table-row-${index}-assigned-container`}
                 data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-container`}
               >
@@ -200,10 +194,6 @@ const ApprovalListTable = () => {
                       fullName?.length > MAX_NAME_LENGTH
                         ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
                         : fullName;
-                    const displayEmail =
-                      email?.length > MAX_EMAIL_LENGTH
-                        ? email.slice(0, MAX_EMAIL_LENGTH) + '...'
-                        : email;
 
                     return (
                       <Tooltip
@@ -221,7 +211,7 @@ const ApprovalListTable = () => {
                         data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-tooltip-wrapper`}
                       >
                         <div
-                          className="flex items-center flex-wrap sm:flex-row gap-2"
+                          className="inline-flex items-center gap-2 rounded-lg border border-[#d9d9d9] bg-[#f8f8f8] px-2 py-1"
                           id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
                           data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
                         >
@@ -260,22 +250,16 @@ const ApprovalListTable = () => {
                             />
                           </div>
                           <div
-                            className="flex flex-wrap flex-col justify-center"
+                            className="flex items-center"
                             id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
                             data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
                           >
                             <p
+                              className="mb-0 text-base text-[#4d4d4d]"
                               id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
                               data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
                             >
                               {displayName}
-                            </p>
-                            <p
-                              className="font-extralight text-[12px]"
-                              id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-email`}
-                              data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-email`}
-                            >
-                              {displayEmail}
                             </p>
                           </div>
                         </div>
@@ -295,25 +279,87 @@ const ApprovalListTable = () => {
                   : 0
                 : item?.approvers?.length
               : '-',
-            action: (
-              <div
-                className="flex gap-4 text-white"
-                id={`time-attendance-settings-approvals-table-row-${index}-actions-container`}
-                data-cy={`time-attendance-settings-approvals-table-row-${index}-actions-container`}
-              >
-                <AccessGuard
-                  permissions={[Permissions.CreateApprover]}
-                  data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-access-guard`}
-                >
-                  <Tooltip
-                    title={'Add Approver'}
-                    data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-tooltip`}
-                  >
-                    <Button
-                      id={`time-attendance-settings-approvals-table-row-${index}-add-approver-button`}
-                      data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-button`}
-                      className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 border-none "
-                      onClick={() => {
+            action: (() => {
+              const canAdd = AccessGuard.checkAccess({
+                permissions: [Permissions.CreateApprover],
+              });
+              const canEdit = AccessGuard.checkAccess({
+                permissions: [Permissions.UpdateApprover],
+              });
+              const canDelete = AccessGuard.checkAccess({
+                permissions: [Permissions.DeleteApprover],
+              });
+
+              const menuItems = [
+                canAdd
+                  ? {
+                      key: 'add',
+                      label: (
+                        <span
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-label`}
+                        >
+                          Add Approver
+                        </span>
+                      ),
+                      icon: (
+                        <FaPlus
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-icon`}
+                        />
+                      ),
+                    }
+                  : null,
+                canEdit
+                  ? {
+                      key: 'edit',
+                      label: (
+                        <span
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-label`}
+                        >
+                          Edit Approver
+                        </span>
+                      ),
+                      icon: (
+                        <FaPencil
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-icon`}
+                        />
+                      ),
+                    }
+                  : null,
+                canDelete
+                  ? {
+                      key: 'delete',
+                      label: (
+                        <span
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-label`}
+                        >
+                          Delete Workflow
+                        </span>
+                      ),
+                      icon: (
+                        <RiDeleteBin6Line
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-icon`}
+                        />
+                      ),
+                    }
+                  : null,
+              ].filter(Boolean);
+
+              if (!menuItems.length) {
+                return (
+                  <span
+                    data-cy={`time-attendance-settings-approvals-table-row-${index}-no-actions`}
+                  />
+                );
+              }
+
+              return (
+                <Dropdown
+                  trigger={['click']}
+                  placement="bottomRight"
+                  menu={{
+                    items: menuItems as any,
+                    onClick: ({ key }) => {
+                      if (key === 'add') {
                         setAddModal(true);
                         setSelectedItem(item);
                         setLevel(1);
@@ -322,27 +368,9 @@ const ApprovalListTable = () => {
                             ? item?.approvalWorkflowType
                             : '-',
                         );
-                      }}
-                    >
-                      <FaPlus
-                        data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-button-icon`}
-                      />
-                    </Button>
-                  </Tooltip>
-                </AccessGuard>
-                <AccessGuard
-                  permissions={[Permissions.UpdateApprover]}
-                  data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-access-guard`}
-                >
-                  <Tooltip
-                    title={'Edit Approver'}
-                    data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-tooltip`}
-                  >
-                    <Button
-                      id={`editUserButton${item?.id}`}
-                      data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-button-id`}
-                      className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 border-none "
-                      onClick={() => {
+                      }
+
+                      if (key === 'edit') {
                         setEditModal(true);
                         setSelectedItem(item);
                         setLevel(
@@ -356,39 +384,30 @@ const ApprovalListTable = () => {
                             ? item?.approvalWorkflowType
                             : '-',
                         );
-                      }}
-                    >
-                      <FaPencil
-                        data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-button-icon`}
-                      />
-                    </Button>
-                  </Tooltip>
-                </AccessGuard>
-                <AccessGuard
-                  permissions={[Permissions.DeleteApprover]}
-                  data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-access-guard`}
-                >
-                  <Tooltip
-                    title={'Delete Employee'}
-                    data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-tooltip`}
-                  >
-                    <Button
-                      id={`deleteUserButton${item?.id}`}
-                      data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-button-id`}
-                      className="bg-red-600 px-[8%] text-white disabled:bg-gray-400 border-none "
-                      onClick={() => {
+                      }
+
+                      if (key === 'delete') {
                         setDeleteModal(true);
                         setDeletedItem(item?.id);
-                      }}
-                    >
-                      <RiDeleteBin6Line
-                        data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-button-icon`}
+                      }
+                    },
+                  }}
+                  data-cy={`time-attendance-settings-approvals-table-row-${index}-actions-dropdown`}
+                >
+                  <Button
+                    type="default"
+                    className="h-8 w-8 p-0 rounded-md border border-gray-200"
+                    icon={
+                      <MoreHorizIcon
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-actions-icon`}
                       />
-                    </Button>
-                  </Tooltip>
-                </AccessGuard>
-              </div>
-            ),
+                    }
+                    data-cy={`time-attendance-settings-approvals-table-row-${index}-actions-trigger`}
+                    id={`time-attendance-settings-approvals-table-row-${index}-actions-trigger`}
+                  />
+                </Dropdown>
+              );
+            })(),
           };
         })
       : [];

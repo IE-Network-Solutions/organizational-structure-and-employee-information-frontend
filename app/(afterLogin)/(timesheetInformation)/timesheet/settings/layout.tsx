@@ -1,21 +1,16 @@
 'use client';
-import { FC, ReactNode } from 'react';
-import { CiCalendarDate } from 'react-icons/ci';
-import { FiFileText } from 'react-icons/fi';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
-import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { SidebarMenuItem } from '@/types/sidebarMenu';
-import SidebarMenu from '@/components/sidebarMenu';
-import { GrTransaction } from 'react-icons/gr';
-import { IoArrowUndoCircleOutline } from 'react-icons/io5';
-import { PiUserCircle } from 'react-icons/pi';
-
-import { IoTimeOutline } from 'react-icons/io5';
-import { GoKey } from 'react-icons/go';
-import { AiOutlineImport } from 'react-icons/ai';
-import { BsFileBreak } from 'react-icons/bs';
-import { TbCode } from 'react-icons/tb';
-import { usePathname } from 'next/navigation';
+import { FC, ReactNode, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Breadcrumb, Button, Tabs, TabsProps } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { FaPlus } from 'react-icons/fa';
+import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
+import AddIcon from '@mui/icons-material/Add';
+import { useGetAttendanceNotificationTypes } from '@/store/server/features/timesheet/attendanceNotificationType/queries';
+import { useApprovalStore } from '@/store/uistate/features/approval';
+import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
@@ -25,329 +20,578 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
   children,
 }) => {
   const pathname = usePathname();
-  const menuItems = new SidebarMenuItem([
-    {
-      item: {
-        key: 'closed-date',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/closed-date') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-closed-date-item"
-            data-cy="time-attendance-settings-menu-closed-date-item"
-          >
-            <CiCalendarDate
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/closed-date') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-closed-date-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-closed-date-label"
-              data-cy="time-attendance-settings-menu-closed-date-label"
-            >
-              Closed Date
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/closed-date',
-    },
-    {
-      item: {
-        key: 'break-type',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/break-type') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-break-type-item"
-            data-cy="time-attendance-settings-menu-break-type-item"
-          >
-            <BsFileBreak
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/break-type') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-break-type-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-break-type-label"
-              data-cy="time-attendance-settings-menu-break-type-label"
-            >
-              Break Type
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/break-type',
-    },
-    {
-      item: {
-        key: 'leave-types-and-policies',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/leave-types-and-policies') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-leave-types-and-policies-item"
-            data-cy="time-attendance-settings-menu-leave-types-and-policies-item"
-          >
-            <FiFileText
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/leave-types-and-policies') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-leave-types-and-policies-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-leave-types-and-policies-label"
-              data-cy="time-attendance-settings-menu-leave-types-and-policies-label"
-            >
-              Leave Types & Policies
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/leave-types-and-policies',
-    },
-    {
-      item: {
-        key: 'allowed-areas',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/allowed-areas') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-allowed-areas-item"
-            data-cy="time-attendance-settings-menu-allowed-areas-item"
-          >
-            <GoKey
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/allowed-areas') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-allowed-areas-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-allowed-areas-label"
-              data-cy="time-attendance-settings-menu-allowed-areas-label"
-            >
-              Allowed Areas
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/allowed-areas',
-    },
-    {
-      item: {
-        key: 'attendance-rules',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/attendance-rules') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-attendance-rules-item"
-            data-cy="time-attendance-settings-menu-attendance-rules-item"
-          >
-            <IoTimeOutline
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/attendance-rules') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-attendance-rules-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-attendance-rules-label"
-              data-cy="time-attendance-settings-menu-attendance-rules-label"
-            >
-              Attendance Rules
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/attendance-rules',
-    },
-    {
-      item: {
-        key: 'imported-logs',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/imported-logs') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-imported-logs-item"
-            data-cy="time-attendance-settings-menu-imported-logs-item"
-          >
-            <AiOutlineImport
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/imported-logs') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-imported-logs-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-imported-logs-label"
-              data-cy="time-attendance-settings-menu-imported-logs-label"
-            >
-              Imported Logs
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/imported-logs',
-    },
-    {
-      item: {
-        key: 'accrual-rule',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/accrual-rule') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-accrual-rule-item"
-            data-cy="time-attendance-settings-menu-accrual-rule-item"
-          >
-            <GrTransaction
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/accrual-rule') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-accrual-rule-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-accrual-rule-label"
-              data-cy="time-attendance-settings-menu-accrual-rule-label"
-            >
-              Accrual Rule
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/accrual-rule',
-    },
-    {
-      item: {
-        key: 'carry-over-rule',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/carry-over-rule') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-carry-over-rule-item"
-            data-cy="time-attendance-settings-menu-carry-over-rule-item"
-          >
-            <IoArrowUndoCircleOutline
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/carry-over-rule') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-carry-over-rule-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-carry-over-rule-label"
-              data-cy="time-attendance-settings-menu-carry-over-rule-label"
-            >
-              Carry-over Rule
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/carry-over-rule',
-    },
+  const router = useRouter();
+  const { isMobile } = useIsMobile();
+  const { openDrawer } = useScheduleStore();
 
+  const {
+    setIsShowClosedDateSidebar,
+    setSelectedClosedDate,
+    setIsShowBreakTypeSidebar,
+    setIsShowTypeAndPoliciesSidebar,
+    setIsShowLocationSidebar,
+    setIsShowCreateRuleSidebar,
+    setAttendanceNotificationType,
+    attendanceNotificationType,
+    setIsShowRulesAddTypeSidebar,
+    setIsShowNewAccrualRuleSidebar,
+    setIsShowCarryOverRuleSidebar,
+  } = useTimesheetSettingsStore();
+
+  const { setOpenModal } = useApprovalStore();
+
+  const getActiveKey = () => {
+    if (pathname.includes('/closed-date')) return 'closed-date';
+    if (pathname.includes('/break-type')) return 'break-type';
+    if (pathname.includes('/leave-types-and-policies'))
+      return 'leave-types-and-policies';
+    if (pathname.includes('/allowed-areas')) return 'allowed-areas';
+    if (pathname.includes('/attendance-rules')) return 'attendance-rules';
+    // if (pathname.includes('/imported-logs')) return 'imported-logs';
+    if (pathname.includes('/accrual-rule')) return 'accrual-rule';
+    if (pathname.includes('/carry-over-rule')) return 'carry-over-rule';
+    if (pathname.includes('/approvals')) return 'approvals';
+    if (pathname.includes('/time-zone')) return 'time-zone';
+    if (pathname.includes('/workSchedule')) return 'workSchedule';
+    if (pathname.includes('/zkt-addon')) return 'zkt-addon';
+    return 'closed-date';
+  };
+
+  const activeKey = getActiveKey();
+
+  const handleTabChange = (key: string) => {
+    switch (key) {
+      case 'closed-date':
+        router.push('/timesheet/settings/closed-date');
+        break;
+      case 'break-type':
+        router.push('/timesheet/settings/break-type');
+        break;
+      case 'leave-types-and-policies':
+        router.push('/timesheet/settings/leave-types-and-policies');
+        break;
+      case 'allowed-areas':
+        router.push('/timesheet/settings/allowed-areas');
+        break;
+      case 'attendance-rules':
+        router.push('/timesheet/settings/attendance-rules');
+        break;
+      case 'imported-logs':
+        router.push('/timesheet/settings/imported-logs');
+        break;
+      case 'accrual-rule':
+        router.push('/timesheet/settings/accrual-rule');
+        break;
+      case 'carry-over-rule':
+        router.push('/timesheet/settings/carry-over-rule');
+        break;
+      case 'approvals':
+        router.push('/timesheet/settings/approvals');
+        break;
+      case 'time-zone':
+        router.push('/timesheet/settings/time-zone');
+        break;
+      case 'workSchedule':
+        router.push('/timesheet/settings/workSchedule');
+        break;
+      case 'zkt-addon':
+        router.push('/timesheet/settings/zkt-addon');
+        break;
+      default:
+        router.push('/timesheet/settings/closed-date');
+    }
+  };
+  const { data: attendanceTypeData } = useGetAttendanceNotificationTypes();
+
+  useEffect(() => {
+    setAttendanceNotificationType(attendanceTypeData?.items ?? []);
+  }, [attendanceTypeData]);
+
+  const items: TabsProps['items'] = [
     {
-      item: {
-        key: 'approvals',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/approvals') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-approvals-item"
-            data-cy="time-attendance-settings-menu-approvals-item"
-          >
-            <PiUserCircle
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/approvals') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-approvals-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-approvals-label"
-              data-cy="time-attendance-settings-menu-approvals-label"
-            >
-              Approval Workflow
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/approvals',
+      key: 'closed-date',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'closed-date' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-closed-date-tab-label"
+          id="time-attendance-settings-closed-date-tab-label"
+        >
+          Closed Date
+        </div>
+      ),
     },
     {
-      item: {
-        key: 'time-zone',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/time-zone') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-time-zone-item"
-            data-cy="time-attendance-settings-menu-time-zone-item"
-          >
-            <IoTimeOutline
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/time-zone') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-time-zone-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-time-zone-label"
-              data-cy="time-attendance-settings-menu-time-zone-label"
-            >
-              Time Zone
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/time-zone',
+      key: 'break-type',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'break-type' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-break-type-tab-label"
+          id="time-attendance-settings-break-type-tab-label"
+        >
+          Break Type
+        </div>
+      ),
     },
     {
-      item: {
-        key: 'zkt-addon',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/zkt-addon') ? 'lg:ml-4' : ''}`}
-            id="time-attendance-settings-menu-zkt-addon-item"
-            data-cy="time-attendance-settings-menu-zkt-addon-item"
-          >
-            <TbCode
-              className={`hidden lg:block ${pathname.includes('/timesheet/settings/zkt-addon') ? 'text-[#1677FF]' : ''}`}
-              data-cy="time-attendance-settings-menu-zkt-addon-icon"
-            />
-            <p
-              className="menu-item-label "
-              id="time-attendance-settings-menu-zkt-addon-label"
-              data-cy="time-attendance-settings-menu-zkt-addon-label"
-            >
-              ZKT addon
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/timesheet/settings/zkt-addon',
+      key: 'leave-types-and-policies',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'leave-types-and-policies' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-leave-types-and-policies-tab-label"
+          id="time-attendance-settings-leave-types-and-policies-tab-label"
+        >
+          Leave Types & Policies
+        </div>
+      ),
     },
-  ]);
+    {
+      key: 'allowed-areas',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'allowed-areas' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-allowed-areas-tab-label"
+          id="time-attendance-settings-allowed-areas-tab-label"
+        >
+          Allowed Areas
+        </div>
+      ),
+    },
+    {
+      key: 'attendance-rules',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'attendance-rules' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-attendance-rules-tab-label"
+          id="time-attendance-settings-attendance-rules-tab-label"
+        >
+          Attendance Rules
+        </div>
+      ),
+    },
+    // {
+    //   key: 'imported-logs',
+    //   label: (
+    //     <div
+    //       className={`text-base font-normal m-0 ${activeKey === 'imported-logs' ? 'text-primary' : 'text-gray-800'}`}
+    //       data-cy="time-attendance-settings-imported-logs-tab-label"
+    //       id="time-attendance-settings-imported-logs-tab-label"
+    //     >
+    //       Imported Logs
+    //     </div>
+    //   ),
+    // },
+    {
+      key: 'accrual-rule',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'accrual-rule' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-accrual-rule-tab-label"
+          id="time-attendance-settings-accrual-rule-tab-label"
+        >
+          Accrual Rule
+        </div>
+      ),
+    },
+    {
+      key: 'carry-over-rule',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'carry-over-rule' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-carry-over-rule-tab-label"
+          id="time-attendance-settings-carry-over-rule-tab-label"
+        >
+          Carry-over Rule
+        </div>
+      ),
+    },
+    {
+      key: 'approvals',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'approvals' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-approvals-tab-label"
+          id="time-attendance-settings-approvals-tab-label"
+        >
+          Approval Workflow
+        </div>
+      ),
+    },
+    {
+      key: 'time-zone',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'time-zone' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-time-zone-tab-label"
+          id="time-attendance-settings-time-zone-tab-label"
+        >
+          Time Zone
+        </div>
+      ),
+    },
+    {
+      key: 'workSchedule',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'workSchedule' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-workschedule-tab-label"
+          id="time-attendance-settings-workschedule-tab-label"
+        >
+          Work Schedule
+        </div>
+      ),
+    },
+    {
+      key: 'zkt-addon',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'zkt-addon' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-zkt-addon-tab-label"
+          id="time-attendance-settings-zkt-addon-tab-label"
+        >
+          ZKT addon
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div
-      className="min-h-screen bg-[#fafafa] p-3"
-      id="time-attendance-settings-layout-container"
-      data-cy="time-attendance-settings-layout-container"
+      className=""
+      id="time-attendance-settings-layout-wrapper"
+      data-cy="time-attendance-settings-layout-wrapper"
     >
       <div
-        className="h-auto w-auto"
-        id="time-attendance-settings-layout-wrapper"
-        data-cy="time-attendance-settings-layout-wrapper"
+        className="px-4 pt-4 flex items-center justify-between"
+        data-cy="org-settings-header-container"
       >
-        <PageHeader
-          title="Settings"
-          description="Settings for timesheet management"
-          data-cy="time-attendance-settings-layout-header"
-        ></PageHeader>
+        <div
+          id="time-attendance-settings-page-header-container"
+          data-cy="time-attendance-settings-page-header-container"
+        >
+          <h3
+            className="text-gray-900 text-2xl font-bold mb-0"
+            data-cy="time-attendance-settings-page-header-title"
+            id="time-attendance-settings-page-header-title"
+          >
+            Settings
+          </h3>
+          <Breadcrumb
+            className="mt-2 mb-4"
+            items={[
+              {
+                title: (
+                  <a
+                    href="/timesheet/settings/closed-date"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push('/timesheet/settings/closed-date');
+                    }}
+                    data-cy="time-attendance-settings-breadcrumb-timesheet-link"
+                  >
+                    Timesheet
+                  </a>
+                ),
+              },
+              {
+                title: 'Settings',
+              },
+            ]}
+            data-cy="time-attendance-settings-breadcrumb"
+          />
+        </div>
+        {activeKey === 'attendance-rules' && (
+          <div
+            id="time-attendance-settings-attendance-rules-add-type-button-container"
+            data-cy="time-attendance-settings-attendance-rules-add-type-button-container"
+          >
+            <AccessGuard
+              permissions={[Permissions.CreateAttendanceRuleType]}
+              data-cy="time-attendance-settings-attendance-rules-add-type-button-access-guard"
+            >
+              <Button
+                id="time-attendance-settings-attendance-rules-add-type-button"
+                data-cy="time-attendance-settings-attendance-rules-add-type-button"
+                className="h-10 w-10 sm:w-auto"
+                icon={
+                  <FaPlus data-cy="time-attendance-settings-attendance-rules-add-type-button-icon" />
+                }
+                onClick={() => setIsShowRulesAddTypeSidebar(true)}
+                type="primary"
+              >
+                <span
+                  id="time-attendance-settings-attendance-rules-add-type-button-label"
+                  data-cy="time-attendance-settings-attendance-rules-add-type-button-label"
+                  className="hidden md:inline"
+                >
+                  {!isMobile && 'Add Type'}
+                </span>
+              </Button>
+            </AccessGuard>
+          </div>
+        )}
+      </div>
+
+      <div
+        className=""
+        id="time-attendance-settings-layout-content"
+        data-cy="time-attendance-settings-layout-content"
+      >
+        <div
+          className="bg-white mb-4"
+          data-cy="time-attendance-settings-tabs-container"
+          id="time-attendance-settings-tabs-container"
+        >
+          <div
+            className="px-4 pr-6"
+            data-cy="time-attendance-settings-tabs-wrapper"
+          >
+            <Tabs
+              activeKey={activeKey}
+              onChange={handleTabChange}
+              items={items}
+              tabBarStyle={{
+                marginBottom: 0,
+                marginLeft: 0,
+                paddingLeft: 0,
+                paddingRight: 0,
+              }}
+              tabBarExtraContent={
+                activeKey === 'closed-date' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateClosedDate]}
+                    data-cy="time-attendance-settings-closed-date-add-button-access-guard"
+                  >
+                    <Button
+                      className="h-10 text-base font-normal"
+                      icon={
+                        <AddIcon
+                          data-cy="time-attendance-settings-branches-add-btn-icon"
+                          id="time-attendance-settings-branches-add-btn-icon"
+                        />
+                      }
+                      type="primary"
+                      onClick={() => {
+                        setSelectedClosedDate(null);
+                        setIsShowClosedDateSidebar(true);
+                      }}
+                      data-cy="time-attendance-settings-branches-add-btn"
+                      id="time-attendance-settings-branches-add-btn"
+                    >
+                      {!isMobile && 'Add Closed Date'}
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'break-type' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateBreakType]}
+                    data-cy="time-attendance-settings-break-type-add-button-access-guard"
+                  >
+                    <Button
+                      className="h-10 text-base font-normal"
+                      icon={
+                        <AddIcon
+                          data-cy="time-attendance-settings-break-type-create-btn-icon"
+                          id="time-attendance-settings-break-type-create-btn-icon"
+                        />
+                      }
+                      type="primary"
+                      onClick={() => {
+                        setIsShowBreakTypeSidebar(true);
+                      }}
+                      data-cy="time-attendance-settings-break-type-create-btn"
+                      id="time-attendance-settings-break-type-create-btn"
+                    >
+                      {!isMobile && 'Add Break Type'}
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'leave-types-and-policies' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateLeaveType]}
+                    data-cy="time-attendance-settings-leave-types-and-policies-add-button-access-guard"
+                  >
+                    <Button
+                      type="primary"
+                      icon={
+                        <AddIcon data-cy="time-attendance-settings-leave-types-and-policies-add-button-icon" />
+                      }
+                      id={`createNewTypesAndPoliciesButtonId`}
+                      data-cy="time-attendance-settings-leave-types-and-policies-add-button-id"
+                      onClick={() => setIsShowTypeAndPoliciesSidebar(true)}
+                      className="h-10 w-10 sm:w-auto"
+                    >
+                      <span
+                        className="hidden md:inline"
+                        id="time-attendance-settings-leave-types-and-policies-add-button-label"
+                        data-cy="time-attendance-settings-leave-types-and-policies-add-button-label"
+                      >
+                        {!isMobile && 'Add Type'}
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'allowed-areas' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateAllowedArea]}
+                    data-cy="time-attendance-settings-allowed-areas-add-button-access-guard"
+                  >
+                    <Button
+                      icon={
+                        <AddIcon data-cy="time-attendance-settings-allowed-areas-add-button-icon" />
+                      }
+                      className="h-10 w-10 sm:w-auto"
+                      type="primary"
+                      id="time-attendance-settings-allowed-areas-add-button"
+                      data-cy="time-attendance-settings-allowed-areas-add-button"
+                      onClick={() => setIsShowLocationSidebar(true)}
+                    >
+                      <span
+                        id="time-attendance-settings-allowed-areas-add-button-label"
+                        data-cy="time-attendance-settings-allowed-areas-add-button-label"
+                        className="hidden md:inline"
+                      >
+                        {!isMobile && 'Add Location'}
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'attendance-rules' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateAttendanceRule]}
+                    data-cy="time-attendance-settings-attendance-rules-add-rule-button-access-guard"
+                  >
+                    <Button
+                      id="time-attendance-settings-attendance-rules-add-rule-button"
+                      data-cy="time-attendance-settings-attendance-rules-add-rule-button"
+                      type="default"
+                      icon={
+                        <AddIcon data-cy="time-attendance-settings-attendance-rules-add-rule-button-icon" />
+                      }
+                      className="h-10 w-10 sm:w-auto"
+                      disabled={!attendanceNotificationType.length}
+                      onClick={() => setIsShowCreateRuleSidebar(true)}
+                    >
+                      <span
+                        id="time-attendance-settings-attendance-rules-add-rule-button-label"
+                        data-cy="time-attendance-settings-attendance-rules-add-rule-button-label"
+                        className="hidden md:inline"
+                      >
+                        {!isMobile && 'Add Rule'}
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'accrual-rule' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateLeaveAccrual]}
+                    data-cy="time-attendance-settings-accrual-rule-add-button-access-guard"
+                  >
+                    <Button
+                      size="large"
+                      type="primary"
+                      id="time-attendance-settings-accrual-rule-add-button"
+                      data-cy="time-attendance-settings-accrual-rule-add-button"
+                      icon={
+                        <AddIcon data-cy="time-attendance-settings-accrual-rule-add-button-icon" />
+                      }
+                      className="h-10 w-10 sm:w-auto"
+                      onClick={() => setIsShowNewAccrualRuleSidebar(true)}
+                    >
+                      <span
+                        id="time-attendance-settings-accrual-rule-add-button-label"
+                        data-cy="time-attendance-settings-accrual-rule-add-button-label"
+                        className="hidden md:inline"
+                      >
+                        {!isMobile && 'Add Accrual Rule'}
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'carry-over-rule' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateCarryOverRule]}
+                    data-cy="time-attendance-settings-carry-over-rule-add-button-access-guard"
+                  >
+                    <Button
+                      size="large"
+                      type="primary"
+                      id="carryOver"
+                      data-cy="time-attendance-settings-carry-over-rule-add-button-id"
+                      icon={
+                        <AddIcon data-cy="time-attendance-settings-carry-over-rule-add-button-icon" />
+                      }
+                      className="h-10 w-10 sm:w-auto"
+                      onClick={() => setIsShowCarryOverRuleSidebar(true)}
+                    >
+                      <span
+                        data-cy="timesheet-settings-carry-over-rule-page-tsx-page-span-48"
+                        className="hidden md:inline"
+                      >
+                        {!isMobile && 'Add Carry-over Rule'}
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'approvals' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateApprovalWorkFlow]}
+                    data-cy="time-attendance-settings-approvals-add-button-access-guard"
+                  >
+                    <Button
+                      title="Set Approval"
+                      id="time-attendance-settings-approvals-add-button"
+                      data-cy="time-attendance-settings-approvals-add-button"
+                      className="h-10 w-10 sm:w-auto "
+                      icon={
+                        <FaPlus data-cy="time-attendance-settings-approvals-add-button-icon" />
+                      }
+                      onClick={() => setOpenModal(true)}
+                      type="primary"
+                    >
+                      <span
+                        id="time-attendance-settings-approvals-add-button-label"
+                        data-cy="time-attendance-settings-approvals-add-button-label"
+                        className="hidden sm:inline"
+                      >
+                        {!isMobile && 'Set Approval'}
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'workSchedule' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateWorkingSchedule]}
+                    data-cy="org-settings-work-schedule-create-btn"
+                    id="org-settings-work-schedule-create-btn"
+                  >
+                    <Button
+                      type="primary"
+                      className="h-10 w-10 sm:w-auto"
+                      icon={
+                        <FaPlus
+                          data-cy="org-organization-settings-workschedule-page-faplus-1"
+                          id="org-organization-settings-workschedule-page-faplus-1"
+                        />
+                      }
+                      onClick={openDrawer}
+                      data-cy="org-settings-work-schedule-create-btn"
+                      id="org-settings-work-schedule-create-btn"
+                    >
+                      <span
+                        className="hidden lg:inline"
+                        data-cy="org-settings-work-schedule-create-btn-text"
+                        id="org-settings-work-schedule-create-btn-text"
+                      >
+                        Create work Schedule
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                ) : null
+              }
+              className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+              data-cy="time-attendance-settings-tabs"
+              id="time-attendance-settings-tabs"
+            />
+          </div>
+        </div>
 
         <div
-          className="flex flex-col lg:flex-row gap-6 mt-3 "
-          id="time-attendance-settings-layout-content"
-          data-cy="time-attendance-settings-layout-content"
+          data-cy="timesheet-settings-content-wrapper"
+          id="timesheet-settings-content-wrapper"
         >
-          <SidebarMenu
-            menuItems={menuItems}
-            data-cy="time-attendance-settings-layout-sidebar-menu"
-          />
-
-          <BlockWrapper
-            className="flex-1 h-max overflow-x-auto bg-[#fafafa] p-0 "
-            data-cy="time-attendance-settings-layout-block-wrapper"
-          >
-            {children}
-          </BlockWrapper>
+          {children}
         </div>
       </div>
     </div>
