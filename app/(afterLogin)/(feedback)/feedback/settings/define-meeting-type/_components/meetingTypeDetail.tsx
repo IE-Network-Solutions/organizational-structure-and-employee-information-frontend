@@ -39,8 +39,6 @@ const MeetingTypeDetail: React.FC = () => {
   const {
     drawerOpen,
     setDrawerOpen,
-    templates,
-    setTemplates,
     editingTemplate,
     setEditingTemplate,
     meetingTypeDetailData,
@@ -107,7 +105,6 @@ const MeetingTypeDetail: React.FC = () => {
         },
       );
     } else {
-      setTemplates([...templates, values]);
       createMeetingAgendaTemplate(
         {
           ...values,
