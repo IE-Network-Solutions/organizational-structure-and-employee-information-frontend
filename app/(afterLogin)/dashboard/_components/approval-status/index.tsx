@@ -25,11 +25,11 @@ const ApprovalStatus: FC = () => {
   const pendingCount =
     approverType === 'BranchTransfer'
       ? BranchTransferData?.meta?.totalItems ||
-        BranchTransferData?.items?.length ||
-        0
+      BranchTransferData?.items?.length ||
+      0
       : LeaveTransferData?.meta?.totalItems ||
-        LeaveTransferData?.items?.length ||
-        0;
+      LeaveTransferData?.items?.length ||
+      0;
 
   return (
     <div
@@ -92,13 +92,6 @@ const ApprovalStatus: FC = () => {
             size="small"
             className="inline-flex items-center gap-1 px-3 md:py-2 py-0 rounded-sm font-medium shadow-none"
             data-cy="dashboard-approval-status-personal-pill"
-            icon={
-              approverType === 'Personal' ? (
-                <MdOutlineAssignmentInd />
-              ) : (
-                <MdOutlineGroups />
-              )
-            }
             onClick={() =>
               handleChange(approverType === 'Personal' ? 'Leave' : 'Personal')
             }

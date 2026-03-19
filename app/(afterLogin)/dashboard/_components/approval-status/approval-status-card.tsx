@@ -1,6 +1,7 @@
 // components/ApprovalRequestCard.tsx
 import { FC } from 'react';
 import { Avatar, Input, Popconfirm } from 'antd';
+import { CheckCircleFilled } from '@ant-design/icons';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetApproveLeaveRequest,
@@ -265,8 +266,9 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
         data-cy="approval-status-card-actions"
       >
         <Popconfirm
-          title="Approve Request"
-          description="Are you sure to approve this leave request?"
+          title="Approve"
+          description="Are you sure you want to approve this leave request ?"
+          icon={<CheckCircleFilled style={{ color: '#52C41A' }} />}
           onConfirm={() => {
             confirm({
               approvalWorkflowId: approvalWorkflowId,
@@ -279,7 +281,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             });
           }}
           onCancel={cancel}
-          okText="Approve"
+          okText="OK"
           cancelText="Cancel"
         >
           <button
