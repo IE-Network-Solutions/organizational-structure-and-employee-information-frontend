@@ -87,7 +87,13 @@ const MergeFormModal: React.FC<MergeFormModalProps> = ({
           required ? (
             <>
               {label}
-              <span className="text-red-500 ml-1" aria-hidden>*</span>
+              <span
+                className="text-red-500 ml-1"
+                aria-hidden
+                data-cy="merge-form-modal-required-asterisk"
+              >
+                *
+              </span>
             </>
           ) : (
             label

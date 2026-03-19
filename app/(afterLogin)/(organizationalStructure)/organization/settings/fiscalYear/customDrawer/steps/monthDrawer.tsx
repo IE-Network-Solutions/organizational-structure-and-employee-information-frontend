@@ -749,7 +749,7 @@ const MonthDrawer: React.FC<
                                   <RangePicker
                                     className={
                                       isMobile
-                                        ? "h-10 w-11 min-w-11 px-0 justify-center [&_.ant-picker-input]:hidden [&_.ant-picker-range-separator]:hidden [&_.ant-picker-active-bar]:hidden [&_.ant-picker-suffix]:m-0"
+                                        ? 'h-10 w-11 min-w-11 px-0 justify-center [&_.ant-picker-input]:hidden [&_.ant-picker-range-separator]:hidden [&_.ant-picker-active-bar]:hidden [&_.ant-picker-suffix]:m-0'
                                         : 'w-full h-8 [&_.ant-picker-input]:h-8'
                                     }
                                     size="middle"

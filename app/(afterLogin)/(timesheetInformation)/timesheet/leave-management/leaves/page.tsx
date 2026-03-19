@@ -13,7 +13,8 @@ import LeaveRequestSidebar from '../../my-timesheet/_components/leaveRequestSide
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { useMediaQuery } from 'react-responsive';
 import { useSetAllLeaveRequestNotification } from '@/store/server/features/timesheet/leaveRequest/mutation';
-
+import LocalPostOfficeIcon from '@mui/icons-material/LocalPostOffice';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
 const LeaveManagement = () => {
   const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(
