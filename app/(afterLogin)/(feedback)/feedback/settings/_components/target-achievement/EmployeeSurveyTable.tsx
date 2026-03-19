@@ -19,7 +19,6 @@ import {
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllMonth } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { HiPlus } from 'react-icons/hi';
-import EmployeeSurveyDrawer from './EmployeeSurveyDrawer';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 import { useGetEmployeeSurvey } from '@/store/server/features/conversation/survey/queries';
 import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
@@ -525,14 +524,12 @@ const EmployeeSurveyTable: React.FC = () => {
         data-cy="employee-survey-table-pagination"
       />
 
-      <EmployeeSurveyDrawer
-        onClose={() => setOpenEmployeeSurvey(false)}
-        open={openEmployeeSurvey}
-        data-cy="employee-survey-drawer"
-      />
       <EmployeeSurveyModal
-        onClose={() => setOpenModal(false)}
-        open={openModal}
+        open={openEmployeeSurvey || openModal}
+        onClose={() => {
+          setOpenEmployeeSurvey(false);
+          setOpenModal(false);
+        }}
         data-cy="employee-survey-modal"
       />
     </div>
