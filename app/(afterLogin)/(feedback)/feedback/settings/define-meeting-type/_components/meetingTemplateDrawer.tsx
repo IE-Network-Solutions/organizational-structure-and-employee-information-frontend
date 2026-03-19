@@ -34,20 +34,20 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       centered
       width={720}
       destroyOnClose
-      bodyStyle={{ maxHeight: '70vh', overflowY: 'auto', paddingTop: 16 }}
-      title={
-        <div
-          className="text-base md:text-lg font-semibold text-gray-900 text-center"
-          data-cy="meeting-template-drawer-header"
-          id="meetingTemplateDrawerHeader"
-        >
-          {initialValues
-            ? 'Update Meeting Template'
-            : 'Add New Meeting Template'}
-        </div>
-      }
+      bodyStyle={{ maxHeight: '70vh', overflowY: 'auto', paddingTop: 0 }}
+      title={null}
       data-cy="meeting-template-drawer"
     >
+      <div
+        className="flex justify-start text-xl font-extrabold text-gray-800 p-4"
+        data-cy="meeting-template-drawer-header"
+        id="meetingTemplateDrawerHeader"
+      >
+        <span data-cy="meeting-template-drawer-header-text">
+          {initialValues ? 'Update Meeting Template' : 'Add New Meeting Template'}
+        </span>
+      </div>
+
       <Form
         form={form}
         layout="vertical"
@@ -138,26 +138,27 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
                   </Form.Item>
                 </div>
               ))}
-              <Form.Item
+              <div
+                className="flex justify-center mb-3"
                 data-cy="meeting-template-drawer-add-agenda-item-container"
                 id="meetingTemplateDrawerAddAgendaItemContainer"
               >
                 <Button
+                  className="flex items-center px-5"
                   type="primary"
                   onClick={() => add()}
-                  block
                   data-cy="meeting-template-drawer-add-agenda-item-button"
                   id="meetingTemplateDrawerAddAgendaItemButton"
                 >
                   Add agenda item
                 </Button>
-              </Form.Item>
+              </div>
             </>
           )}
         </Form.List>
       </Form>
       <div
-        className="w-full flex justify-center items-center gap-4 pt-6"
+        className="flex justify-end gap-3 pt-4"
         data-cy="meeting-template-drawer-footer"
         id="meetingTemplateDrawerFooter"
       >
