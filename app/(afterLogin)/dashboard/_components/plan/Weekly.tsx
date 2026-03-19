@@ -3,7 +3,6 @@ import { useDefaultPlanningPeriods } from '@/store/server/features/okrPlanningAn
 import { useDashboardPlanStore } from '@/store/uistate/features/dashboard/plan';
 import { Checkbox } from 'antd';
 import React from 'react';
-import { BsKey } from 'react-icons/bs';
 
 const Weekly = ({
   allPlannedTaskForReport,
@@ -45,23 +44,23 @@ const Weekly = ({
   ) => {
     updateStatus({
       id: id,
-      status: status == 'pre-achieved' ? 'pending' : 'pre-achieved',
+      status: status == 'pre_achieved' ? 'pre_pending' : 'pre_achieved',
       planningPeriodId: planningPeriodId,
     });
   };
   return (
     <div
-      className="h-[350px] overflow-y-auto scrollbar-track-primary scrollbar-none"
+      className=" overflow-y-auto scrollbar-track-primary scrollbar-none"
       data-cy="dashboard-plan-weekly-container"
     >
       {planTaskArray?.length > 0 ? (
         planTaskArray?.map((item: any) => (
           <div
             key={item?.keyResultId}
-            className="flex flex-col pb-3"
+            className="flex flex-col mb-3"
             data-cy="dashboard-plan-weekly-key-result-group"
           >
-            <div
+            {/* <div
               className="text-base font-bold flex gap-3 pb-3 items-center "
               data-cy="dashboard-plan-weekly-key-result-header"
             >
@@ -72,16 +71,20 @@ const Weekly = ({
               <span data-cy="dashboard-plan-weekly-key-result-title">
                 {item?.task?.[0]?.keyResult?.title}
               </span>
-            </div>
-            <div className="" data-cy="dashboard-plan-weekly-tasks-container">
+            </div> */}
+            <div
+              className="ml-3"
+              data-cy="dashboard-plan-weekly-tasks-container"
+            >
               {item?.task?.map((task: any) => (
                 <div
-                  className="pb-2"
+                  className=""
                   key={task?.id}
                   data-cy={`dashboard-plan-weekly-task-item-${task?.id}`}
                 >
                   <Checkbox
-                    checked={task?.status == 'pre-achieved'}
+                    className="[&_.ant-checkbox-checked_.ant-checkbox-inner]:!bg-[#52C41A] [&_.ant-checkbox-checked_.ant-checkbox-inner]:!border-[#52C41A]"
+                    checked={task?.status == 'pre_achieved'}
                     onChange={() =>
                       onChange(task?.id, task?.status, activePlanPeriod?.id)
                     }
@@ -89,14 +92,16 @@ const Weekly = ({
                     data-cy={`dashboard-plan-weekly-task-checkbox-${task?.id}`}
                   >
                     <div
-                      className={`text-base font-medium text-slate-500 ${
-                        task?.status == 'pre-achieved'
-                          ? 'line-through text-slate-400'
-                          : ''
+                      className={`text-sm font-medium truncate max-w-full ${
+                        task?.status == 'pre_achieved'
+                          ? 'line-through text-gray-400'
+                          : 'text-gray-900'
                       }`}
                       data-cy={`dashboard-plan-weekly-task-text-${task?.id}`}
+                      title={task?.task}
                     >
                       <span
+                        className="block truncate"
                         data-cy={`dashboard-plan-weekly-task-text-content-${task?.id}`}
                       >
                         {task?.task}
