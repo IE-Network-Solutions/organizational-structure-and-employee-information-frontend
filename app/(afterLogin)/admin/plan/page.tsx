@@ -187,8 +187,13 @@ const PlanPage = () => {
     // - if there is an active subscription with the same plan, take its period
     // - otherwise take the period with the smallest periodInMonths
     const urlPeriodCode = searchParams.get('periodTypeCode');
-    if (searchParams.get('planId') && urlPeriodCode) {
-      const periodFromUrl = periodTypes.find((p) => p.code === urlPeriodCode);
+    const urlPeriodTypeId = searchParams.get('periodTypeId');
+    if (searchParams.get('planId') && (urlPeriodCode || urlPeriodTypeId)) {
+      const periodFromUrl = periodTypes.find(
+        (p) =>
+          (urlPeriodCode && p.code === urlPeriodCode) ||
+          (urlPeriodTypeId && p.id === urlPeriodTypeId),
+      );
       const planHasPeriod = currentPlan.periods?.some(
         (pp) => pp.periodTypeId === periodFromUrl?.id,
       );
