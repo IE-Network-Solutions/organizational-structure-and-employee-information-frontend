@@ -60,6 +60,9 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const isRecognitionDetailRoute =
     pathname?.includes('/feedback/settings/recognition/') &&
     !pathname?.endsWith('/feedback/settings/recognition');
+  const isMeetingTypeDetailRoute =
+    pathname?.includes('/feedback/settings/define-meeting-type/') &&
+    !pathname?.endsWith('/feedback/settings/define-meeting-type');
 
   const { data: categoryById, isLoading: isCategoryLoading } =
     useGetRecognitionTypeById(
@@ -244,24 +247,26 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                     {!isMobile && 'Employee Survey'}
                   </Button>
                 ) : getActiveKey() === 'meetingType' ? (
-                  <Button
-                    className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                    icon={
-                      <FaPlus
-                        data-cy="org-settings-branches-add-btn-icon"
-                        id="org-settings-branches-add-btn-icon"
-                      />
-                    }
-                    type="primary"
-                    onClick={() => {
-                      setMeetingType(null);
-                      setMeetingTypeDrawerOpen(true);
-                    }}
-                    data-cy="org-settings-branches-add-btn"
-                    id="org-settings-branches-add-btn"
-                  >
-                    {!isMobile && 'Meeting Type'}
-                  </Button>
+                  !isMeetingTypeDetailRoute && (
+                    <Button
+                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      icon={
+                        <FaPlus
+                          data-cy="org-settings-branches-add-btn-icon"
+                          id="org-settings-branches-add-btn-icon"
+                        />
+                      }
+                      type="primary"
+                      onClick={() => {
+                        setMeetingType(null);
+                        setMeetingTypeDrawerOpen(true);
+                      }}
+                      data-cy="org-settings-branches-add-btn"
+                      id="org-settings-branches-add-btn"
+                    >
+                      {!isMobile && 'Meeting Type'}
+                    </Button>
+                  )
                 ) : null
               }
               className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
