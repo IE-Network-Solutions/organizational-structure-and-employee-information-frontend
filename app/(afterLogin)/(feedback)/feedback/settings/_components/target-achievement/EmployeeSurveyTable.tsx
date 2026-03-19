@@ -1,7 +1,16 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { Table, Select, Button, Avatar, Tooltip, Popconfirm } from 'antd';
+import React, { useEffect, useState } from 'react';
+import {
+  Table,
+  Select,
+  Button,
+  Avatar,
+  Tooltip,
+  Popconfirm,
+  Popover,
+  Tag,
+} from 'antd';
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import {
   useGetAllUsers,
@@ -19,6 +28,8 @@ import EmployeeSurveyModal from './EmployeeSurveyModal';
 import { useDeleteEmployeeSurvey } from '@/store/server/features/conversation/survey/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import CustomPagination from '@/components/customPagination';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 const { Option } = Select;
 const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
@@ -105,9 +116,10 @@ const EmployeeSurveyTable: React.FC = () => {
     useGetDepartmentsWithUsers();
   const { data: months, isLoading: monthsLoading } = useGetAllMonth();
   const { data: month, isLoading: monthLoading } = useGetActiveMonth();
+  const [isMobileFilterVisible, setIsMobileFilterVisible] = useState(false);
   const {
-    open,
-    setOpen,
+    openEmployeeSurvey,
+    setOpenEmployeeSurvey,
     userId,
     openModal,
     setOpenModal,
@@ -127,6 +139,79 @@ const EmployeeSurveyTable: React.FC = () => {
   }, [month?.id, monthLoading]);
   const { data: employeeSurvey, isLoading: employeeSurveyLoading } =
     useGetEmployeeSurvey(userId, monthId, departmentId, page, currentPage);
+
+  const normalizeNullableId = (value: unknown) =>
+    value ? String(value) : (null as any);
+
+  const getEmployeeNameById = (id: string | null) => {
+    if (!id) return '';
+    const item = employeeData?.items?.find(
+      (emp: any) => String(emp?.id) === String(id),
+    );
+    if (!item) return '';
+    return `${item?.firstName ?? ''} ${item?.middleName ?? ''} ${
+      item?.lastName ?? ''
+    }`.replace(/\s+/g, ' ').trim();
+  };
+
+  const getDepartmentNameById = (id: string | null) => {
+    if (!id) return '';
+    const dept = departmentData?.find(
+      (d: any) => String(d?.id) === String(id),
+    );
+    return dept?.name ?? '';
+  };
+
+  const getMonthLabelById = (id: string | null) => {
+    if (!id) return '';
+    const m = months?.items?.find((mm: any) => String(mm?.id) === String(id));
+    if (!m) return '';
+    return `${m?.session?.name}-${m?.name}`;
+  };
+
+  const getActiveFilters = () => {
+    const activeFilters: Array<{ key: string; label: string }> = [];
+
+    if (userId) {
+      activeFilters.push({
+        key: 'userId',
+        label: getEmployeeNameById(userId) || String(userId),
+      });
+    }
+
+    if (departmentId) {
+      activeFilters.push({
+        key: 'departmentId',
+        label: getDepartmentNameById(departmentId) || String(departmentId),
+      });
+    }
+
+    if (monthId) {
+      activeFilters.push({
+        key: 'monthId',
+        label: getMonthLabelById(monthId) || String(monthId),
+      });
+    }
+
+    return activeFilters;
+  };
+
+  const removeFilter = (key: string) => {
+    switch (key) {
+      case 'userId':
+        setUserId(null as any);
+        break;
+      case 'departmentId':
+        setDepartmentId(null as any);
+        break;
+      case 'monthId':
+        setMonthId(null as any);
+        break;
+      default:
+        break;
+    }
+    setCurrentPage(1);
+  };
 
   function handleVisibilityEdit(record: any) {
     setOpenModal(true);
@@ -259,38 +344,22 @@ const EmployeeSurveyTable: React.FC = () => {
       id="employeeSurveyTablePage"
     >
       <div
-        className="flex justify-end mb-4"
-        data-cy="employee-survey-table-actions"
-        id="employeeSurveyTableActions"
-      >
-        <Button
-          onClick={() => setOpen(true)}
-          type="primary"
-          icon={<HiPlus />}
-          data-cy="employee-survey-table-add-button"
-          id="employeeSurveyTableAddButton"
-        >
-          <span
-            className="text-xs"
-            data-cy="employee-survey-table-add-button-text"
-            id="employeeSurveyTableAddButtonText"
-          >
-            Add Employee Survey
-          </span>
-        </Button>
-      </div>
-      <div
-        className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6"
+        className="flex justify-between gap-4 mb-6 p-3"
         data-cy="employee-survey-table-filters"
         id="employeeSurveyTableFilters"
       >
         <Select
           showSearch
           placeholder="Search Employee"
-          className="w-full h-10"
+          className="h-8 rounded-lg border border-gray-400"
+          style={{ width: 300 }}
           allowClear
           loading={empLoading}
-          onChange={(value) => setUserId(value)}
+          suffixIcon={<SearchIcon className="text-gray-400" fontSize="small" />}
+          onChange={(value) => {
+            setUserId(normalizeNullableId(value));
+            setCurrentPage(1);
+          }}
           filterOption={(input: any, option: any) =>
             (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
           }
@@ -303,58 +372,126 @@ const EmployeeSurveyTable: React.FC = () => {
           data-cy="employee-survey-table-employee-filter"
           id="employeeSurveyTableEmployeeFilter"
         />
-        <Select
-          loading={depLoading}
-          placeholder="Filter by Department"
-          className="w-full h-10"
-          allowClear
-          showSearch
-          onChange={(value) => setDepartmentId(value)}
-          filterOption={(input, option) =>
-            (option?.children as any)
-              .toLowerCase()
-              .includes(input.toLowerCase())
-          }
-          data-cy="employee-survey-table-department-filter"
-          id="employeeSurveyTableDepartmentFilter"
+
+        <div
+          className="flex items-center gap-2 flex-wrap bg-blue-600"
+          id="employee-survey-table-active-filters"
+          data-cy="employee-survey-table-active-filters"
         >
-          {departmentData?.map((dept: any) => (
-            <Option
-              key={dept.id}
-              value={dept.id}
-              data-cy={`employee-survey-table-department-option-${dept.id}`}
+          {getActiveFilters().map((filter) => (
+            <Tag
+              key={filter.key}
+              closable
+              onClose={() => removeFilter(filter.key)}
+              className="bg-white text-blue border-blue rounded-lg px-3 py-1 flex items-center text-sm font-medium"
+              id={`employee-survey-table-filter-tag-${filter.key}`}
+              data-cy={`employee-survey-table-filter-tag-${filter.key}`}
+              closeIcon={
+                <span
+                  className="text-blue hover:!text-[#FF8787] ml-2 text-base"
+                  id={`employee-survey-table-filter-tag-close-icon-${filter.key}`}
+                  data-cy={`employee-survey-table-filter-tag-close-icon-${filter.key}`}
+                >
+                  ×
+                </span>
+              }
             >
-              {dept.name}
-            </Option>
+              {filter.label}
+            </Tag>
           ))}
-        </Select>
-        <Select
-          placeholder="Filter by Month"
-          className="w-full h-10"
-          allowClear
-          showSearch
-          onChange={(value) => setMonthId(value)}
-          filterOption={(input, option) =>
-            (option?.children as any)
-              .toLowerCase()
-              .includes(input.toLowerCase())
-          }
-          loading={monthsLoading}
-          data-cy="employee-survey-table-month-filter"
-          id="employeeSurveyTableMonthFilter"
-        >
-          {months?.items
-            ?.sort((a: any, b: any) => a.createdAt - b.createdAt)
-            ?.map((month: any) => (
-              <Option
-                key={month.id}
-                value={month.id}
-                data-cy={`employee-survey-table-month-option-${month.id}`}
+        </div>
+
+        <Popover
+          placement="bottomRight"
+          trigger="click"
+          open={isMobileFilterVisible}
+          onOpenChange={(visible) => setIsMobileFilterVisible(visible)}
+          content={
+            <div className="space-y-4 p-2 min-w-[260px]">
+              <Select
+                loading={depLoading}
+                placeholder="Filter by Department"
+                className="w-full h-10 rounded-lg border-gray-200"
+                allowClear
+                showSearch
+                onChange={(value) => {
+                  setDepartmentId(normalizeNullableId(value));
+                  setCurrentPage(1);
+                }}
+                filterOption={(input, option) =>
+                  (option?.children as any)
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                data-cy="employee-survey-table-department-filter"
+                id="employeeSurveyTableDepartmentFilter"
               >
-                {month?.session?.name}-{month.name}
-              </Option>
-            ))}
-        </Select>
+                {departmentData?.map((dept: any) => (
+                  <Option
+                    key={dept.id}
+                    value={dept.id}
+                    data-cy={`employee-survey-table-department-option-${dept.id}`}
+                  >
+                    {dept.name}
+                  </Option>
+                ))}
+              </Select>
+
+              <Select
+                placeholder="Filter by Month"
+                className="w-full h-10 rounded-lg border-gray-200"
+                allowClear
+                showSearch
+                onChange={(value) => {
+                  setMonthId(normalizeNullableId(value));
+                  setCurrentPage(1);
+                }}
+                filterOption={(input, option) =>
+                  (option?.children as any)
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                loading={monthsLoading}
+                data-cy="employee-survey-table-month-filter"
+                id="employeeSurveyTableMonthFilter"
+              >
+                {months?.items
+                  ?.sort((a: any, b: any) => a.createdAt - b.createdAt)
+                  ?.map((month: any) => (
+                    <Option
+                      key={month.id}
+                      value={month.id}
+                      data-cy={`employee-survey-table-month-option-${month.id}`}
+                    >
+                      {month?.session?.name}-{month.name}
+                    </Option>
+                  ))}
+              </Select>
+            </div>
+          }
+        >
+          <Button
+            type="default"
+            size="large"
+            className="h-8 px-6 rounded-lg bg-blue-600 border-gray-300 flex items-center gap-2"
+            id="employee-survey-table-filter-toggle-btn"
+            data-cy="employee-survey-table-filter-toggle-btn"
+            icon={
+              <FilterAltOutlinedIcon
+                className="text-gray-600"
+                fontSize="small"
+              />
+            }
+          >
+            <span
+              id="employee-survey-table-filter-toggle-btn-text"
+              data-cy="employee-survey-table-filter-toggle-btn-text"
+              className="text-gray-600 text-sm"
+            >
+              Filter
+            </span>
+          </Button>
+        </Popover>
       </div>
 
       <Table
@@ -378,8 +515,8 @@ const EmployeeSurveyTable: React.FC = () => {
       />
 
       <EmployeeSurveyDrawer
-        onClose={() => setOpen(false)}
-        open={open}
+        onClose={() => setOpenEmployeeSurvey(false)}
+        open={openEmployeeSurvey}
         data-cy="employee-survey-drawer"
       />
       <EmployeeSurveyModal

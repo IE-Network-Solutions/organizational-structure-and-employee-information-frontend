@@ -23,6 +23,7 @@ import {
   useUpdateRecognitionType,
 } from '@/store/server/features/CFR/recognition/mutation';
 import { useGetRecognitionTypeById } from '@/store/server/features/CFR/recognition/queries';
+import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 
 const { Title } = Typography;
 
@@ -51,6 +52,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     recognitionCategoryEditId,
     setRecognitionCategoryEditId,
   } = ConversationStore();
+  const { setOpenEmployeeSurvey } = EmployeeSurveyStore();
   const { variantType } = ConversationStore();
   const [categoryForm] = Form.useForm();
   const isRecognitionDetailRoute =
@@ -230,16 +232,12 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                 ) : getActiveKey() === 'targetAchievement' ? (
                   <Button
                     className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                    icon={
-                      <FaPlus
-                        data-cy="org-settings-branches-add-btn-icon"
-                        id="org-settings-branches-add-btn-icon"
-                      />
-                    }
+                    data-cy="employee-survey-table-add-button"
+                    id="employeeSurveyTableAddButton"
+                    icon={<FaPlus />}
                     type="primary"
                     // onClick={showDrawer}
-                    data-cy="org-settings-branches-add-btn"
-                    id="org-settings-branches-add-btn"
+                    onClick={() => setOpenEmployeeSurvey(true)}
                   >
                     {!isMobile && 'Employee Survey'}
                   </Button>

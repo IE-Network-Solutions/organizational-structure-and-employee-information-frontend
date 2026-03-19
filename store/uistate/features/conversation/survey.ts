@@ -6,8 +6,8 @@ interface SurveyObject {
   id: string;
 }
 export interface EmployeeSurveyState {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  openEmployeeSurvey: boolean;
+  setOpenEmployeeSurvey: (openEmployeeSurvey: boolean) => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
   userId: string | null;
@@ -25,8 +25,8 @@ export interface EmployeeSurveyState {
 }
 
 export const EmployeeSurveyStore = create<EmployeeSurveyState>((set) => ({
-  open: false,
-  setOpen: (open) => set({ open }),
+  openEmployeeSurvey: false,
+  setOpenEmployeeSurvey: (openEmployeeSurvey) => set({ openEmployeeSurvey }),
   openModal: false,
   setOpenModal: (openModal) => set({ openModal }),
   userId: null,
