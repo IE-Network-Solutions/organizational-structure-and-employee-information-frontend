@@ -72,11 +72,11 @@ export default function Home() {
           </div>
         </div>
         <div
-          className="flex flex-nowrap gap-4 pb-5 overflow-x-auto scrollbar-none md:grid md:grid-cols-12"
+          className="flex flex-nowrap gap-4 pb-5 overflow-x-auto overflow-y-visible scrollbar-none md:grid md:grid-cols-12 overscroll-x-contain"
           data-cy="dashboard-left-bar-cards"
         >
           <div
-            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3"
+            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3 overscroll-x-contain"
             data-cy="dashboard-card-birthday"
           >
             <CardList
@@ -87,7 +87,7 @@ export default function Home() {
             />
           </div>
           <div
-            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3"
+            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3 overscroll-x-contain"
             data-cy="dashboard-card-anniversary"
           >
             <CardList
@@ -98,7 +98,7 @@ export default function Home() {
             />
           </div>
           <div
-            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3"
+            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3 overscroll-x-contain"
             data-cy="dashboard-card-weekly-leader"
           >
             <CardList
@@ -109,7 +109,7 @@ export default function Home() {
             />
           </div>
           <div
-            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3"
+            className="min-w-[260px] flex-none md:min-w-0 md:col-span-3 overscroll-x-contain"
             data-cy="dashboard-card-rockstar"
           >
             <CardList

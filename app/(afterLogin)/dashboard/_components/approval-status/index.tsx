@@ -8,7 +8,6 @@ import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/le
 import { useDashboardApprovalStore } from '@/store/uistate/features/dashboard/approval';
 import { useGetBranchTransferApproveById } from '@/store/server/features/employees/approval/queries';
 import MyLeaveRequestDashboard from '../my-leave-request';
-import { MdOutlineAssignmentInd, MdOutlineGroups } from 'react-icons/md';
 
 const ApprovalStatus: FC = () => {
   const { userId } = useAuthenticationStore();
@@ -92,13 +91,6 @@ const ApprovalStatus: FC = () => {
             size="small"
             className="inline-flex items-center gap-1 px-3 md:py-2 py-0 rounded-sm font-medium shadow-none"
             data-cy="dashboard-approval-status-personal-pill"
-            icon={
-              approverType === 'Personal' ? (
-                <MdOutlineAssignmentInd />
-              ) : (
-                <MdOutlineGroups />
-              )
-            }
             onClick={() =>
               handleChange(approverType === 'Personal' ? 'Leave' : 'Personal')
             }
@@ -114,7 +106,19 @@ const ApprovalStatus: FC = () => {
         {approverType === 'Personal' ? (
           <MyLeaveRequestDashboard />
         ) : approverType === 'BranchTransfer' ? (
-          BranchTransferData?.items?.length ? (
+          isLoadingBranchTransfer ? (
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingBranchTransfer}
+              data-cy="dashboard-approval-status-branch-transfer-card"
+            >
+              <div
+                style={{ height: 250 }}
+                data-cy="dashboard-approval-status-branch-transfer-loading-placeholder"
+              />
+            </Card>
+          ) : BranchTransferData?.items?.length ? (
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
@@ -123,6 +127,7 @@ const ApprovalStatus: FC = () => {
             >
               {BranchTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
+                  isLoading={isLoadingBranchTransfer}
                   key={index}
                   id={request.id}
                   name={request.name}
@@ -152,7 +157,19 @@ const ApprovalStatus: FC = () => {
             </div>
           )
         ) : approverType === 'Leave' ? (
-          LeaveTransferData?.items?.length ? (
+          isLoadingLeaveTransfer ? (
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingLeaveTransfer}
+              data-cy="dashboard-approval-status-leave-card"
+            >
+              <div
+                style={{ height: 250 }}
+                data-cy="dashboard-approval-status-leave-loading-placeholder"
+              />
+            </Card>
+          ) : LeaveTransferData?.items?.length ? (
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
@@ -161,6 +178,7 @@ const ApprovalStatus: FC = () => {
             >
               {LeaveTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
+                  isLoading={isLoadingLeaveTransfer}
                   key={index}
                   id={request.id}
                   name={request.name}
