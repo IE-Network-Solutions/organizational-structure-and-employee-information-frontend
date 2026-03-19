@@ -21,6 +21,7 @@ import { RcFile } from 'antd/es/upload';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import dayjs from 'dayjs';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
+import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 
 const { Option } = Select;
 const { Dragger } = Upload;
@@ -29,6 +30,8 @@ const BasicInformationForm = ({ form }: any) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { profileFileList, setBirthDate, setProfileFileList } =
     useEmployeeManagementStore();
+  const { data: nationalities, isLoading: isLoadingNationality } =
+    useGetNationalities();
 
   type FileInfo = {
     file: UploadFile; // File being uploaded
@@ -480,6 +483,7 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="dateOfBirth"
+            rules={[{ required: true }]}
             label={
               <span
                 className="mb-1 font-normal text-sm text-[#030712]"
@@ -517,6 +521,7 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="maritalStatus"
+            rules={[{ required: true }]}
             label={
               <span
                 className="mb-1 font-normal text-sm text-[#030712]"
@@ -558,12 +563,6 @@ const BasicInformationForm = ({ form }: any) => {
             </Select>
           </Form.Item>
         </Col>
-      </Row>
-      {/* <Row
-        gutter={16}
-        id="basic-info-row-nationality"
-        data-cy="basic-info-row-nationality"
-      >
         <Col
           xs={24}
           sm={24}
@@ -575,7 +574,7 @@ const BasicInformationForm = ({ form }: any) => {
             name="nationalityId"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-nationality-label"
               >
                 Nationality <span className="text-gray-400">(optional)</span>
@@ -597,6 +596,7 @@ const BasicInformationForm = ({ form }: any) => {
               }
               id="basic-info-nationality-select"
               data-cy="basic-info-nationality-select"
+              className="h-10"
             >
               {nationalities?.items?.map((nationality: any, index: number) => (
                 <Option
@@ -611,6 +611,13 @@ const BasicInformationForm = ({ form }: any) => {
             </Select>
           </Form.Item>
         </Col>
+      </Row>
+      {/* <Row
+        gutter={16}
+        id="basic-info-row-nationality"
+        data-cy="basic-info-row-nationality"
+      >
+        
       </Row>
       <Row
         gutter={16}

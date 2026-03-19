@@ -37,6 +37,8 @@ import { TbMessage2 } from 'react-icons/tb';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { PiMoneyLight, PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 interface Ids {
   id: string;
@@ -407,6 +409,11 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
           onFinish={handleUpdateUserRolePermission}
           id="role-permission-form"
           data-cy="role-permission-form"
+          disabled={!AccessGuard.checkAccess({
+            permissions: [Permissions.UpdateRoleForUser],
+            id: 'role-permission-edit-guard',
+            selfShouldAccess: true,
+          })}
         >
           {/* Roles Section */}
           <div
@@ -558,6 +565,11 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                     />
 
                     {/* Update Button */}
+                    <AccessGuard
+                   permissions={[Permissions.UpdateRoleForUser]}
+                    id="role-permission-edit-guard"
+                      data-cy="role-permission-edit-guard"
+                       >
                     <Button
                       icon={<RefreshIcon style={{ fontSize: '14px' }} />}
                       onClick={() => {
@@ -570,6 +582,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                     >
                       Update
                     </Button>
+                    </AccessGuard>
                   </div>
 
                   {/* Group Filters */}
@@ -704,10 +717,14 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                               onChange={(checked) =>
                                 handleGroupToggle(group, checked)
                               }
-                              disabled={false}
                               id={`permission-group-switch-${group.id}`}
                               data-cy={`permission-group-switch-${group.id}`}
                               className={`${isFullySelected ? 'bg-[#1d4ed8]' : ''}`}
+                              disabled={!AccessGuard.checkAccess({
+                                permissions: [Permissions.UpdateRoleForUser],
+                                id: 'role-permission-edit-guard',
+                                selfShouldAccess: true,
+                              })}
                             />
                           </span>
                         }
@@ -737,10 +754,14 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                                       e.target.checked,
                                     )
                                   }
-                                  disabled={false}
                                   id={`permission-checkbox-${permission.id}`}
                                   data-cy={`permission-checkbox-${permission.id}`}
                                   className="pt-0.5"
+                                  disabled={!AccessGuard.checkAccess({
+                                    permissions: [Permissions.UpdateRoleForUser],
+                                    id: 'role-permission-edit-guard',
+                                    selfShouldAccess: true,
+                                  })}
                                 />
                                 <div
                                   data-cy="active-permission-item-div"
