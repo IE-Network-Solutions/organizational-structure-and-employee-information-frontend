@@ -99,8 +99,14 @@ const ZKTAddonPage = () => {
             <Image src={ZKTeco} alt="zkt" width={140} height={48} />
           </div>
         </div>
-        <div data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-86" className="text-center mb-4">
-          <p data-cy="timesheet-settings-zkt-addon-page-tsx-page-p-87" className="text-sm text-black">
+        <div
+          data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-86"
+          className="text-center mb-4"
+        >
+          <p
+            data-cy="timesheet-settings-zkt-addon-page-tsx-page-p-87"
+            className="text-sm text-black"
+          >
             Link ZKTeco time and attendance information with selamnew workspace,
             All you need to do is add the link for your dashboard on ZKT and add
             your username and password and we will handle the rest
