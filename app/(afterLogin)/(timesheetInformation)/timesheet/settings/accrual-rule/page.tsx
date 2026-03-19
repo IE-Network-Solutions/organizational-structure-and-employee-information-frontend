@@ -4,12 +4,12 @@ import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/se
 import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRule/queries';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
-import { Card, Spin } from 'antd';
+import { Card, Tag } from 'antd';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
 
 const Page = () => {
   const { isShowNewAccrualRuleSidebar } = useTimesheetSettingsStore();
-  const { data, isFetching, refetch } = useGetAccrualRules({});
+  const { data, refetch } = useGetAccrualRules({});
   const tableData = () => {
     return data
       ? data.items.map((item) => ({
@@ -29,7 +29,6 @@ const Page = () => {
 
   return (
     <div
-      className="px-3 sm:px-5"
       id="time-attendance-settings-accrual-rule-container"
       data-cy="time-attendance-settings-accrual-rule-container"
     >
@@ -38,10 +37,7 @@ const Page = () => {
         id="time-attendance-settings-accrual-rule-table-container"
         data-cy="time-attendance-settings-accrual-rule-table-container"
       >
-        <Spin
-          spinning={isFetching}
-          data-cy="time-attendance-settings-accrual-rule-table-spin"
-        >
+       
           <div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
             data-cy="time-attendance-settings-accrual-rule-cards-grid"
@@ -65,15 +61,15 @@ const Page = () => {
                   >
                     {item.title}
                   </div>
-                  <span
-                    className="text-xs text-gray-600 border border-gray-200 bg-gray-50 rounded-md px-2 py-0.5 whitespace-nowrap"
+                  <Tag
+                    className=" bg-[#fafafa] text-xs text-[#4b4b4b] border border-[#d9d9d9] rounded-[4px] px-2 py-0.5"
                     data-cy="time-attendance-settings-accrual-rule-card-period"
                   >
                     {item.period}
-                  </span>
+                  </Tag>
                 </div>
                 <div
-                  className="mt-2 text-sm text-gray-700"
+                  className="mt-2 text-sm text-black"
                   data-cy="time-attendance-settings-accrual-rule-card-date"
                 >
                   {dayjs(item.createdAt).format(DATE_FORMAT)}
@@ -81,7 +77,6 @@ const Page = () => {
               </Card>
             ))}
           </div>
-        </Spin>
       </div>
 
       <NewAccrualRuleSidebar data-cy="time-attendance-settings-accrual-rule-sidebar" />

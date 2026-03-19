@@ -5,7 +5,7 @@ import { useCreateApproverMutation } from '@/store/server/features/approver/muta
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { Button, Form, Input, Modal, Radio, Select, Steps } from 'antd';
+import { Button, Form, Input, Modal, Radio, Select, Steps, Tag } from 'antd';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { APPROVALTYPES } from '@/types/enumTypes';
@@ -28,14 +28,34 @@ const ApprovalWorkflowSteps = React.memo(({ current }: { current: number }) => {
     [],
   );
   return (
+    <>
+    <style data-cy="user-sidebar-steps-style">{`
+      /* Keep step labels on a single line */
+      .user-sidebar-steps .ant-steps-item-title {
+        white-space: nowrap !important;
+      }
+
+      /* Active and completed steps: primary blue (match screenshot) */
+      .user-sidebar-steps .ant-steps-item-process .ant-steps-item-title,
+      .user-sidebar-steps .ant-steps-item-finish .ant-steps-item-title {
+        color: #1e40af !important;
+      }
+
+      /* Upcoming steps: light gray */
+      .user-sidebar-steps .ant-steps-item-wait .ant-steps-item-title {
+        color: #d9d9d9 !important;
+      }
+    `}</style>
     <Steps
       responsive={false}
       labelPlacement="vertical"
+      progressDot
       current={current}
-      className="px-2"
+      className="user-sidebar-steps px-4 mx-auto max-w-5xl hidden sm:flex"
       data-cy="approval-workflow-steps"
       items={stepItems}
     />
+    </>
   );
 });
 
@@ -172,6 +192,7 @@ const ApprovalWorkFlowModal = ({
 
   const handleLevelChange = (value: number) => {
     setLevel(value);
+    form.setFieldValue('level', value);
     const updatedSelections = Array.from({ length: value }, (item, index) => {
       void item;
       return selections.SectionItemType[index] || { user: null };
@@ -184,6 +205,58 @@ const ApprovalWorkFlowModal = ({
     updatedSelections[index] = { ...updatedSelections[index], user: value };
     setSelections({ SectionItemType: updatedSelections });
   };
+
+  const assigneeOptions = useMemo(() => {
+    return (
+      usersData?.items
+        ?.filter(
+          (user: User) =>
+            workflowApplies !== 'User' || user.id !== workflowUserId,
+        )
+        ?.map((list: User) => ({
+          value: list.id,
+          label:
+            `${list.firstName ?? ''} ${list.middleName ?? ''} ${list.lastName ?? ''}`.trim() ||
+            list.id,
+        })) ?? []
+    );
+  }, [usersData?.items, workflowApplies, workflowUserId]);
+
+  const handleAssigneeSelect = (userId: string | undefined) => {
+    if (userId == null) return;
+    const list = selections.SectionItemType as { user: string | string[] | null }[];
+    const firstEmptyIndex = list.findIndex((item) => {
+      const u = item?.user;
+      if (u == null) return true;
+      if (Array.isArray(u)) return u.length === 0;
+      return false;
+    });
+    if (firstEmptyIndex === -1) return;
+    const updatedSelections = [...list];
+    updatedSelections[firstEmptyIndex] = {
+      ...updatedSelections[firstEmptyIndex],
+      user: userId,
+    };
+    setSelections({ SectionItemType: updatedSelections });
+    form.setFieldValue(`assignedUser_${firstEmptyIndex}`, userId);
+  };
+
+  const handleAssigneeRemove = (index: number) => {
+    const updatedSelections = [...selections.SectionItemType];
+    updatedSelections[index] = { ...updatedSelections[index], user: null };
+    setSelections({ SectionItemType: updatedSelections });
+    form.setFieldValue(`assignedUser_${index}`, undefined);
+  };
+
+  const assignedUserIds = useMemo(
+    () =>
+      selections.SectionItemType.map((item) => {
+        const u = item?.user;
+        if (u == null) return null;
+        return Array.isArray(u) ? u[0] ?? null : u;
+      }),
+    [selections.SectionItemType],
+  );
 
   const goToSetupStep = () => {
     if (!approverType) {
@@ -303,7 +376,7 @@ const ApprovalWorkFlowModal = ({
                 setCurrent((prev) => prev - 1);
               }
             }}
-            className="h-10 px-6 rounded-xl border border-[#D9D9D9] text-[#4d4d4d]"
+            className="h-8 border border-[#D9D9D9] text-[#4d4d4d] font-normal"
             data-cy="approval-workflow-back-btn"
           >
             {current === 0 ? 'Cancel' : 'Back'}
@@ -311,7 +384,7 @@ const ApprovalWorkFlowModal = ({
           <Button
             type="primary"
             loading={isCreateLoading}
-            className="h-10 px-6 rounded-xl"
+            className="h-8 font-normal"
             onClick={() => {
               if (current === 0) goToSetupStep();
               if (current === 1) goToFinalizeStep();
@@ -343,10 +416,10 @@ const ApprovalWorkFlowModal = ({
             data-cy="approval-workflow-type-group"
           >
             <label
-              className={`flex flex-col gap-1 p-5 rounded-lg border bg-white shadow-sm cursor-pointer transition-colors ${
+              className={`flex flex-col gap-1 p-2 rounded-lg border-[1px] bg-white shadow-md cursor-pointer transition-colors ${
                 approverType === 'Sequential'
                   ? 'border-primary'
-                  : 'border-gray-200 hover:border-gray-300'
+                  : 'border-[#D9D9D9] hover:border-[#D9D9D9]'
               }`}
               data-cy="approval-workflow-sequential"
             >
@@ -379,7 +452,7 @@ const ApprovalWorkFlowModal = ({
               </div>
             </label>
             <label
-              className={`flex flex-col gap-1 p-5 rounded-lg border bg-white shadow-sm cursor-pointer transition-colors ${
+              className={`flex flex-col gap-1 p-2 rounded-lg border border-[#D9D9D9] bg-white shadow-md cursor-pointer transition-colors ${
                 approverType === 'Parallel'
                   ? 'border-primary'
                   : 'border-gray-200 hover:border-gray-300'
@@ -415,7 +488,7 @@ const ApprovalWorkFlowModal = ({
               </div>
             </label>
             <label
-              className="flex flex-col gap-1 p-5 rounded-lg border border-gray-200 bg-white shadow-sm opacity-60 cursor-not-allowed"
+              className="flex flex-col gap-1 p-2 rounded-lg border border-[#D9D9D9] bg-white shadow-md opacity-60 cursor-not-allowed"
               data-cy="approval-workflow-conditional"
             >
               <div
@@ -533,102 +606,127 @@ const ApprovalWorkFlowModal = ({
             </Form.Item>
           </div>
 
-          <Form.Item
-            name="workflowAppliesId"
-            rules={[
-              { required: true, message: 'Please select workflow applies to' },
-            ]}
-            data-cy="approval-workflow-applies-id-field"
-          >
-            <Select
-              placeholder={`Select ${workflowApplies || ''}`}
-              className="h-10"
-              options={workflowTargetOptions}
-              onChange={handleWorkflowAppliesIdChange}
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              data-cy="approval-workflow-applies-id-select"
-            />
-          </Form.Item>
+          {workflowApplies && (
+            <Form.Item
+              name="workflowAppliesId"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select workflow applies to',
+                },
+              ]}
+              data-cy="approval-workflow-applies-id-field"
+            >
+              <Select
+                placeholder={`Select ${workflowApplies || ''}`}
+                className="h-10"
+                options={workflowTargetOptions}
+                onChange={handleWorkflowAppliesIdChange}
+                allowClear
+                showSearch
+                optionFilterProp="label"
+                data-cy="approval-workflow-applies-id-select"
+              />
+            </Form.Item>
+          )}
         </div>
 
         <div
           className="rounded-xl border border-gray-200 p-3 mb-3 flex flex-col gap-2"
           data-cy="approval-workflow-levels-section"
         >
-          <span
-            className="text-sm text-[#4d4d4d]"
-            data-cy="approval-workflow-levels-title"
+          <Form.Item
+            name="level"
+            label={<span className="text-sm text-[#4d4d4d]">Levels</span>}
+            required
+            rules={[
+              { required: true, message: 'Please select levels' },
+            ]}
+            initialValue={level}
+            data-cy="approval-workflow-levels-field"
           >
-            Levels
-          </span>
-          <Select
-            className="h-10"
-            value={level}
-            onChange={handleLevelChange}
-            options={Array.from({ length: 9 }, (item, idx) => {
-              void item;
-              return {
-                value: idx + 1,
-                label: `${idx + 1}`,
-              };
-            })}
-            data-cy="approval-workflow-levels-select"
-          />
-        </div>
-
-        {Array.from({ length: level }).map((item, index) => {
-          void item;
-          return (
+            <Select
+              className="h-10"
+              value={level}
+              onChange={handleLevelChange}
+              options={Array.from({ length: 9 }, (item, idx) => {
+                void item;
+                return {
+                  value: idx + 1,
+                  label: `${idx + 1}`,
+                };
+              })}
+              data-cy="approval-workflow-levels-select"
+            />
+              <p
+              className="text-sm text-[#4d4d4d] mt-1"
+              data-cy="approval-workflow-assignee-instruction"
+            >
+              Select one assignee for {level} level{level === 1 ? '' : 's'} of
+              approval
+            </p>
+          </Form.Item>
+          {level > 0 && (
+          <div
+            className="mb-3 flex flex-col gap-2"
+            data-cy="approval-workflow-assignee-section"
+          >
+           
             <Form.Item
-              key={index}
-              name={`assignedUser_${index}`}
-              label={`Assign - Level ${index + 1}`}
+              label="Assignee"
+              required
+              validateTrigger="onSubmit"
               rules={[
-                { required: true, message: 'Please select user(s)' },
                 {
-                  /* eslint-disable-next-line @typescript-eslint/naming-convention */
-                  validator: (_, value) => {
-                    /* eslint-enable @typescript-eslint/naming-convention */
-
-                    if (
-                      workflowApplies === 'User' &&
-                      value === workflowUserId
-                    ) {
+                  validator: () => {
+                    const filled = assignedUserIds.filter(Boolean).length;
+                    if (filled < level) {
                       return Promise.reject(
-                        'Cannot select the same user as both workflow target and approver',
+                        `Please select ${level} assignee(s) for ${level} level(s)`,
                       );
                     }
                     return Promise.resolve();
                   },
                 },
               ]}
-              data-cy={`approval-workflow-assigned-user-field-${index}`}
+              data-cy="approval-workflow-assignee-field"
             >
               <Select
-                mode={approverType === 'Parallel' ? 'multiple' : undefined}
-                placeholder="Select User"
+                placeholder="Select"
                 showSearch
-                className="h-10"
+                className="h-10 w-full"
                 optionFilterProp="label"
-                allowClear
-                options={usersData?.items
-                  ?.filter(
-                    (user: User) =>
-                      workflowApplies !== 'User' || user.id !== workflowUserId,
-                  )
-                  ?.map((list: User) => ({
-                    value: list.id,
-                    label:
-                      `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
-                  }))}
-                onChange={(value) => handleApproverChange(value, index)}
-                data-cy={`approval-workflow-assigned-user-select-${index}`}
+                options={assigneeOptions}
+                onSelect={handleAssigneeSelect}
+                value={undefined}
+                data-cy="approval-workflow-assignee-select"
+                disabled={assignedUserIds.filter(Boolean).length >= level}
               />
             </Form.Item>
-          );
-        })}
+            <div
+              className="flex flex-wrap gap-2"
+              data-cy="approval-workflow-assignee-tags"
+            >
+              {assignedUserIds.map(
+                (userId, index) =>
+                  userId && (
+                    <Tag
+                      key={`${userId}-${index}`}
+                      closable
+                      onClose={() => handleAssigneeRemove(index)}
+                      className="inline-flex items-center gap-1 rounded-md border border-[#d9d9d9] bg-[#fafafa] px-2 py-1 text-sm"
+                      data-cy={`approval-workflow-assignee-tag-${index}`}
+                    >
+                      {getUserFullName(userId)}
+                    </Tag>
+                  ),
+              )}
+            </div>
+          </div>
+        )}
+        </div>
+
+       
       </Form>
 
       {current === 2 && (

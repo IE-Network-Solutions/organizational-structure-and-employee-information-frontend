@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Dropdown, Input } from 'antd';
+import { Button, Dropdown, Input } from 'antd';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import {
   CalendarOutlined,
@@ -18,6 +18,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEffect, useMemo } from 'react';
 import CustomWorkingScheduleDrawer from './_components/workSchedule/customDrawer';
 import CustomDeleteWorkingSchduel from './_components/workSchedule/deleteModal';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 interface ScheduleDetail {
   id: string;
@@ -196,9 +197,8 @@ function WorkScheduleTab() {
   return (
     <>
       <div
-        className="px-2 sm:px-5 py-2"
-        data-cy="org-settings-work-schedule-container"
-        id="org-settings-work-schedule-container"
+        data-cy="time-attendance-settings-work-schedule-container"
+        id="time-attendance-settings-work-schedule-container"
       >
         <div
           id="time-attendance-settings-work-schedule-container"
@@ -207,8 +207,16 @@ function WorkScheduleTab() {
         >
           <Input
             placeholder="Search work schedule"
-            className="flex-1 h-12 rounded-lg border-gray-200 mb-4"
-            suffix={<SearchOutlined className="text-gray-400" />}
+            className="w-[300px] pr-0 py-0 h-8 mb-4"
+
+            suffix={
+              <div
+              className="text-gray-400 border-l border-gray-300 py-1 px-2"
+              data-cy="time-attendance-settings-work-schedule-search-input-suffix"
+            >
+                <SearchOutlined />
+              </div>
+            }
             allowClear
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -268,11 +276,17 @@ function WorkScheduleTab() {
                       trigger={['click']}
                       data-cy={`org-settings-work-schedule-dropdown-${scheduleId}`}
                     >
-                      <MoreOutlined
-                        className="text-lg cursor-pointer"
+                      <Button
+                        type="default"
+                        className="border border-[#D9D9D9] h-8 w-8"
+                        id={`org-settings-work-schedule-actions-${scheduleId}`}
+                        data-cy={`org-settings-work-schedule-actions-${scheduleId}`}
+                      >
+                      <MoreHorizIcon
                         data-cy={`org-settings-work-schedule-actions-${scheduleId}`}
                         id={`org-settings-work-schedule-actions-${scheduleId}`}
                       />
+                      </Button>
                     </Dropdown>
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Button, Form, Input, InputNumber, Modal, Select, Spin } from 'antd';
+import { Button, Col, Form, Input, InputNumber, Modal, Row, Select, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import React, { useEffect } from 'react';
 import { CarryOverPeriod } from '@/types/timesheet/settings';
@@ -154,7 +154,11 @@ const CarryOverSidebar = () => {
                 data-cy="time-attendance-settings-carry-over-rule-sidebar-period-select"
               />
             </Form.Item>
-            <Form.Item
+            <Row
+            gutter={16}
+            >
+              <Col span={12}>
+              <Form.Item
               label={
                 <span
                   data-cy="time-attendance-settings-carry-over-rule-sidebar-limit-label"
@@ -175,8 +179,9 @@ const CarryOverSidebar = () => {
                 id="time-attendance-settings-carry-over-rule-sidebar-limit-input"
                 data-cy="time-attendance-settings-carry-over-rule-sidebar-limit-input"
               />
-            </Form.Item>
-            <Form.Item
+            </Form.Item></Col>
+              <Col span={12}>
+              <Form.Item
               label={
                 <span
                   data-cy="time-attendance-settings-carry-over-rule-sidebar-expiration-label"
@@ -198,6 +203,10 @@ const CarryOverSidebar = () => {
                 data-cy="time-attendance-settings-carry-over-rule-sidebar-expiration-input"
               />
             </Form.Item>
+              </Col>
+            </Row>
+            
+           
           </Form>
         </Spin>
       </Modal>

@@ -12,12 +12,14 @@ import {
   Slider,
   message,
   InputNumber,
+  Tag,
 } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useSetAllowedArea } from '@/store/server/features/timesheet/allowedArea/mutation';
 import { useGetAllowedArea } from '@/store/server/features/timesheet/allowedArea/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import EnhancedLocationPicker from '@/components/common/map/EnhancedLocationPicker';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 
 const LocationSidebar = () => {
   const [areaId, setAreaId] = useState('');
@@ -249,38 +251,40 @@ const LocationSidebar = () => {
 
                 {/* Helper banner */}
                 <div
-                  className="mt-1 mb-4 rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-3 flex gap-3"
+                  className="mt-1 mb-4 rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-3"
                   id="time-attendance-settings-allowed-areas-sidebar-info-banner"
                   data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner"
                 >
-                  <div
-                    data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-icon"
-                    className="mt-1 h-5 w-5 flex items-center justify-center rounded-full border border-[#2563EB] text-[#2563EB] text-xs font-semibold shrink-0"
-                  >
-                    i
-                  </div>
+                  
                   <div
                     data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text"
                     id="time-attendance-settings-allowed-areas-sidebar-info-banner-text"
-                    className="space-y-1 text-sm text-[#1f2937]"
+                    className="flex gap-2 mb-2 items-center"
                   >
+                    <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-icon"
+                    className="h-4 w-4 flex items-center justify-center rounded-full border border-[#1E40AF] text-[#1E40AF] text-xs font-semibold"
+                  >
+                    i
+                  </div>
                     <div
                       data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text-title"
                       id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-title"
-                      className="font-medium"
+                      className="font-normal text-sm text-[#1E40AF] bg-[#e6f4ff]"
                     >
                       How to set your location:
                     </div>
-                    <p
+                  </div>
+                  <p
                       data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
                       id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
-                      className="m-0 text-xs text-[#4b5563]"
+                      className=" bg-[#e6f4ff] m-0 text-sm font-normal text-[#2748b3]"
                     >
                       Click anywhere on the map to set your location. Adjust the
                       radius slider to define the area coverage, or use the
                       &quot;Use Current Location&quot; button for quick setup.
                     </p>
-                  </div>
+                 
                 </div>
 
                 {/* Map Section */}
@@ -306,6 +310,7 @@ const LocationSidebar = () => {
                       className="h-9 px-4 rounded-lg text-sm border-[#D9D9D9] text-[#4d4d4d]"
                       id="time-attendance-settings-allowed-areas-sidebar-use-current-location-btn"
                       data-cy="time-attendance-settings-allowed-areas-sidebar-use-current-location-btn"
+                      icon={<LocationOnOutlinedIcon className="text-sm" />}
                     >
                       Use Current Location
                     </Button>
@@ -373,29 +378,13 @@ const LocationSidebar = () => {
                       id="time-attendance-settings-allowed-areas-sidebar-radius-input-container"
                       className="flex items-center gap-2"
                     >
-                      <InputNumber
-                        min={0.01}
-                        max={0.5}
-                        step={0.001}
-                        precision={3}
-                        value={formValues.distance}
-                        onChange={(value) => {
-                          if (value !== null) {
-                            handleRadiusChange(value as number);
-                          }
-                        }}
-                        style={{ width: 120 }}
-                        className="text-sm border border-gray-300 rounded-lg"
-                        id="time-attendance-settings-allowed-areas-sidebar-radius-input"
-                        data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input"
-                      />
-                      <span
-                        data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input-unit"
-                        id="time-attendance-settings-allowed-areas-sidebar-radius-input-unit"
-                        className="text-xs text-gray-900"
-                      >
-                        km
-                      </span>
+                      
+                      <Tag
+              data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-span-196"
+              className="bg-[#e6f4ff] text-[#237fff] border border-[#bcdfff] py-1 px-2 rounded-[4px]"
+            >
+              {formValues.distance} km
+            </Tag>
                     </div>
                   </div>
                   <Slider
