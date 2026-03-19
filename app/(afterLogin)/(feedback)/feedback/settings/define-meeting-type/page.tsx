@@ -1,16 +1,16 @@
 'use client';
 
-import { Button, Card, Dropdown, List, MenuProps, Popconfirm } from 'antd';
+import { Button, Card, Dropdown, List, Popconfirm, Spin } from 'antd';
 import React from 'react';
 import { MoreOutlined } from '@ant-design/icons';
 import MeetingTypeDrawer from './_components/meetingTypeDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
-import MeetingTypeDetail from './_components/meetingTypeDetail';
 import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
 import { useDeleteMeetingType } from '@/store/server/features/CFR/meeting/type/mutations';
 import CustomPagination from '@/components/customPagination';
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
+import { useRouter } from 'next/navigation';
 
 const DefineMeetingType = () => {
   const {
@@ -18,13 +18,12 @@ const DefineMeetingType = () => {
     setOpen,
     meetingType,
     setMeetingType,
-    meetingTypeDetailData,
-    setMeetingTypeDetail,
     pageSizeType,
     setPagesizeType,
     currentType,
     setCurrentType,
   } = useMeetingStore();
+  const router = useRouter();
 
   // const { mutate: deleteOkrRule } = useDeleteMeetingType();
   const onClose = () => {
@@ -34,10 +33,6 @@ const DefineMeetingType = () => {
     setMeetingType(value);
     setOpen(true);
   };
-  const handleDetail = (item: any) => {
-    setMeetingTypeDetail(item);
-  };
-
   type MeetingType = {
     id: string;
     name: string;
@@ -59,11 +54,9 @@ const DefineMeetingType = () => {
   }
   return (
     <>
-      {meetingTypeDetailData ? (
-        <MeetingTypeDetail data-cy="settings-define-meeting-type-detail" />
-      ) : (
-        <div className="">
-          {meetingTypes?.items && (
+      <div className="p-5 rounded-2xl bg-white h-full">
+        <Spin spinning={isLoading}>
+          {meetingTypes?.items && meetingTypes.items.length > 0 ? (
             <div
               className="grid grid-cols-12 flex-col-reverse justify-between"
               data-cy="settings-define-meeting-type-content"
@@ -78,14 +71,18 @@ const DefineMeetingType = () => {
                   className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
                   data-cy="settings-define-meeting-type-grid"
                 >
-                  {meetingTypes?.items?.map((item: any) => (
+                  {meetingTypes.items.map((item: any) => (
                     <Card
                       key={item?.id}
                       className="rounded-xl border border-gray-200 shadow-none cursor-pointer hover:border-gray-300 transition-colors"
                       styles={{ body: { padding: 16 } }}
                       data-cy={`settings-define-meeting-type-card-${item?.id}`}
                       onClick={() => {
-                        handleDetail(item);
+                        router.push(
+                          `/feedback/settings/define-meeting-type/${item?.id}?name=${encodeURIComponent(
+                            item?.name ?? '',
+                          )}`,
+                        );
                       }}
                     >
                       <div
@@ -168,42 +165,43 @@ const DefineMeetingType = () => {
                   ))}
                 </div>
               </div>
-              {meetingTypes?.meta && meetingTypes?.items?.length > 0 && (
+              {meetingTypes.meta && meetingTypes.items.length > 0 && (
                 <CustomPagination
                   current={currentType}
-                  total={meetingTypes?.meta?.totalItems}
+                  total={meetingTypes.meta.totalItems}
                   pageSize={pageSizeType}
                   onChange={(page, size) => {
                     setCurrentType(page);
                     setPagesizeType(size);
                   }}
-                  onShowSizeChange={(size) => {
-                    setPagesizeType(size);
+                  onShowSizeChange={(newSize: number) => {
+                    setPagesizeType(newSize);
                     setCurrentType(1);
                   }}
-                  data-cy={`settings-define-meeting-type-pagination`}
+                  data-cy="settings-define-meeting-type-pagination"
                 />
               )}
-              {(!meetingTypes?.items || meetingTypes.items.length === 0) &&
-                !isLoading && (
-                  <div
-                    className="col-span-12 flex items-center justify-center py-10 text-gray-500"
-                    data-cy="settings-define-meeting-type-empty-state"
-                    id="settingsDefineMeetingTypeEmptyState"
-                  >
-                    No meeting types found.
-                  </div>
-                )}
             </div>
+          ) : (
+            !isLoading && (
+              <div
+                className="flex items-center justify-center py-10 text-gray-500"
+                data-cy="settings-define-meeting-type-empty-state"
+                id="settingsDefineMeetingTypeEmptyState"
+              >
+                No meeting types found.
+              </div>
+            )
           )}
+
           <MeetingTypeDrawer
             meetType={meetingType}
             open={open}
             onClose={onClose}
             data-cy="settings-define-meeting-type-drawer"
           />
-        </div>
-      )}
+        </Spin>
+      </div>
     </>
   );
 };
