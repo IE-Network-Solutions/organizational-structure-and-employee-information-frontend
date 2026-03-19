@@ -151,14 +151,14 @@ const EmployeeSurveyTable: React.FC = () => {
     if (!item) return '';
     return `${item?.firstName ?? ''} ${item?.middleName ?? ''} ${
       item?.lastName ?? ''
-    }`.replace(/\s+/g, ' ').trim();
+    }`
+      .replace(/\s+/g, ' ')
+      .trim();
   };
 
   const getDepartmentNameById = (id: string | null) => {
     if (!id) return '';
-    const dept = departmentData?.find(
-      (d: any) => String(d?.id) === String(id),
-    );
+    const dept = departmentData?.find((d: any) => String(d?.id) === String(id));
     return dept?.name ?? '';
   };
 
@@ -172,21 +172,21 @@ const EmployeeSurveyTable: React.FC = () => {
   const getActiveFilters = () => {
     const activeFilters: Array<{ key: string; label: string }> = [];
 
-    if (userId) {
+    if (userId != null) {
       activeFilters.push({
         key: 'userId',
         label: getEmployeeNameById(userId) || String(userId),
       });
     }
 
-    if (departmentId) {
+    if (departmentId != null) {
       activeFilters.push({
         key: 'departmentId',
         label: getDepartmentNameById(departmentId) || String(departmentId),
       });
     }
 
-    if (monthId) {
+    if (monthId != null) {
       activeFilters.push({
         key: 'monthId',
         label: getMonthLabelById(monthId) || String(monthId),
@@ -355,7 +355,14 @@ const EmployeeSurveyTable: React.FC = () => {
           style={{ width: 300 }}
           allowClear
           loading={empLoading}
-          suffixIcon={<SearchIcon className="text-gray-400" fontSize="small" />}
+          suffixIcon={
+            userId ? (
+              ''
+            ) : (
+              <SearchIcon className="text-gray-400" fontSize="small" />
+            )
+          }
+          value={userId ?? undefined}
           onChange={(value) => {
             setUserId(normalizeNullableId(value));
             setCurrentPage(1);
@@ -414,6 +421,7 @@ const EmployeeSurveyTable: React.FC = () => {
                 className="w-full h-10 rounded-lg border-gray-200"
                 allowClear
                 showSearch
+                value={departmentId ?? undefined}
                 onChange={(value) => {
                   setDepartmentId(normalizeNullableId(value));
                   setCurrentPage(1);
@@ -442,6 +450,7 @@ const EmployeeSurveyTable: React.FC = () => {
                 className="w-full h-10 rounded-lg border-gray-200"
                 allowClear
                 showSearch
+                value={monthId ?? undefined}
                 onChange={(value) => {
                   setMonthId(normalizeNullableId(value));
                   setCurrentPage(1);
