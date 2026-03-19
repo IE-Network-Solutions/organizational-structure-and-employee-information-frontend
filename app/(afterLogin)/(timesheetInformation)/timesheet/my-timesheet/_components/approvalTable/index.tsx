@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
+import { useGetApprovalLeaveRequestAllStatus } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TableColumnsType } from '@/types/table/table';
 import {
@@ -82,7 +82,7 @@ const ApprovalTable = () => {
     data: approvalData,
     isLoading: isLoadingApproval,
     refetch,
-  } = useGetApprovalLeaveRequest(
+  } = useGetApprovalLeaveRequestAllStatus(
     userId ?? '',
     userCurrentPage,
     pageSize,

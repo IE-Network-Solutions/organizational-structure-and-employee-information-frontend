@@ -86,6 +86,48 @@ const getApprovalLeaveRequest = async (
   }
   return data;
 };
+
+/** Same as getApprovalLeaveRequest but uses all-status endpoint (no requesterId in path). */
+const getApprovalLeaveRequestAllStatus = async (
+  requesterId: string,
+  page: number,
+  limit: number,
+  requestUserId?: string,
+  status?: string,
+) => {
+  const requestHeaders = await requestHeader();
+  const { userId, tenantId } = useAuthenticationStore.getState();
+  const headers = {
+    ...requestHeaders,
+    requestedBy: userId,
+    createdBy: userId,
+    tenantId,
+  };
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+    requesterId,
+  });
+  if (requestUserId) params.set('requestUserId', requestUserId);
+  if (status) params.set('status', status);
+  const response = await apiClient({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/approval/current-approver/all-status?${params.toString()}`,
+    method: 'GET',
+    headers,
+  });
+  const data = response.data ?? {};
+  const totalHeader =
+    response.headers?.['x-total-count'] ?? response.headers?.['X-Total-Count'];
+  const totalFromHeader =
+    totalHeader != null && totalHeader !== ''
+      ? parseInt(String(totalHeader), 10)
+      : undefined;
+  if (totalFromHeader != null && !Number.isNaN(totalFromHeader)) {
+    return { ...data, totalFromHeader };
+  }
+  return data;
+};
+
 const getSingleLeaveRequest = async (requestId: string) => {
   const requestHeaders = await requestHeader();
   const response = await crudRequest({
@@ -175,6 +217,38 @@ export const useGetApprovalLeaveRequest = (
     ],
     () =>
       getApprovalLeaveRequest(requesterId, page, limit, requestUserId, status),
+    {
+      keepPreviousData: true,
+      enabled: !!token,
+    },
+  );
+};
+
+export const useGetApprovalLeaveRequestAllStatus = (
+  requesterId: string,
+  page: number,
+  limit: number,
+  requestUserId?: string,
+  status?: string,
+) => {
+  const token = useAuthenticationStore.getState().token;
+  return useQuery<any>(
+    [
+      'current_approval_all_status',
+      requesterId,
+      page,
+      limit,
+      requestUserId ?? '',
+      status ?? '',
+    ],
+    () =>
+      getApprovalLeaveRequestAllStatus(
+        requesterId,
+        page,
+        limit,
+        requestUserId,
+        status,
+      ),
     {
       keepPreviousData: true,
       enabled: !!token,
