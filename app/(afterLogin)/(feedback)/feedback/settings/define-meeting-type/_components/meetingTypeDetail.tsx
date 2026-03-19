@@ -71,6 +71,7 @@ const MeetingTypeDetail: React.FC = () => {
   };
 
   const handleDelete = (templateId: string) => {
+    // React Query mutation already invalidates 'meeting-agenda-template'
     deleteMeetingAgendaTemplate(templateId);
   };
 
