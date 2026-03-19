@@ -146,7 +146,7 @@ const OkrTypePage = () => {
           onClick={() =>
             !(isUpdating || isSwitching) && handleRadioChange('Advanced')
           }
-          className={`relative cursor-pointer border-2 rounded-xl p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
+          className={`relative cursor-pointer border-2 rounded-[8px] p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
             isAdvancedActive
               ? 'border-[#2b54ad] bg-white shadow-md'
               : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
@@ -187,7 +187,7 @@ const OkrTypePage = () => {
           onClick={() =>
             !(isUpdating || isSwitching) && handleRadioChange('Basic')
           }
-          className={`relative cursor-pointer border-2 rounded-xl p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
+          className={`relative cursor-pointer border-2 rounded-[8px] p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
             isBasicActive
               ? 'border-[#2b54ad] bg-white shadow-md'
               : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
