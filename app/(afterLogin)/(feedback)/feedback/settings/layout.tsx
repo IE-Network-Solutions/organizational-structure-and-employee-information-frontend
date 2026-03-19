@@ -78,9 +78,11 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
 
     // if editing, prefill; otherwise reset
     if (recognitionCategoryEditId?.trim() && categoryById) {
+      const src: any = (categoryById as any)?.data ?? categoryById;
+
       categoryForm.setFieldsValue({
-        name: categoryById?.name ?? '',
-        description: categoryById?.description ?? '',
+        name: src?.name ?? '',
+        description: src?.description ?? '',
       });
     } else {
       categoryForm.resetFields();
