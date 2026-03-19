@@ -21,6 +21,8 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
   onDelete,
   loading = false,
 }) => {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
   const items: MenuProps['items'] = [
     {
       key: 'edit',
@@ -34,6 +36,10 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
         <span
           data-cy="meeting-template-card-delete-menu-item"
           id="meetingTemplateCardDeleteMenuItem"
+          onClick={(e) => {
+            e.stopPropagation();
+            setMenuOpen(false);
+          }}
         >
           <Popconfirm
             title="Are you sure you want to delete?"
@@ -60,7 +66,6 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
       className="relative cursor-pointer p-4 border rounded-lg shadow-sm hover:shadow-md transition w-full"
       data-cy="meeting-template-card"
       id="meetingTemplateCard"
-      onClick={onClick}
     >
       <div
         className="flex justify-between items-start mb-2"
@@ -74,7 +79,12 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
         >
           {title}
         </h3>
-        <Dropdown menu={{ items }} trigger={['click']}>
+        <Dropdown
+          menu={{ items }}
+          trigger={['click']}
+          open={menuOpen}
+          onOpenChange={(open) => setMenuOpen(open)}
+        >
           <MoreOutlined
             className="text-gray-500 hover:text-gray-700 text-lg"
             onClick={(e) => e.stopPropagation()}

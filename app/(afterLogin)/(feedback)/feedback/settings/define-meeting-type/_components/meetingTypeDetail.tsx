@@ -49,7 +49,12 @@ const MeetingTypeDetail: React.FC = () => {
 
   const handleOpen = () => {
     setEditingTemplate(null);
-    form.resetFields();
+    form.setFieldsValue({
+      name: '',
+      objective: '',
+      description: '',
+      agendaItems: [''],
+    });
     setDrawerOpen(true);
   };
 
@@ -74,7 +79,12 @@ const MeetingTypeDetail: React.FC = () => {
   const handleCloseTemplateModal = () => {
     setDrawerOpen(false);
     setEditingTemplate(null);
-    form.resetFields();
+    form.setFieldsValue({
+      name: '',
+      objective: '',
+      description: '',
+      agendaItems: [''],
+    });
   };
 
   const handleFinish = (values: TemplateData) => {

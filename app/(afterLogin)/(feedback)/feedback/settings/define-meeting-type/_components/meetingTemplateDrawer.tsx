@@ -20,12 +20,25 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
   form,
 }) => {
   React.useEffect(() => {
+    if (!open) return;
+
     if (initialValues) {
-      form.setFieldsValue(initialValues);
-    } else {
-      form.resetFields();
+      form.setFieldsValue({
+        ...initialValues,
+        agendaItems: initialValues?.agendaItems?.length
+          ? initialValues.agendaItems
+          : [''],
+      });
+      return;
     }
-  }, [initialValues, form]);
+
+    form.setFieldsValue({
+      name: '',
+      objective: '',
+      description: '',
+      agendaItems: [''],
+    });
+  }, [open, initialValues, form]);
   return (
     <Modal
       open={open}
