@@ -93,6 +93,7 @@ const BreakTypeSidebar = () => {
         }
         data-cy="time-attendance-settings-break-type-sidebar"
         zIndex={10002}
+        centered
       >
         <Form
           layout="vertical"
