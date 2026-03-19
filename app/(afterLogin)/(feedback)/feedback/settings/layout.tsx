@@ -24,6 +24,7 @@ import {
 } from '@/store/server/features/CFR/recognition/mutation';
 import { useGetRecognitionTypeById } from '@/store/server/features/CFR/recognition/queries';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
+import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 
 const { Title } = Typography;
 
@@ -54,6 +55,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   } = ConversationStore();
   const { setOpenEmployeeSurvey } = EmployeeSurveyStore();
   const { variantType } = ConversationStore();
+  const { setOpen: setMeetingTypeDrawerOpen, setMeetingType } = useMeetingStore();
   const [categoryForm] = Form.useForm();
   const isRecognitionDetailRoute =
     pathname?.includes('/feedback/settings/recognition/') &&
@@ -251,7 +253,10 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                       />
                     }
                     type="primary"
-                    // onClick={showDrawer}
+                    onClick={() => {
+                      setMeetingType(null);
+                      setMeetingTypeDrawerOpen(true);
+                    }}
                     data-cy="org-settings-branches-add-btn"
                     id="org-settings-branches-add-btn"
                   >

@@ -1,26 +1,21 @@
 'use client';
 
-import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { Button, List } from 'antd';
+import { Button, Card, Dropdown, List, MenuProps, Popconfirm } from 'antd';
 import React from 'react';
-import { DeleteOutlined } from '@ant-design/icons';
-import { FaPlus } from 'react-icons/fa';
+import { MoreOutlined } from '@ant-design/icons';
 import MeetingTypeDrawer from './_components/meetingTypeDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
-import { GoPencil } from 'react-icons/go';
 import MeetingTypeDetail from './_components/meetingTypeDetail';
 import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
 import { useDeleteMeetingType } from '@/store/server/features/CFR/meeting/type/mutations';
 import CustomPagination from '@/components/customPagination';
+import { Edit2Icon } from 'lucide-react';
+import { MdDeleteOutline } from 'react-icons/md';
 
 const DefineMeetingType = () => {
   const {
     open,
     setOpen,
-    openDeleteModal,
-    setOpenDeleteModal,
-    deletedId,
-    setDeletedId,
     meetingType,
     setMeetingType,
     meetingTypeDetailData,
@@ -32,18 +27,8 @@ const DefineMeetingType = () => {
   } = useMeetingStore();
 
   // const { mutate: deleteOkrRule } = useDeleteMeetingType();
-  const showDrawer = () => {
-    setOpen(true);
-  };
   const onClose = () => {
     setOpen(false);
-  };
-  const showDeleteModal = (id: string) => {
-    setOpenDeleteModal(true);
-    setDeletedId(id);
-  };
-  const onCloseDeleteModal = () => {
-    setOpenDeleteModal(false);
   };
   const handleEditModal = (value: any) => {
     setMeetingType(value);
@@ -59,151 +44,163 @@ const DefineMeetingType = () => {
     // add other properties if needed
   };
 
-  const { data: meetingTypes = [], isLoading } = useGetMeetingType(
+  const { data: meetingTypes, isLoading } = useGetMeetingType(
     pageSizeType,
     currentType,
   ) as {
-    data: { items: MeetingType[] };
+    data: { items: MeetingType[]; meta: { totalItems: number } };
     isLoading: boolean;
   };
   const { mutate: deleteMeetingType, isLoading: deleteLoading } =
     useDeleteMeetingType();
 
   function handleDeleteMeetingType(id: string) {
-    deleteMeetingType(id, {
-      onSuccess: () => {
-        onCloseDeleteModal();
-      },
-    });
+    deleteMeetingType(id);
   }
   return (
     <>
       {meetingTypeDetailData ? (
         <MeetingTypeDetail data-cy="settings-define-meeting-type-detail" />
       ) : (
-        <div
-          className="p-4 rounded-2xl min-h-screen bg-white h-full "
-          data-cy="settings-define-meeting-type-page"
-          id="settingsDefineMeetingTypePage"
-        >
-          <div
-            className="flex justify-between items-center mb-4"
-            data-cy="settings-define-meeting-type-header"
-            id="settingsDefineMeetingTypeHeader"
-          >
-            <h2
-              className="text-xl font-semibold"
-              data-cy="settings-define-meeting-type-title"
-              id="settingsDefineMeetingTypeTitle"
+        <div className="">
+          {meetingTypes?.items && (
+            <div
+              className="grid grid-cols-12 flex-col-reverse justify-between"
+              data-cy="settings-define-meeting-type-content"
+              id="settingsDefineMeetingTypeContent"
             >
-              Meeting Types
-            </h2>
-            {/* <AccessGuard permissions={[Permissions.CreateMeetingType]}> */}
-            <Button
-              type="primary"
-              className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
-              icon={<FaPlus className="text-xs" />}
-              onClick={showDrawer}
-              data-cy="settings-define-meeting-type-add-button"
-              id="settingsDefineMeetingTypeAddButton"
-            >
-              <span
-                className="hidden md:block "
-                data-cy="settings-define-meeting-type-add-label"
+              <div
+                className="col-span-12 "
+                data-cy="settings-define-meeting-type-tabs-container"
+                id="settingsDefineMeetingTypeTabsContainer"
               >
-                Add New
-              </span>
-            </Button>
-            {/* </AccessGuard> */}
-          </div>
-
-          <List<MeetingType>
-            dataSource={
-              Array.isArray(meetingTypes) ? meetingTypes : meetingTypes?.items
-            }
-            bordered={false}
-            loading={isLoading}
-            renderItem={(item) => (
-              <List.Item
-                className="flex justify-between items-center py-4 px-4 rounded-xl my-3 border border-gray-300 "
-                data-cy={`settings-define-meeting-type-item-${item.id}`}
-                id={`settingsDefineMeetingTypeItem${item.id}`}
-              >
-                <span
-                  onClick={() => handleDetail(item)}
-                  className="cursor-pointer"
-                  data-cy={`settings-define-meeting-type-item-name-${item.id}`}
-                  id={`settingsDefineMeetingTypeItemName${item.id}`}
-                >
-                  {item?.name || 'Unknown title'}
-                </span>
                 <div
-                  data-cy={`settings-define-meeting-type-item-actions-${item.id}`}
-                  id={`settingsDefineMeetingTypeItemActions${item.id}`}
+                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+                  data-cy="settings-define-meeting-type-grid"
                 >
-                  {/* <AccessGuard permissions={[Permissions.UpdateMeetingType]}> */}
-                  <Button
-                    icon={<GoPencil />}
-                    className="mr-2 bg-blue text-white border-none rounded-md h-8"
-                    onClick={() => handleEditModal(item)}
-                    data-cy={`settings-define-meeting-type-item-edit-button-${item.id}`}
-                    id={`settingsDefineMeetingTypeItemEditButton${item.id}`}
-                  />
-                  {/* </AccessGuard> */}
-                  {/* <AccessGuard permissions={[Permissions.DeleteMeetingType]}> */}
-                  <Button
-                    icon={<DeleteOutlined />}
-                    className="mr-2 bg-red-500 text-white border-none rounded-md h-8"
-                    onClick={() => showDeleteModal(item?.id as string)}
-                    data-cy={`settings-define-meeting-type-item-delete-button-${item.id}`}
-                    id={`settingsDefineMeetingTypeItemDeleteButton${item.id}`}
-                  />
-                  {/* </AccessGuard> */}
+                  {meetingTypes?.items?.map((item: any) => (
+                    <Card
+                      key={item?.id}
+                      className="rounded-xl border border-gray-200 shadow-none cursor-pointer hover:border-gray-300 transition-colors"
+                      styles={{ body: { padding: 16 } }}
+                      data-cy={`settings-define-meeting-type-card-${item?.id}`}
+                      onClick={() => {
+                        handleDetail(item);
+                      }}
+                    >
+                      <div
+                        className="flex items-start justify-between gap-3"
+                        data-cy={`settings-define-meeting-type-card-header-${item?.id}`}
+                      >
+                        <div
+                          className="min-w-0"
+                          data-cy={`settings-define-meeting-type-card-title-section-${item?.id}`}
+                        >
+                          <div
+                            className="text-sm font-semibold text-gray-900 truncate"
+                            title={item?.name}
+                            data-cy={`settings-define-meeting-type-card-title-${item?.id}`}
+                          >
+                            {item?.name}
+                          </div>
+                        </div>
+
+                        <div
+                          className="shrink-0"
+                          data-cy={`settings-define-meeting-type-card-actions-wrap-${item?.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          <Dropdown
+                            trigger={['click']}
+                            menu={{
+                              items: [
+                                {
+                                  key: 'edit',
+                                  label: 'Edit',
+                                  icon: (
+                                    <Edit2Icon className="w-4 h-4 text-xs" />
+                                  ),
+                                  onClick: () => {
+                                    handleEditModal(item);
+                                  },
+                                },
+                                {
+                                  key: 'delete',
+                                  label: (
+                                    <Popconfirm
+                                      title="Are you sure you want to delete this meeting type?"
+                                      onConfirm={() => {
+                                        handleDeleteMeetingType(item?.id);
+                                      }}
+                                      okText="Yes"
+                                      cancelText="No"
+                                      okButtonProps={{ loading: deleteLoading }}
+                                      data-cy={`settings-define-meeting-type-card-delete-confirm-${item?.id}`}
+                                      id={`settingsDefineMeetingTypeCardDeleteConfirm${item?.id}`}
+                                    >
+                                      <span
+                                        className="flex items-center gap-2"
+                                        data-cy={`settings-define-meeting-type-card-delete-${item?.id}`}
+                                      >
+                                        <MdDeleteOutline className="w-4 h-4" />
+                                        Delete
+                                      </span>
+                                    </Popconfirm>
+                                  ),
+                                },
+                              ],
+                            }}
+                          >
+                            <Button
+                              type="text"
+                              size="small"
+                              aria-label="DefineMeetingType actions"
+                              icon={<MoreOutlined />}
+                              className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
+                              data-cy={`settings-define-meeting-type-card-actions-${item?.id}`}
+                              id={`settingsDefineMeetingTypeCardActions${item?.id}`}
+                            />
+                          </Dropdown>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
                 </div>
-              </List.Item>
-            )}
-            data-cy="settings-define-meeting-type-list"
-            id="settingsDefineMeetingTypeList"
-          />
-          {Array.isArray(meetingTypes)
-            ? meetingTypes.length > 0
-            : meetingTypes?.items?.length > 0 && (
+              </div>
+              {meetingTypes?.meta && meetingTypes?.items?.length > 0 && (
                 <CustomPagination
-                  current={
-                    (meetingTypes as { meta?: { currentPage?: number } })?.meta
-                      ?.currentPage || 1
-                  }
-                  total={
-                    (meetingTypes as { meta?: { totalItems?: number } })?.meta
-                      ?.totalItems || 1
-                  }
+                  current={currentType}
+                  total={meetingTypes?.meta?.totalItems}
                   pageSize={pageSizeType}
-                  onChange={(page: number, pageSize: number) => {
+                  onChange={(page, size) => {
                     setCurrentType(page);
-                    setPagesizeType(pageSize);
+                    setPagesizeType(size);
                   }}
-                  onShowSizeChange={(size: number) => {
+                  onShowSizeChange={(size) => {
                     setPagesizeType(size);
                     setCurrentType(1);
                   }}
-                  data-cy="settings-define-meeting-type-pagination"
+                  data-cy={`settings-define-meeting-type-pagination`}
                 />
               )}
-
+              {(!meetingTypes?.items || meetingTypes.items.length === 0) &&
+                !isLoading && (
+                  <div
+                    className="col-span-12 flex items-center justify-center py-10 text-gray-500"
+                    data-cy="settings-define-meeting-type-empty-state"
+                    id="settingsDefineMeetingTypeEmptyState"
+                  >
+                    No meeting types found.
+                  </div>
+                )}
+            </div>
+          )}
           <MeetingTypeDrawer
             meetType={meetingType}
             open={open}
             onClose={onClose}
             data-cy="settings-define-meeting-type-drawer"
-          />
-          <DeleteModal
-            open={openDeleteModal}
-            onConfirm={() => {
-              if (deletedId) handleDeleteMeetingType(deletedId);
-            }}
-            onCancel={onCloseDeleteModal}
-            loading={deleteLoading}
-            data-cy="settings-define-meeting-type-delete-modal"
           />
         </div>
       )}
