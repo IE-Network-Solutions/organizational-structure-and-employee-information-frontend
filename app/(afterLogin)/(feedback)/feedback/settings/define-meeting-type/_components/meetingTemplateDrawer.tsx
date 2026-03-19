@@ -1,6 +1,5 @@
 import React from 'react';
-import { Form, Input, Button } from 'antd';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { Form, Input, Button, Modal } from 'antd';
 import { MdClose } from 'react-icons/md';
 
 interface DrawerProps {
@@ -27,56 +26,26 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       form.resetFields();
     }
   }, [initialValues, form]);
-  const footer = (
-    <div
-      className="w-full flex justify-center items-center gap-4 pt-8"
-      data-cy="meeting-template-drawer-footer"
-      id="meetingTemplateDrawerFooter"
-    >
-      <Button
-        type="default"
-        title="Cancel"
-        onClick={() => onClose()}
-        style={{ marginRight: 8 }}
-        loading={loading}
-        className="h-10"
-        data-cy="meeting-template-drawer-cancel-button"
-        id="meetingTemplateDrawerCancelButton"
-      >
-        Cancel
-      </Button>
-      <Button
-        htmlType="submit"
-        type="primary"
-        onClick={() => form.submit()}
-        loading={loading}
-        className="h-10"
-        data-cy="meeting-template-drawer-submit-button"
-        id="meetingTemplateDrawerSubmitButton"
-      >
-        {initialValues ? 'Update' : 'Create'}
-      </Button>
-    </div>
-  );
-
   return (
-    <CustomDrawerLayout
+    <Modal
       open={open}
-      onClose={() => onClose()}
-      modalHeader={
+      onCancel={onClose}
+      footer={null}
+      centered
+      width={720}
+      destroyOnClose
+      bodyStyle={{ maxHeight: '70vh', overflowY: 'auto', paddingTop: 16 }}
+      title={
         <div
-          className="text-center font-bold text-xl"
+          className="text-base md:text-lg font-semibold text-gray-900 text-center"
           data-cy="meeting-template-drawer-header"
           id="meetingTemplateDrawerHeader"
         >
-          {' '}
           {initialValues
             ? 'Update Meeting Template'
             : 'Add New Meeting Template'}
         </div>
       }
-      width="40%"
-      footer={footer}
       data-cy="meeting-template-drawer"
     >
       <Form
@@ -187,6 +156,34 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           )}
         </Form.List>
       </Form>
-    </CustomDrawerLayout>
+      <div
+        className="w-full flex justify-center items-center gap-4 pt-6"
+        data-cy="meeting-template-drawer-footer"
+        id="meetingTemplateDrawerFooter"
+      >
+        <Button
+          type="default"
+          onClick={onClose}
+          style={{ marginRight: 8 }}
+          loading={loading}
+          className="h-10"
+          data-cy="meeting-template-drawer-cancel-button"
+          id="meetingTemplateDrawerCancelButton"
+        >
+          Cancel
+        </Button>
+        <Button
+          htmlType="submit"
+          type="primary"
+          onClick={() => form.submit()}
+          loading={loading}
+          className="h-10"
+          data-cy="meeting-template-drawer-submit-button"
+          id="meetingTemplateDrawerSubmitButton"
+        >
+          {initialValues ? 'Update' : 'Create'}
+        </Button>
+      </div>
+    </Modal>
   );
 };

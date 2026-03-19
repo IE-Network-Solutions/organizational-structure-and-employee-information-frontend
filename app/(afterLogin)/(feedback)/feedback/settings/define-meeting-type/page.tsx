@@ -25,7 +25,6 @@ const DefineMeetingType = () => {
   } = useMeetingStore();
   const router = useRouter();
 
-  // const { mutate: deleteOkrRule } = useDeleteMeetingType();
   const onClose = () => {
     setOpen(false);
   };

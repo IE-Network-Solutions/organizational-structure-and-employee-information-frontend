@@ -10,6 +10,7 @@ import {
   useUpdateMeetingAgendaTemplate,
 } from '@/store/server/features/CFR/meeting/agenda-template/mutations';
 import { useGetMeetingAgendaTemplate } from '@/store/server/features/CFR/meeting/agenda-template/queries';
+import { useRouter } from 'next/navigation';
 
 interface TemplateData {
   id: string;
@@ -21,6 +22,7 @@ interface TemplateData {
 
 const MeetingTypeDetail: React.FC = () => {
   const [form] = Form.useForm();
+  const router = useRouter();
 
   const {
     mutate: createMeetingAgendaTemplate,
@@ -101,10 +103,6 @@ const MeetingTypeDetail: React.FC = () => {
     }
   };
 
-  function handleClose() {
-    setMeetingTypeDetail(null);
-  }
-
   const { data: meetingAgendaTemplate } = useGetMeetingAgendaTemplate(
     meetingTypeDetailData?.id,
   );
@@ -129,7 +127,7 @@ const MeetingTypeDetail: React.FC = () => {
             size="small"
             icon={<ArrowLeftOutlined />}
             className="!h-8 !w-8 !p-0 flex items-center justify-center"
-            onClick={handleClose}
+            onClick={() => router.back()}
             data-cy="meeting-type-detail-back-button"
             aria-label="Back"
           />
