@@ -217,7 +217,7 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
               className={`[&_.slick-dots]:!-bottom-3 [&_.slick-dots_li_button]:!h-1.5 [&_.slick-dots_li_button]:!w-1.5 [&_.slick-dots_li.slick-active_button]:!w-2 ${totalCards > 1 ? '[&_.slick-slide]:!px-7' : ''}`}
             >
               {people.map((person, index) => (
-                <div key={index}>
+                <div key={index} data-cy={`dashboard-card-list-slide-${index}`}>
                   <PersonSlide person={person} slideIndex={index} />
                 </div>
               ))}

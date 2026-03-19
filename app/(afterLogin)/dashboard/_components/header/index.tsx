@@ -107,7 +107,6 @@ const Header = () => {
   const onDetail = () => {
     router.push(`/dashboard/vp`);
   };
-  console.log(objectiveDashboard, 'isLoading');
   return (
     <>
       <div
@@ -275,7 +274,10 @@ const Header = () => {
             className="flex items-center justify-between"
             data-cy="okr-card-appreciation-header"
           >
-            <div className="grid grid-cols-12 items-center gap-2">
+            <div
+              className="grid grid-cols-12 items-center gap-2"
+              data-cy="okr-card-appreciation-title-grid"
+            >
               <div
                 className="col-span-4 rounded-xl bg-[#F6FFED] flex items-center justify-center w-10 h-10"
                 data-cy="okr-card-appreciation-icon-container"
@@ -304,14 +306,19 @@ const Header = () => {
                   width: `${appreciationStats.length * 100}%`,
                   transform: `translateX(-${slidePercent(appreciationIndex, appreciationStats.length)}%)`,
                 }}
+                data-cy="okr-card-appreciation-value-slider"
               >
                 {appreciationStats.map((stat) => (
                   <div
                     key={stat.id}
                     className="flex shrink-0 items-center justify-end tabular-nums"
                     style={{ width: `${100 / appreciationStats.length}%` }}
+                    data-cy={`okr-card-appreciation-value-slide-${stat.id}`}
                   >
-                    <span className="font-semibold text-[27px] leading-none tracking-normal text-gray-900">
+                    <span
+                      className="font-semibold text-[27px] leading-none tracking-normal text-gray-900"
+                      data-cy={`okr-card-appreciation-value-${stat.id}`}
+                    >
                       {stat.value}
                     </span>
                   </div>
@@ -336,6 +343,7 @@ const Header = () => {
                   key={stat.id}
                   className="flex shrink-0 items-center justify-between text-xs mt-6"
                   style={{ width: `${100 / appreciationStats.length}%` }}
+                  data-cy={`okr-card-appreciation-trend-slide-${stat.id}`}
                 >
                   <span
                     className="text-gray-500"
@@ -382,7 +390,10 @@ const Header = () => {
             className="flex items-center justify-between"
             data-cy="okr-card-reprimand-header"
           >
-            <div className="grid grid-cols-12 items-center gap-2">
+            <div
+              className="grid grid-cols-12 items-center gap-2"
+              data-cy="okr-card-reprimand-title-grid"
+            >
               <div
                 className="col-span-4 rounded-xl bg-[#FFF2F0] flex items-center justify-center max-w-10 max-h-10 w-10 h-10"
                 data-cy="okr-card-reprimand-icon-container"
@@ -411,14 +422,19 @@ const Header = () => {
                   width: `${reprimandStats.length * 100}%`,
                   transform: `translateX(-${slidePercent(reprimandIndex, reprimandStats.length)}%)`,
                 }}
+                data-cy="okr-card-reprimand-value-slider"
               >
                 {reprimandStats.map((stat) => (
                   <div
                     key={stat.id}
                     className="flex shrink-0 items-center justify-end tabular-nums"
                     style={{ width: `${100 / reprimandStats.length}%` }}
+                    data-cy={`okr-card-reprimand-value-slide-${stat.id}`}
                   >
-                    <span className="font-semibold text-[27px] leading-none tracking-normal text-gray-900">
+                    <span
+                      className="font-semibold text-[27px] leading-none tracking-normal text-gray-900"
+                      data-cy={`okr-card-reprimand-value-${stat.id}`}
+                    >
                       {stat.value}
                     </span>
                   </div>
@@ -443,6 +459,7 @@ const Header = () => {
                   key={stat.id}
                   className="flex shrink-0 items-center justify-between text-xs mt-6"
                   style={{ width: `${100 / reprimandStats.length}%` }}
+                  data-cy={`okr-card-reprimand-trend-slide-${stat.id}`}
                 >
                   <span
                     className="text-gray-500"

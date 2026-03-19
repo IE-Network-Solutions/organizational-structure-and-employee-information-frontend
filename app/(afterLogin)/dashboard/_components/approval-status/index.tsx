@@ -8,7 +8,6 @@ import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/le
 import { useDashboardApprovalStore } from '@/store/uistate/features/dashboard/approval';
 import { useGetBranchTransferApproveById } from '@/store/server/features/employees/approval/queries';
 import MyLeaveRequestDashboard from '../my-leave-request';
-import { MdOutlineAssignmentInd, MdOutlineGroups } from 'react-icons/md';
 
 const ApprovalStatus: FC = () => {
   const { userId } = useAuthenticationStore();
@@ -114,7 +113,10 @@ const ApprovalStatus: FC = () => {
               loading={isLoadingBranchTransfer}
               data-cy="dashboard-approval-status-branch-transfer-card"
             >
-              <div style={{ height: 250 }} />
+              <div
+                style={{ height: 250 }}
+                data-cy="dashboard-approval-status-branch-transfer-loading-placeholder"
+              />
             </Card>
           ) : BranchTransferData?.items?.length ? (
             <Card
@@ -162,7 +164,10 @@ const ApprovalStatus: FC = () => {
               loading={isLoadingLeaveTransfer}
               data-cy="dashboard-approval-status-leave-card"
             >
-              <div style={{ height: 250 }} />
+              <div
+                style={{ height: 250 }}
+                data-cy="dashboard-approval-status-leave-loading-placeholder"
+              />
             </Card>
           ) : LeaveTransferData?.items?.length ? (
             <Card

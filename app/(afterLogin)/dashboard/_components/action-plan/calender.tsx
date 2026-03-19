@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { BadgeProps, CalendarProps } from 'antd';
-import { Badge, Calendar, Drawer, Radio, Select, Tooltip } from 'antd';
+import { Badge, Calendar, Drawer, Radio, Select } from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { useRouter } from 'next/navigation';
@@ -353,7 +353,10 @@ const Calender = () => {
         classNames={{ body: '!pt-2' }}
         data-cy="calendar-mobile-schedule-sheet"
       >
-        <ul className="m-0 list-none space-y-3 p-0 pb-4">
+        <ul
+          className="m-0 list-none space-y-3 p-0 pb-4"
+          data-cy="calendar-mobile-schedule-list"
+        >
           {mobileSheetItems.map((item) => {
             const canNavigate =
               item.category === 'actionPlans' ||
@@ -361,7 +364,10 @@ const Calender = () => {
               (item.category === 'surveys' && item.routeId);
             const label = MOBILE_CATEGORY_LABEL[item.category];
             return (
-              <li key={`${item.category}-${item.routeId ?? ''}`}>
+              <li
+                key={`${item.category}-${item.routeId ?? ''}`}
+                data-cy={`calendar-mobile-schedule-item-${item.category}`}
+              >
                 <button
                   type="button"
                   disabled={!canNavigate}
@@ -376,8 +382,12 @@ const Calender = () => {
                   <span
                     className={`inline-block h-3 w-3 shrink-0 rounded-full ${MOBILE_CATEGORY_DOT[item.category]}`}
                     aria-hidden
+                    data-cy="calendar-mobile-category-dot"
                   />
-                  <span className="flex-1 text-sm font-medium text-gray-900">
+                  <span
+                    className="flex-1 text-sm font-medium text-gray-900"
+                    data-cy="calendar-mobile-category-label"
+                  >
                     {label}
                   </span>
                   {item.category === 'meetings' && item.timeLabel ? (

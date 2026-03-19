@@ -198,7 +198,10 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             className="flex items-center justify-between gap-2"
             data-cy="approval-status-card-top-row"
           >
-            <div className="flex items-center gap-1">
+            <div
+              className="flex items-center gap-1"
+              data-cy="approval-status-card-employee-names"
+            >
               <p
                 className="font-semibold text-xs text-gray-900 truncate"
                 data-cy="approval-status-card-employee-name"
@@ -279,9 +282,14 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           description="Are you sure you want to approve this leave request ?"
           placement="bottomRight"
           title={
-            <span className="flex items-center gap-1">
+            <span
+              className="flex items-center gap-1"
+              data-cy="approval-status-card-approve-popconfirm-title"
+            >
               <CheckCircleFilled className="text-[#52C41A]" />
-              <span>Approve</span>
+              <span data-cy="approval-status-card-approve-popconfirm-title-text">
+                Approve
+              </span>
             </span>
           }
           onConfirm={() => {
@@ -328,9 +336,14 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
         <Popconfirm
           icon={null}
           title={
-            <span className="flex items-center gap-1">
+            <span
+              className="flex items-center gap-1"
+              data-cy="approval-status-card-decline-popconfirm-title"
+            >
               <CloseCircleFilled className="text-[#FF4D4F]" />
-              <span>Decline</span>
+              <span data-cy="approval-status-card-decline-popconfirm-title-text">
+                Decline
+              </span>
             </span>
           }
           placement="bottomRight"
