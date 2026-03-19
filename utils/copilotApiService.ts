@@ -71,6 +71,10 @@ export function normalizeCopilotError(error: unknown): string {
 
 // Returns the full Azure App Service URL for copilot from constants (env variable)
 const getCopilotUrl = () => AZURE_APP_SERVICE || '';
+// Backend mounts /copilot as the app; main chat is POST /copilot, export is POST /copilot/export
+// AZURE_APP_SERVICE already points to ".../copilot", so we just append "/export".
+const getCopilotExportUrl = () =>
+  `${(AZURE_APP_SERVICE || '').replace(/\/+$/, '')}/export`;
 
 interface CopilotChatRequest {
   prompt: string;
@@ -90,6 +94,17 @@ interface CopilotChatResponse {
     objectiveTitles?: string[];
     [key: string]: any;
   };
+  /**
+   * Rendering hint from backend:
+   * - "table"   → show data.table as a table
+   * - "summary" → show answer as narrative text
+   * - "list"    → show list-style data
+   */
+  responseType?: 'table' | 'summary' | 'list';
+  /**
+   * Optional URL for Excel export when tabular data is available.
+   */
+  exportUrl?: string | null;
   intent?: string;
   error?: string;
   backend_errors?: string[];
@@ -116,6 +131,15 @@ export interface NormalizedCopilotResponse {
   rawData?: unknown;
   intent?: string;
   answerForMetadata?: string;
+  /**
+   * Rendering hint from backend: "table" | "summary" | "list"
+   */
+  responseType?: 'table' | 'summary' | 'list';
+  /**
+   * Optional URL for Excel export when available.
+   * For now, export is triggered client-side using the table snapshot.
+   */
+  exportUrl?: string | null;
 }
 
 /**
@@ -143,6 +167,14 @@ export function normalizeCopilotResponse(
   const answer = String(p.answer ?? p.response ?? '').trim();
   const data = p.data;
   const intent = typeof p.intent === 'string' ? p.intent : undefined;
+  const responseType =
+    typeof p.responseType === 'string'
+      ? (p.responseType as 'table' | 'summary' | 'list')
+      : undefined;
+  const exportUrl =
+    typeof p.exportUrl === 'string' || p.exportUrl === null
+      ? (p.exportUrl as string | null)
+      : undefined;
   const backendErrors = Array.isArray(p.backend_errors)
     ? (p.backend_errors as string[]).filter(
         (e): e is string => typeof e === 'string',
@@ -198,11 +230,17 @@ export function normalizeCopilotResponse(
     if (tableData.columns.length === 0) tableData = undefined;
   }
 
-  const displayText = tableData
-    ? ''
-    : hasMeaningfulAnswer
-      ? answer
-      : COPILOT_ERROR_MESSAGES.NO_DATA;
+  // When user asked for summary, always surface the answer as main text even if table exists
+  const displayText =
+    responseType === 'summary'
+      ? hasMeaningfulAnswer
+        ? answer
+        : COPILOT_ERROR_MESSAGES.NO_DATA
+      : tableData
+        ? ''
+        : hasMeaningfulAnswer
+          ? answer
+          : COPILOT_ERROR_MESSAGES.NO_DATA;
 
   return {
     success: true,
@@ -211,6 +249,8 @@ export function normalizeCopilotResponse(
     rawData: dataObj,
     intent,
     answerForMetadata: answer || undefined,
+    responseType,
+    exportUrl,
   };
 }
 
@@ -235,6 +275,45 @@ export function parseCopilotResponse(responseText: string): {
       parseError: looksLikeJson,
     };
   }
+}
+
+/**
+ * Triggers an Excel export for a given Copilot table by calling the backend /copilot/export endpoint
+ * and downloading the returned .xlsx file.
+ */
+export async function exportCopilotTableToExcel(
+  tableData: CopilotTableData,
+): Promise<void> {
+  const exportUrl = getCopilotExportUrl();
+  if (!exportUrl) {
+    // Fail silently; UI can choose to hide the button when no backend URL is configured.
+    return;
+  }
+
+  const response = await axios.post<ArrayBuffer>(
+    exportUrl,
+    { table: tableData },
+    {
+      responseType: 'arraybuffer',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+
+  const blob = new Blob([response.data], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  const baseName =
+    (tableData.title && tableData.title.trim()) || 'copilot_report';
+  link.href = url;
+  link.download = `${baseName.replace(/\s+/g, '_')}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }
 
 /**
@@ -318,14 +397,17 @@ export const sendCopilotChatRequest = async (
       },
     );
 
-    // Return the full response object so frontend can access table data and error status
+    // Return the full response object so frontend can access format hints,
+    // table data, and error status.
     return JSON.stringify({
       success: response.data.success !== false, // Default to true if not explicitly false
       answer: response.data.answer || 'No response received',
       data: response.data.data, // Includes data.table for table-capable intents
+      responseType: response.data.responseType || null,
+      exportUrl: response.data.exportUrl || null,
       intent: response.data.intent,
       error: response.data.error || null,
-      backendErrors: response.data.backend_errors || null,
+      backend_errors: response.data.backend_errors || null,
     });
   } catch (error) {
     if (axios.isAxiosError(error) && error.code === 'ERR_CANCELED') {
