@@ -68,9 +68,23 @@ const Filters: React.FC<FiltersProps> = () => {
               style={{ height: '40px' }}
               placeholder="Search Employee"
               suffixIcon={
-                <SearchOutlined
-                  style={{ color: '#bfbfbf', fontSize: '18px' }}
-                />
+                <div
+                  id="payroll-mobile-employee-search-suffix-icon-container"
+                  data-cy="payroll-mobile-employee-search-suffix-icon-container"
+                  style={{
+                    borderLeft: '1px solid #d9d9d9',
+                    paddingLeft: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    height: '40px',
+                    margin: '-8px 0',
+                    marginLeft: '-4px',
+                  }}
+                >
+                  <SearchOutlined
+                    style={{ color: '#bfbfbf', fontSize: '18px' }}
+                  />
+                </div>
               }
               onChange={(value) => handleEmployeeSelect(value)}
               filterOption={(input, option) => {
@@ -117,6 +131,24 @@ const Filters: React.FC<FiltersProps> = () => {
             }
             .search-select-mobile .ant-select-selection-placeholder {
               line-height: 38px !important;
+            }
+          `}</style>
+          <style jsx global data-cy="payroll-mobile-dropdown-custom-styles">{`
+            .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+              background-color: #e6f4ff !important;
+              font-weight: 600 !important;
+              color: #262626 !important;
+            }
+            .ant-select-item-option-active:not(.ant-select-item-option-selected) {
+              background-color: transparent !important;
+            }
+            .ant-select-item-option-selected .ant-select-item-option-state {
+              color: #1677ff !important;
+              position: absolute !important;
+              right: 12px !important;
+            }
+            .ant-select-item-option-content {
+              padding-right: 30px !important;
             }
           `}</style>
         </div>
@@ -189,6 +221,25 @@ const Filters: React.FC<FiltersProps> = () => {
       id="payroll-desktop-filter-view-container"
       data-cy="payroll-desktop-filter-view-container"
     >
+      <style jsx global data-cy="payroll-desktop-dropdown-custom-styles">{`
+        .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+          background-color: #e6f4ff !important;
+          font-weight: 600 !important;
+          color: #262626 !important;
+        }
+        .ant-select-item-option-active:not(.ant-select-item-option-selected) {
+          background-color: transparent !important;
+        }
+        .ant-select-item-option-selected .ant-select-item-option-state {
+          color: #1677ff !important;
+          position: absolute !important;
+          right: 12px !important;
+        }
+        /* Ensure content doesn't overlap the absolute check icon */
+        .ant-select-item-option-content {
+          padding-right: 30px !important;
+        }
+      `}</style>
       <Row
         id="payroll-desktop-filter-row-view-row"
         data-cy="payroll-desktop-filter-row-view-row"
@@ -200,7 +251,7 @@ const Filters: React.FC<FiltersProps> = () => {
         <Col
           id="payroll-desktop-filter-employee-view-column"
           data-cy="payroll-desktop-filter-employee-view-column"
-          lg={12}
+          lg={6}
           md={12}
           sm={24}
           xs={24}
@@ -211,10 +262,26 @@ const Filters: React.FC<FiltersProps> = () => {
             showSearch
             allowClear
             className="w-full"
-            style={{ borderRadius: '4px' }}
+            style={{ borderRadius: '8px' }}
             placeholder="Search Employee"
             suffixIcon={
-              <SearchOutlined style={{ color: '#bfbfbf', fontSize: '16px' }} />
+              <div
+                id="payroll-desktop-employee-search-suffix-icon-container"
+                data-cy="payroll-desktop-employee-search-suffix-icon-container"
+                style={{
+                  borderLeft: '1px solid #d9d9d9',
+                  paddingLeft: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  height: '40px',
+                  margin: '-12px 0',
+                  marginLeft: '-8px',
+                }}
+              >
+                <SearchOutlined
+                  style={{ color: '#bfbfbf', fontSize: '18px' }}
+                />
+              </div>
             }
             onChange={(value) => handleEmployeeSelect(value)}
             size="large"

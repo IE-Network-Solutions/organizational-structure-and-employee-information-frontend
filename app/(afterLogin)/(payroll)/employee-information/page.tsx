@@ -192,7 +192,7 @@ const EmployeeInformation = () => {
       title: 'Job Information',
       dataIndex: 'job',
       key: 'job',
-      width: 400,
+      width: 250,
       render: (text: string) => (
         <Text
           style={{ fontSize: '14px', color: '#595959', whiteSpace: 'nowrap' }}
@@ -405,9 +405,9 @@ const EmployeeInformation = () => {
         
         .ant-table-thead > tr > th {
           background-color: #fafafa !important;
-          color: #8c8c8c !important;
-          font-weight: 500 !important;
-          font-size: 13px !important;
+          color: #595959 !important;
+          font-weight: 600 !important;
+          font-size: 14px !important;
           border-bottom: 1px solid #f0f0f0 !important;
         }
 

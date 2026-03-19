@@ -14,7 +14,7 @@ import {
   Progress,
   Pagination,
 } from 'antd';
-import { PrinterOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { PrinterOutlined, ArrowLeftOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useEffect, useRef, useMemo, useState } from 'react';
 import {
   useGetActivePayroll,
@@ -1133,22 +1133,38 @@ const EmployeeProfile = () => {
       data-cy="payroll-employee-profile-view-container"
     >
       {/* Header & Breadcrumbs */}
-      <div className="mb-4" data-cy="payroll-employee-detail-header">
-        <Space align="center" style={{ marginBottom: '4px' }}>
-          <Button
-            type="text"
-            icon={<ArrowLeftOutlined />}
-            onClick={() => router.back()}
-            style={{ fontSize: '18px', color: '#8c8c8c' }}
-          />
-          <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+      <div 
+        className="mb-4" 
+        data-cy="payroll-employee-detail-header"
+        style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}
+      >
+        <Button
+          icon={<ArrowLeftOutlined style={{ fontSize: '14px' }} />}
+          onClick={() => router.back()}
+          style={{
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '6px',
+            border: '1px solid #d9d9d9',
+            padding: 0,
+            color: '#595959',
+            backgroundColor: '#fff',
+            flexShrink: 0,
+          }}
+        />
+        <div 
+          style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+          data-cy="payroll-employee-detail-title-group"
+        >
+          <Title level={4} style={{ margin: 0, fontWeight: 600, fontSize: '20px', lineHeight: '1.2' }}>
             Employee Payroll Detail
           </Title>
-        </Space>
-        <div style={{ marginLeft: '40px' }} data-cy="payroll-employee-detail-breadcrumb-wrapper">
-          <Text type="secondary" style={{ fontSize: '13px' }}>
+          <Text type="secondary" style={{ fontSize: '13px', color: '#8c8c8c' }}>
             Employee /{' '}
-            <Text strong style={{ fontSize: '13px', color: '#595959' }}>
+            <Text strong style={{ fontSize: '13px', color: '#595959', fontWeight: 500 }}>
               Employee Payroll Information
             </Text>
           </Text>
@@ -1174,17 +1190,18 @@ const EmployeeProfile = () => {
         ) : (
           <>
             <Space
-              size={20}
-              style={{ marginBottom: '16px', display: 'flex' }}
+              size={14}
+              style={{ marginBottom: '28px', display: 'flex' }}
               align="center"
             >
               <Avatar
-                size={60}
+                size={56}
                 src={
                   profileFileList.length > 0
                     ? getImageUrl(profileFileList)
                     : employee?.profileImage
                 }
+                icon={<UserOutlined />}
                 style={{ border: '1px solid #f0f0f0' }}
               />
               <div
@@ -1193,9 +1210,10 @@ const EmployeeProfile = () => {
               >
                 <Text
                   style={{
-                    fontSize: '15px',
-                    color: '#434343',
+                    fontSize: '16px',
+                    color: '#262626',
                     fontWeight: 600,
+                    lineHeight: '1.2'
                   }}
                 >
                   {[
@@ -1206,15 +1224,18 @@ const EmployeeProfile = () => {
                     .filter(Boolean)
                     .join(' ')}
                 </Text>
-                <Text style={{ fontSize: '13px', color: '#bfbfbf' }}>
+                <Text style={{ fontSize: '13px', color: '#8c8c8c' }}>
                   {employee?.email}
                 </Text>
               </div>
             </Space>
 
-            <Row gutter={[16, 16]}>
+            <Row gutter={[0, 16]} style={{ paddingLeft: '28px' }}>
               <Col xs={12} sm={6}>
-                <div data-cy="payroll-employee-detail-joined-date-wrapper">
+                <div 
+                  data-cy="payroll-employee-detail-joined-date-wrapper"
+                  style={{ paddingRight: '24px' }}
+                >
                   <Text
                     style={{
                       fontSize: '12px',
@@ -1227,9 +1248,10 @@ const EmployeeProfile = () => {
                   </Text>
                   <Text
                     style={{
-                      fontSize: '15px',
-                      color: '#595959',
+                      fontSize: '14px',
+                      color: '#434343',
                       display: 'block',
+                      fontWeight: 500,
                     }}
                   >
                     {employee?.employeeInformation?.joinedDate
@@ -1240,43 +1262,14 @@ const EmployeeProfile = () => {
                   </Text>
                 </div>
               </Col>
+              
               <Col
                 xs={12}
                 sm={6}
                 style={{
-                  borderLeft: isMobile ? 'none' : '1px solid #f0f0f0',
-                  paddingLeft: isMobile ? '0' : '32px',
-                }}
-              >
-                <div data-cy="payroll-employee-detail-service-year-wrapper">
-                  <Text
-                    style={{
-                      fontSize: '12px',
-                      color: '#bfbfbf',
-                      display: 'block',
-                      marginBottom: '4px',
-                    }}
-                  >
-                    Service Year
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: '15px',
-                      color: '#595959',
-                      display: 'block',
-                    }}
-                  >
-                    {serviceYear}
-                  </Text>
-                </div>
-              </Col>
-              <Col
-                xs={12}
-                sm={6}
-                style={{
-                  borderLeft: isMobile ? 'none' : 'none', // Reset for wrapping
-                  paddingLeft: isMobile ? '0' : '0',
-                  marginTop: isMobile ? '16px' : '0',
+                  borderLeft: '1px solid #f0f0f0',
+                  paddingLeft: '32px',
+                  paddingRight: '24px'
                 }}
               >
                 <div data-cy="payroll-employee-detail-address-wrapper">
@@ -1292,22 +1285,56 @@ const EmployeeProfile = () => {
                   </Text>
                   <Text
                     style={{
-                      fontSize: '15px',
-                      color: '#595959',
+                      fontSize: '14px',
+                      color: '#434343',
                       display: 'block',
+                      fontWeight: 500,
                     }}
                   >
                     {formattedAddress}
                   </Text>
                 </div>
               </Col>
+
               <Col
                 xs={12}
                 sm={6}
                 style={{
-                  borderLeft: isMobile ? 'none' : '1px solid #f0f0f0',
-                  paddingLeft: isMobile ? '0' : '32px',
-                  marginTop: isMobile ? '16px' : '0',
+                  borderLeft: '1px solid #f0f0f0',
+                  paddingLeft: '32px',
+                  paddingRight: '24px'
+                }}
+              >
+                <div data-cy="payroll-employee-detail-service-year-wrapper">
+                  <Text
+                    style={{
+                      fontSize: '12px',
+                      color: '#bfbfbf',
+                      display: 'block',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Service Year
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: '14px',
+                      color: '#434343',
+                      display: 'block',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {serviceYear}
+                  </Text>
+                </div>
+              </Col>
+
+              <Col
+                xs={12}
+                sm={6}
+                style={{
+                  borderLeft: '1px solid #f0f0f0',
+                  paddingLeft: '32px',
                 }}
               >
                 <div data-cy="payroll-employee-detail-office-wrapper">
@@ -1322,12 +1349,11 @@ const EmployeeProfile = () => {
                     Office
                   </Text>
                   <Text
-                    strong
                     style={{
-                      fontSize: '15px',
-                      color: '#595959',
+                      fontSize: '14px',
+                      color: '#434343',
                       display: 'block',
-                      fontWeight: 600,
+                      fontWeight: 500,
                     }}
                   >
                     {employee?.employeeJobInformation?.find(
