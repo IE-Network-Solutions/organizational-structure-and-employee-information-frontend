@@ -205,22 +205,6 @@ const DefineMeetingType = () => {
             loading={deleteLoading}
             data-cy="settings-define-meeting-type-delete-modal"
           />
-
-          <MeetingTypeDrawer
-            meetType={meetingType}
-            open={open}
-            onClose={onClose}
-            data-cy="settings-define-meeting-type-drawer"
-          />
-          <DeleteModal
-            open={openDeleteModal}
-            onConfirm={() => {
-              if (deletedId) handleDeleteMeetingType(deletedId);
-            }}
-            onCancel={onCloseDeleteModal}
-            loading={deleteLoading}
-            data-cy="settings-define-meeting-type-delete-modal"
-          />
         </div>
       )}
     </>
