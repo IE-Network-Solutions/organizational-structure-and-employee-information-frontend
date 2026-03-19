@@ -169,7 +169,8 @@ const MeetingTypeDetail: React.FC = () => {
               data-cy="meeting-type-detail-subtitle"
               id="meetingTypeDetailSubtitle"
             >
-              Meeting type templates and agendas
+              {meetingTypeDetailData?.description ||
+                'Meeting type templates and agendas'}
             </div>
           </div>
         </div>

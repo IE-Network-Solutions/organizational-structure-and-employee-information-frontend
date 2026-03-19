@@ -29,11 +29,19 @@ const MeetingTypeDetailPage = () => {
       meetingTypeData?.data?.name ||
       '';
 
+    const description = meetingTypeData?.description || '';
+
     setMeetingTypeDetail({
       id: meetingTypeId,
       name,
+      description,
     });
-  }, [meetingTypeId, meetingTypeData, meetingNameFromQuery, setMeetingTypeDetail]);
+  }, [
+    meetingTypeId,
+    meetingTypeData,
+    meetingNameFromQuery,
+    setMeetingTypeDetail,
+  ]);
 
   if (!meetingTypeId) {
     router.push('/feedback/settings/define-meeting-type');
@@ -48,4 +56,3 @@ const MeetingTypeDetailPage = () => {
 };
 
 export default MeetingTypeDetailPage;
-
