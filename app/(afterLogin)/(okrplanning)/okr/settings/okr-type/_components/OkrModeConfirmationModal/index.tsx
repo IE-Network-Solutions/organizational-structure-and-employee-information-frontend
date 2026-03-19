@@ -22,21 +22,8 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
   const isBasicToAdvanced = transitionDirection === 'BasicToAdvanced';
 
   const title = isBasicToAdvanced
-    ? 'Switching to Advanced Mode?'
-    : 'Switching to Basic Mode?';
-
-  const messages = isBasicToAdvanced
-    ? [
-        'All existing Objectives and Key Results remain intact.',
-        'Done / Not Done KRs will be mapped to Achieved / Not Achieved.',
-        'Advanced metrics (Numeric, Percentage, Currency, Weights) will be available.',
-      ]
-    : [
-        'All existing Objectives and Key Results remain intact.',
-        'Fully achieved KRs and milestones will be marked Done.',
-        'Partially completed or Not Achieved KRs will be marked Not Done.',
-        'Advanced metrics and milestone details will not be available.',
-      ];
+    ? 'Change to Advanced OKR'
+    : 'Change to Basic OKR';
 
   return (
     <Modal
@@ -44,68 +31,109 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
       onCancel={onCancel}
       footer={null}
       centered
-      width={500}
+      width={650}
       closable={!loading}
+      closeIcon={<CloseOutlined className="text-[#8c8c8c]" />}
       maskClosable={!loading}
       data-cy="okr-mode-confirmation-modal"
     >
-      <div
-        className="py-4"
-        data-cy="okr-mode-confirmation-modal-content"
-        id="okr-mode-confirmation-modal-content"
-      >
+      <div className="py-2" data-cy="okr-mode-confirmation-modal-content">
+        {/* Header with Icon */}
         <div
-          className="flex items-start gap-4 mb-6"
+          className="flex items-center gap-3 mb-6"
           data-cy="okr-mode-confirmation-modal-header"
-          id="okr-mode-confirmation-modal-header"
         >
-          <ExclamationCircleOutlined
-            className="text-yellow-500 text-2xl mt-1"
-            data-cy="okr-mode-confirmation-modal-warning-icon"
-            id="okr-mode-confirmation-modal-warning-icon"
+          <WarningFilled
+            className="text-[#faad14] text-[24px]"
+            data-cy="okr-mode-confirmation-modal-icon"
           />
-          <div
-            className="flex-1"
-            data-cy="okr-mode-confirmation-modal-text-container"
-            id="okr-mode-confirmation-modal-text-container"
+          <h3
+            className="text-[20px] font-bold text-[#262626] m-0 leading-none"
+            data-cy="okr-mode-confirmation-modal-title"
           >
-            <h3
-              className="text-lg font-semibold text-gray-900 mb-4"
-              data-cy="okr-mode-confirmation-modal-title"
-              id="okr-mode-confirmation-modal-title"
-            >
-              {title}
-            </h3>
-            <ul
-              className="space-y-2"
-              data-cy="okr-mode-confirmation-modal-messages-list"
-              id="okr-mode-confirmation-modal-messages-list"
-            >
-              {messages.map((message, index) => (
-                <li
-                  key={index}
-                  className="text-sm text-gray-700 flex items-start gap-2"
-                  data-cy={`okr-mode-confirmation-modal-message-${index}`}
-                  id={`okr-mode-confirmation-modal-message-${index}`}
-                >
-                  <span
-                    className="text-gray-400 mt-1"
-                    data-cy={`okr-mode-confirmation-modal-bullet-${index}`}
-                    id={`okr-mode-confirmation-modal-bullet-${index}`}
-                  >
-                    •
-                  </span>
-                  <span
-                    data-cy={`okr-mode-confirmation-modal-message-text-${index}`}
-                    id={`okr-mode-confirmation-modal-message-text-${index}`}
-                  >
-                    {message}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {title}
+          </h3>
         </div>
+
+        {/* Content Section */}
+        <div
+          className="space-y-6 mb-8 pr-4"
+          data-cy="okr-mode-confirmation-modal-content-section"
+        >
+          {isBasicToAdvanced ? (
+            <>
+              <p
+                className="text-[16px] text-[#595959] leading-[1.6]"
+                data-cy="okr-mode-confirmation-modal-basic-to-advanced-p1"
+              >
+                You are about to switch to Advanced OKR. All Key Results will
+                enter Advanced mode while still being Achieved / Not Achieved
+                metrics.
+              </p>
+              <p
+                className="text-[16px] text-[#595959] leading-[1.6]"
+                data-cy="okr-mode-confirmation-modal-basic-to-advanced-p2"
+              >
+                If a Key Result previously used Advanced metrics, its
+                configuration and progress history will be{' '}
+                <span
+                  className="font-bold text-[#262626]"
+                  data-cy="okr-mode-confirmation-modal-restoration-text"
+                >
+                  available for restoration
+                </span>
+                . You may also assign new metrics (
+                <span
+                  className="font-bold text-[#262626]"
+                  data-cy="okr-mode-confirmation-modal-metrics-text"
+                >
+                  Numeric, Percentage, Milestone, Currency, Done / Not Done
+                </span>
+                ) to existing Key Results.
+              </p>
+            </>
+          ) : (
+            <>
+              <p
+                className="text-[16px] font-bold text-[#595959] leading-[1.6]"
+                data-cy="okr-mode-confirmation-modal-advanced-to-basic-p1"
+              >
+                Please review your Objectives and Key Results before switching
+                to Basic OKR.
+              </p>
+              <p
+                className="text-[16px] text-[#595959] leading-[1.6]"
+                data-cy="okr-mode-confirmation-modal-advanced-to-basic-p2"
+              >
+                Switching to Basic OKR will convert all Key Results to{' '}
+                <span
+                  className="font-bold text-[#262626]"
+                  data-cy="okr-mode-confirmation-modal-achieved-text"
+                >
+                  Achieved / Not Achieved
+                </span>
+                . Metric types, targets, milestones, weights, and progress
+                percentages will be disabled. Your previous Advanced metric
+                configurations and progress history will be safely stored and{' '}
+                <span
+                  className="font-bold text-[#262626]"
+                  data-cy="okr-mode-confirmation-modal-restore-text"
+                >
+                  can be restored
+                </span>{' '}
+                if you switch back to Advanced mode.
+              </p>
+            </>
+          )}
+          <p
+            className="text-[16px] font-bold text-[#595959]"
+            data-cy="okr-mode-confirmation-modal-question"
+          >
+            Do you wish to continue with this process ?
+          </p>
+        </div>
+
+        {/* Action Buttons */}
         <div
           className="flex justify-end gap-3"
           data-cy="okr-mode-confirmation-modal-actions"
@@ -132,6 +160,17 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
           </Button>
         </div>
       </div>
+
+      <style jsx global data-cy="okr-mode-confirmation-modal-styles">{`
+        .ant-modal-content {
+          border-radius: 12px !important;
+          padding: 32px !important;
+        }
+        .ant-modal-close {
+          top: 24px !important;
+          right: 24px !important;
+        }
+      `}</style>
     </Modal>
   );
 };

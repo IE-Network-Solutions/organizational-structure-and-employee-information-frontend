@@ -9,25 +9,17 @@ import {
   useGetCriteriaTargets,
 } from '@/store/server/features/okrplanning/okr/criteria/queries';
 import { useDeleteVpScoring } from '@/store/server/features/okrplanning/okr/criteria/mutation';
-import DeletePopover from '@/components/common/actionButton/deletePopover';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-
-interface AssignedCriteriaRecord {
-  key: string;
-  name: string;
-  totalPercentage: string;
-  criteriaCount: number;
-  types: string[];
-}
+import { EllipsisOutlined } from '@ant-design/icons';
+import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 
 function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
 
   const { openDrawer } = useDrawerStore();
-  const { data: criteriaData, isLoading: criteriaLoading } =
-    useGetCriteriaTargets();
+  const { data: criteriaData } = useGetCriteriaTargets();
   const { data: vpScoringData, isLoading: vpScoringLoading } =
     useFetchVpScoring();
   const { mutate: deleteVpScoring } = useDeleteVpScoring();
@@ -45,23 +37,6 @@ function Page() {
   const criteriaTypes: string[] = (criteriaData?.items || []).map(
     (item: any) => item.name,
   );
-
-  const availableCriteriaData = criteriaData?.items
-    ?.map((item: any) => ({
-      key: item.id,
-      name: item.name,
-      description: item.description,
-      sourceService: item.sourceService,
-    }))
-    .filter((item: any) => {
-      const matchesSearch = item.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchesType =
-        selectedType === 'All Types' ||
-        item.name.toLowerCase() === selectedType?.toLowerCase();
-      return matchesSearch && matchesType;
-    });
 
   const assignedCriteriaData = vpScoringData?.items
     ?.map((item: any) => ({
@@ -84,145 +59,76 @@ function Page() {
       return matchesSearch && matchesType;
     });
 
-  const assignedCriteriaColumns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a: AssignedCriteriaRecord, b: AssignedCriteriaRecord) =>
-        a.name.localeCompare(b.name),
-    },
-    {
-      title: 'Total Percentage',
-      dataIndex: 'totalPercentage',
-      key: 'totalPercentage',
-      defaultSortOrder: 'descend' as const,
-      sorter: (a: AssignedCriteriaRecord, b: AssignedCriteriaRecord) =>
-        parseFloat(a.totalPercentage) - parseFloat(b.totalPercentage),
-    },
-    {
-      title: 'Criteria Count',
-      dataIndex: 'criteriaCount',
-      key: 'criteriaCount',
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (record: AssignedCriteriaRecord) => (
-        <div
-          className="flex space-x-2"
-          id={`okr-criteria-assigned-table-actions-${record.key}`}
-          data-cy={`okr-criteria-assigned-table-actions-${record.key}`}
-        >
+  const getMenuItems = (item: any): MenuProps['items'] => {
+    return [
+      {
+        key: 'edit',
+        label: (
           <AccessGuard
-            data-cy="okr-criteria-assigned-table-edit-button-access-guard-display-guard"
             permissions={[Permissions.UpdateVpScoringConfigurations]}
+            data-cy={`okr-criteria-card-edit-access-guard-${item.key}`}
           >
-            <Button
-              type="default"
-              className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-500 border-none"
-              icon={<GrEdit />}
-              onClick={() => handleEditClick(record.key)}
-              id={`okr-criteria-assigned-table-edit-button-${record.key}`}
-              data-cy={`okr-criteria-assigned-table-edit-button-${record.key}`}
-            />
-          </AccessGuard>
-
-          <DeletePopover
-            onDelete={() => handleDelete(record.key)}
-            data-cy={`okr-criteria-assigned-table-delete-popover-${record.key}`}
-          >
-            <AccessGuard
-              data-cy="okr-criteria-assigned-table-delete-button-access-guard-display-guard"
-              permissions={[Permissions.DeleteVpScoringConfigurations]}
+            <div
+              className="flex items-center gap-3 py-1"
+              onClick={() => handleEditClick(item.key)}
+              id={`okr-criteria-card-edit-menu-item-${item.key}`}
+              data-cy={`okr-criteria-card-edit-menu-item-${item.key}`}
             >
-              <Button
-                type="default"
-                className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={
-                  <RiDeleteBin6Line
-                    data-cy={`okr-criteria-assigned-table-delete-button-icon-${record.key}`}
-                  />
-                }
-                id={`okr-criteria-assigned-table-delete-button-${record.key}`}
-                data-cy={`okr-criteria-assigned-table-delete-button-${record.key}`}
-              />
-            </AccessGuard>
-          </DeletePopover>
-        </div>
-      ),
-    },
-  ];
-
-  const availableCriteriaColumns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-    },
-    {
-      title: 'Source Service',
-      dataIndex: 'sourceService',
-      key: 'sourceService',
-    },
-  ];
+              <MdModeEditOutline className="text-[#595959] text-xl" />
+              <span
+                className="text-[15px] text-[#262626]"
+                data-cy={`okr-criteria-card-edit-text-${item.key}`}
+              >
+                Edit OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+      {
+        type: 'divider',
+      },
+      {
+        key: 'delete',
+        label: (
+          <AccessGuard
+            permissions={[Permissions.DeleteVpScoringConfigurations]}
+            data-cy={`okr-criteria-card-delete-access-guard-${item.key}`}
+          >
+            <div
+              className="flex items-center gap-3 py-1 text-red-600"
+              onClick={() => handleDelete(item.key)}
+              id={`okr-criteria-card-delete-menu-item-${item.key}`}
+              data-cy={`okr-criteria-card-delete-menu-item-${item.key}`}
+            >
+              <MdDeleteForever className="text-xl" />
+              <span
+                className="text-[15px]"
+                data-cy={`okr-criteria-card-delete-text-${item.key}`}
+              >
+                Delete OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+    ];
+  };
 
   return (
-    <div
-      className="p-5 rounded-2xl bg-white "
-      id="okr-criteria-management-container"
-      data-cy="okr-criteria-management-container"
-    >
-      {/* Desktop layout: visible from md and up */}
+    <div className="w-full" data-cy="okr-criteria-management-page-container">
+      {/* Container with Border - Now includes Search/Filter and Cards */}
       <div
-        className="hidden md:flex justify-between mb-6"
-        id="okr-criteria-management-desktop-header"
-        data-cy="okr-criteria-management-desktop-header"
+        className="border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+        id="okr-criteria-management-main-container"
+        data-cy="okr-criteria-management-main-container"
       >
-        <h1
-          className="text-2xl font-bold md:text-lg"
-          id="okr-criteria-management-desktop-title"
-          data-cy="okr-criteria-management-desktop-title"
-        >
-          Criteria Management
-        </h1>
-        <AccessGuard
-          data-cy="okr-criteria-management-desktop-add-button-access-guard-display-guard"
-          permissions={[Permissions.CreateVpScoringConfigurations]}
-        >
-          <Button
-            type="primary"
-            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 md:w-auto"
-            icon={<FaPlus />}
-            onClick={() => openDrawer()}
-            id="okr-criteria-management-desktop-add-button"
-            data-cy="okr-criteria-management-desktop-add-button"
-          >
-            <span
-              className="hidden lg:block"
-              id="okr-criteria-management-desktop-add-button-label"
-              data-cy="okr-criteria-management-desktop-add-button-label"
-            >
-              Scoring Configuration
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
-      <div
-        className="hidden md:block w-full"
-        id="okr-criteria-management-desktop-filters-wrapper"
-        data-cy="okr-criteria-management-desktop-filters-wrapper"
-      >
+        {/* Search and Filter Row inside the container */}
         <CriteriaFilters
           onSearch={handleSearch}
           onTypeChange={handleTypeChange}
           criteriaNames={['All Types', ...criteriaTypes]}
-          data-cy="okr-criteria-management-desktop-filters"
+          data-cy="okr-criteria-management-filters"
         />
 
         {vpScoringLoading ? (
@@ -302,7 +208,7 @@ function Page() {
           </div>
         )}
       </div>
-      <ScoringDrawer data-cy="okr-criteria-management-drawer" />
+      <ScoringModal data-cy="okr-criteria-management-drawer" />
     </div>
   );
 }

@@ -68,7 +68,6 @@ const TeamCard: React.FC<TeamCardProps> = ({
         className={`bg-white border border-gray-200 rounded-lg py-4 pl-3 pr-10 lg:pr-3 shadow-sm relative ${
           isDragging ? 'shadow-lg' : ''
         } ${isOverlay ? 'shadow-xl' : ''}`}
-        data-cy={`transfer-team-card-inner-${department.id}`}
       >
         {onRemove && (
           <button

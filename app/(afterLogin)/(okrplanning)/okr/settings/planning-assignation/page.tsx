@@ -10,8 +10,7 @@ import {
 } from 'antd';
 import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { ColumnsType } from 'antd/es/table';
-import PlanningAssignationDrawer from './_components/planning-assignation-drawer';
+import PlanningAssignationModal from './_components/planning-assignation-drawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { usePlanningAssignationStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer';
 import {
@@ -26,17 +25,14 @@ import { useDeletePlanningUser } from '@/store/server/features/employees/plannin
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { FaPlus } from 'react-icons/fa';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
-
-// Define columns with correct type
+import { useState, useMemo } from 'react';
 
 const PlanAssignment: React.FC = () => {
   const {
     userId,
-    setUserId,
     setSelectedPlanningUser,
     setPage,
     page,
@@ -49,34 +45,34 @@ const PlanAssignment: React.FC = () => {
     isLoading: allUserPlanningPeriodGroupedByUserLoading,
   } = useGetAllAssignedUserGroupedByUser(page, pageSize, userId || '');
 
-  const { data: employeeData, isLoading: employeeDataLoading } =
-    useGetAllUsers();
+  const { data: employeeData } = useGetAllUsers();
   const { data: allPlanningPeriods } = useGetAllPlanningPeriods();
   const { isMobile, isTablet } = useIsMobile();
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // Use the grouped data directly since it's already in the correct format
   const userToPlanning: GroupedUserWithPlanningPeriods[] =
     allUserWithPlanningPeriodGroupedByUser?.items || [];
 
-  const getEmployeeData = (userId: string) => {
-    const employee = employeeData?.items?.find(
-      (user: EmployeeData) => user.id === userId,
-    );
+  const getEmployeeData = useMemo(() => {
+    return (userId: string) => {
+      const employee = employeeData?.items?.find(
+        (user: EmployeeData) => user.id === userId,
+      );
+      const firstName = employee?.firstName || '-';
+      const middleName = employee?.middleName || '';
+      const lastName = employee?.lastName || '';
+      return `${firstName} ${middleName} ${lastName}`;
+    };
+  }, [employeeData]);
 
-    // Destructure firstName and lastName with fallback
-    const firstName = employee?.firstName || '-';
-    const middleName = employee?.middleName || '';
-    const lastName = employee?.lastName || '';
-
-    return `${firstName} ${middleName} ${lastName}`;
-  };
-
-  const getPlanningPeriodName = (planningPeriodId: string) => {
-    const planningPeriod = allPlanningPeriods?.items?.find(
-      (period: any) => period.id === planningPeriodId,
-    );
-    return planningPeriod?.name;
-  };
+  const getPlanningPeriodType = useMemo(() => {
+    return (planningPeriodId: string) => {
+      const planningPeriod = allPlanningPeriods?.items?.find(
+        (period: any) => period.id === planningPeriodId,
+      );
+      return planningPeriod?.intervalType || 'daily';
+    };
+  }, [allPlanningPeriods]);
 
   const handleEdit = (item: any) => {
     setSelectedPlanningUser(item);
@@ -105,101 +101,46 @@ const PlanAssignment: React.FC = () => {
       },
     });
   }
-  const onChange = (value: string | undefined) => {
-    const id = value ? value : null;
-    setUserId(id);
-  };
-  const dataSources = userToPlanning
-    ?.filter((item: GroupedUserWithPlanningPeriods) => {
-      if (!employeeData?.items) return true;
-
-      // Find the employee in the active employees list
-      const employee = employeeData.items.find(
-        (user: EmployeeData) => user.id === item.userId,
-      );
-
-      // Check if employee exists and is active
-      const isActive =
-        employee &&
-        (employee.deletedAt === null || employee.deletedAt === undefined) &&
-        employee.employee_status !== 'inactive' &&
-        employee.employee_status !== 'terminated';
-
-      return isActive;
-    })
-    ?.map((item: GroupedUserWithPlanningPeriods, index: number) => {
-      const planNames = item?.planningPeriod
-        ?.map((plan: any) => {
-          // Use the planningPeriodId to get the planning period name
-          const planName = plan?.planningPeriodId
-            ? getPlanningPeriodName(plan.planningPeriodId)
-            : null;
-          return planName;
-        })
-        .filter(Boolean);
-
-      return {
-        id: index + 1,
-        name: (
-          <Tooltip
-            title={getEmployeeData(item?.userId)}
-            id={`okr-planning-assignation-table-employee-tooltip-${item?.userId}`}
-            data-cy={`okr-planning-assignation-table-employee-tooltip-${item?.userId}`}
-          >
-            <div
-              className="flex items-center flex-wrap sm:flex-row justify-start gap-2"
-              id={`okr-planning-assignation-table-employee-wrapper-${item?.userId}`}
-              data-cy={`okr-planning-assignation-table-employee-wrapper-${item?.userId}`}
-            >
-              <div
-                className="flex items-center justify-start gap-2"
-                id={`okr-planning-assignation-table-employee-info-${item?.userId}`}
-                data-cy={`okr-planning-assignation-table-employee-info-${item?.userId}`}
-              >
-                <div
-                  id={`okr-planning-assignation-table-employee-avatar-wrapper-${item?.userId}`}
-                  data-cy={`okr-planning-assignation-table-employee-avatar-wrapper-${item?.userId}`}
-                >
-                  {item?.profileImage ? (
-                    <Avatar
-                      size={20}
-                      src={item?.profileImage}
-                      data-cy={`okr-planning-assignation-table-employee-avatar-${item?.userId}`}
-                    />
-                  ) : (
-                    <Avatar
-                      size={20}
-                      data-cy={`okr-planning-assignation-table-employee-avatar-initials-${item?.userId}`}
-                    >
-                      {getEmployeeData(item?.userId)
-                        .split(' ')
-                        .map((name: string) => name[0]?.toUpperCase())
-                        .join('')
-                        .slice(0, 2)}
-                    </Avatar>
-                  )}
-                </div>
-                <span
-                  id={`okr-planning-assignation-table-employee-name-text-${item?.userId}`}
-                  data-cy={`okr-planning-assignation-table-employee-name-text-${item?.userId}`}
-                >
-                  {getEmployeeData(item?.userId)}
-                </span>
-              </div>
-            </div>
-          </Tooltip>
-        ),
-        nameString: getEmployeeData(item?.userId),
-        plans: planNames?.join(', ') || '-',
-        key: item?.userId,
-        createdAt: item?.planningPeriod?.[0]?.createdAt,
-        updatedAt: item?.lastUpdated, // Assign latest updatedAt
-        actions: {
-          edit: () => handleEdit(item),
-          delete: () => handleDelete(item),
-        },
-      };
-    });
+  const filteredData = useMemo(() => {
+    return userToPlanning
+      ?.filter((item: GroupedUserWithPlanningPeriods) => {
+        if (!employeeData?.items) return true;
+        const employee = employeeData.items.find(
+          (user: EmployeeData) => user.id === item.userId,
+        );
+        const isActive =
+          employee &&
+          (employee.deletedAt === null || employee.deletedAt === undefined) &&
+          employee.employee_status !== 'inactive' &&
+          employee.employee_status !== 'terminated';
+        if (searchTerm) {
+          const employeeName = getEmployeeData(item?.userId).toLowerCase();
+          return isActive && employeeName.includes(searchTerm.toLowerCase());
+        }
+        return isActive;
+      })
+      ?.map((item: GroupedUserWithPlanningPeriods) => {
+        const firstPlanningPeriod = item?.planningPeriod?.[0];
+        const planningPeriodType = firstPlanningPeriod?.planningPeriodId
+          ? getPlanningPeriodType(firstPlanningPeriod.planningPeriodId)
+          : 'daily';
+        return {
+          ...item,
+          employeeName: getEmployeeData(item?.userId),
+          planningPeriodType:
+            planningPeriodType.charAt(0).toUpperCase() +
+            planningPeriodType.slice(1),
+          updatedAt: item?.lastUpdated,
+        };
+      });
+  }, [
+    userToPlanning,
+    employeeData,
+    searchTerm,
+    allPlanningPeriods,
+    getEmployeeData,
+    getPlanningPeriodType,
+  ]);
 
   const onPageChange = (page: number, pageSize?: number) => {
     setPage(page);
@@ -208,98 +149,75 @@ const PlanAssignment: React.FC = () => {
     }
   };
 
-  const columns: ColumnsType<any> = [
-    {
-      title: 'Employee Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (notused, record) => (
-        <span
-          id={`okr-planning-assignation-table-employee-name-${record?.key}`}
-          data-cy={`okr-planning-assignation-table-employee-name-${record?.key}`}
-        >
-          {employeeDataLoading ? (
-            <Spin
-              size="small"
-              data-cy={`okr-planning-assignation-table-employee-name-loading-${record?.key}`}
-            />
-          ) : (
-            record?.name
-          )}
-        </span>
-      ),
-      sorter: (a, b) => (a.nameString || '').localeCompare(b.nameString || ''),
-    },
-    {
-      title: 'Plans', // Assuming you want to display plan names
-      dataIndex: 'plans',
-      key: 'plans',
-    },
-    {
-      title: 'last Update', // Displaying a static date for now
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      render: (notused, record) =>
-        dayjs(record?.updatedAt).format('DD MMM YYYY'),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      // eslint-disable-next-line
-      render: (_: any, record: any) => (
-        <div
-          className="flex items-center space-x-1"
-          id={`okr-planning-assignation-table-actions-${record?.key}`}
-          data-cy={`okr-planning-assignation-table-actions-${record?.key}`}
-        >
+  const getMenuItems = (
+    item: GroupedUserWithPlanningPeriods,
+  ): MenuProps['items'] => {
+    return [
+      {
+        key: 'edit',
+        label: (
           <AccessGuard
-            data-cy="okr-planning-assignation-table-edit-button-access-guard-display-guard"
             permissions={[Permissions.UpdateAssignedPlanningPeriod]}
+            data-cy={`okr-planning-assignation-card-edit-access-guard-${item?.userId}`}
           >
-            <button
-              className="bg-[#2F78EE] font-bold text-white rounded px-2 py-1 text-xs"
-              onClick={() => record.actions.edit()}
-              style={{ marginRight: 8 }}
-              id={`okr-planning-assignation-table-edit-button-${record?.key}`}
-              data-cy={`okr-planning-assignation-table-edit-button-${record?.key}`}
+            <div
+              className="flex items-center gap-3 py-1"
+              onClick={() => handleEdit(item)}
+              id={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
+              data-cy={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
             >
-              <MdModeEditOutline
-                id={`okr-planning-assignation-table-edit-icon-${record?.key}`}
-                data-cy={`okr-planning-assignation-table-edit-icon-${record?.key}`}
-              />
-            </button>
+              <MdModeEditOutline className="text-[#595959] text-xl" />
+              <span
+                className="text-[15px] text-[#262626]"
+                data-cy={`okr-planning-assignation-card-edit-text-${item?.userId}`}
+              >
+                Edit OKR
+              </span>
+            </div>
           </AccessGuard>
+        ),
+      },
+      {
+        type: 'divider',
+      },
+      {
+        key: 'delete',
+        label: (
           <AccessGuard
-            data-cy="okr-planning-assignation-table-delete-button-access-guard-display-guard"
             permissions={[Permissions.DeleteAssignedPlanningPeriod]}
+            data-cy={`okr-planning-assignation-card-delete-access-guard-${item?.userId}`}
           >
             <Popconfirm
               title="Are you sure you want to delete this item?"
-              onConfirm={() => record.actions.delete()}
+              onConfirm={() => handleDelete(item)}
               okText="Yes"
               cancelText="No"
-              id={`okr-planning-assignation-table-delete-popconfirm-${record?.key}`}
-              data-cy={`okr-planning-assignation-table-delete-popconfirm-${record?.key}`}
+              id={`okr-planning-assignation-card-delete-popconfirm-${item?.userId}`}
+              data-cy={`okr-planning-assignation-card-delete-popconfirm-${item?.userId}`}
             >
-              <button
-                className="bg-red-600 font-bold text-white rounded px-2 py-1 text-xs"
-                id={`okr-planning-assignation-table-delete-button-${record?.key}`}
-                data-cy={`okr-planning-assignation-table-delete-button-${record?.key}`}
+              <div
+                className="flex items-center gap-3 py-1 text-red-600"
+                id={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
+                data-cy={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
               >
-                <MdDeleteForever
-                  id={`okr-planning-assignation-table-delete-icon-${record?.key}`}
-                  data-cy={`okr-planning-assignation-table-delete-icon-${record?.key}`}
-                />
-              </button>
+                <MdDeleteForever className="text-xl" />
+                <span
+                  className="text-[15px]"
+                  data-cy={`okr-planning-assignation-card-delete-text-${item?.userId}`}
+                >
+                  Delete OKR
+                </span>
+              </div>
             </Popconfirm>
           </AccessGuard>
-        </div>
-      ),
-    },
-  ];
+        ),
+      },
+    ];
+  };
+
   return (
     <div
-      className="p-5 rounded-2xl shadow-md bg-white h-full"
+      className="w-full"
       id="okr-planning-assignation-container-display-div"
       data-cy="okr-planning-assignation-container-display-div"
     >
@@ -487,17 +405,71 @@ const PlanAssignment: React.FC = () => {
         )}
       </div>
 
-      <PlanningAssignationDrawer
+      <PlanningAssignationModal
         open={open}
         onClose={onClose}
-        data-cy="okr-planning-assignation-drawer-display-drawer"
+        data-cy="okr-planning-assignation-drawer"
       />
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleDeletePlanningAssignation(deletedId)}
         onCancel={onCloseDeleteModal}
-        data-cy="okr-planning-assignation-delete-modal-display-modal"
+        data-cy="okr-planning-assignation-delete-modal"
       />
+      <style jsx global data-cy="okr-planning-assignation-styles">{`
+        /* Search Input Styling */
+        .custom-search-input.ant-input-group-wrapper {
+          height: 44px !important;
+        }
+        .custom-search-input.ant-input-group-wrapper .ant-input-wrapper {
+          display: flex !important;
+          align-items: center !important;
+          border: 1px solid #d9d9d9 !important;
+          border-radius: 8px !important;
+          overflow: hidden !important;
+          background-color: white !important;
+          height: 44px !important;
+        }
+        .custom-search-input.ant-input-group-wrapper .ant-input {
+          border: none !important;
+          box-shadow: none !important;
+          height: 44px !important;
+          padding-left: 12px !important;
+          font-size: 14px !important;
+          color: #262626 !important;
+        }
+        .custom-search-input.ant-input-group-wrapper .ant-input::placeholder {
+          color: #bfbfbf !important;
+        }
+        .custom-search-input.ant-input-group-wrapper .ant-input-group-addon {
+          background-color: white !important;
+          border: none !important;
+          border-left: 1px solid #f0f0f0 !important;
+          padding: 0 24px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          height: 44px !important;
+        }
+        .custom-search-input.ant-input-group-wrapper
+          .ant-input-group-addon
+          .anticon {
+          font-size: 18px !important;
+          color: #595959 !important;
+        }
+        .custom-search-input.ant-input-group-wrapper:hover {
+          border-color: #bfbfbf !important;
+        }
+
+        /* Force white background and remove padding for mobile pagination in this specific view */
+        .custom-pagination-container .bg-gray-100 {
+          background-color: #ffffff !important;
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+          padding-top: 0 !important;
+          padding-bottom: 0 !important;
+        }
+      `}</style>
     </div>
   );
 };

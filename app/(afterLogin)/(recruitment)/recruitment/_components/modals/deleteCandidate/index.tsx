@@ -1,11 +1,19 @@
-import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
+import { CloseOutlined } from '@ant-design/icons';
+import { Button, Dropdown } from 'antd';
 import React from 'react';
 
 const DeleteCandidate: React.FC = () => {
-  const { deleteCandidateModal, setDeleteCandidateModal } = useCandidateState();
-  const { mutate: deleteCandidate } = useDeleteCandidate();
+  const {
+    deleteCandidateModal,
+    setDeleteCandidateModal,
+    setDeleteTriggerRect,
+    selectedCandidate,
+    deleteTriggerRect,
+  } = useCandidateState();
+  const { mutate: deleteCandidate, isLoading: deleteLoading } =
+    useDeleteCandidate();
 
   const handleCandidateDelete = () => {
     deleteCandidate();
@@ -98,7 +106,7 @@ const DeleteCandidate: React.FC = () => {
         id="talent-acquisition-candidate-modal-delete-confirmation"
         data-cy="talent-acquisition-candidate-modal-delete-confirmation"
       >
-        <DeleteModal
+        <Dropdown
           open={deleteCandidateModal}
           trigger={['click']}
           onOpenChange={(open) => {

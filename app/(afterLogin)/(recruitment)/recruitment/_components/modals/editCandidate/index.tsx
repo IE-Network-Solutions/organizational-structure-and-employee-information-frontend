@@ -6,18 +6,19 @@ import {
   Form,
   Input,
   InputNumber,
+  Modal,
   Row,
   Select,
   Upload,
 } from 'antd';
-import Image from 'next/image';
+
 import React, { useEffect } from 'react';
-import cvUpload from '@/public/image/cvUpload.png';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { FaInfoCircle } from 'react-icons/fa';
-import TextArea from 'antd/es/input/TextArea';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { InboxOutlined } from '@ant-design/icons';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -131,7 +132,8 @@ const EditCandidate: React.FC = () => {
             ...editCandidate,
             fullName: formValues.fullName,
             email: formValues.email,
-            phoneNumber: formValues.phoneNumber,
+            phone: formValues.phone,
+            phoneNumber: formValues.phone,
             jobCandidate: [
               {
                 ...editCandidate?.jobCandidate?.[0],
@@ -158,16 +160,6 @@ const EditCandidate: React.FC = () => {
       },
     );
   };
-  const editCandidateHeader = (
-    <div
-      id="talent-acquisition-edit-candidate-div-header"
-      data-cy="talent-acquisition-edit-candidate-div-header"
-      className="flex flex-col items-center py-4"
-    >
-      Edit Candidate
-    </div>
-  );
-
   useEffect(() => {
     if (editCandidate && selectedCandidateId) {
       const candidateJob = editCandidate?.jobCandidate?.[0];

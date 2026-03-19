@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect } from 'react';
 import { Select, Input, Form, Modal, Tooltip, Row, Col, Button } from 'antd';
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
@@ -16,7 +17,7 @@ import {
 
 const { Option } = Select;
 
-const AssignTargetDrawer: React.FC = () => {
+const AssignTargetModal: React.FC = () => {
   const { data: criteriaData } = useGetCriteriaTargets();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: activeSessionData } = useGetActiveSession();
@@ -44,13 +45,13 @@ const AssignTargetDrawer: React.FC = () => {
   const resetState = () => {
     form.resetFields();
     setSelectedMonths([]);
-    getTargetById;
     form.setFieldsValue({
       department: '',
       criteria: '',
       month: [],
     });
   };
+
   useEffect(() => {
     if (currentId && getTargetById) {
       form.setFieldsValue({
@@ -60,7 +61,7 @@ const AssignTargetDrawer: React.FC = () => {
         [getTargetById.month]: getTargetById.target,
       });
       setSelectedMonths([getTargetById.month]);
-    } else if (!currentId) {
+    } else if (!currentId && activeSessionData) {
       const allActiveMonths =
         activeSessionData?.months?.map((month: any) => month.name) || [];
       form.setFieldsValue({
@@ -68,17 +69,21 @@ const AssignTargetDrawer: React.FC = () => {
       });
       setSelectedMonths(allActiveMonths);
     }
-  }, [currentId, getTargetById, activeSessionData]);
+  }, [currentId, getTargetById, activeSessionData, setSelectedMonths, form]);
 
   useEffect(() => {
     if (isCreateSuccess || isUpdateSuccess) {
-      resetState();
-      closeDrawer();
+      handleModalClose();
     }
   }, [isCreateSuccess, isUpdateSuccess]);
 
+  const handleModalClose = () => {
+    resetState();
+    closeDrawer();
+  };
+
   const onSubmit = (values: any) => {
-    const target = values.month.map((month: string) => ({
+    const target = (values.month || []).map((month: string) => ({
       month,
       target: values[month],
     }));
@@ -100,10 +105,7 @@ const AssignTargetDrawer: React.FC = () => {
   };
 
   const footer = (
-    <div
-      className="flex justify-end gap-3"
-      data-cy="okr-target-modal-footer"
-    >
+    <div className="flex justify-end gap-3" data-cy="okr-target-modal-footer">
       <Button
         type="default"
         onClick={handleModalClose}
@@ -127,52 +129,28 @@ const AssignTargetDrawer: React.FC = () => {
   );
 
   return (
-    <CustomDrawerLayout
+    <Modal
       open={isDrawerVisible}
-      onClose={closeDrawer}
-      modalHeader={
+      onCancel={handleModalClose}
+      title={
         <span
-          className="text-xl font-semibold"
-          id="okr-assign-target-drawer-header-title"
-          data-cy="okr-assign-target-drawer-header-title"
+          className="text-[20px] font-bold text-[#262626]"
+          data-cy="okr-target-modal-title"
         >
-          {currentId ? 'Update Target' : 'Assign Target'}
+          {currentId ? 'Edit Target Configuration' : 'Add Target Configuration'}
         </span>
       }
-      width="30%"
-      footer={
-        <div
-          className="flex justify-center items-center w-full h-full"
-          id="okr-assign-target-drawer-footer"
-          data-cy="okr-assign-target-drawer-footer"
-        >
-          <div
-            className="flex justify-between items-center gap-4"
-            id="okr-assign-target-drawer-footer-buttons"
-            data-cy="okr-assign-target-drawer-footer-buttons"
-          >
-            <CustomButton
-              type="default"
-              title="Cancel"
-              onClick={() => {
-                form.resetFields();
-                closeDrawer();
-                resetState();
-              }}
-              id="okr-assign-target-drawer-cancel-button"
-              data-cy="okr-assign-target-drawer-cancel-button"
-            />
-            <CustomButton
-              title={currentId ? 'Update' : 'Assign'}
-              onClick={() => form.submit()}
-              loading={currentId ? isUpdateLoading : isCreateLoading}
-              id="okr-assign-target-drawer-submit-button"
-              data-cy="okr-assign-target-drawer-submit-button"
-            />
-          </div>
-        </div>
+      footer={footer}
+      width={800}
+      centered
+      closeIcon={
+        <CloseOutlined
+          className="text-[#8c8c8c]"
+          data-cy="okr-target-modal-close-icon"
+        />
       }
-      data-cy="okr-assign-target-drawer"
+      data-cy="okr-target-modal"
+      className="okr-settings-modal"
     >
       <Form
         form={form}
@@ -352,8 +330,8 @@ const AssignTargetDrawer: React.FC = () => {
           }
         `}</style>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 
-export default AssignTargetDrawer;
+export default AssignTargetModal;

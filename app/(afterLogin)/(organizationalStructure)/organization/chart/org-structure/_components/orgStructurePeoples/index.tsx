@@ -8,26 +8,27 @@ import React, {
   useState,
 } from 'react';
 import {
-  useDeleteOrgChart,
-  useUpdateOrgChart,
-} from '@/store/server/features/organizationStructure/organizationalChart/mutation';
-import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
-import DeleteModal from '@/components/common/deleteModal';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import OrgChartSkeleton from '../loading/orgStructureLoading';
-import { DepartmentNode } from '../departmentNode';
-import { showDrawer } from '../menues/inex';
-import { useMergingDepartment } from '@/store/server/features/organizationStructure/mergeDepartments/mutations';
-import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
-import { Button, Form, Space } from 'antd';
+  ReactFlow,
+  applyNodeChanges,
+  applyEdgeChanges,
+  type Node,
+  type Edge,
+  type ReactFlowInstance,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import { useGetOrgChartsPeoples } from '@/store/server/features/organizationStructure/organizationalChart/query';
+import type { DepartmentUserTree } from '@/store/server/features/organizationStructure/organizationalChart/interface';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
-import { useRouter } from 'next/navigation';
-import { useChartRef } from '../../../layout';
+import OrgChartSkeleton from '../loading/orgStructureLoading';
 import {
-  TransformWrapper,
-  TransformComponent,
-  ReactZoomPanPinchRef,
-} from 'react-zoom-pan-pinch';
+  OrgChartNode,
+  SpineNode,
+  HorizontalConnectorNode,
+  VerticalEdge,
+} from './nodes';
+import { buildFlowFromTree } from './layout';
+import { useChartRef } from '../../../layout';
+import { OrgChartActionsProvider } from './OrgChartActionsContext';
 import {
   AddDepartmentModal,
   DepartmentUsersModal,
@@ -142,27 +143,18 @@ function OrgFlowContent({ onReady }: { onReady?: () => void }) {
           >[1],
         ),
       );
-    } else if (parentId) {
-      const newId = uuidv4();
-
-      const data = {
-        ...parent,
-        department: [...(parent?.department || []), { ...values, id: newId }],
-      };
-
-      updateDepartment(
-        {
-          id: parentId,
-          orgChart: data,
-        },
-        {
-          onSuccess: () => {
-            setSelectedDepartment(null);
-            setIsFormVisible(false);
-            form.resetFields();
-            setParentId('');
-          },
-        },
+    },
+    [setNodes],
+  );
+  const onEdgesChange = useCallback(
+    (changes: Parameters<typeof applyEdgeChanges>[0]) => {
+      setEdges(
+        applyEdgeChanges(
+          changes,
+          useDepartmentStore.getState().edges as Parameters<
+            typeof applyEdgeChanges
+          >[1],
+        ),
       );
     },
     [setEdges],
@@ -479,12 +471,12 @@ function OrgFlowContent({ onReady }: { onReady?: () => void }) {
 const OrgChartComponent: React.FC = () => {
   return (
     <div
-      className="w-full overflow-x-auto"
+      className="w-full overflow-visible"
       data-cy="org-structure-container"
       id="org-structure-container"
     >
       <div
-        className="w-full py-7 overflow-x-auto "
+        className="w-full pt-0 pb-7 overflow-visible"
         data-cy="org-structure-content"
         id="org-structure-content"
       >
@@ -544,6 +536,6 @@ function OrgChartComponentInner() {
       />
     </div>
   );
-};
+}
 
 export default OrgChartComponent;

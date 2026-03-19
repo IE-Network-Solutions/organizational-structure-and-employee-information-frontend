@@ -159,23 +159,23 @@ const AddEmployeeModal = (props: any) => {
           >
             {current === 0 && (
               <>
-              <Card
-                bodyStyle={{ padding: 0 }}
-                className="p-2 mt-2 border-[1px] border-[#D9D9D9]"
-                id="user-sidebar-card-basic"
-                data-cy="user-sidebar-card-basic"
-              >
-                <BasicInformationForm
-                  form={form}
-                  data-cy="user-sidebar-basic-information-form"
+                <Card
+                  bodyStyle={{ padding: 0 }}
+                  className="p-2 mt-2 border-[1px] border-[#D9D9D9]"
+                  id="user-sidebar-card-basic"
+                  data-cy="user-sidebar-card-basic"
+                >
+                  <BasicInformationForm
+                    form={form}
+                    data-cy="user-sidebar-basic-information-form"
+                  />
+                </Card>
+                <ButtonContinue
+                  handleContinueClick={handleContinueClick}
+                  handleBackClick={handleBackClick}
+                  data-cy="user-sidebar-button-continue"
                 />
-              </Card>
-               <ButtonContinue
-               handleContinueClick={handleContinueClick}
-               handleBackClick={handleBackClick}
-               data-cy="user-sidebar-button-continue"
-             />
-             </>
+              </>
             )}
             {current === 1 && (
               <Card

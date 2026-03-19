@@ -2,7 +2,8 @@ import { useMoveToTalentPool } from '@/store/server/features/recruitment/candida
 import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/candidate/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Checkbox, Form, Modal, Select } from 'antd';
+import { Button, Form, Modal, Select } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
 
@@ -37,30 +38,36 @@ const MoveToTalentPool: React.FC = () => {
   }, [selectedCandidate]);
 
   const handleSubmit = () => {
-    const formValues = form.getFieldsValue();
-    const candidateArray = Array.isArray(selectedCandidate)
-      ? selectedCandidate
-      : [];
+    form
+      .validateFields()
+      .then((formValues) => {
+        const candidateArray = Array.isArray(selectedCandidate)
+          ? selectedCandidate
+          : [];
 
-    const formattedValues = {
-      ...formValues,
-      createdBy: createdBy,
-      jobCandidateId: candidateArray
-        .map((candidate: any) => candidate?.jobCandidate?.[0]?.id)
-        .filter(Boolean), // Filter out undefined values
-      jobCandidateInformationId: candidateArray.map(
-        (candidate: any) => candidate.id,
-      ),
-    };
+        const formattedValues = {
+          ...formValues,
+          createdBy: createdBy,
+          jobCandidateId: candidateArray
+            .map((candidate: any) => candidate?.jobCandidate?.[0]?.id)
+            .filter(Boolean),
+          jobCandidateInformationId: candidateArray.map(
+            (candidate: any) => candidate.id,
+          ),
+        };
 
-    moveToTalentPool(formattedValues, {
-      onSuccess: () => {
-        form.resetFields();
-        setSelectedCandidate([]);
-        setSelectedRowKeys([]); // Clear table selection
-        setMoveToTalentPoolModal(false);
-      },
-    });
+        moveToTalentPool(formattedValues, {
+          onSuccess: () => {
+            form.resetFields();
+            setSelectedCandidate([]);
+            setSelectedRowKeys([]);
+            setMoveToTalentPoolModal(false);
+          },
+        });
+      })
+      .catch(() => {
+        // Validation errors are displayed by antd Form; no extra handling needed
+      });
   };
 
   const handleChange = (values: string[]) => {
@@ -73,47 +80,33 @@ const MoveToTalentPool: React.FC = () => {
     setSelectedCandidate(selectedOptions);
   };
 
+  const handleCancel = () => {
+    setMoveToTalentPoolModal(false);
+    form.resetFields();
+    setSelectedCandidate([]);
+    setSelectedRowKeys([]);
+  };
+
   return (
     moveToTalentPoolModal && (
       <Modal
         data-cy="talent-acquisition-move-talent-pool-modal"
         open={moveToTalentPoolModal}
-        onOk={handleSubmit}
-        onCancel={() => setMoveToTalentPoolModal(false)}
-        centered
-        confirmLoading={isLoading}
-        width={700}
-        footer={
+        onCancel={handleCancel}
+        footer={null}
+        width={630}
+        title={
           <div
-            id="talent-acquisition-move-talent-pool-div-footer"
-            data-cy="talent-acquisition-move-talent-pool-div-footer"
-            className="w-full flex justify-center gap-4"
+            id="talent-acquisition-move-talent-pool-div-header"
+            data-cy="talent-acquisition-move-talent-pool-div-header"
+            className="flex flex-col"
           >
-            <Button
-              id="talent-acquisition-move-talent-pool-button-cancel"
-              data-cy="talent-acquisition-move-talent-pool-button-cancel"
-              key="cancel"
-              className="p-6"
-              onClick={() => {
-                setMoveToTalentPoolModal(false);
-                form.resetFields();
-                setSelectedCandidate([]);
-                setSelectedRowKeys([]);
-              }}
+            <span
+              className="text-lg font-bold text-gray-900"
+              data-cy="talent-acquisition-move-talent-pool-modal-title"
             >
-              Cancel
-            </Button>
-            <Button
-              id="talent-acquisition-move-talent-pool-button-add"
-              data-cy="talent-acquisition-move-talent-pool-button-add"
-              key="submit"
-              type="primary"
-              className="p-6"
-              onClick={handleSubmit}
-              loading={isLoading}
-            >
-              Add
-            </Button>
+              Move to Talent Pool
+            </span>
           </div>
         }
         maskClosable={false}

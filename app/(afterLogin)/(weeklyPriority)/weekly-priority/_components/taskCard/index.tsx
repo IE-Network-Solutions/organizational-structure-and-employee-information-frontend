@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Card, Input, Form, Dropdown } from 'antd';
-import { HiMinus, HiOutlineCheck } from 'react-icons/hi';
-import { RiCloseCircleFill, RiCloseLine, RiMore2Fill } from 'react-icons/ri';
+import { Button, Card, Input, Form, Dropdown, Checkbox, Avatar } from 'antd';
+import { HiCheckCircle, HiXCircle } from 'react-icons/hi';
+import { RiMoreFill, RiCloseFill } from 'react-icons/ri';
+import { UserOutlined, EditOutlined } from '@ant-design/icons';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
 import { Popconfirm } from 'antd/lib';
-import {
-  useCreateWeeklyPriority,
-  useDeleteWeeklyPriority,
-  useUpdateWeeklyPriority,
-} from '@/store/server/features/okrplanning/weeklyPriority/mutations';
+import { useUpdateWeeklyPriority } from '@/store/server/features/okrplanning/weeklyPriority/mutations';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import dayjs from 'dayjs';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { FiCheckCircle } from 'react-icons/fi';
 import WeeklyPriorityModal from '../WeeklyPriorityModal';
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import { useGetPlannedTaskForReport } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -26,7 +22,6 @@ const TaskCard: React.FC = () => {
   const {
     data,
     setData,
-    removeTask,
     modalOpen,
     setModalOpen,
     failedReasonVisible,
@@ -34,12 +29,11 @@ const TaskCard: React.FC = () => {
     failedReasons,
     setFailedReasons,
   } = useWeeklyPriorityStore();
-  const { mutate: createWeeklyPriorityTask } = useCreateWeeklyPriority();
+
   const {
     mutate: updateWeeklyPriorityTask,
     isLoading: updateWeeklyPriorityTaskLoading,
   } = useUpdateWeeklyPriority();
-  const { mutate: deletedWeeklyPriorityTask } = useDeleteWeeklyPriority();
   const { data: userInfo } = useGetEmployee(userId);
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const [selectedTask, setSelectedTask] = useState<any>(null);
@@ -49,36 +43,6 @@ const TaskCard: React.FC = () => {
   );
   const month = session?.months?.find((item: any) => item?.active === true);
   const userDepartmentId = userInfo?.employeeJobInformation[0]?.departmentId;
-
-  const handleEditToggle = (itemIndex: number, taskIndex: number) => {
-    const newData = [...data];
-    newData[itemIndex].tasks[taskIndex].isEdit =
-      !newData[itemIndex].tasks[taskIndex].isEdit;
-    setData(newData);
-  };
-
-  const handleSaveEditTask = (itemIndex: number, taskIndex: number) => {
-    form.validateFields().then((values) => {
-      const newData = [...data];
-      const { ...filteredData } = {
-        ...newData[itemIndex].tasks[taskIndex],
-        title: values[`task-${itemIndex}-${taskIndex}`],
-        departmentId: userDepartmentId,
-        session: session?.id,
-        month: month?.id,
-        createdBy: userId,
-        failureReason: '',
-      };
-      createWeeklyPriorityTask(filteredData, {
-        onSuccess: () => {
-          newData[itemIndex].tasks[taskIndex].isEdit = false;
-          newData[itemIndex].tasks[taskIndex].title =
-            values[`task-${itemIndex}-${taskIndex}`];
-          setData(newData);
-        },
-      });
-    });
-  };
 
   const handleUpdateStatus = (
     itemIndex: number,
@@ -99,29 +63,13 @@ const TaskCard: React.FC = () => {
       onSuccess: () => {
         newData[itemIndex].tasks[taskIndex].isEdit = false;
         newData[itemIndex].tasks[taskIndex].status = status;
+        if (status === 'COMPLETED' || status === 'PENDING') {
+          newData[itemIndex].tasks[taskIndex].failureReason = '';
+        }
       },
     });
   };
-  const handleDeleted = (itemIndex: number, taskIndex: number) => {
-    const newData = [...data];
 
-    /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    const { isEdit, ...filteredData } = {
-      ...newData[itemIndex].tasks[taskIndex],
-    };
-    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
-    deletedWeeklyPriorityTask(filteredData?.id || '', {
-      onSuccess: () => {
-        newData[itemIndex].tasks[taskIndex] = {
-          ...newData[itemIndex].tasks[taskIndex],
-          isEdit: false,
-        };
-
-        // Make sure to update the state if `data` is coming from React state
-        setData(newData);
-      },
-    });
-  };
   const { data: employeeData } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
 
@@ -129,11 +77,11 @@ const TaskCard: React.FC = () => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
     );
-    return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
+    return employeeDataDetail || {};
   };
   const getDepartmentData = (id: string) => {
     const depDetail = Departments?.find((dep: any) => dep?.id === id);
-    return depDetail || { name: '' }; // Return an object with a name property if depDetail is undefined
+    return depDetail || { name: '' };
   };
   const { data: userPlanningPeriod } = useGetAssignedPlanningPeriodForUserId();
   const planningPeriodWithHighestInterval = userPlanningPeriod?.reduce(
@@ -194,10 +142,15 @@ const TaskCard: React.FC = () => {
   const dropdownItems = (item: any) => [
     {
       key: 'edit',
-      label: 'Edit',
+      label: 'Edit Weekly Priority',
+      icon: <EditOutlined />,
       onClick: () => handleEditClick(item),
     },
   ];
+
+  const handleUndoCompleted = (itemIndex: number, taskIndex: number) => {
+    handleUpdateStatus(itemIndex, taskIndex, 'PENDING', '');
+  };
 
   return (
     <>
@@ -375,25 +328,23 @@ const TaskCard: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-          {/* <div className="text-black font-semibold text-lg">
-           
-          </div> */}
 
-          <Form form={form}>
-            <div
-              data-cy="weekly-priority-components-taskcard-index-tsx-index-div-251"
-              className="p-2"
+            <Form
+              form={form}
+              className="pb-0"
+              data-cy={`task-card-form-${itemIndex}`}
             >
-              {item.tasks.map((task, taskIndex) => (
-                <div
-                  data-cy="weekly-priority-components-taskcard-index-tsx-index-div-253"
-                  key={taskIndex}
-                  className="flex flex-col mt-2"
-                >
+              {item.tasks.map((task, taskIndex) => {
+                const taskId = task.id || `${itemIndex}-${taskIndex}`;
+                const isCompleted = task.status === 'COMPLETED';
+                const isNotCompleted = task.status === 'NOT_COMPLETED';
+                const isReported = isCompleted || isNotCompleted;
+
+                return (
                   <div
-                    data-cy="weekly-priority-components-taskcard-index-tsx-index-div-254"
-                    className="flex justify-between items-center"
+                    key={taskIndex}
+                    className="flex flex-col"
+                    data-cy={`task-item-${itemIndex}-${taskIndex}`}
                   >
                     <div
                       className={`${isReported ? 'grid grid-cols-[auto_1fr]' : 'flex'} transition-colors ${isCompleted ? 'bg-[#F7FEE7]' : isNotCompleted ? 'bg-[#fff1f2]' : 'bg-white'}`}
@@ -610,6 +561,7 @@ const TaskCard: React.FC = () => {
       })}
 
       <WeeklyPriorityModal
+        data-cy="weekly-priority-modal"
         open={modalOpen}
         onCancel={() => {
           setModalOpen(false);

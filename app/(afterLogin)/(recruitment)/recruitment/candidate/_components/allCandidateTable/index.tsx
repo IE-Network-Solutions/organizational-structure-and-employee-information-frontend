@@ -9,9 +9,9 @@ import {
 import { Dropdown, Skeleton, Table, TableColumnsType, Tag, theme } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
-import { FaEye } from 'react-icons/fa';
-import { FaEllipsisVertical } from 'react-icons/fa6';
-import CandidateDetail from '../../../jobs/[id]/_components/candidateDetail/page';
+import { EyeOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DeleteCandidate from '../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../_components/modals/moveToTalentPool';
@@ -19,11 +19,13 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { SiGmail } from 'react-icons/si';
 import { TableRowSelection } from 'antd/es/table/interface';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { useRouter } from 'next/navigation';
 
 const AllCandidateTable: React.FC = () => {
   const { token } = theme.useToken();
@@ -90,7 +92,16 @@ const AllCandidateTable: React.FC = () => {
         </span>
       ),
       dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
       ellipsis: true,
+      render: (text: string) => (
+        <div
+          className="text-sm text-gray-700"
+          data-cy="talent-acquisition-candidate-cell-phone"
+        >
+          {text ?? '--'}
+        </div>
+      ),
     },
     {
       title: (
@@ -130,6 +141,7 @@ const AllCandidateTable: React.FC = () => {
         </span>
       ),
       dataIndex: 'cv',
+      key: 'cv',
     },
     {
       title: (
@@ -145,12 +157,16 @@ const AllCandidateTable: React.FC = () => {
         </span>
       ),
       dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (text: string) => (
+        <div
+          className="text-sm text-gray-700"
+          data-cy="talent-acquisition-candidate-cell-created"
+        >
+          {text ?? '--'}
+        </div>
+      ),
     },
-    {
-      title: 'Date of Graduation',
-      dataIndex: 'graduateYear',
-    },
-
     {
       title: (
         <span
@@ -165,6 +181,7 @@ const AllCandidateTable: React.FC = () => {
         </span>
       ),
       dataIndex: 'LinkedInURL',
+      key: 'LinkedInURL',
     },
     {
       title: (
@@ -180,6 +197,7 @@ const AllCandidateTable: React.FC = () => {
         </span>
       ),
       dataIndex: 'stages',
+      key: 'stages',
     },
     {
       title: (
@@ -195,6 +213,7 @@ const AllCandidateTable: React.FC = () => {
         </span>
       ),
       dataIndex: 'action',
+      key: 'action',
     },
   ];
   const {
@@ -203,13 +222,13 @@ const AllCandidateTable: React.FC = () => {
     searchParams,
     setCurrentPage,
     setPageSize,
-    setCandidateDetailDrawer,
     setSelectedCandidate,
     setSelectedCandidateID,
     setEditCandidateModal,
     setEditCandidate,
     setDeleteCandidateId,
     setDeleteCandidateModal,
+    setDeleteTriggerRect,
     selectedRowKeys,
     setSelectedRowKeys,
   } = useCandidateState();
@@ -238,6 +257,21 @@ const AllCandidateTable: React.FC = () => {
       setEditCandidateModal(true);
       setSelectedCandidateID(candidate?.id);
     } else if (key === 'delete') {
+      const btn = candidate?.id
+        ? rowActionButtonRefs.current[candidate.id]
+        : null;
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        setDeleteTriggerRect({
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        });
+      } else {
+        setDeleteTriggerRect(null);
+      }
+      setSelectedCandidate(candidate);
       setDeleteCandidateId(candidate?.id);
       setDeleteCandidateModal(true);
     }
@@ -270,25 +304,41 @@ const AllCandidateTable: React.FC = () => {
   }
 
   const data = candidateList?.items?.map((item: any, index: any) => {
-    const items = [
+    const editDeleteItems = [
       {
         key: 'edit',
         label: 'Edit',
+        icon: <EditOutlinedIcon fontSize="small" />,
         onClick: () => handleMenuClick('edit', item),
         permissions: [Permissions.UpdateCandidate],
       },
       {
         key: 'delete',
         label: 'Delete',
+        icon: <DeleteOutlineOutlinedIcon fontSize="small" />,
         onClick: () => handleMenuClick('delete', item),
         permissions: [Permissions.DeleteCandidate],
       },
     ];
 
-    const filteredItems = items.filter((item) => {
-      const { permissions } = item;
-      return AccessGuard.checkAccess({ permissions: permissions });
-    });
+    const filteredEditDelete = editDeleteItems.filter((entry) =>
+      AccessGuard.checkAccess({ permissions: entry.permissions }),
+    );
+
+    const actionMenuItems = [
+      {
+        key: 'view',
+        label: 'View Detail',
+        icon: <EyeOutlined />,
+        onClick: () => handleCandidateDetail(item),
+      },
+      ...filteredEditDelete.map(({ key, label, icon, onClick }) => ({
+        key,
+        label,
+        icon,
+        onClick,
+      })),
+    ];
 
     return {
       key: index,
@@ -308,24 +358,19 @@ const AllCandidateTable: React.FC = () => {
           href={item?.resumeUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-semibold cursor-pointer flex items-center gap-2"
-          title={item?.documentName ?? 'CV.pdf'}
+          className="inline-flex items-center justify-center text-primary hover:text-[#4096FF] transition-colors"
+          title={item?.documentName ?? 'Download CV'}
         >
-          {item?.documentName?.length > 8
-            ? `${item.documentName.slice(0, 8)}...`
-            : (item?.documentName ?? 'CV.pdf')}
+          <SaveAltIcon fontSize="small" />
         </a>
       ),
 
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
-      graduateYear: item?.graduateYear
-        ? dayjs(item.graduateYear).format('DD MMMM YYYY')
-        : '--',
       LinkedInURL: (
         <div
           id="talent-acquisition-candidate-table-div-email"
           data-cy="talent-acquisition-candidate-table-div-email"
-          className="flex justify-center"
+          className="flex items-center"
         >
           <a
             id={`talent-acquisition-candidate-table-link-email-${item?.id}`}
@@ -343,7 +388,7 @@ const AllCandidateTable: React.FC = () => {
                 token.colorPrimary;
             }}
           >
-            <SiGmail size={20} />
+            {item?.email ?? '--'}
           </a>
         </div>
       ),
@@ -388,26 +433,10 @@ const AllCandidateTable: React.FC = () => {
         <div
           id="talent-acquisition-candidate-table-div-action"
           data-cy="talent-acquisition-candidate-table-div-action"
-          className="flex items-center justify-between gap-4 text-white"
+          className="flex items-center justify-start"
         >
-          <Button
-            id={`editUserButton${item?.id}`}
-            data-cy={`talent-acquisition-candidate-table-button-view-${item?.id}`}
-            disabled={item?.deletedAt !== null}
-            className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
-            onClick={() => handleCandidateDetail(item)}
-          >
-            <FaEye />
-          </Button>
           <Dropdown
-            data-cy={`talent-acquisition-candidate-table-dropdown-${item?.id}`}
-            menu={{
-              items: filteredItems.map(({ label, key, onClick }) => ({
-                label,
-                key,
-                onClick,
-              })),
-            }}
+            menu={{ items: actionMenuItems }}
             trigger={['click']}
             placement="bottomRight"
             overlayClassName="talent-acquisition-candidate-table-action-dropdown"
@@ -504,7 +533,6 @@ const AllCandidateTable: React.FC = () => {
           onShowSizeChange={onSizeChange}
         />
       )}
-      <CandidateDetail data-cy="talent-acquisition-candidate-table-candidate-detail" />
       <DeleteCandidate data-cy="talent-acquisition-candidate-table-delete-candidate" />
       <EditCandidate data-cy="talent-acquisition-candidate-table-edit-candidate" />
       <MoveToTalentPool data-cy="talent-acquisition-candidate-table-move-to-talent-pool" />

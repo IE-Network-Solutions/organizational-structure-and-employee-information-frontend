@@ -1,5 +1,16 @@
+'use client';
 import React, { useEffect } from 'react';
-import { Form, Input, Select, Modal, Tooltip, Row, Col, message, Button } from 'antd';
+import {
+  Form,
+  Input,
+  Select,
+  Modal,
+  Tooltip,
+  Row,
+  Col,
+  message,
+  Button,
+} from 'antd';
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -13,51 +24,10 @@ import {
 } from '@/store/server/features/okrplanning/okr/criteria/mutation';
 import useCriteriaManagementStore from '@/store/uistate/features/okrplanning/okrSetting/criteriaManagmentStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
 const { Option } = Select;
-export const EmployeeDetails = ({
-  empId,
-  fallbackProfileImage,
-}: {
-  empId: string;
-  fallbackProfileImage?: string;
-}) => {
-  const { data: userDetails, isLoading, error } = useGetEmployee(empId);
 
-  if (isLoading)
-    return (
-      <>
-        <Spin
-          data-cy={`okr-criteria-drawer-employee-details-loading-spin-${empId}`}
-        />
-      </>
-    );
-
-  if (error || !userDetails) return '-';
-
-  const userName =
-    `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
-    '-';
-  const profileImage = fallbackProfileImage;
-
-  return (
-    <Space
-      size="small"
-      id={`okr-criteria-drawer-employee-details-space-${empId}`}
-      data-cy={`okr-criteria-drawer-employee-details-space-${empId}`}
-    >
-      <Avatar
-        src={profileImage}
-        className="h-5 w-5"
-        data-cy={`okr-criteria-drawer-employee-details-avatar-${empId}`}
-      />
-      {userName}
-    </Space>
-  );
-};
-
-const ScoringDrawer: React.FC = () => {
+const ScoringModal: React.FC = () => {
   const {
     mutate: updateScoring,
     isLoading: isUpdatingLoading,
@@ -76,7 +46,6 @@ const ScoringDrawer: React.FC = () => {
   const {
     weights,
     selectedCriteria,
-    selectedDepartment,
     filteredUsers,
     userTypeFilter,
     setWeights,
@@ -91,15 +60,40 @@ const ScoringDrawer: React.FC = () => {
 
   const [form] = Form.useForm();
 
+  // Watchers for tags display
+  const watchedDepartments = Form.useWatch('department', form);
+  const watchedUsers = Form.useWatch('users', form);
+  const watchedCriteria = Form.useWatch('criteria', form);
+
   useEffect(() => {
-    resetState();
-    if (scoringData && criteriaData) {
-      setFilteredUsers(
-        scoringData.userVpScoring.map((item: any) => item.userId),
-      );
+    if (isUpdateSuccess || isCreateSuccess) {
+      handleModalClose();
+    }
+  }, [isUpdateSuccess, isCreateSuccess]);
+
+  useEffect(() => {
+    if (scoringData && criteriaData && departmentData) {
+      const allUsers =
+        departmentData?.flatMap((dept: any) => dept.users || []) || [];
+
+      const preSelectedUsers = scoringData.userVpScoring
+        .map((item: any) =>
+          allUsers.find((user: any) => user.id === item.userId),
+        )
+        .filter(Boolean);
+
+      setFilteredUsers(preSelectedUsers);
       form.setFieldsValue({
         name: scoringData.name,
         totalPercentage: scoringData.totalPercentage,
+        department: scoringData.userVpScoring
+          ?.map((u: any) => {
+            const user = departmentData
+              ?.flatMap((d: any) => d.users)
+              ?.find((emp: any) => emp.id === u.userId);
+            return user?.departmentId;
+          })
+          .filter((v: any, i: any, a: any) => v && a.indexOf(v) === i),
         users: scoringData.userVpScoring.map((item: any) => item.userId),
         criteria: scoringData.vpScoringCriterions.map(
           (item: any) =>
@@ -130,7 +124,7 @@ const ScoringDrawer: React.FC = () => {
         ),
       );
     }
-  }, [scoringData, criteriaData, form]);
+  }, [scoringData, criteriaData, form, departmentData]);
 
   useEffect(() => {
     if (!departmentData) return;
@@ -141,10 +135,10 @@ const ScoringDrawer: React.FC = () => {
     const scoringUsers =
       currentId && scoringData
         ? scoringData.userVpScoring
-          .map((item: any) =>
-            allUsers.find((user: any) => user.id === item.userId),
-          )
-          .filter(Boolean)
+            .map((item: any) =>
+              allUsers.find((user: any) => user.id === item.userId),
+            )
+            .filter(Boolean)
         : [];
 
     if (watchedDepartments && watchedDepartments.length > 0) {
@@ -153,7 +147,6 @@ const ScoringDrawer: React.FC = () => {
           const department = departmentData?.find(
             (dept: any) => dept.id === deptId,
           );
-
           return department?.users || [];
         })
         .filter((user: any) => {
@@ -167,34 +160,36 @@ const ScoringDrawer: React.FC = () => {
             (job: any) => job.isPositionActive,
           )?.departmentLeadOrNot;
         });
-      setFilteredUsers(allSelectedDepartmentUsers);
 
-      if (scoringData && criteriaData) {
-        const existingUsers = form.getFieldValue('users') || [];
-        form.setFieldsValue({
-          users: [
-            ...existingUsers,
-            ...allSelectedDepartmentUsers.map((user: any) => user.id),
-          ],
-        });
-      } else {
-        form.setFieldsValue({
-          users: allSelectedDepartmentUsers.map((user: any) => user.id),
-        });
-      }
+      const mergedUsers = [...allSelectedDepartmentUsers];
+      scoringUsers.forEach((su: any) => {
+        if (!mergedUsers.some((u: any) => u.id === su.id)) {
+          mergedUsers.push(su);
+        }
+      });
+
+      setFilteredUsers(mergedUsers);
+    } else if (scoringUsers.length > 0) {
+      // No departments selected but we are editing; at least show the existing users
+      setFilteredUsers(scoringUsers as any[]);
     } else {
       setFilteredUsers([]);
     }
-  }, [selectedDepartment, departmentData, userTypeFilter]);
+  }, [
+    watchedDepartments,
+    departmentData,
+    userTypeFilter,
+    currentId,
+    scoringData,
+  ]);
 
-  const handleDepartmentChange = (value: string[]) => {
-    setSelectedDepartment(value);
-  };
-
-  const handleUserTypeFilter = (
-    value: 'all' | 'team leads' | 'team members',
-  ) => {
-    setUserTypeFilter(value);
+  const handleModalClose = () => {
+    form.resetFields();
+    setWeights({});
+    setSelectedCriteria([]);
+    setSelectedDepartment([]);
+    setFilteredUsers([]);
+    closeDrawer();
   };
 
   const handleCriteriaChange = (values: string[]) => {
@@ -235,29 +230,25 @@ const ScoringDrawer: React.FC = () => {
       return userMapping;
     });
 
-      const mappedCriteria = selectedCriteria.map((criteria) => {
-        const existingCriterion = scoringData?.vpScoringCriterions?.find(
-          (item: any) => item.vpCriteriaId === criteria.vpCriteriaId,
-        );
-
-        const criteriaMapping: Record<string, string> = {
-          vpCriteriaId: criteria.vpCriteriaId,
-          weight:
-            weights[criteria.vpCriteriaId] || existingCriterion?.weight || '0',
-        };
-
-        if (existingCriterion?.id) {
-          criteriaMapping.id = existingCriterion.id;
-        }
-        return criteriaMapping;
-      });
-
-      const payload: Record<string, any> = {
-        name: values.name,
-        totalPercentage: parseFloat(values.totalPercentage),
-        createUserVpScoringDto: mappedUsers,
-        vpScoringCriteria: mappedCriteria,
+    const mappedCriteria = selectedCriteria.map((criteria) => {
+      const existingCriterion = scoringData?.vpScoringCriterions?.find(
+        (item: any) => item.vpCriteriaId === criteria.vpCriteriaId,
+      );
+      const criteriaMapping: Record<string, string> = {
+        vpCriteriaId: criteria.vpCriteriaId,
+        weight:
+          weights[criteria.vpCriteriaId] || existingCriterion?.weight || '0',
       };
+      if (existingCriterion?.id) criteriaMapping.id = existingCriterion.id;
+      return criteriaMapping;
+    });
+
+    const payload: any = {
+      name: values.name,
+      totalPercentage: parseFloat(values.totalPercentage),
+      createUserVpScoringDto: mappedUsers,
+      vpScoringCriteria: mappedCriteria,
+    };
 
     if (currentId) {
       payload.id = currentId;
@@ -270,10 +261,7 @@ const ScoringDrawer: React.FC = () => {
   };
 
   const footer = (
-    <div
-      className="flex justify-end gap-3"
-      data-cy="okr-criteria-modal-footer"
-    >
+    <div className="flex justify-end gap-3" data-cy="okr-criteria-modal-footer">
       <Button
         type="default"
         onClick={handleModalClose}
@@ -297,51 +285,27 @@ const ScoringDrawer: React.FC = () => {
   );
 
   return (
-    <CustomDrawerLayout
+    <Modal
       open={isDrawerVisible}
-      onClose={closeDrawer}
-      modalHeader={
+      onCancel={handleModalClose}
+      title={
         <span
-          className="text-xl font-semibold"
-          id="okr-criteria-drawer-header-title"
-          data-cy="okr-criteria-drawer-header-title"
+          className="text-[20px] font-bold text-[#262626]"
+          data-cy="okr-criteria-modal-title"
         >
           {currentId
             ? 'Edit Scoring Configuration'
             : 'Add Scoring Configuration'}
         </span>
       }
-      width="30%"
-      footer={
-        <div
-          className=" w-full bg-[#fff]  flex justify-center gap-5 py-3"
-          id="okr-criteria-drawer-footer"
-          data-cy="okr-criteria-drawer-footer"
-        >
-          <Button
-            type="default"
-            title="Cancel"
-            onClick={() => {
-              resetState();
-              closeDrawer();
-            }}
-            className="h-10"
-            id="okr-criteria-drawer-cancel-button"
-            data-cy="okr-criteria-drawer-cancel-button"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            loading={currentId ? isUpdatingLoading : isCreateLoading}
-            onClick={() => form.submit()}
-            className="h-10"
-            id="okr-criteria-drawer-submit-button"
-            data-cy="okr-criteria-drawer-submit-button"
-          >
-            {currentId ? 'Update' : 'Create'}
-          </Button>
-        </div>
+      footer={footer}
+      width={1000}
+      centered
+      closeIcon={
+        <CloseOutlined
+          className="text-[#8c8c8c]"
+          data-cy="okr-criteria-modal-close-icon"
+        />
       }
       className="okr-settings-modal"
       data-cy="okr-criteria-modal"
@@ -662,40 +626,34 @@ const ScoringDrawer: React.FC = () => {
           className="flex flex-wrap gap-2 mb-6"
           data-cy="okr-criteria-modal-users-tags-container"
         >
-          <Select
-            mode="multiple"
-            placeholder="Add Users"
-            className="w-full min-h-12"
-            id="okr-criteria-drawer-users-select"
-            data-cy="okr-criteria-drawer-users-select"
-          >
-            {filteredUsers.length > 0
-              ? filteredUsers.map((user: any) => (
-                  <Select.Option
-                    data-cy={`okr-criteria-drawer-users-option-${user.id}`}
-                    key={user.id}
-                    value={user.id}
-                  >
-                    <EmployeeDetails
-                      data-cy={`okr-criteria-drawer-users-option-employee-details-${user.id}`}
-                      empId={user.id}
-                    />
-                  </Select.Option>
-                ))
-              : form.getFieldValue('users')?.map((empId: string) => (
-                  <Select.Option
-                    data-cy={`okr-criteria-drawer-users-option-${empId}`}
-                    key={empId}
-                    value={empId}
-                  >
-                    <EmployeeDetails
-                      data-cy={`okr-criteria-drawer-users-option-employee-details-${empId}`}
-                      empId={empId}
-                    />
-                  </Select.Option>
-                ))}
-          </Select>
-        </Form.Item>
+          {watchedUsers?.map((id: string) => {
+            const user = filteredUsers?.find((u: any) => u.id === id);
+            if (!user) return null;
+            return (
+              <div
+                key={id}
+                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                data-cy={`okr-criteria-modal-users-tag-${id}`}
+              >
+                <span
+                  className="text-[14px] text-[#595959]"
+                  data-cy={`okr-criteria-modal-users-tag-name-${id}`}
+                >
+                  {user.firstName}
+                </span>
+                <CloseOutlined
+                  className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
+                  onClick={() =>
+                    form.setFieldsValue({
+                      users: watchedUsers.filter((v: any) => v !== id),
+                    })
+                  }
+                  data-cy={`okr-criteria-modal-users-tag-close-${id}`}
+                />
+              </div>
+            );
+          })}
+        </div>
 
         <Form.Item
           label={
@@ -773,71 +731,84 @@ const ScoringDrawer: React.FC = () => {
         </Form.Item>
 
         <div
-          className="flex mt-5"
-          id="okr-criteria-drawer-weights-header"
-          data-cy="okr-criteria-drawer-weights-header"
+          className="flex flex-wrap gap-2 mb-6"
+          data-cy="okr-criteria-modal-criteria-tags-container"
         >
-          <span
-            className="flex-1 h-12"
-            id="okr-criteria-drawer-weights-header-name"
-            data-cy="okr-criteria-drawer-weights-header-name"
-          >
-            Criteria Name
-          </span>
-          <span
-            className="flex-1 h-12"
-            id="okr-criteria-drawer-weights-header-value"
-            data-cy="okr-criteria-drawer-weights-header-value"
-          >
-            Weight
-          </span>
+          {watchedCriteria?.map((name: string) => (
+            <div
+              key={name}
+              className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+              data-cy={`okr-criteria-modal-criteria-tag-${name}`}
+            >
+              <span
+                className="text-[14px] text-[#595959]"
+                data-cy={`okr-criteria-modal-criteria-tag-name-${name}`}
+              >
+                {name}
+              </span>
+              <CloseOutlined
+                className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
+                onClick={() => {
+                  const newValues = watchedCriteria.filter(
+                    (v: any) => v !== name,
+                  );
+                  form.setFieldsValue({ criteria: newValues });
+                  handleCriteriaChange(newValues);
+                }}
+                data-cy={`okr-criteria-modal-criteria-tag-close-${name}`}
+              />
+            </div>
+          ))}
         </div>
 
-        {selectedCriteria.map((criteria) => (
+        {selectedCriteria.length > 0 && (
           <div
-            key={criteria.vpCriteriaId}
-            className="flex items-center gap-4"
-            id={`okr-criteria-drawer-weight-row-${criteria.vpCriteriaId}`}
-            data-cy={`okr-criteria-drawer-weight-row-${criteria.vpCriteriaId}`}
+            className="mt-6 border-t pt-4"
+            data-cy="okr-criteria-modal-weights-section"
           >
-            <Form.Item
-              className="flex-1"
-              id={`okr-criteria-drawer-weight-name-field-${criteria.vpCriteriaId}`}
-              data-cy={`okr-criteria-drawer-weight-name-field-${criteria.vpCriteriaId}`}
+            <div
+              className="flex font-semibold text-[#262626] mb-3"
+              data-cy="okr-criteria-modal-weights-header"
             >
-              <Input
-                value={criteria.name}
-                disabled
-                className="flex-1 h-12"
-                id={`okr-criteria-drawer-weight-name-input-${criteria.vpCriteriaId}`}
-                data-cy={`okr-criteria-drawer-weight-name-input-${criteria.vpCriteriaId}`}
-              />
-            </Form.Item>
-            <Form.Item
-              className="flex-1"
-              name={`${criteria.vpCriteriaId}_weight`}
-              initialValue={weights[criteria.vpCriteriaId] || ''}
-              id={`okr-criteria-drawer-weight-value-field-${criteria.vpCriteriaId}`}
-              data-cy={`okr-criteria-drawer-weight-value-field-${criteria.vpCriteriaId}`}
-            >
-              <Input
-                type="number"
-                className="flex-1 h-12"
-                min={0}
-                max={100}
-                onChange={(e) => {
-                  const { weights, setWeights } =
-                    useCriteriaManagementStore.getState();
-                  const updatedWeights = {
-                    ...weights,
-                    [criteria.vpCriteriaId]: e.target.value,
-                  };
-                  setWeights(updatedWeights);
-                }}
-                id={`okr-criteria-drawer-weight-value-input-${criteria.vpCriteriaId}`}
-                data-cy={`okr-criteria-drawer-weight-value-input-${criteria.vpCriteriaId}`}
-              />
-            </Form.Item>
+              <span
+                className="flex-1"
+                data-cy="okr-criteria-modal-weights-header-name"
+              >
+                Criteria Name
+              </span>
+              <span
+                className="flex-1"
+                data-cy="okr-criteria-modal-weights-header-weight"
+              >
+                Weight
+              </span>
+            </div>
+            {selectedCriteria.map((criteria) => (
+              <div
+                key={criteria.vpCriteriaId}
+                className="flex gap-4 mb-3"
+                data-cy={`okr-criteria-modal-weight-row-${criteria.vpCriteriaId}`}
+              >
+                <Input
+                  value={criteria.name}
+                  disabled
+                  className="flex-1 h-11"
+                  data-cy={`okr-criteria-modal-weight-name-input-${criteria.vpCriteriaId}`}
+                />
+                <Input
+                  type="number"
+                  value={weights[criteria.vpCriteriaId] || ''}
+                  className="flex-1 h-11"
+                  onChange={(e) =>
+                    setWeights({
+                      ...weights,
+                      [criteria.vpCriteriaId]: e.target.value,
+                    })
+                  }
+                  data-cy={`okr-criteria-modal-weight-input-${criteria.vpCriteriaId}`}
+                />
+              </div>
+            ))}
           </div>
         )}
 
@@ -897,8 +868,8 @@ const ScoringDrawer: React.FC = () => {
           }
         `}</style>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 
-export default ScoringDrawer;
+export default ScoringModal;

@@ -1,23 +1,24 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import {
   Button,
   Col,
   Form,
-  Image,
   Input,
   InputNumber,
+  Modal,
   Row,
   Select,
   Upload,
 } from 'antd';
 import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
-import cvUpload from '@/public/image/cvUpload.png';
+import { InboxOutlined } from '@ant-design/icons';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -96,15 +97,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     return null;
   }
 
-  const createJobDrawerHeader = (
-    <div
-      data-cy="-id-components-createcandidate-index-tsx-index-div-85"
-      className="flex justify-center text-xl font-extrabold text-gray-800 "
-    >
-      Add New Candidate
-    </div>
-  );
-
   const handleSubmit = async () => {
     const formValues = form.getFieldsValue();
     const formData = new FormData();
@@ -156,7 +148,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   };
 
   return (
-    <CustomDrawerLayout
+    <Modal
       data-cy="talent-acquisition-job-create-candidate-drawer"
       className="ta-candidate-modal"
       open={createJobDrawer}
@@ -548,8 +540,36 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </div>
           </div>
         </div>
+
+        <Form.Item>
+          <div
+            id="talent-acquisition-create-candidate-div-buttons"
+            data-cy="talent-acquisition-create-candidate-div-buttons"
+            className="flex justify-end w-full bg-[#fff] px-0 pt-4 gap-3"
+          >
+            <Button
+              id="talent-acquisition-job-create-candidate-button-cancel"
+              data-cy="talent-acquisition-job-create-candidate-button-cancel"
+              onClick={onClose}
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white px-3 h-8 hover:border-[#4096FF] border-gray-300 hover:text-[#4096FF]"
+              disabled={isCreatingCandidate}
+            >
+              Cancel
+            </Button>
+            <Button
+              id="talent-acquisition-job-create-candidate-button-submit"
+              data-cy="talent-acquisition-job-create-candidate-button-submit"
+              htmlType="submit"
+              className="flex justify-center text-sm font-medium text-white bg-primary px-3 h-8 border-none hover:bg-[#4096FF]"
+              loading={isCreatingCandidate}
+              disabled={isCreatingCandidate}
+            >
+              Create
+            </Button>
+          </div>
+        </Form.Item>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 

@@ -26,15 +26,19 @@ export const useChartRef = () => {
   if (!context) {
     throw new Error('useChartRef must be used within a ChartRefProvider');
   }
-  return context;
+  return context.chartRef;
 };
 
-// import { exportOrgStrucutreMenu, orgComposeAndMergeMenues } from '../menues/inex';
+export const useChartExportActionsRef = () => {
+  const context = useContext(ChartRefContext);
+  if (!context) {
+    throw new Error(
+      'useChartExportActionsRef must be used within a ChartRefProvider',
+    );
+  }
+  return context.exportActionsRef;
+};
 
-import {
-  exportOrgStrucutreMenu,
-  orgComposeAndMergeMenues,
-} from './org-structure/_components/menues/inex';
 import CustomDrawer from './org-structure/_components/customDrawer';
 import {
   useMergingDepartment,
@@ -45,8 +49,6 @@ import { useTransferStore } from '@/store/uistate/features/organizationStructure
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { Form } from 'antd';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 // Layout component definition
 export default function ChartLayout({
   children,
@@ -54,11 +56,15 @@ export default function ChartLayout({
   children: React.ReactNode;
   params: any;
 }) {
-  const router = useRouter();
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
 
   const chartRef = useRef<HTMLDivElement>(null);
+  const exportActionsRef = useRef<UseReactFlowExportApi | null>(null);
   const { setIsDeleteConfirmVisible } = useOrganizationStore();
+  const chartDownloadLoading = useOrganizationStore(
+    (s) => s.chartDownlaodLoading,
+  );
   const { transferDepartment, resetStore } = useTransferStore();
   const { mergeData } = useMergeStore();
   const { mutate: transferDepartments, isLoading: isTransferLoading } =
@@ -72,8 +78,6 @@ export default function ChartLayout({
     drawTitle,
     setDrawerVisible,
     setDepartmentTobeDeletedId,
-    selectedKey,
-    setSelectedKey,
   } = useOrganizationStore.getState();
 
   const { reset } = useDepartmentStore();
@@ -105,24 +109,27 @@ export default function ChartLayout({
     reset();
   };
 
-  // Handling menu click and navigation
-  const onMenuClick = (key: string) => {
-    setSelectedKey(key);
-    switch (key) {
-      case 'structure':
-        router.push('/organization/chart/org-structure');
-        break;
-      case 'chart':
-        router.push('/organization/chart/org-chart');
-        break;
-      default:
-        break;
+  const handleDownloadPNG = () => {
+    if (chartDownloadLoading) return;
+    if (exportActionsRef.current?.downloadPNG) {
+      exportActionsRef.current.downloadPNG();
+    } else {
+      exportToPDFOrJPEG(chartRef as RefObject<HTMLDivElement>, false);
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    if (chartDownloadLoading) return;
+    if (exportActionsRef.current?.downloadPDF) {
+      exportActionsRef.current.downloadPDF();
+    } else {
+      exportToPDFOrJPEG(chartRef as RefObject<HTMLDivElement>, true);
     }
   };
 
   return (
     <ChartRefContext.Provider
-      value={chartRef}
+      value={{ chartRef, exportActionsRef }}
       data-cy="org-structure-layout-provider"
     >
       <div
@@ -182,22 +189,32 @@ export default function ChartLayout({
                 id="org-structure-actions"
               >
                 <Dropdown
-                  overlay={exportOrgStrucutreMenu(
-                    chartRef as RefObject<HTMLDivElement>,
-                    exportToPDFOrJPEG,
-                  )}
+                  menu={{
+                    items: [
+                      {
+                        key: 'pdf',
+                        label: 'PDF',
+                        onClick: handleDownloadPDF,
+                        disabled: chartDownloadLoading,
+                      },
+                      {
+                        key: 'png',
+                        label: 'PNG',
+                        onClick: handleDownloadPNG,
+                        disabled: chartDownloadLoading,
+                      },
+                    ],
+                  }}
                   trigger={['click']}
-                  placement="bottomRight"
+                  placement={isMobile ? 'bottomRight' : 'bottomRight'}
                   data-cy="org-structure-export-dropdown"
+                  disabled={chartDownloadLoading}
                 >
-                  {/* <AccessGuard
-                    permissions={[Permissions.DownloadOrganizationStructure]}
-                  > */}
                   <Button
                     title="Download"
                     icon={
-                      <FaDownload
-                        size={16}
+                      <DownloadOutlined
+                        style={{ fontSize: 16 }}
                         data-cy="org-structure-download-btn-icon"
                         id="org-structure-download-btn-icon"
                       />
@@ -207,16 +224,17 @@ export default function ChartLayout({
                     style={{ boxShadow: 'none', color: '#000000B2' }}
                     data-cy="org-structure-download-btn"
                     id="org-structure-download-btn"
+                    loading={chartDownloadLoading}
+                    disabled={chartDownloadLoading}
                   >
                     <span
-                      className="hidden sm:inline"
+                      className="font-normal hidden sm:inline"
                       data-cy="org-structure-download-btn-span"
                       id="org-structure-download-btn-span"
                     >
-                      Download
+                      {chartDownloadLoading ? 'Preparing…' : 'Download'}
                     </span>
                   </Button>
-                  {/* </AccessGuard> */}
                 </Dropdown>
                 {canResetView && (
                   <Button
@@ -250,42 +268,6 @@ export default function ChartLayout({
               </div>
             }
           >
-            <div
-              className="flex justify-end"
-              data-cy="org-structure-tabs-menu-container"
-              id="org-structure-tabs-menu-container"
-            >
-              <div
-                data-cy="org-structure-tabs-menu-container"
-                id="org-structure-tabs-menu-container"
-                className="flex justify-end bg-[#f5f5f5] shadow-md rounded-lg w-fit h-10 sm:h-12 py-[5px] px-[6px] gap-[14px] border-1"
-              >
-                <button
-                  data-cy="org-structure-tabs-menu-button"
-                  id="org-structure-tabs-menu-button"
-                  onClick={() => onMenuClick('structure')}
-                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
-                    selectedKey === 'structure'
-                      ? 'bg-white rounded-md shadow-sm border-1'
-                      : 'bg-transparent'
-                  }`}
-                >
-                  Org Chart
-                </button>
-                <button
-                  data-cy="org-structure-tabs-menu-button"
-                  id="org-structure-tabs-menu-button"
-                  onClick={() => onMenuClick('chart')}
-                  className={`px-4 h-full text-black text-sm transition-all duration-300 ${
-                    selectedKey === 'chart'
-                      ? 'bg-white rounded-md shadow-sm border-1'
-                      : 'bg-transparent'
-                  }`}
-                >
-                  Team View
-                </button>
-              </div>
-            </div>
             <CustomDrawer
               data-cy="org-structure-custom-drawer"
               loading={transferDepartment ? isTransferLoading : isLoading}

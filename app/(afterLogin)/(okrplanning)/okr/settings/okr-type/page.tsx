@@ -1,22 +1,34 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, Switch } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Radio } from 'antd';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
-import { useUpdateOkrSetting } from '@/store/server/features/okrplanning/okr-setting/mutations';
+import {
+  useUpdateOkrSetting,
+  useSwitchOkrMode,
+} from '@/store/server/features/okrplanning/okr-setting/mutations';
 import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
 import OkrModeConfirmationModal from './_components/OkrModeConfirmationModal';
 import OkrModeEffectsModal from './_components/OkrModeEffectsModal';
+import UnreportedUsersModal from './_components/UnreportedUsersModal';
+import NotReportedEmployeesList from './_components/NotReportedEmployeesList';
+import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 
 const OkrTypePage = () => {
   const { okrMode, refetch } = useOkrSetting();
-  const { data: settingData, refetch: refetchSetting } = useGetOkrSetting();
-  const { mutate: updateOkrSetting, isLoading: isUpdating } =
-    useUpdateOkrSetting();
+  const { refetch: refetchSetting } = useGetOkrSetting();
+  const { isLoading: isUpdating } = useUpdateOkrSetting();
+  const { mutate: switchOkrMode, isLoading: isSwitching } = useSwitchOkrMode();
+  const {
+    showNotReportedList,
+    setShowNotReportedList,
+    incompleteUserIds,
+    setIncompleteUserIds,
+  } = useOKRSettingStore();
 
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [effectsModalOpen, setEffectsModalOpen] = useState(false);
+  const [unreportedModalOpen, setUnreportedModalOpen] = useState(false);
   const [targetMode, setTargetMode] = useState<'Basic' | 'Advanced' | null>(
     null,
   );
@@ -29,21 +41,13 @@ const OkrTypePage = () => {
     refetchSetting();
   }, [refetchSetting]);
 
-  const handleToggleChange = (checked: boolean, mode: 'Basic' | 'Advanced') => {
-    if (!checked) {
-      // If unchecking, do nothing (shouldn't happen as only one can be active)
-      return;
-    }
-
+  const handleRadioChange = (mode: 'Basic' | 'Advanced') => {
     // If already in this mode, do nothing
     if (okrMode === mode) {
       return;
     }
 
     // Determine transition direction
-    // If okrMode is null, assume we're starting fresh (no transition direction needed)
-    // But for now, if null and switching to Advanced, treat as BasicToAdvanced
-    // If null and switching to Basic, treat as AdvancedToBasic (though unlikely)
     const direction: 'BasicToAdvanced' | 'AdvancedToBasic' =
       okrMode === 'Basic' || okrMode === null
         ? 'BasicToAdvanced'
@@ -57,30 +61,24 @@ const OkrTypePage = () => {
   const handleConfirm = () => {
     if (!targetMode) return;
 
-    // If setting doesn't exist yet, we need to create it first
-    // But useUpdateOkrSetting requires an id, so we should use useCreateOrUpdateOkrSetting
-    // However, let's check if settingData exists first
-    if (!settingData?.id) {
-      // Setting doesn't exist, we can't update - this shouldn't happen in normal flow
-      // as admin should have created a setting already
-      setConfirmationModalOpen(false);
-      return;
-    }
-
-    updateOkrSetting(
-      { id: settingData.id, mode: targetMode },
-      {
-        onSuccess: () => {
-          setConfirmationModalOpen(false);
-          setEffectsModalOpen(true);
-          refetch();
-          refetchSetting();
-        },
-        onError: () => {
-          setConfirmationModalOpen(false);
-        },
+    switchOkrMode(targetMode, {
+      onSuccess: () => {
+        setConfirmationModalOpen(false);
+        setEffectsModalOpen(true);
+        refetch();
+        refetchSetting();
       },
-    );
+      onError: (error: any) => {
+        if (error?.response?.status === 400) {
+          const ids = error?.response?.data?.incompleteUserIds || [];
+          setIncompleteUserIds(ids);
+          setConfirmationModalOpen(false);
+          setUnreportedModalOpen(true);
+        } else {
+          setConfirmationModalOpen(false);
+        }
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -98,14 +96,48 @@ const OkrTypePage = () => {
   const isBasicActive = okrMode === 'Basic';
   const isAdvancedActive = okrMode === 'Advanced';
 
+  if (showNotReportedList && transitionDirection) {
+    return (
+      <NotReportedEmployeesList
+        userIds={incompleteUserIds}
+        onBack={() => {
+          setShowNotReportedList(false);
+          setTransitionDirection(null);
+          setIncompleteUserIds([]);
+        }}
+      />
+    );
+  }
+
   return (
     <div
-      className="p-6 bg-white rounded-lg"
+      className="w-full"
       data-cy="okr-type-page-container"
       id="okr-type-page-container"
     >
+      {/* Heading */}
+      <h2
+        className="text-[20px] font-bold text-[#262626] text-center mb-3"
+        data-cy="okr-type-heading"
+        id="okr-type-heading"
+      >
+        Switch Between OKR Types
+      </h2>
+
+      {/* Description */}
+      <p
+        className="text-[14px] text-[#595959] text-center mb-10 max-w-2xl mx-auto"
+        data-cy="okr-type-description"
+        id="okr-type-description"
+      >
+        Use the below buttons to switch between the two OKR types provided in
+        your work space. Please note this will affect the interface of Objective
+        screen
+      </p>
+
+      {/* Radio Button Cards */}
       <div
-        className="space-y-6 mb-6"
+        className="flex flex-col lg:flex-row items-center justify-center gap-6 mb-12 px-4"
         data-cy="okr-type-cards-container"
         id="okr-type-cards-container"
       >
@@ -163,73 +195,59 @@ const OkrTypePage = () => {
           data-cy="okr-type-basic-card"
           id="okr-type-basic-card"
         >
-          <p
-            className="text-gray-600 text-sm"
-            data-cy="okr-type-basic-card-description"
-            id="okr-type-basic-card-description"
+          <div
+            className="flex items-center gap-4 mb-4"
+            data-cy="okr-type-basic-card-header"
           >
-            Basic OKR allows employees to define Objectives and Key Results for
-            goal tracking. Daily and weekly plans are not linked to OKRs, and
-            OKR progress has no impact on variable pay.
-          </p>
-        </Card>
-
-        {/* Advanced OKR Card */}
-        <Card
-          title={
-            <span
-              className="text-lg font-semibold"
-              data-cy="okr-type-advanced-card-title"
-              id="okr-type-advanced-card-title"
-            >
-              Advanced OKR
-            </span>
-          }
-          extra={
-            <Switch
-              checked={isAdvancedActive}
-              onChange={(checked) => handleToggleChange(checked, 'Advanced')}
+            <Radio
+              checked={isBasicActive}
               disabled={isUpdating}
-              data-cy="okr-type-advanced-card-switch"
-              id="okr-type-advanced-card-switch"
+              onChange={() => !isUpdating && handleRadioChange('Basic')}
+              className="custom-brand-radio"
+              data-cy="okr-type-basic-radio"
             />
-          }
-          className="w-full"
-          data-cy="okr-type-advanced-card"
-          id="okr-type-advanced-card"
-        >
+            <h3
+              className="text-[18px] font-bold text-[#262626] m-0"
+              data-cy="okr-type-basic-card-title"
+            >
+              Basic
+            </h3>
+          </div>
           <p
-            className="text-gray-600 text-sm"
-            data-cy="okr-type-advanced-card-description"
-            id="okr-type-advanced-card-description"
+            className="text-[14px] text-[#595959] leading-relaxed m-0"
+            data-cy="okr-type-basic-card-description"
           >
             Basic OKR allows employees to define Objectives and Key Results for
-            goal tracking. Daily and weekly plans are not linked to OKRs, and
-            OKR progress has no impact on variable pay.
+            goal tracking. Daily and weekly plans are not linked to OKRs. OKR
+            progress has no impact on variable pay.
           </p>
-        </Card>
+        </div>
       </div>
 
-      {/* Warning Message */}
-      <div
-        className="flex items-center gap-3 mb-4"
-        data-cy="okr-type-warning-alert"
-        id="okr-type-warning-alert"
+      {/* Bottom Note */}
+      <p
+        className="text-[14px] text-[#8c8c8c] text-center"
+        data-cy="okr-type-warning-text"
+        id="okr-type-warning-text"
       >
-        <ExclamationCircleOutlined
-          className="text-gray-500 text-lg"
-          data-cy="okr-type-warning-icon"
-          id="okr-type-warning-icon"
-        />
-        <span
-          className="text-gray-900 text-sm"
-          data-cy="okr-type-warning-text"
-          id="okr-type-warning-text"
-        >
-          Please Note that you can not use both types of OKR&apos;s at the same
-          time
-        </span>
-      </div>
+        Please Note that you can not use both types of OKR&apos;s at the same
+        time
+      </p>
+
+      <style jsx global data-cy="okr-type-styles">{`
+        .custom-brand-radio .ant-radio-inner {
+          border-color: #d9d9d9;
+          width: 20px;
+          height: 20px;
+        }
+        .custom-brand-radio .ant-radio-checked .ant-radio-inner {
+          border-color: #2b54ad !important;
+          background-color: #2b54ad !important;
+        }
+        .custom-brand-radio .ant-radio-checked .ant-radio-inner::after {
+          background-color: #fff;
+        }
+      `}</style>
 
       {/* Confirmation Modal */}
       {transitionDirection && (
@@ -238,7 +256,7 @@ const OkrTypePage = () => {
           transitionDirection={transitionDirection}
           onConfirm={handleConfirm}
           onCancel={handleCancel}
-          loading={isUpdating}
+          loading={isSwitching}
         />
       )}
 
@@ -248,6 +266,19 @@ const OkrTypePage = () => {
           open={effectsModalOpen}
           transitionDirection={transitionDirection}
           onClose={handleEffectsModalClose}
+        />
+      )}
+
+      {/* Unreported Users Modal */}
+      {transitionDirection && (
+        <UnreportedUsersModal
+          open={unreportedModalOpen}
+          transitionDirection={transitionDirection}
+          onClose={() => setUnreportedModalOpen(false)}
+          onViewList={() => {
+            setUnreportedModalOpen(false);
+            setShowNotReportedList(true);
+          }}
         />
       )}
     </div>

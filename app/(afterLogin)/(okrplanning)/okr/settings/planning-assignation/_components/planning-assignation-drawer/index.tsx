@@ -14,12 +14,13 @@ import {
 } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import { PlanningPeriodItem } from '@/store/uistate/features/okrplanning/okrSetting/interface';
-interface RepDrawerProps {
+
+interface PlanningAssignationModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
+const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
   open,
   onClose,
 }) => {
@@ -37,47 +38,15 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   const userIds = Form.useWatch('userIds', form);
   const planningPeriods = Form.useWatch('planningPeriods', form);
 
-  const customTagRender = (props: any) => {
-    const { label, closable, onClose } = props;
-    return (
-      <div
-        className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1"
-        id="okr-planning-assignation-drawer-selected-user-tag"
-        data-cy="okr-planning-assignation-drawer-selected-user-tag"
-      >
-        <Avatar
-          size={20}
-          icon={
-            <UserOutlined
-              data-cy={`okr-planning-assignation-drawer-selected-user-tag-avatar-icon`}
-            />
-          }
-          data-cy="okr-planning-assignation-drawer-selected-user-tag-avatar"
-        />
-        <span
-          id="okr-planning-assignation-drawer-selected-user-tag-label"
-          data-cy="okr-planning-assignation-drawer-selected-user-tag-label"
-        >
-          {label}
-        </span>
-        {closable && (
-          <span
-            onClick={onClose}
-            className="text-black text-xs cursor-pointer"
-            id="okr-planning-assignation-drawer-selected-user-tag-close"
-            data-cy="okr-planning-assignation-drawer-selected-user-tag-close"
-          >
-            ✖
-          </span>
-        )}
-      </div>
-    );
+  const handleModalClose = () => {
+    form.resetFields();
+    onClose();
   };
 
   useEffect(() => {
     if (selectedPlanningUser) {
       form.setFieldsValue({
-        userIds: [selectedPlanningUser.userId], // Wrapping userId in an array to match the expected structure
+        userIds: [selectedPlanningUser.userId],
         planningPeriods: selectedPlanningUser.planningPeriod.map(
           (item: PlanningPeriodItem) => item.planningPeriodId,
         ),
@@ -85,45 +54,24 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
     } else {
       form.resetFields();
     }
-  }, [selectedPlanningUser, form]);
+  }, [selectedPlanningUser, form, open]);
 
   const onFinish = (values: any) => {
-    planAssign(values, {
-      onSuccess: () => {
-        handleDrawerClose();
-      },
-    });
-    // const value = { ...values, issuerId: userId };
+    if (selectedPlanningUser) {
+      editAssign(values, {
+        onSuccess: () => {
+          handleModalClose();
+        },
+      });
+    } else {
+      planAssign(values, {
+        onSuccess: () => {
+          handleModalClose();
+        },
+      });
+    }
   };
 
-  const onUpdate = (values: any) => {
-    editAssign(values, {
-      onSuccess: () => {
-        handleDrawerClose();
-      },
-    });
-    // const value = { ...values, issuerId: userId };
-  };
-
-  const handleDrawerClose = () => {
-    form.resetFields(); // Reset all form fields
-    onClose();
-  };
-
-  const modalHeader = (
-    <div
-      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
-      id="okr-planning-assignation-drawer-header"
-      data-cy="okr-planning-assignation-drawer-header"
-    >
-      <span
-        id="okr-planning-assignation-drawer-header-title"
-        data-cy="okr-planning-assignation-drawer-header-title"
-      >
-        Assign
-      </span>
-    </div>
-  );
   const footer = (
     <div
       className="flex justify-end gap-3"
@@ -152,24 +100,38 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   );
 
   return (
-    <CustomDrawerLayout
+    <Modal
       open={open}
-      onClose={handleDrawerClose}
-      modalHeader={modalHeader}
+      onCancel={handleModalClose}
+      title={
+        <span
+          className="text-[20px] font-bold text-[#262626]"
+          data-cy="okr-planning-assignation-modal-title"
+        >
+          {selectedPlanningUser ? 'Edit Assignment' : 'Assign Users'}
+        </span>
+      }
       footer={footer}
-      width="30%"
-      data-cy="okr-planning-assignation-drawer"
+      width={640}
+      centered
+      closeIcon={
+        <CloseOutlined
+          className="text-[#8c8c8c]"
+          data-cy="okr-planning-assignation-modal-close-icon"
+        />
+      }
+      data-cy="okr-planning-assignation-modal"
+      className="okr-settings-modal"
     >
       <Form
         form={form}
-        name="reprimandForm"
         layout="vertical"
         onFinish={onFinish}
         className=""
         id="okr-planning-assignation-modal-form"
         data-cy="okr-planning-assignation-modal-form"
       >
-        {/* Select Employee */}
+        {/* Assignee Selection - Hidden field for real value */}
         <Form.Item
           name="userIds"
           noStyle
@@ -327,8 +289,8 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
                 border-bottom: none !important;
               }
               .okr-settings-modal .ant-modal-body {
-            padding: 0px 24px 24px 24px !important;
-          }
+                padding: 0px 24px 24px 24px !important;
+              }
               .okr-settings-modal .ant-modal-footer {
                 padding: 8px 24px 24px 24px !important;
                 border-top: none !important;
@@ -342,6 +304,41 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
           </div>
         </Form.Item>
 
+        {/* Manual Tag Display */}
+        <div
+          className="flex flex-wrap gap-2 mb-6"
+          data-cy="okr-planning-assignation-user-tags-container"
+        >
+          {userIds?.map((id: string) => {
+            const user = allUsers?.items?.find((u: any) => u.id === id);
+            if (!user) return null;
+            return (
+              <div
+                key={id}
+                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                id={`okr-manual-user-tag-${id}`}
+                data-cy={`okr-manual-user-tag-${id}`}
+              >
+                <span
+                  className="text-[14px] text-[#595959]"
+                  data-cy={`okr-manual-user-tag-name-${id}`}
+                >
+                  {user.firstName}
+                </span>
+                <CloseOutlined
+                  className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
+                  onClick={() => {
+                    const newIds = userIds.filter((uid: string) => uid !== id);
+                    form.setFieldsValue({ userIds: newIds });
+                  }}
+                  data-cy={`okr-manual-user-tag-close-${id}`}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Plan Selection */}
         <Form.Item
           label={
             <div
@@ -445,7 +442,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
                   className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
                   onClick={() => {
                     const newPeriods = planningPeriods.filter(
-                      (pid: string) => pid !== id
+                      (pid: string) => pid !== id,
                     );
                     form.setFieldsValue({ planningPeriods: newPeriods });
                   }}
@@ -456,7 +453,8 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
           })}
         </div>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
-export default PlanningAssignationDrawer;
+
+export default PlanningAssignationModal;

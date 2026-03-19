@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, Checkbox, Typography, Spin, Empty } from 'antd';
+import { Modal, Button, Checkbox, Spin, Empty } from 'antd';
 import {
   useUpdateCreateWeeklyPriorityBulk,
   useCreateWeeklyPriorityBulk,
@@ -8,8 +8,6 @@ import {
   CheckedItem,
   useWeeklyPriorityStore,
 } from '@/store/uistate/features/weeklyPriority/useStore';
-
-const { Title } = Typography;
 
 interface WeeklyPriorityModalProps {
   open: boolean;
@@ -22,6 +20,7 @@ interface WeeklyPriorityModalProps {
   month: string;
   selectedTask: any;
   planningType: string;
+  'data-cy'?: string;
 }
 
 const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
@@ -35,6 +34,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
   month,
   selectedTask,
   planningType,
+  'data-cy': dataCy,
 }) => {
   const { checkedList, setCheckedList } = useWeeklyPriorityStore();
   const {
@@ -45,6 +45,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
     mutate: updateWeeklyPriorityBulkTask,
     isLoading: isLoadingUpdateWeeklyPriorityBulkTask,
   } = useUpdateCreateWeeklyPriorityBulk();
+
   const isLoadings =
     isLoadingCreateWeeklyPriorityBulkTask ||
     isLoadingUpdateWeeklyPriorityBulkTask;
@@ -255,10 +256,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
           </div>
         }
       >
-        <div
-          className="mt-1"
-          data-cy="weekly-priority-modal-body"
-        >
+        <div className="mt-1" data-cy="weekly-priority-modal-body">
           {isLoading ? (
             <div
               className="py-24 flex justify-center"
@@ -325,12 +323,23 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
                 );
               })}
             </div>
-          ))}
+          ) : (
+            <div className="py-24" data-cy="weekly-priority-modal-empty">
+              <Empty
+                description={
+                  <span
+                    className="text-gray-400 font-medium"
+                    data-cy="weekly-priority-modal-empty-text"
+                  >
+                    Please add {planningType} plan first
+                  </span>
+                }
+              />
+            </div>
+          )}
         </div>
-      ) : (
-        <Empty description={`Please add ${planningType} plan first`} />
-      )}
-    </Modal>
+      </Modal>
+    </div>
   );
 };
 

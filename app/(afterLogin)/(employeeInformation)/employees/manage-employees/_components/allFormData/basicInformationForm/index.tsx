@@ -577,7 +577,13 @@ const BasicInformationForm = ({ form }: any) => {
                 className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-nationality-label"
               >
-                Nationality <span className="text-gray-400">(optional)</span>
+                Nationality{' '}
+                <span
+                  data-cy="basic-info-nationality-label-span"
+                  className="text-gray-400"
+                >
+                  (optional)
+                </span>
               </span>
             }
             id="userNationalityId"

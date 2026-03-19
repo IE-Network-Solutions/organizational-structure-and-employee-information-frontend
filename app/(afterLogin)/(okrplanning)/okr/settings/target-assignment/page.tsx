@@ -4,11 +4,10 @@ import { Spin, Dropdown, MenuProps, Tag } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
-import AssignTargetDrawer from './_components/assign-target-drawer';
+import AssignTargetModal from './_components/assign-target-drawer';
 import TargetFilters from './_components/target-filters';
 import { useGetTargetAssignment } from '@/store/server/features/okrplanning/okr/target/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
-import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { useDeleteAssignedTarget } from '@/store/server/features/okrplanning/okr/target/mutation';
 import { useGetCriteriaTargets } from '@/store/server/features/okrplanning/okr/criteria/queries';
 import AccessGuard from '@/utils/permissionGuard';
@@ -28,163 +27,133 @@ function Page() {
   const criteriaTypes: string[] = (criteriaData?.items || []).map(
     (item: any) => item.name,
   );
-  const dataSource = targetAssignmentData?.items
-    .map((item: any) => {
+
+  const groupedData = (targetAssignmentData?.items || [])
+    .reduce((acc: any[], item: any) => {
       const matchingDepartment = departmentData?.find(
         (dept: any) => dept.id == item.departmentId,
       );
+      const deptName = matchingDepartment ? matchingDepartment.name : '--';
+      const criteriaName = item.vpCriteria.name;
+      const key = `${deptName}-${criteriaName}`;
 
-      return {
-        key: item.id,
-        department: matchingDepartment ? matchingDepartment.name : '--',
-        criteriaName: item.vpCriteria.name,
+      let group = acc.find((g) => g.key === key);
+      if (!group) {
+        group = {
+          key,
+          department: deptName,
+          criteriaName,
+          targets: [],
+        };
+        acc.push(group);
+      }
+      group.targets.push({
+        id: item.id,
         month: item.month,
         target: item.target,
-      };
-    })
-    .filter((item: any) => {
-      const matchesSearch = item.department
+      });
+      group.targets.sort((a: any, b: any) => a.month - b.month);
+      return acc;
+    }, [])
+    .filter((group: any) => {
+      const matchesSearch = group.department
         ?.toLowerCase()
         .includes(searchText.toLowerCase());
       const matchesType =
         selectedType === 'All Types' ||
-        item.criteriaName
+        group.criteriaName
           ?.toLowerCase()
           .includes(selectedType?.toLowerCase() || '');
       return matchesSearch && matchesType;
     });
 
-  const columns = [
-    {
-      title: 'Department',
-      dataIndex: 'department',
-      key: 'department',
-    },
-    {
-      title: 'Criteria Name',
-      dataIndex: 'criteriaName',
-      key: 'criteriaName',
-    },
-    {
-      title: 'Month',
-      dataIndex: 'month',
-      key: 'month',
-    },
-    {
-      title: 'Target',
-      dataIndex: 'target',
-      key: 'target',
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (record: any) => (
-        <div
-          className="flex space-x-2"
-          id={`okr-target-assignment-table-actions-${record.key}`}
-          data-cy={`okr-target-assignment-table-actions-${record.key}`}
-        >
-          <AccessGuard
-            data-cy="okr-target-assignment-table-edit-button-access-guard-display-guard"
-            permissions={[Permissions.UpdateVpTargetsAssignation]}
-          >
-            <Button
-              type="default"
-              className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
-              icon={<GrEdit />}
-              onClick={() => handleEditClick(record.key)}
-              id={`okr-target-assignment-table-edit-button-${record.key}`}
-              data-cy={`okr-target-assignment-table-edit-button-${record.key}`}
-            />
-          </AccessGuard>
-          <DeletePopover
-            onDelete={() => handleDelete(record.key)}
-            data-cy={`okr-target-assignment-table-delete-popover-${record.key}`}
-          >
-            <AccessGuard
-              data-cy="okr-target-assignment-table-delete-button-access-guard-display-guard"
-              permissions={[Permissions.DeleteVpTargetsAssignation]}
-            >
-              <Button
-                type="default"
-                className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={
-                  <RiDeleteBin6Line
-                    data-cy={`okr-target-assignment-table-delete-button-icon-${record.key}`}
-                  />
-                }
-                id={`okr-target-assignment-table-delete-button-${record.key}`}
-                data-cy={`okr-target-assignment-table-delete-button-${record.key}`}
-              />
-            </AccessGuard>
-          </DeletePopover>
-        </div>
-      ),
-    },
-  ];
-
   const handleEditClick = (id: string) => {
     openDrawer(id);
   };
+
   const handleDelete = (id: string) => {
     deleteAssignedTarget(id);
   };
+
+  const getMenuItems = (group: any): MenuProps['items'] => {
+    // Note: In a grouped view, edit/delete might need to be specific to a month
+    // or we edit the first target. Assuming edit opens the drawer for the configuration.
+    const firstId = group.targets[0]?.id;
+    return [
+      {
+        key: 'edit',
+        label: (
+          <AccessGuard
+            permissions={[Permissions.UpdateVpTargetsAssignation]}
+            data-cy={`okr-target-card-edit-access-guard-${group.key}`}
+          >
+            <div
+              className="flex items-center gap-3 py-1"
+              onClick={() => handleEditClick(firstId)}
+              id={`okr-target-card-edit-menu-item-${group.key}`}
+              data-cy={`okr-target-card-edit-menu-item-${group.key}`}
+            >
+              <MdModeEditOutline className="text-[#595959] text-xl" />
+              <span
+                className="text-[15px] text-[#262626]"
+                data-cy={`okr-target-card-edit-text-${group.key}`}
+              >
+                Edit OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+      {
+        type: 'divider',
+      },
+      {
+        key: 'delete',
+        label: (
+          <AccessGuard
+            permissions={[Permissions.DeleteVpTargetsAssignation]}
+            data-cy={`okr-target-card-delete-access-guard-${group.key}`}
+          >
+            <div
+              className="flex items-center gap-3 py-1 text-red-600"
+              onClick={() => handleDelete(firstId)}
+              id={`okr-target-card-delete-menu-item-${group.key}`}
+              data-cy={`okr-target-card-delete-menu-item-${group.key}`}
+            >
+              <MdDeleteForever className="text-xl" />
+              <span
+                className="text-[15px]"
+                data-cy={`okr-target-card-delete-text-${group.key}`}
+              >
+                Delete OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+    ];
+  };
+
   const handleTypeChange = (value: string) => setSelectedType(value);
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
-      id="okr-target-assignment-container"
-      data-cy="okr-target-assignment-container"
+      className="w-full"
+      id="okr-target-assignment-page"
+      data-cy="okr-target-assignment-page"
     >
-      {/* Desktop layout: visible from md and up */}
-
+      {/* Unified Container */}
       <div
-        className="hidden md:flex justify-between mb-6"
-        id="okr-target-assignment-desktop-header"
-        data-cy="okr-target-assignment-desktop-header"
+        className="border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+        id="okr-target-assignment-main-container"
+        data-cy="okr-target-assignment-main-container"
       >
-        <h1
-          className="text-2xl font-bold md:text-lg"
-          id="okr-target-assignment-desktop-title"
-          data-cy="okr-target-assignment-desktop-title"
-        >
-          Target Assignment
-        </h1>
-        <AccessGuard
-          data-cy="okr-target-assignment-desktop-assign-button-access-guard-display-guard"
-          permissions={[Permissions.AssignVpTargets]}
-        >
-          <Button
-            type="primary"
-            className=""
-            icon={
-              <FaPlus data-cy="okr-target-assignment-desktop-assign-button-icon-display-button" />
-            }
-            onClick={() => openDrawer()}
-            id="okr-target-assignment-desktop-assign-button"
-            data-cy="okr-target-assignment-desktop-assign-button"
-          >
-            <span
-              className="hidden lg:block"
-              id="okr-target-assignment-desktop-assign-button-label"
-              data-cy="okr-target-assignment-desktop-assign-button-label"
-            >
-              Assign Target
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
-      <div
-        className="hidden md:block w-full"
-        id="okr-target-assignment-desktop-filter-wrapper"
-        data-cy="okr-target-assignment-desktop-filter-wrapper"
-      >
+        {/* Search and Filter Row */}
         <TargetFilters
           onSearchChange={setSearchText}
           onTypeChange={handleTypeChange}
           targetNames={['All Types', ...criteriaTypes]}
-          data-cy="okr-target-assignment-desktop-filters"
+          data-cy="okr-target-assignment-filters"
         />
 
         {targetAssignmentLoading ? (
@@ -286,7 +255,7 @@ function Page() {
         )}
       </div>
 
-      <AssignTargetDrawer data-cy="okr-target-assignment-drawer" />
+      <AssignTargetModal data-cy="okr-target-assignment-drawer" />
     </div>
   );
 }

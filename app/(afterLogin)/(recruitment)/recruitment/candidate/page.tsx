@@ -1,18 +1,15 @@
 'use client';
-import CustomBreadcrumb from '@/components/common/breadCramp';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import WhatYouNeed from '../jobs/[id]/_components/candidateSearch/whatYouNeed';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import ForwardIcon from '@mui/icons-material/Forward';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import CreateCandidate from '../jobs/[id]/_components/createCandidate';
-import SearchOptions from '../jobs/[id]/_components/candidateSearch/candidateSearchOptions';
 import AllCandidateTable from './_components/allCandidateTable';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { IoIosShareAlt } from 'react-icons/io';
 import { usePathname } from 'next/navigation';
 import { Button, Card, DatePicker, Row, Col, Select, Popover } from 'antd';
 import { theme } from 'antd';
@@ -33,10 +30,22 @@ const AllCandidates: React.FC = () => {
     setMoveToTalentPoolModal,
     setCreateJobDrawer,
     setSelectedRowKeys,
+    searchParams,
+    setSearchParams,
+    currentPage,
+    pageSize,
   } = useCandidateState();
 
   const { isMobile, isTablet } = useIsMobile();
   const pathname = usePathname();
+
+  const { data: employeeDepartments } = useEmployeeDepartments();
+  const { data: jobList } = useGetJobs(
+    searchParams?.whatYouNeed || '',
+    currentPage,
+    pageSize,
+  );
+  const { data: stageList } = useGetStages();
 
   const showDrawer = () => {
     setCreateJobDrawer(true);
