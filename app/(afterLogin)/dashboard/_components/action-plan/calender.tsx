@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { BadgeProps, CalendarProps } from 'antd';
-import { Badge, Calendar, Radio, Select, Tooltip } from 'antd';
+import { Badge, Calendar, Drawer, Radio, Select } from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { useRouter } from 'next/navigation';
@@ -15,12 +15,31 @@ type ListItem = {
   category: ScheduleCategory;
   /** meeting id or survey formId; unused for action plans */
   routeId?: string;
+  /** Formatted start time for meetings (mobile sheet) */
+  timeLabel?: string;
+};
+
+/** Mobile UI matches design: red = meeting, amber = action plan, green = survey */
+const MOBILE_CATEGORY_DOT: Record<ScheduleCategory, string> = {
+  meetings: 'bg-red-500',
+  surveys: 'bg-green-500',
+  actionPlans: 'bg-amber-500',
+};
+
+const MOBILE_CATEGORY_LABEL: Record<ScheduleCategory, string> = {
+  meetings: 'Zoom Meeting',
+  surveys: 'Survey',
+  actionPlans: 'Action Plan',
 };
 
 const Calender = () => {
   const router = useRouter();
   const { data: scheduleData } = useGetSchedule();
   const { setSelectedDate } = useDelegationState();
+
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [mobileSheetItems, setMobileSheetItems] = useState<ListItem[]>([]);
+  const [mobileSheetDateLabel, setMobileSheetDateLabel] = useState('');
 
   const navigateForCategory = (
     category: ScheduleCategory,
@@ -85,11 +104,16 @@ const Calender = () => {
 
     if (hasMeetings) {
       const first = eventsForDay.find((e) => e.category === 'meetings');
+      const timeLabel =
+        first?.startAt != null
+          ? dayjs(first.startAt).format('h:mm A')
+          : undefined;
       listData.push({
         type: getBadgeType('meetings'),
         content: 'Meeting',
         category: 'meetings',
         routeId: first?.id != null ? String(first.id) : undefined,
+        timeLabel,
       });
     }
 
@@ -123,62 +147,27 @@ const Calender = () => {
     return (
       <div data-cy="calendar-cell">
         {/* Mobile: compact dots only */}
-        <div
-          className="mt-0 flex items-center justify-center gap-1 md:hidden"
+        <button
+          type="button"
+          className="mt-0 flex w-full items-center justify-center gap-1 rounded-md border-0 bg-transparent p-1 hover:bg-gray-50 active:bg-gray-100 md:hidden"
           data-cy="calendar-cell-mobile-dots"
+          aria-label={`Open schedule for ${value.format('MMMM D, YYYY')}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setMobileSheetItems(listData);
+            setMobileSheetDateLabel(value.format('ddd, MMM D'));
+            setMobileSheetOpen(true);
+          }}
         >
-          {listData.map((item) => {
-            const canNavigate =
-              item.category === 'actionPlans' ||
-              (item.category === 'meetings' && item.routeId) ||
-              (item.category === 'surveys' && item.routeId);
-
-            const dot = (
-              <Tooltip
-                title={item.content}
-                placement="top"
-                data-cy={`calendar-dot-tooltip-${item.category}`}
-              >
-                <span data-cy={`calendar-dot-${item.category}`}>
-                  {
-                    <Badge
-                      status={item.type}
-                      data-cy={`calendar-dot-badge-${item.category}`}
-                    />
-                  }
-                </span>
-              </Tooltip>
-            );
-
-            if (!canNavigate) {
-              return (
-                <span
-                  key={`${value.toString()}-${item.category}-${item.content}-dot`}
-                  aria-label={`${item.content} on ${value.format('YYYY-MM-DD')}`}
-                  data-cy={`calendar-dot-wrapper-${item.category}`}
-                >
-                  {dot}
-                </span>
-              );
-            }
-
-            return (
-              <button
-                key={`${value.toString()}-${item.category}-${item.content}-dot`}
-                type="button"
-                className="m-0 cursor-pointer border-0 bg-transparent p-0 hover:opacity-80"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigateForCategory(item.category, item.routeId);
-                }}
-                aria-label={`${item.content} on ${value.format('YYYY-MM-DD')}`}
-                data-cy={`calendar-nav-${item.category}`}
-              >
-                {dot}
-              </button>
-            );
-          })}
-        </div>
+          {listData.map((item) => (
+            <span
+              key={`${value.toString()}-${item.category}-${item.content}-dot`}
+              className={`inline-block h-2 w-2 shrink-0 rounded-full ${MOBILE_CATEGORY_DOT[item.category]}`}
+              data-cy={`calendar-dot-${item.category}`}
+              aria-hidden
+            />
+          ))}
+        </button>
 
         {/* Desktop/tablet: badge with label */}
         <ul
@@ -316,7 +305,7 @@ const Calender = () => {
               data-cy="calendar-month-select"
             />
             <Radio.Group
-              className="inline-flex"
+              className="md:inline-flex hidden"
               size="small"
               value={type}
               onChange={(e) => onTypeChange?.(e.target.value)}
@@ -331,6 +320,16 @@ const Calender = () => {
     );
   };
 
+  const openMobileItem = (item: ListItem) => {
+    const canNavigate =
+      item.category === 'actionPlans' ||
+      (item.category === 'meetings' && item.routeId) ||
+      (item.category === 'surveys' && item.routeId);
+    if (!canNavigate) return;
+    setMobileSheetOpen(false);
+    navigateForCategory(item.category, item.routeId);
+  };
+
   return (
     <div
       className="min-h-[620px] rounded-lg border border-gray-200 bg-white p-3"
@@ -343,6 +342,68 @@ const Calender = () => {
         onChange={handleDateChange}
         data-cy="calendar"
       />
+
+      <Drawer
+        title={mobileSheetDateLabel || 'Schedule'}
+        placement="bottom"
+        height="auto"
+        open={mobileSheetOpen}
+        onClose={() => setMobileSheetOpen(false)}
+        destroyOnClose
+        classNames={{ body: '!pt-2' }}
+        data-cy="calendar-mobile-schedule-sheet"
+      >
+        <ul
+          className="m-0 list-none space-y-3 p-0 pb-4"
+          data-cy="calendar-mobile-schedule-list"
+        >
+          {mobileSheetItems.map((item) => {
+            const canNavigate =
+              item.category === 'actionPlans' ||
+              (item.category === 'meetings' && item.routeId) ||
+              (item.category === 'surveys' && item.routeId);
+            const label = MOBILE_CATEGORY_LABEL[item.category];
+            return (
+              <li
+                key={`${item.category}-${item.routeId ?? ''}`}
+                data-cy={`calendar-mobile-schedule-item-${item.category}`}
+              >
+                <button
+                  type="button"
+                  disabled={!canNavigate}
+                  onClick={() => openMobileItem(item)}
+                  className={`flex w-full items-center gap-3 rounded-xl bg-sky-50 px-3 py-3 text-left ${
+                    canNavigate
+                      ? 'cursor-pointer active:bg-sky-100'
+                      : 'cursor-not-allowed opacity-60'
+                  }`}
+                  data-cy={`calendar-mobile-row-${item.category}`}
+                >
+                  <span
+                    className={`inline-block h-3 w-3 shrink-0 rounded-full ${MOBILE_CATEGORY_DOT[item.category]}`}
+                    aria-hidden
+                    data-cy="calendar-mobile-category-dot"
+                  />
+                  <span
+                    className="flex-1 text-sm font-medium text-gray-900"
+                    data-cy="calendar-mobile-category-label"
+                  >
+                    {label}
+                  </span>
+                  {item.category === 'meetings' && item.timeLabel ? (
+                    <span
+                      className="shrink-0 rounded-md border border-gray-300 bg-white px-2 py-0.5 text-xs text-gray-700"
+                      data-cy="calendar-mobile-meeting-time"
+                    >
+                      {item.timeLabel}
+                    </span>
+                  ) : null}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </Drawer>
     </div>
   );
 };
