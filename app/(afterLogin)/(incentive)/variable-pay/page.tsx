@@ -2,6 +2,7 @@
 import React from 'react';
 import VariablePayTable from '../../(compensation)/benefit/variablePay/_components/variablePayTable';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
+import VPScoreCard from './_components/vpScoreCard';
 
 const VariablePayPage = () => {
   return (
@@ -13,8 +14,10 @@ const VariablePayPage = () => {
       <PageHeader
         data-cy="variable-pay-page-header"
         title="Variable Pay"
-        description="Employee variable pay"
+        description="VP"
       />
+      <div className="mt-4 border-b border-gray-100" />
+      <VPScoreCard />
       <VariablePayTable data-cy="variable-pay-table" />
     </div>
   );
