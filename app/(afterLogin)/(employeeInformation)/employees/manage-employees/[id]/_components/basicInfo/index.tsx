@@ -208,7 +208,7 @@ function BasicInfo({ id }: { id: string }) {
   return (
     <Card
       loading={isLoading}
-      className="mb-3 rounded-xl shadow-sm"
+      className="mb-3 rounded-lg border border-[#D9D9D9]"
       id="basic-info-card"
       data-cy="basic-info-card"
     >
@@ -261,14 +261,14 @@ function BasicInfo({ id }: { id: string }) {
           <h5
             id="basic-info-name"
             data-cy="basic-info-name"
-            className="text-base font-bold text-gray-900 m-0"
+            className="text-sm font-normal text-[#4d4d4d] m-0"
           >
             {employeeData?.firstName} {employeeData?.middleName}{' '}
           </h5>
           <p
             id="basic-info-email-text"
             data-cy="basic-info-email-text"
-            className="text-sm text-gray-500 m-0"
+            className="text-sm text-[#bababa] font-normal m-0"
           >
             {employeeData?.email}
           </p>
@@ -288,38 +288,24 @@ function BasicInfo({ id }: { id: string }) {
           >
             {isActive ? 'Active' : 'Deactivated'}
           </Tag>
-          {/* <AccessGuard
-            permissions={[Permissions.UpdateEmployeeDetails]}
-            selfShouldAccess
-            id="basic-info-edit-details-guard"
-            data-cy="basic-info-edit-details-guard"
-          >
-            <button
-              className="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-gray-50"
-              id="basic-info-edit-details-btn"
-              data-cy="basic-info-edit-details-btn"
-            >
-              <LuPencil size={16} />
-            </button>
-          </AccessGuard> */}
         </div>
       </div>
 
       {/* Bottom section: Joined at, Address, Service Year, Office */}
       <div
-        className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4 border-t border-gray-100"
+        className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4 border-gray-100"
         id="basic-info-details-row"
         data-cy="basic-info-details-row"
       >
         <div id="basic-info-joined" data-cy="basic-info-joined">
           <p
-            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
             data-cy="basic-info-joined-label"
           >
             Joined at
           </p>
           <p
-            className="text-sm font-semibold text-gray-900 m-0"
+            className="text-sm font-normal text-[#4d4d4d] m-0"
             data-cy="basic-info-joined-value"
           >
             {joinedDate ? dayjs(joinedDate).format('DD MMMM, YYYY') : '-'}
@@ -327,13 +313,13 @@ function BasicInfo({ id }: { id: string }) {
         </div>
         <div id="basic-info-address" data-cy="basic-info-address">
           <p
-            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
             data-cy="basic-info-address-label"
           >
             Address
           </p>
           <p
-            className="text-sm font-semibold text-gray-900 m-0"
+            className="text-sm font-normal text-[#4d4d4d] m-0"
             data-cy="basic-info-address-value"
           >
             {formatAddress(addresses)}
@@ -341,13 +327,13 @@ function BasicInfo({ id }: { id: string }) {
         </div>
         <div id="basic-info-service-year" data-cy="basic-info-service-year">
           <p
-            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
             data-cy="basic-info-service-year-label"
           >
             Service Year
           </p>
           <p
-            className="text-sm font-semibold text-gray-900 m-0"
+            className="text-sm font-normal text-[#4d4d4d] m-0"
             data-cy="basic-info-service-year-value"
           >
             {formatServiceYear(joinedDate)}
@@ -355,13 +341,13 @@ function BasicInfo({ id }: { id: string }) {
         </div>
         <div id="basic-info-office" data-cy="basic-info-office">
           <p
-            className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+            className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
             data-cy="basic-info-office-label"
           >
             Office
           </p>
           <p
-            className="text-sm font-semibold text-gray-900 m-0"
+            className="text-sm font-normal text-[#4d4d4d] m-0"
             data-cy="basic-info-office-value"
           >
             {officeName}

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Table, TableColumnsType, Tooltip } from 'antd';
+import { Table, TableColumnsType, Tooltip, Avatar as AntAvatar } from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
 import userTypeButton from '../userTypeButton';
 import Image from 'next/image';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { UserOutlined } from '@ant-design/icons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useRouter } from 'next/navigation';
@@ -13,9 +13,15 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
+const tableClassName = 'text-[#4d4d4d] text-base font-bold';
+
 const columns: TableColumnsType<EmployeeData> = [
   {
-    title: 'ID',
+    title: (
+      <span data-cy="user-table-id-span" className={tableClassName}>
+        ID
+      </span>
+    ),
     dataIndex: 'employee_attendance_id',
     // sorter: (a, b) => {
     //   const idA = a.employee_attendance_id ?? 0;
@@ -25,36 +31,60 @@ const columns: TableColumnsType<EmployeeData> = [
     width: 70,
   },
   {
-    title: 'Employee Name',
+    title: (
+      <span data-cy="user-table-employee-name-span" className={tableClassName}>
+        Employee Name
+      </span>
+    ),
     dataIndex: 'employee_name',
     ellipsis: true,
     width: 200,
   },
   {
-    title: 'Position',
+    title: (
+      <span data-cy="user-table-position-span" className={tableClassName}>
+        Position
+      </span>
+    ),
     dataIndex: 'job_title',
     width: 260,
     // sorter: (a, b) => a.job_title.localeCompare(b.job_title),
   },
   {
-    title: 'Department',
+    title: (
+      <span data-cy="user-table-department-span" className={tableClassName}>
+        Department
+      </span>
+    ),
     dataIndex: 'department',
     width: 250,
     // sorter: (a, b) => a.department.localeCompare(b.department),
   },
 
   {
-    title: 'Type',
+    title: (
+      <span data-cy="user-table-type-span" className={tableClassName}>
+        Type
+      </span>
+    ),
     dataIndex: 'employee_status',
     width: 120,
   },
   {
-    title: 'Status',
+    title: (
+      <span data-cy="user-table-status-span" className={tableClassName}>
+        Status
+      </span>
+    ),
     dataIndex: 'account',
     width: 120,
   },
   {
-    title: 'Role',
+    title: (
+      <span data-cy="user-table-role-span" className={tableClassName}>
+        Role
+      </span>
+    ),
     dataIndex: 'role',
     width: 120,
     // sorter: (a, b) => a.role.localeCompare(b.role),
@@ -122,41 +152,69 @@ const UserTable = () => {
               id={`user-table-employee-avatar-wrapper-${item?.id}`}
               data-cy={`user-table-employee-avatar-wrapper-${item?.id}`}
             >
-              <Image
-                src={
-                  item?.profileImage && typeof item?.profileImage === 'string'
-                    ? (() => {
-                        try {
-                          const parsed = JSON.parse(item.profileImage);
-                          return parsed.url && parsed.url.startsWith('http')
-                            ? parsed.url
-                            : Avatar;
-                        } catch {
-                          return item.profileImage.startsWith('http')
-                            ? item.profileImage
-                            : Avatar;
-                        }
-                      })()
-                    : Avatar
+              {(() => {
+                if (
+                  item?.profileImage &&
+                  typeof item?.profileImage === 'string'
+                ) {
+                  try {
+                    const parsed = JSON.parse(item.profileImage);
+                    const url =
+                      parsed.url && parsed.url.startsWith('http')
+                        ? parsed.url
+                        : null;
+
+                    if (url) {
+                      return (
+                        <Image
+                          src={url}
+                          alt="Employee avatar"
+                          layout="fill"
+                          className="object-cover"
+                          id={`user-table-employee-avatar-${item?.id}`}
+                          data-cy={`user-table-employee-avatar-${item?.id}`}
+                        />
+                      );
+                    }
+                  } catch {
+                    if (item.profileImage.startsWith('http')) {
+                      return (
+                        <Image
+                          src={item.profileImage}
+                          alt="Employee avatar"
+                          layout="fill"
+                          className="object-cover"
+                          id={`user-table-employee-avatar-${item?.id}`}
+                          data-cy={`user-table-employee-avatar-${item?.id}`}
+                        />
+                      );
+                    }
+                  }
                 }
-                alt="Description of image"
-                layout="fill"
-                className="object-cover"
-                id={`user-table-employee-avatar-${item?.id}`}
-                data-cy={`user-table-employee-avatar-${item?.id}`}
-              />
+
+                // Fallback: Ant Design default avatar when no valid profile image
+                return (
+                  <AntAvatar
+                    size={24}
+                    icon={<UserOutlined />}
+                    className="w-6 h-6"
+                    data-cy={`user-table-employee-avatar-${item?.id}`}
+                  />
+                );
+              })()}
             </div>
             <div
               className="flex flex-col justify-center"
               id={`user-table-employee-info-${item?.id}`}
               data-cy={`user-table-employee-info-${item?.id}`}
             >
-              <p
+              <span
                 id={`user-table-employee-display-name-${item?.id}`}
                 data-cy={`user-table-employee-display-name-${item?.id}`}
+                className="text-[#4d4d4d] text-sm font-normal"
               >
                 {displayName}
-              </p>
+              </span>
             </div>
           </div>
         </Tooltip>
@@ -164,7 +222,7 @@ const UserTable = () => {
       job_title: (
         <span
           data-cy="user-table-employee-job-title-span"
-          className="text-black text-xs font-medium"
+          className="text-[#4d4d4d] text-xs font-normal"
         >
           {' '}
           {item?.employeeJobInformation[0]?.position?.name
@@ -175,7 +233,7 @@ const UserTable = () => {
       department: (
         <span
           data-cy="user-table-employee-department-span"
-          className="text-black text-xs font-medium"
+          className="text-[#4d4d4d] text-xs font-normal"
         >
           {' '}
           {item?.employeeJobInformation[0]?.department?.name
@@ -184,7 +242,10 @@ const UserTable = () => {
         </span>
       ),
       employee_status: (
-        <div data-cy="user-table-employee-status-div" className="pr-2">
+        <div
+          data-cy="user-table-employee-status-div"
+          className="pr-2 text-[#4d4d4d] text-xs font-normal"
+        >
           {userTypeButton(
             item?.employeeJobInformation[0]?.employementType?.name,
           )}
@@ -199,7 +260,7 @@ const UserTable = () => {
         <div data-cy="user-table-employee-role-div" className="pr-2">
           <span
             data-cy="user-table-employee-role-span"
-            className="text-black text-xs font-medium"
+            className="text-[#4d4d4d] text-xs font-normal"
           >
             {item?.role?.name ? item?.role?.name : ' - '}
           </span>

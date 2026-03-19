@@ -112,23 +112,21 @@ const PositionsEdit: React.FC = () => {
             data-cy="settings-position-edit-actions-wrapper"
           >
             <div
-              className="flex justify-end w-full gap-4"
+              className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
               id={`settings-position-edit-actions-${editSlug}`}
               data-cy={`settings-position-edit-actions-${editSlug}`}
             >
               <Button
-                type="default"
                 onClick={() => setEditModal(false)}
-                className=" text-sm font-medium h-8"
+                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
                 id={`settings-position-edit-cancel-${editSlug}`}
                 data-cy={`settings-position-edit-cancel-${editSlug}`}
               >
                 Cancel
               </Button>
               <Button
-                type="primary"
                 htmlType="submit"
-                className="text-sm font-medium text-w h-8"
+                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
                 id={`settings-position-edit-submit-${editSlug}`}
                 data-cy={`settings-position-edit-submit-${editSlug}`}
               >

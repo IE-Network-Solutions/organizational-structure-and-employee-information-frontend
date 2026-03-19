@@ -87,7 +87,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         open={isAddEmployeeJobInfoModalVisible}
         onCancel={handleClose}
         footer={false}
-        destroyOnHidden
+        destroyOnClose
         data-cy="job-add-job-info-modal"
       >
         <Form

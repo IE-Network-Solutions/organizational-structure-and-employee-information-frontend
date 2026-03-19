@@ -47,13 +47,13 @@ const AddEmployeeModal = (props: any) => {
     <div data-cy="add-employee-modal-header-div">
       <h2
         data-cy="add-employee-modal-header-h2"
-        className="text-2xl font-bold text-gray-800 mb-1"
+        className="text-xl font-bold text-black mb-1"
       >
         Add New Employee
       </h2>
       <p
         data-cy="add-employee-modal-header-p"
-        className="text-sm text-gray-500"
+        className="text-sm text-black font-normal"
       >
         Please Fill in all the information correctly.
       </p>
@@ -108,11 +108,20 @@ const AddEmployeeModal = (props: any) => {
         >
           <div data-cy="user-sidebar-steps-container" className="my-6">
             <style data-cy="user-sidebar-steps-style">{`
-              .ant-steps-item-title {
+              /* Keep step labels on a single line */
+              .user-sidebar-steps .ant-steps-item-title {
                 white-space: nowrap !important;
               }
-              .ant-steps-item-process .ant-steps-item-title {
+
+              /* Active and completed steps: primary blue (match screenshot) */
+              .user-sidebar-steps .ant-steps-item-process .ant-steps-item-title,
+              .user-sidebar-steps .ant-steps-item-finish .ant-steps-item-title {
                 color: #1e40af !important;
+              }
+
+              /* Upcoming steps: light gray */
+              .user-sidebar-steps .ant-steps-item-wait .ant-steps-item-title {
+                color: #d9d9d9 !important;
               }
             `}</style>
 
@@ -121,7 +130,7 @@ const AddEmployeeModal = (props: any) => {
               current={current}
               labelPlacement="vertical"
               progressDot
-              className="px-4 mx-auto max-w-5xl hidden sm:flex"
+              className="user-sidebar-steps px-4 mx-auto max-w-5xl hidden sm:flex"
               items={[
                 { title: 'Personal Information' },
                 { title: 'Employee Information' },
@@ -149,28 +158,29 @@ const AddEmployeeModal = (props: any) => {
             data-cy="user-sidebar-form"
           >
             {current === 0 && (
-              <Card
-                bordered={false}
-                bodyStyle={{ padding: 0 }}
-                className="p-2 sm:p-6 mt-2"
-                id="user-sidebar-card-basic"
-                data-cy="user-sidebar-card-basic"
-              >
-                <BasicInformationForm
-                  form={form}
-                  data-cy="user-sidebar-basic-information-form"
-                />
+              <>
+                <Card
+                  bodyStyle={{ padding: 0 }}
+                  className="p-2 mt-2 border-[1px] border-[#D9D9D9]"
+                  id="user-sidebar-card-basic"
+                  data-cy="user-sidebar-card-basic"
+                >
+                  <BasicInformationForm
+                    form={form}
+                    data-cy="user-sidebar-basic-information-form"
+                  />
+                </Card>
                 <ButtonContinue
                   handleContinueClick={handleContinueClick}
                   handleBackClick={handleBackClick}
                   data-cy="user-sidebar-button-continue"
                 />
-              </Card>
+              </>
             )}
             {current === 1 && (
               <Card
                 bodyStyle={{ padding: 0 }}
-                className="px-2 pt-2"
+                className="px-2 pt-2 border-[1px] border-[#D9D9D9]"
                 id="user-sidebar-card-job"
                 data-cy="user-sidebar-card-job"
               >

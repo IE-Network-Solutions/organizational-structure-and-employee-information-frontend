@@ -18,11 +18,9 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import WorkScheduleComponent from './workSchedule';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from './addEmployeeJobInfrmation';
-import { MoreOutlined } from '@ant-design/icons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
-import { LuPencil } from 'react-icons/lu';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
@@ -45,6 +43,8 @@ import { JobActionStatus } from '@/types/enumTypes';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
 import { useUpdateBasicSalary } from '@/store/server/features/payroll/payroll/mutation';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 function Job({ id }: { id: string }) {
   const params = useParams();
@@ -346,23 +346,26 @@ function Job({ id }: { id: string }) {
           <Card
             loading={isLoading}
             title={
-              <span
-                className="text-base font-bold text-gray-900"
-                data-cy="job-employment-card-title"
-              >
-                Employment Information
-              </span>
+              !isEditing ? (
+                <span
+                  className="text-base font-normal text-[#4d4d4d]"
+                  data-cy="job-employment-card-title"
+                >
+                  Employment Information
+                </span>
+              ) : null
             }
             extra={
-              <button
-                type="button"
-                onClick={handleEditClick}
-                className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-                id="job-employment-edit-btn"
-                data-cy="job-employment-edit-btn"
-              >
-                <LuPencil className="text-gray-700" />
-              </button>
+              !isEditing ? (
+                <Button
+                  type="default"
+                  onClick={handleEditClick}
+                  className="border border-[#d9d9d9]"
+                  id="job-employment-edit-btn"
+                  data-cy="job-employment-edit-btn"
+                  icon={<EditOutlinedIcon />}
+                ></Button>
+              ) : null
             }
             className="employment-information-card rounded-lg border border-gray-200 my-6 mt-0"
             id="job-employment-card"
@@ -376,31 +379,79 @@ function Job({ id }: { id: string }) {
                 layout="inline"
                 id="job-joined-date-form"
                 data-cy="job-joined-date-form"
+                className="w-full"
               >
+                <Row
+                  justify="space-between"
+                  align="middle"
+                  className="mb-4 w-full"
+                  style={{ width: '100%' }}
+                  id="job-employment-header-row"
+                  data-cy="job-employment-header-row"
+                >
+                  <Col>
+                    <span
+                      data-cy="job-employment-title"
+                      className="text-sm font-normal text-[#4d4d4d]"
+                    >
+                      Employment Information
+                    </span>
+                  </Col>
+                  <Col>
+                    <div
+                      data-cy="job-employment-buttons"
+                      className="flex items-center gap-2"
+                    >
+                      <Button
+                        type="default"
+                        size="small"
+                        icon={
+                          <CloseIcon
+                            fontSize="small"
+                            className="text-red-500"
+                          />
+                        }
+                        onClick={() => setIsEditing(false)}
+                        id="job-joined-date-cancel-btn"
+                        data-cy="job-joined-date-cancel-btn"
+                        className="border border-red-500"
+                        style={{
+                          height: 32,
+                          minHeight: 32,
+                          width: 32,
+                          minWidth: 32,
+                        }}
+                      />
+                      <Button
+                        type="primary"
+                        size="small"
+                        icon={<CheckIcon />}
+                        htmlType="submit"
+                        id="job-joined-date-submit-btn"
+                        data-cy="job-joined-date-submit-btn"
+                        style={{
+                          height: 32,
+                          minHeight: 32,
+                          width: 32,
+                          minWidth: 32,
+                        }}
+                      />
+                    </div>
+                  </Col>
+                </Row>
                 <Form.Item
                   name="joinedDate"
                   id="job-joined-date-form-item"
                   data-cy="job-joined-date-form-item"
                   rules={[{ required: true, message: 'Please select a date!' }]}
+                  className="w-full"
                 >
                   <DatePicker
                     format="YYYY-MM-DD"
                     id="job-joined-date-datepicker"
                     data-cy="job-joined-date-datepicker"
+                    className="w-full"
                   />
-                </Form.Item>
-                <Form.Item
-                  id="job-joined-date-submit-form-item"
-                  data-cy="job-joined-date-submit-form-item"
-                >
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    id="job-joined-date-submit-btn"
-                    data-cy="job-joined-date-submit-btn"
-                  >
-                    Save
-                  </Button>
                 </Form.Item>
               </Form>
             ) : (
@@ -500,7 +551,7 @@ function Job({ id }: { id: string }) {
                   data-cy="job-information-edit-title-row"
                 >
                   <span
-                    className="text-base font-bold text-gray-900"
+                    className="text-base font-normal text-[#4d4d4d]"
                     data-cy="job-information-edit-title"
                   >
                     Job Information
@@ -530,7 +581,7 @@ function Job({ id }: { id: string }) {
                 </div>
               ) : (
                 <span
-                  className="text-base font-bold text-gray-900"
+                  className="text-base font-normal text-[#4d4d4d]"
                   data-cy="job-information-card-title"
                 >
                   Job Information
@@ -558,14 +609,13 @@ function Job({ id }: { id: string }) {
                         trigger={['click']}
                         placement="bottomRight"
                       >
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+                        <Button
+                          type="default"
+                          className="border border-[#d9d9d9]"
                           id="job-information-menu-btn"
                           data-cy="job-information-menu-btn"
-                        >
-                          <MoreOutlined className="text-black" />
-                        </button>
+                          icon={<MoreHorizIcon />}
+                        ></Button>
                       </Dropdown>
                     </div>
                   </AccessGuard>
@@ -1490,6 +1540,7 @@ function Job({ id }: { id: string }) {
           onCancel={() => setIsJobHistoryModalVisible(false)}
           footer={null}
           width={700}
+          centered
         >
           <Table
             dataSource={sortedJobInformation}

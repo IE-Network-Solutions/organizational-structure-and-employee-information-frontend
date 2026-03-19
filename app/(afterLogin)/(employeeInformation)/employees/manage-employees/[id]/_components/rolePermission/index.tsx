@@ -4,13 +4,8 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
 import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
 import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
-import {
-  EditState,
-  useEmployeeManagementStore,
-} from '@/store/uistate/features/employees/employeeManagment';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
-import { Permissions } from '@/types/commons/permissionEnum';
-import AccessGuard from '@/utils/permissionGuard';
 import {
   Button,
   Card,
@@ -23,20 +18,27 @@ import {
   Select,
   Input,
   Switch,
-  Badge,
   Space,
   Tag,
 } from 'antd';
 import React, { useEffect, useState, useMemo } from 'react';
-import { LuPencil } from 'react-icons/lu';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUserOutlined';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
-import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import AppsIcon from '@mui/icons-material/Apps';
 import CloseIcon from '@mui/icons-material/Close';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import {
+  AppstoreOutlined,
+  FileTextOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
+import { CiCalendar, CiSettings, CiStar, CiBookmark } from 'react-icons/ci';
+import { TbMessage2 } from 'react-icons/tb';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { PiMoneyLight, PiSuitcaseSimpleThin } from 'react-icons/pi';
+import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
+import { Permissions } from '@/types/commons/permissionEnum';
+import AccessGuard from '@/utils/permissionGuard';
 
 interface Ids {
   id: string;
@@ -72,9 +74,10 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
   const { setEdit, edit, selectedPermissions, setSelectedPermissions } =
     useEmployeeManagementStore();
 
-  // const handlePermissionChange = (value: string[]) => {
-  //   setSelectedPermissions(value);
-  // };
+  useEffect(() => {
+    if (!edit.rolePermission) setEdit('rolePermission');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const basicGroupPermissionId =
     groupPermissionData?.items?.filter((item) => item.isBasic) ?? [];
   const basicGroupPermissions = basicGroupPermissionId.flatMap(
@@ -138,52 +141,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     }
   };
 
-  // const onGroupPermissionChange = (value: string[]) => {
-  //   const newGroupId = value.find(
-  //     (id) => !selectedGroupPermission.includes(id),
-  //   );
-  //   const removedGroupIds = selectedGroupPermission.filter(
-  //     (id) => !value.includes(id),
-  //   );
-
-  //   if (newGroupId) {
-  //     const selectedGroup = groupPermissionData?.items?.find(
-  //       (gp) => gp.id === newGroupId,
-  //     );
-  //     if (selectedGroup) {
-  //       setSelectedGroupForModal(selectedGroup);
-  //       setTempSelectedPermissions([]);
-  //       setModalVisible(true);
-  //     }
-  //   }
-
-  //   let updatedPermissionsUnderGroup = [...selectedPermissionsUnderGroup];
-
-  //   removedGroupIds.forEach((groupId) => {
-  //     const removedGroup = groupPermissionData?.items?.find(
-  //       (gp) => gp.id === groupId,
-  //     );
-  //     if (removedGroup) {
-  //       const groupPermissions = removedGroup.permissions.map(
-  //         (perm) => perm.id,
-  //       );
-  //       updatedPermissionsUnderGroup = updatedPermissionsUnderGroup.filter(
-  //         (permId) => !groupPermissions.includes(permId),
-  //       );
-  //     }
-  //   });
-
-  //   setSelectedGroupPermission(value);
-  //   setSelectedPermissionsUnderGroup(updatedPermissionsUnderGroup);
-
-  //   form.setFieldsValue({
-  //     permission: Array.from(
-  //       new Set([...selectedPermissions, ...updatedPermissionsUnderGroup]),
-  //     ),
-  //     groupPermissionId: value,
-  //   });
-  // };
-
   const handleModalPermissionChange = (checkedValues: string[]) => {
     setTempSelectedPermissions(checkedValues);
   };
@@ -209,12 +166,11 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
 
   const handleUpdateUserRolePermission = (values: any) => {
     employeeRolePermissionUpdate({ id, values });
-    setEdit('rolePermission');
   };
 
-  const handleEditChange = (editKey: keyof EditState) => {
-    setEdit(editKey);
-  };
+  // const handleEditChange = (editKey: keyof EditState) => {
+  //   setEdit(editKey);
+  // };
   const handleSelectAll = () => {
     if (selectAll) {
       setTempSelectedPermissions([]);
@@ -323,6 +279,27 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
     );
   }, [permissionListData, selectedPermissions]);
 
+  // Group active permissions by their permission group
+  const activePermissionsByGroup = useMemo(() => {
+    if (!groupPermissionData?.items || !selectedPermissions.length) return [];
+
+    return groupPermissionData.items
+      .map((group: any) => {
+        const groupPermissions =
+          group.permissions?.filter((perm: any) =>
+            (selectedPermissions as string[]).includes(perm.id),
+          ) || [];
+
+        if (!groupPermissions.length) return null;
+
+        return {
+          group,
+          permissions: groupPermissions,
+        };
+      })
+      .filter(Boolean);
+  }, [groupPermissionData, selectedPermissions]);
+
   // Remove permission from active list
   const handleRemovePermission = (permissionId: string) => {
     const updatedPermissions = selectedPermissions.filter(
@@ -335,39 +312,96 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
   // Get group icon
   const getGroupIcon = (groupName: string) => {
     const name = groupName.toLowerCase();
-    if (name.includes('payroll') || name.includes('salary')) {
-      return <AccountBalanceWalletIcon className="text-gray-600" />;
+
+    if (name.includes('dashboard')) {
+      return <AppstoreOutlined style={{ fontSize: 18 }} />;
     }
-    return <AppsIcon className="text-gray-600" />;
+
+    if (name.includes('organization') || name.includes('org ')) {
+      return <CiSettings size={18} />;
+    }
+
+    if (name.includes('employee')) {
+      return <LuUsers size={18} />;
+    }
+
+    if (
+      name.includes('recruit') ||
+      name.includes('talent') ||
+      name.includes('job')
+    ) {
+      return <PiSuitcaseSimpleThin size={18} />;
+    }
+
+    if (name.includes('okr')) {
+      return <CiStar size={18} />;
+    }
+
+    if (
+      name.includes('feedback') ||
+      name.includes('cfr') ||
+      name.includes('conversation') ||
+      name.includes('recognition')
+    ) {
+      return <TbMessage2 size={18} />;
+    }
+
+    if (
+      name.includes('learning') ||
+      name.includes('training') ||
+      name.includes('tna')
+    ) {
+      return <CiBookmark size={18} />;
+    }
+
+    if (name.includes('payroll') || name.includes('salary')) {
+      return <AiOutlineDollarCircle size={18} />;
+    }
+
+    if (
+      name.includes('timesheet') ||
+      name.includes('attendance') ||
+      name.includes('leave')
+    ) {
+      return <CiCalendar size={18} />;
+    }
+
+    if (
+      name.includes('compensation') ||
+      name.includes('benefit') ||
+      name.includes('allowance') ||
+      name.includes('deduction')
+    ) {
+      return <PiMoneyLight size={18} />;
+    }
+
+    if (name.includes('incentive') || name.includes('variable pay')) {
+      return <LuCircleDollarSign size={18} />;
+    }
+
+    if (name.includes('audit')) {
+      return <FileTextOutlined style={{ fontSize: 18 }} />;
+    }
+
+    if (name.includes('admin') || name.includes('configuration')) {
+      return <CiSettings size={18} />;
+    }
+
+    return <AppstoreOutlined style={{ fontSize: 18 }} />;
   };
 
   return (
-    <div id="role-permission-container" data-cy="role-permission-container">
+    <div id="role-permission-container" data-cy="role-permission-container ">
       <Card
         loading={isLoading}
-        title="User Role Permission"
-        extra={
-          <AccessGuard
-            permissions={[Permissions.UpdateEmployeeDetails]}
-            id="role-permission-edit-guard"
-            data-cy="role-permission-edit-guard"
-          >
-            <LuPencil
-              className="cursor-pointer"
-              onClick={() => handleEditChange('rolePermission')}
-              id="role-permission-edit-icon"
-              data-cy="role-permission-edit-icon"
-            />
-          </AccessGuard>
-        }
-        className=" rounded-lg border border-gray-200"
         id="role-permission-card"
         data-cy="role-permission-card"
         headStyle={{ borderBottom: 'none' }}
+        bordered={false}
+        bodyStyle={{ padding: '0' }}
       >
         <Form
           form={form}
-          disabled={!edit.rolePermission}
           name="dependencies"
           autoComplete="off"
           style={{ maxWidth: '100%' }}
@@ -375,9 +409,20 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
           onFinish={handleUpdateUserRolePermission}
           id="role-permission-form"
           data-cy="role-permission-form"
+          disabled={
+            !AccessGuard.checkAccess({
+              permissions: [Permissions.UpdateRoleForUser],
+              id: 'role-permission-edit-guard',
+              selfShouldAccess: true,
+            })
+          }
         >
           {/* Roles Section */}
-          <div className="mb-6" id="roles-section" data-cy="roles-section">
+          <div
+            className="border-[1px] border-[#D9D9D9] rounded-md p-2 mb-4"
+            id="roles-section"
+            data-cy="roles-section"
+          >
             <h3
               data-cy="roles-section-title"
               className="text-base font-bold text-gray-900 mb-4"
@@ -403,7 +448,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                           : 'border-gray-200 hover:shadow-md'
                       }`}
                       onClick={() => {
-                        if (!edit.rolePermission) return;
                         onRoleChangeHandler(role.id);
                       }}
                       id={`role-card-${role.id}`}
@@ -467,7 +511,6 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                           <Checkbox
                             checked={isSelected}
                             onChange={() => {
-                              if (!edit.rolePermission) return;
                               onRoleChangeHandler(role.id);
                             }}
                             id={`role-checkbox-${role.id}`}
@@ -484,57 +527,64 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
 
           {/* Main Content Row */}
           <Row
-            gutter={[24, 24]}
+            // gutter={6}
             id="main-content-row"
             data-cy="main-content-row"
+            justify="space-between"
           >
             {/* Left Column - Permission Management */}
             <Col
               xs={24}
-              lg={14}
+              lg={16}
               id="permission-management-col"
               data-cy="permission-management-col"
+              className="mb-4 border-[1px] border-[#D9D9D9] rounded-md px-2 py-4"
             >
-              <div
-                data-cy="active-permission-group-filters-container"
-                className="mb-4"
-              >
-                <h3
-                  data-cy="active-permission-group-filters-title"
-                  className="text-base font-bold text-gray-900 mb-4"
-                >
-                  Permission Management
-                </h3>
+              <div data-cy="active-permission-group-filters-container">
                 <Space direction="vertical" size="middle" className="w-full">
                   <div
                     data-cy="active-permission-group-filters-container"
                     className="flex justify-between gap-2"
                   >
                     {/* Search Bar */}
+
                     <Input
                       placeholder="Search Permission"
-                      prefix={<SearchIcon className="text-gray-400" />}
+                      id="permission-search"
+                      allowClear
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      id="permission-search"
+                      className="w-[300px] pr-0 py-0 h-8"
                       data-cy="permission-search"
-                      className="rounded-lg"
-                      style={{ width: '250px' }}
+                      suffix={
+                        <div
+                          className="text-gray-400 border-l border-gray-300 py-1 px-2"
+                          data-cy="manage-employees-search-input"
+                        >
+                          <SearchOutlined data-cy="manage-employees-search-icon" />
+                        </div>
+                      }
                     />
 
                     {/* Update Button */}
-                    <Button
-                      icon={<RefreshIcon style={{ fontSize: '14px' }} />}
-                      onClick={() => {
-                        // Refresh logic can be added here
-                      }}
-                      htmlType="submit"
-                      id="permission-update-btn"
-                      data-cy="permission-update-btn"
-                      className="border-gray-300"
+                    <AccessGuard
+                      permissions={[Permissions.UpdateRoleForUser]}
+                      id="role-permission-edit-guard"
+                      data-cy="role-permission-edit-guard"
                     >
-                      Update
-                    </Button>
+                      <Button
+                        icon={<RefreshIcon style={{ fontSize: '14px' }} />}
+                        onClick={() => {
+                          // Refresh logic can be added here
+                        }}
+                        htmlType="submit"
+                        id="permission-update-btn"
+                        data-cy="permission-update-btn"
+                        className="border border-[#d9d9d9] text-[#4d4d4d] text-sm font-normal"
+                      >
+                        Update
+                      </Button>
+                    </AccessGuard>
                   </div>
 
                   {/* Group Filters */}
@@ -559,13 +609,14 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                             : 'bg-gray-100 border border-gray-300 text-gray-600'
                         }`}
                       >
-                        {groupPermissionData?.items?.length || 0}
+                        {activePermissions.length}
                       </span>
                       All Groups
                     </Tag>
                     {groupPermissionData?.items?.map((group: any) => {
                       const isSelected =
                         selectedGroupFilter === group.name.toLowerCase();
+                      const selectedCount = getGroupSelectedCount(group);
                       return (
                         <Tag
                           key={group.id}
@@ -586,7 +637,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                                 : 'bg-gray-100 border border-gray-300 text-gray-600'
                             }`}
                           >
-                            {group.permissions?.length || 0}
+                            {selectedCount}
                           </span>
                           {group.name}
                         </Tag>
@@ -598,7 +649,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
 
               {/* Permission Groups List - collapsible panels with permissions nested under each group */}
               <div
-                className="max-h-96 overflow-y-auto"
+                className="max-h-96 overflow-y-auto scrollbar-hide"
                 id="role-permission-collapse"
                 data-cy="role-permission-collapse"
               >
@@ -668,10 +719,16 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                               onChange={(checked) =>
                                 handleGroupToggle(group, checked)
                               }
-                              disabled={!edit.rolePermission}
                               id={`permission-group-switch-${group.id}`}
                               data-cy={`permission-group-switch-${group.id}`}
                               className={`${isFullySelected ? 'bg-[#1d4ed8]' : ''}`}
+                              disabled={
+                                !AccessGuard.checkAccess({
+                                  permissions: [Permissions.UpdateRoleForUser],
+                                  id: 'role-permission-edit-guard',
+                                  selfShouldAccess: true,
+                                })
+                              }
                             />
                           </span>
                         }
@@ -701,10 +758,18 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                                       e.target.checked,
                                     )
                                   }
-                                  disabled={!edit.rolePermission}
                                   id={`permission-checkbox-${permission.id}`}
                                   data-cy={`permission-checkbox-${permission.id}`}
                                   className="pt-0.5"
+                                  disabled={
+                                    !AccessGuard.checkAccess({
+                                      permissions: [
+                                        Permissions.UpdateRoleForUser,
+                                      ],
+                                      id: 'role-permission-edit-guard',
+                                      selfShouldAccess: true,
+                                    })
+                                  }
                                 />
                                 <div
                                   data-cy="active-permission-item-div"
@@ -739,9 +804,10 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
             {/* Right Column - Active Permissions */}
             <Col
               xs={24}
-              lg={10}
+              lg={7}
               id="active-permissions-col"
               data-cy="active-permissions-col"
+              className="mb-4 border-[1px] border-[#D9D9D9] rounded-md px-2 py-4"
             >
               <div data-cy="active-permission-list-container" className="mb-4">
                 <div
@@ -750,24 +816,22 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                 >
                   <h3
                     data-cy="active-permission-list-title"
-                    className="text-base font-bold text-gray-900 m-0"
+                    className="text-base font-normal text-[#4d4d4d] m-0"
                   >
                     Active Permissions
                   </h3>
-                  <Badge
-                    count={activePermissions.length}
-                    showZero
-                    color="blue"
-                  />
+                  <Tag className="border border-[#91caff] bg-[#e6f4ff] text-[#1677ff]">
+                    {activePermissions.length} Active
+                  </Tag>
                 </div>
               </div>
 
               {/* Active Permissions List */}
               <div
                 data-cy="active-permission-list-div"
-                className="max-h-96 overflow-y-auto space-y-2"
+                className="max-h-96 overflow-y-auto space-y-4 scrollbar-hide"
               >
-                {activePermissions.length === 0 ? (
+                {activePermissionsByGroup.length === 0 ? (
                   <div
                     data-cy="active-permission-list-no-permissions-div"
                     className="text-center text-gray-500 py-8"
@@ -775,50 +839,65 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                     No active permissions
                   </div>
                 ) : (
-                  activePermissions.map((permission: any) => {
-                    const group = groupPermissionData?.items?.find((g: any) =>
-                      g.permissions?.some((p: any) => p.id === permission.id),
-                    );
-                    return (
+                  activePermissionsByGroup.map(
+                    ({ group, permissions }: any) => (
                       <div
-                        key={permission.id}
-                        className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
-                        id={`active-permission-item-${permission.id}`}
-                        data-cy={`active-permission-item-${permission.id}`}
+                        key={group.id}
+                        data-cy="active-permission-group-section"
+                        className="space-y-2"
                       >
                         <div
-                          data-cy="active-permission-item-div"
-                          className="flex items-center gap-2 flex-1"
+                          data-cy="active-permission-group-section-header-div"
+                          className="flex items-center gap-2"
                         >
                           <div
-                            data-cy="active-permission-item-group-icon"
-                            className="w-6 h-6 flex items-center justify-center"
+                            data-cy="active-permission-group-section-header-icon-div"
+                            className="w-6 h-6 flex items-center justify-center text-[#4d4d4d]"
                           >
-                            {group ? (
-                              getGroupIcon(group.name)
-                            ) : (
-                              <AppsIcon className="text-gray-400" />
-                            )}
+                            {getGroupIcon(group.name)}
                           </div>
                           <span
-                            data-cy="active-permission-item-name"
-                            className="text-sm text-gray-700"
+                            data-cy="active-permission-group-section-header-name-span"
+                            className="text-base font-normal text-[#4d4d4d]"
                           >
-                            {permission.name}
+                            {group.name}
                           </span>
                         </div>
-                        <Button
-                          type="text"
-                          size="small"
-                          icon={<CloseIcon className="text-gray-400" />}
-                          onClick={() => handleRemovePermission(permission.id)}
-                          disabled={!edit.rolePermission}
-                          id={`remove-permission-btn-${permission.id}`}
-                          data-cy={`remove-permission-btn-${permission.id}`}
-                        />
+
+                        <div
+                          data-cy="active-permission-group-section-permissions-div"
+                          className="space-y-2"
+                        >
+                          {permissions.map((permission: any) => (
+                            <div
+                              key={permission.id}
+                              className="flex items-center justify-between px-3 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm"
+                              id={`active-permission-item-${permission.id}`}
+                              data-cy={`active-permission-item-${permission.id}`}
+                            >
+                              <span
+                                data-cy="active-permission-item-name"
+                                className="text-sm text-gray-700"
+                              >
+                                {permission.name}
+                              </span>
+                              <Button
+                                type="text"
+                                size="small"
+                                icon={<CloseIcon className="text-gray-400" />}
+                                onClick={() =>
+                                  handleRemovePermission(permission.id)
+                                }
+                                disabled={false}
+                                id={`remove-permission-btn-${permission.id}`}
+                                data-cy={`remove-permission-btn-${permission.id}`}
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    );
-                  })
+                    ),
+                  )
                 )}
               </div>
             </Col>

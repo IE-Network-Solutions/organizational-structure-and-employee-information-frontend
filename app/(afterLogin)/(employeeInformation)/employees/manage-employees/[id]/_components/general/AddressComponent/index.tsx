@@ -5,11 +5,13 @@ import {
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { LuPencil } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { validateField } from '../../../../_components/formValidator';
 import dayjs from 'dayjs';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const AddressComponent = ({
   mergedFields,
@@ -136,30 +138,34 @@ const AddressComponent = ({
     <Card
       loading={isLoading}
       title={
-        <span
-          className="text-base font-bold text-gray-900"
-          data-cy="address-card-title"
-        >
-          Address
-        </span>
+        !edit.addresses ? (
+          <span
+            className="text-base font-bold text-[#4d4d4d]"
+            data-cy="address-card-title"
+          >
+            Address
+          </span>
+        ) : null
       }
       extra={
-        <AccessGuard
-          permissions={[Permissions.UpdateEmployeeDetails]}
-          selfShouldAccess
-          id={id}
-          data-cy="address-edit-guard"
-        >
-          <button
-            type="button"
-            onClick={() => handleEditChange('addresses')}
-            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-            id="address-edit-icon"
-            data-cy="address-edit-icon"
+        !edit.addresses ? (
+          <AccessGuard
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            selfShouldAccess
+            id={id}
+            data-cy="address-edit-guard"
           >
-            <LuPencil size={16} className="text-black" />
-          </button>
-        </AccessGuard>
+            <Button
+              type="default"
+              onClick={() => handleEditChange('addresses')}
+              className="w-8 h-8 border border-[#D9D9D9]"
+              id="address-edit-icon"
+              data-cy="address-edit-icon"
+            >
+              <EditOutlinedIcon />
+            </Button>
+          </AccessGuard>
+        ) : null
       }
       className="address-card rounded-lg border border-gray-200 my-6"
       id="address-card"
@@ -177,11 +183,61 @@ const AddressComponent = ({
           data-cy="address-form"
         >
           <Row
+            justify="space-between"
+            align="middle"
+            className="mb-4 w-full"
+            style={{ width: '100%' }}
+            id="personal-data-update-user-info-header-row"
+            data-cy="personal-data-update-user-info-header-row"
+          >
+            <Col>
+              <span
+                data-cy="address-form-title"
+                className="text-sm font-normal text-black"
+              >
+                Address
+              </span>
+            </Col>
+            <Col>
+              <div
+                data-cy="address-form-buttons"
+                className="flex items-center gap-2"
+              >
+                <Button
+                  type="default"
+                  size="small"
+                  icon={<CloseIcon fontSize="small" className="text-red-500" />}
+                  onClick={() => setEdit('addresses')}
+                  id="address-cancel-btn"
+                  data-cy="address-cancel-btn"
+                  className="border border-red-500"
+                  style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+                />
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<CheckIcon />}
+                  htmlType="submit"
+                  id="address-submit-btn"
+                  data-cy="address-submit-btn"
+                  style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
+                />
+              </div>
+            </Col>
+          </Row>
+          <Row
             gutter={[16, 24]}
             id="address-form-row"
             data-cy="address-form-row"
           >
-            <Col lg={16} id="address-form-col" data-cy="address-form-col">
+            <Col
+              className="w-full"
+              lg={24}
+              sm={24}
+              xs={24}
+              id="address-form-col"
+              data-cy="address-form-col"
+            >
               {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
@@ -244,23 +300,6 @@ const AddressComponent = ({
                   />
                 </Form.Item>
               ))}
-            </Col>
-          </Row>
-          <Row id="address-submit-row" data-cy="address-submit-row">
-            <Col
-              span={24}
-              style={{ textAlign: 'right' }}
-              id="address-submit-col"
-              data-cy="address-submit-col"
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-                id="address-submit-btn"
-                data-cy="address-submit-btn"
-              >
-                Save Changes
-              </Button>
             </Col>
           </Row>
         </Form>

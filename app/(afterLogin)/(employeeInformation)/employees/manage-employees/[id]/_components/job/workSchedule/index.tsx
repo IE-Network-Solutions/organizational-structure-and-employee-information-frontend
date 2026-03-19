@@ -1,6 +1,16 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Button, Card, Col, Form, Row, Select, Switch, TimePicker } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Row,
+  Select,
+  Switch,
+  Tag,
+  TimePicker,
+} from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {
@@ -10,11 +20,11 @@ import {
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
-import { LuPencil } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const { Option } = Select;
 const WorkScheduleComponent: React.FC = () => {
@@ -303,38 +313,42 @@ const WorkScheduleComponent: React.FC = () => {
     <Card
       loading={isLoading}
       title={
-        <span
-          className="text-base font-bold text-gray-900"
-          data-cy="job-work-schedule-card-title"
-        >
-          Work Schedule
-        </span>
+        !edit.workSchedule ? (
+          <span
+            className="text-base font-normal text-[#4d4d4d]"
+            data-cy="job-work-schedule-card-title"
+          >
+            Work Schedule
+          </span>
+        ) : null
       }
       extra={
-        <AccessGuard
-          permissions={[Permissions.UpdateEmployeeDetails]}
-          id="job-work-schedule-edit-guard"
-          data-cy="job-work-schedule-edit-guard"
-        >
-          <button
-            type="button"
-            onClick={() => handleEditChange('workSchedule')}
-            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-            id="job-work-schedule-edit-btn"
-            data-cy="job-work-schedule-edit-btn"
+        !edit.workSchedule ? (
+          <AccessGuard
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            id="job-work-schedule-edit-guard"
+            data-cy="job-work-schedule-edit-guard"
           >
-            <LuPencil className="text-gray-700" />
-          </button>
-        </AccessGuard>
+            <Button
+              type="default"
+              onClick={() => handleEditChange('workSchedule')}
+              className="w-8 h-8 border border-[#D9D9D9]"
+              id="job-work-schedule-edit-btn"
+              data-cy="job-work-schedule-edit-btn"
+            >
+              <EditOutlinedIcon />
+            </Button>
+          </AccessGuard>
+        ) : null
       }
       className="work-schedule-card rounded-lg border border-gray-200 my-6 mt-0"
       id="job-work-schedule-card"
       data-cy="job-work-schedule-card"
       headStyle={{ borderBottom: 'none' }}
-      bodyStyle={{ padding: '0 0 0 24px' }}
+      bodyStyle={{ padding: '10px' }}
     >
       {!edit.workSchedule ? (
-        <>
+        <div className="px-3" data-cy="job-work-schedule-display-wrapper">
           <Row
             gutter={[24, 0]}
             id="job-work-schedule-display-row"
@@ -352,13 +366,13 @@ const WorkScheduleComponent: React.FC = () => {
                 data-cy="job-work-schedule-current-schedule"
               >
                 <p
-                  className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                  className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                   data-cy="job-work-schedule-current-schedule-label"
                 >
                   Current Schedule
                 </p>
                 <p
-                  className="text-base font-semibold text-gray-500 m-0"
+                  className="text-base font-normal text-[#4d4d4d] m-0"
                   data-cy="job-work-schedule-current-schedule-value"
                 >
                   {activeJob?.workSchedule?.name || '-'}
@@ -377,13 +391,13 @@ const WorkScheduleComponent: React.FC = () => {
                 data-cy="job-work-schedule-daily-hours"
               >
                 <p
-                  className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                  className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                   data-cy="job-work-schedule-daily-hours-label"
                 >
                   Daily Working hours
                 </p>
                 <p
-                  className="text-base font-semibold text-gray-500 m-0"
+                  className="text-base font-normal text-[#4d4d4d] m-0"
                   data-cy="job-work-schedule-daily-hours-value"
                 >
                   {dailyWorkingHours > 0
@@ -412,13 +426,13 @@ const WorkScheduleComponent: React.FC = () => {
                 data-cy="job-work-schedule-total-working-hours"
               >
                 <p
-                  className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                  className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                   data-cy="job-work-schedule-total-hours-label"
                 >
                   Total Working Hours
                 </p>
                 <p
-                  className="text-base font-semibold text-gray-500 m-0"
+                  className="text-base font-normal text-[#4d4d4d] m-0"
                   data-cy="job-work-schedule-total-hours-value"
                 >
                   {totalWorkingHours > 0
@@ -430,7 +444,7 @@ const WorkScheduleComponent: React.FC = () => {
               </div>
             </Col>
           </Row>
-        </>
+        </div>
       ) : (
         <div
           id="job-work-schedule-edit-wrapper"
@@ -447,7 +461,7 @@ const WorkScheduleComponent: React.FC = () => {
               data-cy="job-work-schedule-edit-summary-row"
             >
               <span
-                className="text-base font-semibold text-gray-900"
+                className="text-base font-normal text-[#4d4d4d]"
                 data-cy="job-work-schedule-edit-title"
               >
                 Work Schedule
@@ -456,18 +470,12 @@ const WorkScheduleComponent: React.FC = () => {
                 className="flex gap-2"
                 data-cy="job-work-schedule-edit-badges"
               >
-                <div
-                  className="px-3 py-1 bg-gray-100 rounded text-sm font-medium text-gray-700"
-                  data-cy="job-work-schedule-edit-days-badge"
-                >
+                <Tag className="bg-[#f9fafb]border border-[#e5e7eb] text-black">
                   {editTotalWorkingDays} Days
-                </div>
-                <div
-                  className="px-3 py-1 bg-gray-100 rounded text-sm font-medium text-gray-700"
-                  data-cy="job-work-schedule-edit-hours-badge"
-                >
+                </Tag>
+                <Tag className="bg-[#f9fafb]border border-[#e5e7eb] text-black">
                   {Math.round(editTotalWorkingHours)} Hours
-                </div>
+                </Tag>
               </div>
             </div>
             <div
@@ -511,16 +519,10 @@ const WorkScheduleComponent: React.FC = () => {
               data-cy="job-work-schedule-edit-form-item"
               label={
                 <span
-                  className="text-sm font-medium text-gray-700"
+                  className="text-sm font-normal text-[#4d4d4d]"
                   data-cy="job-work-schedule-edit-form-label"
                 >
-                  Work Schedule Category{' '}
-                  <span
-                    className="text-red-500"
-                    data-cy="job-work-schedule-edit-form-required"
-                  >
-                    *
-                  </span>
+                  Work Schedule Category
                 </span>
               }
               rules={[
@@ -565,7 +567,7 @@ const WorkScheduleComponent: React.FC = () => {
                 Working Days
               </label>
               <div
-                className="flex gap-2 flex-wrap"
+                className="flex items-center h-8 w-[52px] gap-6"
                 data-cy="job-work-schedule-working-days-buttons"
               >
                 {dailySchedule.length > 0 ? (
@@ -574,15 +576,12 @@ const WorkScheduleComponent: React.FC = () => {
                     const abbreviated =
                       dayName.length > 3 ? dayName.substring(0, 3) : dayName;
                     return (
-                      <button
-                        key={day.key || index}
-                        type="button"
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 ${day.workDay ? 'border border-[#1d4ed8]' : ''}`}
-                        id={`job-work-schedule-day-btn-${index}`}
-                        data-cy={`job-work-schedule-day-btn-${index}`}
+                      <Tag
+                        key={index}
+                        className={`rounded-md ${day.workDay ? 'border border-[#1d4ed8] text-[#4d4d4d] px-4 py-2' : 'bg-[#f9fafb]border border-[#d9d9d9] text-[#4d4d4d] px-4 py-2'}`}
                       >
                         {abbreviated}
-                      </button>
+                      </Tag>
                     );
                   })
                 ) : (
@@ -600,7 +599,7 @@ const WorkScheduleComponent: React.FC = () => {
             {/* Daily Schedule Section */}
             <div data-cy="job-work-schedule-daily-section">
               <label
-                className="text-sm font-medium text-gray-700 mb-3 block"
+                className="text-sm font-normal text-[#4d4d4d] mb-3 block"
                 data-cy="job-work-schedule-daily-label"
               >
                 Daily Schedule
@@ -637,59 +636,64 @@ const WorkScheduleComponent: React.FC = () => {
                         {day.day || ''}
                       </span>
                       <div
-                        className="flex items-center gap-2 flex-1"
+                        className="flex items-center gap-3 flex-1"
                         data-cy={`job-work-schedule-day-times-${index}`}
                       >
-                        <TimePicker
-                          value={day.startTime}
-                          format="HH:mm"
-                          placeholder="Start time"
-                          disabled
-                          onChange={(time) => {
-                            const updated = [...dailySchedule];
-                            updated[index].startTime = time;
-                            if (time && updated[index].endTime) {
-                              const start = time;
-                              const end = updated[index].endTime;
-                              const diff = end.diff(start, 'hour', true);
-                              updated[index].duration = diff > 0 ? diff : 0;
-                            }
-                            setDailySchedule(updated);
-                          }}
-                          className="flex-1"
-                          id={`job-work-schedule-start-time-${index}`}
-                          data-cy={`job-work-schedule-start-time-${index}`}
-                        />
-                        <span
-                          className="text-gray-400"
-                          data-cy={`job-work-schedule-time-separator-${index}`}
-                        >
-                          -
-                        </span>
-                        <TimePicker
-                          value={day.endTime}
-                          format="HH:mm"
-                          placeholder="End time"
-                          disabled
-                          onChange={(time) => {
-                            const updated = [...dailySchedule];
-                            updated[index].endTime = time;
-                            if (time && updated[index].startTime) {
-                              const start = updated[index].startTime;
-                              const end = time;
-                              const diff = end.diff(start, 'hour', true);
-                              updated[index].duration = diff > 0 ? diff : 0;
-                            }
-                            setDailySchedule(updated);
-                          }}
-                          className="flex-1"
-                          id={`job-work-schedule-end-time-${index}`}
-                          data-cy={`job-work-schedule-end-time-${index}`}
-                        />
                         <div
+                          className="flex items-center gap-2 flex-1 border-[1px] border-[#bfbfbf] rounded-md px-1 bg-white"
+                          data-cy={`job-work-schedule-time-range-${index}`}
+                        >
+                          <TimePicker
+                            value={day.startTime}
+                            format="HH:mm"
+                            placeholder="Start time"
+                            disabled
+                            onChange={(time) => {
+                              const updated = [...dailySchedule];
+                              updated[index].startTime = time;
+                              if (time && updated[index].endTime) {
+                                const start = time;
+                                const end = updated[index].endTime;
+                                const diff = end.diff(start, 'hour', true);
+                                updated[index].duration = diff > 0 ? diff : 0;
+                              }
+                              setDailySchedule(updated);
+                            }}
+                            className="flex-1 border-none shadow-none bg-white"
+                            id={`job-work-schedule-start-time-${index}`}
+                            data-cy={`job-work-schedule-start-time-${index}`}
+                          />
+                          <span
+                            className="text-[#bfbfbf] text-sm"
+                            data-cy={`job-work-schedule-time-separator-${index}`}
+                          >
+                            -
+                          </span>
+                          <TimePicker
+                            value={day.endTime}
+                            format="HH:mm"
+                            placeholder="End time"
+                            disabled
+                            onChange={(time) => {
+                              const updated = [...dailySchedule];
+                              updated[index].endTime = time;
+                              if (time && updated[index].startTime) {
+                                const start = updated[index].startTime;
+                                const end = time;
+                                const diff = end.diff(start, 'hour', true);
+                                updated[index].duration = diff > 0 ? diff : 0;
+                              }
+                              setDailySchedule(updated);
+                            }}
+                            className="flex-1 border-none shadow-none bg-white"
+                            id={`job-work-schedule-end-time-${index}`}
+                            data-cy={`job-work-schedule-end-time-${index}`}
+                          />
+                        </div>
+                        <Tag
                           className={`px-3 py-1 rounded text-sm font-medium min-w-[80px] text-center hidden sm:block ${
                             day.workDay
-                              ? 'bg-blue-100 text-blue-700'
+                              ? ' bg-[#e6f4ff] border border-[#91caff] text-[#4096ff]'
                               : 'bg-gray-100 text-gray-400'
                           }`}
                           id={`job-work-schedule-hours-${index}`}
@@ -698,7 +702,7 @@ const WorkScheduleComponent: React.FC = () => {
                           {hours > 0
                             ? `${Math.round(hours * 10) / 10} Hours`
                             : '0 Hours'}
-                        </div>
+                        </Tag>
                       </div>
                     </div>
                   );

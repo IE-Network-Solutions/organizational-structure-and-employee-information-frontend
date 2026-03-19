@@ -28,6 +28,7 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
+import AirplanemodeInactiveIcon from '@mui/icons-material/AirplanemodeInactive';
 
 interface Params {
   id: string;
@@ -125,54 +126,22 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       permissions: [Permissions.DeleteEmployee],
     });
 
-    // Initiate Resignation or End Employment
-    if (!offboardingTermination?.isActive && hasEndEmploymentPermission) {
-      if (resignationSubmittedDate === null && activeJob) {
-        menuItems.push({
-          key: 'initiate-resignation',
-          label: 'Initiate Resignation',
-          icon: (
-            <RemoveCircleOutlineIcon
-              className="text-red-500"
-              style={{ fontSize: '18px' }}
-            />
-          ),
-          onClick: () => {
-            Modal.confirm({
-              title:
-                'Are you sure you want to Initiate the resignation process?',
-              okText: 'Confirm',
-              cancelText: 'Cancel',
-              onOk: () => handleConfirmResignation(activeJob?.id),
-            });
-          },
-          disabled: offboardingTermination?.isActive,
-        });
-      } else if (resignationSubmittedDate !== null) {
-        menuItems.push({
-          key: 'end-employment',
-          label: 'End Employment',
-          icon: (
-            <RemoveCircleOutlineIcon
-              className="text-red-500"
-              style={{ fontSize: '18px' }}
-            />
-          ),
-          onClick: handleEndEmploymentClick,
-          disabled: offboardingTermination?.isActive,
-        });
-      }
-    }
-
     // Deactivate or Reactivate Employee
     if (resignationSubmittedDate === null && hasDeleteEmployeePermission) {
       if (employeeData?.deletedAt === null) {
         menuItems.push({
           key: 'deactivate',
-          label: 'Deactivate Employee',
+          label: (
+            <span
+              data-cy="employee-detail-deactivate-employee-label"
+              className="text-[#666666]"
+            >
+              Deactivate Employee
+            </span>
+          ),
           icon: (
-            <PersonOffIcon
-              className="text-red-500"
+            <AirplanemodeInactiveIcon
+              className="text-[#666666]"
               style={{ fontSize: '18px' }}
             />
           ),
@@ -191,11 +160,52 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           label: 'ReActivate Employee',
           icon: (
             <PersonOffIcon
-              className="text-black"
+              className="text-[#666666]"
               style={{ fontSize: '18px' }}
             />
           ),
           onClick: handleRehireClick,
+        });
+      }
+    }
+
+    // Initiate Resignation or End Employment
+    if (!offboardingTermination?.isActive && hasEndEmploymentPermission) {
+      if (resignationSubmittedDate === null && activeJob) {
+        menuItems.push({
+          key: 'initiate-resignation',
+          label: (
+            <span
+              data-cy="employee-detail-initiate-resignation-label"
+              className="text-[#666666]"
+            >
+              Initiate Resignation
+            </span>
+          ),
+          icon: (
+            <RemoveCircleOutlineIcon
+              className="text-[#666666]"
+              style={{ fontSize: '18px' }}
+            />
+          ),
+          onClick: () => {
+            Modal.confirm({
+              title:
+                'Are you sure you want to Initiate the resignation process?',
+              okText: 'Confirm',
+              cancelText: 'Cancel',
+              onOk: () => handleConfirmResignation(activeJob?.id),
+            });
+          },
+          disabled: offboardingTermination?.isActive,
+        });
+      } else if (resignationSubmittedDate !== null) {
+        menuItems.push({
+          key: 'end-employment',
+          label: 'End Employment',
+          icon: <RemoveCircleOutlineIcon style={{ fontSize: '18px' }} />,
+          onClick: handleEndEmploymentClick,
+          disabled: offboardingTermination?.isActive,
         });
       }
     }
@@ -253,7 +263,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
 
   return (
     <div
-      className="p-2 sm:mx-5 sm:pr-2 h-auto min-h-screen"
+      className="px-2 sm:px-3 h-auto min-h-screen"
       id="employee-detail-page"
       data-cy="employee-detail-page"
     >

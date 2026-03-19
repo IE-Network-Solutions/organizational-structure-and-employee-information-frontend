@@ -44,13 +44,13 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
           data-cy="work-schedule-select-col"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="text-sm font-normal text-[#030712]"
             name="workScheduleId"
             id="workScheduleId"
             data-cy="workScheduleId"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="work-schedule-form-category-label"
               >
                 Work Schedule Category
@@ -83,26 +83,6 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
           </Form.Item>
         </Col>
       </Row>
-      {/* <Row
-        gutter={16}
-        id="work-schedule-table-row"
-        data-cy="work-schedule-table-row"
-      >
-        <Col
-          xs={24}
-          sm={24}
-          id="work-schedule-table-col"
-          data-cy="work-schedule-table-col"
-        >
-          <Table
-            columns={columns}
-            dataSource={data}
-            pagination={false}
-            id="work-schedule-table"
-            data-cy="work-schedule-table"
-          />
-        </Col>
-      </Row> */}
     </div>
   );
 };
