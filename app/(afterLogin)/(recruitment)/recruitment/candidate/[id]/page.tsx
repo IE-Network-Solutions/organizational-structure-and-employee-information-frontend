@@ -15,7 +15,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from 'react-query';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 
@@ -160,46 +159,46 @@ const CandidateDetailPage: React.FC = () => {
         data-cy="talent-acquisition-candidate-detail-page-header-card"
         className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1.5 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
         title={
-        <div
-          className="px-4 sm:px-6 py-0.5 flex items-center gap-2"
-          data-cy="talent-acquisition-candidate-detail-page-breadcrumb-container"
-        >
-          <Button
-            type="text"
-            icon={<KeyboardArrowLeftIcon className="text-lg" />}
-            onClick={() => router.push('/recruitment/candidate')}
-            className="!flex items-center justify-center p-0 h-8 w-8 min-w-[32px] rounded-lg bg-white border border-gray-200 text-gray-800 hover:border-[#4096FF] [&_.ant-btn-icon]:flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center"
-            data-cy="talent-acquisition-candidate-detail-page-back"
-          />
-          <CustomBreadcrumb
-            compact
-            title={
-              <span
-                className="text-lg sm:text-2xl font-bold text-[#000000B2]"
-                data-cy="talent-acquisition-candidate-detail-page-breadcrumb-title"
-              >
-                Candidate Detail
-              </span>
-            }
-            subtitle={
-              <>
+          <div
+            className="px-4 sm:px-6 py-0.5 flex items-center gap-2"
+            data-cy="talent-acquisition-candidate-detail-page-breadcrumb-container"
+          >
+            <Button
+              type="text"
+              icon={<KeyboardArrowLeftIcon className="text-lg" />}
+              onClick={() => router.push('/recruitment/candidate')}
+              className="!flex items-center justify-center p-0 h-8 w-8 min-w-[32px] rounded-lg bg-white border border-gray-200 text-gray-800 hover:border-[#4096FF] [&_.ant-btn-icon]:flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center"
+              data-cy="talent-acquisition-candidate-detail-page-back"
+            />
+            <CustomBreadcrumb
+              compact
+              title={
                 <span
-                  className="text-slate-500"
-                  data-cy="talent-acquisition-candidate-detail-page-breadcrumb-prefix"
+                  className="text-lg sm:text-2xl font-bold text-[#000000B2]"
+                  data-cy="talent-acquisition-candidate-detail-page-breadcrumb-title"
                 >
-                  Talent Acquisition /{' '}
+                  Candidate Detail
                 </span>
-                <span
-                  className="text-[#000000B2]"
-                  data-cy="talent-acquisition-candidate-detail-page-breadcrumb-current"
-                >
-                  Candidates
-                </span>
-              </>
-            }
-            data-cy="talent-acquisition-candidate-detail-page-breadcrumb"
-          />
-        </div>
+              }
+              subtitle={
+                <>
+                  <span
+                    className="text-slate-500"
+                    data-cy="talent-acquisition-candidate-detail-page-breadcrumb-prefix"
+                  >
+                    Talent Acquisition /{' '}
+                  </span>
+                  <span
+                    className="text-[#000000B2]"
+                    data-cy="talent-acquisition-candidate-detail-page-breadcrumb-current"
+                  >
+                    Candidates
+                  </span>
+                </>
+              }
+              data-cy="talent-acquisition-candidate-detail-page-breadcrumb"
+            />
+          </div>
         }
       />
 

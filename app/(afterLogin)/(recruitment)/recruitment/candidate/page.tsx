@@ -553,7 +553,12 @@ const AllCandidates: React.FC = () => {
                       className="inline-flex items-center gap-1.5 px-2.5 h-8 rounded-md border border-gray-200 bg-white text-xs text-gray-700 whitespace-nowrap shrink-0"
                       data-cy={`talent-acquisition-candidate-page-active-filter-${chip.key}`}
                     >
-                      <span className="max-w-[180px] truncate">{chip.label}</span>
+                      <span
+                        className="max-w-[180px] truncate"
+                        data-cy={`talent-acquisition-candidate-page-active-filter-label-${chip.key}`}
+                      >
+                        {chip.label}
+                      </span>
                       <button
                         type="button"
                         className="text-gray-500 hover:text-gray-700 leading-none"
