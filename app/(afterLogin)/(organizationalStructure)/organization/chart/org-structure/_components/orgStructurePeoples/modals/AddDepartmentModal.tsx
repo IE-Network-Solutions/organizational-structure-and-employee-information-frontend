@@ -271,7 +271,7 @@ export function AddDepartmentModal() {
                   id: createdId ?? '',
                   name: variables.name,
                   description: variables.description ?? '',
-                  branchId: variables.branchId,
+                  branchId: variables.branchId ?? undefined,
                 });
                 handleClose();
               },

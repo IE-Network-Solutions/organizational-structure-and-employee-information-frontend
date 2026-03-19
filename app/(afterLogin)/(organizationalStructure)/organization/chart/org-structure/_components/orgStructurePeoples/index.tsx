@@ -29,13 +29,11 @@ import {
 import { buildFlowFromTree } from './layout';
 import { useChartRef } from '../../../layout';
 import { OrgChartActionsProvider } from './OrgChartActionsContext';
-import {
-  AddDepartmentModal,
-  DepartmentUsersModal,
-  DeleteDepartmentModal,
-} from './modals';
 import { OrgChartExportBridge } from '../OrgChartExportBridge';
 import { DepartmentUsersModalPositionBridge } from './DepartmentUsersModalPositionBridge';
+import { AddDepartmentModal } from './modals/AddDepartmentModal';
+import { DepartmentUsersModal } from './modals/DepartmentUsersModal';
+import { DeleteDepartmentModal } from './modals/DeleteDepartmentModal';
 
 const nodeTypes = {
   orgNode: OrgChartNode,
