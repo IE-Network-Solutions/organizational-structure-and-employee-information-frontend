@@ -165,8 +165,8 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       },
       Table: {
         headerBg: '#FAFAFA',
-        headerColor: '#718096',
-        fontSize: 12,
+        headerColor: '#000000B2',
+        fontSize: 14,
       },
       Empty: {},
       Button: {

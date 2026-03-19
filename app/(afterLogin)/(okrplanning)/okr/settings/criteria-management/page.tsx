@@ -224,56 +224,58 @@ function Page() {
           criteriaNames={['All Types', ...criteriaTypes]}
           data-cy="okr-criteria-management-desktop-filters"
         />
-      </div>
 
-      {/* Mobile layout: visible on small screens */}
-      <div
-        className="md:hidden"
-        id="okr-criteria-management-mobile-section"
-        data-cy="okr-criteria-management-mobile-section"
-      >
-        <h1
-          className="text-lg font-bold md:text-lg"
-          id="okr-criteria-management-mobile-title"
-          data-cy="okr-criteria-management-mobile-title"
-        >
-          Criteria Management
-        </h1>
-        <div
-          className="mt-4 flex justify-between gap-4"
-          id="okr-criteria-management-mobile-toolbar"
-          data-cy="okr-criteria-management-mobile-toolbar"
-        >
-          <CriteriaFilters
-            onSearch={handleSearch}
-            onTypeChange={handleTypeChange}
-            criteriaNames={['All Types', ...criteriaTypes]}
-            data-cy="okr-criteria-management-mobile-filters"
-          />
-          <AccessGuard
-            data-cy="okr-criteria-management-mobile-add-button-access-guard-display-guard"
-            permissions={[Permissions.CreateVpScoringConfigurations]}
+        {vpScoringLoading ? (
+          <div
+            className="flex justify-center items-center py-20"
+            data-cy="okr-criteria-management-loading"
           >
-            <Button
-              type="primary"
-              className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 w-10 md:w-auto h-10"
-              icon={<FaPlus />}
-              onClick={() => openDrawer()}
-              id="okr-criteria-management-mobile-add-button"
-              data-cy="okr-criteria-management-mobile-add-button"
-            >
-              <span
-                className="hidden lg:block"
-                id="okr-criteria-management-mobile-add-button-label"
-                data-cy="okr-criteria-management-mobile-add-button-label"
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            id="okr-criteria-management-cards-grid"
+            data-cy="okr-criteria-management-cards-grid"
+          >
+            {assignedCriteriaData?.map((item: any) => (
+              <div
+                key={item.key}
+                className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
+                id={`okr-criteria-card-${item.key}`}
+                data-cy={`okr-criteria-card-${item.key}`}
               >
-                {' '}
-                Scoring Configuration
-              </span>
-            </Button>
-          </AccessGuard>
-        </div>
-      </div>
+                {/* Top Row: Name and Menu */}
+                <div
+                  className="flex justify-between items-start mb-6"
+                  data-cy={`okr-criteria-card-header-${item.key}`}
+                >
+                  <p
+                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
+                    id={`okr-criteria-card-name-${item.key}`}
+                    data-cy={`okr-criteria-card-name-${item.key}`}
+                  >
+                    {item.name}
+                  </p>
+                  <div
+                    id={`okr-criteria-card-menu-wrapper-${item.key}`}
+                    data-cy={`okr-criteria-card-menu-wrapper-${item.key}`}
+                  >
+                    <Dropdown
+                      menu={{ items: getMenuItems(item) }}
+                      trigger={['click']}
+                      placement="bottomRight"
+                    >
+                      <button
+                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                        data-cy={`okr-criteria-card-menu-button-${item.key}`}
+                      >
+                        <EllipsisOutlined className="text-lg" />
+                      </button>
+                    </Dropdown>
+                  </div>
+                </div>
 
                 {/* Bottom Row: Score and Count boxes */}
                 <div

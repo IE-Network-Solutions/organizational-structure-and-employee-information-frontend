@@ -186,51 +186,58 @@ function Page() {
           targetNames={['All Types', ...criteriaTypes]}
           data-cy="okr-target-assignment-desktop-filters"
         />
-      </div>
-      {/* Mobile layout: visible on small screens */}
-      <div
-        className="md:hidden"
-        id="okr-target-assignment-mobile-section"
-        data-cy="okr-target-assignment-mobile-section"
-      >
-        <h1
-          className="text-2xl font-bold md:text-lg"
-          id="okr-target-assignment-mobile-title"
-          data-cy="okr-target-assignment-mobile-title"
-        >
-          Target Assignment
-        </h1>
-        <div
-          className="mt-4 flex justify-between gap-4"
-          id="okr-target-assignment-mobile-toolbar"
-          data-cy="okr-target-assignment-mobile-toolbar"
-        >
-          <TargetFilters
-            onSearchChange={setSearchText}
-            onTypeChange={handleTypeChange}
-            targetNames={['All Types', ...criteriaTypes]}
-            data-cy="okr-target-assignment-mobile-filters"
-          />
-          <AccessGuard permissions={[Permissions.AssignVpTargets]}>
-            <Button
-              type="primary"
-              className="h-10"
-              icon={<FaPlus />}
-              onClick={() => openDrawer()}
-              id="okr-target-assignment-mobile-assign-button"
-              data-cy="okr-target-assignment-mobile-assign-button"
-            >
-              <span
-                className="hidden lg:block"
-                id="okr-target-assignment-mobile-assign-button-label"
-                data-cy="okr-target-assignment-mobile-assign-button-label"
+
+        {targetAssignmentLoading ? (
+          <div
+            className="flex justify-center items-center py-20"
+            data-cy="okr-target-assignment-loading"
+          >
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            id="okr-target-assignment-cards-grid"
+            data-cy="okr-target-assignment-cards-grid"
+          >
+            {groupedData.map((group: any) => (
+              <div
+                key={group.key}
+                className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
+                id={`okr-target-card-${group.key}`}
+                data-cy={`okr-target-card-${group.key}`}
               >
-                Assign Target
-              </span>
-            </Button>
-          </AccessGuard>
-        </div>
-      </div>
+                {/* Top Row: Criteria Name and Menu */}
+                <div
+                  className="flex justify-between items-start mb-2"
+                  data-cy={`okr-target-card-header-${group.key}`}
+                >
+                  <p
+                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
+                    id={`okr-target-card-title-${group.key}`}
+                    data-cy={`okr-target-card-title-${group.key}`}
+                  >
+                    {group.criteriaName}
+                  </p>
+                  <div
+                    id={`okr-target-card-menu-wrapper-${group.key}`}
+                    data-cy={`okr-target-card-menu-wrapper-${group.key}`}
+                  >
+                    <Dropdown
+                      menu={{ items: getMenuItems(group) }}
+                      trigger={['click']}
+                      placement="bottomRight"
+                    >
+                      <button
+                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                        data-cy={`okr-target-card-menu-button-${group.key}`}
+                      >
+                        <EllipsisOutlined className="text-lg" />
+                      </button>
+                    </Dropdown>
+                  </div>
+                </div>
 
                 {/* Second Row: Department Tag */}
                 <div

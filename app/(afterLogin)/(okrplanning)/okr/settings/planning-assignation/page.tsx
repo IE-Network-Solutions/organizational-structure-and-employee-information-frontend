@@ -8,7 +8,7 @@ import {
   Spin,
   Tag,
 } from 'antd';
-import { SearchOutlined, MoreOutlined } from '@ant-design/icons';
+import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import PlanningAssignationDrawer from './_components/planning-assignation-drawer';
@@ -352,7 +352,7 @@ const PlanAssignment: React.FC = () => {
                 return (
                   <div
                     key={item.userId}
-                    className="bg-white border border-[#d9d9d9] rounded-[16px] p-5 hover:shadow-sm transition-shadow relative"
+                    className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
                     id={`okr-planning-assignation-card-${item.userId}`}
                     data-cy={`okr-planning-assignation-card-${item.userId}`}
                   >
@@ -368,13 +368,13 @@ const PlanAssignment: React.FC = () => {
                       >
                         {item?.profileImage ? (
                           <Avatar
-                            size={48}
+                            size={40}
                             src={item?.profileImage}
                             data-cy={`okr-planning-assignation-card-avatar-${item.userId}`}
                           />
                         ) : (
                           <Avatar
-                            size={48}
+                            size={40}
                             className="bg-[#f0f0f0] text-[#8c8c8c]"
                             data-cy={`okr-planning-assignation-card-avatar-initials-${item.userId}`}
                           >
@@ -402,44 +402,88 @@ const PlanAssignment: React.FC = () => {
                           </Tag>
                         </div>
 
-      <div
-        className="overflow-x-auto scrollbar-none w-full"
-        id="okr-planning-assignation-table-wrapper-display-div"
-        data-cy="okr-planning-assignation-table-wrapper-display-div"
-      >
-        <Table
-          loading={allUserPlanningPeriodGroupedByUserLoading}
-          dataSource={dataSources}
-          columns={columns}
-          pagination={false}
-          id="okr-planning-assignation-table-display-table"
-          data-cy="okr-planning-assignation-table-display-table"
-        />
+                        {/* Name */}
+                        <p
+                          className="text-[15px] font-semibold text-[#262626] mb-0.5 truncate"
+                          id={`okr-planning-assignation-card-name-${item.userId}`}
+                          data-cy={`okr-planning-assignation-card-name-${item.userId}`}
+                        >
+                          {item.employeeName}
+                        </p>
 
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={
-              allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
-            }
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-            data-cy="okr-planning-assignation-mobile-pagination-display-pagination"
-          />
-        ) : (
-          <CustomPagination
-            current={page}
-            total={
-              allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
-            }
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => {
-              setPageSize(pageSize);
-              setPage(1);
-            }}
-            data-cy="okr-planning-assignation-pagination-display-pagination"
-          />
+                        {/* Date */}
+                        <div
+                          className="text-[13px] text-[#8c8c8c]"
+                          data-cy={`okr-planning-assignation-card-date-${item.userId}`}
+                        >
+                          {item.updatedAt
+                            ? dayjs(item.updatedAt).format('DD MMM YYYY')
+                            : '-'}
+                        </div>
+                      </div>
+
+                      {/* Menu button */}
+                      <div
+                        className="flex-shrink-0"
+                        id={`okr-planning-assignation-card-menu-wrapper-${item.userId}`}
+                        data-cy={`okr-planning-assignation-card-menu-wrapper-${item.userId}`}
+                      >
+                        <Dropdown
+                          menu={{ items: getMenuItems(item) }}
+                          trigger={['click']}
+                          placement="bottomRight"
+                          overlayClassName="custom-menu-dropdown"
+                          data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
+                        >
+                          <button
+                            className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                            data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
+                          >
+                            <EllipsisOutlined className="text-lg" />
+                          </button>
+                        </Dropdown>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Pagination Container inside main box */}
+        {!allUserPlanningPeriodGroupedByUserLoading && (
+          <div
+            className="custom-pagination-container"
+            data-cy="okr-planning-assignation-pagination-container"
+          >
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                totalResults={
+                  allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
+                }
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageChange}
+                data-cy="okr-planning-assignation-mobile-pagination"
+              />
+            ) : (
+              <CustomPagination
+                current={page}
+                total={
+                  allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
+                }
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={(pageSize) => {
+                  setPageSize(pageSize);
+                  setPage(1);
+                }}
+                data-cy="okr-planning-assignation-pagination"
+              />
+            )}
+          </div>
         )}
       </div>
 

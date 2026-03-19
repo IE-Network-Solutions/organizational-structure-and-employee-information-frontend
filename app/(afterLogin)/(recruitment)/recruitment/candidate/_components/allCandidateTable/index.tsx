@@ -6,7 +6,7 @@ import {
   CandidateData,
   useCandidateState,
 } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Dropdown, Select, Table, TableColumnsType } from 'antd';
+import { Dropdown, Skeleton, Table, TableColumnsType, Tag, theme } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
@@ -26,6 +26,11 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 
 const AllCandidateTable: React.FC = () => {
+  const { token } = theme.useToken();
+  const router = useRouter();
+  const rowActionButtonRefs = React.useRef<
+    Record<string, HTMLButtonElement | null>
+  >({});
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
 
@@ -48,31 +53,97 @@ const AllCandidateTable: React.FC = () => {
 
   const columns: TableColumnsType<CandidateData> = [
     {
-      title: 'Name',
+      title: (
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
+          data-cy="talent-acquisition-candidate-column-title-name"
+        >
+          Name
+        </span>
+      ),
       dataIndex: 'candidateName',
-      sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
+      key: 'candidateName',
+      render: (text: string) => (
+        <div
+          className="text-sm text-gray-700"
+          data-cy="talent-acquisition-candidate-cell-name"
+        >
+          {text ?? '--'}
+        </div>
+      ),
     },
     {
-      title: 'Phone Number',
+      title: (
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
+          data-cy="talent-acquisition-candidate-column-title-phone"
+        >
+          Phone
+        </span>
+      ),
       dataIndex: 'phoneNumber',
       ellipsis: true,
     },
     {
-      title: 'CGPA',
+      title: (
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
+          data-cy="talent-acquisition-candidate-column-title-cgpa"
+        >
+          CGPA
+        </span>
+      ),
       dataIndex: 'cgpa',
-      sorter: (a: any, b: any) => a.cgpa - b.cgpa,
+      key: 'cgpa',
+      render: (text: string | number) => (
+        <div
+          className="text-sm text-gray-700"
+          data-cy="talent-acquisition-candidate-cell-cgpa"
+        >
+          {text ?? '--'}
+        </div>
+      ),
     },
-    // {
-    //   title: 'Internal/ External',
-    //   dataIndex: 'internal_external',
-    //   sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
-    // },
     {
-      title: 'CV',
+      title: (
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
+          data-cy="talent-acquisition-candidate-column-title-cv"
+        >
+          CV
+        </span>
+      ),
       dataIndex: 'cv',
     },
     {
-      title: 'Applied/ Created Date',
+      title: (
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
+          data-cy="talent-acquisition-candidate-column-title-created"
+        >
+          Applied/ Created Date
+        </span>
+      ),
       dataIndex: 'createdAt',
     },
     {
@@ -81,15 +152,48 @@ const AllCandidateTable: React.FC = () => {
     },
 
     {
-      title: 'Email',
+      title: (
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
+          data-cy="talent-acquisition-candidate-column-title-email"
+        >
+          Email
+        </span>
+      ),
       dataIndex: 'LinkedInURL',
     },
     {
-      title: 'Stages',
+      title: (
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
+          data-cy="talent-acquisition-candidate-column-title-stages"
+        >
+          Stages
+        </span>
+      ),
       dataIndex: 'stages',
     },
     {
-      title: 'Action',
+      title: (
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
+          data-cy="talent-acquisition-candidate-column-title-action"
+        >
+          Action
+        </span>
+      ),
       dataIndex: 'action',
     },
   ];
@@ -140,10 +244,30 @@ const AllCandidateTable: React.FC = () => {
   };
 
   const handleCandidateDetail = (candidate: any) => {
-    setSelectedCandidate(candidate);
-    setSelectedCandidateID(candidate?.id);
-    setCandidateDetailDrawer(true);
+    if (candidate?.id) {
+      router.push(`/recruitment/candidate/${candidate.id}`);
+    }
   };
+
+  if (isResponseLoading) {
+    return (
+      <div
+        className="space-y-3"
+        data-cy="talent-acquisition-candidate-table-skeleton"
+      >
+        <Skeleton
+          active
+          title={false}
+          paragraph={{ rows: isMobile || isTablet ? 5 : 3 }}
+        />
+        <Skeleton
+          active
+          title={false}
+          paragraph={{ rows: isMobile || isTablet ? 6 : 4 }}
+        />
+      </div>
+    );
+  }
 
   const data = candidateList?.items?.map((item: any, index: any) => {
     const items = [
@@ -206,9 +330,18 @@ const AllCandidateTable: React.FC = () => {
           <a
             id={`talent-acquisition-candidate-table-link-email-${item?.id}`}
             data-cy={`talent-acquisition-candidate-table-link-email-${item?.id}`}
-            href={`mailto:${item?.email}`}
-            title="Send Email"
-            className="text-blue-600 hover:text-blue-800 transition-colors"
+            href={item?.email ? `mailto:${item.email}` : undefined}
+            title={item?.email ?? ''}
+            className="transition-colors text-sm break-all"
+            style={{ color: token.colorPrimary }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.color =
+                token.colorPrimaryHover;
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.color =
+                token.colorPrimary;
+            }}
           >
             <SiGmail size={20} />
           </a>
@@ -219,32 +352,36 @@ const AllCandidateTable: React.FC = () => {
           id="talent-acquisition-candidate-table-div-stages"
           data-cy="talent-acquisition-candidate-table-div-stages"
         >
-          <Select
-            id={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
-            data-cy={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
-            defaultValue={item?.jobCandidate?.map(
-              (e: any) => e?.applicantStatusStage?.title ?? '--',
-            )}
-            // style={{ width: 120 }}
-            className="w-full"
-            onChange={(value) =>
-              handleStageChange(
-                value,
-                item?.jobCandidate?.map((e: any) => e?.id),
-              )
-            }
+          <Dropdown
+            trigger={['click']}
+            placement="bottomLeft"
+            menu={{
+              items:
+                statusStage?.items?.map((stage: any) => ({
+                  key: stage.id,
+                  label: stage.title,
+                  onClick: () =>
+                    handleStageChange(
+                      stage.id,
+                      item?.jobCandidate?.map((e: any) => e?.id),
+                    ),
+                })) ?? [],
+            }}
           >
-            {statusStage?.items?.map((stage: any) => (
-              <Select.Option
-                key={stage.id}
-                value={stage.id}
-                id={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
-                data-cy={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
-              >
-                {stage.title}
-              </Select.Option>
-            ))}
-          </Select>
+            <Tag
+              id={`talent-acquisition-candidate-table-tag-stage-${item?.id}`}
+              data-cy={`talent-acquisition-candidate-table-tag-stage-${item?.id}`}
+              className="inline-flex items-center justify-center cursor-pointer border border-solid transition-colors px-3 py-0.5 text-xs font-normal"
+              style={{
+                borderRadius: 4,
+                backgroundColor: '#E6F0FF',
+                color: '#1677FF',
+                borderColor: '#91CAFF',
+              }}
+            >
+              {item?.jobCandidate?.[0]?.applicantStatusStage?.title ?? '--'}
+            </Tag>
+          </Dropdown>
         </div>
       ),
       action: (
@@ -273,8 +410,25 @@ const AllCandidateTable: React.FC = () => {
             }}
             trigger={['click']}
             placement="bottomRight"
+            overlayClassName="talent-acquisition-candidate-table-action-dropdown"
+            overlayStyle={{
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              borderRadius: 8,
+            }}
+            data-cy={`talent-acquisition-candidate-table-dropdown-${item?.id}`}
           >
-            <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
+            <button
+              ref={(el) => {
+                if (item?.id) rowActionButtonRefs.current[item.id] = el;
+              }}
+              type="button"
+              disabled={item?.deletedAt !== null}
+              className="cursor-pointer text-gray-500 hover:text-gray-700 w-6 h-6 border border-gray-300 rounded-[4px] bg-white flex items-center justify-center hover:border-[#4096FF] disabled:opacity-50 disabled:cursor-not-allowed"
+              data-cy={`talent-acquisition-candidate-table-action-${item?.id}`}
+              id={`talent-acquisition-candidate-table-action-${item?.id}`}
+            >
+              <MoreHorizIcon className="text-[16px] text-gray-600" />
+            </button>
           </Dropdown>
         </div>
       ),
@@ -285,11 +439,8 @@ const AllCandidateTable: React.FC = () => {
     selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
       setSelectedRowKeys(newSelectedRowKeys);
-      setSelectedCandidate(
-        candidateList?.items?.filter((item: CandidateData) =>
-          selectedRows.some((row: CandidateData) => row.id === item.id),
-        ) || [],
-      );
+      // Use selectedRows directly to avoid filtering the full list on every click.
+      setSelectedCandidate((selectedRows as CandidateData[]) ?? []);
     },
   };
 
@@ -302,17 +453,38 @@ const AllCandidateTable: React.FC = () => {
       id="talent-acquisition-candidate-table-div-container"
       data-cy="talent-acquisition-candidate-table-div-container"
     >
-      <Table
-        id="talent-acquisition-candidate-table-table"
-        data-cy="talent-acquisition-candidate-table-table"
-        className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isResponseLoading}
-        pagination={false}
-        scroll={{ x: 1000 }}
-        rowSelection={rowSelection} // Enable selection
-      />
+      <div
+        className="flex overflow-x-auto scrollbar-none w-full bg-white"
+        id="talent-acquisition-candidate-table-scroll-wrapper"
+        data-cy="talent-acquisition-candidate-table-scroll-wrapper"
+      >
+        <Table
+          id="talent-acquisition-candidate-table-table"
+          data-cy="talent-acquisition-candidate-table-table"
+          className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table-thead_.ant-table-cell]:px-4 [&_.ant-table-thead_.ant-table-cell]:text-[14px] [&_.ant-table-tbody_.ant-table-cell]:px-4 [&_.ant-table-tbody_.ant-table-row]:cursor-pointer [&_.ant-table-row.ant-table-row-selected>td]:!bg-white [&_.ant-table-row.ant-table-row-selected:hover>td]:!bg-white [&_.ant-table-tbody>tr.ant-table-row:nth-child(odd)>td]:bg-[#FAFAFA] [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!border-gray-300 [&_.ant-checkbox:hover_.ant-checkbox-inner]:!border-gray-300 [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!shadow-none [&_.ant-checkbox:hover_.ant-checkbox-inner]:!shadow-none [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!bg-white"
+          rowClassName={() => 'h-[60px]'}
+          columns={columns}
+          dataSource={data}
+          loading={isResponseLoading}
+          pagination={false}
+          scroll={{ x: 'max-content' }}
+          rowSelection={rowSelection}
+          onRow={(record) => ({
+            onClick: (e) => {
+              const target = e.target as HTMLElement;
+              if (
+                record?.id &&
+                !target.closest('.ant-checkbox') &&
+                !target.closest('.ant-checkbox-wrapper') &&
+                !target.closest('button') &&
+                !target.closest('.ant-dropdown')
+              ) {
+                router.push(`/recruitment/candidate/${record.id}`);
+              }
+            },
+          })}
+        />
+      </div>
 
       {isMobile || isTablet ? (
         <CustomMobilePagination

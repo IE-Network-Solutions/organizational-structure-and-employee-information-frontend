@@ -35,7 +35,11 @@ const WhatYouNeed: React.FC = () => {
         data-cy="talent-acquisition-job-candidate-search-input"
         placeholder="Search what you need"
         onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
-        className="w-full h-14"
+        className={
+          pill
+            ? 'w-full h-8 rounded-md border border-[#D9D9D9] bg-white overflow-hidden [&_.ant-input-affix-wrapper]:!h-full [&_.ant-input-affix-wrapper]:!border-none [&_.ant-input-affix-wrapper]:!shadow-none [&_.ant-input-group-addon]:!h-full [&_.ant-input-group-addon]:!p-0 [&_.ant-input-group-addon]:!border-l [&_.ant-input-group-addon]:!border-l-[#D9D9D9] [&_.ant-input-group-addon]:!border-solid [&_.ant-input-group-addon]:!bg-white [&_.ant-input-search-button]:!h-full [&_.ant-input-search-button]:!border-none [&_.ant-input-search-button]:!rounded-none [&_.ant-input-search-button]:!bg-white'
+            : 'w-full h-14'
+        }
         allowClear
         suffix={<AiOutlineSearch className="text-gray-400" />}
       />

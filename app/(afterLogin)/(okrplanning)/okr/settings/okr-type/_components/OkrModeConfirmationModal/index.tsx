@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Modal, Button } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { WarningFilled, CloseOutlined } from '@ant-design/icons';
 
 interface OkrModeConfirmationModalProps {
   open: boolean;
@@ -107,15 +107,16 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
           </div>
         </div>
         <div
-          className="flex justify-end gap-3 mt-6"
-          data-cy="okr-mode-confirmation-modal-footer"
-          id="okr-mode-confirmation-modal-footer"
+          className="flex justify-end gap-3"
+          data-cy="okr-mode-confirmation-modal-actions"
         >
           <Button
+            type="default"
             onClick={onCancel}
             disabled={loading}
-            data-cy="okr-mode-confirmation-modal-cancel-button"
-            id="okr-mode-confirmation-modal-cancel-button"
+            className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
+            id="okr-mode-confirmation-cancel-button"
+            data-cy="okr-mode-confirmation-cancel-button"
           >
             Cancel
           </Button>
@@ -123,10 +124,11 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
             type="primary"
             onClick={onConfirm}
             loading={loading}
-            data-cy="okr-mode-confirmation-modal-ok-button"
-            id="okr-mode-confirmation-modal-ok-button"
+            className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
+            id="okr-mode-confirmation-confirm-button"
+            data-cy="okr-mode-confirmation-confirm-button"
           >
-            OK
+            Change
           </Button>
         </div>
       </div>

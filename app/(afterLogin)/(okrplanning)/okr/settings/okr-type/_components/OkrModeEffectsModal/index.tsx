@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Modal, Button } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, CloseOutlined } from '@ant-design/icons';
 
 interface OkrModeEffectsModalProps {
   open: boolean;
@@ -23,16 +23,16 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
 
   const messages = isBasicToAdvanced
     ? [
-        'All existing Objectives and Key Results have been preserved.',
-        'Your previous Done / Not Done KRs are now mapped to Achieved / Not Achieved.',
-        'Advanced metrics are now available for all KRs.',
-      ]
+      'All existing Objectives and Key Results have been preserved.',
+      'Your previous Done / Not Done KRs are now mapped to Achieved / Not Achieved.',
+      'Advanced metrics are now available for all KRs.',
+    ]
     : [
-        'All existing Objectives and Key Results have been preserved.',
-        'Fully achieved KRs and milestones are now marked Done.',
-        'Partially completed or Not Achieved KRs are now marked Not Done.',
-        'Advanced metrics and milestone details will not be available.',
-      ];
+      'All existing Objectives and Key Results have been preserved.',
+      'Fully achieved KRs and milestones are now marked Done.',
+      'Partially completed or Not Achieved KRs are now marked Not Done.',
+      'Advanced metrics and milestone details will not be available.',
+    ];
 
   return (
     <Modal
@@ -110,10 +110,11 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
           <Button
             type="primary"
             onClick={onClose}
-            data-cy="okr-mode-effects-modal-ok-button"
+            className="h-10 px-10 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
             id="okr-mode-effects-modal-ok-button"
+            data-cy="okr-mode-effects-modal-ok-button"
           >
-            OK
+            Success
           </Button>
         </div>
       </div>
