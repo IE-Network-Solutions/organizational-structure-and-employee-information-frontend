@@ -1,9 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Table } from 'antd';
-import { FaPlus } from 'react-icons/fa';
-import { GrEdit } from 'react-icons/gr';
-import { RiDeleteBin6Line } from 'react-icons/ri';
+import { Spin, Dropdown, MenuProps, Tag } from 'antd';
+import { EllipsisOutlined } from '@ant-design/icons';
+import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import AssignTargetDrawer from './_components/assign-target-drawer';
 import TargetFilters from './_components/target-filters';
@@ -233,25 +232,51 @@ function Page() {
         </div>
       </div>
 
-      <div
-        className="flex  overflow-x-auto scrollbar-none  w-full"
-        id="okr-target-assignment-table-wrapper"
-        data-cy="okr-target-assignment-table-wrapper"
-      >
-        <div
-          className="w-full"
-          id="okr-target-assignment-table-container"
-          data-cy="okr-target-assignment-table-container"
-        >
-          <Table
-            dataSource={dataSource}
-            columns={columns}
-            pagination={{ pageSize: 5 }}
-            loading={targetAssignmentLoading}
-            id="okr-target-assignment-table"
-            data-cy="okr-target-assignment-table"
-          />
-        </div>
+                {/* Second Row: Department Tag */}
+                <div
+                  className="mb-4"
+                  data-cy={`okr-target-card-dept-wrapper-${group.key}`}
+                >
+                  <Tag
+                    className="px-2 py-0.5 text-[12px] font-medium text-[#8c8c8c] border-[#f0f0f0] rounded-[4px] bg-[#fafafa]"
+                    id={`okr-target-card-dept-${group.key}`}
+                    data-cy={`okr-target-card-dept-${group.key}`}
+                  >
+                    {group.department}
+                  </Tag>
+                </div>
+
+                {/* Divider Line */}
+                <div
+                  className="h-[1px] bg-[#f0f0f0] mb-4"
+                  data-cy={`okr-target-card-divider-${group.key}`}
+                />
+
+                {/* Bottom Row: Month Targets */}
+                <div
+                  className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1"
+                  data-cy={`okr-target-card-targets-${group.key}`}
+                >
+                  <span
+                    className="text-[13px] font-bold text-[#262626] whitespace-nowrap"
+                    data-cy={`okr-target-card-targets-label-${group.key}`}
+                  >
+                    Target
+                  </span>
+                  {group.targets.map((t: any) => (
+                    <Tag
+                      key={t.id}
+                      className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] rounded-[4px] bg-white whitespace-nowrap m-0"
+                      data-cy={`okr-target-card-target-item-${group.key}-${t.id}`}
+                    >
+                      {t.month} : {Math.round(parseFloat(t.target))}
+                    </Tag>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <AssignTargetDrawer data-cy="okr-target-assignment-drawer" />

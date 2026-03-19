@@ -298,12 +298,11 @@ const TransferDragDrop: React.FC = () => {
 
   const getTeamColor = (index: number) => {
     const colors = [
-      'bg-green-50 border-green-200',
-      'bg-pink-50 border-pink-200',
-      'bg-blue-50 border-blue-200',
-      'bg-yellow-50 border-yellow-200',
-      'bg-gray-50 border-gray-200',
-      'bg-purple-50 border-purple-200',
+      'bg-[#EEF0F5] border-gray-200 shadow-md',
+      'bg-[#F5F1EE] border-gray-200 shadow-md',
+      'bg-[#F2EDF1] border-gray-200 shadow-md',
+      'bg-[#EEF0F0] border-gray-200 shadow-md',
+      'bg-[#F3EDF1] border-gray-200 shadow-md',
     ];
     return colors[index % colors.length];
   };

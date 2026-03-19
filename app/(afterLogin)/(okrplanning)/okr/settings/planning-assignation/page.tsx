@@ -1,14 +1,14 @@
 'use client';
 import {
-  Table,
-  Button,
+  Input,
   Popconfirm,
-  Form,
-  Select,
-  Spin,
-  Tooltip,
   Avatar,
+  Dropdown,
+  MenuProps,
+  Spin,
+  Tag,
 } from 'antd';
+import { SearchOutlined, MoreOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import PlanningAssignationDrawer from './_components/planning-assignation-drawer';
@@ -304,68 +304,103 @@ const PlanAssignment: React.FC = () => {
       data-cy="okr-planning-assignation-container-display-div"
     >
       <div
-        className="flex justify-between mb-4"
-        id="okr-planning-assignation-header-display-div"
-        data-cy="okr-planning-assignation-header-display-div"
+        className="border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white h-[calc(100vh-320px)] flex flex-col"
+        id="okr-planning-assignation-main-container"
+        data-cy="okr-planning-assignation-main-container"
       >
-        <h2
-          className="text-lg font-semibold"
-          id="okr-planning-assignation-title-display-h2"
-          data-cy="okr-planning-assignation-title-display-h2"
+        {/* Search Bar */}
+        <div
+          className="mb-5"
+          data-cy="okr-planning-assignation-search-container"
         >
-          Plan Assignation
-        </h2>
-      </div>
-      <div
-        className="flex justify-between"
-        id="okr-planning-assignation-filters-display-div"
-        data-cy="okr-planning-assignation-filters-display-div"
-      >
-        <Form.Item
-          id="filterByLeaveRequestUserIds"
-          data-cy="filterByLeaveRequestUserIds"
-          name="userIds"
-        >
-          <Select
-            placeholder="Select a person"
-            showSearch
-            className="mb-4 w-60 sm:w-80 h-10"
-            allowClear
-            optionFilterProp="label"
-            onChange={onChange}
-            options={employeeData?.items?.map((list: any) => ({
-              value: list?.id,
-              label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
-            }))}
-            loading={employeeDataLoading}
-            id="okr-planning-assignation-user-select-display-select"
-            data-cy="okr-planning-assignation-user-select-display-select"
+          <Input
+            placeholder="Search Employee"
+            addonAfter={<SearchOutlined className="text-[#8c8c8c]" />}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full max-w-md h-11 custom-search-input"
+            id="okr-planning-assignation-search-input"
+            data-cy="okr-planning-assignation-search-input"
           />
-        </Form.Item>
-        <AccessGuard
-          data-cy="okr-planning-assignation-assign-button-access-guard-display-guard"
-          permissions={[Permissions.AssignPlanningPeriod]}
+        </div>
+
+        {/* Cards Grid Content - Scrollable Area */}
+        <div
+          className="flex-1 overflow-y-auto pr-2 custom-scrollbar"
+          data-cy="okr-planning-assignation-cards-scroll-container"
         >
-          <Button
-            icon={
-              <FaPlus data-cy="okr-planning-assignation-assign-button-icon-display-button" />
-            }
-            onClick={showDrawer}
-            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
-            type="primary"
-            id="okr-planning-assignation-assign-button-display-button"
-            data-cy="okr-planning-assignation-assign-button-display-button"
-          >
-            <span
-              className="hidden lg:block"
-              id="okr-planning-assignation-assign-button-text-display-span"
-              data-cy="okr-planning-assignation-assign-button-text-display-span"
+          {allUserPlanningPeriodGroupedByUserLoading ? (
+            <div
+              className="flex justify-center items-center py-20"
+              data-cy="okr-planning-assignation-loading"
             >
-              Assign
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
+              <Spin size="large" />
+            </div>
+          ) : (
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+              id="okr-planning-assignation-cards-grid"
+              data-cy="okr-planning-assignation-cards-grid"
+            >
+              {filteredData.map((item: any) => {
+                const initials = item.employeeName
+                  .split(' ')
+                  .map((name: string) => name[0]?.toUpperCase())
+                  .join('')
+                  .slice(0, 2);
+
+                return (
+                  <div
+                    key={item.userId}
+                    className="bg-white border border-[#d9d9d9] rounded-[16px] p-5 hover:shadow-sm transition-shadow relative"
+                    id={`okr-planning-assignation-card-${item.userId}`}
+                    data-cy={`okr-planning-assignation-card-${item.userId}`}
+                  >
+                    <div
+                      className="flex items-center gap-4"
+                      data-cy={`okr-planning-assignation-card-content-${item.userId}`}
+                    >
+                      {/* Avatar */}
+                      <div
+                        className="flex-shrink-0"
+                        id={`okr-planning-assignation-card-avatar-wrapper-${item.userId}`}
+                        data-cy={`okr-planning-assignation-card-avatar-wrapper-${item.userId}`}
+                      >
+                        {item?.profileImage ? (
+                          <Avatar
+                            size={48}
+                            src={item?.profileImage}
+                            data-cy={`okr-planning-assignation-card-avatar-${item.userId}`}
+                          />
+                        ) : (
+                          <Avatar
+                            size={48}
+                            className="bg-[#f0f0f0] text-[#8c8c8c]"
+                            data-cy={`okr-planning-assignation-card-avatar-initials-${item.userId}`}
+                          >
+                            {initials}
+                          </Avatar>
+                        )}
+                      </div>
+
+                      {/* Content block */}
+                      <div
+                        className="flex-1 min-w-0 flex flex-col justify-center"
+                        data-cy={`okr-planning-assignation-card-content-block-${item.userId}`}
+                      >
+                        {/* Tag */}
+                        <div
+                          className="mb-2"
+                          data-cy={`okr-planning-assignation-card-tag-wrapper-${item.userId}`}
+                        >
+                          <Tag
+                            className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px]"
+                            id={`okr-planning-assignation-card-tag-${item.userId}`}
+                            data-cy={`okr-planning-assignation-card-tag-${item.userId}`}
+                          >
+                            {item.planningPeriodType}
+                          </Tag>
+                        </div>
 
       <div
         className="overflow-x-auto scrollbar-none w-full"

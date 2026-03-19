@@ -1,10 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Table, Tabs } from 'antd';
-import { FaPlus } from 'react-icons/fa';
-import { GrEdit } from 'react-icons/gr';
-import { RiDeleteBin6Line } from 'react-icons/ri';
-import ScoringDrawer from './_components/criteria-drawer';
+import { Spin, Dropdown, MenuProps, Tag } from 'antd';
+import ScoringModal from './_components/criteria-drawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CriteriaFilters from './_components/criteria-filters';
 import {
@@ -278,54 +275,30 @@ function Page() {
         </div>
       </div>
 
-      <div
-        className="flex  overflow-x-auto scrollbar-none w-full"
-        id="okr-criteria-management-tabs-wrapper"
-        data-cy="okr-criteria-management-tabs-wrapper"
-      >
-        <div
-          className="w-full"
-          id="okr-criteria-management-tabs-container"
-          data-cy="okr-criteria-management-tabs-container"
-        >
-          <Tabs
-            centered
-            defaultActiveKey="1"
-            id="okr-criteria-management-tabs"
-            data-cy="okr-criteria-management-tabs"
-          >
-            <Tabs.TabPane
-              tab="Scoring Configuration"
-              key="1"
-              id="okr-criteria-management-tab-scoring"
-              data-cy="okr-criteria-management-tab-scoring"
-            >
-              <Table
-                dataSource={assignedCriteriaData}
-                columns={assignedCriteriaColumns}
-                pagination={{ pageSize: 5 }}
-                loading={vpScoringLoading}
-                id="okr-criteria-management-assigned-table"
-                data-cy="okr-criteria-management-assigned-table"
-              />
-            </Tabs.TabPane>
-            <Tabs.TabPane
-              tab="Available Criteria"
-              key="2"
-              id="okr-criteria-management-tab-available"
-              data-cy="okr-criteria-management-tab-available"
-            >
-              <Table
-                dataSource={availableCriteriaData}
-                columns={availableCriteriaColumns}
-                pagination={{ pageSize: 5 }}
-                loading={criteriaLoading}
-                id="okr-criteria-management-available-table"
-                data-cy="okr-criteria-management-available-table"
-              />
-            </Tabs.TabPane>
-          </Tabs>
-        </div>
+                {/* Bottom Row: Score and Count boxes */}
+                <div
+                  className="flex items-center justify-between"
+                  data-cy={`okr-criteria-card-footer-${item.key}`}
+                >
+                  <Tag
+                    className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0"
+                    id={`okr-criteria-card-percentage-${item.key}`}
+                    data-cy={`okr-criteria-card-percentage-${item.key}`}
+                  >
+                    Total %: {item.totalPercentage.replace('%', '')}
+                  </Tag>
+                  <Tag
+                    className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0"
+                    id={`okr-criteria-card-count-${item.key}`}
+                    data-cy={`okr-criteria-card-count-${item.key}`}
+                  >
+                    Count: {item.criteriaCount}
+                  </Tag>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <ScoringDrawer data-cy="okr-criteria-management-drawer" />
     </div>

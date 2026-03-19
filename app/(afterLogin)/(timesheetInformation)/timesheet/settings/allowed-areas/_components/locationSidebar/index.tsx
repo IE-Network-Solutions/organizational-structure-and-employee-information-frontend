@@ -1,12 +1,19 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import React, { useEffect, useState, useCallback } from 'react';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Form, Input, Space, Spin, Switch, Select } from 'antd';
+import {
+  Form,
+  Input,
+  Space,
+  Spin,
+  Switch,
+  Select,
+  Modal,
+  Button,
+  Slider,
+  message,
+  InputNumber,
+} from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetAllowedArea } from '@/store/server/features/timesheet/allowedArea/mutation';
 import { useGetAllowedArea } from '@/store/server/features/timesheet/allowedArea/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -89,30 +96,6 @@ const LocationSidebar = () => {
     setIsShow(false);
   }, [form, setAllowedAreaId, setIsShow]);
 
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      loading: isLoading,
-      onClick: () => onClose(),
-      id: 'time-attendance-settings-allowed-areas-sidebar-cancel-button',
-      'data-cy': 'time-attendance-settings-allowed-areas-sidebar-cancel-button',
-    },
-    {
-      label: allowedAreaId ? 'Edit' : 'Create',
-      key: 'create',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      type: 'primary',
-      loading: isFetching || isLoading,
-      onClick: () => form.submit(),
-      id: 'time-attendance-settings-allowed-areas-sidebar-submit-button',
-      'data-cy': 'time-attendance-settings-allowed-areas-sidebar-submit-button',
-    },
-  ];
-
   useEffect(() => {
     if (isSuccess) {
       onClose();
@@ -145,7 +128,7 @@ const LocationSidebar = () => {
   };
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] w-full';
 
   const handleLocationChange = (lat: number, lng: number) => {
     form.setFieldValue('latitude', lat);
@@ -158,36 +141,65 @@ const LocationSidebar = () => {
     setFormValues((prev) => ({ ...prev, distance: radius }));
   };
 
+  const handleUseCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          handleLocationChange(latitude, longitude);
+          message.success('Current location set successfully!');
+        },
+        () => {
+          message.error(
+            'Unable to get current location. Please select manually.',
+          );
+        },
+      );
+    } else {
+      message.error('Geolocation is not supported by this browser.');
+    }
+  };
+
   return (
     isShow && (
-      <CustomDrawerLayout
+      <Modal
         data-cy="time-attendance-settings-allowed-areas-sidebar-container"
         open={isShow}
-        onClose={() => onClose()}
-        modalHeader={
+        onCancel={() => onClose()}
+        title={
           <div
-            className="px-2"
+            className="text-lg font-semibold text-[#4d4d4d]"
             id="time-attendance-settings-allowed-areas-sidebar-header-container"
             data-cy="time-attendance-settings-allowed-areas-sidebar-header-container"
           >
-            <CustomDrawerHeader data-cy="time-attendance-settings-allowed-areas-sidebar-header">
-              {allowedAreaId ? 'Edit' : 'New'} Location
-            </CustomDrawerHeader>
+            {allowedAreaId ? 'Edit' : 'New'} Location
           </div>
         }
         footer={
           <div
-            className="p-4"
+            className="flex items-center justify-end gap-3"
             id="time-attendance-settings-allowed-areas-sidebar-footer-container"
             data-cy="time-attendance-settings-allowed-areas-sidebar-footer-container"
           >
-            <CustomDrawerFooterButton
-              buttons={footerModalItems}
-              data-cy="time-attendance-settings-allowed-areas-sidebar-footer-button"
-            />
+            <Button
+              type="default"
+              className="h-10 px-6 rounded-lg"
+              onClick={() => onClose()}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              className="h-10 px-6 rounded-lg"
+              onClick={() => form.submit()}
+            >
+              {allowedAreaId ? 'Update' : 'Create'}
+            </Button>
           </div>
         }
-        width="800px"
+        width={880}
+        zIndex={10002}
+        centered
       >
         <Spin
           spinning={isFetching || isLoading}
@@ -217,7 +229,14 @@ const LocationSidebar = () => {
                 <Form.Item
                   id="time-attendance-settings-allowed-areas-sidebar-title"
                   data-cy="time-attendance-settings-allowed-areas-sidebar-title"
-                  label="Name of Location"
+                  label={
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-title-label"
+                      className="text-sm font-normal text-gray-900 pr-1"
+                    >
+                      Location Name
+                    </span>
+                  }
                   rules={[{ required: true, message: 'Required' }]}
                   name="title"
                 >
@@ -228,29 +247,71 @@ const LocationSidebar = () => {
                   />
                 </Form.Item>
 
+                {/* Helper banner */}
+                <div
+                  className="mt-1 mb-4 rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-3 flex gap-3"
+                  id="time-attendance-settings-allowed-areas-sidebar-info-banner"
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner"
+                >
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-icon"
+                    className="mt-1 h-5 w-5 flex items-center justify-center rounded-full border border-[#2563EB] text-[#2563EB] text-xs font-semibold shrink-0"
+                  >
+                    i
+                  </div>
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text"
+                    id="time-attendance-settings-allowed-areas-sidebar-info-banner-text"
+                    className="space-y-1 text-sm text-[#1f2937]"
+                  >
+                    <div
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text-title"
+                      id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-title"
+                      className="font-medium"
+                    >
+                      How to set your location:
+                    </div>
+                    <p
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
+                      id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
+                      className="m-0 text-xs text-[#4b5563]"
+                    >
+                      Click anywhere on the map to set your location. Adjust the
+                      radius slider to define the area coverage, or use the
+                      &quot;Use Current Location&quot; button for quick setup.
+                    </p>
+                  </div>
+                </div>
+
                 {/* Map Section */}
                 <div
                   id="time-attendance-settings-allowed-areas-sidebar-map-container"
                   data-cy="time-attendance-settings-allowed-areas-sidebar-map-container"
                 >
                   <div
-                    className="text-sm text-gray-600 mb-2"
-                    id="time-attendance-settings-allowed-areas-sidebar-map-instruction-1"
-                    data-cy="time-attendance-settings-allowed-areas-sidebar-map-instruction-1"
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-map-title"
+                    id="time-attendance-settings-allowed-areas-sidebar-map-title"
+                    className="flex items-center justify-between mb-2"
                   >
-                    Double click on the map to set the center point of your
-                    allowed area
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-map-title-text"
+                      id="time-attendance-settings-allowed-areas-sidebar-map-title-text"
+                      className="text-sm font-normal text-gray-900"
+                    >
+                      Location Map
+                    </span>
+                    <Button
+                      type="default"
+                      onClick={handleUseCurrentLocation}
+                      className="h-9 px-4 rounded-lg text-sm border-[#D9D9D9] text-[#4d4d4d]"
+                      id="time-attendance-settings-allowed-areas-sidebar-use-current-location-btn"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-use-current-location-btn"
+                    >
+                      Use Current Location
+                    </Button>
                   </div>
                   <div
-                    className="text-sm text-gray-600 mb-3"
-                    id="time-attendance-settings-allowed-areas-sidebar-map-instruction-2"
-                    data-cy="time-attendance-settings-allowed-areas-sidebar-map-instruction-2"
-                  >
-                    Click and drag to explore, then double-click to select your
-                    location
-                  </div>
-                  <div
-                    className="mt-2"
+                    className="mt-2 rounded-lg border border-gray-200 overflow-hidden"
                     id="time-attendance-settings-allowed-areas-sidebar-map-picker-container"
                     data-cy="time-attendance-settings-allowed-areas-sidebar-map-picker-container"
                   >
@@ -288,18 +349,179 @@ const LocationSidebar = () => {
                 >
                   <Input />
                 </Form.Item>
+
+                {/* Radius display (mirrors EnhancedLocationPicker behaviour) */}
                 <div
-                  className="flex items-center gap-2 py-4"
-                  id="time-attendance-settings-allowed-areas-sidebar-is-global-container"
-                  data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-container"
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-radius-container"
+                  id="time-attendance-settings-allowed-areas-sidebar-radius-container"
+                  className="mt-4"
                 >
-                  <span
-                    className="text-sm text-gray-700"
-                    id="time-attendance-settings-allowed-areas-sidebar-is-global-label"
-                    data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-label"
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label-container"
+                    id="time-attendance-settings-allowed-areas-sidebar-radius-label-container"
+                    className="flex items-center justify-between mb-2"
                   >
-                    Is Global
-                  </span>
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label"
+                      id="time-attendance-settings-allowed-areas-sidebar-radius-label"
+                      className="text-sm font-normal text-gray-900"
+                    >
+                      Radius
+                    </span>
+                    <div
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input-container"
+                      id="time-attendance-settings-allowed-areas-sidebar-radius-input-container"
+                      className="flex items-center gap-2"
+                    >
+                      <InputNumber
+                        min={0.01}
+                        max={0.5}
+                        step={0.001}
+                        precision={3}
+                        value={formValues.distance}
+                        onChange={(value) => {
+                          if (value !== null) {
+                            handleRadiusChange(value as number);
+                          }
+                        }}
+                        style={{ width: 120 }}
+                        className="text-sm border border-gray-300 rounded-lg"
+                        id="time-attendance-settings-allowed-areas-sidebar-radius-input"
+                        data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input"
+                      />
+                      <span
+                        data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input-unit"
+                        id="time-attendance-settings-allowed-areas-sidebar-radius-input-unit"
+                        className="text-xs text-gray-900"
+                      >
+                        km
+                      </span>
+                    </div>
+                  </div>
+                  <Slider
+                    min={0.01}
+                    max={0.5}
+                    step={0.001}
+                    value={formValues.distance}
+                    onChange={(value) => {
+                      if (typeof value === 'number') {
+                        handleRadiusChange(value);
+                      }
+                    }}
+                    marks={{
+                      0.01: '10 m',
+                      0.05: '50 m',
+                      0.1: '100 m',
+                      0.2: '200 m',
+                      0.3: '300 m',
+                      0.4: '400 m',
+                      0.5: '500 m',
+                    }}
+                    id="time-attendance-settings-allowed-areas-sidebar-radius-slider"
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-radius-slider"
+                    className="mt-4"
+                  />
+                </div>
+
+                {/* Lat / Long display (editable, mirrors EnhancedLocationPicker behaviour) */}
+                <div
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-container"
+                  id="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-container"
+                  className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2"
+                >
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-container"
+                    id="time-attendance-settings-allowed-areas-sidebar-latitude-container"
+                    className="space-y-1"
+                  >
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-label"
+                      id="time-attendance-settings-allowed-areas-sidebar-latitude-label"
+                      className="text-sm font-normal text-gray-900"
+                    >
+                      Latitude
+                    </span>
+                    <InputNumber
+                      value={formValues.latitude}
+                      precision={6}
+                      onChange={(value) => {
+                        if (value !== null) {
+                          handleLocationChange(
+                            value as number,
+                            formValues.longitude,
+                          );
+                        }
+                      }}
+                      className={controlClass}
+                      style={{ width: '100%' }}
+                      id="time-attendance-settings-allowed-areas-sidebar-latitude-display"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-display"
+                    />
+                  </div>
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-container"
+                    id="time-attendance-settings-allowed-areas-sidebar-longitude-container"
+                    className="space-y-1"
+                  >
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-label"
+                      id="time-attendance-settings-allowed-areas-sidebar-longitude-label"
+                      className="text-sm font-normal text-gray-900"
+                    >
+                      Longitude
+                    </span>
+                    <InputNumber
+                      value={formValues.longitude}
+                      precision={6}
+                      onChange={(value) => {
+                        if (value !== null) {
+                          handleLocationChange(
+                            formValues.latitude,
+                            value as number,
+                          );
+                        }
+                      }}
+                      className={controlClass}
+                      style={{ width: '100%' }}
+                      id="time-attendance-settings-allowed-areas-sidebar-longitude-display"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-display"
+                    />
+                  </div>
+                </div>
+                <p
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-description"
+                  id="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-description"
+                  className="mt-2 text-center text-xs text-gray-500"
+                >
+                  You can update the map by changing latitude or longitude.
+                </p>
+
+                {/* Global location card */}
+                <div
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-container"
+                  id="time-attendance-settings-allowed-areas-sidebar-is-global-container"
+                  className="mt-6 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 flex items-center justify-between"
+                >
+                  <div
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-label-container"
+                    id="time-attendance-settings-allowed-areas-sidebar-is-global-label-container"
+                    className="flex flex-col gap-0.5"
+                  >
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-label-text"
+                      id="time-attendance-settings-allowed-areas-sidebar-is-global-label-text"
+                      className="text-sm font-medium text-gray-900"
+                    >
+                      Global Location
+                    </span>
+                    <span
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-label-description"
+                      id="time-attendance-settings-allowed-areas-sidebar-is-global-label-description"
+                      className="text-xs text-gray-500"
+                    >
+                      Make this location available globally
+                    </span>
+                  </div>
                   <Form.Item
                     data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-item"
                     name="isGlobal"
@@ -341,7 +563,7 @@ const LocationSidebar = () => {
             </div>
           </Form>
         </Spin>
-      </CustomDrawerLayout>
+      </Modal>
     )
   );
 };
