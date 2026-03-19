@@ -46,12 +46,12 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
               {title}
             </div>
           </Tooltip>
-        <div
-          className="text-xs font-medium text-gray-500"
-          data-cy={`time-attendance-leave-balance-card-${title}-available-label`}
-        >
-          Available
-        </div>
+          <div
+            className="text-xs font-medium text-gray-500"
+            data-cy={`time-attendance-leave-balance-card-${title}-available-label`}
+          >
+            Available
+          </div>
         </div>
         <div
           className="shrink-0 text-right"
@@ -61,6 +61,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
           <div
             className="text-xl sm:text-2xl font-bold"
             style={{ color: '#1677FF' }}
+            data-cy={`time-attendance-leave-balance-card-${title}-available-value`}
           >
             {toOneDecimal(available)}
           </div>

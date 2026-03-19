@@ -180,7 +180,6 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
                   },
                 ]}
                 data-cy="time-attendance-my-timesheet-breadcrumb"
-               
               />
             </div>
             {activeKey === 'leave' && isMobile && (
@@ -191,7 +190,6 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
                   icon={<FaPlus />}
                   onClick={() => setIsShowLeaveRequestSidebar(true)}
                   className="shrink-0 h-10"
-                  
                   data-cy="time-attendance-my-timesheet-new-request-button"
                 >
                   New Request

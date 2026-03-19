@@ -4,15 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { Input } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 
-const MIN_PAGE_SIZE = 1;
-const MAX_PAGE_SIZE = 100;
-
 interface MyTimesheetAttendancePaginationProps {
   current: number;
   total: number;
   pageSize: number;
   onChange: (page: number, pageSize: number) => void;
-  onShowSizeChange: (size: number) => void; // legacy: kept for compatibility, not used (go-to control jumps pages)
+  /** Optional; callers may pass for API compatibility — not invoked by this UI. */
+  onShowSizeChange?: (size: number) => void;
   id?: string;
   'data-cy'?: string;
 }
@@ -22,7 +20,6 @@ export default function MyTimesheetAttendancePagination({
   total,
   pageSize,
   onChange,
-  onShowSizeChange,
   id,
   'data-cy': dataCy,
 }: MyTimesheetAttendancePaginationProps) {

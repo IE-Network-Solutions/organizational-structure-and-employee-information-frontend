@@ -179,7 +179,6 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
         colorText: '#111827',
         colorBorder: '#E9EAEC',
         optionSelectedBg: '#E6F4FF',
-
       },
       Collapse: {
         headerBg: '#FFF',

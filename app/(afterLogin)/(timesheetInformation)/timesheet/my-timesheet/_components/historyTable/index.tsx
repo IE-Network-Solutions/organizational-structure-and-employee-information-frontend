@@ -34,16 +34,8 @@ const HistoryTable = () => {
     setIsLoading,
   } = useMyTimesheetStore();
   const [tableData, setTableData] = useState<any[]>([]);
-  const {
-    page,
-    limit,
-    orderBy,
-    orderDirection,
-    setPage,
-    setLimit,
-    setOrderBy,
-    setOrderDirection,
-  } = usePagination(1, 5);
+  const { page, limit, orderBy, orderDirection, setPage, setLimit } =
+    usePagination(1, 5);
   const [filter, setFilter] =
     useState<Partial<LeaveRequestBody['filter']>>(userFilter);
   const { data, isFetching } = useGetLeaveRequest(

@@ -420,68 +420,79 @@ const LeaveRequestDetail = () => {
                     return idx >= 0 ? idx : sortedApprovalData.length;
                   })()}
                 >
-                  {sortedApprovalData.map((step: ApprovalRecord, index: number) => {
-                    const displayUserId =
-                      step.displayUserId ?? step.approvedUserId ?? step.userId;
-                    const stepStatus: 'wait' | 'process' | 'finish' | 'error' =
-                      step.status === 'Approved'
-                        ? 'finish'
-                        : step.status === 'Rejected'
-                          ? 'error'
-                          : 'process';
-                    // Only the first Pending step gets dashed blue; if any step is Rejected, there is no "current" pending
-                    const hasRejected = sortedApprovalData.some(
-                      (s) => s.status === 'Rejected',
-                    );
-                    const currentPendingIndex = hasRejected
-                      ? -1
-                      : sortedApprovalData.findIndex(
-                          (s) => s.status === 'Pending',
-                        );
+                  {sortedApprovalData.map(
+                    (step: ApprovalRecord, index: number) => {
+                      const displayUserId =
+                        step.displayUserId ??
+                        step.approvedUserId ??
+                        step.userId;
+                      const stepStatus:
+                        | 'wait'
+                        | 'process'
+                        | 'finish'
+                        | 'error' =
+                        step.status === 'Approved'
+                          ? 'finish'
+                          : step.status === 'Rejected'
+                            ? 'error'
+                            : 'process';
+                      // Only the first Pending step gets dashed blue; if any step is Rejected, there is no "current" pending
+                      const hasRejected = sortedApprovalData.some(
+                        (s) => s.status === 'Rejected',
+                      );
+                      const currentPendingIndex = hasRejected
+                        ? -1
+                        : sortedApprovalData.findIndex(
+                            (s) => s.status === 'Pending',
+                          );
 
-                    return (
-                      <Steps.Step
-                        className="m-[-4px] p-0"
-                        key={step.stepOrder}
-                        status={stepStatus}
-                        icon={
-                          <Tooltip
-                            title={
-                              displayUserId
-                                ? userName(String(displayUserId))
-                                : 'Unknown'
-                            }
-                            placement="bottom"
-                          >
-                            <span className="inline-flex">
-                              <Avatar
-                                size={36}
-                                src={
-                                  displayUserId
-                                    ? userImage(String(displayUserId))
-                                    : undefined
-                                }
-                                icon={<UserOutlined />}
-                                data-cy={`time-attendance-leave-request-detail-approval-avatar-${step.stepOrder}`}
-                                style={{
-                                  border:
-                                    index === currentPendingIndex
-                                      ? '3px dashed #1E40AF' // dashed only for current pending step
-                                      : `3px solid ${
-                                          step.status === 'Rejected'
-                                            ? '#dc2626' // red for rejected
-                                            : step.status === 'Approved'
-                                              ? '#1E40AF' // primary for approved
-                                              : '#9CA3AF' // gray for upcoming pending steps
-                                        }`,
-                                }}
-                              />
-                            </span>
-                          </Tooltip>
-                        }
-                      />
-                    );
-                  })}
+                      return (
+                        <Steps.Step
+                          className="m-[-4px] p-0"
+                          key={step.stepOrder}
+                          status={stepStatus}
+                          icon={
+                            <Tooltip
+                              title={
+                                displayUserId
+                                  ? userName(String(displayUserId))
+                                  : 'Unknown'
+                              }
+                              placement="bottom"
+                            >
+                              <span
+                                className="inline-flex"
+                                data-cy={`time-attendance-leave-request-detail-approval-avatar-wrap-${step.stepOrder}`}
+                              >
+                                <Avatar
+                                  size={36}
+                                  src={
+                                    displayUserId
+                                      ? userImage(String(displayUserId))
+                                      : undefined
+                                  }
+                                  icon={<UserOutlined />}
+                                  data-cy={`time-attendance-leave-request-detail-approval-avatar-${step.stepOrder}`}
+                                  style={{
+                                    border:
+                                      index === currentPendingIndex
+                                        ? '3px dashed #1E40AF' // dashed only for current pending step
+                                        : `3px solid ${
+                                            step.status === 'Rejected'
+                                              ? '#dc2626' // red for rejected
+                                              : step.status === 'Approved'
+                                                ? '#1E40AF' // primary for approved
+                                                : '#9CA3AF' // gray for upcoming pending steps
+                                          }`,
+                                  }}
+                                />
+                              </span>
+                            </Tooltip>
+                          }
+                        />
+                      );
+                    },
+                  )}
                 </Steps>
               </div>
             )}
@@ -609,11 +620,7 @@ const LeaveRequestDetail = () => {
                 placeholder="Reason"
               />
             </Form.Item>
-            <Form.Item
-              name="delegatee"
-              label="Delegate"
-              className={itemClass}
-            >
+            <Form.Item name="delegatee" label="Delegate" className={itemClass}>
               <Select
                 showSearch
                 size="middle"

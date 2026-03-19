@@ -117,16 +117,20 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                 options={attendanceRecordTypeOption}
                 optionRender={(option: any) => {
                   const isSelected = option?.value === selectedType;
+                  const optKey = String(option?.value ?? 'option');
                   return (
                     <div
                       className="flex items-center justify-between px-2 py-1 rounded"
                       style={
-                        isSelected
-                          ? { backgroundColor: '#E6F4FF' }
-                          : undefined
+                        isSelected ? { backgroundColor: '#E6F4FF' } : undefined
                       }
+                      data-cy={`time-attendance-attendance-table-filter-type-option-${optKey}`}
                     >
-                      <span>{option?.label}</span>
+                      <span
+                        data-cy={`time-attendance-attendance-table-filter-type-option-label-${optKey}`}
+                      >
+                        {option?.label}
+                      </span>
                       {isSelected ? (
                         <CheckOutlined style={{ color: '#1E40AF' }} />
                       ) : null}
@@ -222,20 +226,23 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                   className="text-gray-900"
                 />
               }
-              
               options={attendanceRecordTypeOption}
               optionRender={(option: any) => {
                 const isSelected = option?.value === mobileSelectedType;
+                const optKey = String(option?.value ?? 'option');
                 return (
                   <div
                     className="flex items-center justify-between px-2 py-1 rounded"
                     style={
-                      isSelected
-                        ? { backgroundColor: '#E6F4FF' }
-                        : undefined
+                      isSelected ? { backgroundColor: '#E6F4FF' } : undefined
                     }
+                    data-cy={`time-attendance-attendance-table-filter-mobile-type-option-${optKey}`}
                   >
-                    <span>{option?.label}</span>
+                    <span
+                      data-cy={`time-attendance-attendance-table-filter-mobile-type-option-label-${optKey}`}
+                    >
+                      {option?.label}
+                    </span>
                     {isSelected ? (
                       <CheckOutlined style={{ color: '#1E40AF' }} />
                     ) : null}
