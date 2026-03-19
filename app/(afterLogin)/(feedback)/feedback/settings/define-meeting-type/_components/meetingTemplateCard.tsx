@@ -3,6 +3,8 @@
 import React from 'react';
 import { Dropdown, MenuProps, Popconfirm } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
+import { Edit2Icon } from 'lucide-react';
+import { MdDeleteOutline } from 'react-icons/md';
 
 interface MeetingTemplateCardProps {
   title: string;
@@ -22,6 +24,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
   const items: MenuProps['items'] = [
     {
       key: 'edit',
+      icon: <Edit2Icon className="w-4 h-4 text-xs" />,
       label: (
         <span
           onClick={() => onClick()}
@@ -49,7 +52,10 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
             data-cy="meeting-template-card-delete-confirm"
             id="meetingTemplateCardDeleteConfirm"
           >
-            Delete
+            <span className="flex items-center gap-2">
+              <MdDeleteOutline className="w-4 h-4" />
+              Delete
+            </span>
           </Popconfirm>
         </span>
       ),

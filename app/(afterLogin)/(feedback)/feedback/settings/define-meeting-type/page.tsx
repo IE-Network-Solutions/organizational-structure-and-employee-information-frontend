@@ -78,9 +78,7 @@ const DefineMeetingType = () => {
                       data-cy={`settings-define-meeting-type-card-${item?.id}`}
                       onClick={() => {
                         router.push(
-                          `/feedback/settings/define-meeting-type/${item?.id}?name=${encodeURIComponent(
-                            item?.name ?? '',
-                          )}`,
+                          `/feedback/settings/define-meeting-type/${item?.id}`,
                         );
                       }}
                     >

@@ -44,7 +44,9 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
         id="meetingTemplateDrawerHeader"
       >
         <span data-cy="meeting-template-drawer-header-text">
-          {initialValues ? 'Update Meeting Template' : 'Add New Meeting Template'}
+          {initialValues
+            ? 'Update Meeting Template'
+            : 'Add New Meeting Template'}
         </span>
       </div>
 
@@ -106,38 +108,46 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
         >
           {(fields, { add, remove }) => (
             <>
-              {fields.map(({ key, name, ...restField }) => (
-                <div
-                  key={key}
-                  className="mb-2"
-                  data-cy={`meeting-template-drawer-agenda-item-${name}`}
-                  id={`meetingTemplateDrawerAgendaItem${name}`}
-                >
-                  <Form.Item
-                    {...restField}
-                    name={name}
-                    rules={[{ required: true, message: 'Missing agenda item' }]}
-                    label={`Agenda Item ${key + 1}`}
-                    className="w-full"
-                    data-cy={`meeting-template-drawer-agenda-item-field-${name}`}
-                    id={`meetingTemplateDrawerAgendaItemField${name}`}
+              <div
+                className="max-h-60 overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                data-cy="meeting-template-drawer-agenda-scrollable"
+                id="meetingTemplateDrawerAgendaScrollable"
+              >
+                {fields.map(({ key, name, ...restField }) => (
+                  <div
+                    key={key}
+                    className="mb-2"
+                    data-cy={`meeting-template-drawer-agenda-item-${name}`}
+                    id={`meetingTemplateDrawerAgendaItem${name}`}
                   >
-                    <Input
-                      placeholder="Agenda Item"
-                      suffix={
-                        <MdClose
-                          className="cursor-pointer text-gray-500 hover:text-red-500"
-                          onClick={() => remove(name)}
-                          data-cy={`meeting-template-drawer-remove-agenda-item-${name}`}
-                          id={`meetingTemplateDrawerRemoveAgendaItem${name}`}
-                        />
-                      }
-                      data-cy={`meeting-template-drawer-agenda-item-input-${name}`}
-                      id={`meetingTemplateDrawerAgendaItemInput${name}`}
-                    />
-                  </Form.Item>
-                </div>
-              ))}
+                    <Form.Item
+                      {...restField}
+                      name={name}
+                      rules={[
+                        { required: true, message: 'Missing agenda item' },
+                      ]}
+                      label={`Agenda Item ${key + 1}`}
+                      className="w-full"
+                      data-cy={`meeting-template-drawer-agenda-item-field-${name}`}
+                      id={`meetingTemplateDrawerAgendaItemField${name}`}
+                    >
+                      <Input
+                        placeholder="Agenda Item"
+                        suffix={
+                          <MdClose
+                            className="cursor-pointer text-gray-500 hover:text-red-500"
+                            onClick={() => remove(name)}
+                            data-cy={`meeting-template-drawer-remove-agenda-item-${name}`}
+                            id={`meetingTemplateDrawerRemoveAgendaItem${name}`}
+                          />
+                        }
+                        data-cy={`meeting-template-drawer-agenda-item-input-${name}`}
+                        id={`meetingTemplateDrawerAgendaItemInput${name}`}
+                      />
+                    </Form.Item>
+                  </div>
+                ))}
+              </div>
               <div
                 className="flex justify-center mb-3"
                 data-cy="meeting-template-drawer-add-agenda-item-container"
