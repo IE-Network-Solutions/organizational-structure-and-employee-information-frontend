@@ -1,12 +1,10 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { Form, Select, InputNumber, Modal, Button } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import { MdDelete } from 'react-icons/md';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Form, Select, InputNumber, Modal, Button, Avatar } from 'antd';
+import { CloseOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 
 import CustomButton from '@/components/common/buttons/customButton';
-import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
@@ -15,11 +13,25 @@ import {
 } from '@/store/server/features/conversation/survey/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
+import { useGetActiveEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { MdCheck } from 'react-icons/md';
 
 interface EmployeeSurveyModalProps {
   open: boolean;
   onClose: () => void;
 }
+
+type DraftRow = {
+  userId: string | null;
+  score: number | null;
+  targetIndex: number | null;
+};
+
+const emptyDraftRow = (): DraftRow => ({
+  userId: null,
+  score: null,
+  targetIndex: null,
+});
 
 const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
   open,
@@ -29,8 +41,21 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
   const { survey, openModal } = EmployeeSurveyStore();
   const isEditMode = Boolean(open && openModal && survey?.id);
 
-  const { data: userData, isLoading } = useGetAllUsers();
+  const { data: userData, isLoading } = useGetActiveEmployee();
   const users = userData?.items || [];
+  const usersById = useMemo(() => {
+    const map = new Map<string, any>();
+    users?.forEach((u: any) => {
+      if (u?.id != null) map.set(String(u.id), u);
+    });
+    return map;
+  }, [users]);
+
+  const [confirmed, setConfirmed] = useState<
+    Array<{ userId: string; score: number }>
+  >([]);
+  const [draftRows, setDraftRows] = useState<DraftRow[]>([emptyDraftRow()]);
+
   const createdBy = useAuthenticationStore.getState().userId;
   const updatedBy = useAuthenticationStore.getState().userId;
   const { data: month } = useGetActiveMonth();
@@ -41,6 +66,8 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
 
   const handleClose = () => {
     form.resetFields();
+    setConfirmed([]);
+    setDraftRows([emptyDraftRow()]);
     onClose();
   };
 
@@ -49,18 +76,29 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
     if (isEditMode) {
       form.setFieldsValue(survey);
     } else {
-      form.setFieldsValue({
-        employees: [
-          { userId: null, score: null, monthId: month?.id, createdBy },
-        ],
-      });
+      form.resetFields();
+      setConfirmed([]);
+      setDraftRows([emptyDraftRow()]);
     }
   }, [open, isEditMode, survey, month?.id, form]);
 
-  const onFinishCreate = (values: any) => {
+  const onFinishCreate = () => {
+    const hasUnconfirmedNonEmptyRow = draftRows.some(
+      (r) => r.userId != null || r.score != null,
+    );
+    if (hasUnconfirmedNonEmptyRow) {
+      NotificationMessage.error({
+        message: 'Unconfirmed entries',
+        description:
+          'Please confirm (✓) or remove (✕) all entries before creating.',
+      });
+      return;
+    }
+    if (!confirmed.length) return;
     const monthId = month?.id;
-    const data = values.employees.map((entry: any) => ({
-      ...entry,
+    const data = confirmed.map((entry) => ({
+      userId: entry.userId,
+      score: entry.score,
       monthId,
       createdBy,
     }));
@@ -95,7 +133,6 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
   };
 
   const modalTitle = isEditMode ? 'Edit Employee Survey' : 'Achievement';
-
   const isLoadingSubmit = createLoading || updateLoading;
 
   const footer = (
@@ -116,13 +153,119 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
         title={isEditMode ? 'Submit' : 'Create'}
         type="primary"
         htmlType="submit"
-        onClick={() => form.submit()}
+        onClick={() => {
+          if (isEditMode) form.submit();
+          else onFinishCreate();
+        }}
         loading={isLoadingSubmit}
+        disabled={!isEditMode && confirmed.length === 0}
         data-cy="employee-survey-modal-submit-button"
         id="employeeSurveyModalSubmitButton"
       />
     </div>
   );
+
+  const getUserLabel = (id: string) => {
+    const u = usersById.get(String(id));
+    const name =
+      `${u?.firstName ?? ''} ${u?.middleName ?? ''} ${u?.lastName ?? ''}`
+        .replace(/\s+/g, ' ')
+        .trim();
+    return name || id;
+  };
+
+  const scorePill = (score: number) => {
+    const baseClasses =
+      'inline-flex items-center justify-center rounded-lg border px-3 py-1 text-xs font-medium';
+    const scoreText = `${Number(score).toFixed(2)}%`;
+
+    if (score >= 10) {
+      return (
+        <span
+          className={`${baseClasses} border-green-300 bg-green-50 text-green-600`}
+        >
+          {scoreText}
+        </span>
+      );
+    }
+    if (score >= 7.5) {
+      return (
+        <span
+          className={`${baseClasses} border-yellow-300 bg-yellow-50 text-yellow-700`}
+        >
+          {scoreText}
+        </span>
+      );
+    }
+    return (
+      <span className={`${baseClasses} border-red-300 bg-red-50 text-red-600`}>
+        {scoreText}
+      </span>
+    );
+  };
+
+  const setDraftField = (
+    index: number,
+    key: 'userId' | 'score',
+    value: string | number | null,
+  ) => {
+    setDraftRows((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, [key]: value } : row)),
+    );
+  };
+
+  const addDraftRow = () => {
+    setDraftRows((prev) => [...prev, emptyDraftRow()]);
+  };
+
+  const removeDraftRow = (index: number) => {
+    setDraftRows((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const confirmDraftRow = (index: number) => {
+    const row = draftRows[index];
+    if (!row) return;
+    if (!row.userId || row.score == null) {
+      NotificationMessage.error({
+        message: 'Missing Required Fields',
+        description:
+          'Please select employee and input score before confirming.',
+      });
+      return;
+    }
+
+    if (row.targetIndex != null) {
+      setConfirmed((prev) => {
+        const next = [...prev];
+        next.splice(row.targetIndex as number, 0, {
+          userId: String(row.userId),
+          score: Number(row.score),
+        });
+        return next;
+      });
+    } else {
+      setConfirmed((prev) => [
+        ...prev,
+        { userId: String(row.userId), score: Number(row.score) },
+      ]);
+    }
+
+    removeDraftRow(index);
+  };
+
+  const editRow = (index: number) => {
+    const row = confirmed[index];
+    if (!row) return;
+    setConfirmed((prev) => prev.filter((_, i) => i !== index));
+    setDraftRows((prev) => [
+      ...prev,
+      { userId: row.userId, score: row.score, targetIndex: index },
+    ]);
+  };
+
+  const deleteRow = (index: number) => {
+    setConfirmed((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <Modal
@@ -207,125 +350,154 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
           </div>
         </Form>
       ) : (
-        <Form
-          form={form}
-          layout="vertical"
-          name="employee_survey_create"
-          onFinish={onFinishCreate}
-          data-cy="employee-survey-modal-form"
-          id="employeeSurveyModalForm"
-        >
-          <Form.List
-            name="employees"
-            data-cy="employee-survey-modal-employees-list"
-          >
-            {(fields, { add, remove }) => (
-              <div data-cy="employee-survey-modal-employees-list-content">
-                {fields.map(({ key, name, ...restField }) => (
-                  <div
-                    key={key}
-                    className="grid grid-cols-12 gap-4 items-start mb-4"
-                    data-cy={`employee-survey-modal-employee-item-${name}`}
-                    id={`employeeSurveyModalEmployeeItem${name}`}
-                  >
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'userId']}
-                      label="Employee"
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Please select employee',
-                        },
-                      ]}
-                      className={`${
-                        fields.length === 1 ? 'col-span-8' : 'col-span-7'
-                      } mb-0`}
-                      data-cy={`employee-survey-modal-employee-field-${name}`}
-                      id={`employeeSurveyModalEmployeeField${name}`}
-                    >
-                      <Select
-                        showSearch
-                        placeholder="Select"
-                        className="w-full rounded-lg border-gray-300"
-                        allowClear
-                        loading={isLoading}
-                        filterOption={(input: any, option: any) =>
-                          (option?.label ?? '')
-                            ?.toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        options={users?.map((item: any) => ({
-                          ...item,
-                          value: item?.id,
-                          label:
-                            item?.firstName +
-                            ' ' +
-                            item?.middleName +
-                            ' ' +
-                            item?.lastName,
-                        }))}
-                        data-cy={`employee-survey-modal-employee-select-${name}`}
-                        id={`employeeSurveyModalEmployeeSelect${name}`}
-                      />
-                    </Form.Item>
+        <div data-cy="employee-survey-modal-form" id="employeeSurveyModalForm">
+          <div data-cy="employee-survey-modal-employees-editor">
+            {draftRows.map((draft, index) => (
+              <div
+                key={`draft-${index}`}
+                className="grid grid-cols-12 gap-4 items-start mb-3"
+                data-cy={`employee-survey-modal-draft-row-${index}`}
+              >
+                <div className="col-span-7">
+                  <label className="block mb-2 text-sm font-medium text-gray-700">
+                    Employee <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={draft.userId ?? undefined}
+                    showSearch
+                    placeholder="Select"
+                    className="w-full rounded-lg border-gray-300 h-10"
+                    allowClear
+                    loading={isLoading}
+                    onChange={(value) =>
+                      setDraftField(
+                        index,
+                        'userId',
+                        value ? String(value) : null,
+                      )
+                    }
+                    filterOption={(input: any, option: any) =>
+                      (option?.label ?? '')
+                        ?.toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={users?.map((item: any) => ({
+                      ...item,
+                      value: item?.id,
+                      label:
+                        item?.firstName +
+                        ' ' +
+                        item?.middleName +
+                        ' ' +
+                        item?.lastName,
+                    }))}
+                    data-cy={`employee-survey-modal-draft-employee-select-${index}`}
+                    id={`employeeSurveyModalDraftEmployeeSelect${index}`}
+                  />
+                </div>
 
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'score']}
-                      label="Score"
-                      rules={[
-                        { required: true, message: 'Please input score' },
-                      ]}
-                      className="col-span-4 mb-0"
-                      data-cy={`employee-survey-modal-score-field-${name}`}
-                      id={`employeeSurveyModalScoreField${name}`}
-                    >
-                      <InputNumber
-                        min={0}
-                        max={10}
-                        className="w-full rounded-lg border-gray-300"
-                        placeholder="Input"
-                        data-cy={`employee-survey-modal-score-input-${name}`}
-                        id={`employeeSurveyModalScoreInput${name}`}
-                      />
-                    </Form.Item>
+                <div className="col-span-3">
+                  <label className="block mb-2 text-sm font-medium text-gray-700">
+                    Score <span className="text-red-500">*</span>
+                  </label>
+                  <InputNumber
+                    value={draft.score ?? undefined}
+                    min={0}
+                    max={10}
+                    className="w-full rounded-lg border-gray-300 h-10"
+                    placeholder="Input"
+                    onChange={(value) =>
+                      setDraftField(
+                        index,
+                        'score',
+                        value == null ? null : Number(value),
+                      )
+                    }
+                    data-cy={`employee-survey-modal-draft-score-input-${index}`}
+                    id={`employeeSurveyModalDraftScoreInput${index}`}
+                  />
+                </div>
 
-                    {fields.length > 1 ? (
-                      <div
-                        className="col-span-1 flex items-end pb-2"
-                        data-cy={`employee-survey-modal-remove-button-container-${name}`}
-                        id={`employeeSurveyModalRemoveButtonContainer${name}`}
-                      >
-                        <Button
-                          danger
-                          type="text"
-                          icon={<MdDelete />}
-                          onClick={() => remove(name)}
-                          className="text-red-500 hover:text-red-600 p-0"
-                          data-cy={`employee-survey-modal-remove-button-${name}`}
-                          id={`employeeSurveyModalRemoveButton${name}`}
-                        />
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-                <div className="  flex justify-center">
+                <div className="col-span-2 flex gap-2 items-end justify-end h-full">
                   <Button
                     type="primary"
-                    onClick={() => add()}
-                    icon={<PlusOutlined />}
-                    className="rounded-lg bg-blue-600 hover:bg-blue-700 border-0 mt-2"
-                    data-cy="employee-survey-modal-add-row-button"
-                    id="employeeSurveyModalAddRowButton"
-                  >
-                    Employee
-                  </Button>
+                    onClick={() => confirmDraftRow(index)}
+                    icon={<MdCheck />}
+                    className="!bg-blue-600 hover:!bg-blue-700 !border-0 w-10 h-10"
+                    data-cy={`employee-survey-modal-draft-confirm-btn-${index}`}
+                    id={`employeeSurveyModalDraftConfirmBtn${index}`}
+                  />
+                  <Button
+                    danger
+                    onClick={() => removeDraftRow(index)}
+                    icon={<CloseOutlined />}
+                    className="!border-red-500 w-10 h-10"
+                    data-cy={`employee-survey-modal-draft-cancel-btn-${index}`}
+                    id={`employeeSurveyModalDraftCancelBtn${index}`}
+                  />
                 </div>
               </div>
-            )}
-          </Form.List>
-        </Form>
+            ))}
+
+            <div
+              className="mt-4 space-y-3"
+              data-cy="employee-survey-modal-list"
+            >
+              {confirmed.map((row, index) => {
+                const u = usersById.get(String(row.userId));
+                const img = u?.profileImage || u?.imageUrl;
+                return (
+                  <div
+                    key={`${row.userId}-${index}`}
+                    className="flex items-center justify-between border rounded-lg px-3 py-2"
+                    data-cy={`employee-survey-modal-list-row-${index}`}
+                    id={`employeeSurveyModalListRow${index}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar src={img} size={28}>
+                        {(getUserLabel(row.userId)[0] || 'U').toUpperCase()}
+                      </Avatar>
+                      <span className="text-sm font-medium text-gray-700">
+                        {getUserLabel(row.userId)}
+                      </span>
+                      {scorePill(row.score)}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => editRow(index)}
+                        icon={<EditOutlined />}
+                        className="border border-gray-200"
+                        data-cy={`employee-survey-modal-list-edit-${index}`}
+                        id={`employeeSurveyModalListEdit${index}`}
+                      />
+                      <Button
+                        danger
+                        onClick={() => deleteRow(index)}
+                        icon={<CloseOutlined />}
+                        data-cy={`employee-survey-modal-list-delete-${index}`}
+                        id={`employeeSurveyModalListDelete${index}`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-center mt-4">
+              <Button
+                type="primary"
+                onClick={addDraftRow}
+                icon={<PlusOutlined />}
+                className="rounded-lg bg-blue-600 hover:bg-blue-700 border-0"
+                data-cy="employee-survey-modal-add-row-button"
+                id="employeeSurveyModalAddRowButton"
+              >
+                Employee
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </Modal>
   );

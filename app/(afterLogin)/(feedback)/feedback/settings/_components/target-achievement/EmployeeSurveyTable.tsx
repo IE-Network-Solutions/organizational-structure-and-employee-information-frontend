@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   Select,
@@ -13,12 +13,11 @@ import {
 } from 'antd';
 import { LoadingOutlined, UserOutlined, MoreOutlined } from '@ant-design/icons';
 import {
-  useGetAllUsers,
+  useGetActiveEmployee,
   useGetEmployee,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllMonth } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-import { HiPlus } from 'react-icons/hi';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 import { useGetEmployeeSurvey } from '@/store/server/features/conversation/survey/queries';
 import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
@@ -115,11 +114,11 @@ const getScoreTag = (score: number): JSX.Element => {
   );
 };
 const EmployeeSurveyTable: React.FC = () => {
-  const { data: employeeData, isLoading: empLoading } = useGetAllUsers();
+  const { data: employeeData, isLoading: empLoading } = useGetActiveEmployee();
   const { data: departmentData, isLoading: depLoading } =
     useGetDepartmentsWithUsers();
   const { data: months, isLoading: monthsLoading } = useGetAllMonth();
-  const { data: month, isLoading: monthLoading } = useGetActiveMonth();
+  const { data: activeMonth } = useGetActiveMonth();
   const [isMobileFilterVisible, setIsMobileFilterVisible] = useState(false);
   const {
     openEmployeeSurvey,
@@ -138,9 +137,6 @@ const EmployeeSurveyTable: React.FC = () => {
     setCurrentPage,
     setSurvey,
   } = EmployeeSurveyStore();
-  useEffect(() => {
-    setMonthId(month?.id);
-  }, [month?.id, monthLoading]);
   const { data: employeeSurvey, isLoading: employeeSurveyLoading } =
     useGetEmployeeSurvey(userId, monthId, departmentId, page, currentPage);
 
@@ -286,7 +282,7 @@ const EmployeeSurveyTable: React.FC = () => {
       dataIndex: 'action',
       key: 'action',
       render: (ruleData: any, record: any) =>
-        record?.monthId == month?.id ? (
+        record?.monthId == activeMonth?.id ? (
           <Dropdown
             trigger={['click']}
             menu={{
