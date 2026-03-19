@@ -1,6 +1,6 @@
 'use client';
 import { Button, Card, Dropdown, Popconfirm, Spin } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { EllipsisOutlined } from '@ant-design/icons';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 
 import RecognitionForm from '../_components/recognition/createRecognition';
@@ -127,7 +127,7 @@ const Page = () => {
                           type="text"
                           size="small"
                           aria-label="Recognition actions"
-                          icon={<MoreOutlined />}
+                          icon={<EllipsisOutlined />}
                           className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
                           data-cy={`settings-recognition-card-actions-${item?.id}`}
                           id={`settingsRecognitionCardActions${item?.id}`}

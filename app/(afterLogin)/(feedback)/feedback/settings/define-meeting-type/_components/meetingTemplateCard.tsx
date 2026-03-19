@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Dropdown, MenuProps, Popconfirm } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { EllipsisOutlined } from '@ant-design/icons';
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 
@@ -85,7 +85,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
           open={menuOpen}
           onOpenChange={(open) => setMenuOpen(open)}
         >
-          <MoreOutlined
+          <EllipsisOutlined
             className="text-gray-500 hover:text-gray-700 text-lg"
             onClick={(e) => e.stopPropagation()}
             data-cy="meeting-template-card-more-icon"

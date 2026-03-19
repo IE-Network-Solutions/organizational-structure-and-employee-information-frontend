@@ -5,7 +5,7 @@ import { Button, Card, Input, Dropdown, Modal } from 'antd';
 import { Edit2Icon } from 'lucide-react';
 import React from 'react';
 import { MdDeleteOutline } from 'react-icons/md';
-import { MoreOutlined } from '@ant-design/icons';
+import { EllipsisOutlined } from '@ant-design/icons';
 
 interface FeedbackTypeDetailProps {
   feedbackTypeDetail: any;
@@ -125,7 +125,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
                 <Button
                   size="small"
                   shape="default"
-                  icon={<MoreOutlined />}
+                  icon={<EllipsisOutlined />}
                   data-cy={`settings-define-feedback-perspective-actions-button-${item.id}`}
                   id={`settingsDefineFeedbackPerspectiveActionsButton${item.id}`}
                 />

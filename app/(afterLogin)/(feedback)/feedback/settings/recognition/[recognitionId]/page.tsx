@@ -4,7 +4,7 @@ import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/r
 import { Button, Card, Dropdown, Popconfirm, Spin, Tag } from 'antd';
 import {
   ArrowLeftOutlined,
-  MoreOutlined,
+  EllipsisOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -240,7 +240,7 @@ export default function RecognitionDetailPage() {
                           type="text"
                           size="small"
                           aria-label="Recognition actions"
-                          icon={<MoreOutlined />}
+                          icon={<EllipsisOutlined />}
                           className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
                           data-cy={`settings-recognition-card-actions-${child?.id}`}
                           id={`settingsRecognitionCardActions${child?.id}`}
@@ -418,7 +418,7 @@ export default function RecognitionDetailPage() {
                                         type="text"
                                         size="small"
                                         aria-label="Recognition actions"
-                                        icon={<MoreOutlined />}
+                                        icon={<EllipsisOutlined />}
                                         className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
                                         data-cy={`recognition-detail-criteria-actions-${criterion?.id}`}
                                         id={`recognitionDetailCriteriaActions${criterion?.id}`}

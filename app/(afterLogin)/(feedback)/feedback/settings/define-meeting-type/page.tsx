@@ -2,7 +2,7 @@
 
 import { Button, Card, Dropdown, List, Popconfirm, Spin } from 'antd';
 import React from 'react';
-import { MoreOutlined } from '@ant-design/icons';
+import { EllipsisOutlined } from '@ant-design/icons';
 import MeetingTypeDrawer from './_components/meetingTypeDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
@@ -150,7 +150,7 @@ const DefineMeetingType = () => {
                               type="text"
                               size="small"
                               aria-label="DefineMeetingType actions"
-                              icon={<MoreOutlined />}
+                              icon={<EllipsisOutlined />}
                               className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
                               data-cy={`settings-define-meeting-type-card-actions-${item?.id}`}
                               id={`settingsDefineMeetingTypeCardActions${item?.id}`}

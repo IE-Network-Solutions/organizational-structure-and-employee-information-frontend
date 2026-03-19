@@ -11,7 +11,11 @@ import {
   Tag,
   Dropdown,
 } from 'antd';
-import { LoadingOutlined, UserOutlined, MoreOutlined } from '@ant-design/icons';
+import {
+  LoadingOutlined,
+  UserOutlined,
+  EllipsisOutlined,
+} from '@ant-design/icons';
 import {
   useGetActiveEmployee,
   useGetEmployee,
@@ -320,7 +324,7 @@ const EmployeeSurveyTable: React.FC = () => {
           >
             <Button
               size="small"
-              icon={<MoreOutlined />}
+              icon={<EllipsisOutlined />}
               data-cy="employee-survey-table-action-button"
               id="employeeSurveyTableActionButton"
             />
