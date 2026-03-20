@@ -317,11 +317,11 @@ const Calender = () => {
               }
               headStyle={{ borderBottom: 'none', padding: '0 10px 0 10px' }}
               bodyStyle={{ padding: '8px 10px' }}
-              style={{ width: isMobile ? 220 : 320 }}
+              style={{ width: '100%' }}
               className="border border-[#D9D9D9]"
             >
               <div
-                className="max-h-48 overflow-y-auto pr-1 md:max-h-64"
+                className="max-h-48 overflow-y-auto pr-1 md:max-h-64 scrollbar-none"
                 data-cy="dashboard-calendar-year-month-scroll"
               >
                 {sortedEvents.map((event) => {
@@ -620,7 +620,12 @@ const Calender = () => {
                 }
                 data-cy="dashboard-calendar-filter-toggle-btn"
               >
-                <span className="text-sm text-gray-600">Filter</span>
+                <span
+                  className="text-sm text-gray-600"
+                  data-cy="dashboard-calendar-filter-toggle-label"
+                >
+                  Filter
+                </span>
               </Button>
             </Popover>
           ) : (

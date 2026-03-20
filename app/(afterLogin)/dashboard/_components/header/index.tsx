@@ -351,33 +351,40 @@ const Header = () => {
                   >
                     {stat.label}
                   </span>
-                  <div className="flex items-center gap-1">
-                  <span
-                    className={`${
-                      stat.trendDirection === 'up'
-                        ? 'text-[#52C41A]'
-                        : 'text-red-500'
-                    } flex items-center gap-1`}
-                    data-cy="okr-card-appreciation-trend"
+                  <div
+                    className="flex items-center gap-1"
+                    data-cy="okr-card-appreciation-trend-meta"
                   >
-                    {stat.trendDirection === 'up' ? (
-                      <IoMdTrendingUp
-                        size={14}
-                        className="text-[#52C41A]"
-                        data-cy="okr-card-appreciation-trend-icon-up"
-                      />
-                    ) : (
-                      <IoMdTrendingDown
-                        size={14}
-                        className="text-red-500"
-                        data-cy="okr-card-appreciation-trend-icon-down"
-                      />
-                    )}
-                    {stat.trendLabel}
-                  </span>
-                  <span className="text-gray-500">Last Month</span>
+                    <span
+                      className={`${
+                        stat.trendDirection === 'up'
+                          ? 'text-[#52C41A]'
+                          : 'text-red-500'
+                      } flex items-center gap-1`}
+                      data-cy="okr-card-appreciation-trend"
+                    >
+                      {stat.trendDirection === 'up' ? (
+                        <IoMdTrendingUp
+                          size={14}
+                          className="text-[#52C41A]"
+                          data-cy="okr-card-appreciation-trend-icon-up"
+                        />
+                      ) : (
+                        <IoMdTrendingDown
+                          size={14}
+                          className="text-red-500"
+                          data-cy="okr-card-appreciation-trend-icon-down"
+                        />
+                      )}
+                      {stat.trendLabel}
+                    </span>
+                    <span
+                      className="text-gray-500"
+                      data-cy="okr-card-appreciation-trend-period"
+                    >
+                      Last Month
+                    </span>
                   </div>
-                 
                 </div>
               ))}
             </div>
@@ -471,31 +478,39 @@ const Header = () => {
                   >
                     {stat.label}
                   </span>
-                  <div className="flex items-center gap-1">
-                  <span
-                    className={`${
-                      stat.trendDirection === 'down'
-                        ? 'text-red-500'
-                        : 'text-[#52C41A]'
-                    } flex items-center gap-1`}
-                    data-cy="okr-card-reprimand-trend"
+                  <div
+                    className="flex items-center gap-1"
+                    data-cy="okr-card-reprimand-trend-meta"
                   >
-                    {stat.trendDirection === 'down' ? (
-                      <IoMdTrendingDown
-                        size={14}
-                        className="text-red-500"
-                        data-cy="okr-card-reprimand-trend-icon-down"
-                      />
-                    ) : (
-                      <IoMdTrendingUp
-                        size={14}
-                        className="text-[#52C41A]"
-                        data-cy="okr-card-reprimand-trend-icon-up"
-                      />
-                    )}
-                    {stat.trendLabel}
-                  </span>
-                  <span className="text-gray-500">Last Month</span>
+                    <span
+                      className={`${
+                        stat.trendDirection === 'down'
+                          ? 'text-red-500'
+                          : 'text-[#52C41A]'
+                      } flex items-center gap-1`}
+                      data-cy="okr-card-reprimand-trend"
+                    >
+                      {stat.trendDirection === 'down' ? (
+                        <IoMdTrendingDown
+                          size={14}
+                          className="text-red-500"
+                          data-cy="okr-card-reprimand-trend-icon-down"
+                        />
+                      ) : (
+                        <IoMdTrendingUp
+                          size={14}
+                          className="text-[#52C41A]"
+                          data-cy="okr-card-reprimand-trend-icon-up"
+                        />
+                      )}
+                      {stat.trendLabel}
+                    </span>
+                    <span
+                      className="text-gray-500"
+                      data-cy="okr-card-reprimand-trend-period"
+                    >
+                      Last Month
+                    </span>
                   </div>
                 </div>
               ))}
