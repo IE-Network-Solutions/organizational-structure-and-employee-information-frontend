@@ -1,9 +1,6 @@
 import React, { FC } from 'react';
-import { Spin } from 'antd';
+import { Spin, Tag } from 'antd';
 import ActionButton from '@/components/common/actionButton';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
 import { LeaveType } from '@/types/timesheet/settings';
 import {
   useDeleteLeaveType,
@@ -60,34 +57,33 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
             >
               {item.title}
             </span>
-            <StatusBadge
-              theme={
-                !item.isPaid
-                  ? StatusBadgeTheme.secondary
-                  : StatusBadgeTheme.success
-              }
-              className="h-6 !text-[11px] !px-2"
+            <Tag
+              className={`h-5 text-xs px-2 rounded-[4px] ${
+                item.isPaid
+                  ? 'border border-[#b7eb8f] text-[#52c41a] bg-[#f6ffed]'
+                  : 'bg-[#FFE6E6] text-[#EF4444] border border-[#ffa39e]'
+              }`}
               data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-status-badge`}
             >
               {item.isPaid ? 'PAID' : 'UNPAID'}
-            </StatusBadge>
+            </Tag>
           </div>
           <div
             className="flex items-center gap-2"
             id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-actions`}
             data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-actions`}
           >
-            <span
-              className={`h-5 px-3 rounded-md border text-sm font-medium inline-flex items-center ${
+            <Tag
+              className={`h-5 px-3 rounded-[4px] border text-sm font-normal inline-flex items-center ${
                 item.isActive
-                  ? 'border-[#1677ff] bg-[#e6f4ff] text-[#1677ff]'
-                  : 'border-gray-300 bg-white text-gray-600'
+                  ? 'border-[#91caff] bg-[#e6f4ff] text-[#1677ff]'
+                  : 'bg-[#FFE6E6] text-[#EF4444] border border-[#ffa39e]'
               }`}
               id={`time-attendance-settings-leave-types-and-policies-card-${item.id}-active-status`}
               data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-active-status`}
             >
               {item.isActive ? 'Active' : 'Inactive'}
-            </span>
+            </Tag>
             <AccessGuard
               permissions={[
                 Permissions.UpdateLeaveType,

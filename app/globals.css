@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide scrollbars (keep scrolling) */
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Candidate table: hide AntD inner horizontal scrollbar */
+#talent-acquisition-candidate-table-scroll-wrapper .ant-table-content,
+#talent-acquisition-candidate-table-scroll-wrapper .ant-table-body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#talent-acquisition-candidate-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
+#talent-acquisition-candidate-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Org Structure chart: smooth layout transitions on collapse/expand */
+.org-structure-flow .react-flow__node,
+.org-structure-flow .xyflow__node {
+  transition: transform 260ms ease;
+}
+.transition-all {
+  will-change: transform, opacity;
+}
+.org-structure-flow .react-flow__edge-path,
+.org-structure-flow .xyflow__edge-path {
+  transition: opacity 220ms ease;
+}
+
 /* Calibre font family - local OTF files */
 @font-face {
   font-family: 'Calibre';
@@ -176,7 +209,7 @@
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 .ant-popconfirm-message {
@@ -1147,6 +1180,41 @@ h6 {
 .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
   .ant-select-item-option-state {
   display: none;
+}
+
+/* Delete Candidate (mobile): center dropdown panel */
+@media screen and (max-width: 768px) {
+  .delete-candidate-dropdown-overlay.ant-dropdown {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .delete-candidate-dropdown-content {
+    width: calc(100vw - 48px);
+    max-width: 520px;
+  }
+}
+
+/* Recruitment: Add/Edit Candidate modal - tighter mobile spacing */
+.ta-candidate-modal.ant-modal {
+  width: calc(100vw - 24px) !important;
+  max-width: 630px;
+  margin: 12px auto !important;
+}
+
+.ta-candidate-modal .ant-modal-body {
+  padding: 16px !important;
+}
+
+@media (min-width: 640px) {
+  .ta-candidate-modal.ant-modal {
+    width: 630px !important;
+    margin: 0 auto !important;
+  }
+  .ta-candidate-modal .ant-modal-body {
+    padding: 32px !important;
+  }
 }
 
 /* Org Structure: Department Branch Select dropdown styling */
