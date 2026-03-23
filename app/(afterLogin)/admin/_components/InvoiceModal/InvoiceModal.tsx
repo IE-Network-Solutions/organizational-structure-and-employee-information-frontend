@@ -162,14 +162,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             </button>
           </div>
 
-          <Divider className="my-2 border-gray-400" />
+          <Divider className="my-2 border-gray-300" />
 
           {/* Payment Information */}
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-3 mx-5">
               Payment Information
             </h3>
-            <Divider className="border-gray-400 my-2" />
+            <Divider className="border-gray-300 my-2" />
             <div className="flex flex-col gap-2 text-sm mx-5">
               {[
                 ['Invoice Number', `#${invoiceData.invoiceNumber}`],
@@ -213,7 +213,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             </div>
           </div>
 
-          <Divider className="border-gray-400 my-2" />
+          <Divider className="border-gray-300 my-2" />
 
 
           {/* Plan Detail */}
@@ -221,7 +221,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             <h3 className="text-lg font-bold text-gray-900 mb-3 mx-5">
               Plan Detail
             </h3>
-            <Divider className="border-gray-400 my-2" />
+            <Divider className="border-gray-300 my-2" />
 
             <div className="flex flex-col gap-2 text-sm mx-5">
               <div className="flex justify-between items-center gap-4">
@@ -257,19 +257,21 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
               </div>
             </div>
           </div>
-          <Divider className="border-gray-400 my-2" />
+          <Divider className="border-gray-300 my-2" />
 
 
           {/* Notes */}
           <div className='mx-5'>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Notes</h3>
-            <p className="text-sm text-gray-600 leading-normal">
-              {invoiceData.notes || '—'}
-            </p>
+            <h3 className="text-lg font-bold text-gray-900">Notes</h3>
+          
           </div>
 
-          <Divider className="border-gray-400 my-2" />
+          <Divider className="border-gray-300 my-2" />
 
+          <p className="text-sm text-gray-600 leading-normal mx-5">
+              {invoiceData.notes || '—'}
+            </p>
+          <Divider className="border-gray-300 my-2" />
 
           {/* Footer actions */}
           <div className="flex justify-end gap-3 my-5 pt-2 mx-5">

@@ -8,9 +8,9 @@ import {
   InputNumber,
   Radio,
   Tooltip,
-  Space,
   Tag,
   Divider,
+  notification,
 } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { AiOutlineQuestionCircle } from 'react-icons/ai';
@@ -20,11 +20,16 @@ import {
   Plan,
   PlanPeriod,
   Subscription,
+  TransactionType,
 } from '@/types/tenant-management';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useCalculateSubscriptionPrice } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import {
+  useCreateSubscription,
+  useUpgradeSubscription,
+} from '@/store/server/features/tenant-management/manage-subscriptions/mutation';
 import type { CalculateSubscriptionPriceDto } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
 import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
@@ -33,6 +38,7 @@ import { IoCheckbox } from 'react-icons/io5';
 interface ManageSubscriptionModalProps {
   open: boolean;
   onClose: () => void;
+  onContinueToInvoice?: (invoiceId: string) => void;
 }
 
 /** Sort plan periods by billing length (shortest first) for a stable UI order. */
@@ -62,16 +68,19 @@ const orderModulesForPlanCard = (catalog: Module[], plan: Plan): Module[] => {
 
 export const ManageSubscriptionModal: React.FC<
   ManageSubscriptionModalProps
-> = ({ open, onClose }) => {
+> = ({ open, onClose, onContinueToInvoice }) => {
   const router = useRouter();
   const { setTransactionType } = usePaymentStore();
   /** Select active plan once per modal open (after data is ready). */
   const defaultSelectionAppliedRef = useRef(false);
+  const periodManuallySelectedRef = useRef(false);
+  const planManuallySelectedRef = useRef(false);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [activeSubscription, setActiveSubscription] =
     useState<Subscription | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [seatCount, setSeatCount] = useState<number>(10);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   /** Which billing period (by period type id) is selected — must exist on the selected plan's `periods`. */
   const [selectedPeriodTypeId, setSelectedPeriodTypeId] = useState<
     string | null
@@ -88,13 +97,14 @@ export const ManageSubscriptionModal: React.FC<
     true,
     open,
   );
+  const createSubscriptionMutation = useCreateSubscription();
+  const upgradeSubscriptionMutation = useUpgradeSubscription();
 
   const allModulesSorted = useMemo(() => {
     const items = modulesData?.items;
     if (!Array.isArray(items)) return [];
     return [...items].sort(
-      (a: Module, b: Module) =>
-        (a.orderIndex ?? 0) - (b.orderIndex ?? 0),
+      (a: Module, b: Module) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0),
     );
   }, [modulesData]);
 
@@ -145,6 +155,8 @@ export const ManageSubscriptionModal: React.FC<
   useEffect(() => {
     if (!open) {
       defaultSelectionAppliedRef.current = false;
+      periodManuallySelectedRef.current = false;
+      planManuallySelectedRef.current = false;
       return;
     }
     if (!visiblePlans.length) return;
@@ -166,12 +178,10 @@ export const ManageSubscriptionModal: React.FC<
       setSelectedPeriodTypeId(null);
       return;
     }
-    const stillValid = plan.periods.some(
-      (pp) => pp.periodTypeId === selectedPeriodTypeId,
-    );
-    if (stillValid && selectedPeriodTypeId) return;
 
+    // Always resync to the tenant's active subscription period when this is the active plan.
     if (
+      !periodManuallySelectedRef.current &&
       activeSubscription?.planId === plan.id &&
       activeSubscription.planPeriodId
     ) {
@@ -179,9 +189,18 @@ export const ManageSubscriptionModal: React.FC<
         (pp) => pp.id === activeSubscription.planPeriodId,
       );
       if (match) {
-        setSelectedPeriodTypeId(match.periodTypeId);
+        if (selectedPeriodTypeId !== match.periodTypeId) {
+          setSelectedPeriodTypeId(match.periodTypeId);
+        }
         return;
       }
+    }
+
+    const stillValid = plan.periods.some(
+      (pp) => pp.periodTypeId === selectedPeriodTypeId,
+    );
+    if (stillValid && selectedPeriodTypeId) {
+      return;
     }
 
     setSelectedPeriodTypeId(getDefaultPeriodTypeId(plan));
@@ -189,6 +208,15 @@ export const ManageSubscriptionModal: React.FC<
 
   const selectedPlan = visiblePlans.find((p) => p.id === selectedPlanId);
   const currentPlanId = activeSubscription?.planId;
+  const currentPeriodTypeId =
+    activeSubscription?.planPeriod?.periodTypeId ??
+    activeSubscription?.plan?.periods?.find(
+      (pp) => pp.id === activeSubscription?.planPeriodId,
+    )?.periodTypeId ??
+    null;
+  const effectiveSelectedPeriodTypeId =
+    selectedPeriodTypeId ?? currentPeriodTypeId;
+  const effectiveSelectedPlanId = selectedPlanId ?? currentPlanId ?? null;
 
   /** Visible plans grouped by currency (typically one group after active-currency filter). */
   const plansByCurrency = useMemo(() => {
@@ -221,8 +249,14 @@ export const ManageSubscriptionModal: React.FC<
     return sortPlanPeriods(periods)[0];
   };
 
-  const getPlanBadge = (plan: Plan) =>
-    plan.id === currentPlanId ? 'Current' : null;
+  const getPlanBadge = (plan: Plan) => {
+    const isCurrentPlan = plan.id === currentPlanId;
+    const isCurrentBillingType =
+      !!effectiveSelectedPeriodTypeId &&
+      !!currentPeriodTypeId &&
+      effectiveSelectedPeriodTypeId === currentPeriodTypeId;
+    return isCurrentPlan && isCurrentBillingType ? 'Current' : null;
+  };
 
   const formatPeriodLabel = (pp: PlanPeriod) => {
     const pt = pp.periodType;
@@ -248,23 +282,67 @@ export const ManageSubscriptionModal: React.FC<
     ? getPlanPeriodForSelection(selectedPlan, selectedPeriodTypeId)
     : undefined;
 
+  const currentSlotTotal = activeSubscription?.slotTotal ?? 0;
+  const isSeatDecreased = !!activeSubscription && seatCount < currentSlotTotal;
+  const isSeatIncreased = !!activeSubscription && seatCount > currentSlotTotal;
+  const isPlanChanged =
+    !!activeSubscription && !!selectedPlan && selectedPlan.id !== activeSubscription.planId;
+  const isPeriodChanged =
+    !!activeSubscription &&
+    !!selectedPlanPeriod &&
+    selectedPlanPeriod.id !== activeSubscription.planPeriodId;
+
+  const resolvedTransactionType: TransactionType | null = useMemo(() => {
+    if (!selectedPlan || !selectedPlanPeriod || seatCount < 1) return null;
+    if (!activeSubscription) return TransactionType.PURCHASE_SUBSCRIPTION;
+    if (isSeatDecreased) return null;
+    if (isPlanChanged) return TransactionType.PURCHASE_SUBSCRIPTION;
+    if (isPeriodChanged) return TransactionType.PERIOD_UPGRADE;
+    if (isSeatIncreased) return TransactionType.PURCHASE_SLOTS;
+    return null;
+  }, [
+    selectedPlan,
+    selectedPlanPeriod,
+    seatCount,
+    activeSubscription,
+    isSeatDecreased,
+    isPlanChanged,
+    isPeriodChanged,
+    isSeatIncreased,
+  ]);
+
   const billingPeriodOptions = selectedPlan?.periods?.length
     ? sortPlanPeriods(selectedPlan.periods)
     : [];
+  const displayedBillingPeriodOptions = useMemo(() => {
+    if (!billingPeriodOptions.length) return [];
+    const currentPeriodId = activeSubscription?.planPeriodId;
+    if (!currentPeriodId) return billingPeriodOptions;
+    return [...billingPeriodOptions].sort((a, b) => {
+      const aCurrent = a.id === currentPeriodId ? 0 : 1;
+      const bCurrent = b.id === currentPeriodId ? 0 : 1;
+      if (aCurrent !== bCurrent) return aCurrent - bCurrent;
+      return (a.periodType?.periodInMonths ?? 0) - (b.periodType?.periodInMonths ?? 0);
+    });
+  }, [billingPeriodOptions, activeSubscription?.planPeriodId]);
 
   const calculationDto: CalculateSubscriptionPriceDto | null = useMemo(() => {
     if (
       !selectedPlanId ||
       !selectedPlan ||
       !selectedPlanPeriod ||
-      seatCount < 1
+      seatCount < 1 ||
+      !resolvedTransactionType
     )
       return null;
     return {
       planId: selectedPlan.id,
       planPeriodId: selectedPlanPeriod.id,
       slotTotal: seatCount,
-      transactionType: 'purchase_subscription',
+      transactionType: resolvedTransactionType,
+      ...(resolvedTransactionType === TransactionType.PURCHASE_SLOTS
+        ? { newSlotTotal: seatCount - currentSlotTotal }
+        : {}),
       ...(activeSubscription ? { subscriptionId: activeSubscription.id } : {}),
     };
   }, [
@@ -272,6 +350,8 @@ export const ManageSubscriptionModal: React.FC<
     selectedPlan,
     selectedPlanPeriod,
     seatCount,
+    resolvedTransactionType,
+    currentSlotTotal,
     activeSubscription,
   ]);
 
@@ -283,16 +363,71 @@ export const ManageSubscriptionModal: React.FC<
   const totalAmount = calculationData?.item?.totalAmount ?? null;
   const currencySymbol = selectedPlan?.currency?.symbol ?? '$';
 
-  const handleContinue = () => {
-    if (!selectedPlanId) return;
-    setTransactionType('purchase_subscription');
-    onClose();
-    const pt = selectedPlanPeriod?.periodType;
-    const qs = new URLSearchParams({ planId: selectedPlanId });
-    if (pt?.code) qs.set('periodTypeCode', pt.code);
-    if (pt?.id) qs.set('periodTypeId', pt.id);
-    if (!pt?.code && !pt?.id) return;
-    router.push(`/admin/plan?${qs.toString()}`);
+  const getInvoiceIdFromResponse = (payload: any): string | null => {
+    return (
+      payload?.invoices?.[0]?.id ??
+      payload?.data?.invoices?.[0]?.id ??
+      payload?.item?.invoices?.[0]?.id ??
+      null
+    );
+  };
+
+  const handleContinue = async () => {
+    if (
+      !selectedPlan ||
+      !selectedPlanPeriod ||
+      !resolvedTransactionType ||
+      isSeatDecreased
+    )
+      return;
+
+    setIsSubmitting(true);
+    setTransactionType(resolvedTransactionType);
+    try {
+      let response: any;
+      if (!activeSubscription) {
+        response = await createSubscriptionMutation.mutateAsync({
+          planId: selectedPlan.id,
+          planPeriodId: selectedPlanPeriod.id,
+          slotTotal: seatCount,
+          tenantId: DEFAULT_TENANT_ID,
+          currencyId: selectedPlan.currency?.id,
+          subscriptionPrice: Number(totalAmount ?? 0),
+          subscriptionStatus: 'pending' as any,
+          isActive: false,
+        } as any);
+      } else {
+        response = await upgradeSubscriptionMutation.mutateAsync({
+          subscriptionId: activeSubscription.id,
+          planId: selectedPlan.id,
+          planPeriodId: selectedPlanPeriod.id,
+          slots: seatCount,
+        });
+      }
+
+      const invoiceId = getInvoiceIdFromResponse(response);
+      if (!invoiceId) {
+        notification.error({
+          message: 'Invoice Error',
+          description:
+            'Subscription updated but invoice was not returned. Please refresh and open Billing.',
+        });
+        return;
+      }
+
+      onClose();
+      onContinueToInvoice?.(invoiceId);
+    } catch (error) {
+      notification.error({
+        message: 'Operation Failed',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Failed to process subscription update.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Width: fluid from viewport; max ~1100px on large screens.
@@ -308,7 +443,6 @@ export const ManageSubscriptionModal: React.FC<
       destroyOnClose
       className="manage-subscription-modal"
       data-cy="manage-subscription-modal"
-      
     >
       <div className="flex flex-col gap-6 w-full min-w-0">
         {/* Top controls — equal 3 columns on md+; billing centered in the middle */}
@@ -326,13 +460,18 @@ export const ManageSubscriptionModal: React.FC<
               </Tooltip>
             </div>
             <InputNumber
-              min={1}
+              min={activeSubscription?.slotTotal ?? 1}
               value={seatCount}
               onChange={(v) => setSeatCount(v ?? 1)}
               className="!w-[112px] max-w-[112px] shrink-0"
               controls={false}
               data-cy="manage-subscription-seats"
             />
+            {isSeatDecreased ? (
+              <p className="w-full text-xs text-red-500">
+                Seats cannot be decreased in this flow.
+              </p>
+            ) : null}
           </div>
           <div className="flex min-w-0 w-full flex-col items-center text-center">
             <div className="text-sm font-medium mb-1 w-full">Billing</div>
@@ -343,15 +482,18 @@ export const ManageSubscriptionModal: React.FC<
             ) : (
               <>
                 <div className="flex flex-wrap justify-center gap-2 font-medium">
-                  {billingPeriodOptions.map((pp) => {
+                  {displayedBillingPeriodOptions.map((pp) => {
                     const label = formatPeriodLabel(pp);
-                    const isActive = pp.periodTypeId === selectedPeriodTypeId;
+                    const isActive = selectedPeriodTypeId
+                      ? pp.periodTypeId === selectedPeriodTypeId
+                      : activeSubscription?.planPeriodId === pp.id;
                     return (
                       <Button
                         key={pp.id}
                         type={isActive ? 'primary' : 'default'}
                         onClick={(e) => {
                           e.stopPropagation();
+                          periodManuallySelectedRef.current = true;
                           setSelectedPeriodTypeId(pp.periodTypeId);
                         }}
                         data-cy={`billing-period-${pp.periodType?.code ?? pp.id}`}
@@ -382,29 +524,28 @@ export const ManageSubscriptionModal: React.FC<
                 />
               </Tooltip>
             </div>
-            <Space.Compact className="w-full max-w-[160px] shrink-0 md:w-[160px]">
-              <Input
-                readOnly
-                tabIndex={-1}
-                value={
-                  isCalculating
-                    ? ''
-                    : totalAmount != null
-                      ? Number(totalAmount).toLocaleString()
-                      : '—'
-                }
-                className="font-semibold text-base min-w-0"
-                style={{ width: '100%' }}
-                data-cy="manage-subscription-total-amount"
-              />
-              <Space.Addon className="font-semibold text-base text-gray-700 min-w-[40px] justify-center">
-                {isCalculating ? (
-                  <LoadingOutlined spin className="text-primary" />
-                ) : (
-                  currencySymbol
-                )}
-              </Space.Addon>
-            </Space.Compact>
+            <Input
+              readOnly
+              tabIndex={-1}
+              value={
+                isCalculating
+                  ? ''
+                  : totalAmount != null
+                    ? Number(totalAmount).toLocaleString()
+                    : '—'
+              }
+              className="w-full max-w-[160px] shrink-0 font-semibold text-base min-w-0 md:w-[160px]"
+              addonAfter={
+                <span className="inline-flex min-w-[40px] items-center justify-center font-semibold text-base text-gray-700">
+                  {isCalculating ? (
+                    <LoadingOutlined spin className="text-primary" />
+                  ) : (
+                    currencySymbol
+                  )}
+                </span>
+              }
+              data-cy="manage-subscription-total-amount"
+            />
           </div>
         </div>
 
@@ -425,7 +566,15 @@ export const ManageSubscriptionModal: React.FC<
             >
               {groupPlans.map((plan) => {
                 const badge = getPlanBadge(plan);
-                const isSelected = selectedPlanId === plan.id;
+                const isCurrentPlan = plan.id === currentPlanId;
+                const isCurrentBillingType =
+                  !!effectiveSelectedPeriodTypeId &&
+                  !!currentPeriodTypeId &&
+                  effectiveSelectedPeriodTypeId === currentPeriodTypeId;
+                const isSelected = planManuallySelectedRef.current
+                  ? selectedPlanId === plan.id
+                  : effectiveSelectedPlanId === plan.id &&
+                    (!isCurrentPlan || isCurrentBillingType);
                 const includedModuleIds = new Set(
                   (plan.modules ?? []).map((pm) => pm.moduleId),
                 );
@@ -437,7 +586,10 @@ export const ManageSubscriptionModal: React.FC<
                   <div
                     key={plan.id}
                     data-cy={`plan-card-${plan.id}`}
-                    onClick={() => setSelectedPlanId(plan.id)}
+                    onClick={() => {
+                      planManuallySelectedRef.current = true;
+                      setSelectedPlanId(plan.id);
+                    }}
                     className={`relative border rounded-lg bg-gradient-to-b from-white to-[#E8F5FF] p-4 cursor-pointer shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)] transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.16),0_4px_12px_rgba(0,0,0,0.08)] ${
                       isSelected
                         ? 'border-primary shadow-[0_16px_48px_rgba(30,64,175,0.22),0_8px_24px_rgba(0,0,0,0.12)] ring-2 ring-primary/20'
@@ -484,9 +636,7 @@ export const ManageSubscriptionModal: React.FC<
                         modulesForCard.map((mod) => {
                           const included = includedModuleIds.has(mod.id);
                           const label =
-                            mod.name?.trim() ||
-                            mod.code?.trim() ||
-                            'Module';
+                            mod.name?.trim() || mod.code?.trim() || 'Module';
                           return (
                             <div
                               key={mod.id}
@@ -498,9 +648,7 @@ export const ManageSubscriptionModal: React.FC<
                               />
                               <span
                                 className={
-                                  included
-                                    ? 'text-gray-700'
-                                    : 'text-gray-400'
+                                  included ? 'text-gray-700' : 'text-gray-400'
                                 }
                               >
                                 {label}
@@ -538,6 +686,10 @@ export const ManageSubscriptionModal: React.FC<
           <Button
             type="primary"
             onClick={handleContinue}
+            loading={isSubmitting}
+            disabled={
+              !calculationDto || isSeatDecreased || isCalculating || isSubmitting
+            }
             data-cy="manage-subscription-continue"
           >
             Continue

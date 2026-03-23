@@ -352,6 +352,11 @@ const AdminDashboard = () => {
       <ManageSubscriptionModal
         open={manageSubscriptionOpen}
         onClose={() => setManageSubscriptionOpen(false)}
+        onContinueToInvoice={(invoiceId) => {
+          setManageSubscriptionOpen(false);
+          setSelectedInvoiceId(invoiceId);
+          setInvoiceModalOpen(true);
+        }}
       />
     </div>
   );
