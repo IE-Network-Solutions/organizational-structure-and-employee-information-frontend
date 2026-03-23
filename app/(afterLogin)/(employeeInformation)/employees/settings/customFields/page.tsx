@@ -185,7 +185,7 @@ const CustomFieldsPage: React.FC = () => {
           <Col xs={24} md={10} lg={10}>
             <Card
               bordered
-              className="mb-4 custom-fields-radio-neutral"
+              className="mb-4 custom-fields-radio-neutral border-[1px] border-[#D9D9D9] rounded-lg"
               id="settings-custom-fields-field-types-card"
               data-cy="settings-custom-fields-field-types-card"
               headStyle={{ borderBottom: 'none' }}
@@ -212,6 +212,7 @@ const CustomFieldsPage: React.FC = () => {
               headStyle={{ borderBottom: 'none' }}
               id="settings-custom-fields-form-categories-card"
               data-cy="settings-custom-fields-form-categories-card"
+              className="border-[1px] border-[#D9D9D9] rounded-lg"
             >
               <div
                 data-cy="settings-custom-fields-form-categories-list"

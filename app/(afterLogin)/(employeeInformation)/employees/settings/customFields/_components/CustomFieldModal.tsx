@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Modal, Form, Input, Select, Switch, Button, message } from 'antd';
+import { Modal, Form, Input, Select, Switch, Button, message, Col, Row, Radio } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { useAddEmployeeInformationForm } from '@/store/server/features/employees/employeeManagment/employeInformationForm/mutations';
 
@@ -55,6 +55,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
       fieldValidation: values.fieldValidation,
       options: values.options || [],
     };
+    
 
     const formData = customEmployeeInformationForm;
     const hasExistingForm =
@@ -108,6 +109,8 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
       destroyOnClose
       data-cy="settings-custom-field-modal"
       zIndex={10002}
+      width={600}
+      centered
     >
       <Form
         form={form}
@@ -117,7 +120,10 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
         id="settings-custom-field-form"
         data-cy="settings-custom-field-form"
       >
-        <Form.Item
+        <Row gutter={16}
+        >
+          <Col span={12}>
+          <Form.Item
           label="Field Name"
           name="fieldName"
           rules={[{ required: true, message: 'Field Name is required' }]}
@@ -128,10 +134,13 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             placeholder="Input"
             id="settings-custom-field-name-input"
             data-cy="settings-custom-field-name-input"
+            className="h-10"
           />
         </Form.Item>
 
-        <Form.Item
+          </Col>
+          <Col span={12}>
+          <Form.Item
           label="Field Validation"
           name="fieldValidation"
           rules={[{ required: true, message: 'Field Validation is required' }]}
@@ -141,8 +150,13 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
           <Select
             placeholder="Select"
             allowClear
+            onChange={(value) =>
+              form.setFieldsValue({ fieldValidation: value ?? undefined })
+            }
             id="settings-custom-field-validation-select"
             data-cy="settings-custom-field-validation-select"
+            className="h-10"
+
           >
             <Option value="text">Text</Option>
             <Option value="number">Number</Option>
@@ -151,26 +165,71 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             <Option value="url">URL</Option>
             <Option value="any">Any</Option>
           </Select>
+          <p
+          data-cy="settings-custom-field-active-description"
+          className="text-xs text-gray-500 py-0.5"
+        >
+          Select a field validation type.
+        </p>
         </Form.Item>
+          </Col>
+        </Row>
 
-        <Form.Item
-          label="Active"
+
+        <Row gutter={16} className='mt-2'>
+          <Col span={12}>
+          <Form.Item
           name="isActive"
           valuePropName="checked"
           id="settings-custom-field-active"
           data-cy="settings-custom-field-active"
         >
-          <Switch
+          <div className='border border-[#D9D9D9] rounded-md p-2 h-14'>
+          <Radio
             id="settings-custom-field-active-switch"
             data-cy="settings-custom-field-active-switch"
-          />
-        </Form.Item>
-        <p
+          >
+            Active
+            </Radio>
+           <p
           data-cy="settings-custom-field-active-description"
-          className="text-xs text-gray-500 -mt-2 mb-4"
+          className="text-xs text-gray-500 px-6"
         >
           If the field is active it will show.
         </p>
+
+          </div>
+        
+        </Form.Item>
+       
+          </Col>
+          <Col span={12}>
+          <Form.Item
+          name="isRequired"
+          valuePropName="checked"
+          id="settings-custom-field-required"
+          data-cy="settings-custom-field-required"
+        >
+          <div className='border border-[#D9D9D9] rounded-md p-2 h-14'>
+          <Radio
+            id="settings-custom-field-required-switch"
+            data-cy="settings-custom-field-required-switch"
+          >
+            Required
+            </Radio>
+           <p
+          data-cy="settings-custom-field-required-description"
+          className="text-xs text-gray-500 px-6"
+        >
+          If Selected it must be filled.
+        </p>
+
+          </div>
+        
+        </Form.Item>          </Col>
+        </Row>
+
+       
 
         <Form.Item className="mb-0">
           <div
@@ -178,9 +237,11 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             className="flex justify-end gap-2 pt-2"
           >
             <Button
+            type="default"
               onClick={handleCancel}
               id="settings-custom-field-cancel"
               data-cy="settings-custom-field-cancel"
+              className="border border-[#D9D9D9] text-[#4d4d4d] font-normal"
             >
               Cancel
             </Button>
@@ -189,6 +250,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
               htmlType="submit"
               id="settings-custom-field-create"
               data-cy="settings-custom-field-create"
+              className="text-white font-normal"
             >
               Create Field
             </Button>

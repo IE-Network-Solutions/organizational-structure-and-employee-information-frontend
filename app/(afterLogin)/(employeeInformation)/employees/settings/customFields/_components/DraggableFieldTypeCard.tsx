@@ -41,7 +41,7 @@ const DraggableFieldTypeCard: React.FC<DraggableFieldTypeCardProps> = ({
       style={style}
       {...attributes}
       {...listeners}
-      className="p-3 rounded-lg border border-gray-200 bg-white cursor-grab active:cursor-grabbing hover:border-blue-300 hover:bg-gray-50 transition-colors"
+      className="p-3 rounded-lg border-[1px] border-[#D9D9D9] cursor-grab active:cursor-grabbing shadow-sm"
       id={`settings-draggable-field-type-${id}`}
       data-cy={`settings-draggable-field-type-${id}`}
     >
