@@ -73,7 +73,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
         id="meetingTemplateCardHeader"
       >
         <h3
-          className="font-semibold text-lg"
+          className="font-normal text-sm"
           data-cy="meeting-template-card-title"
           id="meetingTemplateCardTitle"
         >
@@ -86,7 +86,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
           onOpenChange={(open) => setMenuOpen(open)}
         >
           <EllipsisOutlined
-            className="text-gray-500 hover:text-gray-700 text-lg"
+            className=" text-lg"
             onClick={(e) => e.stopPropagation()}
             data-cy="meeting-template-card-more-icon"
             id="meetingTemplateCardMoreIcon"
@@ -94,7 +94,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
         </Dropdown>
       </div>
       <p
-        className="text-sm text-black"
+        className="text-sm text-gray-500"
         data-cy="meeting-template-card-description"
         id="meetingTemplateCardDescription"
       >

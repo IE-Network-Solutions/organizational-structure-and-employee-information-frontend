@@ -63,14 +63,14 @@ const Page = () => {
                       data-cy={`settings-recognition-card-title-section-${item?.id}`}
                     >
                       <div
-                        className="text-sm font-semibold text-gray-900 truncate"
+                        className="text-sm font-normal  truncate"
                         title={item?.name}
                         data-cy={`settings-recognition-card-title-${item?.id}`}
                       >
                         {item?.name}
                       </div>
                       <div
-                        className="mt-2 inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] font-medium text-gray-700"
+                        className="mt-2 inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-xs font-normal "
                         data-cy={`settings-recognition-card-count-${item?.id}`}
                       >
                         {item?.children?.length ?? 0} Recognitions

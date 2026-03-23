@@ -13,6 +13,7 @@ import { MdDeleteOutline } from 'react-icons/md';
 import { useMemo, useState } from 'react';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import RecognitionForm from '../../_components/recognition/createRecognition';
+import { AiOutlineTrophy } from 'react-icons/ai';
 
 type RecognitionCriterion = {
   id?: string;
@@ -128,7 +129,7 @@ export default function RecognitionDetailPage() {
               return (
                 <Card
                   key={child?.id ?? child?.name}
-                  className="rounded-xl border border-gray-200 shadow-none"
+                  className="rounded-lg border border-gray-200 shadow-none"
                   styles={{ body: { padding: 16 } }}
                   data-cy={`recognition-detail-item-${child?.id ?? child?.name ?? 'unknown'}`}
                 >
@@ -137,42 +138,62 @@ export default function RecognitionDetailPage() {
                     data-cy="recognition-detail-item-row"
                   >
                     <div
-                      className="min-w-0"
+                      className=" flex items-start justify-between gap-4"
                       data-cy="recognition-detail-item-left"
                     >
-                      <div
-                        className="text-sm font-semibold text-gray-900 truncate"
-                        title={child?.name}
-                        data-cy="recognition-detail-item-name"
-                      >
-                        {child?.name || '-'}
+                      <div className=" bg-[#E6F4FF] rounded-lg h-9 w-9 flex items-center justify-center text-lg text-primary ">
+                        <AiOutlineTrophy className="" />
                       </div>
-                      <div
-                        className="mt-2 flex flex-wrap gap-2"
-                        data-cy="recognition-detail-item-tags"
-                      >
-                        {child?.frequency && (
+                      <div className="min-w-0">
+                        <div
+                          className="text-sm font-semibold  truncate"
+                          title={child?.name}
+                          data-cy="recognition-detail-item-name"
+                        >
+                          {child?.name || '-'}
+                        </div>
+                        <div
+                          className="text-sm font-normal text-gray-500 truncate"
+                          title={child?.description}
+                          data-cy="recognition-detail-item-description"
+                        >
+                          {child?.description || '-'}
+                        </div>
+                        <div
+                          className="mt-2 flex flex-wrap gap-2"
+                          data-cy="recognition-detail-item-tags"
+                        >
+                          {child?.frequency && (
+                            <Tag
+                              className="text-xs"
+                              data-cy="recognition-detail-item-frequency-tag"
+                            >
+                              {child?.frequency}
+                            </Tag>
+                          )}
+                          {child?.department && (
+                            <Tag
+                              className="text-xs"
+                              data-cy="recognition-detail-item-department-tag"
+                            >
+                              {child?.department?.name}
+                            </Tag>
+                          )}
+
+                          <Tag
+                            className="text-xs"
+                            data-cy="recognition-detail-item-monetized-tag"
+                          >
+                            {child?.isMonetized ? 'Monetized' : 'Not Monetized'}
+                          </Tag>
+
                           <Tag
                             className="text-xs"
                             data-cy="recognition-detail-item-criteria-tag"
                           >
-                            {child?.frequency}
+                            {criteriaCount} Criteria
                           </Tag>
-                        )}
-
-                        <Tag
-                          className="text-xs"
-                          data-cy="recognition-detail-item-criteria-tag"
-                        >
-                          {child?.isMonetized ? 'Monetized' : 'Not Monetized'}
-                        </Tag>
-
-                        <Tag
-                          className="text-xs"
-                          data-cy="recognition-detail-item-criteria-tag"
-                        >
-                          {criteriaCount} Criteria
-                        </Tag>
+                        </div>{' '}
                       </div>
                     </div>
 

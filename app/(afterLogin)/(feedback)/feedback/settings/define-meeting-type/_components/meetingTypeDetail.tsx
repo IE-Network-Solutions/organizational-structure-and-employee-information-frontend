@@ -155,7 +155,7 @@ const MeetingTypeDetail: React.FC = () => {
           />
           <div className="min-w-0" data-cy="meeting-type-detail-titles">
             <div
-              className="text-base md:text-lg font-semibold text-gray-900 truncate"
+              className="text-base font-bold text-gray-900 truncate"
               title={meetingTypeDetailData?.name || 'Meeting Type'}
               data-cy="meeting-type-detail-name"
               id="meetingTypeDetailName"
@@ -163,7 +163,7 @@ const MeetingTypeDetail: React.FC = () => {
               {meetingTypeDetailData?.name || 'Meeting Type'}
             </div>
             <div
-              className="text-xs text-gray-500 mt-1"
+              className="text-sm font-normal  mt-1"
               data-cy="meeting-type-detail-subtitle"
               id="meetingTypeDetailSubtitle"
             >
