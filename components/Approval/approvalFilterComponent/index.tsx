@@ -4,6 +4,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import { SearchOutlined } from '@ant-design/icons';
 interface User {
   id: string;
   firstName?: string;
@@ -77,8 +78,16 @@ const ApprovalFilterComponent = ({
           id={`inputEmployeeNames${searchParams.name}`}
           placeholder="Search workflow name"
           onChange={(e) => handleSearchInput(e.target.value, 'name')}
-          className="w-full"
+          className="w-[200px] sm:w-[300px] pr-0 py-0 h-8"
           allowClear
+          suffix={
+            <div
+              className="text-gray-400 border-l border-gray-300 py-1 px-2"
+              data-cy="components-approval-approvalfiltercomponent-index-tsx-index-search-input-suffix"
+            >
+              <SearchOutlined />
+            </div>
+          }
         />
       </Col>
 
