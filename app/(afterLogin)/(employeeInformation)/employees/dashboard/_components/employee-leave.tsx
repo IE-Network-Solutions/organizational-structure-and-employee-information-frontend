@@ -40,9 +40,8 @@ export default function EmployeeLeave() {
     'Nov',
     'Dec',
   ];
-  const yearChips = Array.from(
-    { length: 2026 - 2016 + 1 },
-    (_, i) => String(2016 + i),
+  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (_, i) =>
+    String(2016 + i),
   );
 
   const queryParams = useMemo(

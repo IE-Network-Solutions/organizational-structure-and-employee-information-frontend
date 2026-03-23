@@ -1,17 +1,29 @@
 'use client';
 
-import React from 'react';
-import { Card } from 'antd';
+import React, { useMemo } from 'react';
+import { Card, Skeleton } from 'antd';
+import { useGetRecruitmentStages } from '@/store/server/features/recruitment/dashboard/queries';
 
-type FunnelStage = {
+const STAGE_BAR_COLORS = [
+  '#4A6CF7',
+  '#FA916B',
+  '#42D29D',
+  '#FDBA74',
+  '#A78BFA',
+  '#34D399',
+];
+
+type FunnelStageRow = {
   label: string;
   value: number;
-  color: string; // Tailwind class or raw hex; we will set as inline style for the bar fill
-  badge?: string; // e.g. "20%"
-  percentOfMax: number; // 0..100 based on the maximum stage (Applied)
+  percentOfMax: number;
+  color: string;
+  badge?: string;
 };
 
-const StageRow: React.FC<{ stage: FunnelStage }> = ({ stage }) => {
+type StageRowProps = { stage: FunnelStageRow };
+
+const StageRow: React.FC<StageRowProps> = ({ stage }) => {
   return (
     <div
       className="flex flex-col gap-2"
@@ -52,14 +64,31 @@ const StageRow: React.FC<{ stage: FunnelStage }> = ({ stage }) => {
 };
 
 export default function EmployeeHiringFunnelCard() {
-  // Values are taken from your attached screenshot. Replace with API/store values later.
-  const stages: FunnelStage[] = [
-    { label: 'Applied', value: 320, color: '#2F55C8', percentOfMax: 100 },
-    { label: 'Screening', value: 240, color: '#7C3AED', badge: '20%', percentOfMax: 75 },
-    { label: 'Interview', value: 160, color: '#F97316', badge: '10%', percentOfMax: 50 },
-    { label: 'Offer', value: 80, color: '#3B82F6', badge: '5%', percentOfMax: 25 },
-    { label: 'Hired', value: 32, color: '#84CC16', badge: '3%', percentOfMax: 10 },
-  ];
+  const { data: stagesData, isLoading: loading } = useGetRecruitmentStages();
+
+  const stages = useMemo(() => {
+    const list = stagesData?.stageList ?? [];
+    if (list.length === 0) return [];
+    const max = Math.max(...list.map((s: { count: number }) => s.count), 0);
+    return list.map(
+      (s: { name: string; count: number }, i: number): FunnelStageRow => ({
+        label: s.name,
+        value: s.count,
+        percentOfMax: max > 0 ? (s.count / max) * 100 : 0,
+        color: STAGE_BAR_COLORS[i % STAGE_BAR_COLORS.length],
+      }),
+    );
+  }, [stagesData]);
+
+  const subtitle = useMemo(() => {
+    const total = stages.reduce(
+      (sum: number, s: FunnelStageRow) => sum + s.value,
+      0,
+    );
+    return total > 0
+      ? `${total.toLocaleString()} candidates across stages`
+      : 'Hiring pipeline overview';
+  }, [stages]);
 
   return (
     <Card
@@ -68,19 +97,36 @@ export default function EmployeeHiringFunnelCard() {
       id="employee-hiring-funnel-card"
       data-cy="employee-hiring-funnel-card"
     >
-      <h3 className="text-lg font-semibold text-gray-900" data-cy="hiring-funnel-title">
+      <h3
+        className="text-lg font-semibold text-gray-900"
+        data-cy="hiring-funnel-title"
+      >
         Hiring Funnel
       </h3>
-      <p className="mt-1 text-sm text-gray-500" data-cy="hiring-funnel-subtitle">
-        10% overall conversion · Avg 5 days to hire
+      <p
+        className="mt-1 text-sm text-gray-500"
+        data-cy="hiring-funnel-subtitle"
+      >
+        {loading ? (
+          <Skeleton.Button active size="small" className="!w-48" />
+        ) : (
+          subtitle
+        )}
       </p>
 
       <div className="mt-2 flex flex-col gap-2" data-cy="hiring-funnel-stages">
-        {stages.map((stage) => (
-          <StageRow key={stage.label} stage={stage} />
-        ))}
+        {loading ? (
+          <Skeleton active paragraph={{ rows: 5 }} />
+        ) : stages.length === 0 ? (
+          <p className="text-sm text-gray-500 py-6 text-center">
+            No hiring funnel data for this period.
+          </p>
+        ) : (
+          stages.map((stage: FunnelStageRow) => (
+            <StageRow key={stage.label} stage={stage} />
+          ))
+        )}
       </div>
     </Card>
   );
 }
-
