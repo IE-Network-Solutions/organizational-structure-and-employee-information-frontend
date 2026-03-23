@@ -2,7 +2,6 @@
 
 import React, { useMemo } from 'react';
 import {
-  MdCorporateFare,
   MdEvent,
   MdEventBusy,
   MdGroups,
@@ -24,6 +23,7 @@ const iconWithBackground = ({
   return (
     <span
       className={`w-8 h-8 rounded-sm ${wrapperClassName} flex items-center justify-center`}
+      data-cy="employee-dashboard-stats-icon-wrap"
     >
       {icon}
     </span>
@@ -79,25 +79,14 @@ export default function EmployeeDashboardStatsCards({
           value: combinedHrData?.newHires?.value ?? 0,
           change: statChange(combinedHrData?.newHires),
           icon: iconWithBackground({
-            icon: <MdOutlinePersonAdd className="text-green-600" size={18} />,
-            wrapperClassName: 'bg-green-50',
+            icon: <MdOutlinePersonAdd className="text-greenbg" size={18} />,
+            wrapperClassName: 'bg-[#F6FFED]',
           }),
           id: 'employee-dashboard-stats-new-hires',
           dataCy: 'employee-dashboard-stats-new-hires',
         },
         {
-          title: 'Active Departments',
-          value: combinedHrData?.activeDepartments?.value ?? 0,
-          change: statChange(combinedHrData?.activeDepartments),
-          icon: iconWithBackground({
-            icon: <MdCorporateFare className="text-blue" size={18} />,
-            wrapperClassName: 'bg-lightblue',
-          }),
-          id: 'employee-dashboard-stats-active-departments',
-          dataCy: 'employee-dashboard-stats-active-departments',
-        },
-        {
-          title: 'Resigned Staff',
+          title: 'Resignations',
           value: combinedHrData?.resignedStaff?.value ?? 0,
           change: statChange(combinedHrData?.resignedStaff),
           icon: iconWithBackground({
@@ -108,7 +97,18 @@ export default function EmployeeDashboardStatsCards({
           dataCy: 'employee-dashboard-stats-resigned-staff',
         },
         {
-          title: 'Pending Leave Requests',
+          title: 'On Leave',
+          value: combinedHrData?.onLeaveToday?.value ?? 0,
+          change: statChange(combinedHrData?.onLeaveToday),
+          icon: iconWithBackground({
+            icon: <MdEvent className="text-blue" size={18} />,
+            wrapperClassName: 'bg-lightblue',
+          }),
+          id: 'employee-dashboard-stats-on-leave-today',
+          dataCy: 'employee-dashboard-stats-on-leave-today',
+        },
+        {
+          title: 'Pending Requests',
           value: combinedHrData?.pendingLeaveRequests?.value ?? 0,
           change: statChange(combinedHrData?.pendingLeaveRequests),
           icon: iconWithBackground({
@@ -129,21 +129,10 @@ export default function EmployeeDashboardStatsCards({
           id: 'employee-dashboard-stats-absences',
           dataCy: 'employee-dashboard-stats-absences',
         },
-        {
-          title: 'On Leave Today',
-          value: combinedHrData?.onLeaveToday?.value ?? 0,
-          change: statChange(combinedHrData?.onLeaveToday),
-          icon: iconWithBackground({
-            icon: <MdEvent className="text-blue" size={18} />,
-            wrapperClassName: 'bg-lightblue',
-          }),
-          id: 'employee-dashboard-stats-on-leave-today',
-          dataCy: 'employee-dashboard-stats-on-leave-today',
-        },
       ] as const,
     [combinedHrData],
   );
- 
+
   return (
     <div
       className="flex flex-row overflow-x-auto gap-4 scrollbar-none px-1"
@@ -151,17 +140,28 @@ export default function EmployeeDashboardStatsCards({
       data-cy="employee-dashboard-stats-grid"
     >
       {loading
-        ? Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="min-w-[280px]">
-              <Skeleton
-                active
-                paragraph={{ rows: 2 }}
-                className="rounded-lg p-3"
-              />
-            </div>
-          ))
+        ? Array.from({ length: 7 }).map((item, i) => {
+            void item;
+            return (
+              <div
+                key={i}
+                className="min-w-[280px]"
+                data-cy={`employee-dashboard-stats-skeleton-${i}`}
+              >
+                <Skeleton
+                  active
+                  paragraph={{ rows: 2 }}
+                  className="rounded-lg p-3"
+                />
+              </div>
+            );
+          })
         : cards.map((c) => (
-            <div key={c.id} className="min-w-[280px]">
+            <div
+              key={c.id}
+              className="min-w-[280px]"
+              data-cy={`employee-dashboard-stats-item-${c.id}`}
+            >
               <StatsCard
                 title={c.title}
                 value={c.value}

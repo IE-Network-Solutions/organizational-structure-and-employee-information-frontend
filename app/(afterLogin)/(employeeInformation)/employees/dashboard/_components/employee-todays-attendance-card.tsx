@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useMemo, useRef, useState } from 'react';
-import { Card, Spin } from 'antd';
+import React, { useMemo, useRef } from 'react';
+import { Card, DatePicker, Spin } from 'antd';
 import { MdFiberManualRecord } from 'react-icons/md';
 
 import {
   TodayStatusSummaryParams,
   useGetTodayStatusSummary,
 } from '@/store/server/features/employees/approval/queries';
-
+import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 
 type Period = 'Day' | 'Month' | 'Year' | 'Custom';
 
@@ -80,10 +80,16 @@ function buildTodayStatusParams(
 }
 
 export default function EmployeeTodaysAttendanceCard() {
-  const [period, setPeriod] = useState<Period | null>(null);
-  const [selectedChip, setSelectedChip] = useState<string | null>(null);
-  const [displayPeriod, setDisplayPeriod] = useState<Period | null>(null);
-  const [chipsAnim, setChipsAnim] = useState<'in' | 'out'>('in');
+  const {
+    todaysAttendancePeriod: period,
+    setTodaysAttendancePeriod: setPeriod,
+    todaysAttendanceSelectedChip: selectedChip,
+    setTodaysAttendanceSelectedChip: setSelectedChip,
+    todaysAttendanceDisplayPeriod: displayPeriod,
+    setTodaysAttendanceDisplayPeriod: setDisplayPeriod,
+    todaysAttendanceChipsAnim: chipsAnim,
+    setTodaysAttendanceChipsAnim: setChipsAnim,
+  } = TimeAndAttendaceDashboardStore();
   const animTimerRef = useRef<number | null>(null);
 
   const apiParams = useMemo(
@@ -93,7 +99,6 @@ export default function EmployeeTodaysAttendanceCard() {
 
   const { data: todayStatusData, isLoading } =
     useGetTodayStatusSummary(apiParams);
- console.log('todayStatusData', todayStatusData);
   const onTimeRaw = todayStatusData?.onTime as StatusBucket;
   const lateRaw = todayStatusData?.late as StatusBucket;
   const absentRaw = todayStatusData?.absent as StatusBucket;
@@ -127,9 +132,10 @@ export default function EmployeeTodaysAttendanceCard() {
     'Nov',
     'Dec',
   ];
-  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (_, i) =>
-    String(2016 + i),
-  );
+  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (yearSlot, i) => {
+    void yearSlot;
+    return String(2016 + i);
+  });
 
   // Animate chip list transitions when user switches Day/Month/Year/Custom.
   React.useEffect(() => {
@@ -172,10 +178,16 @@ export default function EmployeeTodaysAttendanceCard() {
           id="employee-todays-attendance-header-row"
           data-cy="employee-todays-attendance-header-row"
         >
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <div
+            className="flex min-w-0 items-center gap-2"
+            data-cy="employee-todays-attendance-title-wrap"
+          >
+            <div
+              className="w-2 h-2 bg-orange rounded-full"
+              data-cy="employee-todays-attendance-title-dot"
+            ></div>
             <h3
-              className="truncate font-normal text-sm sm:text-base text-black/50 leading-6 tracking-normal"
+              className="truncate font-normal text-sm sm:text-base text-black/65 leading-6 tracking-normal"
               id="employee-todays-attendance-title"
               data-cy="employee-todays-attendance-title"
             >
@@ -200,10 +212,10 @@ export default function EmployeeTodaysAttendanceCard() {
                       handlePeriodPillClick(p);
                     }}
                     className={[
-                      'px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium transition',
+                      'px-1 sm:px-3 py-1 text-[12px] sm:text-xs font-normal transition border border-gray-200 rounded-[6px] ml-2',
                       isActive
                         ? 'bg-gray-100 text-gray-900'
-                        : 'bg-white text-gray-500 hover:bg-gray-50',
+                        : 'bg-gray-100/50 text-gray-500 hover:bg-gray-50',
                     ].join(' ')}
                     id={`employee-todays-attendance-period-${p}`}
                     data-cy={`employee-todays-attendance-period-${p}`}
@@ -305,13 +317,28 @@ export default function EmployeeTodaysAttendanceCard() {
               )}
 
               {displayPeriod === 'Custom' && (
-                <div
-                  className="text-xs text-gray-500"
-                  id="employee-todays-attendance-custom-placeholder"
-                  data-cy="employee-todays-attendance-custom-placeholder"
-                >
-                  Custom range
-                </div>
+                <>
+                  <DatePicker.RangePicker
+                    size="small"
+                    className="w-[220px] h-7"
+                    id="employee-todays-attendance-custom-datepicker"
+                    data-cy="employee-todays-attendance-custom-datepicker"
+                    placeholder={['Start date', 'End date']}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedChip(null);
+                      setDisplayPeriod(null);
+                      setChipsAnim('in');
+                    }}
+                    className="px-2 py-1 text-xs rounded border transition bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                    id="employee-todays-attendance-custom-clear"
+                    data-cy="employee-todays-attendance-custom-clear"
+                  >
+                    X
+                  </button>
+                </>
               )}
             </div>
           )}
@@ -345,7 +372,7 @@ export default function EmployeeTodaysAttendanceCard() {
           aria-label="Attendance breakdown"
         >
           <div
-            className="h-full bg-green-500 rounded-r-full"
+            className="h-full bg-[#10B981] rounded-r-full"
             style={{ width: `${onTimeWidth}%` }}
             id="employee-todays-attendance-segment-on-time"
             data-cy="employee-todays-attendance-segment-on-time"
@@ -374,12 +401,15 @@ export default function EmployeeTodaysAttendanceCard() {
             id="legend-on-time"
             data-cy="legend-on-time"
           >
-            <MdFiberManualRecord size={12} className="text-green-500" />
+            <MdFiberManualRecord size={12} className="text-[#10B981]" />
             <span
               className="text-black/50 font-medium"
               data-cy="legend-on-time-text"
             >
-              On Time {onTimeCount}
+              On Time{' '}
+              <strong className="text-gray-900" data-cy="legend-on-time-count">
+                {onTimeCount}
+              </strong>
             </span>
           </div>
           <div
@@ -392,7 +422,10 @@ export default function EmployeeTodaysAttendanceCard() {
               className="text-black/50 font-medium"
               data-cy="legend-late-text"
             >
-              Late {lateCount}
+              Late{' '}
+              <strong className="text-gray-900" data-cy="legend-late-count">
+                {lateCount}
+              </strong>
             </span>
           </div>
           <div
@@ -405,7 +438,10 @@ export default function EmployeeTodaysAttendanceCard() {
               className="text-black/50 font-medium"
               data-cy="legend-absent-text"
             >
-              Absent {absentCount}
+              Absent{' '}
+              <strong className="text-gray-900" data-cy="legend-absent-count">
+                {absentCount}
+              </strong>
             </span>
           </div>
         </div>

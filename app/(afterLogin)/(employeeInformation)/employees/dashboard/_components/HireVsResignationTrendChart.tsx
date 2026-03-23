@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Card, DatePicker, Spin } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useGetHireResignationTrendWithTenant } from '@/store/server/features/employees/approval/queries';
+import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,6 +14,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  type Plugin,
 } from 'chart.js';
 
 const { RangePicker } = DatePicker;
@@ -26,16 +28,66 @@ ChartJS.register(
   Legend,
 );
 
+const barBackgroundPlugin: Plugin<'bar'> = {
+  id: 'barBackgroundPlugin',
+  beforeDatasetsDraw(chart) {
+    const yScale = chart.scales.y;
+    if (!yScale) return;
+
+    const zeroPixel = yScale.getPixelForValue(0);
+    const maxFromOptions = (
+      chart.options.scales?.y as { max?: number } | undefined
+    )?.max;
+    const maxValue =
+      typeof maxFromOptions === 'number' ? maxFromOptions : yScale.max;
+    const topPixel = yScale.getPixelForValue(maxValue);
+
+    const targetIndexes = chart.data.datasets
+      .map((dataset, index) => ({ label: dataset.label, index }))
+      .filter(({ label }) => label === 'Hire' || label === 'Resignation')
+      .map(({ index }) => index);
+
+    const { ctx } = chart;
+    ctx.save();
+    ctx.fillStyle = '#F0F0F0';
+
+    targetIndexes.forEach((datasetIndex) => {
+      const meta = chart.getDatasetMeta(datasetIndex);
+      meta.data.forEach((barElement) => {
+        const { x, width } = barElement.getProps(['x', 'width'], true);
+        const left = x - width / 2;
+        const height = zeroPixel - topPixel;
+        ctx.fillRect(left, topPixel, width, height);
+      });
+    });
+
+    ctx.restore();
+  },
+};
+
 export default function HireVsResignationTrendChart({
   'data-cy': dataCy = 'hire-vs-resignation-trend',
 }: {
   'data-cy'?: string;
 }) {
-  const [range, setRange] = useState<[Dayjs, Dayjs] | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const {
+    hireResignationTrendRange,
+    setHireResignationTrendRange,
+    hireResignationTrendIsMobile: isMobile,
+    setHireResignationTrendIsMobile: setIsMobile,
+  } = TimeAndAttendaceDashboardStore();
+
+  const range = useMemo<[Dayjs, Dayjs] | null>(() => {
+    if (!hireResignationTrendRange) return null;
+    const start = dayjs(hireResignationTrendRange[0]);
+    const end = dayjs(hireResignationTrendRange[1]);
+    if (!start.isValid() || !end.isValid()) return null;
+    return [start, end];
+  }, [hireResignationTrendRange]);
 
   const startDate =
-    range?.[0]?.format('YYYY-MM-DD') ?? dayjs().startOf('year').format('YYYY-MM-DD');
+    range?.[0]?.format('YYYY-MM-DD') ??
+    dayjs().startOf('year').format('YYYY-MM-DD');
   const endDate =
     range?.[1]?.format('YYYY-MM-DD') ?? dayjs().format('YYYY-MM-DD');
 
@@ -61,7 +113,11 @@ export default function HireVsResignationTrendChart({
   const chartRows = useMemo(() => {
     const raw = trendData as unknown;
     if (Array.isArray(raw)) return raw;
-    if (raw && typeof raw === 'object' && Array.isArray((raw as { data?: unknown }).data)) {
+    if (
+      raw &&
+      typeof raw === 'object' &&
+      Array.isArray((raw as { data?: unknown }).data)
+    ) {
       return (raw as { data: unknown[] }).data;
     }
     return [];
@@ -80,7 +136,7 @@ export default function HireVsResignationTrendChart({
     if (keys.length === 0) {
       keys.push(dayjs(startDate).format('YYYY-MM'));
     }
-    const labels = keys.map((k) => dayjs(`${k}-01`).format('MMM YYYY'));
+    const labels = keys.map((k) => dayjs(`${k}-01`).format('MMM'));
     return { monthKeys: keys, labels };
   }, [startDate, endDate]);
 
@@ -98,8 +154,7 @@ export default function HireVsResignationTrendChart({
     if (typeof ym === 'string' && /^\d{4}-\d{2}/.test(ym)) {
       return ym.slice(0, 7);
     }
-    const labelish =
-      item.month ?? item.monthName ?? item.label ?? item.name;
+    const labelish = item.month ?? item.monthName ?? item.label ?? item.name;
     if (labelish != null) {
       const parsed = dayjs(String(labelish));
       if (parsed.isValid()) return parsed.format('YYYY-MM');
@@ -116,7 +171,10 @@ export default function HireVsResignationTrendChart({
       if (rk !== monthKey) continue;
       const hv = item.hire ?? item.hired ?? item.hireCount ?? item.hires;
       const rv =
-        item.resignation ?? item.resignations ?? item.resignationCount ?? item.resigned;
+        item.resignation ??
+        item.resignations ??
+        item.resignationCount ??
+        item.resigned;
       const hn = Number(hv);
       const rn = Number(rv);
       if (Number.isFinite(hn)) hire += hn;
@@ -130,10 +188,17 @@ export default function HireVsResignationTrendChart({
 
     const hireByIndex = (() => {
       const out = monthKeys.map((key) => hireResignForMonth(key).hire);
-      const hasMatch = chartRows.some((row) => rowMonthKey(row as Record<string, unknown>) != null);
+      const hasMatch = chartRows.some(
+        (row) => rowMonthKey(row as Record<string, unknown>) != null,
+      );
       if (!hasMatch && chartRows.length === monthKeys.length) {
-        return monthKeys.map((_, i) => {
-          const item = chartRows[i] as Record<string, unknown>;
+        return monthKeys.map((monthKey, i) => {
+          const matchedIndex = chartRows.findIndex(
+            (row) => rowMonthKey(row as Record<string, unknown>) === monthKey,
+          );
+          const item = chartRows[
+            matchedIndex >= 0 ? matchedIndex : i
+          ] as Record<string, unknown>;
           const v = item.hire ?? item.hired ?? item.hireCount ?? item.hires;
           const n = Number(v);
           return Number.isFinite(n) ? n : 0;
@@ -144,12 +209,22 @@ export default function HireVsResignationTrendChart({
 
     const resignationByIndex = (() => {
       const out = monthKeys.map((key) => hireResignForMonth(key).resignation);
-      const hasMatch = chartRows.some((row) => rowMonthKey(row as Record<string, unknown>) != null);
+      const hasMatch = chartRows.some(
+        (row) => rowMonthKey(row as Record<string, unknown>) != null,
+      );
       if (!hasMatch && chartRows.length === monthKeys.length) {
-        return monthKeys.map((_, i) => {
-          const item = chartRows[i] as Record<string, unknown>;
+        return monthKeys.map((monthKey, i) => {
+          const matchedIndex = chartRows.findIndex(
+            (row) => rowMonthKey(row as Record<string, unknown>) === monthKey,
+          );
+          const item = chartRows[
+            matchedIndex >= 0 ? matchedIndex : i
+          ] as Record<string, unknown>;
           const v =
-            item.resignation ?? item.resignations ?? item.resignationCount ?? item.resigned;
+            item.resignation ??
+            item.resignations ??
+            item.resignationCount ??
+            item.resigned;
           const n = Number(v);
           return Number.isFinite(n) ? n : 0;
         });
@@ -163,10 +238,14 @@ export default function HireVsResignationTrendChart({
         {
           label: 'Hire',
           data: hireByIndex,
-          backgroundColor: '#1D4ED8',
+          backgroundColor: 'rgba(29, 78, 216, 0.95)',
+          maxBarThickness: 17.29,
+          barPercentage: 0.7,
+          categoryPercentage: 0.7,
+          borderSkipped: false,
           borderRadius: {
-            topLeft: 25,
-            topRight: 25,
+            topLeft: 100,
+            topRight: 100,
             bottomLeft: 0,
             bottomRight: 0,
           },
@@ -174,10 +253,14 @@ export default function HireVsResignationTrendChart({
         {
           label: 'Resignation',
           data: resignationByIndex,
-          backgroundColor: '#EF4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.95)',
+          maxBarThickness: 17.29,
+          barPercentage: 0.7,
+          categoryPercentage: 0.7,
+          borderSkipped: false,
           borderRadius: {
-            topLeft: 25,
-            topRight: 25,
+            topLeft: 100,
+            topRight: 100,
             bottomLeft: 0,
             bottomRight: 0,
           },
@@ -188,11 +271,19 @@ export default function HireVsResignationTrendChart({
 
   const yAxisMax = useMemo(() => {
     const datasets = chartData.datasets;
-    const all = [...(datasets[0]?.data ?? []), ...(datasets[1]?.data ?? [])] as number[];
+    const all = [
+      ...(datasets[0]?.data ?? []),
+      ...(datasets[1]?.data ?? []),
+    ] as number[];
     const peak = Math.max(0, ...all);
     if (peak === 0) return 100;
     return Math.ceil(peak / 25) * 25;
   }, [chartData]);
+
+  const yAxisStep = useMemo(() => {
+    const baseStep = Math.max(2, Math.ceil(yAxisMax / 6));
+    return baseStep % 2 === 0 ? baseStep : baseStep + 1;
+  }, [yAxisMax]);
 
   const options = useMemo(
     () => ({
@@ -218,25 +309,37 @@ export default function HireVsResignationTrendChart({
         y: {
           beginAtZero: true,
           max: yAxisMax,
+          border: {
+            display: true,
+            color: '#D1D5DB',
+            dash: [2, 4],
+          },
           ticks: {
-            stepSize: Math.max(5, Math.ceil(yAxisMax / 4)),
+            stepSize: yAxisStep,
             font: {
               size: isMobile ? 10 : 12,
             },
           },
           grid: {
-            color: '#E5E7EB',
+            color: '#D1D5DB',
+            borderDash: [1, 6],
           },
         },
         x: {
+          border: {
+            display: true,
+            color: '#D1D5DB',
+            dash: [2, 4],
+          },
           grid: {
-            display: false,
+            display: true,
+            color: '#D1D5DB',
+            borderDash: [1, 6],
           },
           ticks: {
             maxRotation: 0,
             minRotation: 0,
-            autoSkip: isMobile,
-            maxTicksLimit: isMobile ? 6 : 12,
+            autoSkip: false,
             font: {
               size: isMobile ? 10 : 12,
             },
@@ -244,13 +347,13 @@ export default function HireVsResignationTrendChart({
         },
       },
     }),
-    [isMobile, yAxisMax],
+    [isMobile, yAxisMax, yAxisStep],
   );
 
   return (
     <Card
       className="shadow-sm border border-gray-200 rounded-lg min-h-[355px] w-full h-full"
-      bodyStyle={{ padding: 16 }}
+      bodyStyle={{ padding: 21 }}
       id="hire-vs-resignation-trend-card"
       data-cy={dataCy}
     >
@@ -259,8 +362,11 @@ export default function HireVsResignationTrendChart({
         id="hire-vs-resignation-trend-header"
         data-cy="hire-vs-resignation-trend-header"
       >
-        <div>
-          <h3 className="text-[16px] font-semibold text-gray-900">
+        <div data-cy="hire-vs-resignation-trend-title-wrap">
+          <h3
+            className="text-[16px] font-bold  text-gray-900"
+            data-cy="hire-vs-resignation-trend-title"
+          >
             Hire vs Resignation Trend
           </h3>
         </div>
@@ -268,7 +374,11 @@ export default function HireVsResignationTrendChart({
         <RangePicker
           value={range}
           onChange={(dates) =>
-            setRange(dates && dates[0] && dates[1] ? [dates[0], dates[1]] : null)
+            setHireResignationTrendRange(
+              dates && dates[0] && dates[1]
+                ? [dates[0].format('YYYY-MM-DD'), dates[1].format('YYYY-MM-DD')]
+                : null,
+            )
           }
           className="h-9 w-full sm:w-auto"
           id="hire-vs-resignation-trend-date-range"
@@ -282,13 +392,17 @@ export default function HireVsResignationTrendChart({
         data-cy="hire-vs-resignation-trend-chart-wrapper"
       >
         {isLoading ? (
-          <div className="flex h-full items-center justify-center">
+          <div
+            className="flex h-full items-center justify-center"
+            data-cy="hire-vs-resignation-trend-loading"
+          >
             <Spin size="large" />
           </div>
         ) : (
           <Bar
             options={options as any}
             data={chartData as any}
+            plugins={[barBackgroundPlugin]}
             id="hire-vs-resignation-trend-chart"
             data-cy="hire-vs-resignation-trend-chart"
             style={{

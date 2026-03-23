@@ -3,9 +3,10 @@
 
 import { useGetAdminPendingLeaveRequests } from '@/store/server/features/timesheet/dashboard/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
+import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import randomColor from 'random-color';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Bar } from 'react-chartjs-2';
 
 type Period = 'Day' | 'Month' | 'Year' | 'Custom';
@@ -17,12 +18,15 @@ export default function EmployeeLeave() {
     endDateOnLeaveRequest,
     departmentOnLeaveRequest,
     leaveTypeOnLeaveRequest,
+    leaveChartPeriod: period,
+    setLeaveChartPeriod: setPeriod,
+    leaveChartSelectedChip: selectedChip,
+    setLeaveChartSelectedChip: setSelectedChip,
+    leaveChartDisplayPeriod: displayPeriod,
+    setLeaveChartDisplayPeriod: setDisplayPeriod,
+    leaveChartChipsAnim: chipsAnim,
+    setLeaveChartChipsAnim: setChipsAnim,
   } = TimeAndAttendaceDashboardStore();
-
-  const [period, setPeriod] = useState<Period | null>(null);
-  const [selectedChip, setSelectedChip] = useState<string | null>(null);
-  const [displayPeriod, setDisplayPeriod] = useState<Period | null>(null);
-  const [chipsAnim, setChipsAnim] = useState<'in' | 'out'>('in');
   const animTimerRef = useRef<number | null>(null);
 
   const dayChips = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -40,9 +44,10 @@ export default function EmployeeLeave() {
     'Nov',
     'Dec',
   ];
-  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (_, i) =>
-    String(2016 + i),
-  );
+  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (yearSlot, i) => {
+    void yearSlot;
+    return String(2016 + i);
+  });
 
   const queryParams = useMemo(
     () => ({
@@ -190,9 +195,20 @@ export default function EmployeeLeave() {
   }, [pendingLeaveRequests]);
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 bg-white">
-      <div className="flex items-start justify-between gap-4 mb-3">
-        <h3 className="text-[24px] font-semibold text-[#111827]">Leave</h3>
+    <div
+      className="border border-gray-200 rounded-lg p-4 bg-white"
+      data-cy="employee-leave-card"
+    >
+      <div
+        className="flex items-start justify-between gap-4 mb-3"
+        data-cy="employee-leave-header-row"
+      >
+        <h3
+          className="text-[16px] font-semibold text-black/90"
+          data-cy="employee-leave-title"
+        >
+          Leave
+        </h3>
 
         {displayPeriod == null ? (
           <div
@@ -315,13 +331,28 @@ export default function EmployeeLeave() {
             )}
 
             {displayPeriod === 'Custom' && (
-              <div
-                className="text-xs text-gray-500"
-                id="employee-leave-custom-placeholder"
-                data-cy="employee-leave-custom-placeholder"
-              >
-                Custom range
-              </div>
+              <>
+                <DatePicker.RangePicker
+                  size="small"
+                  className="w-[220px] h-7"
+                  id="employee-todays-attendance-custom-datepicker"
+                  data-cy="employee-todays-attendance-custom-datepicker"
+                  placeholder={['Start date', 'End date']}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedChip(null);
+                    setDisplayPeriod(null);
+                    setChipsAnim('in');
+                  }}
+                  className="px-2 py-1 text-xs rounded border transition bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                  id="employee-todays-attendance-custom-clear"
+                  data-cy="employee-todays-attendance-custom-clear"
+                >
+                  X
+                </button>
+              </>
             )}
           </div>
         )}
