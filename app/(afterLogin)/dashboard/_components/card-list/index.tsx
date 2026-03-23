@@ -151,7 +151,7 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
           data-cy="dashboard-card-list-title-left"
         >
           <span
-            className={`inline-flex items-center justify-center w-7 h-7 rounded-sm text-lg ${bg} ${text}`}
+            className={`inline-flex items-center justify-center w-[34px] h-8 rounded-sm text-lg ${bg} ${text}`}
             data-cy="dashboard-card-list-title-emoji"
           >
             {icon}

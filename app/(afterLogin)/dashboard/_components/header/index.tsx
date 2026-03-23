@@ -125,7 +125,7 @@ const Header = () => {
             data-cy="okr-card-header"
           >
             <div
-              className="rounded-xl bg-[#e6edff] flex items-center justify-center w-10 h-10"
+              className="rounded-[4px] bg-[#e6edff] flex items-center justify-center w-[34px] h-[34px]"
               data-cy="okr-card-icon-container"
             >
               {/* <GoGoal size={18} className="text-[#2952e3]" /> */}
@@ -155,7 +155,7 @@ const Header = () => {
             data-cy="okr-card-average-okr-body"
           >
             <div
-              className=" text-gray-500 w-full text-start text-sm"
+              className=" text-gray-500 w-full font-normal text-base text-start"
               data-cy="okr-card-label"
             >
               Your Average OKR
@@ -216,7 +216,7 @@ const Header = () => {
             data-cy="okr-card-header"
           >
             <div
-              className="rounded-xl bg-[#F9F0FF] flex items-center justify-center w-10 h-10"
+              className="rounded-[4px] bg-[#F9F0FF] flex items-center justify-center w-[34px] h-[34px]"
               data-cy="okr-card-icon-container"
             >
               <svg
@@ -245,7 +245,7 @@ const Header = () => {
             data-cy="okr-card-company-okr-body"
           >
             <div
-              className=" text-gray-500 w-full text-start text-sm"
+              className=" text-gray-500 font-normal text-base w-full text-start "
               data-cy="okr-card-label"
             >
               Company OKR
@@ -279,7 +279,7 @@ const Header = () => {
               data-cy="okr-card-appreciation-title-grid"
             >
               <div
-                className="col-span-4 rounded-xl bg-[#F6FFED] flex items-center justify-center w-10 h-10"
+                className="col-span-4 rounded-[4px] bg-[#F6FFED] flex items-center justify-center w-[34px] h-[34px]"
                 data-cy="okr-card-appreciation-icon-container"
               >
                 <MdOutlineMilitaryTech
@@ -289,7 +289,7 @@ const Header = () => {
                 />
               </div>
               <div
-                className="col-span-8 text-gray-500 w-full text-start text-sm"
+                className="col-span-8 text-gray-500 font-normal text-base w-full text-start "
                 data-cy="okr-card-appreciation-label"
               >
                 Appreciation
@@ -406,7 +406,7 @@ const Header = () => {
               data-cy="okr-card-reprimand-title-grid"
             >
               <div
-                className="col-span-4 rounded-xl bg-[#FFF2F0] flex items-center justify-center max-w-10 max-h-10 w-10 h-10"
+                className="col-span-4 rounded-[4px] bg-[#FFF2F0] flex items-center justify-center max-w-[34px] max-h-[34px] w-[34px] h-[34px]"
                 data-cy="okr-card-reprimand-icon-container"
               >
                 <MdReportGmailerrorred
@@ -416,7 +416,7 @@ const Header = () => {
                 />
               </div>
               <div
-                className="col-span-8 text-gray-500 w-full text-start text-sm"
+                className="col-span-8 text-gray-500 font-normal text-base w-full text-start "
                 data-cy="okr-card-reprimand-label"
               >
                 Reprimand
@@ -576,7 +576,7 @@ const Header = () => {
             data-cy="okr-card-header"
           >
             <div
-              className="rounded-xl bg-[#FFF2F0] flex items-center justify-center w-10 h-10"
+              className="rounded-[4px] bg-[#FFF2F0] flex items-center justify-center w-[34px] h-[34px]"
               data-cy="okr-card-icon-container"
             >
               <svg
@@ -603,7 +603,7 @@ const Header = () => {
           <div className="flex flex-col mt-3" data-cy="okr-card-vp-score-body">
             {' '}
             <div
-              className=" text-gray-500 w-full text-start text-sm"
+              className=" text-black/45 font-normal text-base w-full text-start "
               data-cy="okr-card-label"
             >
               Total Variable Pay
