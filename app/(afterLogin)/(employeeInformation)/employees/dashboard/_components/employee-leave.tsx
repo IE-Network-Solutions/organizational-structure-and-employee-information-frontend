@@ -2,14 +2,11 @@
 'use client';
 
 import { useGetAdminPendingLeaveRequests } from '@/store/server/features/timesheet/dashboard/queries';
+import { useGetAllCalendars } from '@/store/server/features/payroll/payroll/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
-import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import randomColor from 'random-color';
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
-
-type Period = 'Day' | 'Month' | 'Year' | 'Custom';
 
 export default function EmployeeLeave() {
   const {
@@ -18,47 +15,69 @@ export default function EmployeeLeave() {
     endDateOnLeaveRequest,
     departmentOnLeaveRequest,
     leaveTypeOnLeaveRequest,
-    leaveChartPeriod: period,
-    setLeaveChartPeriod: setPeriod,
     leaveChartSelectedChip: selectedChip,
     setLeaveChartSelectedChip: setSelectedChip,
-    leaveChartDisplayPeriod: displayPeriod,
-    setLeaveChartDisplayPeriod: setDisplayPeriod,
-    leaveChartChipsAnim: chipsAnim,
-    setLeaveChartChipsAnim: setChipsAnim,
   } = TimeAndAttendaceDashboardStore();
-  const animTimerRef = useRef<number | null>(null);
 
-  const dayChips = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const monthChips = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (yearSlot, i) => {
-    void yearSlot;
-    return String(2016 + i);
-  });
+  const { data: allCalendars } = useGetAllCalendars();
+
+  const fiscalYears = useMemo(() => {
+    const calendarsData =
+      allCalendars?.items ||
+      allCalendars?.data?.items ||
+      allCalendars?.data ||
+      allCalendars ||
+      [];
+
+    if (!Array.isArray(calendarsData)) return [];
+
+    return calendarsData
+      .map((calendar: any) => ({
+        id: calendar?.id,
+        name: calendar?.name || null,
+        startDate: calendar?.startDate || null,
+        endDate: calendar?.endDate || null,
+        active: Boolean(calendar?.active || calendar?.isActive),
+      }))
+      .filter(
+        (calendar: any) =>
+          Boolean(calendar?.name) &&
+          Boolean(calendar?.startDate) &&
+          Boolean(calendar?.endDate),
+      );
+  }, [allCalendars]);
+
+  const activeFiscalYear = useMemo(
+    () => fiscalYears.find((fiscalYear: any) => fiscalYear.active) || null,
+    [fiscalYears],
+  );
+
+  useEffect(() => {
+    if (!selectedChip && activeFiscalYear?.name) {
+      setSelectedChip(activeFiscalYear.name);
+    }
+  }, [activeFiscalYear, selectedChip, setSelectedChip]);
+
+  const selectedFiscalYear = useMemo(
+    () =>
+      fiscalYears.find((fiscalYear: any) => fiscalYear.name === selectedChip) ||
+      activeFiscalYear,
+    [fiscalYears, selectedChip, activeFiscalYear],
+  );
 
   const queryParams = useMemo(
     () => ({
       userId: userIdOnLeaveRequest || undefined,
-      startDate: startDateOnLeaveRequest || undefined,
-      endDate: endDateOnLeaveRequest || undefined,
+      startDate:
+        selectedFiscalYear?.startDate || startDateOnLeaveRequest || undefined,
+      endDate:
+        selectedFiscalYear?.endDate || endDateOnLeaveRequest || undefined,
       departmentId: departmentOnLeaveRequest || undefined,
       leaveTypeId: leaveTypeOnLeaveRequest || undefined,
     }),
     [
       userIdOnLeaveRequest,
+      selectedFiscalYear,
       startDateOnLeaveRequest,
       endDateOnLeaveRequest,
       departmentOnLeaveRequest,
@@ -69,37 +88,11 @@ export default function EmployeeLeave() {
   const { data: pendingLeaveRequests } =
     useGetAdminPendingLeaveRequests(queryParams);
 
-  React.useEffect(() => {
-    if (period === null || displayPeriod === null) return;
-    if (displayPeriod === period) return;
-    setChipsAnim('out');
-    if (animTimerRef.current) {
-      window.clearTimeout(animTimerRef.current);
-    }
-    animTimerRef.current = window.setTimeout(() => {
-      setDisplayPeriod(period);
-      setChipsAnim('in');
-    }, 150);
-    return () => {
-      if (animTimerRef.current) window.clearTimeout(animTimerRef.current);
-      animTimerRef.current = null;
-    };
-  }, [period, displayPeriod]);
-
-  const handlePeriodPillClick = (p: Period) => {
-    setPeriod(p);
-    setSelectedChip(null);
-    if (displayPeriod === null) {
-      setDisplayPeriod(p);
-      setChipsAnim('in');
-    }
-  };
-
-  const generateRandomColor = () => randomColor().hexString();
   const leaveTypeColors = useMemo(() => {
-    const colors: { [key: string]: string } = {};
+    const colors: { [key: string]: string } =
+      pendingLeaveRequests?.leaveTypeColors || {};
     return colors;
-  }, []);
+  }, [pendingLeaveRequests]);
 
   const barData = useMemo(() => {
     const graphData = pendingLeaveRequests?.monthlyStats || [];
@@ -121,14 +114,10 @@ export default function EmployeeLeave() {
         (monthLabel) => monthDataMap[monthLabel]?.[leaveType] || 0,
       );
 
-      if (!leaveTypeColors[leaveType]) {
-        leaveTypeColors[leaveType] = generateRandomColor();
-      }
-
       return {
         label: leaveType,
         data,
-        backgroundColor: leaveTypeColors[leaveType],
+        backgroundColor: leaveTypeColors[leaveType] || '#1E40AF',
         stack: 'leave',
         barThickness: 12,
       };
@@ -210,152 +199,29 @@ export default function EmployeeLeave() {
           Leave
         </h3>
 
-        {displayPeriod == null ? (
-          <div
-            className="inline-flex items-center overflow-hidden"
-            id="employee-leave-period-pill-group"
-            data-cy="employee-leave-period-pill-group"
-            role="tablist"
-            aria-label="Leave period"
-          >
-            {(['Day', 'Month', 'Year', 'Custom'] as Period[]).map((p) => {
-              const isActive = p === period;
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => handlePeriodPillClick(p)}
-                  className={[
-                    'px-3 py-1 text-xs font-medium transition',
-                    isActive
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'bg-white text-gray-500 hover:bg-gray-50',
-                  ].join(' ')}
-                  id={`employee-leave-period-${p}`}
-                  data-cy={`employee-leave-period-${p}`}
-                  role="tab"
-                  aria-selected={isActive}
-                >
-                  {p}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div
-            className={[
-              'flex flex-wrap items-center gap-2 transition-all duration-150 ease-in-out',
-              chipsAnim === 'out'
-                ? 'opacity-0 translate-y-1'
-                : 'opacity-100 translate-y-0',
-            ].join(' ')}
-            id="employee-leave-period-chips"
-            data-cy="employee-leave-period-chips"
-          >
-            {displayPeriod === 'Day' &&
-              dayChips.map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => setSelectedChip(d)}
-                  className={[
-                    'px-2 py-1 text-xs rounded border transition',
-                    selectedChip === d
-                      ? 'bg-gray-200 text-gray-900 border-gray-300'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
-                  ].join(' ')}
-                  id={`employee-leave-chip-day-${d}`}
-                  data-cy={`employee-leave-chip-day-${d}`}
-                >
-                  {d}
-                </button>
-              ))}
-
-            {displayPeriod === 'Month' &&
-              monthChips.map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setSelectedChip(m)}
-                  className={[
-                    'px-2 py-1 text-xs rounded border transition',
-                    selectedChip === m
-                      ? 'bg-gray-200 text-gray-900 border-gray-300'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
-                  ].join(' ')}
-                  id={`employee-leave-chip-month-${m}`}
-                  data-cy={`employee-leave-chip-month-${m}`}
-                >
-                  {m}
-                </button>
-              ))}
-
-            {displayPeriod === 'Year' &&
-              yearChips.map((y) => (
-                <button
-                  key={y}
-                  type="button"
-                  onClick={() => setSelectedChip(y)}
-                  className={[
-                    'px-2 py-1 text-xs rounded border transition',
-                    selectedChip === y
-                      ? 'bg-gray-200 text-gray-900 border-gray-300'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
-                  ].join(' ')}
-                  id={`employee-leave-chip-year-${y}`}
-                  data-cy={`employee-leave-chip-year-${y}`}
-                >
-                  {y}
-                </button>
-              ))}
-
-            {displayPeriod !== 'Custom' && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedChip(null);
-                  setDisplayPeriod(null);
-                  setChipsAnim('in');
-                }}
-                className={[
-                  'px-2 py-1 text-xs rounded border transition',
-                  !selectedChip
-                    ? 'bg-gray-200 text-gray-900 border-gray-300'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
-                ].join(' ')}
-                id="employee-leave-chip-clear"
-                data-cy="employee-leave-chip-clear"
-              >
-                X
-              </button>
-            )}
-
-            {displayPeriod === 'Custom' && (
-              <>
-                <DatePicker.RangePicker
-                  size="small"
-                  className="w-[220px] h-7"
-                  id="employee-todays-attendance-custom-datepicker"
-                  data-cy="employee-todays-attendance-custom-datepicker"
-                  placeholder={['Start date', 'End date']}
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedChip(null);
-                    setDisplayPeriod(null);
-                    setChipsAnim('in');
-                  }}
-                  className="px-2 py-1 text-xs rounded border transition bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-                  id="employee-todays-attendance-custom-clear"
-                  data-cy="employee-todays-attendance-custom-clear"
-                >
-                  X
-                </button>
-              </>
-            )}
-          </div>
-        )}
+        <div
+          className="flex flex-wrap items-center gap-2 justify-end"
+          id="employee-leave-fiscal-year-list"
+          data-cy="employee-leave-fiscal-year-list"
+        >
+          {fiscalYears.map((fiscalYear: any) => (
+            <button
+              key={fiscalYear.id || fiscalYear.name}
+              type="button"
+              onClick={() => setSelectedChip(fiscalYear.name)}
+              className={[
+                'px-3 py-1 text-xs rounded border transition',
+                selectedFiscalYear?.name === fiscalYear.name
+                  ? 'bg-gray-100 text-gray-900 border-gray-300'
+                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
+              ].join(' ')}
+              id={`employee-leave-fiscal-year-item-${fiscalYear.name}`}
+              data-cy={`employee-leave-fiscal-year-item-${fiscalYear.name}`}
+            >
+              {fiscalYear.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div

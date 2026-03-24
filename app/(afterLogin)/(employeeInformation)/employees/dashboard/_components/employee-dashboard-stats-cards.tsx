@@ -10,6 +10,7 @@ import {
   MdOutlinePersonRemove,
 } from 'react-icons/md';
 import { Skeleton } from 'antd';
+import { useRouter } from 'next/navigation';
 
 import StatsCard from '../../manage-employees/_components/statsCard';
 
@@ -58,6 +59,7 @@ export default function EmployeeDashboardStatsCards({
   combinedHrData,
   loading,
 }: EmployeeDashboardStatsCardsProps) {
+  const router = useRouter();
   const changeSinceLabel = 'Since Last Month';
 
   const cards = useMemo(
@@ -156,23 +158,40 @@ export default function EmployeeDashboardStatsCards({
               </div>
             );
           })
-        : cards.map((c) => (
-            <div
-              key={c.id}
-              className="min-w-[280px]"
-              data-cy={`employee-dashboard-stats-item-${c.id}`}
-            >
-              <StatsCard
-                title={c.title}
-                value={c.value}
-                change={c.change}
-                changeLabel={changeSinceLabel}
-                icon={c.icon}
-                id={c.id}
-                data-cy={c.dataCy}
-              />
-            </div>
-          ))}
+        : cards.map((c) => {
+            const isAllEmployeesCard =
+              c.id === 'employee-dashboard-stats-all-employees';
+
+            return (
+              <div
+                key={c.id}
+                className={
+                  isAllEmployeesCard
+                    ? 'group relative min-w-[280px] [&_.ant-card]:transition-all'
+                    : 'min-w-[280px]'
+                }
+                data-cy={`employee-dashboard-stats-item-${c.id}`}
+              >
+                <StatsCard
+                  title={c.title}
+                  value={c.value}
+                  change={c.change}
+                  changeLabel={changeSinceLabel}
+                  icon={c.icon}
+                  showHoverButton={isAllEmployeesCard}
+                  hoverButtonLabel="View Details"
+                  onHoverButtonClick={
+                    isAllEmployeesCard
+                      ? () => router.push('/employees/dashboard/timesheet')
+                      : undefined
+                  }
+                  hoverButtonDataCy="employee-dashboard-stats-all-employees-view-details"
+                  id={c.id}
+                  data-cy={c.dataCy}
+                />
+              </div>
+            );
+          })}
     </div>
   );
 }

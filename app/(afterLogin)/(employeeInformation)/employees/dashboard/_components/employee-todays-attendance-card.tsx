@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
+import type { Dayjs } from 'dayjs';
+import React, { useMemo, useRef, useState } from 'react';
 import { Card, DatePicker, Spin } from 'antd';
 import { MdFiberManualRecord } from 'react-icons/md';
 
@@ -55,13 +56,16 @@ function statusDisplayPercentage(
   return Math.round((count / total) * 100);
 }
 
-function buildTodayStatusParams(
+function buildStandardTodayStatusParams(
   displayPeriod: Period | null,
   selectedChip: string | null,
   period: Period | null,
-): TodayStatusSummaryParams {
+): Extract<TodayStatusSummaryParams, { filterType: 'Day' | 'Month' | 'Year' }> {
   const now = new Date();
-  const eff: Period = displayPeriod ?? period ?? 'Day';
+  const eff: Exclude<Period, 'Custom'> =
+    (displayPeriod ?? period ?? 'Day') === 'Custom'
+      ? 'Day'
+      : ((displayPeriod ?? period ?? 'Day') as Exclude<Period, 'Custom'>);
 
   const monthName =
     eff === 'Month' && selectedChip ? selectedChip : MONTH_ABBR[now.getMonth()];
@@ -74,9 +78,7 @@ function buildTodayStatusParams(
       ? String(selectedChip)
       : String(now.getFullYear());
 
-  const filterType = eff;
-
-  return { monthName, dayOfWeek, year, filterType };
+  return { monthName, dayOfWeek, year, filterType: eff };
 }
 
 export default function EmployeeTodaysAttendanceCard() {
@@ -91,11 +93,24 @@ export default function EmployeeTodaysAttendanceCard() {
     setTodaysAttendanceChipsAnim: setChipsAnim,
   } = TimeAndAttendaceDashboardStore();
   const animTimerRef = useRef<number | null>(null);
+  const [customDateRange, setCustomDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
 
-  const apiParams = useMemo(
-    () => buildTodayStatusParams(displayPeriod, selectedChip, period),
-    [displayPeriod, selectedChip, period],
-  );
+  const apiParams = useMemo((): TodayStatusSummaryParams | null => {
+    const eff: Period = displayPeriod ?? period ?? 'Day';
+    if (eff === 'Custom') {
+      const start = customDateRange?.[0];
+      const end = customDateRange?.[1];
+      if (!start || !end) return null;
+      return {
+        filterType: 'Custom',
+        startDate: start.format('YYYY-MM-DD'),
+        endDate: end.format('YYYY-MM-DD'),
+      };
+    }
+    return buildStandardTodayStatusParams(displayPeriod, selectedChip, period);
+  }, [displayPeriod, selectedChip, period, customDateRange]);
 
   const { data: todayStatusData, isLoading } =
     useGetTodayStatusSummary(apiParams);
@@ -158,6 +173,9 @@ export default function EmployeeTodaysAttendanceCard() {
   const handlePeriodPillClick = (p: Period) => {
     setPeriod(p);
     setSelectedChip(null);
+    if (p !== 'Custom') {
+      setCustomDateRange(null);
+    }
     if (displayPeriod === null) {
       // If list is closed, open it immediately (no fade delay).
       setDisplayPeriod(p);
@@ -324,11 +342,14 @@ export default function EmployeeTodaysAttendanceCard() {
                     id="employee-todays-attendance-custom-datepicker"
                     data-cy="employee-todays-attendance-custom-datepicker"
                     placeholder={['Start date', 'End date']}
+                    value={customDateRange}
+                    onChange={(dates) => setCustomDateRange(dates)}
                   />
                   <button
                     type="button"
                     onClick={() => {
                       setSelectedChip(null);
+                      setCustomDateRange(null);
                       setDisplayPeriod(null);
                       setChipsAnim('in');
                     }}

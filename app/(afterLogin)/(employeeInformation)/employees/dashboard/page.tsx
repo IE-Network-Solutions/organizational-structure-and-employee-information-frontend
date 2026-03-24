@@ -9,6 +9,8 @@ import EmployeeTodaysAttendanceCard from './_components/employee-todays-attendan
 import EmployeeHiringFunnelCard from './_components/employee-hiring-funnel-card';
 import HireVsResignationTrendChart from './_components/HireVsResignationTrendChart';
 import EmployeeLeave from './_components/employee-leave';
+import { Breadcrumb } from 'antd';
+import Link from 'next/link';
 
 export default function EmployeeDashboardPage() {
   const { data: combinedHrData, isLoading: combinedHrLoading } =
@@ -26,8 +28,35 @@ export default function EmployeeDashboardPage() {
           data-cy="employee-dashboard-header"
         >
           <CustomBreadcrumb
-            title="Employee Dashboard"
-            subtitle="Employee information overview"
+            title="Dashboard"
+            subtitle={
+              <Breadcrumb
+                items={[
+                  {
+                    title: (
+
+                      <Link
+                        className="text-xs sm:text-sm"
+                        href="/employees/manage-employees"
+                      >
+                        Employees
+                      </Link>
+                    ),
+                  },
+                  {
+                    title: (
+                      <span
+                        className="text-xs sm:text-sm"
+                        data-cy="employee-dashboard-breadcrumb-employee"
+                      >
+                        Dashboard
+                      </span>
+                    ),
+                  },
+                ]}
+              />
+            }
+            data-cy="employee-dashboard-breadcrumb"
           />
         </div>
 

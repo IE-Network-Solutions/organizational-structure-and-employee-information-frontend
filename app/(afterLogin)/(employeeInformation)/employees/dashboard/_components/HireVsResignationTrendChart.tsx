@@ -85,16 +85,17 @@ export default function HireVsResignationTrendChart({
     return [start, end];
   }, [hireResignationTrendRange]);
 
-  const startDate =
-    range?.[0]?.format('YYYY-MM-DD') ??
-    dayjs().startOf('year').format('YYYY-MM-DD');
-  const endDate =
-    range?.[1]?.format('YYYY-MM-DD') ?? dayjs().format('YYYY-MM-DD');
+  const selectedStartDate = range?.[0]?.format('YYYY-MM-DD');
+  const selectedEndDate = range?.[1]?.format('YYYY-MM-DD');
 
   const { data: trendData, isLoading } = useGetHireResignationTrendWithTenant({
-    startDate,
-    endDate,
+    ...(selectedStartDate ? { startDate: selectedStartDate } : {}),
+    ...(selectedEndDate ? { endDate: selectedEndDate } : {}),
   });
+  console.log(trendData, selectedStartDate, selectedEndDate, 'llllll');
+  const chartStartDate =
+    selectedStartDate ?? dayjs().startOf('year').format('YYYY-MM-DD');
+  const chartEndDate = selectedEndDate ?? dayjs().format('YYYY-MM-DD');
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 640px)');
@@ -123,22 +124,58 @@ export default function HireVsResignationTrendChart({
     return [];
   }, [trendData]);
 
-  /** One calendar month per tick from startDate through endDate (e.g. Aug 24–Aug 31 → Aug 2025). */
+  /** Build x-axis months from selected range, or from API rows when no range is selected. */
   const monthKeysAndLabels = useMemo(() => {
-    const start = dayjs(startDate).startOf('month');
-    const end = dayjs(endDate).startOf('month');
     const keys: string[] = [];
-    let cur = start;
-    while (cur.isBefore(end) || cur.isSame(end, 'month')) {
-      keys.push(cur.format('YYYY-MM'));
-      cur = cur.add(1, 'month');
+
+    if (selectedStartDate && selectedEndDate) {
+      const start = dayjs(chartStartDate).startOf('month');
+      const end = dayjs(chartEndDate).startOf('month');
+      let cur = start;
+      while (cur.isBefore(end) || cur.isSame(end, 'month')) {
+        keys.push(cur.format('YYYY-MM'));
+        cur = cur.add(1, 'month');
+      }
+    } else {
+      const dataKeys = Array.from(
+        new Set(
+          chartRows
+            .map((row) => {
+              const item = row as Record<string, unknown>;
+              const y = item.year;
+              const m = item.month;
+              if (y != null && m != null) {
+                const year = Number(y);
+                let monthNum = Number(m);
+                if (!Number.isFinite(year) || !Number.isFinite(monthNum))
+                  return null;
+                if (monthNum >= 1 && monthNum <= 12) monthNum -= 1;
+                return dayjs().year(year).month(monthNum).format('YYYY-MM');
+              }
+              const ym = item.yearMonth ?? item.period;
+              if (typeof ym === 'string' && /^\d{4}-\d{2}/.test(ym)) {
+                return ym.slice(0, 7);
+              }
+              return null;
+            })
+            .filter((monthKey): monthKey is string => Boolean(monthKey)),
+        ),
+      ).sort((a, b) => a.localeCompare(b));
+      keys.push(...dataKeys);
     }
+
     if (keys.length === 0) {
-      keys.push(dayjs(startDate).format('YYYY-MM'));
+      keys.push(dayjs(chartStartDate).format('YYYY-MM'));
     }
     const labels = keys.map((k) => dayjs(`${k}-01`).format('MMM'));
     return { monthKeys: keys, labels };
-  }, [startDate, endDate]);
+  }, [
+    chartRows,
+    chartStartDate,
+    chartEndDate,
+    selectedStartDate,
+    selectedEndDate,
+  ]);
 
   const rowMonthKey = (item: Record<string, unknown>): string | null => {
     const y = item.year;
