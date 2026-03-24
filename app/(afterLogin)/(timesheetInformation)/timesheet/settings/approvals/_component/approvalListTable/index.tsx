@@ -1,8 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-import { Button, Dropdown, Form, Modal, Select, Tooltip } from 'antd';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { Button, Dropdown, Form, Modal, Select, Avatar } from 'antd';
 import { FaPencil } from 'react-icons/fa6';
 import {
   useApprovalFilter,
@@ -28,6 +27,7 @@ import { APPROVALTYPES, commonClass } from '@/types/enumTypes';
 import { IoMdSwap } from 'react-icons/io';
 import WorkflowModal from '../workflowModal';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { UserOutlined } from '@ant-design/icons';
 
 const ApprovalListTable = () => {
   const { data: employeeData, isLoading: isEmployeeDataLoading } =
@@ -183,7 +183,6 @@ const ApprovalListTable = () => {
                     );
                     const firstName = employeeInfo?.firstName || '';
                     const middleName = employeeInfo?.middleName || '';
-                    const email = employeeInfo?.email || '';
 
                     const fullName =
                       firstName && middleName
@@ -196,74 +195,68 @@ const ApprovalListTable = () => {
                         : fullName;
 
                     return (
-                      <Tooltip
+                      <div
                         key={empIndex}
-                        title={
-                          <div
-                            id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-tooltip`}
-                            data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-tooltip`}
-                          >
-                            {fullName}
-                            <br data-cy="approvals-component-approvallisttable-index-tsx-index-br-217" />
-                            {email}
-                          </div>
-                        }
-                        data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-tooltip-wrapper`}
+                        className="flex gap-1 rounded-lg border border-[#d9d9d9] bg-[#f8f8f8] px-2 py-1"
+                        id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
                       >
                         <div
-                          className="inline-flex items-center gap-2 rounded-lg border border-[#d9d9d9] bg-[#f8f8f8] px-2 py-1"
-                          id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
-                          data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
+                          className="relative w-6 h-6 rounded-full overflow-hidden"
+                          id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-container`}
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-container`}
                         >
-                          <div
-                            className="relative w-6 h-6 rounded-full overflow-hidden"
-                            id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-container`}
-                            data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-container`}
-                          >
-                            <Image
-                              src={
-                                employeeInfo?.profileImage &&
-                                typeof employeeInfo.profileImage === 'string'
-                                  ? (() => {
-                                      try {
-                                        const parsed = JSON.parse(
-                                          employeeInfo.profileImage,
-                                        );
-                                        return parsed.url &&
-                                          parsed.url.startsWith('http')
-                                          ? parsed.url
-                                          : Avatar;
-                                      } catch {
-                                        return employeeInfo.profileImage.startsWith(
-                                          'http',
-                                        )
-                                          ? employeeInfo.profileImage
-                                          : Avatar;
-                                      }
-                                    })()
-                                  : Avatar
+                          {(() => {
+                            const raw = employeeInfo?.profileImage;
+                            let avatarSrc: string | null = null;
+
+                            if (typeof raw === 'string' && raw.trim()) {
+                              try {
+                                const parsed = JSON.parse(raw);
+                                if (
+                                  parsed?.url &&
+                                  typeof parsed.url === 'string' &&
+                                  parsed.url.startsWith('http')
+                                ) {
+                                  avatarSrc = parsed.url;
+                                }
+                              } catch {
+                                if (raw.startsWith('http')) avatarSrc = raw;
                               }
-                              alt="Description of image"
-                              layout="fill"
-                              className="object-cover"
-                              data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar`}
-                            />
-                          </div>
-                          <div
-                            className="flex items-center"
-                            id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
-                            data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
-                          >
-                            <p
-                              className="mb-0 text-base text-[#4d4d4d]"
-                              id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
-                              data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
-                            >
-                              {displayName}
-                            </p>
-                          </div>
+                            }
+
+                            return avatarSrc ? (
+                              <Image
+                                src={avatarSrc}
+                                alt={displayName || 'User profile'}
+                                fill
+                                className="object-cover"
+                                data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar`}
+                              />
+                            ) : (
+                              <div
+                                data-cy="time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-default-container"
+                                className="h-full w-full flex items-center justify-center bg-[#f0f0f0]"
+                              >
+                                <Avatar size={24} icon={<UserOutlined />} />
+                              </div>
+                            );
+                          })()}
                         </div>
-                      </Tooltip>
+                        <div
+                          className="flex items-center"
+                          id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
+                        >
+                          <p
+                            className="mb-0 text-base text-[#4d4d4d]"
+                            id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
+                            data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
+                          >
+                            {displayName}
+                          </p>
+                        </div>
+                      </div>
                     );
                   })}
               </div>
@@ -396,15 +389,12 @@ const ApprovalListTable = () => {
                 >
                   <Button
                     type="default"
-                    className="h-8 w-8 p-0 rounded-md border border-gray-200"
-                    icon={
-                      <MoreHorizIcon
-                        data-cy={`time-attendance-settings-approvals-table-row-${index}-actions-icon`}
-                      />
-                    }
+                    className="h-8 w-8 border border-[#D9D9D9]"
                     data-cy={`time-attendance-settings-approvals-table-row-${index}-actions-trigger`}
                     id={`time-attendance-settings-approvals-table-row-${index}-actions-trigger`}
-                  />
+                  >
+                    <MoreHorizIcon />
+                  </Button>
                 </Dropdown>
               );
             })(),
