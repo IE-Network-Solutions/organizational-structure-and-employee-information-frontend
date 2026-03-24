@@ -222,10 +222,10 @@ const EmployeeInformation = () => {
               style={{
                 borderRadius: '4px',
                 margin: 0,
-                fontSize: '13px',
+                fontSize: '12px',
                 color: '#595959',
-                backgroundColor: '#fff',
-                border: '1px solid #d9d9d9',
+                backgroundColor: '#f5f5f5',
+                border: '1px solid #D9D9D9',
                 fontWeight: 500,
               }}
             >
@@ -331,7 +331,7 @@ const EmployeeInformation = () => {
                   data-cy={`payroll-edit-allowance-click-button-${record.key}`}
                   style={{
                     border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
+                    borderRadius: '4px',
                     width: '30px',
                     height: '30px',
                     display: 'flex',
@@ -391,16 +391,18 @@ const EmployeeInformation = () => {
     <div
       className="responsive-container"
       style={{
-        padding: '24px 0',
+        padding: '24px 24px',
         backgroundColor: '#fff',
         minHeight: '100vh',
-        overflowX: 'hidden',
+        marginLeft: '-24px',
+        marginRight: '-24px',
+        width: 'calc(100% + 48px)',
       }}
       id="payroll-employee-information-view-container"
       data-cy="payroll-employee-information-view-container"
     >
       <style data-cy="payroll-employee-information-page-styles">{`
-        .page-title { font-size: 20px !important; margin-bottom: 4px !important; }
+        .page-title { font-size: 24px !important; margin-bottom: 4px !important; }
         .responsive-container .ant-card-body { padding: 24px !important; }
         
         .ant-table-thead > tr > th {
@@ -459,6 +461,19 @@ const EmployeeInformation = () => {
         .custom-pagination .ant-pagination-options-quick-jumper input {
           border-radius: 4px;
         }
+        .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+        @media (max-width: 768px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+          }
+        }
       `}</style>
 
       <Title
@@ -470,9 +485,12 @@ const EmployeeInformation = () => {
         Employee Payroll Information
       </Title>
 
-      <div className="breadcrumb-container" data-cy="payroll-employee-information-breadcrumb-container">
+      <div
+        className="breadcrumb-container"
+        data-cy="payroll-employee-information-breadcrumb-container"
+      >
         <Breadcrumb
-          style={{ marginBottom: '20px', fontSize: '13px' }}
+          style={{ marginBottom: '20px', fontSize: '14px' }}
           data-cy="payroll-employee-information-breadcrumb"
         >
           <Breadcrumb.Item>Payroll</Breadcrumb.Item>
@@ -481,6 +499,7 @@ const EmployeeInformation = () => {
       </div>
 
       <Divider
+        className="full-bleed-header-divider"
         style={{ margin: '0 0 24px 0', borderColor: '#f0f0f0' }}
         data-cy="payroll-employee-information-header-divider"
       />
@@ -495,7 +514,10 @@ const EmployeeInformation = () => {
         bodyStyle={{ padding: '24px' }}
         data-cy="payroll-employee-information-card"
       >
-        <div className="filter-container" data-cy="payroll-employee-information-filter-container">
+        <div
+          className="filter-container"
+          data-cy="payroll-employee-information-filter-container"
+        >
           <Filters
             data-cy="payroll-employee-information-filter-interact-component"
             onSearch={handleSearch}

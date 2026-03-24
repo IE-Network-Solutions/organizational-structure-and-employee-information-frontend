@@ -14,7 +14,12 @@ import {
   Skeleton,
   Pagination,
   Progress,
+  Button,
 } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import PayrollDetails from '../employee-information/[id]/_components/PayrollDetails';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   useGetActivePayroll,
@@ -47,10 +52,10 @@ const InfoItem = ({
   <div className="info-item" data-cy="my-payroll-info-item">
     <Text
       style={{
-        fontSize: '12px',
-        color: '#8c8c8c',
+        fontSize: '14px',
+        color: 'rgba(0, 0, 0, 0.65)',
         display: 'block',
-        marginBottom: '2px',
+        marginBottom: '4px',
       }}
       data-cy="my-payroll-info-item-label"
     >
@@ -58,10 +63,10 @@ const InfoItem = ({
     </Text>
     <Text
       style={{
-        fontSize: large ? '18px' : '15px',
-        color: '#434343',
+        fontSize: large ? '16px' : '16px',
+        color: 'rgba(0, 0, 0, 0.65)',
         display: 'block',
-        marginBottom: '2px',
+        marginBottom: '4px',
       }}
       data-cy="my-payroll-info-item-value"
     >
@@ -75,18 +80,18 @@ const InfoItem = ({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              backgroundColor: '#fafafa',
-              border: '1px solid #e8e8e8',
+              backgroundColor: '#f5f5f5',
+              border: '1px solid #D9D9D9',
               borderRadius: '4px',
               padding: '2px 8px',
-              fontSize: '12px',
+              fontSize: '14px',
               margin: 0,
             }}
             data-cy="my-payroll-info-item-tag"
           >
             <span
               style={{
-                color: '#8c8c8c',
+                color: 'rgba(0, 0, 0, 0.65)',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -97,7 +102,7 @@ const InfoItem = ({
               {tag.label}
             </span>
             <span
-              style={{ color: '#595959', whiteSpace: 'nowrap' }}
+              style={{ color: 'rgba(0, 0, 0, 0.65)', whiteSpace: 'nowrap' }}
               data-cy="my-payroll-info-item-tag-value"
             >
               {' '}
@@ -133,6 +138,46 @@ export default function MyPayroll() {
     setActiveMergedPayroll,
     setActivePayPeriod,
   } = useEmployeeStore();
+  const payslipRef = React.useRef(null);
+
+  const downloadPayslip = () => {
+    if (!payslipRef.current) return;
+    const payslipElement = payslipRef.current as HTMLElement;
+
+    html2canvas(payslipElement, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+    }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Calculate how many pages are needed
+      const totalPages = Math.ceil(imgHeight / pageHeight);
+
+      // Add pages with properly positioned content
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+        // Calculate the Y position for this page
+        // For the first page, start at 0, for subsequent pages, shift up
+        const yPosition = -(i * pageHeight);
+        pdf.addImage(imgData, 'PNG', 0, yPosition, imgWidth, imgHeight);
+      }
+
+      pdf.save(
+        `${activeMergedPayroll?.employeeInfo?.firstName}_${
+          activeMergedPayroll?.employeeInfo?.lastName
+        }_Payslip_.pdf`,
+      );
+    });
+  };
 
   const openPayPeriods = useMemo(
     () => payPeriodData?.filter((period: any) => period.status === 'OPEN'),
@@ -274,12 +319,38 @@ export default function MyPayroll() {
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Text
-                strong
-                style={{ fontSize: '15px', color: '#434343', fontWeight: 600 }}
-              >
-                {dayjs(activePayPeriod?.startDate).format('MMMM')} Pay Slip
-              </Text>
+              <Row justify="space-between" align="middle">
+                <Text
+                  strong
+                  style={{
+                    fontSize: '15px',
+                    color: '#434343',
+                    fontWeight: 600,
+                  }}
+                >
+                  {dayjs(activePayPeriod?.startDate).format('MMMM')} Pay Slip
+                </Text>
+                <Button
+                  onClick={downloadPayslip}
+                  icon={<DownloadOutlined style={{ fontSize: '18px' }} />}
+                  style={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #d9d9d9',
+                    color: '#595959',
+                    fontSize: '16px',
+                    fontWeight: 400,
+                    height: '42px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '0 16px',
+                    boxShadow: 'none',
+                  }}
+                >
+                  Download
+                </Button>
+              </Row>
             }
             bordered
             style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
@@ -394,13 +465,12 @@ export default function MyPayroll() {
         padding: '24px 0',
         backgroundColor: '#fff',
         minHeight: '100vh',
-        overflowX: 'hidden',
       }}
       data-cy="my-payroll-page-container"
     >
       <style data-cy="my-payroll-page-styles">{`
         .info-item { margin-bottom: 20px; }
-        .page-title { font-size: 20px !important; margin-bottom: 4px !important; }
+        .page-title { font-size: 24px !important; margin-bottom: 4px !important; }
         
         @media (max-width: 768px) {
           .info-item { margin-bottom: 12px !important; }
@@ -419,22 +489,45 @@ export default function MyPayroll() {
           display: inline-block;
           vertical-align: bottom;
         }
+        .custom-tabs {
+          margin-bottom: 24px;
+        }
+        .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+        :global(.ant-tabs-tab .ant-tabs-tab-btn) {
+          font-size: 16px !important;
+        }
+        :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+          font-weight: 700 !important;
+          color: #1E40AF !important;
+        }
+        @media (max-width: 768px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+          }
+        }
       `}</style>
       <Title
         level={2}
         className="page-title"
-        style={{ fontWeight: 600 }}
+        style={{ fontWeight: 600, margin: 0 }}
         data-cy="my-payroll-title"
       >
         My Payroll Information
       </Title>
 
       <Breadcrumb
-        style={{ marginBottom: '20px', fontSize: '13px' }}
+        style={{ marginBottom: '24px', fontSize: '14px' }}
         data-cy="my-payroll-breadcrumb"
       >
         <Breadcrumb.Item data-cy="my-payroll-breadcrumb-employee">
-          Employee
+          Payroll
         </Breadcrumb.Item>
         <Breadcrumb.Item data-cy="my-payroll-breadcrumb-my-payroll">
           My Payroll
@@ -442,13 +535,14 @@ export default function MyPayroll() {
       </Breadcrumb>
 
       <Divider
-        style={{ margin: '0 0 24px 0', borderColor: '#e0e0e0' }}
+        className="full-bleed-header-divider"
+        style={{ marginTop: 0, marginBottom: 24, borderColor: '#f0f0f0' }}
         data-cy="my-payroll-header-divider"
       />
 
       <Tabs
         defaultActiveKey="1"
-        style={{ marginBottom: '16px' }}
+        className="custom-tabs"
         data-cy="my-payroll-tabs"
       >
         <Tabs.TabPane
@@ -751,6 +845,215 @@ export default function MyPayroll() {
           </div>
         </Tabs.TabPane>
       </Tabs>
+
+      {/* Hidden Payslip for PDF generation */}
+      <div
+        className="h-0 overflow-hidden"
+        data-cy="my-payroll-hidden-payslip-wrapper"
+      >
+        <div
+          ref={payslipRef}
+          className="p-4"
+          style={{
+            width: '210mm',
+            minWidth: '210mm',
+            maxWidth: '210mm',
+            backgroundColor: '#ffffff',
+          }}
+          data-cy="my-payroll-payslip-content"
+        >
+          <header
+            className="text-center border-b pb-4 mb-4"
+            data-cy="my-payroll-payslip-header"
+          >
+            <h2
+              className="text-xl font-semibold"
+              data-cy="my-payroll-payslip-title"
+            >
+              Payslip for the month of{' '}
+              <span
+                className="text-violet-500"
+                data-cy="my-payroll-payslip-period"
+              >
+                {dayjs(activePayPeriod?.startDate).format('MMMM-YYYY')}
+              </span>
+            </h2>
+          </header>
+          <div
+            className="flex justify-between"
+            data-cy="my-payroll-payslip-summary"
+          >
+            <div
+              className="mx-2 flex flex-col gap-2"
+              data-cy="my-payroll-payslip-info"
+            >
+              <div
+                className="font-bold text-xl"
+                data-cy="my-payroll-payslip-summary-title"
+              >
+                Employee Pay Summary
+              </div>
+              <div
+                className="flex gap-6 w-full"
+                data-cy="my-payroll-payslip-info-grid"
+              >
+                <div
+                  className="flex flex-col gap-2"
+                  data-cy="my-payroll-payslip-labels"
+                >
+                  <Text data-cy="my-payroll-payslip-label-name">
+                    Employee name:
+                  </Text>
+                  <Text data-cy="my-payroll-payslip-label-job">Job title:</Text>
+                  <Text data-cy="my-payroll-payslip-label-period">
+                    Pay period:
+                  </Text>
+                  <Text data-cy="my-payroll-payslip-label-date">Pay Date:</Text>
+                </div>
+                <div
+                  className="flex flex-col gap-2 font-bold"
+                  data-cy="my-payroll-payslip-values"
+                >
+                  <Text data-cy="my-payroll-payslip-value-name">
+                    {[employee?.firstName, employee?.middleName]
+                      .filter(Boolean)
+                      .join(' ')}
+                  </Text>
+                  <Text data-cy="my-payroll-payslip-value-job">
+                    {
+                      employee?.employeeJobInformation?.find(
+                        (job: any) => job.isPositionActive,
+                      )?.position?.name
+                    }
+                  </Text>
+                  <Text data-cy="my-payroll-payslip-value-period">
+                    {dayjs(activePayPeriod?.startDate).format('MMM-YYYY')}
+                  </Text>
+                  <Text data-cy="my-payroll-payslip-value-date">
+                    {dayjs(activePayPeriod?.updatedAt).format('MMM-DD-YYYY')}
+                  </Text>
+                </div>
+              </div>
+            </div>
+            <div
+              className="flex flex-col justify-center items-center m-2"
+              data-cy="my-payroll-payslip-amounts"
+            >
+              <span
+                className="font-bold text-xl"
+                data-cy="my-payroll-payslip-net-label"
+              >
+                Employee Net Pay
+              </span>
+              <span
+                className="text-violet-500 text-4xl font-bold mb-2"
+                data-cy="my-payroll-payslip-net-value"
+              >
+                {activeMergedPayroll?.netPay}
+              </span>
+              <span
+                className="font-bold text-xl"
+                data-cy="my-payroll-payslip-basic-label"
+              >
+                Employee Basic Salary
+              </span>
+              <span
+                className=" text-2xl font-bold"
+                data-cy="my-payroll-payslip-basic-value"
+              >
+                {
+                  activeMergedPayroll?.employeeInfo?.basicSalaries[0]
+                    ?.basicSalary
+                }{' '}
+              </span>
+            </div>
+          </div>
+          <Divider className="my-2" />
+          <header
+            className=" border-b pb-2 mb-2"
+            data-cy="my-payroll-payslip-earnings-header"
+          >
+            <h2
+              className="text-xl font-semibold"
+              data-cy="my-payroll-payslip-earnings-title"
+            >
+              Employee Earnings
+            </h2>
+          </header>
+          <div
+            className="flex flex-col w-full gap-4"
+            data-cy="my-payroll-payslip-earnings-grid"
+          >
+            <div
+              className=" pl-4 flex justify-between items-center my-2"
+              data-cy="my-payroll-payslip-earnings-labels"
+            >
+              <Text
+                className="text-xl"
+                data-cy="my-payroll-payslip-earnings-label-allowance"
+              >
+                Employee Allowance
+              </Text>
+              <Text
+                className="text-xl pr-10"
+                data-cy="my-payroll-payslip-earnings-label-amount"
+              >
+                Amount
+              </Text>
+            </div>
+            <div
+              className="flex justify-between"
+              data-cy="my-payroll-payslip-allowances"
+            >
+              <div
+                className="flex flex-col gap-2 pl-4"
+                data-cy="my-payroll-payslip-allowance-names"
+              >
+                {activeMergedPayroll?.breakdown?.allowances?.map(
+                  (item: any, index: any) => (
+                    <Text
+                      key={index}
+                      data-cy={`my-payroll-payslip-allowance-name-${index}`}
+                    >
+                      {item.type}
+                    </Text>
+                  ),
+                )}
+              </div>
+              <div
+                className="flex flex-col gap-2 text-right font-bold pr-10"
+                data-cy="my-payroll-payslip-allowance-amounts"
+              >
+                {activeMergedPayroll?.breakdown?.allowances?.map(
+                  (item: any, index: any) => (
+                    <Text
+                      key={index}
+                      data-cy={`my-payroll-payslip-allowance-amount-${index}`}
+                    >
+                      {parseFloat(item.amount).toFixed(2)}
+                    </Text>
+                  ),
+                )}
+              </div>
+            </div>
+          </div>
+          <PayrollDetails
+            activeMergedPayroll={activeMergedPayroll || undefined}
+          />
+        </div>
+      </div>
+      <style jsx data-cy="my-payroll-local-styles">{`
+        .custom-tabs {
+          margin-bottom: 24px;
+        }
+        :global(.ant-tabs-tab .ant-tabs-tab-btn) {
+          font-size: 16px !important;
+        }
+        :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+          font-weight: 700 !important;
+          color: #1e40af !important;
+        }
+      `}</style>
     </div>
   );
 }
@@ -860,11 +1163,10 @@ const SettlementView = ({ userId }: { userId: string }) => {
                 data-cy="my-payroll-settlement-item-header"
               >
                 <Text
-                  strong
                   style={{
                     fontSize: '14px',
-                    color: '#434343',
-                    fontWeight: 600,
+                    color: 'rgba(0, 0, 0, 0.65)',
+                    fontWeight: 500,
                   }}
                   data-cy="my-payroll-settlement-item-title"
                 >
@@ -924,8 +1226,8 @@ const SettlementView = ({ userId }: { userId: string }) => {
                     >
                       <Text
                         style={{
-                          fontSize: '12px',
-                          color: '#8c8c8c',
+                          fontSize: '14px',
+                          color: 'rgba(0, 0, 0, 0.65)',
                           display: 'block',
                           marginBottom: '4px',
                         }}
@@ -935,8 +1237,8 @@ const SettlementView = ({ userId }: { userId: string }) => {
                       </Text>
                       <Text
                         style={{
-                          fontSize: '18px',
-                          color: '#434343',
+                          fontSize: '30px',
+                          color: 'rgba(0, 0, 0, 0.65)',
                           fontWeight: 600,
                         }}
                         data-cy="my-payroll-settlement-summary-value"
@@ -969,15 +1271,15 @@ const SettlementView = ({ userId }: { userId: string }) => {
                   data-cy="my-payroll-settlement-progress-header"
                 >
                   <Text
-                    style={{ fontSize: '12px', color: '#bfbfbf' }}
+                    style={{ fontSize: '14px', color: 'rgba(0, 0, 0, 0.65)' }}
                     data-cy="my-payroll-settlement-progress-label"
                   >
                     Repayment Progress
                   </Text>
                   <Text
                     style={{
-                      color: '#52c41a',
-                      fontSize: '12px',
+                      color: '#52C41A',
+                      fontSize: '14px',
                       fontWeight: 600,
                     }}
                     data-cy="my-payroll-settlement-progress-percent"
@@ -987,7 +1289,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                 </div>
                 <Progress
                   percent={progressPercent}
-                  strokeColor="#52c41a"
+                  strokeColor="#52C41A"
                   showInfo={false}
                   strokeWidth={8}
                   trailColor="#f0f0f0"

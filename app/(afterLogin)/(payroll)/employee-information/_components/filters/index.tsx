@@ -134,12 +134,16 @@ const Filters: React.FC<FiltersProps> = () => {
             }
           `}</style>
           <style jsx global data-cy="payroll-mobile-dropdown-custom-styles">{`
-            .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+            .ant-select-item-option-selected:not(
+              .ant-select-item-option-disabled
+            ) {
               background-color: #e6f4ff !important;
               font-weight: 600 !important;
               color: #262626 !important;
             }
-            .ant-select-item-option-active:not(.ant-select-item-option-selected) {
+            .ant-select-item-option-active:not(
+              .ant-select-item-option-selected
+            ) {
               background-color: transparent !important;
             }
             .ant-select-item-option-selected .ant-select-item-option-state {

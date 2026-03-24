@@ -110,117 +110,120 @@ const NavMenuItem: React.FC<{
   expandedKeys,
   setExpandedKeys,
 }) => {
-    const hasChildren = item.children && item.children.length > 0;
-    const isExpanded = expandedKeys.includes(item.key);
+  const hasChildren = item.children && item.children.length > 0;
+  const isExpanded = expandedKeys.includes(item.key);
 
-    const bestMatchingChildKey = React.useMemo(() => {
-      if (!hasChildren) return undefined;
-      const matches = item.children
-        .map((child: any) => String(child.key))
-        .filter((key: string) => isRouteMatch(key, pathname));
-      if (matches.length === 0) return undefined;
-      return matches.sort((a: string, b: string) => b.length - a.length)[0];
-    }, [hasChildren, item.children, pathname]);
+  const bestMatchingChildKey = React.useMemo(() => {
+    if (!hasChildren) return undefined;
+    const matches = item.children
+      .map((child: any) => String(child.key))
+      .filter((key: string) => isRouteMatch(key, pathname));
+    if (matches.length === 0) return undefined;
+    return matches.sort((a: string, b: string) => b.length - a.length)[0];
+  }, [hasChildren, item.children, pathname]);
 
-    // Check if this item or any of its children matches the current path
-    const isDirectlyActive =
-      selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
-    const isChildActive = Boolean(bestMatchingChildKey);
-    const isActive =
-      isDirectlyActive || isChildActive || (hasChildren && isExpanded);
+  // Check if this item or any of its children matches the current path
+  const isDirectlyActive =
+    selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
+  const isChildActive = Boolean(bestMatchingChildKey);
+  const isActive =
+    isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
-    const handleToggle = () => {
-      if (hasChildren) {
-        setExpandedKeys((prev) =>
-          prev.includes(item.key)
-            ? prev.filter((k) => k !== item.key)
-            : [...prev, item.key],
-        );
-      } else {
-        const path = String(item.key);
-        if (pathname !== path) {
-          triggerRouteLoaderStart();
-          router.push(path);
-          setSelectedKeys([path]);
-        }
+  const handleToggle = () => {
+    if (hasChildren) {
+      setExpandedKeys((prev) =>
+        prev.includes(item.key)
+          ? prev.filter((k) => k !== item.key)
+          : [...prev, item.key],
+      );
+    } else {
+      const path = String(item.key);
+      if (pathname !== path) {
+        triggerRouteLoaderStart();
+        router.push(path);
+        setSelectedKeys([path]);
       }
-    };
+    }
+  };
 
-    return (
-      <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
-        <div
-          data-cy="nav-menu-item"
-          onClick={handleToggle}
-          className={`
+  return (
+    <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
+      <div
+        data-cy="nav-menu-item"
+        onClick={handleToggle}
+        className={`
           group flex items-center gap-3 py-2 cursor-pointer transition-all duration-200 rounded-[6px]
-          ${isActive ? 'font-bold' : 'text-black font-medium hover:bg-[#E6F4FF]'
-            }
+          ${
+            isActive ? 'font-bold' : 'text-black font-medium hover:bg-[#E6F4FF]'
+          }
           ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
         `}
+        style={isActive ? { color: colorPrimary } : undefined}
+      >
+        <div
+          data-cy="nav-menu-item-icon"
+          className={`text-[21px] transition-colors ${
+            isActive ? '' : 'text-black'
+          }`}
           style={isActive ? { color: colorPrimary } : undefined}
         >
-          <div
-            data-cy="nav-menu-item-icon"
-            className={`text-[21px] transition-colors ${isActive ? '' : 'text-black'
-              }`}
-            style={isActive ? { color: colorPrimary } : undefined}
-          >
-            {item.icon}
-          </div>
-
-          {!collapsed && (
-            <span
-              data-cy="nav-menu-item-label"
-              className="flex-1 transition-colors"
-              style={{ fontSize }}
-            >
-              {item.label}
-            </span>
-          )}
+          {item.icon}
         </div>
 
-        {hasChildren && !collapsed && isExpanded && (
-          <div
-            className="flex flex-col mt-1 ml-[33px] space-y-1"
-            data-cy="nav-menu-item-children-container"
+        {!collapsed && (
+          <span
+            data-cy="nav-menu-item-label"
+            className="flex-1 transition-colors"
+            style={{ fontSize }}
           >
-            {item.children.map((child: any) => {
-              const isChildSelected =
-                selectedKeys.includes(child.key) ||
-                String(child.key) === bestMatchingChildKey;
-              return (
-                <div
-                  key={child.key}
-                  data-cy="nav-menu-item-child"
-                  onClick={() => {
-                    const path = String(child.key);
-                    if (pathname !== path) {
-                      triggerRouteLoaderStart();
-                      router.push(path);
-                      setSelectedKeys([path]);
-                    }
-                  }}
-                  className={`
-                  py-2 cursor-pointer rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
-                  ${isChildSelected
-                      ? 'font-normal'
-                      : 'text-black font-medium hover:bg-[#E6F4FF]'
-                    }
-                `}
-                  style={{
-                    fontSize,
-                    ...(isChildSelected ? { color: colorPrimary } : {}),
-                  }}
-                >
-                  {child.label}
-                </div>
-              );
-            })}
-          </div>
+            {item.label}
+          </span>
         )}
       </div>
-    );
-  };
+
+      {hasChildren && !collapsed && isExpanded && (
+        <div
+          className="flex flex-col mt-1 ml-[33px] space-y-1"
+          data-cy="nav-menu-item-children-container"
+        >
+          {item.children.map((child: any) => {
+            const isChildSelected =
+              selectedKeys.includes(child.key) ||
+              String(child.key) === bestMatchingChildKey;
+            return (
+              <div
+                key={child.key}
+                data-cy="nav-menu-item-child"
+                onClick={() => {
+                  const path = String(child.key);
+                  if (pathname !== path) {
+                    triggerRouteLoaderStart();
+                    router.push(path);
+                    setSelectedKeys([path]);
+                  }
+                }}
+                className={`
+                  py-2 cursor-pointer rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
+                  ${
+                    isChildSelected
+                      ? 'font-normal'
+                      : 'text-black font-medium hover:bg-[#E6F4FF]'
+                  }
+                `}
+                style={{
+                  fontSize,
+                  ...(isChildSelected ? { color: colorPrimary } : {}),
+                }}
+              >
+                {child.label}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
@@ -1083,7 +1086,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const groupedMenuItems = React.useMemo(() => {
@@ -1098,10 +1101,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ...item,
           children: item.children
             ? item.children.filter((child) =>
-              AccessGuard.checkAccess({
-                permissions: child.permissions,
-              }),
-            )
+                AccessGuard.checkAccess({
+                  permissions: child.permissions,
+                }),
+              )
             : [],
         };
       })
@@ -1189,9 +1192,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           children:
             treeItem.children && treeItem.children.length > 0
               ? treeItem.children.map((child) => ({
-                key: child.key,
-                label: child.title,
-              }))
+                  key: child.key,
+                  label: child.title,
+                }))
               : undefined,
         });
       });
@@ -1218,47 +1221,47 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       groupedMenuItems.length > 0
         ? groupedMenuItems
         : [
-          {
-            type: 'group',
-            key: 'skeleton-overview',
-            label: 'Overview',
-            // Dashboard, Organization
-            children: [
-              { key: 'skeleton-overview-item-1' },
-              { key: 'skeleton-overview-item-2' },
-            ],
-          },
-          {
-            type: 'group',
-            key: 'skeleton-people',
-            label: 'People',
-            children: [
-              { key: 'skeleton-people-item-1' },
-              { key: 'skeleton-people-item-2' },
-              { key: 'skeleton-people-item-3' },
-            ],
-          },
-          {
-            type: 'group',
-            key: 'skeleton-performance',
-            label: 'Performance',
-            children: [
-              { key: 'skeleton-performance-item-1' },
-              { key: 'skeleton-performance-item-2' },
-              { key: 'skeleton-performance-item-3' },
-            ],
-          },
-          {
-            type: 'group',
-            key: 'skeleton-finance',
-            label: 'Finance',
-            children: [
-              { key: 'skeleton-finance-item-1' },
-              { key: 'skeleton-finance-item-2' },
-              { key: 'skeleton-finance-item-3' },
-            ],
-          },
-        ],
+            {
+              type: 'group',
+              key: 'skeleton-overview',
+              label: 'Overview',
+              // Dashboard, Organization
+              children: [
+                { key: 'skeleton-overview-item-1' },
+                { key: 'skeleton-overview-item-2' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-people',
+              label: 'People',
+              children: [
+                { key: 'skeleton-people-item-1' },
+                { key: 'skeleton-people-item-2' },
+                { key: 'skeleton-people-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-performance',
+              label: 'Performance',
+              children: [
+                { key: 'skeleton-performance-item-1' },
+                { key: 'skeleton-performance-item-2' },
+                { key: 'skeleton-performance-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-finance',
+              label: 'Finance',
+              children: [
+                { key: 'skeleton-finance-item-1' },
+                { key: 'skeleton-finance-item-2' },
+                { key: 'skeleton-finance-item-3' },
+              ],
+            },
+          ],
     [groupedMenuItems],
   );
   const { mutate: employeeInfo } = useCreateEmployee();
@@ -1447,8 +1450,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       >
                         <div
                           data-cy="nav-sider-group-label-wrap"
-                          className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${collapsed ? 'hidden' : ''
-                            }`}
+                          className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
+                            collapsed ? 'hidden' : ''
+                          }`}
                           style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
@@ -1457,8 +1461,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
                       <div
                         data-cy="nav-sider-group-children"
-                        className={`space-y-1 transition-all duration-300 opacity-100 ${collapsed ? '' : 'pl-2'
-                          }`}
+                        className={`space-y-1 transition-all duration-300 opacity-100 ${
+                          collapsed ? '' : 'pl-2'
+                        }`}
                       >
                         {group.children?.map((item: any) => (
                           <NavMenuItem
@@ -1495,9 +1500,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               icon={<MdHowToReg size={22} />}
               className={`
                 flex items-center justify-center border-none shadow-lg transition-all duration-300 font-normal hover:opacity-90
-                ${collapsed
-                  ? 'w-[52px] h-[52px] rounded-[10px]'
-                  : 'w-[249px] h-[40px] rounded-[10px] text-[14px] gap-[10px] px-[10px]'
+                ${
+                  collapsed
+                    ? 'w-[52px] h-[52px] rounded-[10px]'
+                    : 'w-[249px] h-[40px] rounded-[10px] text-[14px] gap-[10px] px-[10px]'
                 }
               `}
               style={{ backgroundColor: colorPrimary }}
@@ -1589,8 +1595,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                marginRight: 24,
-                marginLeft: 24,
+                paddingRight: 24,
+                paddingLeft: 24,
                 background: '#ffffff',
               }}
             >
