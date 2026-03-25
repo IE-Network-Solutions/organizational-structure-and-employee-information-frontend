@@ -1,14 +1,25 @@
 'use client';
 import { Button, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { CSS } from '@dnd-kit/utilities';
 import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import RecruitmentStatusDrawer from './statusDrawer';
 import { useGetRecruitmentStatuses } from '@/store/server/features/recruitment/settings/status/queries';
@@ -27,7 +38,6 @@ import {
 } from 'lucide-react';
 import { useSettingsAddButton } from '../SettingsAddButtonContext';
 
-const DRAG_DATA_KEY = 'application/x-status-id';
 const STATUS_LIST_LIMIT = 100;
 
 const canUpdate = () =>
@@ -39,20 +49,13 @@ const canDelete = () =>
     permissions: [Permissions.DeleteApplicationStage],
   });
 
-function getLevelLabel(order: number, total: number): string {
-  if (order === total && total > 0) return 'Last Stage';
-  const n = order;
+function formatLevelLabel(level: unknown): string {
+  const n = typeof level === 'number' ? level : Number(level);
+  if (!Number.isFinite(n)) return 'Level';
   if (n === 1) return '1st Level';
   if (n === 2) return '2nd Level';
   if (n === 3) return '3rd Level';
   return `${n}th Level`;
-}
-
-function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-  return result;
 }
 
 function StatusCardContent({
@@ -128,62 +131,51 @@ function StatusCardContent({
   );
 }
 
-function DraggableMiddleCard({
+function SortableStatusCard({
   status,
   levelLabel,
-  orderIndex,
-  isDragging,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
 }: {
   status: any;
   levelLabel: string;
-  orderIndex: number;
-  isDragging: boolean;
-  onDragStart: (e: React.DragEvent, cardEl: HTMLElement) => void;
-  onDragOver: (e: React.DragEvent, targetIndex: number) => void;
-  onDrop: (e: React.DragEvent) => void;
-  onDragEnd: () => void;
 }) {
   const { menuItems } = useStatusCardActions(status, true);
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: String(status.id) });
 
-  const handleGripDragStart = useCallback(
-    (e: React.DragEvent) => {
-      const cardEl = (e.currentTarget as HTMLElement).closest(
-        '[data-status-card]',
-      ) as HTMLElement;
-      if (cardEl) onDragStart(e, cardEl);
-    },
-    [onDragStart],
-  );
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0 : 1,
+    position: 'relative',
+    zIndex: isDragging ? 0 : 'auto',
+  };
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       data-status-card
       data-status-id={status.id}
-      data-order-index={orderIndex}
-      draggable={false}
-      onDragOver={(e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        onDragOver(e, orderIndex);
-      }}
-      onDrop={onDrop}
-      onDragEnd={onDragEnd}
-      className={`recruitment-settings-card relative p-4 min-h-[80px] flex items-center gap-3 w-full recruitment-settings-status-card-animate ${
-        isDragging ? 'recruitment-settings-status-drag-placeholder' : ''
-      }`}
+      className="recruitment-settings-card relative p-4 min-h-[80px] flex items-center gap-3 w-full"
       data-cy="recruitment-settings-status-card"
     >
+      {/* Placeholder visible when this card is being dragged */}
+      {isDragging && (
+        <div className="absolute inset-0 rounded recruitment-settings-status-drag-placeholder" />
+      )}
       <div
-        draggable
-        onDragStart={handleGripDragStart}
+        {...attributes}
+        {...listeners}
         className="flex items-center justify-center shrink-0 w-10 h-10 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none"
         data-cy="talent-acquisition-status-drag-handle"
       >
-        <GripVertical size={24} strokeWidth={2} />
+        <GripVertical size={24} strokeWidth={2} className="pointer-events-none" />
       </div>
       <StatusCardContent
         status={status}
@@ -214,6 +206,32 @@ function StaticStatusCard({
         status={status}
         levelLabel={levelLabel}
         menuItems={showMenu ? menuItems : undefined}
+      />
+    </div>
+  );
+}
+
+/** Ghost card rendered inside DragOverlay — floats with the cursor */
+function DragGhostCard({
+  status,
+  levelLabel,
+}: {
+  status: any;
+  levelLabel: string;
+}) {
+  const { menuItems } = useStatusCardActions(status, true);
+  return (
+    <div
+      className="recruitment-settings-card recruitment-settings-drag-ghost p-4 min-h-[80px] flex items-center gap-3 w-full"
+      style={{ cursor: 'grabbing' }}
+    >
+      <div className="flex items-center justify-center shrink-0 w-10 h-10 text-gray-400">
+        <GripVertical size={24} strokeWidth={2} />
+      </div>
+      <StatusCardContent
+        status={status}
+        levelLabel={levelLabel}
+        menuItems={menuItems}
       />
     </div>
   );
@@ -308,160 +326,84 @@ const Status: React.FC = () => {
   }, [setAddAction, canCreate, handleOpen]);
 
   const items = recruitmentStatus?.items ?? [];
-  const totalItems = items.length;
 
-  const { firstItem, middleItems, lastItem } = useMemo(() => {
-    if (items.length === 0)
-      return { firstItem: null, middleItems: [], lastItem: null };
-    if (items.length === 1)
-      return { firstItem: items[0], middleItems: [], lastItem: null };
-    return {
-      firstItem: items[0],
-      middleItems: items.slice(1, -1),
-      lastItem: items[items.length - 1],
-    };
-  }, [items]);
+  const sortByLevel = (a: any, b: any) => {
+    const la = Number(a?.level);
+    const lb = Number(b?.level);
+    if (!Number.isFinite(la) && !Number.isFinite(lb)) return 0;
+    if (!Number.isFinite(la)) return 1;
+    if (!Number.isFinite(lb)) return -1;
+    return la - lb;
+  };
+
+  const initialStatuses = useMemo(
+    () => items.filter((s: any) => !!s?.isInitial).slice().sort(sortByLevel),
+    [items],
+  );
+
+  const finalStatuses = useMemo(
+    () => items.filter((s: any) => !!s?.isFinal).slice().sort(sortByLevel),
+    [items],
+  );
+
+  const middleStatuses = useMemo(
+    () =>
+      items.filter((s: any) => !s?.isInitial && !s?.isFinal).slice().sort(sortByLevel),
+    [items],
+  );
 
   const [orderedMiddleItems, setOrderedMiddleItems] = useState<any[]>([]);
-  const [dragSourceId, setDragSourceId] = useState<string | null>(null);
-  const orderedRef = useRef<any[]>([]);
-  const middleListRef = useRef<HTMLDivElement>(null);
-  const positionsBeforeRef = useRef<Map<string, DOMRect>>(new Map());
-  const dragOverThrottleRef = useRef(false);
-  orderedRef.current = orderedMiddleItems;
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
   useEffect(() => {
-    setOrderedMiddleItems(middleItems);
-  }, [middleItems]);
+    setOrderedMiddleItems(middleStatuses);
+  }, [middleStatuses]);
 
-  const snapshotPositions = useCallback(() => {
-    const container = middleListRef.current;
-    if (!container) return;
-    const map = new Map<string, DOMRect>();
-    container.querySelectorAll('[data-status-card]').forEach((el) => {
-      const id = (el as HTMLElement).getAttribute('data-status-id');
-      if (id) map.set(id, (el as HTMLElement).getBoundingClientRect());
-    });
-    positionsBeforeRef.current = map;
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      // Require a tiny move before starting drag so clicks still work
+      activationConstraint: { distance: 5 },
+    }),
+  );
+
+  const activeDragStatus = useMemo(
+    () =>
+      activeDragId
+        ? orderedMiddleItems.find((s: any) => String(s.id) === activeDragId) ?? null
+        : null,
+    [activeDragId, orderedMiddleItems],
+  );
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveDragId(String(event.active.id));
   }, []);
 
-  useLayoutEffect(() => {
-    const before = positionsBeforeRef.current;
-    const container = middleListRef.current;
-    if (!container || before.size === 0) return;
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActiveDragId(null);
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
 
-    const cards = container.querySelectorAll(
-      '[data-status-card]',
-    ) as NodeListOf<HTMLElement>;
-    const toAnimate: { el: HTMLElement; dx: number; dy: number }[] = [];
-
-    cards.forEach((el) => {
-      const id = el.getAttribute('data-status-id');
-      if (!id) return;
-      const prev = before.get(id);
-      if (!prev) return;
-      const curr = el.getBoundingClientRect();
-      const dx = prev.left - curr.left;
-      const dy = prev.top - curr.top;
-      if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-        toAnimate.push({ el, dx, dy });
-      }
-    });
-    positionsBeforeRef.current = new Map();
-
-    if (toAnimate.length === 0) return;
-
-    toAnimate.forEach(({ el, dx, dy }) => {
-      el.style.transition = 'none';
-      el.style.transform = `translate(${dx}px, ${dy}px)`;
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    container.offsetHeight;
-
-    toAnimate.forEach(({ el }) => {
-      el.style.transition = 'transform 0.25s cubic-bezier(0.2, 0, 0, 1)';
-      el.style.transform = '';
-    });
-
-    const cleanup = () => {
-      toAnimate.forEach(({ el }) => {
-        el.style.transition = '';
-        el.style.transform = '';
-      });
-    };
-    const timer = setTimeout(cleanup, 300);
-    return () => clearTimeout(timer);
-  }, [orderedMiddleItems]);
-
-  const handleDragStart = useCallback(
-    (e: React.DragEvent, cardEl: HTMLElement) => {
-      const id = (
-        cardEl.closest('[data-status-id]') as HTMLElement
-      )?.getAttribute('data-status-id');
-      if (!id) return;
-      e.dataTransfer.setData(DRAG_DATA_KEY, id);
-      e.dataTransfer.effectAllowed = 'move';
-      setDragSourceId(id);
-
-      const ghost = cardEl.cloneNode(true) as HTMLElement;
-      ghost.style.position = 'absolute';
-      ghost.style.top = '-9999px';
-      ghost.style.left = '0';
-      ghost.style.width = `${cardEl.offsetWidth}px`;
-      ghost.style.pointerEvents = 'none';
-      ghost.style.transform = 'rotate(3deg)';
-      ghost.style.transformOrigin = 'center center';
-      ghost.style.boxShadow =
-        '0 12px 28px -6px rgba(0,0,0,0.18), 0 4px 10px -4px rgba(0,0,0,0.1)';
-      ghost.style.borderRadius = '8px';
-      ghost.style.opacity = '0.95';
-      document.body.appendChild(ghost);
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      ghost.offsetHeight;
-      e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, 24);
-      setTimeout(() => ghost.remove(), 0);
-    },
-    [],
-  );
-
-  const handleDragOver = useCallback(
-    (e: React.DragEvent, targetIndex: number) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      if (!dragSourceId || dragOverThrottleRef.current) return;
-
-      const list = orderedRef.current;
-      const sourceIndex = list.findIndex(
-        (s: any) => String(s.id) === dragSourceId,
+      const oldIndex = orderedMiddleItems.findIndex(
+        (s: any) => String(s.id) === String(active.id),
       );
-      if (sourceIndex === -1 || sourceIndex === targetIndex) return;
+      const newIndex = orderedMiddleItems.findIndex(
+        (s: any) => String(s.id) === String(over.id),
+      );
+      if (oldIndex === -1 || newIndex === -1) return;
 
-      dragOverThrottleRef.current = true;
-      setTimeout(() => {
-        dragOverThrottleRef.current = false;
-      }, 80);
+      const newOrder = arrayMove(orderedMiddleItems, oldIndex, newIndex);
+      setOrderedMiddleItems(newOrder);
 
-      snapshotPositions();
-      const reordered = reorder(list, sourceIndex, targetIndex);
-      setOrderedMiddleItems(reordered);
-    },
-    [dragSourceId, snapshotPositions],
-  );
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setDragSourceId(null);
-      const ids = orderedRef.current.map((s: any) => s.id);
+      const ids = [
+        ...initialStatuses.map((s: any) => s.id),
+        ...newOrder.map((s: any) => s.id),
+        ...finalStatuses.map((s: any) => s.id),
+      ];
       if (ids.length > 0) reorderStatuses(ids);
     },
-    [reorderStatuses],
+    [orderedMiddleItems, initialStatuses, finalStatuses, reorderStatuses],
   );
-
-  const handleDragEnd = useCallback(() => {
-    setDragSourceId(null);
-  }, []);
 
   if (fetchLoading) {
     return (
@@ -537,7 +479,7 @@ const Status: React.FC = () => {
         className="flex flex-col gap-4 w-full"
         data-cy="talent-acquisition-status-list-container"
       >
-        {totalItems === 0 ? (
+        {items.length === 0 ? (
           <p
             className="text-gray-500 text-sm"
             data-cy="talent-acquisition-status-list-empty"
@@ -546,46 +488,61 @@ const Status: React.FC = () => {
           </p>
         ) : (
           <>
-            {firstItem && (
+            {initialStatuses.map((status: any) => (
               <StaticStatusCard
-                status={firstItem}
-                levelLabel={getLevelLabel(1, totalItems)}
+                key={status.id}
+                status={status}
+                levelLabel={formatLevelLabel(status?.level)}
                 showMenu={false}
-                data-cy="talent-acquisition-status-first-card"
               />
-            )}
+            ))}
 
             {orderedMiddleItems.length > 0 && (
-              <div
-                ref={middleListRef}
-                className="flex flex-col gap-4"
-                data-cy="talent-acquisition-status-middle-list"
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                modifiers={[restrictToVerticalAxis]}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
               >
-                {orderedMiddleItems.map((status: any, index: number) => (
-                  <DraggableMiddleCard
-                    key={status.id}
-                    status={status}
-                    levelLabel={getLevelLabel(index + 2, totalItems)}
-                    orderIndex={index}
-                    isDragging={dragSourceId === String(status.id)}
-                    onDragStart={handleDragStart}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    onDragEnd={handleDragEnd}
-                    data-cy={`talent-acquisition-status-middle-card-${status.id}`}
-                  />
-                ))}
-              </div>
+                <SortableContext
+                  items={orderedMiddleItems.map((s: any) => String(s.id))}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div
+                    className="flex flex-col gap-4"
+                    data-cy="talent-acquisition-status-middle-list"
+                  >
+                    {orderedMiddleItems.map((status: any) => (
+                      <SortableStatusCard
+                        key={status.id}
+                        status={status}
+                        levelLabel={formatLevelLabel(status?.level)}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+
+                {/* Floating ghost card that follows the cursor while dragging */}
+                <DragOverlay dropAnimation={null}>
+                  {activeDragStatus ? (
+                    <DragGhostCard
+                      status={activeDragStatus}
+                      levelLabel={formatLevelLabel(activeDragStatus?.level)}
+                    />
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
             )}
 
-            {lastItem && (
+            {finalStatuses.map((status: any) => (
               <StaticStatusCard
-                status={lastItem}
-                levelLabel={getLevelLabel(totalItems, totalItems)}
+                key={status.id}
+                status={status}
+                levelLabel={formatLevelLabel(status?.level)}
                 showMenu
-                data-cy="talent-acquisition-status-last-card"
               />
-            )}
+            ))}
           </>
         )}
       </div>
