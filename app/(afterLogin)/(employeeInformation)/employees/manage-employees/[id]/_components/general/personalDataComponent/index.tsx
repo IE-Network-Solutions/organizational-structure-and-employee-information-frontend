@@ -95,7 +95,7 @@ function PersonalDataComponent({
     <>
       <Card
         loading={isLoading}
-        bodyStyle={{ padding: '10px 0px 0px 24px' }}
+        bodyStyle={{ padding: '12px 16px 12px 16px' }}
         title={
           !edit.general ? (
             <span
@@ -114,22 +114,25 @@ function PersonalDataComponent({
               id={id}
               data-cy="personal-data-edit-guard"
             >
-              <Button
-                type="default"
+              <button
                 onClick={() => handleEditChange('general')}
-                className="w-8 h-8 border border-[#D9D9D9]"
+                className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
                 id="personal-data-edit-icon"
                 data-cy="personal-data-edit-icon"
               >
-                <EditOutlinedIcon />
-              </Button>
+                <EditOutlinedIcon className="text-sm" />
+              </button>
             </PermissionWrapper>
           ) : null
         }
         className="my-6 mt-0"
         id="personal-data-card"
         data-cy="personal-data-card"
-        headStyle={{ borderBottom: 'none' }}
+        headStyle={{
+          borderBottom: 'none',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+        }}
       >
         <Row
           gutter={16}
@@ -165,35 +168,27 @@ function PersonalDataComponent({
                     <Button
                       type="default"
                       size="small"
-                      icon={
-                        <CloseIcon fontSize="small" className="text-red-500" />
-                      }
                       onClick={() => setEdit('general')}
                       id="personal-data-cancel-btn"
                       data-cy="personal-data-cancel-btn"
-                      className="border border-red-500"
-                      style={{
-                        height: 32,
-                        minHeight: 32,
-                        width: 32,
-                        minWidth: 32,
-                      }}
-                    />
+                      className="border border-red-500 h-6 w-6"
+                    >
+                      <CloseIcon
+                        fontSize="small"
+                        className="text-red-500 text-[10px]"
+                      />
+                    </Button>
                     <Button
                       type="primary"
                       size="small"
-                      icon={<CheckIcon />}
                       onClick={handleSaveEdit}
                       loading={isLoadingUser}
                       id="personal-data-submit-btn"
                       data-cy="personal-data-submit-btn"
-                      style={{
-                        height: 32,
-                        minHeight: 32,
-                        width: 32,
-                        minWidth: 32,
-                      }}
-                    />
+                      className="h-6 w-6"
+                    >
+                      <CheckIcon className="text-white text-[10px]" />
+                    </Button>
                   </div>
                 </Col>
               </Row>

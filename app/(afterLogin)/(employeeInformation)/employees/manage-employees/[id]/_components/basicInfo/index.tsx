@@ -15,9 +15,9 @@ import { useDeleteProfileImage } from '@/store/server/features/employees/employe
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
 import dayjs from 'dayjs';
 import { LuPencil } from 'react-icons/lu';
+import { UserOutlined } from '@ant-design/icons';
 
 const { Dragger } = Upload;
 
@@ -184,8 +184,9 @@ function BasicInfo({ id }: { id: string }) {
   const getDisplayImageUrl = (): string => {
     const preview = getImageUrl(profileFileList);
     if (preview) return preview;
-    if (isProfileDeleted || !employeeData?.profileImage)
-      return (DefaultAvatar as any).src ?? DefaultAvatar;
+    // When there is no profile image, don't pass a broken/default src.
+    // Let Ant Design Avatar render the `icon` fallback.
+    if (isProfileDeleted || !employeeData?.profileImage) return '';
     return employeeData?.profileImage as string;
   };
 
@@ -226,9 +227,10 @@ function BasicInfo({ id }: { id: string }) {
         >
           <Avatar
             size={48}
-            src={getDisplayImageUrl()}
+            src={getDisplayImageUrl() || undefined}
             className="relative z-0"
             data-cy="basic-info-avatar"
+            icon={<UserOutlined />}
           />
           {userId === id || hasAccess ? (
             <>

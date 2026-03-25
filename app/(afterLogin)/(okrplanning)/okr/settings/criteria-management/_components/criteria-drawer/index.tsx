@@ -1,6 +1,16 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Form, Input, Select, Modal, Tooltip, Row, Col, message, Button } from 'antd';
+import {
+  Form,
+  Input,
+  Select,
+  Modal,
+  Tooltip,
+  Row,
+  Col,
+  message,
+  Button,
+} from 'antd';
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -125,10 +135,10 @@ const ScoringModal: React.FC = () => {
     const scoringUsers =
       currentId && scoringData
         ? scoringData.userVpScoring
-          .map((item: any) =>
-            allUsers.find((user: any) => user.id === item.userId),
-          )
-          .filter(Boolean)
+            .map((item: any) =>
+              allUsers.find((user: any) => user.id === item.userId),
+            )
+            .filter(Boolean)
         : [];
 
     if (watchedDepartments && watchedDepartments.length > 0) {
@@ -251,10 +261,7 @@ const ScoringModal: React.FC = () => {
   };
 
   const footer = (
-    <div
-      className="flex justify-end gap-3"
-      data-cy="okr-criteria-modal-footer"
-    >
+    <div className="flex justify-end gap-3" data-cy="okr-criteria-modal-footer">
       <Button
         type="default"
         onClick={handleModalClose}

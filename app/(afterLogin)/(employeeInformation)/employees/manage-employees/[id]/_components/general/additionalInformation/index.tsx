@@ -88,23 +88,24 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
               <Button
                 type="default"
                 size="small"
-                icon={<CloseIcon fontSize="small" className="text-red-500" />}
                 onClick={() => setEdit('additionalInformation')}
                 id="additional-information-cancel-btn"
                 data-cy="additional-information-cancel-btn"
-                className="border border-red-500"
-                style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-              />
+                className="border border-red-500 h-6 w-6"
+              >
+                <CloseIcon className="text-red-500 text-[10px]" />
+              </Button>
               <Button
                 type="primary"
                 size="small"
-                icon={<CheckIcon />}
                 loading={isLoading}
                 htmlType="submit"
                 id="additional-information-submit-btn"
                 data-cy="additional-information-submit-btn"
-                style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-              />
+                className="h-6 w-6"
+              >
+                <CheckIcon className="text-white text-[10px]" />
+              </Button>
             </div>
           </Col>
         </Row>
@@ -305,13 +306,13 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
   }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
       <p
-        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
         data-cy={`${dataCy}-label`}
       >
         {label}
       </p>
       <p
-        className="text-base font-semibold text-gray-500 m-0"
+        className="text-base font-normal text-[#4d4d4d] m-0"
         data-cy={`${dataCy}-value`}
       >
         {value}
@@ -340,22 +341,26 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
             id={id}
             data-cy="additional-information-edit-guard"
           >
-            <Button
-              type="default"
+            <button
               onClick={() => handleEditChange('additionalInformation')}
-              className="border border-[#D9D9D9] w-8 h-8"
+              className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
               id="additional-information-edit-icon"
               data-cy="additional-information-edit-icon"
             >
-              <EditOutlinedIcon />
-            </Button>
+              <EditOutlinedIcon className="text-sm" />
+            </button>
           </AccessGuard>
         ) : null
       }
       className="additional-information-card rounded-lg border border-gray-200 my-6"
       id="additional-information-card"
       data-cy="additional-information-card"
-      headStyle={{ borderBottom: 'none' }}
+      headStyle={{
+        borderBottom: 'none',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+      }}
+      bodyStyle={{ padding: '12px 16px 12px 16px' }}
     >
       {edit.additionalInformation ? (
         <AdditionalInformationForm data-cy="additional-information-form" />

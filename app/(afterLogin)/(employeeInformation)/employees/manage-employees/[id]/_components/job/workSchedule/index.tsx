@@ -11,7 +11,8 @@ import {
   Tag,
   TimePicker,
 } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
 import dayjs from 'dayjs';
 import {
   EditState,
@@ -329,23 +330,26 @@ const WorkScheduleComponent: React.FC = () => {
             id="job-work-schedule-edit-guard"
             data-cy="job-work-schedule-edit-guard"
           >
-            <Button
-              type="default"
+            <button
               onClick={() => handleEditChange('workSchedule')}
-              className="w-8 h-8 border border-[#D9D9D9]"
+              className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
               id="job-work-schedule-edit-btn"
               data-cy="job-work-schedule-edit-btn"
             >
-              <EditOutlinedIcon />
-            </Button>
+              <EditOutlinedIcon className="text-sm" />
+            </button>
           </AccessGuard>
         ) : null
       }
       className="work-schedule-card rounded-lg border border-gray-200 my-6 mt-0"
       id="job-work-schedule-card"
       data-cy="job-work-schedule-card"
-      headStyle={{ borderBottom: 'none' }}
-      bodyStyle={{ padding: '10px' }}
+      headStyle={{
+        borderBottom: 'none',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+      }}
+      bodyStyle={{ padding: '12px 16px 12px 16px' }}
     >
       {!edit.workSchedule ? (
         <div className="px-3" data-cy="job-work-schedule-display-wrapper">
@@ -484,21 +488,23 @@ const WorkScheduleComponent: React.FC = () => {
             >
               <Button
                 type="default"
+                size="small"
                 onClick={handleCancelEdit}
-                className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center hover:bg-red-600 transition-colors border-none"
+                className="w-6 h-6 rounded-md border border-red-500"
                 id="job-work-schedule-edit-cancel-btn"
                 data-cy="job-work-schedule-edit-cancel-btn"
               >
-                <CloseOutlined className="text-white" />
+                <CloseIcon className="text-red-500 text-[10px]" />
               </Button>
               <Button
                 type="primary"
+                size="small"
                 onClick={() => form.submit()}
-                className="w-8 h-8 rounded-lg bg-[#1d4ed8] flex items-center justify-center hover:bg-blue-600 transition-colors"
+                className="w-6 h-6 rounded-md border border-blue-500"
                 id="job-work-schedule-edit-save-btn"
                 data-cy="job-work-schedule-edit-save-btn"
               >
-                <CheckOutlined className="text-white" />
+                <CheckIcon className="text-blue-500 text-[10px]" />
               </Button>
             </div>
           </div>
@@ -578,7 +584,7 @@ const WorkScheduleComponent: React.FC = () => {
                     return (
                       <Tag
                         key={index}
-                        className={`rounded-md ${day.workDay ? 'border border-[#1d4ed8] text-[#4d4d4d] px-4 py-2' : 'bg-[#f9fafb]border border-[#d9d9d9] text-[#4d4d4d] px-4 py-2'}`}
+                        className={`rounded-md h-8 py-1 px-[14.7px] ${day.workDay ? 'border border-[#1d4ed8] text-[#4d4d4d]' : 'bg-[#f9fafb]border border-[#d9d9d9] text-[#4d4d4d]'}`}
                       >
                         {abbreviated}
                       </Tag>
@@ -610,11 +616,8 @@ const WorkScheduleComponent: React.FC = () => {
                   return (
                     <div
                       key={index}
-                      className={`flex items-center gap-4 p-4 rounded-lg border ${
-                        day.workDay
-                          ? 'border-gray-200 bg-white'
-                          : 'border-gray-100 bg-gray-50'
-                      }`}
+                      className={`flex items-center gap-4 p-4 rounded-lg border 'border-gray-200 bg-white
+                      `}
                       id={`job-work-schedule-day-row-${index}`}
                       data-cy={`job-work-schedule-day-row-${index}`}
                     >
@@ -691,11 +694,10 @@ const WorkScheduleComponent: React.FC = () => {
                           />
                         </div>
                         <Tag
-                          className={`px-3 py-1 rounded text-sm font-medium min-w-[80px] text-center hidden sm:block ${
-                            day.workDay
-                              ? ' bg-[#e6f4ff] border border-[#91caff] text-[#4096ff]'
-                              : 'bg-gray-100 text-gray-400'
-                          }`}
+                          className={`border-[#91caff] text-[#4096ff] px-3 py-1 rounded text-sm font-normal min-w-[80px] text-center hidden sm:block
+                               bg-[#e6f4ff] border 
+                              
+                          `}
                           id={`job-work-schedule-hours-${index}`}
                           data-cy={`job-work-schedule-hours-${index}`}
                         >

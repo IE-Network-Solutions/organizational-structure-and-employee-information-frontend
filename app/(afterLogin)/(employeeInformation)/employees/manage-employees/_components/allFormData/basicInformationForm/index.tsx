@@ -93,10 +93,10 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-profile"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm"
                 id="basic-info-upload-label"
                 data-cy="basic-info-upload-label"
               >
@@ -212,7 +212,7 @@ const BasicInformationForm = ({ form }: any) => {
                     className="flex justify-end mt-4 gap-2"
                   >
                     <Button
-                      className="px-6 rounded-lg text-xs font-semibold"
+                      className="px-6 rounded-lg text-xs font-normal"
                       onClick={() => setIsPopoverOpen(false)}
                       id="avatar-popover-cancel"
                       data-cy="avatar-popover-cancel"
@@ -221,7 +221,7 @@ const BasicInformationForm = ({ form }: any) => {
                     </Button>
                     <Button
                       type="primary"
-                      className="px-6 rounded-lg bg-blue-700 text-xs font-semibold"
+                      className="px-6 rounded-lg text-xs font-normal"
                       onClick={() => setIsPopoverOpen(false)}
                       id="avatar-popover-upload"
                       data-cy="avatar-popover-upload"
@@ -278,7 +278,7 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-first-name"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="userFirstName"
             label={
               <span
@@ -316,7 +316,7 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-middle-name"
         >
           <Form.Item
-            className="font-normal text-sm text-[#030712]"
+            className="font-normal text-base"
             name="userMiddleName"
             label={
               <span
@@ -353,7 +353,7 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-last-name"
         >
           <Form.Item
-            className="font-normal text-sm text-[#030712]"
+            className="font-normal text-base"
             name="userLastName"
             label={
               <span
@@ -396,7 +396,7 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-email"
         >
           <Form.Item
-            className="font-normal text-sm text-[#030712]"
+            className="font-normal text-base"
             name="userEmail"
             label={
               <span
@@ -431,7 +431,7 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-gender"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="employeeGender"
             label={
               <span
@@ -481,7 +481,7 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-dob"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="dateOfBirth"
             rules={[{ required: true }]}
             label={
@@ -519,7 +519,7 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-marital-status"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="maritalStatus"
             rules={[{ required: true }]}
             label={
@@ -570,7 +570,7 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-nationality"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="nationalityId"
             label={
               <span
@@ -618,47 +618,6 @@ const BasicInformationForm = ({ form }: any) => {
           </Form.Item>
         </Col>
       </Row>
-      {/* <Row
-        gutter={16}
-        id="basic-info-row-nationality"
-        data-cy="basic-info-row-nationality"
-      >
-        
-      </Row>
-      <Row
-        gutter={16}
-        id="basic-info-row-address"
-        data-cy="basic-info-row-address"
-      >
-        <Col
-          xs={24}
-          sm={24}
-          id="basic-info-col-address"
-          data-cy="basic-info-col-address"
-        >
-          <Form.Item
-            className="font-semibold text-xs"
-            name="address"
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                data-cy="basic-info-address-label"
-              >
-                Address <span className="text-gray-400">(optional)</span>
-              </span>
-            }
-            id="userAddressId"
-            data-cy="userAddressId"
-          >
-            <Input.TextArea
-              placeholder="Add your address as address, city, country"
-              rows={3}
-              id="basic-info-address-textarea"
-              data-cy="basic-info-address-textarea"
-            />
-          </Form.Item>
-        </Col>
-      </Row> */}
     </div>
   );
 };

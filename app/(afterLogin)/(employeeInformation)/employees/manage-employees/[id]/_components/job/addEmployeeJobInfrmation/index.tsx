@@ -2,7 +2,6 @@ import { Modal, Button, Form, Row } from 'antd';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useCreateJobInformation } from '@/store/server/features/employees/employeeManagment/mutations';
 import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm';
-import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useParams } from 'next/navigation';
@@ -30,7 +29,6 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
     setEmployeeJobInfoModalWidth,
-    employeeJobInfoModalWidth,
     setTempAllowances,
   } = useEmployeeManagementStore();
 
@@ -83,12 +81,12 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
       <Modal
         title="Add Employee Job Information"
         centered
-        width={employeeJobInfoModalWidth || undefined}
         open={isAddEmployeeJobInfoModalVisible}
         onCancel={handleClose}
         footer={false}
         destroyOnClose
         data-cy="job-add-job-info-modal"
+        width={750}
       >
         <Form
           form={form}
@@ -102,12 +100,12 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
             form={form}
             data-cy="job-add-job-info-timeline"
           />
-          <WorkScheduleForm
+          {/* <WorkScheduleForm
             selectedWorkScheduleDetails={
               employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
             }
             data-cy="job-add-job-info-schedule"
-          />
+          /> */}
           <Form.Item
             id="job-add-job-info-submit-form-item"
             data-cy="job-add-job-info-submit-form-item"

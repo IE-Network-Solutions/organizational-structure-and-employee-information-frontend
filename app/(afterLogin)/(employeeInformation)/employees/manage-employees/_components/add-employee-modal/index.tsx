@@ -103,7 +103,7 @@ const AddEmployeeModal = (props: any) => {
           title={modalHeader}
           data-cy="user-sidebar-drawer"
           footer={null}
-          className="w-full max-w-screen-md"
+          width={902}
           zIndex={10002}
         >
           <div data-cy="user-sidebar-steps-container" className="my-6">

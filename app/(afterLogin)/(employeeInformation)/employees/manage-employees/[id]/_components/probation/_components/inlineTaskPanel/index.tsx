@@ -493,7 +493,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
         >
           <Button
             onClick={handleClose}
-            className="border-gray-300 w-full sm:w-auto"
+            className="border border-[#D9D9D9] font-normal"
             id={`probation-inline-panel-cancel-btn-${panelSlug}`}
             data-cy={`probation-inline-panel-cancel-btn-${panelSlug}`}
           >
@@ -508,7 +508,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                 : createTaskBulkMutation.isLoading
             }
             disabled={!editMode && calculateTotalWeight() > 100}
-            className="disabled:bg-gray-400 disabled:cursor-not-allowed w-full sm:w-auto"
+            className="disabled:bg-gray-400 disabled:cursor-not-allowed font-normal"
             id={`probation-inline-panel-submit-btn-${panelSlug}`}
             data-cy={`probation-inline-panel-submit-btn-${panelSlug}`}
           >

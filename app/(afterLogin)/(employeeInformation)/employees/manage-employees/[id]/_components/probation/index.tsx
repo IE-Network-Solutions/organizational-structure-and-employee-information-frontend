@@ -221,7 +221,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
               type="primary"
               onClick={handleCreateProbationTarget}
               loading={isCreatingTarget}
-              className=""
+              className="font-normal text-sm"
               id="probation-create-target-btn"
               data-cy="probation-create-target-btn"
               icon={<AddIcon />}

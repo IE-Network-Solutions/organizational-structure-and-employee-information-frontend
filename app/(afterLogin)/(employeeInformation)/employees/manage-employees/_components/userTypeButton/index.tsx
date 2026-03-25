@@ -6,7 +6,7 @@ const userTypeButton = (val: string) => {
       <Tag
         id="roleTypeOwner"
         data-cy="roleTypeOwner"
-        className="text-sky-600 text-xs font-medium py-1 px-2 bg-white border border-sky-600 hover:bg-sky-50"
+        className="text-sky-600 text-xs font-normal px-2 bg-white border border-sky-600 hover:bg-sky-50 h-[22px]"
       >
         ON BOARDING
       </Tag>
@@ -16,7 +16,7 @@ const userTypeButton = (val: string) => {
       <Tag
         id="roleTypeAdmin"
         data-cy="roleTypeAdmin"
-        className="text-[#4d4d4d] text-sm font-normal py-1 px-2 bg-white border border-[#d9d9d9]"
+        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
       >
         Permanent
       </Tag>
@@ -26,7 +26,7 @@ const userTypeButton = (val: string) => {
       <Tag
         id="roleTypeSuper"
         data-cy="roleTypeProbation"
-        className="text-[#4d4d4d] text-sm font-normal py-1 px-2 bg-white border border-[#d9d9d9]"
+        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
       >
         PROBATION
       </Tag>
@@ -56,7 +56,7 @@ const userTypeButton = (val: string) => {
       <Tag
         id="roleTypeActive"
         data-cy="roleTypeActive"
-        className="text-[#1677ff] text-xs font-medium py-1 px-2 bg-[#e6f4ff] border border-[#91caff]"
+        className="text-[#1677ff] text-sm font-normal px-2 bg-[#e6f4ff] border border-[#91caff] h-[22px]"
       >
         Active
       </Tag>
@@ -66,7 +66,7 @@ const userTypeButton = (val: string) => {
       <Tag
         id="roleTypeInActive"
         data-cy="roleTypeInActive"
-        className="text-[#ff4d4f] text-xs font-medium py-1 px-2 bg-[#fff1f0] border border-[#ffccc7]"
+        className="text-[#ff4d4f] text-sm font-normal px-2 bg-[#fff1f0] border border-[#ffccc7] h-[22px]"
       >
         InActive
       </Tag>

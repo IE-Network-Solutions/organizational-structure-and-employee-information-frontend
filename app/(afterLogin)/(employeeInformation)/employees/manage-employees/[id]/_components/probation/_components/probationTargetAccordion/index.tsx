@@ -26,7 +26,6 @@ import {
   CheckCircleOutlined,
   EditOutlined,
   DeleteOutlined,
-  MoreOutlined,
 } from '@ant-design/icons';
 import {
   ProbationTarget,
@@ -62,6 +61,23 @@ const toSlug = (value: string | number | null | undefined) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
+
+// Display weights as integers (e.g. "99.00" -> "99")
+const formatWeightForDisplay = (weight: ProbationTask['weight']) => {
+  if (weight === null || weight === undefined) return '';
+
+  if (typeof weight === 'number') {
+    return String(Math.trunc(weight));
+  }
+
+  if (typeof weight === 'string') {
+    const trimmed = weight.trim();
+    if (!trimmed) return '';
+    return trimmed.split('.')[0];
+  }
+
+  return String(weight);
+};
 
 const TaskItem: React.FC<{
   task: ProbationTask;
@@ -135,9 +151,15 @@ const TaskItem: React.FC<{
     canDelete
       ? {
           key: 'delete',
-          label: 'Delete',
-          icon: <DeleteOutlined />,
-          danger: true,
+          label: (
+            <span
+              data-cy="probation-task-delete-label"
+              className="text-red-500"
+            >
+              Delete
+            </span>
+          ),
+          icon: <DeleteOutlined className="text-red-500" />,
           onClick: onDelete,
         }
       : null,
@@ -186,11 +208,12 @@ const TaskItem: React.FC<{
             <Button
               type="default"
               size="small"
-              icon={<MoreOutlined className="text-gray-600" />}
-              className="flex-shrink-0 w-8 h-8 p-0 flex items-center justify-center rounded border border-gray-200 bg-white hover:bg-gray-50"
+              className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center rounded border border-gray-200 bg-white hover:bg-gray-50"
               id={`probation-task-options-btn-${taskSlug}`}
               data-cy={`probation-task-options-btn-${taskSlug}`}
-            />
+            >
+              <MoreHorizIcon className="text-sm" />
+            </Button>
           </Dropdown>
         )}
       </div>
@@ -207,7 +230,7 @@ const TaskItem: React.FC<{
           data-cy={`probation-task-evaluator-${taskSlug}`}
         >
           <div
-            className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium mr-2 flex-shrink-0 overflow-hidden bg-gray-300"
+            className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium mr-2 mt-1 flex-shrink-0 overflow-hidden bg-gray-300"
             id={`probation-task-avatar-${taskSlug}`}
             data-cy={`probation-task-avatar-${taskSlug}`}
           >
@@ -228,39 +251,45 @@ const TaskItem: React.FC<{
               )
             )}
           </div>
-          <span
-            className="text-sm text-gray-500 truncate"
-            id={`probation-task-evaluator-name-${taskSlug}`}
-            data-cy={`probation-task-evaluator-name-${taskSlug}`}
+          <div
+            className="flex items-center gap-5 mt-1"
+            id={`probation-task-evaluator-meta-${taskSlug}`}
+            data-cy={`probation-task-evaluator-meta-${taskSlug}`}
           >
-            {`${task.evaluatorUser?.firstName || ''} ${task.evaluatorUser?.lastName || ''}`.trim() ||
-              'Assigned Person'}
-          </span>
+            <span
+              className="text-sm text-gray-500 truncate"
+              id={`probation-task-evaluator-name-${taskSlug}`}
+              data-cy={`probation-task-evaluator-name-${taskSlug}`}
+            >
+              {`${task.evaluatorUser?.firstName || ''} ${task.evaluatorUser?.lastName || ''}`.trim() ||
+                'Assigned Person'}
+            </span>
+            <span
+              className="inline-flex items-center rounded border border-gray-200 bg-white px-2.5 py-1 text-sm text-gray-800"
+              id={`probation-task-weight-text-${taskSlug}`}
+              data-cy={`probation-task-weight-text-${taskSlug}`}
+            >
+              <span
+                className="text-gray-500 mr-1"
+                id={`probation-task-weight-text-span-${taskSlug}`}
+                data-cy={`probation-task-weight-text-span-${taskSlug}`}
+              >
+                Weight:
+              </span>
+              <strong
+                id={`probation-task-weight-strong-${taskSlug}`}
+                data-cy={`probation-task-weight-strong-${taskSlug}`}
+              >
+                {formatWeightForDisplay(task.weight)}
+              </strong>
+            </span>
+          </div>
         </div>
         <div
           className="flex items-center gap-2 flex-wrap"
           id={`probation-task-weight-${taskSlug}`}
           data-cy={`probation-task-weight-${taskSlug}`}
         >
-          <span
-            className="inline-flex items-center rounded border border-gray-200 bg-white px-2.5 py-1 text-sm text-gray-800"
-            id={`probation-task-weight-text-${taskSlug}`}
-            data-cy={`probation-task-weight-text-${taskSlug}`}
-          >
-            <span
-              className="text-gray-500 mr-1"
-              id={`probation-task-weight-text-span-${taskSlug}`}
-              data-cy={`probation-task-weight-text-span-${taskSlug}`}
-            >
-              Weight:
-            </span>
-            <strong
-              id={`probation-task-weight-strong-${taskSlug}`}
-              data-cy={`probation-task-weight-strong-${taskSlug}`}
-            >
-              {task.weight}
-            </strong>
-          </span>
           {task.isCompleted && task.evaluationScore == '0.00' && (
             <div
               className="flex items-center gap-2"
@@ -683,21 +712,8 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                       id={`probation-target-user-${targetSlug}`}
                       data-cy={`probation-target-user-${targetSlug}`}
                     >
-                      <Avatar
-                        size="default"
-                        src={target.user.profileImage}
-                        icon={<UserOutlined />}
-                        className="mr-3 hidden sm:flex"
-                        data-cy={`probation-target-avatar-${targetSlug}`}
-                      >
-                        {!target.user.profileImage &&
-                          getInitials(
-                            target.user.firstName,
-                            target.user.lastName,
-                          )}
-                      </Avatar>
                       <div
-                        className="flex flex-col"
+                        className="flex flex-col px-3"
                         id={`probation-target-name-wrapper-${targetSlug}`}
                         data-cy={`probation-target-name-wrapper-${targetSlug}`}
                       >
@@ -708,13 +724,33 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                         >
                           {target.name}
                         </Text>
-                        <Text
-                          className="text-[#666666] text-xs font-normal"
-                          id={`probation-target-employee-${targetSlug}`}
-                          data-cy={`probation-target-employee-${targetSlug}`}
+                        <div
+                          className="flex mt-3"
+                          id={`probation-target-employee-avatar-${targetSlug}`}
+                          data-cy={`probation-target-employee-avatar-${targetSlug}`}
                         >
-                          {`${target.user.firstName} ${target.user.middleName} ${target.user.lastName}`.trim()}
-                        </Text>
+                          <Avatar
+                            size="default"
+                            src={target.user.profileImage}
+                            icon={<UserOutlined />}
+                            className="mr-3 hidden sm:flex"
+                            data-cy={`probation-target-avatar-${targetSlug}`}
+                          >
+                            {!target.user.profileImage &&
+                              getInitials(
+                                target.user.firstName,
+                                target.user.lastName,
+                              )}
+                          </Avatar>
+
+                          <Text
+                            className="text-[#666666] text-xs font-normal mt-2"
+                            id={`probation-target-employee-${targetSlug}`}
+                            data-cy={`probation-target-employee-${targetSlug}`}
+                          >
+                            {`${target.user.firstName} ${target.user.middleName} ${target.user.lastName}`.trim()}
+                          </Text>
+                        </div>
                       </div>
                     </div>
 
@@ -788,10 +824,9 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                             e.stopPropagation();
                             handleAddTask(target.id);
                           }}
-                          className="hidden sm:flex h-8"
+                          className="hidden sm:flex h-8 text-sm font-normal"
                           id={`probation-target-add-task-btn-${targetSlug}`}
                           data-cy={`probation-target-add-task-btn-${targetSlug}`}
-                          style={{ height: '32px' }}
                         >
                           Add Probation Task
                         </Button>
@@ -865,13 +900,14 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                           >
                             <Button
                               type="default"
-                              className="flex items-center justify-center border border-[#D9D9D9] h-8"
+                              className="flex items-center justify-center border border-[#D9D9D9] h-8 w-8"
                               onClick={(e) => e.stopPropagation()}
                               id={`probation-target-actions-dropdown-btn-${targetSlug}`}
                               data-cy={`probation-target-actions-dropdown-btn-${targetSlug}`}
-                              icon={<MoreHorizIcon />}
-                              style={{ height: '32px' }}
-                            />
+                              size="small"
+                            >
+                              <MoreHorizIcon />
+                            </Button>
                           </Dropdown>
                         );
                       })()}

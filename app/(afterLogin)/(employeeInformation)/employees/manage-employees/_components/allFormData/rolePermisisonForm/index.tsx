@@ -94,7 +94,7 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
           data-cy="role-permission-role-col"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="roleId"
             id="roleId"
             data-cy="roleId"
@@ -143,7 +143,7 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
           data-cy="role-permission-permissions-col"
         >
           <Form.Item
-            className="font-semibold text-xs hidden"
+            className="font-normal text-base hidden"
             name="setOfPermission"
             id="setOfPermission"
             data-cy="setOfPermission"

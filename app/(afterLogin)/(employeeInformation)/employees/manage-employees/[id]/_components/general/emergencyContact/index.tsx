@@ -137,13 +137,13 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
   }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
       <p
-        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
         data-cy={`${dataCy}-label`}
       >
         {label}
       </p>
       <p
-        className="text-base font-semibold text-gray-500 m-0"
+        className="text-base font-normal text-[#4d4d4d] m-0"
         data-cy={`${dataCy}-value`}
       >
         {value}
@@ -172,22 +172,26 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
             id={id}
             data-cy="emergency-contact-edit-guard"
           >
-            <Button
-              type="default"
+            <button
               onClick={() => handleEditChange('emergencyContact')}
-              className="w-8 h-8 border border-[#D9D9D9]"
+              className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
               id="emergency-contact-edit-icon"
               data-cy="emergency-contact-edit-icon"
             >
-              <EditOutlinedIcon />
-            </Button>
+              <EditOutlinedIcon className="text-sm" />
+            </button>
           </AccessGuard>
         ) : null
       }
       className="emergency-contact-card rounded-lg border border-gray-200"
       id="emergency-contact-card"
       data-cy="emergency-contact-card"
-      headStyle={{ borderBottom: 'none' }}
+      headStyle={{
+        borderBottom: 'none',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+      }}
+      bodyStyle={{ padding: '12px 16px 12px 16px' }}
     >
       {edit.emergencyContact ? (
         <Form
@@ -223,22 +227,23 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                 <Button
                   type="default"
                   size="small"
-                  icon={<CloseIcon fontSize="small" className="text-red-500" />}
                   onClick={() => setEdit('emergencyContact')}
                   id="emergency-contact-cancel-btn"
                   data-cy="emergency-contact-cancel-btn"
-                  className="border border-red-500"
-                  style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-                />
+                  className="border border-red-500 h-6 w-6"
+                >
+                  <CloseIcon className="text-red-500 text-[10px]" />
+                </Button>
                 <Button
                   type="primary"
                   size="small"
-                  icon={<CheckIcon />}
                   htmlType="submit"
                   id="emergency-contact-submit-btn"
                   data-cy="emergency-contact-submit-btn"
-                  style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-                />
+                  className="h-6 w-6"
+                >
+                  <CheckIcon className="text-white text-[10px]" />
+                </Button>
               </div>
             </Col>
           </Row>

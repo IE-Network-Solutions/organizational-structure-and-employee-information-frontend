@@ -884,7 +884,9 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                               <Button
                                 type="text"
                                 size="small"
-                                icon={<CloseIcon className="text-gray-400" />}
+                                icon={
+                                  <CloseIcon className="text-[#4d4d4d] text-[10px]" />
+                                }
                                 onClick={() =>
                                   handleRemovePermission(permission.id)
                                 }

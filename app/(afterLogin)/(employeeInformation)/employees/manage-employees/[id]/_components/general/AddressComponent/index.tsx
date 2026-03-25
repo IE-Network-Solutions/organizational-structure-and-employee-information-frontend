@@ -120,13 +120,13 @@ const AddressComponent = ({
   }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
       <p
-        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
         data-cy={`${dataCy}-label`}
       >
         {label}
       </p>
       <p
-        className="text-base font-semibold text-gray-500 m-0"
+        className="text-base font-normal text-[#4d4d4d] m-0"
         data-cy={`${dataCy}-value`}
       >
         {value}
@@ -155,22 +155,26 @@ const AddressComponent = ({
             id={id}
             data-cy="address-edit-guard"
           >
-            <Button
-              type="default"
+            <button
               onClick={() => handleEditChange('addresses')}
-              className="w-8 h-8 border border-[#D9D9D9]"
+              className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
               id="address-edit-icon"
               data-cy="address-edit-icon"
             >
-              <EditOutlinedIcon />
-            </Button>
+              <EditOutlinedIcon className="text-sm" />
+            </button>
           </AccessGuard>
         ) : null
       }
       className="address-card rounded-lg border border-gray-200 my-6"
       id="address-card"
       data-cy="address-card"
-      headStyle={{ borderBottom: 'none' }}
+      headStyle={{
+        borderBottom: 'none',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+      }}
+      bodyStyle={{ padding: '12px 16px 12px 16px' }}
     >
       {edit.addresses ? (
         <Form
@@ -206,22 +210,23 @@ const AddressComponent = ({
                 <Button
                   type="default"
                   size="small"
-                  icon={<CloseIcon fontSize="small" className="text-red-500" />}
                   onClick={() => setEdit('addresses')}
                   id="address-cancel-btn"
                   data-cy="address-cancel-btn"
-                  className="border border-red-500"
-                  style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-                />
+                  className="border border-red-500 h-6 w-6"
+                >
+                  <CloseIcon className="text-red-500 text-[10px]" />
+                </Button>
                 <Button
                   type="primary"
                   size="small"
-                  icon={<CheckIcon />}
                   htmlType="submit"
                   id="address-submit-btn"
                   data-cy="address-submit-btn"
-                  style={{ height: 32, minHeight: 32, width: 32, minWidth: 32 }}
-                />
+                  className="h-6 w-6"
+                >
+                  <CheckIcon className="text-white text-[10px]" />
+                </Button>
               </div>
             </Col>
           </Row>

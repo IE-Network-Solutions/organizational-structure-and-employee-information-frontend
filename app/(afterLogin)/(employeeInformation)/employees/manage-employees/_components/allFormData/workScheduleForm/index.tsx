@@ -44,7 +44,7 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
           data-cy="work-schedule-select-col"
         >
           <Form.Item
-            className="text-sm font-normal text-[#030712]"
+            className="font-normal text-base"
             name="workScheduleId"
             id="workScheduleId"
             data-cy="workScheduleId"
