@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 //import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Button, DatePicker, Form, Input, Modal } from 'antd';
+import { Button, DatePicker, Form, Input, Modal, Select } from 'antd';
 import useEditDrawerStore from '@/store/uistate/features/payroll/settings/drawer';
 import dayjs from 'dayjs';
 import { useEditPayPeriod } from '@/store/server/features/payroll/setting/tax-rule/mutation';
+import { useChangePayPeriodStatus } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import utc from 'dayjs/plugin/utc';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -20,8 +21,10 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   onClose,
   width,
 }) => {
-  const { id, startDate, endDate, reset } = useEditDrawerStore();
+  const { id, startDate, endDate, status, reset } = useEditDrawerStore();
   const { mutate: editPayPeriod, isLoading } = useEditPayPeriod();
+  const { mutate: changePayPeriodStatus, isLoading: isChangingStatus } =
+    useChangePayPeriodStatus();
 
   const [form] = Form.useForm();
   const { isMobile, isTablet } = useIsMobile();
@@ -32,11 +35,13 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       month: startDate ? dayjs(startDate).format('MMMM') : '',
       startDate: startDate ? dayjs(startDate) : null,
       endDate: endDate ? dayjs(endDate) : null,
+      status: status || undefined,
     });
-  }, [form, startDate, endDate, reset]);
+  }, [form, startDate, endDate, status, reset]);
 
   const onFinish = () => {
     const values = form.getFieldsValue();
+    const nextStatus = values.status as string | undefined;
     editPayPeriod(
       {
         payPeriodId: id,
@@ -51,11 +56,30 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       },
       {
         onSuccess: () => {
+          if (!id) {
+            onClose();
+            return;
+          }
+
+          // Backend endpoint toggles status; only call when user changed selection.
+          if (nextStatus && nextStatus !== status) {
+            changePayPeriodStatus(
+              { payPeriodId: id },
+              {
+                onSuccess: () => onClose(),
+                onError: () => onClose(),
+              },
+            );
+            return;
+          }
+
           onClose();
         },
       },
     );
   };
+
+  // Status is edited via the form dropdown (like UI screenshot).
 
   return (
     <Modal
@@ -170,6 +194,24 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
                 onChange={(date) => form.setFieldValue('endDate', date)}
               />
             </Form.Item>
+
+            <Form.Item
+              id="payroll-payperiod-edit-drawer-status-formitem"
+              data-cy="payroll-payperiod-edit-drawer-status-formitem"
+              label="Status"
+              name="status"
+              rules={[{ required: true, message: 'Please select a status' }]}
+            >
+              <Select
+                id="payroll-payperiod-edit-drawer-status-select"
+                data-cy="payroll-payperiod-edit-drawer-status-select"
+                className="w-full"
+                options={[
+                  { label: 'Open', value: 'OPEN' },
+                  { label: 'Closed', value: 'CLOSED' },
+                ]}
+              />
+            </Form.Item>
           </Form>
         </div>
       </div>
@@ -186,6 +228,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           type="default"
           className="h-10"
           onClick={onClose}
+          disabled={isChangingStatus}
         >
           Cancel
         </Button>
@@ -196,6 +239,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           className="h-10"
           onClick={() => form.submit()}
           loading={isLoading}
+          disabled={isChangingStatus}
         >
           Edit
         </Button>
