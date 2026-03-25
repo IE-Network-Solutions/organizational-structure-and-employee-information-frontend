@@ -155,7 +155,7 @@ const EmployeeAttendanceSideBar = () => {
   return (
     isShowEmployeeAttendanceSidebar && (
       <div
-        className="bg-white border border-[#d4d4d4] p-4 rounded-md w-[400px]"
+        className="bg-white border border-[#d4d4d4] p-4 rounded-md w-[320px] sm:w-[400px]"
         id="time-attendance-employee-attendance-sidebar-container"
         data-cy="time-attendance-employee-attendance-sidebar-container"
       >
@@ -163,7 +163,7 @@ const EmployeeAttendanceSideBar = () => {
           className="mb-4 flex items-start justify-between"
           data-cy="time-attendance-employee-attendance-sidebar-header"
         >
-          <div>
+          <div data-cy="time-attendance-employee-attendance-sidebar-header-content">
             <div
               className="text-base font-semibold text-[#000000B2]"
               data-cy="time-attendance-sidebar-header-title"
@@ -219,7 +219,14 @@ const EmployeeAttendanceSideBar = () => {
               name="startAt"
               id="time-attendance-employee-attendance-sidebar-clock-in-form-item"
               data-cy="time-attendance-employee-attendance-sidebar-clock-in-form-item"
-              label={<span className="text-sm font-normal">Check In</span>}
+              label={
+                <span
+                  className="text-sm font-normal"
+                  data-cy="time-attendance-employee-attendance-sidebar-check-in-label"
+                >
+                  Check In
+                </span>
+              }
               rules={[{ required: !isAbsent, message: 'Required' }]}
               className={itemClass}
             >
@@ -258,7 +265,14 @@ const EmployeeAttendanceSideBar = () => {
               name="endAt"
               id="time-attendance-employee-attendance-sidebar-clock-out-form-item"
               data-cy="time-attendance-employee-attendance-sidebar-clock-out-form-item"
-              label={<span className="text-sm font-normal">Check Out</span>}
+              label={
+                <span
+                  className="text-sm font-normal"
+                  data-cy="time-attendance-employee-attendance-sidebar-check-out-label"
+                >
+                  Check Out
+                </span>
+              }
               rules={[{ required: !isAbsent, message: 'Required' }]}
               className={itemClass}
             >

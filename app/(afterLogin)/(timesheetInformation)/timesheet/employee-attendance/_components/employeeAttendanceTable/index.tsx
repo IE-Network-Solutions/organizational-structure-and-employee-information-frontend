@@ -412,7 +412,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           >
             <Button
               type="text"
-              className="border-none"
+              className="border-none hover:bg-transparent"
               id={`${item?.id}buttonPopOverActionForOnEditActionId`}
               onClick={() => {
                 (setEmployeeId(item?.userId),
@@ -532,7 +532,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   };
 
   return (
-    < div className='border-[1px] border-[#D9D9D9] rounded-lg'>
+    <div
+      id="time-attendance-employee-attendance-table-card"
+      data-cy="time-attendance-employee-attendance-table-card"
+      className="border-[1px] border-[#D9D9D9] rounded-lg"
+    >
       <div
         id="time-attendance-employee-attendance-table-filter-section"
         data-cy="time-attendance-employee-attendance-table-filter-section"
@@ -548,7 +552,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         data-cy="time-attendance-employee-attendance-table-container"
       >
         <div
-          className="flex  overflow-x-auto scrollbar-none  w-full"
+          className="flex overflow-x-auto scrollbar-none  w-full"
           id="time-attendance-employee-attendance-table-scroll-wrapper"
           data-cy="time-attendance-employee-attendance-table-scroll-wrapper"
         >
@@ -563,12 +567,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             }}
             pagination={false}
             scroll={{ x: 'max-content' }}
-            className="w-full"
+            className="w-full [&_.ant-table-tbody>tr.ant-table-row:nth-child(odd):hover>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr.ant-table-row:nth-child(even):hover>td]:!bg-white"
             onChange={handleTableChange}
             id="time-attendance-employee-attendance-table"
             data-cy="time-attendance-employee-attendance-table"
-            rowClassName={(notUsed, index) => (index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]')}
-
+            rowClassName={(notUsed, index) =>
+              index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+            }
           />
         </div>
         {isMobile || isTablet ? (

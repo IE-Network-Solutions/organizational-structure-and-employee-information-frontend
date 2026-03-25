@@ -9,7 +9,6 @@ import {
   Menu,
   Popover,
   Row,
-  Typography,
   message,
 } from 'antd';
 import { TbFileUpload, TbLayoutList } from 'react-icons/tb';
@@ -32,7 +31,6 @@ import { useMediaQuery } from 'react-responsive';
 
 import AttendanceImportErrorModal from './_components/attendanceImportErrorModal';
 import { LuBookmark } from 'react-icons/lu';
-import Link from 'next/link';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import IosShareIcon from '@mui/icons-material/IosShare';
 
@@ -220,7 +218,6 @@ const EmployeeAttendance = () => {
   return (
     <>
       <div
-        className="min-h-screen"
         id="time-attendance-employee-attendance-page-container-view"
         data-cy="time-attendance-employee-attendance-page-container-view"
       >
@@ -230,26 +227,42 @@ const EmployeeAttendance = () => {
           id="time-attendance-employee-attendance-header-section"
           data-cy="time-attendance-employee-attendance-header-section"
         >
- 
-          <div className="flex flex-col gap-2" data-cy="time-attendance-employee-attendance-header-title">
-          <h3
-            className="text-gray-900 text-xl font-bold mb-0"
+          <div
+            className="flex flex-col gap-2"
             data-cy="time-attendance-employee-attendance-header-title"
-            id="time-attendance-employee-attendance-header-title"
           >
-            Time and Attendance
-          </h3>
-          <Breadcrumb
-            items={[
-              {
-                title: <span className="text-xs sm:text-sm font-normal">Time and Attendance</span>
-              },
-              {
-                title: <span className="text-xs sm:text-sm text-[#4d4d4d] font-normal">Employee Attendance</span>
-              },
-            ]}
-          />
-        </div>
+            <h3
+              className="text-gray-900 text-xl font-bold mb-0"
+              data-cy="time-attendance-employee-attendance-header-title"
+              id="time-attendance-employee-attendance-header-title"
+            >
+              Employee Attendance
+            </h3>
+            <Breadcrumb
+              items={[
+                {
+                  title: (
+                    <span
+                      className="text-xs sm:text-sm font-normal"
+                      data-cy="time-attendance-employee-attendance-breadcrumb-title-1"
+                    >
+                      Time and Attendance
+                    </span>
+                  ),
+                },
+                {
+                  title: (
+                    <span
+                      className="text-xs sm:text-sm text-[#4d4d4d] font-normal"
+                      data-cy="time-attendance-employee-attendance-breadcrumb-title-2"
+                    >
+                      Employee Attendance
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          </div>
 
           {/* Action Buttons */}
           <div

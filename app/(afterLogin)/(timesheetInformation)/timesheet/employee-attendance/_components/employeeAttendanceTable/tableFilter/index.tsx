@@ -45,7 +45,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
 
   const MobileFilters = () => (
     <div
-      className="bg-white rounded-lg border border-gray-200 min-w-[320px] max-w-[420px] overflow-hidden"
+      className="bg-white rounded-lg border border-gray-200 min-w-[320px] sm:max-w-[420px] overflow-hidden"
       id="time-attendance-employee-attendance-mobile-filter-menu"
       data-cy="time-attendance-employee-attendance-mobile-filter-menu"
     >
@@ -276,14 +276,14 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             form.resetFields();
             onChange({});
           }}
-          className="h-8 px-4 rounded-md border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
+          className="h-8 border-[#d9d9d9] text-sm font-normal text-[#4d4d4d]"
           data-cy="time-attendance-employee-attendance-mobile-filter-reset"
         >
           Reset
         </Button>
         <Button
           type="primary"
-          className="h-8 px-4 rounded-md"
+          className="h-8 font-normal text-sm text-white"
           onClick={() => {
             setIsShowMobileFilters(false);
           }}

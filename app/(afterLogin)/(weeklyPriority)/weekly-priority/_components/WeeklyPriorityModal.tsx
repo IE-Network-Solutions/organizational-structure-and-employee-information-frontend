@@ -256,10 +256,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
           </div>
         }
       >
-        <div
-          className="mt-1"
-          data-cy="weekly-priority-modal-body"
-        >
+        <div className="mt-1" data-cy="weekly-priority-modal-body">
           {isLoading ? (
             <div
               className="py-24 flex justify-center"

@@ -22,6 +22,24 @@
   display: none;
 }
 
+/* Timesheet employee attendance table: hide scrollbars (keep scrolling) */
+#time-attendance-employee-attendance-table-scroll-wrapper {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#time-attendance-employee-attendance-table-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content,
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+  display: none;
+}
+
 /* Org Structure chart: smooth layout transitions on collapse/expand */
 .org-structure-flow .react-flow__node,
 .org-structure-flow .xyflow__node {
