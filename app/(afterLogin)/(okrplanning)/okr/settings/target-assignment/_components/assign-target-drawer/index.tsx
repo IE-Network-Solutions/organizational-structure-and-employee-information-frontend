@@ -105,10 +105,7 @@ const AssignTargetModal: React.FC = () => {
   };
 
   const footer = (
-    <div
-      className="flex justify-end gap-3"
-      data-cy="okr-target-modal-footer"
-    >
+    <div className="flex justify-end gap-3" data-cy="okr-target-modal-footer">
       <Button
         type="default"
         onClick={handleModalClose}

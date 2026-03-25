@@ -23,16 +23,16 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
 
   const messages = isBasicToAdvanced
     ? [
-      'All existing Objectives and Key Results have been preserved.',
-      'Your previous Done / Not Done KRs are now mapped to Achieved / Not Achieved.',
-      'Advanced metrics are now available for all KRs.',
-    ]
+        'All existing Objectives and Key Results have been preserved.',
+        'Your previous Done / Not Done KRs are now mapped to Achieved / Not Achieved.',
+        'Advanced metrics are now available for all KRs.',
+      ]
     : [
-      'All existing Objectives and Key Results have been preserved.',
-      'Fully achieved KRs and milestones are now marked Done.',
-      'Partially completed or Not Achieved KRs are now marked Not Done.',
-      'Advanced metrics and milestone details will not be available.',
-    ];
+        'All existing Objectives and Key Results have been preserved.',
+        'Fully achieved KRs and milestones are now marked Done.',
+        'Partially completed or Not Achieved KRs are now marked Not Done.',
+        'Advanced metrics and milestone details will not be available.',
+      ];
 
   return (
     <Modal

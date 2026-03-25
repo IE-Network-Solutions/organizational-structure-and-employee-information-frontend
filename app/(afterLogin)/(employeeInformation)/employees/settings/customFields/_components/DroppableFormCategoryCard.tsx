@@ -27,35 +27,22 @@ interface DroppableFormCategoryCardProps {
 
 const iconMap: Record<string, React.ReactNode> = {
   location: (
-    <Button
-      type="default"
-      className="border border-[#71abfd] w-8 h-8"
-    >
+    <Button type="default" className="border border-[#71abfd] w-8 h-8">
       <LocationOnIcon className="text-lg text-[#71abfd]" />
     </Button>
   ),
   contact: (
-    <Button
-      type="default"
-      className="border border-[#71abfd] w-8 h-8"
-    >
+    <Button type="default" className="border border-[#71abfd] w-8 h-8">
       <ContactsIcon className="text-lg text-[#71abfd]" />
     </Button>
-    
   ),
   bank: (
-    <Button
-      type="default"
-      className="border border-[#71abfd] w-8 h-8"
-    >
+    <Button type="default" className="border border-[#71abfd] w-8 h-8">
       <AccountBalanceIcon className="text-lg text-[#71abfd]" />
     </Button>
   ),
   document: (
-    <Button
-      type="default"
-      className="border border-[#71abfd] w-8 h-8"
-    >
+    <Button type="default" className="border border-[#71abfd] w-8 h-8">
       <AttachFileIcon className="text-lg text-[#71abfd]" />
     </Button>
   ),
@@ -166,7 +153,7 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
                       type="default"
                       className="border border-[#d9d9d9] !h-8 w-8"
                     >
-                    <MoreHorizIcon />
+                      <MoreHorizIcon />
                     </Button>
                   </div>
                   <div

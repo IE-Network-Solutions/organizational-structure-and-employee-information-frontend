@@ -1,7 +1,17 @@
 'use client';
 
 import React from 'react';
-import { Modal, Form, Input, Select, Switch, Button, message, Col, Row, Radio } from 'antd';
+import {
+  Modal,
+  Form,
+  Input,
+  Select,
+  Button,
+  message,
+  Col,
+  Row,
+  Radio,
+} from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { useAddEmployeeInformationForm } from '@/store/server/features/employees/employeeManagment/employeInformationForm/mutations';
 
@@ -55,7 +65,6 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
       fieldValidation: values.fieldValidation,
       options: values.options || [],
     };
-    
 
     const formData = customEmployeeInformationForm;
     const hasExistingForm =
@@ -120,116 +129,114 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
         id="settings-custom-field-form"
         data-cy="settings-custom-field-form"
       >
-        <Row gutter={16}
-        >
+        <Row gutter={16}>
           <Col span={12}>
-          <Form.Item
-          label="Field Name"
-          name="fieldName"
-          rules={[{ required: true, message: 'Field Name is required' }]}
-          id="settings-custom-field-name"
-          data-cy="settings-custom-field-name"
-        >
-          <Input
-            placeholder="Input"
-            id="settings-custom-field-name-input"
-            data-cy="settings-custom-field-name-input"
-            className="h-10"
-          />
-        </Form.Item>
-
+            <Form.Item
+              label="Field Name"
+              name="fieldName"
+              rules={[{ required: true, message: 'Field Name is required' }]}
+              id="settings-custom-field-name"
+              data-cy="settings-custom-field-name"
+            >
+              <Input
+                placeholder="Input"
+                id="settings-custom-field-name-input"
+                data-cy="settings-custom-field-name-input"
+                className="h-10"
+              />
+            </Form.Item>
           </Col>
           <Col span={12}>
-          <Form.Item
-          label="Field Validation"
-          name="fieldValidation"
-          rules={[{ required: true, message: 'Field Validation is required' }]}
-          id="settings-custom-field-validation"
-          data-cy="settings-custom-field-validation"
-        >
-          <Select
-            placeholder="Select"
-            allowClear
-            onChange={(value) =>
-              form.setFieldsValue({ fieldValidation: value ?? undefined })
-            }
-            id="settings-custom-field-validation-select"
-            data-cy="settings-custom-field-validation-select"
-            className="h-10"
-
-          >
-            <Option value="text">Text</Option>
-            <Option value="number">Number</Option>
-            <Option value="email">Email</Option>
-            <Option value="date">Date</Option>
-            <Option value="url">URL</Option>
-            <Option value="any">Any</Option>
-          </Select>
-          <p
-          data-cy="settings-custom-field-active-description"
-          className="text-xs text-gray-500 py-0.5"
-        >
-          Select a field validation type.
-        </p>
-        </Form.Item>
+            <Form.Item
+              label="Field Validation"
+              name="fieldValidation"
+              rules={[
+                { required: true, message: 'Field Validation is required' },
+              ]}
+              id="settings-custom-field-validation"
+              data-cy="settings-custom-field-validation"
+            >
+              <Select
+                placeholder="Select"
+                allowClear
+                onChange={(value) =>
+                  form.setFieldsValue({ fieldValidation: value ?? undefined })
+                }
+                id="settings-custom-field-validation-select"
+                data-cy="settings-custom-field-validation-select"
+                className="h-10"
+              >
+                <Option value="text">Text</Option>
+                <Option value="number">Number</Option>
+                <Option value="email">Email</Option>
+                <Option value="date">Date</Option>
+                <Option value="url">URL</Option>
+                <Option value="any">Any</Option>
+              </Select>
+              <p
+                data-cy="settings-custom-field-active-description"
+                className="text-xs text-gray-500 py-0.5"
+              >
+                Select a field validation type.
+              </p>
+            </Form.Item>
           </Col>
         </Row>
 
-
-        <Row gutter={16} className='mt-2'>
+        <Row gutter={16} className="mt-2">
           <Col span={12}>
-          <Form.Item
-          name="isActive"
-          valuePropName="checked"
-          id="settings-custom-field-active"
-          data-cy="settings-custom-field-active"
-        >
-          <div className='border border-[#D9D9D9] rounded-md p-2 h-14'>
-          <Radio
-            id="settings-custom-field-active-switch"
-            data-cy="settings-custom-field-active-switch"
-          >
-            Active
-            </Radio>
-           <p
-          data-cy="settings-custom-field-active-description"
-          className="text-xs text-gray-500 px-6"
-        >
-          If the field is active it will show.
-        </p>
-
-          </div>
-        
-        </Form.Item>
-       
+            <Form.Item
+              name="isActive"
+              valuePropName="checked"
+              id="settings-custom-field-active"
+              data-cy="settings-custom-field-active"
+            >
+              <div
+                className="border border-[#D9D9D9] rounded-md p-2 h-14"
+                data-cy="settings-custom-field-active-switch-wrapper"
+              >
+                <Radio
+                  id="settings-custom-field-active-switch"
+                  data-cy="settings-custom-field-active-switch"
+                >
+                  Active
+                </Radio>
+                <p
+                  data-cy="settings-custom-field-active-description"
+                  className="text-xs text-gray-500 px-6"
+                >
+                  If the field is active it will show.
+                </p>
+              </div>
+            </Form.Item>
           </Col>
           <Col span={12}>
-          <Form.Item
-          name="isRequired"
-          valuePropName="checked"
-          id="settings-custom-field-required"
-          data-cy="settings-custom-field-required"
-        >
-          <div className='border border-[#D9D9D9] rounded-md p-2 h-14'>
-          <Radio
-            id="settings-custom-field-required-switch"
-            data-cy="settings-custom-field-required-switch"
-          >
-            Required
-            </Radio>
-           <p
-          data-cy="settings-custom-field-required-description"
-          className="text-xs text-gray-500 px-6"
-        >
-          If Selected it must be filled.
-        </p>
-
-          </div>
-        
-        </Form.Item>          </Col>
+            <Form.Item
+              name="isRequired"
+              valuePropName="checked"
+              id="settings-custom-field-required"
+              data-cy="settings-custom-field-required"
+            >
+              <div
+                className="border border-[#D9D9D9] rounded-md p-2 h-14"
+                data-cy="settings-custom-field-required-switch-wrapper"
+              >
+                <Radio
+                  id="settings-custom-field-required-switch"
+                  data-cy="settings-custom-field-required-switch"
+                >
+                  Required
+                </Radio>
+                <p
+                  data-cy="settings-custom-field-required-description"
+                  className="text-xs text-gray-500 px-6"
+                >
+                  If Selected it must be filled.
+                </p>
+              </div>
+            </Form.Item>{' '}
+          </Col>
         </Row>
-
-       
 
         <Form.Item className="mb-0">
           <div
@@ -237,7 +244,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             className="flex justify-end gap-2 pt-2"
           >
             <Button
-            type="default"
+              type="default"
               onClick={handleCancel}
               id="settings-custom-field-cancel"
               data-cy="settings-custom-field-cancel"
