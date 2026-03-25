@@ -7,6 +7,8 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { Permissions } from '@/types/commons/permissionEnum';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 const BreakTypeTable = () => {
   const { setIsShowBreakTypeSidebar, setSelectedBreakType } =
@@ -30,12 +32,13 @@ const BreakTypeTable = () => {
     {
       key: 'edit',
       label: 'Edit',
+      icon: <EditOutlinedIcon fontSize="small" />,
       onClick: () => handleEdit(record),
     },
     {
       key: 'delete',
       label: 'Delete',
-      danger: true,
+      icon: <DeleteOutlinedIcon fontSize="small" />,
       onClick: () => handleDelete(record),
     },
   ];
@@ -85,11 +88,12 @@ const BreakTypeTable = () => {
                 >
                   <Button
                     type="text"
-                    icon={<MoreHorizIcon className="!text-base" />}
                     className="!w-8 !h-8 !min-w-8 !min-h-8 flex items-center justify-center border border-[#D9D9D9] rounded-lg hover:!bg-gray-50 shrink-0"
                     id={`time-attendance-settings-break-type-menu-btn-${record?.id}`}
                     data-cy={`time-attendance-settings-break-type-menu-btn-${record?.id}`}
-                  />
+                  >
+                    <MoreHorizIcon />
+                  </Button>
                 </Dropdown>
               </AccessGuard>
             </div>
