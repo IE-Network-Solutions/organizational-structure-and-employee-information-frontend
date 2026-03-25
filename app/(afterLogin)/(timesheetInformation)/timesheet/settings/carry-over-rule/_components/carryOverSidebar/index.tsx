@@ -1,12 +1,17 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Form, Input, InputNumber, Select, Space, Spin } from 'antd';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Row,
+  Select,
+  Spin,
+} from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import React, { useEffect } from 'react';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { CarryOverPeriod } from '@/types/timesheet/settings';
 import { useCreateCarryOverRule } from '@/store/server/features/timesheet/carryOverRule/mutation';
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -31,33 +36,8 @@ const CarryOverSidebar = () => {
 
   const [form] = Form.useForm();
 
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      loading: isLoading,
-      onClick: () => onClose(),
-      id: 'time-attendance-settings-carry-over-rule-sidebar-cancel-button',
-      'data-cy':
-        'time-attendance-settings-carry-over-rule-sidebar-cancel-button',
-    },
-    {
-      label: 'Add',
-      key: 'add',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      type: 'primary',
-      loading: isLoading,
-      onClick: () => form.submit(),
-      id: 'time-attendance-settings-carry-over-rule-sidebar-add-button',
-      'data-cy': 'time-attendance-settings-carry-over-rule-sidebar-add-button',
-    },
-  ];
-
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] w-full';
 
   const periodOption = [
     {
@@ -91,33 +71,35 @@ const CarryOverSidebar = () => {
 
   return (
     isShow && (
-      <CustomDrawerLayout
+      <Modal
         open={isShow}
-        onClose={() => onClose()}
-        modalHeader={
+        onCancel={() => onClose()}
+        title={
           <div
-            className="px-2"
+            className="text-lg font-semibold text-[#4d4d4d]"
             id="time-attendance-settings-carry-over-rule-sidebar-header-container"
             data-cy="time-attendance-settings-carry-over-rule-sidebar-header-container"
           >
-            <CustomDrawerHeader data-cy="time-attendance-settings-carry-over-rule-sidebar-header">
-              Carry-over Rule
-            </CustomDrawerHeader>
+            Carry-over Rule
           </div>
         }
         footer={
           <div
-            className="p-4"
+            className="flex items-center justify-end gap-3"
             id="time-attendance-settings-carry-over-rule-sidebar-footer-container"
             data-cy="time-attendance-settings-carry-over-rule-sidebar-footer-container"
           >
-            <CustomDrawerFooterButton
-              buttons={footerModalItems}
-              data-cy="time-attendance-settings-carry-over-rule-sidebar-footer-button"
-            />
+            <Button type="default" onClick={() => onClose()}>
+              Cancel
+            </Button>
+            <Button type="primary" onClick={() => form.submit()}>
+              Create
+            </Button>
           </div>
         }
-        width="400px"
+        width={660}
+        zIndex={10002}
+        centered
         data-cy="time-attendance-settings-carry-over-rule-sidebar"
       >
         <Spin
@@ -134,80 +116,107 @@ const CarryOverSidebar = () => {
             id="time-attendance-settings-carry-over-rule-sidebar-form"
             data-cy="time-attendance-settings-carry-over-rule-sidebar-form"
           >
-            <Space.Compact
-              direction="vertical"
-              className="w-full px-3 sm:px-0 "
-              id="time-attendance-settings-carry-over-rule-sidebar-form-fields"
-              data-cy="time-attendance-settings-carry-over-rule-sidebar-form-fields"
+            <Form.Item
+              id="carryOverNameFieldId"
+              data-cy="time-attendance-settings-carry-over-rule-sidebar-title-field-id"
+              label={
+                <span
+                  data-cy="time-attendance-settings-carry-over-rule-sidebar-title-label"
+                  className="text-sm font-normal text-[#4d4d4d] pr-1"
+                >
+                  Carry-over Name
+                </span>
+              }
+              rules={[{ required: true, message: 'Required' }]}
+              name="title"
             >
-              <Form.Item
-                id="carryOverNameFieldId"
-                data-cy="time-attendance-settings-carry-over-rule-sidebar-title-field-id"
-                label="Carry-over Name"
-                rules={[{ required: true, message: 'Required' }]}
-                name="title"
-              >
-                <Input
-                  className={controlClass}
-                  id="time-attendance-settings-carry-over-rule-sidebar-title-input"
-                  data-cy="time-attendance-settings-carry-over-rule-sidebar-title-input"
-                />
-              </Form.Item>
-              <Form.Item
-                label="Carry-over Limit"
-                id="carryOverLimitFieldId"
-                data-cy="time-attendance-settings-carry-over-rule-sidebar-limit-field-id"
-                rules={[{ required: true, message: 'Required' }]}
-                name="limit"
-              >
-                <InputNumber
-                  min={0}
-                  className={controlClass}
-                  placeholder="Input entitled days"
-                  id="time-attendance-settings-carry-over-rule-sidebar-limit-input"
-                  data-cy="time-attendance-settings-carry-over-rule-sidebar-limit-input"
-                />
-              </Form.Item>
-              <Form.Item
-                label="Carry-over Expiration"
-                id="carryOverExpirationFieldId"
-                data-cy="time-attendance-settings-carry-over-rule-sidebar-expiration-field-id"
-                rules={[{ required: true, message: 'Required' }]}
-                name="expiration"
-              >
-                <InputNumber
-                  min={0}
-                  className={controlClass}
-                  placeholder="Enter your days"
-                  id="time-attendance-settings-carry-over-rule-sidebar-expiration-input"
-                  data-cy="time-attendance-settings-carry-over-rule-sidebar-expiration-input"
-                />
-              </Form.Item>
-              <Form.Item
-                label="Carry-over Period"
-                id="carryOverPeriodFieldId"
-                data-cy="time-attendance-settings-carry-over-rule-sidebar-period-field-id"
-                rules={[{ required: true, message: 'Required' }]}
-                name="expirationPeriod"
-              >
-                <Select
-                  className={controlClass}
-                  suffixIcon={
-                    <MdKeyboardArrowDown
-                      size={16}
-                      className="text-gray-900"
-                      data-cy="time-attendance-settings-carry-over-rule-sidebar-period-select-icon"
-                    />
+              <Input
+                className={controlClass}
+                id="time-attendance-settings-carry-over-rule-sidebar-title-input"
+                data-cy="time-attendance-settings-carry-over-rule-sidebar-title-input"
+              />
+            </Form.Item>
+            <Form.Item
+              label={
+                <span
+                  data-cy="time-attendance-settings-carry-over-rule-sidebar-period-label"
+                  className="text-sm font-normal text-[#4d4d4d] pr-1"
+                >
+                  Carry-over Period
+                </span>
+              }
+              id="carryOverPeriodFieldId"
+              data-cy="time-attendance-settings-carry-over-rule-sidebar-period-field-id"
+              rules={[{ required: true, message: 'Required' }]}
+              name="expirationPeriod"
+            >
+              <Select
+                className={controlClass}
+                suffixIcon={
+                  <MdKeyboardArrowDown
+                    size={16}
+                    className="text-gray-900"
+                    data-cy="time-attendance-settings-carry-over-rule-sidebar-period-select-icon"
+                  />
+                }
+                options={periodOption}
+                id="time-attendance-settings-carry-over-rule-sidebar-period-select"
+                data-cy="time-attendance-settings-carry-over-rule-sidebar-period-select"
+              />
+            </Form.Item>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  label={
+                    <span
+                      data-cy="time-attendance-settings-carry-over-rule-sidebar-limit-label"
+                      className="text-sm font-normal text-[#4d4d4d] pr-1"
+                    >
+                      Carry-over Limit
+                    </span>
                   }
-                  options={periodOption}
-                  id="time-attendance-settings-carry-over-rule-sidebar-period-select"
-                  data-cy="time-attendance-settings-carry-over-rule-sidebar-period-select"
-                />
-              </Form.Item>
-            </Space.Compact>
+                  id="carryOverLimitFieldId"
+                  data-cy="time-attendance-settings-carry-over-rule-sidebar-limit-field-id"
+                  rules={[{ required: true, message: 'Required' }]}
+                  name="limit"
+                >
+                  <InputNumber
+                    min={0}
+                    className={controlClass}
+                    placeholder="Input entitled days"
+                    id="time-attendance-settings-carry-over-rule-sidebar-limit-input"
+                    data-cy="time-attendance-settings-carry-over-rule-sidebar-limit-input"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label={
+                    <span
+                      data-cy="time-attendance-settings-carry-over-rule-sidebar-expiration-label"
+                      className="text-sm font-normal text-[#4d4d4d] pr-1"
+                    >
+                      Carry-over Expiration
+                    </span>
+                  }
+                  id="carryOverExpirationFieldId"
+                  data-cy="time-attendance-settings-carry-over-rule-sidebar-expiration-field-id"
+                  rules={[{ required: true, message: 'Required' }]}
+                  name="expiration"
+                >
+                  <InputNumber
+                    min={0}
+                    className={controlClass}
+                    placeholder="Enter your days"
+                    id="time-attendance-settings-carry-over-rule-sidebar-expiration-input"
+                    data-cy="time-attendance-settings-carry-over-rule-sidebar-expiration-input"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
           </Form>
         </Spin>
-      </CustomDrawerLayout>
+      </Modal>
     )
   );
 };

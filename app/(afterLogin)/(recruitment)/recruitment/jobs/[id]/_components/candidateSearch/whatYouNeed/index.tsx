@@ -2,7 +2,6 @@ import { useCandidateState } from '@/store/uistate/features/recruitment/candidat
 import { useDebounce } from '@/utils/useDebounce';
 import { Input } from 'antd';
 import React from 'react';
-import { AiOutlineSearch } from 'react-icons/ai';
 
 interface WhatYouNeedProps {
   placeholder?: string;
@@ -37,9 +36,9 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
     <div
       id="talent-acquisition-what-you-need-div-container"
       data-cy="talent-acquisition-what-you-need-div-container"
-      className="w-full"
+      className={className}
     >
-      <Input
+      <Input.Search
         id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
         data-cy="talent-acquisition-job-candidate-search-input"
         placeholder={placeholder}

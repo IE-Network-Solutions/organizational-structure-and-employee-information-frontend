@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Card, Input, Form, Dropdown } from 'antd';
-import { HiMinus, HiOutlineCheck } from 'react-icons/hi';
-import { RiCloseCircleFill, RiCloseLine, RiMore2Fill } from 'react-icons/ri';
+import { Button, Card, Input, Form, Dropdown, Checkbox, Avatar } from 'antd';
+import { HiCheckCircle, HiXCircle } from 'react-icons/hi';
+import { RiMoreFill, RiCloseFill } from 'react-icons/ri';
+import { UserOutlined, EditOutlined } from '@ant-design/icons';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
 import { Popconfirm } from 'antd/lib';
-import {
-  useCreateWeeklyPriority,
-  useDeleteWeeklyPriority,
-  useUpdateWeeklyPriority,
-} from '@/store/server/features/okrplanning/weeklyPriority/mutations';
+import { useUpdateWeeklyPriority } from '@/store/server/features/okrplanning/weeklyPriority/mutations';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import dayjs from 'dayjs';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { FiCheckCircle } from 'react-icons/fi';
 import WeeklyPriorityModal from '../WeeklyPriorityModal';
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import { useGetPlannedTaskForReport } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -26,7 +22,6 @@ const TaskCard: React.FC = () => {
   const {
     data,
     setData,
-    removeTask,
     modalOpen,
     setModalOpen,
     failedReasonVisible,
@@ -34,12 +29,11 @@ const TaskCard: React.FC = () => {
     failedReasons,
     setFailedReasons,
   } = useWeeklyPriorityStore();
-  const { mutate: createWeeklyPriorityTask } = useCreateWeeklyPriority();
+
   const {
     mutate: updateWeeklyPriorityTask,
     isLoading: updateWeeklyPriorityTaskLoading,
   } = useUpdateWeeklyPriority();
-  const { mutate: deletedWeeklyPriorityTask } = useDeleteWeeklyPriority();
   const { data: userInfo } = useGetEmployee(userId);
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const [selectedTask, setSelectedTask] = useState<any>(null);
@@ -49,36 +43,6 @@ const TaskCard: React.FC = () => {
   );
   const month = session?.months?.find((item: any) => item?.active === true);
   const userDepartmentId = userInfo?.employeeJobInformation[0]?.departmentId;
-
-  const handleEditToggle = (itemIndex: number, taskIndex: number) => {
-    const newData = [...data];
-    newData[itemIndex].tasks[taskIndex].isEdit =
-      !newData[itemIndex].tasks[taskIndex].isEdit;
-    setData(newData);
-  };
-
-  const handleSaveEditTask = (itemIndex: number, taskIndex: number) => {
-    form.validateFields().then((values) => {
-      const newData = [...data];
-      const { ...filteredData } = {
-        ...newData[itemIndex].tasks[taskIndex],
-        title: values[`task-${itemIndex}-${taskIndex}`],
-        departmentId: userDepartmentId,
-        session: session?.id,
-        month: month?.id,
-        createdBy: userId,
-        failureReason: '',
-      };
-      createWeeklyPriorityTask(filteredData, {
-        onSuccess: () => {
-          newData[itemIndex].tasks[taskIndex].isEdit = false;
-          newData[itemIndex].tasks[taskIndex].title =
-            values[`task-${itemIndex}-${taskIndex}`];
-          setData(newData);
-        },
-      });
-    });
-  };
 
   const handleUpdateStatus = (
     itemIndex: number,
@@ -99,29 +63,13 @@ const TaskCard: React.FC = () => {
       onSuccess: () => {
         newData[itemIndex].tasks[taskIndex].isEdit = false;
         newData[itemIndex].tasks[taskIndex].status = status;
+        if (status === 'COMPLETED' || status === 'PENDING') {
+          newData[itemIndex].tasks[taskIndex].failureReason = '';
+        }
       },
     });
   };
-  const handleDeleted = (itemIndex: number, taskIndex: number) => {
-    const newData = [...data];
 
-    /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    const { isEdit, ...filteredData } = {
-      ...newData[itemIndex].tasks[taskIndex],
-    };
-    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
-    deletedWeeklyPriorityTask(filteredData?.id || '', {
-      onSuccess: () => {
-        newData[itemIndex].tasks[taskIndex] = {
-          ...newData[itemIndex].tasks[taskIndex],
-          isEdit: false,
-        };
-
-        // Make sure to update the state if `data` is coming from React state
-        setData(newData);
-      },
-    });
-  };
   const { data: employeeData } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
 
@@ -129,11 +77,11 @@ const TaskCard: React.FC = () => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
     );
-    return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
+    return employeeDataDetail || {};
   };
   const getDepartmentData = (id: string) => {
     const depDetail = Departments?.find((dep: any) => dep?.id === id);
-    return depDetail || { name: '' }; // Return an object with a name property if depDetail is undefined
+    return depDetail || { name: '' };
   };
   const { data: userPlanningPeriod } = useGetAssignedPlanningPeriodForUserId();
   const planningPeriodWithHighestInterval = userPlanningPeriod?.reduce(
@@ -194,346 +142,426 @@ const TaskCard: React.FC = () => {
   const dropdownItems = (item: any) => [
     {
       key: 'edit',
-      label: 'Edit',
+      label: 'Edit Weekly Priority',
+      icon: <EditOutlined />,
       onClick: () => handleEditClick(item),
     },
   ];
 
+  const handleUndoCompleted = (itemIndex: number, taskIndex: number) => {
+    handleUpdateStatus(itemIndex, taskIndex, 'PENDING', '');
+  };
+
   return (
     <>
-      {data.map((item, itemIndex) => (
-        <Card
-          key={itemIndex}
-          bodyStyle={{ padding: 0 }}
-          className=" my-3 border border-gray-300"
-        >
-          <div
-            data-cy="weekly-priority-components-taskcard-index-tsx-index-div-210"
-            className="flex justify-between bg-gray-50  p-2 items-center rounded-t-xl"
+      <style data-cy="task-card-styles">{`
+        .custom-pixel-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+            background-color: #254ec2;
+            border-color: #254ec2;
+        }
+        .completed-task-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+            background-color: #52c41a !important;
+            border-color: #52c41a !important;
+        }
+        .text-strike-green {
+            color: #6b7280; /* Standard gray for completed task */
+        }
+        .text-strike-red {
+            color: #374151;
+        }
+        .task-row-line {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 1.5px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        @media (min-width: 768px) {
+            .task-row-line {
+                left: 20px;
+                right: 24px;
+            }
+        }
+        .task-row-line-inner {
+            width: 100%;
+            height: 100%;
+        }
+        .bg-strike-green {
+            background-color: #52c41a; /* Matching specified green */
+        }
+        .bg-strike-red {
+            background-color: #ef4444; /* Standard red */
+        }
+        
+        /* Custom styled checkboxes for the left side */
+        .completed-checkbox .ant-checkbox-inner {
+            width: 18px !important;
+            height: 18px !important;
+            background-color: #52c41a !important;
+            border-color: #52c41a !important;
+            border-radius: 4px !important;
+        }
+        .completed-checkbox .ant-checkbox-checked .ant-checkbox-inner::after {
+            width: 5.5px !important;
+            height: 10px !important;
+            left: 21.5% !important;
+        }
+        .failed-checkbox-icon {
+            width: 18px;
+            height: 18px;
+            background-color: #ef4444;
+            border: 1px solid #ef4444;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+        }
+        @media (max-width: 767px) {
+            .task-row-line {
+                left: 16px;
+                right: 16px;
+            }
+        }
+      `}</style>
+
+      {data.map((item, itemIndex) => {
+        const employee = getEmployeeData(item.tasks[0]?.createdBy || '');
+        const fullName = `${employee?.firstName || ''} ${employee?.middleName || ''}`;
+
+        return (
+          <Card
+            key={itemIndex}
+            className="mb-5 border border-[#e5e7eb] rounded-[12px] overflow-hidden"
+            bodyStyle={{ padding: '0px' }}
+            style={{ boxShadow: 'none' }}
+            data-cy={`task-card-${itemIndex}`}
           >
-            <span
-              data-cy="weekly-priority-components-taskcard-index-tsx-index-span-211"
-              className="text-right text-md font-bold"
-            >
-              {item.departmentId
-                ? getDepartmentData(item.departmentId)?.name +
-                    " Team's weekly priority:" || ''
-                : ''}
-            </span>
             <div
-              data-cy="weekly-priority-components-taskcard-index-tsx-index-div-217"
-              className="flex items-center gap-2"
+              className="px-4 md:px-6 py-4 md:py-5 bg-[#f9fafb] border-b border-gray-100"
+              data-cy={`task-card-header-${itemIndex}`}
             >
-              <span
-                data-cy="weekly-priority-components-taskcard-index-tsx-index-span-218"
-                className="text-gray-500 flex flex-col text-xs"
+              <div
+                className="flex justify-between items-center"
+                data-cy={`task-card-header-content-${itemIndex}`}
               >
-                <span
-                  data-cy="weekly-priority-components-taskcard-index-tsx-index-span-219"
-                  className="text-right"
-                >
-                  {getEmployeeData(item.tasks[0]?.createdBy || '')?.firstName +
-                    ' ' +
-                    (getEmployeeData(item.tasks[0]?.createdBy || '')
-                      ?.middleName || '')}
-                </span>
-                <span data-cy="weekly-priority-components-taskcard-index-tsx-index-span-225">
-                  {dayjs(item?.tasks[0]?.createdAt).format(
-                    'MMMM DD YYYY, h:mm:ss A',
-                  )}
-                </span>
-              </span>
-              {item.tasks[0]?.createdBy === userId && (
-                <Dropdown
-                  menu={{ items: dropdownItems(item) }}
-                  trigger={['click']}
-                  placement="bottomRight"
-                >
-                  <Button
-                    type="text"
-                    icon={<RiMore2Fill className="text-gray-500" />}
-                    className="flex items-center justify-center"
-                  />
-                </Dropdown>
-              )}
-            </div>
-          </div>
-          {/* <div className="text-black font-semibold text-lg">
-           
-          </div> */}
-
-          <Form form={form}>
-            <div
-              data-cy="weekly-priority-components-taskcard-index-tsx-index-div-251"
-              className="p-2"
-            >
-              {item.tasks.map((task, taskIndex) => (
                 <div
-                  data-cy="weekly-priority-components-taskcard-index-tsx-index-div-253"
-                  key={taskIndex}
-                  className="flex flex-col mt-2"
+                  className="flex-1"
+                  data-cy={`task-card-header-info-${itemIndex}`}
                 >
+                  <h3
+                    className="text-[15.5px] md:text-[16.5px] font-bold text-[#111827] mb-1 leading-tight"
+                    data-cy={`task-card-title-${itemIndex}`}
+                  >
+                    {item.departmentId
+                      ? getDepartmentData(item.departmentId)?.name +
+                        " Team's weekly priority"
+                      : 'Weekly priority'}
+                  </h3>
                   <div
-                    data-cy="weekly-priority-components-taskcard-index-tsx-index-div-254"
-                    className="flex justify-between items-center"
+                    className="flex items-center gap-2"
+                    data-cy={`task-card-meta-${itemIndex}`}
                   >
+                    <Avatar
+                      size={22}
+                      icon={
+                        <UserOutlined
+                          data-cy={`task-card-avatar-icon-${itemIndex}`}
+                        />
+                      }
+                      src={employee?.photo}
+                      className="bg-gray-100 flex-shrink-0"
+                      data-cy={`task-card-avatar-${itemIndex}`}
+                    />
                     <div
-                      data-cy="weekly-priority-components-taskcard-index-tsx-index-div-255"
-                      className="flex gap-2 items-center w-full"
+                      className="flex items-center text-[13px] md:text-[14px] text-gray-500 font-medium"
+                      data-cy={`task-card-user-info-${itemIndex}`}
                     >
-                      {task.status === 'COMPLETED' ? (
-                        <Popconfirm
-                          title="Do you want to undo the task progress?"
-                          onConfirm={() =>
-                            handleUpdateStatus(
-                              itemIndex,
-                              taskIndex,
-                              'PENDING',
-                              '',
-                            )
-                          }
-                          okText="Yes"
-                          cancelText="No"
-                          placement="bottom"
-                        >
-                          <Button
-                            type="primary"
-                            className="bg-green-600 border-none w-4 h-4 rounded-full"
-                            icon={<FiCheckCircle size={8} />}
-                          />
-                        </Popconfirm>
-                      ) : task.status === 'NOT_COMPLETED' ? (
-                        <Popconfirm
-                          title="Do you want to undo the task progress?"
-                          onConfirm={() =>
-                            handleUpdateStatus(
-                              itemIndex,
-                              taskIndex,
-                              'PENDING',
-                              '',
-                            )
-                          }
-                          okText="Yes"
-                          cancelText="No"
-                          placement="bottom"
-                        >
-                          <Button
-                            type="primary"
-                            className="bg-red-600 border-none w-4 h-4 rounded-full"
-                            icon={<RiCloseCircleFill size={8} />}
-                          />
-                        </Popconfirm>
-                      ) : (
-                        '  '
-                      )}
-                      <div
-                        data-cy="weekly-priority-components-taskcard-index-tsx-index-div-301"
-                        className="border-[1px] rounded-[4px] w-3 h-3 flex items-center justify-center border-[#cfaaff]"
+                      <span
+                        className="text-[#374151]"
+                        data-cy={`task-card-user-name-${itemIndex}`}
                       >
-                        <span
-                          data-cy="weekly-priority-components-taskcard-index-tsx-index-span-302"
-                          className="rounded-full bg-blue w-1 h-1"
-                        ></span>
-                      </div>
-
-                      {task.isEdit ? (
-                        <Form.Item
-                          name={`task-${itemIndex}-${taskIndex}`}
-                          initialValue={task.title}
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Task Description is required',
-                            },
-                          ]}
-                          className="w-[80%] mb-0"
-                        >
-                          <Input
-                            placeholder="Enter Task Description"
-                            autoFocus
-                          />
-                        </Form.Item>
-                      ) : (
-                        <span
-                          className="w-full"
-                          onClick={() => {
-                            if (task.status === 'PENDING') {
-                              handleEditToggle(itemIndex, taskIndex);
-                            }
-                          }}
-                          data-cy="weeklypriority-weekly-priority-components-taskcard-index-tsx-span-357"
-                        >
-                          {task.title}
-                        </span>
-                      )}
+                        {fullName}
+                      </span>
+                      <span
+                        className="mx-1.5 text-gray-400"
+                        data-cy={`task-card-separator-${itemIndex}`}
+                      >
+                        •
+                      </span>
+                      <span
+                        className="text-[#4b5563] font-medium"
+                        data-cy={`task-card-date-${itemIndex}`}
+                      >
+                        {dayjs(item?.tasks[0]?.createdAt).format('DD MMM YYYY')}
+                      </span>
                     </div>
-                    {task.status === 'PENDING' &&
-                      item.tasks[0]?.createdBy === userId && (
-                        <div
-                          data-cy="weekly-priority-components-taskcard-index-tsx-index-div-337"
-                          className="flex gap-4 mb-4"
-                        >
-                          {task?.isEdit ? (
-                            <Button
-                              type="primary"
-                              className="bg-green-600 border-none w-8 h-5 rounded-sm"
-                              onClick={() =>
-                                handleSaveEditTask(itemIndex, taskIndex)
-                              }
-                              icon={<HiOutlineCheck />}
-                            />
-                          ) : (
-                            <Popconfirm
-                              title="Are you sure you Finished?"
-                              onConfirm={() =>
-                                handleUpdateStatus(
-                                  itemIndex,
-                                  taskIndex,
-                                  'COMPLETED',
-                                  '',
-                                )
-                              }
-                              okText="Finished"
-                              cancelText="Cancel"
-                              placement="bottom"
-                            >
-                              <Button
-                                type="primary"
-                                className="bg-green-600 border-none w-8 h-5 rounded-sm"
-                                icon={<HiOutlineCheck />}
-                              />
-                            </Popconfirm>
-                          )}
-                          {task?.isEdit ? (
-                            <Popconfirm
-                              title="Are you sure to Remove the Task?"
-                              onConfirm={() =>
-                                task?.id
-                                  ? handleDeleted(itemIndex, taskIndex)
-                                  : removeTask(itemIndex, taskIndex)
-                              }
-                              okText="Remove"
-                              cancelText="Cancel"
-                              placement="bottom"
-                            >
-                              <Button
-                                type="primary"
-                                className="bg-red-600 w-8 h-5 rounded-sm"
-                                icon={<HiMinus />}
-                              />
-                            </Popconfirm>
-                          ) : (
-                            <Button
-                              type="primary"
-                              className="bg-red-600 w-8 h-5 rounded-sm"
-                              icon={<RiCloseLine />}
-                              onClick={() => {
-                                const taskKey = `${itemIndex}-${taskIndex}`;
-                                setFailedReasonVisible({
-                                  ...failedReasonVisible,
-                                  [taskKey]: true,
-                                });
-                              }}
-                            />
-                          )}
-                        </div>
-                      )}
                   </div>
-                  {failedReasonVisible[`${itemIndex}-${taskIndex}`] && (
+                </div>
+
+                <div
+                  className="flex-shrink-0 -mr-2"
+                  data-cy={`task-card-actions-${itemIndex}`}
+                >
+                  <Dropdown
+                    menu={{ items: dropdownItems(item) }}
+                    trigger={['click']}
+                    placement="bottomRight"
+                    data-cy={`task-card-dropdown-${itemIndex}`}
+                  >
+                    <Button
+                      type="text"
+                      className="flex items-center justify-center h-9 w-9 bg-white border border-gray-200 rounded-[8px] transition-all"
+                      icon={
+                        <RiMoreFill
+                          className="text-[#111827] text-[22px] translate-y-[1px]"
+                          data-cy={`task-card-dropdown-icon-${itemIndex}`}
+                        />
+                      }
+                      data-cy={`task-card-dropdown-button-${itemIndex}`}
+                    />
+                  </Dropdown>
+                </div>
+              </div>
+            </div>
+
+            <Form
+              form={form}
+              className="pb-0"
+              data-cy={`task-card-form-${itemIndex}`}
+            >
+              {item.tasks.map((task, taskIndex) => {
+                const taskId = task.id || `${itemIndex}-${taskIndex}`;
+                const isCompleted = task.status === 'COMPLETED';
+                const isNotCompleted = task.status === 'NOT_COMPLETED';
+                const isReported = isCompleted || isNotCompleted;
+
+                return (
+                  <div
+                    key={taskIndex}
+                    className="flex flex-col"
+                    data-cy={`task-item-${itemIndex}-${taskIndex}`}
+                  >
                     <div
-                      data-cy="weekly-priority-components-taskcard-index-tsx-index-div-405"
-                      className="ml-6 mt-2 relative"
+                      className={`${isReported ? 'grid grid-cols-[auto_1fr]' : 'flex'} transition-colors ${isCompleted ? 'bg-[#F7FEE7]' : isNotCompleted ? 'bg-[#fff1f2]' : 'bg-white'}`}
+                      data-cy={`task-item-content-${itemIndex}-${taskIndex}`}
                     >
-                      <Input.TextArea
-                        placeholder="Enter reason for failure"
-                        value={
-                          failedReasons[`${itemIndex}-${taskIndex}`] ||
-                          task.failureReason
-                        }
-                        onChange={(e) => {
-                          const taskKey = `${itemIndex}-${taskIndex}`;
-                          setFailedReasons({
-                            ...failedReasons,
-                            [taskKey]: e.target.value,
-                          });
-                        }}
-                        className="mb-2"
-                        autoFocus
-                      />
+                      {/* Left Column: Icon - Only show for reported tasks */}
+                      {isReported && (
+                        <div
+                          className={`flex ${isNotCompleted ? 'items-center' : 'items-center md:items-start md:pt-[18px]'} pl-4 md:pl-6 pr-1 md:pr-0 py-4 md:py-[18px]`}
+                          data-cy={`task-item-icon-column-${itemIndex}-${taskIndex}`}
+                        >
+                          <div
+                            className="flex-shrink-0"
+                            data-cy={`task-item-checkbox-wrapper-${itemIndex}-${taskIndex}`}
+                          >
+                            {isCompleted ? (
+                              <Popconfirm
+                                title="Undo task progress?"
+                                onConfirm={() =>
+                                  handleUndoCompleted(itemIndex, taskIndex)
+                                }
+                                okText="Yes"
+                                cancelText="No"
+                                placement="topLeft"
+                                data-cy={`task-item-popconfirm-completed-${itemIndex}-${taskIndex}`}
+                              >
+                                <div
+                                  className="relative z-10 bg-[#F7FEE7] px-1"
+                                  data-cy={`task-item-completed-wrapper-${itemIndex}-${taskIndex}`}
+                                >
+                                  <Checkbox
+                                    checked
+                                    className="completed-checkbox"
+                                    data-cy={`task-item-completed-checkbox-${itemIndex}-${taskIndex}`}
+                                  />
+                                </div>
+                              </Popconfirm>
+                            ) : (
+                              <div
+                                className="relative z-10 bg-[#fff1f2] px-1"
+                                data-cy={`task-item-failed-wrapper-${itemIndex}-${taskIndex}`}
+                              >
+                                <div
+                                  className="failed-checkbox-icon"
+                                  data-cy={`task-item-failed-checkbox-icon-${itemIndex}-${taskIndex}`}
+                                >
+                                  <RiCloseFill
+                                    data-cy={`task-item-failed-checkbox-icon-inner-${itemIndex}-${taskIndex}`}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Right Column: Content */}
                       <div
-                        data-cy="weekly-priority-components-taskcard-index-tsx-index-div-422"
-                        className="absolute bottom-2 right-2"
+                        className="flex-1 flex flex-col min-w-0"
+                        data-cy={`task-item-content-column-${itemIndex}-${taskIndex}`}
                       >
                         <div
-                          data-cy="weekly-priority-components-taskcard-index-tsx-index-div-423"
-                          className="flex gap-2 mb-1"
+                          className={`flex items-center md:items-start gap-4 group pr-4 md:pr-6 py-4 md:py-[18px] relative ${isReported ? 'pl-4 md:pl-5' : 'pl-4 md:pl-6'}`}
+                          data-cy={`task-item-header-container-${itemIndex}-${taskIndex}`}
                         >
-                          <Button
-                            type="primary"
-                            className="text-xs py-1 px-2 h-6"
-                            onClick={() =>
-                              handleFailedReasonSubmit(itemIndex, taskIndex)
-                            }
-                            disabled={
-                              !failedReasons[
-                                `${itemIndex}-${taskIndex}`
-                              ]?.trim()
-                            }
-                            loading={updateWeeklyPriorityTaskLoading}
+                          {(isCompleted || isNotCompleted) && (
+                            <div
+                              className="task-row-line"
+                              data-cy={`task-item-line-wrapper-${itemIndex}-${taskIndex}`}
+                            >
+                              <div
+                                className={`task-row-line-inner ${isCompleted ? 'bg-strike-green' : 'bg-strike-red'}`}
+                                data-cy={`task-item-line-inner-${itemIndex}-${taskIndex}`}
+                              />
+                            </div>
+                          )}
+
+                          <div
+                            className="flex-1 min-w-0"
+                            data-cy={`task-item-details-${itemIndex}-${taskIndex}`}
                           >
-                            Submit
-                          </Button>
-                          <Button
-                            onClick={() =>
-                              handleFailedReasonCancel(itemIndex, taskIndex)
-                            }
-                            className="text-xs py-1 px-2 h-6"
-                          >
-                            Cancel
-                          </Button>
+                            <div
+                              className="flex justify-between items-center w-full min-h-[24px]"
+                              data-cy={`task-item-header-${itemIndex}-${taskIndex}`}
+                            >
+                              <span
+                                className={`text-[14.5px] md:text-[15px] font-medium leading-normal transition-all truncate md:whitespace-normal ${isCompleted ? 'text-strike-green' : isNotCompleted ? 'text-strike-red' : 'text-[#374151]'}`}
+                                data-cy={`task-item-title-${itemIndex}-${taskIndex}`}
+                              >
+                                {task.title}
+                              </span>
+
+                              <div
+                                className="flex items-center gap-2 flex-shrink-0 ml-4"
+                                data-cy={`task-item-status-icons-${itemIndex}-${taskIndex}`}
+                              >
+                                {isCompleted && (
+                                  <HiCheckCircle
+                                    className="text-[#52c41a] text-[15px] flex-shrink-0 relative z-10 bg-[#F7FEE7] rounded-full"
+                                    data-cy={`task-item-completed-icon-${itemIndex}-${taskIndex}`}
+                                  />
+                                )}
+
+                                {isNotCompleted && (
+                                  <HiXCircle
+                                    className="text-[#ef4444] text-[15px] flex-shrink-0 relative z-10 bg-[#fff1f2] rounded-full"
+                                    data-cy={`task-item-failed-icon-${itemIndex}-${taskIndex}`}
+                                  />
+                                )}
+                              </div>
+                            </div>
+
+                            {failedReasonVisible[taskId] && isNotCompleted && (
+                              <div
+                                className="mt-3 bg-white border border-[#fee2e2] p-4 rounded-[10px]"
+                                data-cy={`task-item-failed-reason-form-${itemIndex}-${taskIndex}`}
+                              >
+                                <p
+                                  className="text-[12px] font-bold text-red-800 mb-2 uppercase tracking-tight"
+                                  data-cy={`task-item-failed-reason-title-${itemIndex}-${taskIndex}`}
+                                >
+                                  Postpone Details
+                                </p>
+                                <Input.TextArea
+                                  placeholder="Why did this task fail?"
+                                  value={
+                                    failedReasons[taskId] || task.failureReason
+                                  }
+                                  onChange={(e) => {
+                                    setFailedReasons({
+                                      ...failedReasons,
+                                      [taskId]: e.target.value,
+                                    });
+                                  }}
+                                  className="mb-3 text-sm rounded-[6px] border-[#fee2e2]"
+                                  autoFocus
+                                  rows={2}
+                                  data-cy={`task-item-failed-reason-textarea-${itemIndex}-${taskIndex}`}
+                                />
+                                <div
+                                  className="flex gap-2 justify-end"
+                                  data-cy={`task-item-failed-reason-actions-${itemIndex}-${taskIndex}`}
+                                >
+                                  <Button
+                                    size="small"
+                                    className="rounded-[6px] text-[12px]"
+                                    onClick={() =>
+                                      handleFailedReasonCancel(
+                                        itemIndex,
+                                        taskIndex,
+                                      )
+                                    }
+                                    data-cy={`task-item-failed-reason-cancel-${itemIndex}-${taskIndex}`}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    type="primary"
+                                    danger
+                                    size="small"
+                                    className="rounded-[6px] text-[12px] bg-red-600 border-none font-semibold"
+                                    loading={updateWeeklyPriorityTaskLoading}
+                                    onClick={() =>
+                                      handleFailedReasonSubmit(
+                                        itemIndex,
+                                        taskIndex,
+                                      )
+                                    }
+                                    disabled={!failedReasons[taskId]?.trim()}
+                                    data-cy={`task-item-failed-reason-submit-${itemIndex}-${taskIndex}`}
+                                  >
+                                    Submit
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
+
+                        {!failedReasonVisible[taskId] &&
+                          task.status === 'NOT_COMPLETED' && (
+                            <div
+                              className="ml-4 md:ml-5 mr-4 md:mr-6 mb-4 md:mb-[18px] bg-white border border-gray-100 shadow-sm px-5 py-3 rounded-[12px]"
+                              data-cy={`task-item-failed-reason-display-${itemIndex}-${taskIndex}`}
+                            >
+                              <span
+                                className="text-[13.5px] text-[#111827] font-bold"
+                                data-cy={`task-item-failed-reason-label-${itemIndex}-${taskIndex}`}
+                              >
+                                Reason :{' '}
+                              </span>
+                              <span
+                                className="text-[13.5px] text-gray-500 font-medium ml-1"
+                                data-cy={`task-item-failed-reason-text-${itemIndex}-${taskIndex}`}
+                              >
+                                {task.failureReason}
+                              </span>
+                            </div>
+                          )}
                       </div>
                     </div>
-                  )}
-                  {!failedReasonVisible[`${itemIndex}-${taskIndex}`] &&
-                    task.status === 'NOT_COMPLETED' && (
+                    {taskIndex < item.tasks.length - 1 && (
                       <div
-                        onClick={() => {
-                          const taskKey = `${itemIndex}-${taskIndex}`;
-                          setFailedReasonVisible({
-                            ...failedReasonVisible,
-                            [taskKey]: true,
-                          });
-                        }}
-                        data-cy="weeklypriority-weekly-priority-components-taskcard-index-tsx-div-499"
-                        className="ml-6 mt-2 relative border rounded-md p-2 cursor-pointer"
-                      >
-                        <span
-                          data-cy="weekly-priority-components-taskcard-index-tsx-index-span-463"
-                          className="text-xs"
-                        >
-                          {task.failureReason}
-                        </span>
-                      </div>
+                        className="h-[1px] bg-gray-100 mx-4 md:mx-6 opacity-60"
+                        data-cy={`task-item-divider-${itemIndex}-${taskIndex}`}
+                      />
                     )}
-                </div>
-              ))}
-              {/* {item.tasks[0]?.createdBy === userId && (
-                <div className="flex justify-end">
-                  <Button
-                    type="primary"
-                    icon={<HiPlus />}
-                    onClick={() => addNewTask(itemIndex)}
-                  >
-                    <span className="text-xs"> Add new</span>
-                  </Button>
-                </div>
-              )} */}
-            </div>
-          </Form>
-        </Card>
-      ))}
+                  </div>
+                );
+              })}
+            </Form>
+          </Card>
+        );
+      })}
+
       <WeeklyPriorityModal
+        data-cy="weekly-priority-modal"
         open={modalOpen}
         onCancel={() => {
           setModalOpen(false);

@@ -1,6 +1,6 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-import { OrgChart } from './interface';
+import { OrgChart, DepartmentStaffUser } from './interface';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -48,7 +48,7 @@ const getAllOrgChartsPeople = async () => {
  * @param id - ID of the organization chart to fetch.
  * @returns Promise with the organization chart data.
  */
-const getOrgChart = async (id: string) => {
+export const getOrgChart = async (id: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -88,3 +88,37 @@ export const useGetOrgChart = (id: string) =>
   useQuery<OrgChart>(['orgchart', id], () => getOrgChart(id), {
     keepPreviousData: true,
   });
+
+/**
+ * Fetch users/staff in a department (without team lead) for display in the users modal.
+ * @param departmentId - ID of the department.
+ * @returns Promise with the list of users in that department.
+ */
+export const getDepartmentUsersWithoutTeamLead = async (
+  departmentId: string,
+): Promise<DepartmentStaffUser[]> => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  const res = await crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/departments/users-without-team-lead/${departmentId}`,
+    method: 'GET',
+    headers,
+  });
+  return Array.isArray(res) ? res : (res?.data ?? res?.items ?? []);
+};
+
+/**
+ * Hook to fetch department users (without team lead). Only runs when departmentId is truthy.
+ */
+export const useGetDepartmentUsersWithoutTeamLead = (
+  departmentId: string | null,
+) =>
+  useQuery<DepartmentStaffUser[]>(
+    ['departmentUsersWithoutTeamLead', departmentId],
+    () => getDepartmentUsersWithoutTeamLead(departmentId!),
+    { enabled: !!departmentId },
+  );

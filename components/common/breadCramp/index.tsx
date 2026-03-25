@@ -6,27 +6,30 @@ interface CustomBreadcrumbProps extends BreadcrumbProps {
   title: JSX.Element | string;
   subtitle: JSX.Element | string;
   isRecognition?: boolean;
+  /** When true, reduces vertical padding and gap for a tighter breadcrumb area */
+  compact?: boolean;
 }
 
 const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
   title,
   subtitle,
   isRecognition = false,
+  compact = false,
   // className,
   // ...rest
 }) => (
   <div
-    className={`grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex py-4 ${isRecognition ? 'bg-white' : ''}`}
+    className={`w-full flex flex-col justify-start items-start ${compact ? 'gap-1 py-1' : 'gap-2 py-2'} ${isRecognition ? 'bg-white' : ''}`}
     data-cy="custom-breadcrumb"
   >
     <div
-      className="self-stretch text-gray-900 text-2xl font-bold font-['Manrope'] leading-[31.20px]"
+      className="self-stretch text-gray-900 text-2xl font-bold leading-[31.20px]"
       data-cy="breadcrumb-title"
     >
       {title}
     </div>
     <div
-      className="self-stretch text-slate-500 text-sm font-medium font-['Manrope'] leading-snug"
+      className="self-stretch text-slate-500 text-sm font-medium leading-snug"
       data-cy="breadcrumb-subtitle"
     >
       {subtitle}

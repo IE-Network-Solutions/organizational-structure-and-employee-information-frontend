@@ -20,7 +20,7 @@ const config: Config = {
         'tablet-lg': '1024px',
       },
       colors: {
-        primary: '#3636F0',
+        primary: '#1E40AF',
         secondary: '#1D9BF0',
         success: '#0BA259',
         ['success-second']: '#55c790',
@@ -33,9 +33,11 @@ const config: Config = {
         purple: '#8C62FF',
         light_purple: '#E7E7FF',
         lightblue: '#d3e4f0',
+        lightorange: '#FFFBE6',
+        orangebg: '#fe964a',
       },
       fontFamily: {
-        sans: ['Manrope', 'sans-serif'],
+        sans: ['Calibre', 'sans-serif'],
       },
       height: {
         'half-vw': 'calc(50vw)',

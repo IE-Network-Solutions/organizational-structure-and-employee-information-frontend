@@ -122,3 +122,55 @@ export const useUpdateOkrSetting = () => {
     },
   );
 };
+
+/**
+ * Switch OKR mode (Basic | Advanced) via PATCH /okr-setting/switch.
+ * For future use only; current UI continues to use create/update (POST/PUT).
+ * Validates report completion; 400 returns message + incompleteUserIds.
+ */
+const switchOkrMode = async (
+  mode: 'Basic' | 'Advanced',
+): Promise<OkrSetting> => {
+  const token = await getCurrentToken();
+  const response = (await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/okr-setting/switch`,
+    method: 'PATCH',
+    data: { name: mode } as OkrSettingRequest,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  })) as OkrSetting;
+  return response;
+};
+
+export const useSwitchOkrMode = () => {
+  const queryClient = useQueryClient();
+  return useMutation(switchOkrMode, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('okrSettingCheck');
+      queryClient.invalidateQueries('okrSetting');
+    },
+    onError: (error: any) => {
+      const status = error?.response?.status;
+      const data = error?.response?.data;
+      const message =
+        typeof data?.message === 'string'
+          ? data.message
+          : 'Failed to switch OKR mode.';
+
+      // We don't show notification for 400 because it's handled by custom modal in the UI
+      if (status === 404) {
+        NotificationMessage.error({
+          message: 'OKR setting not found',
+          description: message,
+        });
+      } else if (status !== 400) {
+        NotificationMessage.error({
+          message: 'Switch failed',
+          description: message,
+        });
+      }
+    },
+  });
+};

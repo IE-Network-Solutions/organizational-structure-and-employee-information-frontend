@@ -1,16 +1,8 @@
-import dynamic from 'next/dynamic';
-const OrgChartComponent = dynamic(
-  () => import('./_components/orgDepartmentPage'),
-  {
-    ssr: false,
-  },
-);
-function OrgChart() {
-  return (
-    <div data-cy="org-chart-page" id="org-chart-page">
-      <OrgChartComponent data-cy="org-chart-component" />
-    </div>
-  );
-}
+'use client';
 
-export default OrgChart;
+import { redirect } from 'next/navigation';
+
+export default function OrgChartPage() {
+  redirect('/organization/chart/org-structure');
+  return null;
+}

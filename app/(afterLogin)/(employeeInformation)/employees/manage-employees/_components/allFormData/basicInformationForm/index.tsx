@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Col,
   DatePicker,
@@ -12,23 +12,23 @@ import {
   Upload,
   message,
   Button,
+  Popover,
 } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
-import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
+import { CloseOutlined, InboxOutlined } from '@ant-design/icons';
 import { validateEmail, validateName } from '@/utils/validation';
 import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import dayjs from 'dayjs';
+import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 
 const { Option } = Select;
 const { Dragger } = Upload;
 
 const BasicInformationForm = ({ form }: any) => {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { profileFileList, setBirthDate, setProfileFileList } =
     useEmployeeManagementStore();
-  const { data: nationalities, isLoading: isLoadingNationality } =
-    useGetNationalities();
 
   type FileInfo = {
     file: UploadFile; // File being uploaded
@@ -97,105 +97,177 @@ const BasicInformationForm = ({ form }: any) => {
                 id="basic-info-upload-label"
                 data-cy="basic-info-upload-label"
               >
-                Upload Profile
+                Upload Avatar{' '}
+                <span
+                  data-cy="basic-info-upload-label-span"
+                  className="text-gray-400"
+                >
+                  (optional)
+                </span>
               </span>
             }
-            style={{ textAlign: 'center' }}
+            // style={{ textAlign: 'center' }}
             name="profileImage"
             id="profileImageId"
             data-cy="profileImageId"
           >
-            {profileFileList.length > 0 ? (
-              // PREVIEW MODE - Wider image to cover more space
-              <div
-                className="flex justify-center items-center py-2 px-3 border-2 border-dashed border-gray-300 rounded-lg"
-                id="basic-info-upload-preview"
-                data-cy="basic-info-upload-preview"
-              >
+            <Popover
+              trigger="click"
+              open={isPopoverOpen}
+              onOpenChange={setIsPopoverOpen}
+              placement="bottomRight"
+              content={
                 <div
-                  className="relative inline-block"
-                  id="basic-info-upload-preview-image"
-                  data-cy="basic-info-upload-preview-image"
+                  className="p-1 w-[450px]"
+                  id="avatar-popover-container"
+                  data-cy="avatar-popover-container"
                 >
+                  {/* Header */}
+                  <div
+                    data-cy="avatar-popover-header-div"
+                    className="flex justify-between items-center mb-4"
+                  >
+                    <span
+                      data-cy="avatar-popover-header-title"
+                      className="text-gray-700 font-semibold text-sm"
+                    >
+                      Upload Profile
+                    </span>
+                    <CloseOutlined
+                      className="text-gray-400 cursor-pointer text-xs"
+                      onClick={() => setIsPopoverOpen(false)}
+                      id="avatar-popover-close"
+                      data-cy="avatar-popover-close"
+                    />
+                  </div>
+
+                  {/* Upload Area */}
+                  {profileFileList.length > 0 ? (
+                    <div
+                      className="flex justify-center items-center py-4 px-3 border-2 border-dashed border-gray-300 rounded-lg"
+                      id="basic-info-upload-preview"
+                      data-cy="basic-info-upload-preview"
+                    >
+                      <div
+                        className="relative inline-block"
+                        id="basic-info-upload-preview-image"
+                        data-cy="basic-info-upload-preview-image"
+                      >
+                        <Image
+                          src={getImageUrl(profileFileList)}
+                          alt="Profile Preview"
+                          width={400}
+                          height={200}
+                          className="object-cover rounded-lg"
+                          preview={true}
+                          style={{
+                            minWidth: '400px',
+                            minHeight: '200px',
+                            maxWidth: '100%',
+                          }}
+                        />
+                        <Button
+                          type="primary"
+                          danger
+                          size="small"
+                          icon={<CloseOutlined />}
+                          onClick={handleProfileRemove}
+                          className="absolute -top-2 -right-2 shadow-md"
+                          style={{ zIndex: 10 }}
+                          title="Remove image"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <Dragger
+                      name="files"
+                      fileList={[]}
+                      beforeUpload={beforeProfileUpload}
+                      onChange={(info) => {
+                        handleProfileChange(info);
+                      }}
+                      className="bg-gray-50 border-gray-300 border-dashed rounded-lg py-8"
+                      accept="image/*"
+                      maxCount={1}
+                      showUploadList={false}
+                    >
+                      <div
+                        data-cy="avatar-popover-upload-hint-div"
+                        className="flex flex-col items-center justify-center space-y-3"
+                      >
+                        <div
+                          data-cy="avatar-popover-upload-hint-icon-div"
+                          className="p-3 bg-white border border-blue-600 rounded-lg"
+                        >
+                          <InboxOutlined className="text-blue-600 text-3xl" />
+                        </div>
+                        <div data-cy="avatar-popover-upload-hint-div">
+                          <p
+                            data-cy="avatar-popover-upload-hint"
+                            className="text-sm font-medium text-gray-700"
+                          >
+                            Click or drag file to this area to upload
+                          </p>
+                          <p
+                            data-cy="avatar-popover-upload-hint"
+                            className="text-xs text-gray-400"
+                          >
+                            Support for a single or bulk upload.
+                          </p>
+                        </div>
+                      </div>
+                    </Dragger>
+                  )}
+
+                  {/* Footer */}
+                  <div
+                    data-cy="avatar-popover-footer-div"
+                    className="flex justify-end mt-4 gap-2"
+                  >
+                    <Button
+                      className="px-6 rounded-lg text-xs font-semibold"
+                      onClick={() => setIsPopoverOpen(false)}
+                      id="avatar-popover-cancel"
+                      data-cy="avatar-popover-cancel"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="primary"
+                      className="px-6 rounded-lg bg-blue-700 text-xs font-semibold"
+                      onClick={() => setIsPopoverOpen(false)}
+                      id="avatar-popover-upload"
+                      data-cy="avatar-popover-upload"
+                    >
+                      Upload
+                    </Button>
+                  </div>
+                </div>
+              }
+            >
+              <div
+                className="flex items-center justify-center bg-gray-300 rounded-full p-2 border border-gray-300 w-16 h-16 cursor-pointer relative overflow-visible"
+                id="avatar-trigger-circle"
+                data-cy="avatar-trigger-circle"
+              >
+                {profileFileList.length > 0 ? (
                   <Image
                     src={getImageUrl(profileFileList)}
-                    alt="Profile Preview"
-                    width={400}
-                    height={200}
-                    className="object-cover rounded-lg"
-                    preview={true}
-                    style={{
-                      minWidth: '400px',
-                      minHeight: '200px',
-                      maxWidth: '100%',
-                    }}
-                    id="basic-info-upload-preview-image"
-                    data-cy="basic-info-upload-preview-image"
+                    alt="Avatar"
+                    width={64}
+                    height={64}
+                    className="rounded-full w-full h-full object-cover"
+                    preview={false}
                   />
-                  <Button
-                    type="primary"
-                    danger
-                    size="small"
-                    icon={<CloseOutlined />}
-                    onClick={handleProfileRemove}
-                    className="absolute -top-2 -right-2 shadow-md"
-                    style={{ zIndex: 10 }}
-                    title="Remove image"
-                    data-cy="basic-info-upload-remove-btn"
-                    id="basic-info-upload-remove-btn"
+                ) : (
+                  <PersonOutlinedIcon
+                    style={{ fontSize: '32px', color: '#6b7280' }}
                   />
-                </div>
+                )}
+                {/* The X button to remove image outside popover if needed, 
+                    but per image it shows the placeholder icon */}
               </div>
-            ) : (
-              // UPLOAD MODE - Show dragger when no file
-              <Dragger
-                name="files"
-                fileList={[]}
-                beforeUpload={beforeProfileUpload}
-                onChange={handleProfileChange}
-                className="custom-dragger"
-                accept="image/*"
-                maxCount={1}
-                showUploadList={false}
-                id="basic-info-upload-dragger"
-                data-cy="basic-info-upload-dragger"
-              >
-                <div
-                  className="bg-white p-0"
-                  id="basic-info-upload-dragger-content"
-                  data-cy="basic-info-upload-dragger-content"
-                >
-                  <p
-                    className="ant-upload-drag-icon "
-                    id="basic-info-upload-dragger-icon"
-                    data-cy="basic-info-upload-dragger-icon"
-                  >
-                    <Image
-                      src="/icons/gallery-add.svg"
-                      alt="Upload"
-                      width={15}
-                      height={15}
-                      id="basic-info-upload-dragger-image"
-                      data-cy="basic-info-upload-dragger-image"
-                    />
-                  </p>
-                  <p
-                    className="ant-upload-text font-semibold text-xs"
-                    id="basic-info-upload-dragger-title"
-                    data-cy="basic-info-upload-dragger-title"
-                  >
-                    Upload Your Profile
-                  </p>
-                  <p
-                    className="ant-upload-hint text-xs"
-                    id="basic-info-upload-dragger-hint"
-                    data-cy="basic-info-upload-dragger-hint"
-                  >
-                    or drag and drop it here.
-                  </p>
-                </div>
-              </Dragger>
-            )}
+            </Popover>
           </Form.Item>
         </Col>
       </Row>
@@ -400,8 +472,8 @@ const BasicInformationForm = ({ form }: any) => {
       </Row>
       <Row
         gutter={16}
-        id="basic-info-row-birth-nationality"
-        data-cy="basic-info-row-birth-nationality"
+        id="basic-info-row-birth-marital"
+        data-cy="basic-info-row-birth-marital"
       >
         <Col
           xs={24}
@@ -422,7 +494,6 @@ const BasicInformationForm = ({ form }: any) => {
             }
             id="userDateOfBirthId"
             data-cy="userDateOfBirthId"
-            rules={[{ required: true }]}
           >
             <DatePicker
               className="w-full"
@@ -444,60 +515,6 @@ const BasicInformationForm = ({ form }: any) => {
         <Col
           xs={24}
           sm={12}
-          id="basic-info-col-nationality"
-          data-cy="basic-info-col-nationality"
-        >
-          <Form.Item
-            className="font-semibold text-xs"
-            name="nationalityId"
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                data-cy="basic-info-nationality-label"
-              >
-                Nationality
-              </span>
-            }
-            id="userNationalityId"
-            data-cy="userNationalityId"
-            rules={[{ required: true, message: 'Please select nationality' }]}
-          >
-            <Select
-              loading={isLoadingNationality}
-              placeholder="Select an option"
-              allowClear
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                String(option?.children || '')
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              id="basic-info-nationality-select"
-              data-cy="basic-info-nationality-select"
-            >
-              {nationalities?.items?.map((nationality: any, index: number) => (
-                <Option
-                  key={index}
-                  value={nationality?.id}
-                  id={`basic-info-nationality-option-${index}`}
-                  data-cy={`basic-info-nationality-option-${index}`}
-                >
-                  {nationality?.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Col>
-      </Row>
-      <Row
-        gutter={16}
-        id="basic-info-row-marital"
-        data-cy="basic-info-row-marital"
-      >
-        <Col
-          xs={24}
-          sm={24}
           id="basic-info-col-marital-status"
           data-cy="basic-info-col-marital-status"
         >
@@ -514,9 +531,6 @@ const BasicInformationForm = ({ form }: any) => {
             }
             id="userMaritalStatusId"
             data-cy="userMaritalStatusId"
-            rules={[
-              { required: true, message: 'Please select a marital status!' },
-            ]}
           >
             <Select
               placeholder="Select an option"
@@ -549,6 +563,93 @@ const BasicInformationForm = ({ form }: any) => {
           </Form.Item>
         </Col>
       </Row>
+      {/* <Row
+        gutter={16}
+        id="basic-info-row-nationality"
+        data-cy="basic-info-row-nationality"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="basic-info-col-nationality"
+          data-cy="basic-info-col-nationality"
+        >
+          <Form.Item
+            className="font-semibold text-xs"
+            name="nationalityId"
+            label={
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="basic-info-nationality-label"
+              >
+                Nationality <span className="text-gray-400">(optional)</span>
+              </span>
+            }
+            id="userNationalityId"
+            data-cy="userNationalityId"
+          >
+            <Select
+              loading={isLoadingNationality}
+              placeholder="Select Nationality"
+              allowClear
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                String(option?.children || '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              id="basic-info-nationality-select"
+              data-cy="basic-info-nationality-select"
+            >
+              {nationalities?.items?.map((nationality: any, index: number) => (
+                <Option
+                  key={index}
+                  value={nationality?.id}
+                  id={`basic-info-nationality-option-${index}`}
+                  data-cy={`basic-info-nationality-option-${index}`}
+                >
+                  {nationality?.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row
+        gutter={16}
+        id="basic-info-row-address"
+        data-cy="basic-info-row-address"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="basic-info-col-address"
+          data-cy="basic-info-col-address"
+        >
+          <Form.Item
+            className="font-semibold text-xs"
+            name="address"
+            label={
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="basic-info-address-label"
+              >
+                Address <span className="text-gray-400">(optional)</span>
+              </span>
+            }
+            id="userAddressId"
+            data-cy="userAddressId"
+          >
+            <Input.TextArea
+              placeholder="Add your address as address, city, country"
+              rows={3}
+              id="basic-info-address-textarea"
+              data-cy="basic-info-address-textarea"
+            />
+          </Form.Item>
+        </Col>
+      </Row> */}
     </div>
   );
 };
