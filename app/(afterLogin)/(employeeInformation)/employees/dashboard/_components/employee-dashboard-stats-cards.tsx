@@ -24,6 +24,7 @@ const iconWithBackground = ({
   return (
     <span
       className={`w-8 h-8 rounded-sm ${wrapperClassName} flex items-center justify-center`}
+      data-cy="employee-dashboard-stats-icon"
     >
       {icon}
     </span>
@@ -143,7 +144,7 @@ export default function EmployeeDashboardStatsCards({
       ] as const,
     [combinedHrData],
   );
- 
+
   return (
     <div
       className="flex flex-row overflow-x-auto gap-4 scrollbar-none px-1"
@@ -151,8 +152,12 @@ export default function EmployeeDashboardStatsCards({
       data-cy="employee-dashboard-stats-grid"
     >
       {loading
-        ? Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="min-w-[280px]">
+        ? Array.from({ length: 7 }).map((unusedValue, i) => (
+            <div
+              key={i}
+              className="min-w-[280px]"
+              data-cy={`employee-dashboard-stats-skeleton-${i}`}
+            >
               <Skeleton
                 active
                 paragraph={{ rows: 2 }}
@@ -161,7 +166,11 @@ export default function EmployeeDashboardStatsCards({
             </div>
           ))
         : cards.map((c) => (
-            <div key={c.id} className="min-w-[280px]">
+            <div
+              key={c.id}
+              className="min-w-[280px]"
+              data-cy={`employee-dashboard-stats-card-${c.id}`}
+            >
               <StatsCard
                 title={c.title}
                 value={c.value}

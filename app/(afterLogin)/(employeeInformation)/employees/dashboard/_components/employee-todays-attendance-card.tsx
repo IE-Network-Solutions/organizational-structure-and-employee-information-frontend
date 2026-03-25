@@ -9,7 +9,6 @@ import {
   useGetTodayStatusSummary,
 } from '@/store/server/features/employees/approval/queries';
 
-
 type Period = 'Day' | 'Month' | 'Year' | 'Custom';
 
 const MONTH_ABBR = [
@@ -93,7 +92,6 @@ export default function EmployeeTodaysAttendanceCard() {
 
   const { data: todayStatusData, isLoading } =
     useGetTodayStatusSummary(apiParams);
- console.log('todayStatusData', todayStatusData);
   const onTimeRaw = todayStatusData?.onTime as StatusBucket;
   const lateRaw = todayStatusData?.late as StatusBucket;
   const absentRaw = todayStatusData?.absent as StatusBucket;
@@ -127,7 +125,7 @@ export default function EmployeeTodaysAttendanceCard() {
     'Nov',
     'Dec',
   ];
-  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (_, i) =>
+  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (unusedValue, i) =>
     String(2016 + i),
   );
 
@@ -172,8 +170,14 @@ export default function EmployeeTodaysAttendanceCard() {
           id="employee-todays-attendance-header-row"
           data-cy="employee-todays-attendance-header-row"
         >
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <div
+            className="flex min-w-0 items-center gap-2"
+            data-cy="employee-todays-attendance-title-wrapper"
+          >
+            <div
+              className="w-2 h-2 bg-green-500 rounded-full"
+              data-cy="employee-todays-attendance-title-dot"
+            ></div>
             <h3
               className="truncate font-normal text-sm sm:text-base text-black/50 leading-6 tracking-normal"
               id="employee-todays-attendance-title"

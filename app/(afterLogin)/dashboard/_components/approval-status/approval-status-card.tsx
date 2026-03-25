@@ -1,6 +1,6 @@
 // components/ApprovalRequestCard.tsx
 import { FC } from 'react';
-import { Avatar, Input, Popconfirm } from 'antd';
+import { Avatar, Input, Popconfirm, Skeleton } from 'antd';
 import {
   CheckCircleFilled,
   CloseCircleFilled,
@@ -15,7 +15,6 @@ import {
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import genderNeutralAvatar from '@/public/gender_neutral_avatar.jpg';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { MdOutlineClose, MdOutlineFileDownload } from 'react-icons/md';
@@ -159,6 +158,80 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             'MMM DD, YYYY',
           )}${leaveDurationDays ? ` (${leaveDurationDays} days)` : ''}`
       : '';
+
+  if (isLoading) {
+    return (
+      <div
+        className="flex h-[60px] items-center justify-between bg-white py-1 px-3 rounded-lg border border-gray-200 overflow-y-auto scrollbar-none mb-3"
+        data-cy="approval-status-card-skeleton"
+      >
+        <div
+          className="flex items-center space-x-3"
+          data-cy="approval-status-card-skeleton-content"
+        >
+          <div
+            className="relative w-[36px] h-[36px] rounded-full overflow-hidden"
+            data-cy="approval-status-card-skeleton-avatar"
+          >
+            <Skeleton.Avatar active size={36} />
+          </div>
+
+          <div
+            className="flex flex-col gap-1 flex-1"
+            data-cy="approval-status-card-skeleton-info"
+          >
+            <div
+              className="flex items-center justify-between gap-2"
+              data-cy="approval-status-card-skeleton-top-row"
+            >
+              <div
+                className="flex flex-col gap-1 flex-1"
+                data-cy="approval-status-card-skeleton-top-row-left"
+              >
+                <Skeleton.Input
+                  active
+                  size="small"
+                  className="!h-4 !w-28 !min-w-0 hidden md:block"
+                />
+              </div>
+              <Skeleton.Input
+                active
+                size="small"
+                className="!h-5 !w-24 !min-w-0 !rounded-[4px]"
+              />
+            </div>
+
+            <Skeleton.Input
+              active
+              size="small"
+              className="!h-3 !w-40 !min-w-0"
+            />
+            <Skeleton.Input
+              active
+              size="small"
+              className="!h-3 !w-28 !min-w-0"
+            />
+          </div>
+        </div>
+
+        <div
+          className="flex items-center gap-2"
+          data-cy="approval-status-card-skeleton-actions"
+        >
+          <Skeleton.Button
+            active
+            shape="circle"
+            className="!w-6 !h-6 !min-w-6 !min-h-6 !rounded-[4px]"
+          />
+          <Skeleton.Button
+            active
+            shape="circle"
+            className="!w-6 !h-6 !min-w-6 !min-h-6 !rounded-[4px]"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

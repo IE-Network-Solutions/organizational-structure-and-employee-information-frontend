@@ -1,6 +1,6 @@
 // components/ApprovalStatus.tsx
-import { FC } from 'react';
-import { Button, Card } from 'antd';
+import { FC, useEffect } from 'react';
+import { Button, Card, Skeleton } from 'antd';
 import { Clock3 } from 'lucide-react';
 import ApprovalRequestCard from './approval-status-card';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -17,6 +17,23 @@ const ApprovalStatus: FC = () => {
     useGetBranchTransferApproveById(userId, 4, 1);
   const { approverType, setApproverType } = useDashboardApprovalStore();
 
+  useEffect(() => {
+    if (isLoadingLeaveTransfer || approverType !== 'Leave') return;
+    const leaveCount =
+      LeaveTransferData?.meta?.totalItems ??
+      LeaveTransferData?.items?.length ??
+      0;
+    if (leaveCount === 0) {
+      setApproverType('Personal');
+    }
+  }, [
+    isLoadingLeaveTransfer,
+    approverType,
+    LeaveTransferData?.meta?.totalItems,
+    LeaveTransferData?.items?.length,
+    setApproverType,
+  ]);
+
   const handleChange = (value: string) => {
     setApproverType(value);
   };
@@ -30,9 +47,22 @@ const ApprovalStatus: FC = () => {
         LeaveTransferData?.items?.length ||
         0;
 
+  const isHeaderActionsLoading =
+    (approverType === 'Leave' && isLoadingLeaveTransfer) ||
+    (approverType === 'BranchTransfer' && isLoadingBranchTransfer);
+
+  const leaveApprovalCount =
+    LeaveTransferData?.meta?.totalItems ??
+    LeaveTransferData?.items?.length ??
+    0;
+  const isLeaveTransferEmpty =
+    !isLoadingLeaveTransfer && leaveApprovalCount === 0;
+  const showHeaderActions =
+    approverType === 'BranchTransfer' || !isLeaveTransferEmpty;
+
   return (
     <div
-      className="bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none px-3 py-2 h-[272px]"
+      className="bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 h-[272px]"
       data-cy="dashboard-approval-status-container"
     >
       <div
@@ -61,19 +91,36 @@ const ApprovalStatus: FC = () => {
           </div>
         </div>
 
-        <div
-          className="flex items-center gap-2 text-xs"
-          data-cy="dashboard-approval-status-header-actions"
-        >
-          {approverType !== 'Personal' && (
-            <span
-              className="px-3 py-0.5 rounded-sm bg-gray-100 border border-gray-500/30 text-gray-700 font-medium"
-              data-cy="dashboard-approval-status-pending-pill"
-            >
-              {pendingCount} Pending
-            </span>
-          )}
-          {/* 
+        {showHeaderActions && (
+          <div
+            className="flex items-center gap-2 text-xs"
+            data-cy="dashboard-approval-status-header-actions"
+          >
+            {isHeaderActionsLoading ? (
+              <>
+                <Skeleton.Input
+                  active
+                  className="!w-[92px] !min-w-0 !h-6 !rounded-sm"
+                  data-cy="dashboard-approval-status-header-actions-skeleton-pending"
+                />
+                <Skeleton.Button
+                  active
+                  size="small"
+                  className="!w-[88px] !min-w-0 rounded-[4px]"
+                  data-cy="dashboard-approval-status-header-actions-skeleton-toggle"
+                />
+              </>
+            ) : (
+              <>
+                {approverType !== 'Personal' && (
+                  <span
+                    className="px-3 py-0.5 rounded-sm bg-gray-100 border border-gray-500/30 text-gray-700 font-medium"
+                    data-cy="dashboard-approval-status-pending-pill"
+                  >
+                    {pendingCount} Pending
+                  </span>
+                )}
+                {/* 
           <Select
             value={approverType}
             className="min-w-[90px] text-xs font-medium border-none [&_.ant-select-selector]:rounded-full [&_.ant-select-selector]:border-gray-200"
@@ -86,18 +133,23 @@ const ApprovalStatus: FC = () => {
             data-cy="dashboard-approval-status-select"
           /> */}
 
-          <Button
-            type="primary"
-            size="small"
-            className="inline-flex items-center gap-1 px-3 md:py-2 py-0 rounded-[4px] border-none font-medium shadow-none"
-            data-cy="dashboard-approval-status-personal-pill"
-            onClick={() =>
-              handleChange(approverType === 'Personal' ? 'Leave' : 'Personal')
-            }
-          >
-            {approverType !== 'Personal' ? 'My Leave' : 'All Leaves'}
-          </Button>
-        </div>
+                <Button
+                  type="primary"
+                  size="small"
+                  className="inline-flex items-center gap-1 px-3 md:py-2 py-0 rounded-[4px] border-none font-medium shadow-none"
+                  data-cy="dashboard-approval-status-personal-pill"
+                  onClick={() =>
+                    handleChange(
+                      approverType === 'Personal' ? 'Leave' : 'Personal',
+                    )
+                  }
+                >
+                  {approverType !== 'Personal' ? 'My Leave' : 'All Leaves'}
+                </Button>
+              </>
+            )}
+          </div>
+        )}
       </div>
       <div
         className="h-[210px] overflow-y-auto scrollbar-none"

@@ -73,12 +73,12 @@ const Weekly = ({
               </span>
             </div> */}
             <div
-              className="ml-0"
+              className="ml-2"
               data-cy="dashboard-plan-weekly-tasks-container"
             >
               {item?.task?.map((task: any) => (
                 <div
-                  className="mb-3"
+                  className="mb-4"
                   key={task?.id}
                   data-cy={`dashboard-plan-weekly-task-item-${task?.id}`}
                 >
@@ -101,7 +101,7 @@ const Weekly = ({
                       title={task?.task}
                     >
                       <span
-                        className="block truncate"
+                        className="block truncate ml-1"
                         data-cy={`dashboard-plan-weekly-task-text-content-${task?.id}`}
                       >
                         {task?.task}

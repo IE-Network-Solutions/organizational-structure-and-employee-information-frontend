@@ -13,7 +13,6 @@ import EmployeeLeave from './_components/employee-leave';
 export default function EmployeeDashboardPage() {
   const { data: combinedHrData, isLoading: combinedHrLoading } =
     useGetCombinedHrDashboard();
-  console.log('combinedHrData', combinedHrData);
   return (
     <div
       className="h-auto w-full pr-2"
@@ -41,18 +40,33 @@ export default function EmployeeDashboardPage() {
             combinedHrData={combinedHrData}
             loading={combinedHrLoading}
           />
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-12 md:mt-6 mt-2">
+          <div
+            className="grid grid-cols-12 gap-4"
+            data-cy="employee-dashboard-grid"
+          >
+            <div
+              className="col-span-12 md:mt-6 mt-2"
+              data-cy="employee-dashboard-attendance"
+            >
               <EmployeeTodaysAttendanceCard />
             </div>
 
-            <div className="md:mt-6 mt-2 md:col-span-3 col-span-12">
+            <div
+              className="md:mt-6 mt-2 md:col-span-3 col-span-12"
+              data-cy="employee-dashboard-funnel"
+            >
               <EmployeeHiringFunnelCard />
             </div>
-            <div className="md:mt-6 mt-2 md:col-span-9 col-span-12">
+            <div
+              className="md:mt-6 mt-2 md:col-span-9 col-span-12"
+              data-cy="employee-dashboard-trend"
+            >
               <HireVsResignationTrendChart />
             </div>
-            <div className="md:mt-6 mt-2 col-span-12">
+            <div
+              className="md:mt-6 mt-2 col-span-12"
+              data-cy="employee-dashboard-leave"
+            >
               <EmployeeLeave />
             </div>
           </div>

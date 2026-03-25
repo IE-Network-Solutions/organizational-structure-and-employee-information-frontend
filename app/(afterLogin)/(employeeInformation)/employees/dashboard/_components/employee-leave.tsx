@@ -40,7 +40,7 @@ export default function EmployeeLeave() {
     'Nov',
     'Dec',
   ];
-  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (_, i) =>
+  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (unusedValue, i) =>
     String(2016 + i),
   );
 
@@ -190,9 +190,20 @@ export default function EmployeeLeave() {
   }, [pendingLeaveRequests]);
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 bg-white">
-      <div className="flex items-start justify-between gap-4 mb-3">
-        <h3 className="text-[24px] font-semibold text-[#111827]">Leave</h3>
+    <div
+      className="border border-gray-200 rounded-lg p-4 bg-white"
+      data-cy="employee-leave-card"
+    >
+      <div
+        className="flex items-start justify-between gap-4 mb-3"
+        data-cy="employee-leave-header"
+      >
+        <h3
+          className="text-[24px] font-semibold text-[#111827]"
+          data-cy="employee-leave-title"
+        >
+          Leave
+        </h3>
 
         {displayPeriod == null ? (
           <div

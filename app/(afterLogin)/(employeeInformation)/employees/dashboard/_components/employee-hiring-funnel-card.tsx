@@ -30,10 +30,24 @@ const StageRow: React.FC<StageRowProps> = ({ stage }) => {
       id={`employee-hiring-funnel-stage-${stage.label}`}
       data-cy={`employee-hiring-funnel-stage-${stage.label}`}
     >
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-600">{stage.label}</span>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-gray-900">
+      <div
+        className="flex items-center justify-between"
+        data-cy={`employee-hiring-funnel-stage-${stage.label}-row`}
+      >
+        <span
+          className="text-sm font-medium text-gray-600"
+          data-cy={`employee-hiring-funnel-stage-${stage.label}-label`}
+        >
+          {stage.label}
+        </span>
+        <div
+          className="flex items-center gap-3"
+          data-cy={`employee-hiring-funnel-stage-${stage.label}-value-wrapper`}
+        >
+          <span
+            className="text-sm font-semibold text-gray-900"
+            data-cy={`employee-hiring-funnel-stage-${stage.label}-value`}
+          >
             {stage.value}
           </span>
           {stage.badge ? (
@@ -48,7 +62,10 @@ const StageRow: React.FC<StageRowProps> = ({ stage }) => {
         </div>
       </div>
 
-      <div className="h-4 rounded-full bg-[#EEF2F6] overflow-hidden">
+      <div
+        className="h-4 rounded-full bg-[#EEF2F6] overflow-hidden"
+        data-cy={`employee-hiring-funnel-stage-${stage.label}-bar-track`}
+      >
         <div
           className="h-full rounded-full"
           style={{
@@ -118,7 +135,10 @@ export default function EmployeeHiringFunnelCard() {
         {loading ? (
           <Skeleton active paragraph={{ rows: 5 }} />
         ) : stages.length === 0 ? (
-          <p className="text-sm text-gray-500 py-6 text-center">
+          <p
+            className="text-sm text-gray-500 py-6 text-center"
+            data-cy="employee-hiring-funnel-empty"
+          >
             No hiring funnel data for this period.
           </p>
         ) : (

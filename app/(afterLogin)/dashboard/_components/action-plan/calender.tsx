@@ -50,6 +50,19 @@ const CATEGORY_ORDER: ScheduleCategory[] = [
   'actionPlans',
 ];
 
+function getSchedulePrimaryLabel(
+  category: ScheduleCategory,
+  event: { title?: string; name?: string },
+): string {
+  if (category === 'meetings') {
+    return event.title || event.name || MOBILE_CATEGORY_LABEL.meetings;
+  }
+  if (category === 'surveys') {
+    return event.name || MOBILE_CATEGORY_LABEL.surveys;
+  }
+  return event.title || event.name || MOBILE_CATEGORY_LABEL.actionPlans;
+}
+
 function eventOverlapsMonth(
   event: { startAt: string; endAt?: string | null },
   month: Dayjs,
@@ -166,7 +179,7 @@ const Calender = () => {
           : undefined;
       listData.push({
         type: getBadgeType('meetings'),
-        content: 'Meeting',
+        content: getSchedulePrimaryLabel('meetings', first ?? {}),
         category: 'meetings',
         routeId: first?.id != null ? String(first.id) : undefined,
         timeLabel,
@@ -178,16 +191,17 @@ const Calender = () => {
       const formId = first?.formId ?? first?.id;
       listData.push({
         type: getBadgeType('surveys'),
-        content: 'Survey',
+        content: getSchedulePrimaryLabel('surveys', first ?? {}),
         category: 'surveys',
         routeId: formId != null ? String(formId) : undefined,
       });
     }
 
     if (hasActionPlans) {
+      const first = eventsForDay.find((e) => e.category === 'actionPlans');
       listData.push({
         type: getBadgeType('actionPlans'),
-        content: 'Action plan',
+        content: getSchedulePrimaryLabel('actionPlans', first ?? {}),
         category: 'actionPlans',
       });
     }
@@ -238,12 +252,14 @@ const Calender = () => {
             return (
               <li
                 key={`${value.toString()}-${item.category}-${item.content}`}
+                className="min-w-0 max-w-full [&_.ant-badge-status]:flex [&_.ant-badge-status]:min-w-0 [&_.ant-badge-status]:max-w-full [&_.ant-badge-status]:items-center [&_.ant-badge-status-text]:min-w-0 [&_.ant-badge-status-text]:max-w-full [&_.ant-badge-status-text]:truncate"
+                title={item.content}
                 data-cy={`calendar-cell-item-${item.category}`}
               >
                 {canNavigate ? (
                   <button
                     type="button"
-                    className="m-0 cursor-pointer border-0 bg-transparent p-0 text-left hover:opacity-80"
+                    className="m-0 flex max-w-full w-full cursor-pointer items-center border-0 bg-transparent p-0 text-left hover:opacity-80"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigateForCategory(item.category, item.routeId);
