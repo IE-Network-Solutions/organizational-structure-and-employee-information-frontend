@@ -26,7 +26,8 @@ const getJobs = async (
   const queryParams = new URLSearchParams();
 
   if (whatYouNeed) queryParams.append('jobTitle', whatYouNeed);
-  if (filters?.department) queryParams.append('departmentId', filters.department);
+  if (filters?.department)
+    queryParams.append('departmentId', filters.department);
   if (filters?.employmentType)
     queryParams.append('employmentType', filters.employmentType);
   if (filters?.status) queryParams.append('jobStatus', filters.status);
@@ -158,9 +159,10 @@ export const useGetJobs = (
   },
   options?: any,
 ) => {
-  return useQuery(['jobs', whatYouNeed, currentPage, pageSize, filters], () =>
-    getJobs(whatYouNeed, currentPage, pageSize, filters),
-  options,
+  return useQuery(
+    ['jobs', whatYouNeed, currentPage, pageSize, filters],
+    () => getJobs(whatYouNeed, currentPage, pageSize, filters),
+    options,
   );
 };
 export const useGetAllJobs = (

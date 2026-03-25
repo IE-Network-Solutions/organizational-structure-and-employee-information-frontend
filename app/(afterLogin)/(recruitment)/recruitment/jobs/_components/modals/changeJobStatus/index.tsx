@@ -114,80 +114,80 @@ const ChangeStatusModal: React.FC = () => {
             data-cy="talent-acquisition-change-job-status-modal-content"
           >
             <Form
-            id="talent-acquisition-change-job-status-form"
-            data-cy="talent-acquisition-change-job-status-form"
-            form={form}
-            layout="vertical"
-            onFinish={handleStatusUpdate}
-            className="border border-gray-200 rounded-lg p-4"
-          >
-            <Form.Item
-              name="status"
-              label="Job Status"
-              rules={[
-                { required: true, message: 'Please select the job status!' },
-              ]}
-              className="mb-6 mt-2"
+              id="talent-acquisition-change-job-status-form"
+              data-cy="talent-acquisition-change-job-status-form"
+              form={form}
+              layout="vertical"
+              onFinish={handleStatusUpdate}
+              className="border border-gray-200 rounded-lg p-4"
             >
-              <Select
-                id="talent-acquisition-change-job-status-select"
-                data-cy="talent-acquisition-change-job-status-select"
-                placeholder="Open"
-                style={{ width: '100%' }}
-                suffixIcon={
-                  <span
-                    className="text-gray-400"
-                    data-cy="talent-acquisition-change-job-status-select-suffix"
-                  >
-                    ▼
-                  </span>
-                }
-                getPopupContainer={() =>
-                  document.getElementById('change-job-status-modal') ||
-                  document.body
-                }
-                optionRender={optionRender}
+              <Form.Item
+                name="status"
+                label="Job Status"
+                rules={[
+                  { required: true, message: 'Please select the job status!' },
+                ]}
+                className="mb-6 mt-2"
               >
-                {JobStatus &&
-                  Object?.values(JobStatus).map((status) => (
-                    <Select.Option
-                      key={status}
-                      value={status}
-                      id={`talent-acquisition-change-job-status-option-${status}`}
-                      data-cy={`talent-acquisition-change-job-status-option-${status}`}
+                <Select
+                  id="talent-acquisition-change-job-status-select"
+                  data-cy="talent-acquisition-change-job-status-select"
+                  placeholder="Open"
+                  style={{ width: '100%' }}
+                  suffixIcon={
+                    <span
+                      className="text-gray-400"
+                      data-cy="talent-acquisition-change-job-status-select-suffix"
                     >
-                      {status}
-                    </Select.Option>
-                  ))}
-              </Select>
-            </Form.Item>
+                      ▼
+                    </span>
+                  }
+                  getPopupContainer={() =>
+                    document.getElementById('change-job-status-modal') ||
+                    document.body
+                  }
+                  optionRender={optionRender}
+                >
+                  {JobStatus &&
+                    Object?.values(JobStatus).map((status) => (
+                      <Select.Option
+                        key={status}
+                        value={status}
+                        id={`talent-acquisition-change-job-status-option-${status}`}
+                        data-cy={`talent-acquisition-change-job-status-option-${status}`}
+                      >
+                        {status}
+                      </Select.Option>
+                    ))}
+                </Select>
+              </Form.Item>
 
-            <Form.Item className="mb-0">
-              <div
-                data-cy="-components-modals-changejobstatus-index-tsx-index-div-97"
-                className="flex gap-3 justify-end"
-              >
-                <Button
-                  id="talent-acquisition-change-job-status-button-cancel"
-                  data-cy="talent-acquisition-change-job-status-button-cancel"
-                  key="cancel"
-                  onClick={handleChangeStatusModalClose}
-                  className="border-gray-300 text-gray-700"
+              <Form.Item className="mb-0">
+                <div
+                  data-cy="-components-modals-changejobstatus-index-tsx-index-div-97"
+                  className="flex gap-3 justify-end"
                 >
-                  Cancel
-                </Button>
-                <Button
-                  id="talent-acquisition-change-job-status-button-submit"
-                  data-cy="talent-acquisition-change-job-status-button-submit"
-                  htmlType="submit"
-                  type="primary"
-                  className="!bg-[#6366F1] hover:!bg-[#4F46E5] border-0"
-                >
-                  Change
-                </Button>
-              </div>
-            </Form.Item>
-          </Form>
+                  <Button
+                    id="talent-acquisition-change-job-status-button-cancel"
+                    data-cy="talent-acquisition-change-job-status-button-cancel"
+                    key="cancel"
+                    onClick={handleChangeStatusModalClose}
+                    className="border-gray-300 text-gray-700"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    id="talent-acquisition-change-job-status-button-submit"
+                    data-cy="talent-acquisition-change-job-status-button-submit"
+                    htmlType="submit"
+                    type="primary"
+                    className="!bg-[#6366F1] hover:!bg-[#4F46E5] border-0"
+                  >
+                    Change
+                  </Button>
+                </div>
+              </Form.Item>
+            </Form>
           </div>
         </Modal>
       </>

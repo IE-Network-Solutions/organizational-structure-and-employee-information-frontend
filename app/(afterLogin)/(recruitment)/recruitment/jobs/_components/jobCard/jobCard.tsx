@@ -223,7 +223,7 @@ const JobCard: React.FC = () => {
       const jobDeadline = job?.jobDeadline ? new Date(job.jobDeadline) : null;
       const today = new Date();
       const isDeadlinePassed = jobDeadline && jobDeadline < today;
-      return isDeadlinePassed ? 'Closed' : job?.jobStatus ?? 'Open';
+      return isDeadlinePassed ? 'Closed' : (job?.jobStatus ?? 'Open');
     };
 
     const normalizeYYYYMMDD = (v: any) => {
@@ -233,7 +233,9 @@ const JobCard: React.FC = () => {
 
     let filtered = items;
     if (filters.department) {
-      filtered = filtered.filter((job: any) => job?.departmentId === filters.department);
+      filtered = filtered.filter(
+        (job: any) => job?.departmentId === filters.department,
+      );
     }
     if (filters.employmentType) {
       filtered = filtered.filter(
@@ -241,10 +243,14 @@ const JobCard: React.FC = () => {
       );
     }
     if (filters.location) {
-      filtered = filtered.filter((job: any) => job?.jobLocation === filters.location);
+      filtered = filtered.filter(
+        (job: any) => job?.jobLocation === filters.location,
+      );
     }
     if (filters.status) {
-      filtered = filtered.filter((job: any) => getEffectiveStatus(job) === filters.status);
+      filtered = filtered.filter(
+        (job: any) => getEffectiveStatus(job) === filters.status,
+      );
     }
     if (filters.createdDate) {
       filtered = filtered.filter(
@@ -253,7 +259,8 @@ const JobCard: React.FC = () => {
     }
     if (filters.closedDate) {
       filtered = filtered.filter(
-        (job: any) => normalizeYYYYMMDD(job?.jobDeadline) === filters.closedDate,
+        (job: any) =>
+          normalizeYYYYMMDD(job?.jobDeadline) === filters.closedDate,
       );
     }
 
@@ -271,14 +278,14 @@ const JobCard: React.FC = () => {
 
   const totalItems = isAnyFilterSet
     ? filteredAllItems.length
-    : jobList?.meta?.totalItems ?? 1;
+    : (jobList?.meta?.totalItems ?? 1);
 
   const itemsToRender = isAnyFilterSet
     ? filteredAllItems.slice(
         Math.max(0, (currentPage - 1) * pageSize),
         Math.max(0, (currentPage - 1) * pageSize) + pageSize,
       )
-    : jobList?.items ?? [];
+    : (jobList?.items ?? []);
 
   const { mutate: deleteJob, isLoading } = useDeleteJobs();
 

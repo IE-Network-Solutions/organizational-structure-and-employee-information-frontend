@@ -83,11 +83,15 @@ const RecruitmentPage: React.FC = () => {
     setSearchParams('location', String(values.location ?? ''));
     setSearchParams(
       'createdDate',
-      values.createdDate ? (values.createdDate as Dayjs).format('YYYY-MM-DD') : '',
+      values.createdDate
+        ? (values.createdDate as Dayjs).format('YYYY-MM-DD')
+        : '',
     );
     setSearchParams(
       'closedDate',
-      values.closedDate ? (values.closedDate as Dayjs).format('YYYY-MM-DD') : '',
+      values.closedDate
+        ? (values.closedDate as Dayjs).format('YYYY-MM-DD')
+        : '',
     );
     setCurrentPage(1);
   };
@@ -216,7 +220,7 @@ const RecruitmentPage: React.FC = () => {
               />
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <div className="flex items-center gap-2 flex-wrap justify-end">
+              <div className="hidden sm:flex items-center gap-2 flex-wrap justify-end">
                 {activeFilterChips.map((chip) => (
                   <span
                     key={chip.key}

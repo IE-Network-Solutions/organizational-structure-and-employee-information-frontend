@@ -29,7 +29,6 @@ const CreateJobs: React.FC = () => {
     setCurrentStep,
     setAddJobModalResult,
     setSelectedJobId,
-    filteredQuestions,
     setSelectedQuestions,
   } = useJobState();
   const { mutate: createJob, isLoading: isCreatingJob } = useCreateJobs();
@@ -133,8 +132,8 @@ const CreateJobs: React.FC = () => {
           formValues?.compensation != null
             ? Number(formValues.compensation)
             : formValues?.compensation,
-        questions: [
-          ...(formValues?.questions?.map((e: any) => ({
+        questions:
+          formValues?.questions?.map((e: any) => ({
             ...e,
             required: e?.required || false,
             id: uuidv4(),
@@ -143,21 +142,7 @@ const CreateJobs: React.FC = () => {
                 id: uuidv4(),
                 value: field?.value ?? field,
               })) || [],
-          })) || []),
-          ...(filteredQuestions?.flatMap((template: any) =>
-            template.form?.map((formItem: any) => ({
-              id: uuidv4(),
-              fieldType: formItem.fieldType,
-              question: formItem.question,
-              required: formItem.required || false,
-              field:
-                formItem.field?.map((field: any) => ({
-                  id: uuidv4(),
-                  value: field.value || field,
-                })) || [],
-            })),
-          ) || []),
-        ],
+          })) || [],
       };
       createJob(formattedValue, {
         onSuccess: (response) => {
@@ -182,8 +167,12 @@ const CreateJobs: React.FC = () => {
       open={addNewDrawer}
       onCancel={handleCloseDrawer}
       footer={null}
-      width={isMobile ? 'calc(100vw - 2rem)' : 960}
-      style={isMobile ? { maxWidth: 960, top: 16 } : undefined}
+      width={isMobile ? '100%' : 960}
+      style={
+        isMobile
+          ? { maxWidth: '100vw', width: '100%', top: 16, margin: 0 }
+          : undefined
+      }
       centered={!isMobile}
       closable={false}
       destroyOnClose

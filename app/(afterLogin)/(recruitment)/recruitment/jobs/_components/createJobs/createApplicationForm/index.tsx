@@ -2,7 +2,6 @@ import { Button, Form, FormInstance } from 'antd';
 import React from 'react';
 import { CiCircleInfo } from 'react-icons/ci';
 import ApplicationFormDragDrop from './applicationFormDragDrop';
-import CustomFieldsSelector from './customFieldSelector';
 
 const EXISTING_FIELDS = [
   { key: '1', name: 'Full Name' },
@@ -84,13 +83,6 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
         </div>
       </div>
 
-      <div
-        className="mb-6"
-        data-cy="talent-acquisition-create-application-form-template-questions-container"
-      >
-        <CustomFieldsSelector />
-      </div>
-
       <Form.Item className="mb-0">
         <div
           className="flex flex-col sm:flex-row justify-end gap-3 bg-white pt-4"
@@ -100,7 +92,7 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
             onClick={() => stepChange(1)}
             className="h-11 w-full sm:min-w-[100px] sm:w-auto rounded-lg border-gray-300 text-gray-700"
             disabled={isLoading}
-            data-cy="talent-acquisition-create-application-form-button-back"
+            data-cy="talent-acquisition-create-application-form-button-cancel"
           >
             Back
           </Button>
