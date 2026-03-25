@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Form,
   Input,
@@ -9,7 +9,10 @@ import {
   Popconfirm,
   Modal,
   Steps,
+  Row,
+  Col,
 } from 'antd';
+import TextArea from 'antd/es/input/TextArea';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useGetAllCriteria,
@@ -24,6 +27,11 @@ import {
   useUpdateCriteria,
   useDeleteCriteria,
 } from '@/store/server/features/CFR/recognition/mutation';
+import {
+  useSetIncentiveFormula,
+  useUpdateIncentiveFormula,
+} from '@/store/server/features/incentive/other/mutation';
+import { useIncentiveFormulaByRecognitionId } from '@/store/server/features/incentive/other/queries';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -51,12 +59,26 @@ interface RecognitionFormValues {
   frequency: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
   parentTypeId?: string | undefined;
   departmentId: string;
+  incentiveAmountType?: 'Fixed' | 'Formula';
+  incentiveFixedAmount?: number | string;
 }
 
 interface CriteriaFormValues {
   criteriaName: string;
   description: string;
 }
+
+type FormulaToken = { id: string; name: string; type: string };
+
+const FORMULA_OPERAND_OPTIONS: FormulaToken[] = [
+  { id: '1', name: '+', type: 'operand' },
+  { id: '2', name: '-', type: 'operand' },
+  { id: '3', name: '/', type: 'operand' },
+  { id: '4', name: '*', type: 'operand' },
+  { id: '5', name: '(', type: 'operand' },
+  { id: '6', name: ')', type: 'operand' },
+  { id: '7', name: 'Clear', type: 'operand' },
+];
 
 const { Option } = Select;
 interface PropsData {
@@ -119,6 +141,23 @@ const RecognitionForm: React.FC<PropsData> = ({
   const [editingCriteriaName, setEditingCriteriaName] = useState<string>('');
   const [currentStep, setCurrentStep] = useState(0);
 
+  const [formulaTokens, setFormulaTokens] = useState<FormulaToken[]>([]);
+  const [formulaError, setFormulaError] = useState('');
+  const formulaTextAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const isMonetizedWatch = Form.useWatch('isMonetized', form);
+  const showFormulaStep = !createCategory && !!isMonetizedWatch;
+
+  const { data: formulaById, refetch: refetchFormulaById } =
+    useIncentiveFormulaByRecognitionId(
+    selectedRecognitionType ? selectedRecognitionType : undefined,
+  );
+
+  const { mutate: createIncentiveFormula, isLoading: createFormulaLoading } =
+    useSetIncentiveFormula();
+  const { mutate: updateIncentiveFormula, isLoading: updateFormulaLoading } =
+    useUpdateIncentiveFormula();
+
   const isWizardOpen =
     openRecognitionType ||
     openModal ||
@@ -139,12 +178,30 @@ const RecognitionForm: React.FC<PropsData> = ({
     setEditingCriteriaName('');
     setCurrentStep(0);
     setOpenModal(false);
+    setFormulaTokens([]);
+    setFormulaError('');
+    form.setFieldsValue({
+      incentiveAmountType: 'Fixed',
+      incentiveFixedAmount: undefined,
+    });
   };
 
   useEffect(() => {
     if (isWizardOpen) setCurrentStep(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWizardOpen]);
+
+  useEffect(() => {
+    if (!showFormulaStep && currentStep === 2) {
+      setCurrentStep(1);
+    }
+  }, [showFormulaStep, currentStep]);
+
+  useEffect(() => {
+    if (isWizardOpen && selectedRecognitionType) {
+      refetchFormulaById();
+    }
+  }, [isWizardOpen, selectedRecognitionType, refetchFormulaById]);
 
   const modalHeader = (
     <div
@@ -190,32 +247,36 @@ const RecognitionForm: React.FC<PropsData> = ({
     return weights;
   };
 
-  const handleCriteriaChange = (value: string[]) => {
-    const noCriterion = value.length;
+  const handleCriteriaChange = (value: Array<string | number>) => {
+    const selectedIds = value.map((id) => String(id));
+    const noCriterion = selectedIds.length;
 
-    const updatedCriteria = value.map((id) => {
+    const updatedCriteria = selectedIds.map((id) => {
+      const idStr = String(id);
       // Try to find the existing object in selectedCriteria
       const existing = selectedCriteria.find(
-        (item: any) => (item.criteriaId || item.id) === id,
+        (item: any) => String(item.criteriaId || item.id) === idStr,
       );
       if (existing) return { ...existing };
 
       // Otherwise, build a new object from the criteria list
-      const criteriaObj = criteria.find((item: any) => item.id === id);
+      const criteriaObj = criteria.find(
+        (item: any) => String(item.id) === idStr,
+      );
 
       // If criteriaObj is not found (newly created criteria), try to get the name from pending criteria
       let criteriaName = criteriaObj?.criteriaName || '';
 
       // If this is a newly added criteria and we don't have the name yet,
       // we'll set a placeholder that will be updated when the criteria list refreshes
-      if (!criteriaName && pendingNewCriteriaId === id) {
+      if (!criteriaName && pendingNewCriteriaId === idStr) {
         criteriaName = 'New Criteria'; // Temporary placeholder
       }
 
       return {
         criterionKey: criteriaName,
-        id,
-        criteriaId: id,
+        id: idStr,
+        criteriaId: idStr,
         weight: 0, // Will be set below
         operator: null,
         condition: null,
@@ -242,6 +303,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     // Update form fields while preserving existing values
     form.setFieldsValue({
       recognitionCriteria: updatedCriteria,
+      criteria: selectedIds,
     });
   };
 
@@ -256,7 +318,7 @@ const RecognitionForm: React.FC<PropsData> = ({
   };
 
   const handleEditCriteria = (criteriaItem: any) => {
-    setEditingCriteriaId(criteriaItem.id);
+    setEditingCriteriaId(String(criteriaItem.id));
     setEditingCriteriaName(criteriaItem.criteriaName);
   };
 
@@ -406,27 +468,38 @@ const RecognitionForm: React.FC<PropsData> = ({
       setEditingCriteriaName('');
     };
 
+    const finishWizard = () => {
+      setSelectedRecognitionType('');
+      handleClose();
+    };
+
     if (selectedRecognitionType === '') {
       createRecognitionType(finalValues, {
-        onSuccess: () => {
-          // Reset state immediately to prevent switching to update mode
-          setSelectedRecognitionType('');
-          handleClose();
+        onSuccess: (data: any) => {
+          const newId = data?.id ?? data?.data?.id;
+          if (values.isMonetized && newId) {
+            persistIncentiveFormula(newId, finishWizard);
+          } else {
+            finishWizard();
+          }
         },
       });
     } else {
       const { ...updatedValues } = finalValues;
+      const recognitionId = selectedRecognitionType;
       updateRecognitionWithCriteria(
         {
           ...updatedValues,
-          id: selectedRecognitionType,
+          id: recognitionId,
           recognitionCriteria: finalValues.recognitionCriteria,
         },
         {
           onSuccess: () => {
-            // Reset state immediately to prevent switching to update mode
-            setSelectedRecognitionType('');
-            handleClose();
+            if (values.isMonetized) {
+              persistIncentiveFormula(recognitionId, finishWizard);
+            } else {
+              finishWizard();
+            }
           },
         },
       );
@@ -454,7 +527,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       description: recognitionTypeById.description || '',
       criteria:
         recognitionTypeById.recognitionCriteria?.map(
-          (item: any) => item.criteriaId,
+          (item: any) => String(item.criteriaId),
         ) || [],
       isMonetized: recognitionTypeById.isMonetized ?? false,
       requiresCertification: recognitionTypeById.requiresCertification ?? false,
@@ -462,6 +535,327 @@ const RecognitionForm: React.FC<PropsData> = ({
       departmentId: recognitionTypeById.departmentId || null,
     });
   }, [recognitionTypeById]);
+
+  useEffect(() => {
+    if (!isWizardOpen || !formulaById || !selectedRecognitionType) return;
+
+    const rc = recognitionTypeById?.recognitionCriteria;
+
+    if (formulaById?.expression) {
+      form.setFieldsValue({
+        incentiveAmountType: 'Formula',
+        incentiveFixedAmount: formulaById?.monetizedValue ?? undefined,
+      });
+    } else if (
+      formulaById?.monetizedValue !== undefined &&
+      formulaById?.monetizedValue !== null
+    ) {
+      form.setFieldsValue({
+        incentiveAmountType: 'Fixed',
+        incentiveFixedAmount: formulaById.monetizedValue,
+      });
+    }
+
+    let parsedExpression: FormulaToken[] = [];
+    if (formulaById?.expression) {
+      try {
+        if (typeof formulaById.expression === 'string') {
+          const parsedString = JSON.parse(formulaById.expression);
+          if (typeof parsedString === 'string') {
+            const parts = parsedString.split(' ').filter(Boolean);
+            parsedExpression = parts.map((part: string) => {
+              const cleanPart = part.replace(/"/g, '');
+              const matchingCriteria = rc?.find(
+                (crit: any) => crit?.criteria?.id === cleanPart,
+              );
+              if (matchingCriteria) {
+                return {
+                  id: matchingCriteria.criteria.id,
+                  name: matchingCriteria.criteria.criteriaName,
+                  type: 'criteria',
+                };
+              }
+              return {
+                id: cleanPart,
+                name: cleanPart,
+                type: 'operand',
+              };
+            });
+          } else {
+            parsedExpression = parsedString;
+          }
+        } else if (Array.isArray(formulaById.expression)) {
+          parsedExpression = formulaById.expression;
+        }
+      } catch {
+        parsedExpression = [];
+      }
+      setFormulaTokens(parsedExpression);
+    } else {
+      setFormulaTokens([]);
+      form.setFieldsValue({
+        incentiveAmountType: 'Fixed',
+        incentiveFixedAmount: undefined,
+      });
+    }
+  }, [
+    isWizardOpen,
+    formulaById,
+    selectedRecognitionType,
+    recognitionTypeById,
+    form,
+  ]);
+
+  const allowedCriteriaNames = useMemo(
+    () =>
+      selectedCriteria
+        .map((c: any) => c.criterionKey)
+        .filter((name: string) => !!name),
+    [selectedCriteria],
+  );
+
+  const allowedOperands = ['+', '-', '*', '/', '(', ')'];
+
+  const validateFormulaString = (formulaStr: string): string => {
+    if (!formulaStr || !formulaStr.trim()) return 'Formula cannot be empty.';
+
+    const criteriaPattern =
+      allowedCriteriaNames?.length > 0
+        ? allowedCriteriaNames
+            .map((name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|')
+        : '';
+
+    const regexPattern = criteriaPattern
+      ? `(\\b(?:${criteriaPattern})\\b|\\d+(?:\\.\\d+)?|[()+\\-*/])`
+      : '(\\d+(?:\\.\\d+)?|[()+\\-*/])';
+
+    const tokens = formulaStr.match(new RegExp(regexPattern, 'g'));
+
+    if (!tokens || tokens.length === 0) return 'Formula cannot be empty.';
+
+    let remainingFormula = formulaStr;
+
+    if (allowedCriteriaNames && allowedCriteriaNames.length > 0) {
+      allowedCriteriaNames.forEach((criteria: string) => {
+        const criteriaRegex = new RegExp(
+          criteria.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+          'g',
+        );
+        remainingFormula = remainingFormula.replace(criteriaRegex, '');
+      });
+    }
+
+    remainingFormula = remainingFormula.replace(/\d+(?:\.\d+)?/g, '');
+    remainingFormula = remainingFormula.replace(/[()+\-*/]/g, '');
+    remainingFormula = remainingFormula.replace(/\s+/g, '');
+
+    if (remainingFormula.length > 0) {
+      const allowedItems =
+        allowedCriteriaNames?.length > 0
+          ? `allowed criteria (${allowedCriteriaNames.join(', ')}), numbers, and operators (+, -, *, /, (, ))`
+          : 'numbers and operators (+, -, *, /, (, ))';
+      return `Formula can only contain ${allowedItems}.`;
+    }
+
+    let lastType: 'operand' | 'criteria' | 'open' | 'close' | null = null;
+    let balance = 0;
+
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+
+      if (token === '(') {
+        balance++;
+        lastType = 'open';
+      } else if (token === ')') {
+        balance--;
+        if (balance < 0) return 'Unbalanced parentheses.';
+        lastType = 'close';
+      } else if (
+        allowedOperands.includes(token) &&
+        token !== '(' &&
+        token !== ')'
+      ) {
+        if (i === 0 || i === tokens.length - 1)
+          return 'Formula cannot start or end with an operand.';
+        if (lastType === 'operand')
+          return 'Consecutive operands are not allowed.';
+        lastType = 'operand';
+      } else if (allowedCriteriaNames?.includes(token)) {
+        if (lastType === 'criteria')
+          return 'Consecutive criteria are not allowed.';
+        lastType = 'criteria';
+      } else if (/^\d+(?:\.\d+)?$/.test(token)) {
+        if (lastType === 'criteria')
+          return 'Consecutive criteria/numbers are not allowed.';
+        lastType = 'criteria';
+      } else {
+        return `Invalid token detected: ${token}`;
+      }
+    }
+
+    if (balance !== 0) return 'Unbalanced parentheses.';
+
+    return '';
+  };
+
+  const incentiveAmountTypeWatch = Form.useWatch('incentiveAmountType', form);
+
+  useEffect(() => {
+    if (incentiveAmountTypeWatch !== 'Formula') {
+      return;
+    }
+    if (formulaTokens && formulaTokens.length > 0) {
+      const formulaString = formulaTokens
+        .map((item: FormulaToken) => item?.name || '')
+        .join(' ');
+      setFormulaError(validateFormulaString(formulaString));
+    } else {
+      setFormulaError('');
+    }
+  }, [formulaTokens, incentiveAmountTypeWatch, allowedCriteriaNames]);
+
+  const getFormulaDisplayValue = () =>
+    Array.isArray(formulaTokens)
+      ? formulaTokens.map((item) => item?.name || '').join(' ')
+      : '';
+
+  const handleFormulaTextAreaChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const raw = e.target.value.replace(/[\r\n]+/g, ' ');
+    if (!raw.trim()) {
+      setFormulaTokens([]);
+      return;
+    }
+
+    const tokens = raw
+      .split(/([+\-*/()])/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const newFormula: FormulaToken[] = tokens.map((token) => {
+      const crit = selectedCriteria.find(
+        (c: any) => c.criterionKey === token,
+      );
+      if (crit) {
+        const id = crit.criteriaId || crit.id;
+        const name = crit.criterionKey;
+        return { id, name, type: 'criteria' };
+      }
+      if (allowedOperands.includes(token)) {
+        return { id: token, name: token, type: 'operand' };
+      }
+      if (!Number.isNaN(Number(token))) {
+        return { id: token, name: token, type: 'operand' };
+      }
+      return { id: token, name: token, type: 'operand' };
+    });
+
+    setFormulaTokens(newFormula);
+  };
+
+  const handleFormulaOptionClick = (id: string, name: string, type: string) => {
+    if (name === 'Clear') {
+      setFormulaTokens([]);
+      formulaTextAreaRef.current?.focus();
+      return;
+    }
+    if (type === 'criteria' || type === 'operand') {
+      setFormulaTokens((prev) => [...prev, { id, name, type }]);
+      formulaTextAreaRef.current?.focus();
+    }
+  };
+
+  const persistIncentiveFormula = (
+    recognitionTypeId: string,
+    onDone: () => void,
+  ) => {
+    const amountType = form.getFieldValue('incentiveAmountType') || 'Fixed';
+    const fixedVal = form.getFieldValue('incentiveFixedAmount');
+
+    const cleanedExpression =
+      Array.isArray(formulaTokens) && formulaTokens.length > 0
+        ? formulaTokens
+            .map((item: FormulaToken) =>
+              item?.type === 'criteria' ? `"${item?.id}"` : item?.name,
+            )
+            .join(' ')
+        : '';
+
+    const formdata = {
+      recognitionTypeId,
+      expression: amountType === 'Fixed' ? null : JSON.stringify(cleanedExpression),
+      isComputed: amountType !== 'Fixed',
+      monetizedValue: amountType === 'Fixed' ? fixedVal : 0,
+    };
+
+    const canUpdate =
+      formulaById?.id &&
+      (formulaById?.expression || formulaById?.monetizedValue) &&
+      ((typeof formulaById?.expression === 'string' &&
+        formulaById.expression.length > 0) ||
+        !!formulaById?.monetizedValue);
+
+    if (canUpdate) {
+      updateIncentiveFormula(
+        { id: formulaById.id, data: formdata },
+        { onSuccess: onDone },
+      );
+    } else {
+      createIncentiveFormula(formdata, {
+        onSuccess: () => {
+          setFormulaTokens([]);
+          onDone();
+        },
+      });
+    }
+  };
+
+  const handleWizardFinalSubmit = () => {
+    const amountType = form.getFieldValue('incentiveAmountType') || 'Fixed';
+    if (amountType === 'Formula') {
+      if (!formulaTokens?.length) {
+        setFormulaError('Formula cannot be empty.');
+        return;
+      }
+      const formulaString = formulaTokens
+        .map((item: FormulaToken) => item?.name || '')
+        .join(' ');
+      const err = validateFormulaString(formulaString);
+      if (err) {
+        setFormulaError(err);
+        return;
+      }
+      setFormulaError('');
+    } else {
+      const fixed = form.getFieldValue('incentiveFixedAmount');
+      if (fixed === undefined || fixed === '' || fixed === null) {
+        setFormulaError('Please enter amount');
+        return;
+      }
+      setFormulaError('');
+    }
+    form.submit();
+  };
+
+  const wizardStepItems = useMemo(() => {
+    const items: { title: string }[] = [
+      { title: 'Recognition information' },
+    ];
+    if (createCategory) return items;
+    items.push({ title: 'Recognition Criteria' });
+    if (isMonetizedWatch) {
+      items.push({ title: 'Formula' });
+    }
+    return items;
+  }, [createCategory, isMonetizedWatch]);
+
+  const isLastWizardStep = createCategory
+    ? true
+    : showFormulaStep
+      ? currentStep === 2
+      : currentStep === 1;
 
   const onFinishCriteria = (values: CriteriaFormValues) => {
     createRecognitionCriteria(
@@ -472,16 +866,20 @@ const RecognitionForm: React.FC<PropsData> = ({
           criteriaForm.resetFields();
           const newCriteriaId = response?.id;
           if (newCriteriaId) {
-            setPendingNewCriteriaId(newCriteriaId);
+            const newCriteriaIdStr = String(newCriteriaId);
+            setPendingNewCriteriaId(newCriteriaIdStr);
             const currentCriteria = form.getFieldValue('criteria') || [];
-            const updatedCriteria = [...currentCriteria, newCriteriaId];
+            const updatedCriteria = [
+              ...currentCriteria.map((c: any) => String(c)),
+              newCriteriaIdStr,
+            ];
             form.setFieldsValue({ criteria: updatedCriteria });
 
             if (selectedCriteria.length > 0) {
               const tempCriteria = {
                 criterionKey: values.criteriaName,
-                id: newCriteriaId,
-                criteriaId: newCriteriaId,
+                id: newCriteriaIdStr,
+                criteriaId: newCriteriaIdStr,
                 weight: 0, // Will be set below
                 operator: null,
                 condition: null,
@@ -521,20 +919,25 @@ const RecognitionForm: React.FC<PropsData> = ({
   useEffect(() => {
     if (
       pendingNewCriteriaId &&
-      criteria?.some((c: any) => c.id === pendingNewCriteriaId)
+      criteria?.some(
+        (c: any) => String(c.id) === String(pendingNewCriteriaId),
+      )
     ) {
-      const currentCriteria = form.getFieldValue('criteria') || [];
-      if (currentCriteria.includes(pendingNewCriteriaId)) {
+      const currentCriteria = (form.getFieldValue('criteria') || []).map(
+        (c: any) => String(c),
+      );
+      const pendingIdStr = String(pendingNewCriteriaId);
+      if (currentCriteria.includes(pendingIdStr)) {
         const newCriteriaObj = criteria.find(
-          (c: any) => c.id === pendingNewCriteriaId,
+          (c: any) => String(c.id) === pendingIdStr,
         );
 
         if (newCriteriaObj) {
           const updatedSelectedCriteria = selectedCriteria.map(
             (criterion: any) => {
               if (
-                criterion.criteriaId === pendingNewCriteriaId ||
-                criterion.id === pendingNewCriteriaId
+                String(criterion.criteriaId) === pendingIdStr ||
+                String(criterion.id) === pendingIdStr
               ) {
                 return {
                   ...criterion,
@@ -588,8 +991,14 @@ const RecognitionForm: React.FC<PropsData> = ({
         styles={{
           body: {
             paddingTop: 0,
-            maxHeight: currentStep === 0 ? 583 : 457,
-            overflowY: 'hidden',
+            maxHeight:
+              currentStep === 0
+                ? 583
+                : showFormulaStep && currentStep === 2
+                  ? 640
+                  : 457,
+            overflowY:
+              showFormulaStep && currentStep === 2 ? 'auto' : 'hidden',
           },
           content: {
             borderRadius: 12,
@@ -601,10 +1010,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           <Steps
             size="small"
             current={currentStep}
-            items={[
-              { title: 'Recognition information' },
-              ...(createCategory ? [] : [{ title: 'Recognition Criteria' }]),
-            ]}
+            items={wizardStepItems}
             data-cy="create-recognition-wizard-steps-component"
           />
         </div>
@@ -617,6 +1023,7 @@ const RecognitionForm: React.FC<PropsData> = ({
             isMonetized: false,
             requiresCertification: false,
             frequency: 'monthly',
+            incentiveAmountType: 'Fixed',
           }}
           data-cy="create-recognition-form"
           id="createRecognitionForm"
@@ -708,14 +1115,15 @@ const RecognitionForm: React.FC<PropsData> = ({
                   mode="multiple"
                   placeholder="Select criteria"
                   className="text-xs text-gray-950 create-recognition-criteria-select-scroll"
-                  onChange={handleCriteriaChange}
+                  onChange={(vals) => handleCriteriaChange(vals as any)}
                   data-cy="create-recognition-form-criteria-select"
                   id="createRecognitionFormCriteriaSelect"
                   optionRender={(option) => {
                     const criteriaItem = criteria?.find(
-                      (c: any) => c.id === option.value,
+                      (c: any) => String(c.id) === String(option.value),
                     );
-                    const isEditing = editingCriteriaId === criteriaItem?.id;
+                    const isEditing =
+                      String(editingCriteriaId) === String(criteriaItem?.id);
 
                     return (
                       <div
@@ -1411,6 +1819,198 @@ const RecognitionForm: React.FC<PropsData> = ({
               </Select>
             </Form.Item>
           )}
+
+          {showFormulaStep && (
+            <div
+              className={currentStep === 2 ? 'block' : 'hidden'}
+              data-cy="create-recognition-step-2-formula"
+            >
+              <Form.Item name="incentiveAmountType" hidden>
+                <Input />
+              </Form.Item>
+
+              <div className="flex gap-2 mb-4">
+                <Form.Item shouldUpdate noStyle>
+                  {() => {
+                    const t =
+                      form.getFieldValue('incentiveAmountType') || 'Fixed';
+                    return (
+                      <>
+                        <Button
+                          type={t === 'Fixed' ? 'primary' : 'default'}
+                          className={
+                            t === 'Fixed'
+                              ? 'rounded-full px-6'
+                              : 'rounded-full px-6 border-gray-300'
+                          }
+                          onClick={() => {
+                            setFormulaError('');
+                            form.setFieldsValue({ incentiveAmountType: 'Fixed' });
+                          }}
+                          data-cy="create-recognition-formula-fixed-toggle"
+                        >
+                          Fixed Amount
+                        </Button>
+                        <Button
+                          type={t === 'Formula' ? 'primary' : 'default'}
+                          className={
+                            t === 'Formula'
+                              ? 'rounded-full px-6'
+                              : 'rounded-full px-6 border-gray-300'
+                          }
+                          onClick={() => {
+                            setFormulaError('');
+                            form.setFieldsValue({
+                              incentiveAmountType: 'Formula',
+                            });
+                          }}
+                          data-cy="create-recognition-formula-formula-toggle"
+                        >
+                          Formula
+                        </Button>
+                      </>
+                    );
+                  }}
+                </Form.Item>
+              </div>
+
+              {formulaError ? (
+                <div
+                  className="text-red-500 text-sm mb-2"
+                  data-cy="create-recognition-formula-step-error"
+                >
+                  {formulaError}
+                </div>
+              ) : null}
+
+              <Form.Item shouldUpdate noStyle>
+                {() => {
+                  const t =
+                    form.getFieldValue('incentiveAmountType') || 'Fixed';
+                  if (t !== 'Fixed') return null;
+                  return (
+                    <Form.Item
+                      label={
+                        <span className="text-black text-sm">
+                          Amount{' '}
+                          <span className="text-red-500">*</span>
+                        </span>
+                      }
+                      name="incentiveFixedAmount"
+                      data-cy="create-recognition-formula-fixed-amount"
+                    >
+                      <Input
+                        placeholder="Input"
+                        className="text-xs text-gray-950 h-10"
+                        data-cy="create-recognition-formula-fixed-amount-input"
+                        onChange={() => setFormulaError('')}
+                      />
+                    </Form.Item>
+                  );
+                }}
+              </Form.Item>
+
+              <Form.Item shouldUpdate noStyle>
+                {() => {
+                  const t =
+                    form.getFieldValue('incentiveAmountType') || 'Fixed';
+                  if (t !== 'Formula') return null;
+                  return (
+                    <Form.Item
+                      label={
+                        <span className="text-black text-sm font-semibold">
+                          Formula{' '}
+                          <span className="text-red-500">*</span>
+                        </span>
+                      }
+                      data-cy="create-recognition-formula-expression"
+                    >
+                      <TextArea
+                        ref={formulaTextAreaRef}
+                        value={getFormulaDisplayValue()}
+                        onChange={handleFormulaTextAreaChange}
+                        placeholder="Type numbers or click criteria and operands to build a formula"
+                        className="mt-1"
+                        rows={4}
+                        data-cy="create-recognition-formula-textarea"
+                      />
+                      <div className="my-4">
+                        <Row gutter={[16, 10]}>
+                          <Col xs={12} sm={12} md={13} lg={13} xl={13}>
+                            <div className="flex flex-col gap-1">
+                              <span className="font-bold text-sm">
+                                Criteria
+                                <span className="text-red-500">*</span>
+                              </span>
+                              <span className="flex flex-wrap my-1">
+                                {selectedCriteria?.length ? (
+                                  selectedCriteria.map(
+                                    (option: any, idx: number) => {
+                                      const cid =
+                                        option?.criteriaId || option?.id;
+                                      const cname = option?.criterionKey;
+                                      if (!cname) return null;
+                                      return (
+                                        <Button
+                                          key={`${cid}-${idx}`}
+                                          onClick={() =>
+                                            handleFormulaOptionClick(
+                                              cid,
+                                              cname,
+                                              'criteria',
+                                            )
+                                          }
+                                          className="bg-[#F8F8F8] text-[#111827] border-none text-sm font-normal m-1 rounded-2xl"
+                                          data-cy={`create-recognition-formula-criteria-${cid}`}
+                                        >
+                                          {cname}
+                                        </Button>
+                                      );
+                                    },
+                                  )
+                                ) : (
+                                  <span className="text-sm text-gray-500 m-1">
+                                    No Criterion
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+                          </Col>
+                          <Col xs={12} sm={12} md={10} lg={10} xl={10}>
+                            <div className="flex flex-col gap-1">
+                              <span className="font-bold text-sm">
+                                Operators
+                                <span className="text-red-500">*</span>
+                              </span>
+                              <span className="my-1 flex flex-wrap">
+                                {FORMULA_OPERAND_OPTIONS.map((option) => (
+                                  <Button
+                                    key={option.id}
+                                    onClick={() =>
+                                      handleFormulaOptionClick(
+                                        option.id,
+                                        option.name,
+                                        'operand',
+                                      )
+                                    }
+                                    className="bg-primary text-white border-none text-sm font-normal m-1 rounded-2xl"
+                                    data-cy={`create-recognition-formula-op-${option.name}`}
+                                  >
+                                    {option.name}
+                                  </Button>
+                                ))}
+                              </span>
+                            </div>
+                          </Col>
+                        </Row>
+                      </div>
+                    </Form.Item>
+                  );
+                }}
+              </Form.Item>
+            </div>
+          )}
+
           {/* department moved into the step-1 frequency/department row above */}
 
           <Modal
@@ -1508,7 +2108,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                 if (currentStep === 0) {
                   handleWizardClose();
                 } else {
-                  setCurrentStep(0);
+                  setCurrentStep((s) => s - 1);
                 }
               }}
               data-cy="create-recognition-wizard-back"
@@ -1516,21 +2116,35 @@ const RecognitionForm: React.FC<PropsData> = ({
               {currentStep === 0 ? 'Cancel' : 'Back'}
             </Button>
 
-            {createCategory || currentStep === 0 ? (
+            {!isLastWizardStep ? (
               <Button
                 type="primary"
+                disabled={
+                  !createCategory &&
+                  currentStep === 1 &&
+                  showFormulaStep &&
+                  selectedCriteria?.length > 0 &&
+                  totalWeight !== 1
+                }
                 onClick={async () => {
                   if (createCategory) {
                     form.submit();
                     return;
                   }
-                  await form.validateFields([
-                    'name',
-                    'description',
-                    'frequency',
-                    'departmentId',
-                  ]);
-                  setCurrentStep(1);
+                  if (currentStep === 0) {
+                    await form.validateFields([
+                      'name',
+                      'description',
+                      'frequency',
+                      'departmentId',
+                    ]);
+                    setCurrentStep(1);
+                    return;
+                  }
+                  if (currentStep === 1 && showFormulaStep) {
+                    await form.validateFields();
+                    setCurrentStep(2);
+                  }
                 }}
                 data-cy="create-recognition-wizard-continue"
               >
@@ -1540,15 +2154,34 @@ const RecognitionForm: React.FC<PropsData> = ({
               <Button
                 loading={
                   selectedRecognitionType !== ''
-                    ? updateWithCriteriaLoading
-                    : createLoading
+                    ? updateWithCriteriaLoading || updateFormulaLoading
+                    : createLoading || createFormulaLoading
                 }
-                disabled={selectedCriteria?.length > 0 && totalWeight !== 1}
+                disabled={
+                  (!createCategory &&
+                    currentStep === 1 &&
+                    !showFormulaStep &&
+                    selectedCriteria?.length > 0 &&
+                    totalWeight !== 1) ||
+                  (showFormulaStep &&
+                    currentStep === 2 &&
+                    !!formulaError)
+                }
                 type="primary"
-                onClick={() => form.submit()}
+                onClick={() => {
+                  if (showFormulaStep && currentStep === 2) {
+                    handleWizardFinalSubmit();
+                  } else {
+                    form.submit();
+                  }
+                }}
                 data-cy="create-recognition-wizard-submit"
               >
-                {selectedRecognitionType !== '' ? 'Update' : 'Create'}
+                {createCategory
+                  ? 'Continue'
+                  : selectedRecognitionType !== ''
+                    ? 'Update'
+                    : 'Create'}
               </Button>
             )}
           </div>

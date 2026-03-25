@@ -62,6 +62,12 @@ export default function RecognitionDetailPage() {
     [recognitionName, selectedRecognition?.name],
   );
   const description = selectedRecognition?.description || '';
+  const openEditRecognitionModal = (id?: string) => {
+    if (!id) return;
+    setParentRecognitionTypeId('');
+    setSelectedRecognitionType(String(id));
+    setOpenRecognitionType(true);
+  };
 
   return (
     <div
@@ -226,9 +232,7 @@ export default function RecognitionDetailPage() {
                               label: 'Edit',
                               icon: <Edit2Icon className="w-4 h-4 text-xs" />,
                               onClick: () => {
-                                // TODO: wire edit action later
-                                // setSelectedRecognitionType(item);
-                                // setOpen(true);
+                                openEditRecognitionModal(child?.id);
                               },
                             },
                             {
@@ -404,9 +408,9 @@ export default function RecognitionDetailPage() {
                                               <Edit2Icon className="w-4 h-4 text-xs" />
                                             ),
                                             onClick: () => {
-                                              // TODO: wire edit action later
-                                              // setSelectedRecognitionType(item);
-                                              // setOpen(true);
+                                              openEditRecognitionModal(
+                                                child?.id,
+                                              );
                                             },
                                           },
                                           {
