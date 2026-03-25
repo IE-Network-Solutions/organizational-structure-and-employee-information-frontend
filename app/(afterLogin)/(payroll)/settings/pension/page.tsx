@@ -1,7 +1,7 @@
 'use client';
 import { Button, Input, Tooltip } from 'antd';
 import { EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGetAllPensionRule } from '@/store/server/features/payroll/payroll/queries';
 import { useUpdatePensionRule } from '@/store/server/features/payroll/payroll/mutation';
 import { FaPlus } from 'react-icons/fa';
@@ -32,10 +32,17 @@ const Pension = () => {
   const { data: pensionRule, isLoading } = useGetAllPensionRule();
   const { mutate: pensionRuleUpdate, isLoading: updatePensionRule } =
     useUpdatePensionRule();
-  const { openDrawer } = useDrawerStore();
+  const { openDrawer, setPensionAddDisabled } = useDrawerStore();
 
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<Record<string, any>>({});
+
+  // Keep UI header action ("Add Pension Rule") in sync with whether pension rules already exist.
+  const isPensionAddDisabled = !isLoading && (pensionRule?.length ?? 0) > 0;
+
+  useEffect(() => {
+    setPensionAddDisabled(isPensionAddDisabled);
+  }, [isPensionAddDisabled, setPensionAddDisabled]);
 
   // Format the data for the table
 
@@ -52,7 +59,12 @@ const Pension = () => {
   };
 
   const handleSave = () => {
-    pensionRuleUpdate(editedData, {
+    // Strip UI-only fields (e.g. React list `key`) before sending to API.
+    // Backend PensionRule DTO doesn't include `key`.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { key, ...payload } = editedData;
+
+    pensionRuleUpdate(payload, {
       onSuccess: () => {
         setEditingKey(null); // Exit editing mode
       },
@@ -101,7 +113,7 @@ const Pension = () => {
           data-cy="payroll-pension-add-click-button"
           type="primary"
           onClick={handleAddRule}
-          disabled={pensionRule && pensionRule.length > 0}
+          disabled={isPensionAddDisabled}
           icon={<FaPlus data-cy="payroll-pension-add-click-button-icon" />}
         >
           <span

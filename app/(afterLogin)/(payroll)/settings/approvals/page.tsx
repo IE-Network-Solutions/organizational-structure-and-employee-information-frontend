@@ -3,7 +3,7 @@ import { useCreateApproverMutation } from '@/store/server/features/approver/muta
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { APPROVALTYPES } from '@/types/enumTypes';
 import { Button, Form, Modal } from 'antd';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import ApprovalTable from './_component/ApprovalTable';
 import { FaPlus } from 'react-icons/fa';
 import PermissionWraper from '@/utils/permissionGuard';
@@ -13,6 +13,7 @@ import PayrollApprovalWorkFlowSetting from './_component/payrollApprovalWorkFlow
 import { useApprovalFilter } from '@/store/server/features/approver/queries';
 import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import useApprovalsSettingsStore from '@/store/uistate/features/payroll/settings/approvals/approvalsSettingsStore';
 
 const Approvals = () => {
   const {
@@ -33,6 +34,7 @@ const Approvals = () => {
     searchParams?.name || '',
     APPROVALTYPES.PAYROLL,
   );
+  const { setApprovalsAddDisabled } = useApprovalsSettingsStore();
 
   // Get departments and find the one with level 0
   const { data: departments } = useGetDepartments();
@@ -95,6 +97,13 @@ const Approvals = () => {
 
   const pageSlug = 'approvals-payroll-settings';
 
+  // Keep the header primary action ("Set Approval") visually disabled in sync with this page.
+  const isApprovalsAddDisabled = (allFilterData?.items?.length ?? 0) >= 1;
+
+  useEffect(() => {
+    setApprovalsAddDisabled(isApprovalsAddDisabled);
+  }, [isApprovalsAddDisabled, setApprovalsAddDisabled]);
+
   const handleCloseModal = () => {
     setAddDepartmentApproval(false);
     setDepartmentApproval(false);
@@ -131,7 +140,7 @@ const Approvals = () => {
               icon={<FaPlus />}
               id={`settings-${pageSlug}-add-approval-btn`}
               data-cy={`settings-${pageSlug}-add-approval-btn`}
-              disabled={allFilterData?.items?.length >= 1}
+              disabled={isApprovalsAddDisabled}
             >
               <span
                 className="hidden sm:inline"

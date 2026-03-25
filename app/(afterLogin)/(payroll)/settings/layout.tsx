@@ -3,8 +3,10 @@
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Button } from 'antd';
+import { Button, theme } from 'antd';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import usePensionRulesStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
+import useApprovalsSettingsStore from '@/store/uistate/features/payroll/settings/approvals/approvalsSettingsStore';
 
 interface PayrollSettingsLayoutProps {
   children: ReactNode;
@@ -15,6 +17,9 @@ type TabKey = 'tax-rule' | 'pension' | 'pay-period' | 'approvals';
 const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const [currentItem, setCurrentItem] = useState<TabKey>('tax-rule');
+  const { isPensionAddDisabled } = usePensionRulesStore();
+  const { isApprovalsAddDisabled } = useApprovalsSettingsStore();
+  const { token } = theme.useToken();
 
   const tabs = useMemo(
     () => [
@@ -53,6 +58,10 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({ children }) => 
     const el = document.getElementById(targetId) as HTMLButtonElement | null;
     el?.click();
   };
+
+  const isHeaderPrimaryActionDisabled =
+    (currentItem === 'pension' && isPensionAddDisabled) ||
+    (currentItem === 'approvals' && isApprovalsAddDisabled);
 
   return (
     <div
@@ -142,13 +151,28 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({ children }) => 
               id="payroll-settings-tabs-primary-action-button"
               data-cy="payroll-settings-tabs-primary-action-button"
               type="primary"
-              className="flex items-center gap-2 bg-primary hover:!bg-primary/90 text-white px-5 py-2.5 rounded-md text-sm font-medium transition-colors shadow-sm whitespace-nowrap"
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-colors shadow-sm whitespace-nowrap ${
+                isHeaderPrimaryActionDisabled
+                  ? 'cursor-not-allowed'
+                  : 'bg-primary hover:!bg-primary/90 text-white'
+              }`}
               icon={
                 currentItem === 'pay-period' ? (
                   <EditOutlined data-cy="payroll-settings-tabs-primary-action-button-icon" />
                 ) : (
                   <PlusOutlined data-cy="payroll-settings-tabs-primary-action-button-icon" />
                 )
+              }
+              disabled={isHeaderPrimaryActionDisabled}
+              style={
+                isHeaderPrimaryActionDisabled
+                  ? {
+                      backgroundColor: token.colorBgContainerDisabled,
+                      borderColor: token.colorBorder,
+                      color: token.colorTextDisabled,
+                      boxShadow: 'none',
+                    }
+                  : undefined
               }
               onClick={handlePrimaryActionClick}
             >
