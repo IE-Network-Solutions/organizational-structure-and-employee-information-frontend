@@ -131,7 +131,7 @@ const CreateJobs: React.FC = () => {
         departmentId: formValues?.department,
         compensation:
           formValues?.compensation != null
-            ? String(formValues.compensation)
+            ? Number(formValues.compensation)
             : formValues?.compensation,
         questions: [
           ...(formValues?.questions?.map((e: any) => ({

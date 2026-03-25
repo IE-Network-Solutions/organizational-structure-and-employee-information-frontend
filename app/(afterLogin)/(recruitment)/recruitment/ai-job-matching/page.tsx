@@ -179,7 +179,7 @@ const AIJobMatchingPage: React.FC = () => {
     );
   }
 
-  if (isError) {
+  if (isError && (!jobs || jobs.length === 0)) {
     return (
       <div
         id="ai-job-matching-page-error"

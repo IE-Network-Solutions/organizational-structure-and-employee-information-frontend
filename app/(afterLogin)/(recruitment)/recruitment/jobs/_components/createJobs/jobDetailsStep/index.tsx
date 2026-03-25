@@ -10,6 +10,7 @@ import {
   Radio,
   Select,
 } from 'antd';
+import dayjs from 'dayjs';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { LocationType } from '@/types/enumTypes';
 import TextEditor from '@/components/form/textEditor';
@@ -135,7 +136,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
             rules={[{ required: true, message: 'Please select the location!' }]}
           >
             <Radio.Group
-              className="flex flex-wrap gap-3 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:h-11 [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:rounded-lg [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-gray-300 [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-4 [&_.ant-radio-wrapper]:shadow-none [&_.ant-radio-wrapper-checked]:!border-[#6366F1] [&_.ant-radio-wrapper-checked]:!bg-[#6366F1] [&_.ant-radio-wrapper-checked]:!text-white [&_.ant-radio-wrapper-checked_.ant-radio-inner]:!border-white [&_.ant-radio-wrapper-checked_.ant-radio-inner::after]:!bg-white"
+              className="flex flex-wrap gap-3 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:h-11 [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:rounded-lg [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-gray-300 [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-4 [&_.ant-radio-wrapper]:shadow-none"
               data-cy="talent-acquisition-create-job-radio-location"
             >
               <Radio value={LocationType.ONSITE}>Onsite</Radio>
@@ -194,11 +195,32 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
                 </span>
               </span>
             }
-            rules={[{ required: true, message: 'Please select the date!' }]}
+            rules={[
+              { required: true, message: 'Please select the date!' },
+              {
+                validator: (_, value) => {
+                  const today = dayjs().startOf('day');
+                  if (!value) return Promise.resolve();
+                  const picked = dayjs(value).startOf('day');
+                  if (picked.isBefore(today)) {
+                    return Promise.reject(
+                      new Error(
+                        'Expected end date cannot be before the current date!',
+                      ),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <DatePicker
               className="w-full h-11 rounded-lg"
               placeholder="Select date"
+              disabledDate={(current) => {
+                if (!current) return false;
+                return current.isBefore(dayjs().startOf('day'), 'day');
+              }}
               data-cy="talent-acquisition-create-job-date-picker-deadline"
             />
           </Form.Item>

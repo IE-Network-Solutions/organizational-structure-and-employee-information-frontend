@@ -1,18 +1,20 @@
 'use client';
 /* eslint-disable local-rules/data-cy-required */
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Dropdown, Tooltip, Spin, Popover, Button } from 'antd';
 import { BsThreeDots } from 'react-icons/bs';
 import { IoShareSocialOutline } from 'react-icons/io5';
 import { AiOutlineClockCircle } from 'react-icons/ai';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import RecruitmentPagination from '../../../_components';
-import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
+import {
+  useGetAllJobs,
+  useGetJobs,
+} from '@/store/server/features/recruitment/job/queries';
 import ShareToSocialMedia from '../modals/share';
 import ChangeStatusModal from '../modals/changeJobStatus';
 import EditJob from '../modals/editJob/editModal';
 import Link from 'next/link';
-import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
@@ -147,8 +149,14 @@ const AIcon: React.FC<{ className?: string }> = ({ className }) => {
 };
 
 const JobCard: React.FC = () => {
-  const { searchParams } = useCandidateState();
+  const [isClientReady, setIsClientReady] = useState(false);
+
+  useEffect(() => {
+    setIsClientReady(true);
+  }, []);
+
   const {
+    searchParams,
     setChangeStatusModalVisible,
     selectedJobId,
     setSelectedJobId,
@@ -162,11 +170,116 @@ const JobCard: React.FC = () => {
   } = useJobState();
   const { deleteModal, setDeleteModal } = CategoriesManagementStore();
 
+  const filters = useMemo(
+    () => ({
+      department: searchParams?.department,
+      employmentType: searchParams?.employmentType,
+      status: searchParams?.status,
+      location: searchParams?.location,
+      createdDate: searchParams?.createdDate,
+      closedDate: searchParams?.closedDate,
+    }),
+    [
+      searchParams?.department,
+      searchParams?.employmentType,
+      searchParams?.status,
+      searchParams?.location,
+      searchParams?.createdDate,
+      searchParams?.closedDate,
+    ],
+  );
+
+  const isAnyFilterSet = Boolean(
+    filters.department ||
+      filters.employmentType ||
+      filters.status ||
+      filters.location ||
+      filters.createdDate ||
+      filters.closedDate,
+  );
+
   const { data: jobList, isLoading: isJobListLoading } = useGetJobs(
     searchParams?.whatYouNeed || '',
     currentPage,
     pageSize,
+    filters,
+    { enabled: !isAnyFilterSet },
   );
+
+  const { data: allJobsList, isLoading: isAllJobsLoading } = useGetAllJobs(
+    searchParams?.whatYouNeed || '',
+    undefined,
+    undefined,
+    { enabled: isAnyFilterSet },
+  );
+
+  const isJobsLoading = isAnyFilterSet ? isAllJobsLoading : isJobListLoading;
+
+  const filteredAllItems = useMemo(() => {
+    if (!isAnyFilterSet) return [];
+    const items = allJobsList?.items ?? [];
+
+    const getEffectiveStatus = (job: any) => {
+      const jobDeadline = job?.jobDeadline ? new Date(job.jobDeadline) : null;
+      const today = new Date();
+      const isDeadlinePassed = jobDeadline && jobDeadline < today;
+      return isDeadlinePassed ? 'Closed' : job?.jobStatus ?? 'Open';
+    };
+
+    const normalizeYYYYMMDD = (v: any) => {
+      if (!v) return '';
+      return dayjs(v).format('YYYY-MM-DD');
+    };
+
+    let filtered = items;
+    if (filters.department) {
+      filtered = filtered.filter((job: any) => job?.departmentId === filters.department);
+    }
+    if (filters.employmentType) {
+      filtered = filtered.filter(
+        (job: any) => job?.employmentType === filters.employmentType,
+      );
+    }
+    if (filters.location) {
+      filtered = filtered.filter((job: any) => job?.jobLocation === filters.location);
+    }
+    if (filters.status) {
+      filtered = filtered.filter((job: any) => getEffectiveStatus(job) === filters.status);
+    }
+    if (filters.createdDate) {
+      filtered = filtered.filter(
+        (job: any) => normalizeYYYYMMDD(job?.createdAt) === filters.createdDate,
+      );
+    }
+    if (filters.closedDate) {
+      filtered = filtered.filter(
+        (job: any) => normalizeYYYYMMDD(job?.jobDeadline) === filters.closedDate,
+      );
+    }
+
+    return filtered;
+  }, [
+    allJobsList?.items,
+    filters.createdDate,
+    filters.department,
+    filters.employmentType,
+    filters.location,
+    filters.status,
+    filters.closedDate,
+    isAnyFilterSet,
+  ]);
+
+  const totalItems = isAnyFilterSet
+    ? filteredAllItems.length
+    : jobList?.meta?.totalItems ?? 1;
+
+  const itemsToRender = isAnyFilterSet
+    ? filteredAllItems.slice(
+        Math.max(0, (currentPage - 1) * pageSize),
+        Math.max(0, (currentPage - 1) * pageSize) + pageSize,
+      )
+    : jobList?.items ?? [];
+
   const { mutate: deleteJob, isLoading } = useDeleteJobs();
 
   const { data: departments } = useGetDepartments();
@@ -202,14 +315,18 @@ const JobCard: React.FC = () => {
     setSelectedJobId('');
   };
 
-  if (isJobListLoading)
+  // Ensure initial SSR and first client render stay identical before hydrating
+  if (!isClientReady || isJobsLoading)
     return (
       <div
-        id="talent-acquisition-job-card-div-loading"
-        data-cy="talent-acquisition-job-card-div-loading"
+        id="talent-acquisition-job-card-div-loading-initial"
+        data-cy="talent-acquisition-job-card-div-loading-initial"
         className="flex justify-center items-center h-64"
       >
-        <Spin data-cy="talent-acquisition-job-card-spin-loading" size="large" />
+        <Spin
+          data-cy="talent-acquisition-job-card-spin-loading-initial"
+          size="large"
+        />
       </div>
     );
 
@@ -233,9 +350,9 @@ const JobCard: React.FC = () => {
 
   return (
     <>
-      {jobList?.items && jobList?.items?.length >= 1 ? (
+      {itemsToRender.length >= 1 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {jobList?.items.map((job: any, index: string) => {
+          {itemsToRender.map((job: any, index: string) => {
             const jobDeadline = job?.jobDeadline
               ? new Date(job?.jobDeadline)
               : null;
@@ -372,7 +489,7 @@ const JobCard: React.FC = () => {
                 key={job?.id ?? index}
                 id={`talent-acquisition-job-card-div-card-${index}`}
                 data-cy={`talent-acquisition-job-card-div-card-${index}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col relative"
+                className="bg-white rounded-xl shadow-sm border border-gray-300 p-5 flex flex-col relative"
               >
                 {/* Same order on mobile and desktop: status + deadline | actions → title → department • applicants → location/type pills → created */}
                 <div className="flex items-start justify-between gap-2 mb-3">
@@ -440,7 +557,7 @@ const JobCard: React.FC = () => {
                 </Link>
                 <div className="flex items-center justify-end gap-1.5 text-sm text-gray-400 mt-auto pt-2 border-t border-gray-100">
                   <AiOutlineClockCircle className="w-4 h-4 shrink-0" />
-                  <span>
+                  <span suppressHydrationWarning>
                     Created{' '}
                     {job?.createdAt
                       ? dayjs(job.createdAt).fromNow()
@@ -471,7 +588,7 @@ const JobCard: React.FC = () => {
       <EditJob />
       <RecruitmentPagination
         current={currentPage}
-        total={jobList?.meta?.totalItems ?? 1}
+        total={totalItems}
         pageSize={pageSize}
         onChange={(page, pageSize) => {
           setCurrentPage(page);

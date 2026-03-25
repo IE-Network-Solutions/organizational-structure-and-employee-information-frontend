@@ -23,6 +23,8 @@ interface JobsFilterProps {
   onClose: () => void;
   onOpenChange?: (visible: boolean) => void;
   onSaveFilter?: (values: Record<string, unknown>) => void;
+  onResetFilter?: () => void;
+  initialValues?: Record<string, unknown>;
   asPopover?: boolean;
   children?: React.ReactNode;
 }
@@ -31,11 +33,20 @@ const FilterFormContent: React.FC<{
   form: ReturnType<typeof Form.useForm>[0];
   onClose: () => void;
   onSaveFilter?: (values: Record<string, unknown>) => void;
+  onResetFilter?: () => void;
   departments: { id: string; name: string }[] | undefined;
   isDepartmentLoading: boolean;
-}> = ({ form, onClose, onSaveFilter, departments, isDepartmentLoading }) => {
+}> = ({
+  form,
+  onClose,
+  onSaveFilter,
+  onResetFilter,
+  departments,
+  isDepartmentLoading,
+}) => {
   const handleReset = () => {
     form.resetFields();
+    onResetFilter?.();
   };
 
   const handleSaveFilter = async () => {
@@ -192,6 +203,8 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
   onClose,
   onOpenChange,
   onSaveFilter,
+  onResetFilter,
+  initialValues,
   asPopover = false,
   children,
 }) => {
@@ -199,6 +212,10 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
   const [form] = Form.useForm();
   const { data: departments, isLoading: isDepartmentLoading } =
     useGetDepartments();
+
+  React.useEffect(() => {
+    form.setFieldsValue(initialValues ?? {});
+  }, [form, initialValues]);
 
   const header = (
     <div data-cy="talent-acquisition-jobs-filter-modal-header-wrap">
@@ -222,6 +239,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
       form={form}
       onClose={onClose}
       onSaveFilter={onSaveFilter}
+      onResetFilter={onResetFilter}
       departments={departments}
       isDepartmentLoading={isDepartmentLoading}
     />
@@ -313,7 +331,10 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
         >
           <Button
             type="default"
-            onClick={() => form.resetFields()}
+            onClick={() => {
+              form.resetFields();
+              onResetFilter?.();
+            }}
             className="border-gray-300 text-gray-700"
             data-cy="talent-acquisition-jobs-filter-modal-reset"
           >

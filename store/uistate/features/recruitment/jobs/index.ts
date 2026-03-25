@@ -23,6 +23,12 @@ interface JobFormValues {
 
 interface SearchParams {
   whatYouNeed: string;
+  department: string;
+  employmentType: string;
+  status: string;
+  location: string;
+  createdDate: string;
+  closedDate: string;
 }
 
 interface JobState {
@@ -144,6 +150,12 @@ export const useJobState = create<JobState>((set) => ({
 
   searchParams: {
     whatYouNeed: '',
+    department: '',
+    employmentType: '',
+    status: '',
+    location: '',
+    createdDate: '',
+    closedDate: '',
   },
   setSearchParams: (key, value) => {
     const stringValue = typeof value === 'boolean' ? String(value) : value;

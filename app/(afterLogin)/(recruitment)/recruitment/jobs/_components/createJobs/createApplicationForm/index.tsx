@@ -2,6 +2,7 @@ import { Button, Form, FormInstance } from 'antd';
 import React from 'react';
 import { CiCircleInfo } from 'react-icons/ci';
 import ApplicationFormDragDrop from './applicationFormDragDrop';
+import CustomFieldsSelector from './customFieldSelector';
 
 const EXISTING_FIELDS = [
   { key: '1', name: 'Full Name' },
@@ -81,6 +82,13 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
         >
           <ApplicationFormDragDrop form={form} />
         </div>
+      </div>
+
+      <div
+        className="mb-6"
+        data-cy="talent-acquisition-create-application-form-template-questions-container"
+      >
+        <CustomFieldsSelector />
       </div>
 
       <Form.Item className="mb-0">

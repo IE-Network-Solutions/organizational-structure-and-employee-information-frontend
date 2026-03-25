@@ -7,6 +7,7 @@ import {
   Droppable,
   Draggable,
   DropResult,
+  DragStart,
 } from '@hello-pangea/dnd';
 import {
   Button,
@@ -93,6 +94,10 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
   });
 
   const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false);
+  const [isDraggingFromSource, setIsDraggingFromSource] = useState(false);
+  const [recentlyDroppedQuestionId, setRecentlyDroppedQuestionId] = useState<
+    string | null
+  >(null);
   const [pendingDrop, setPendingDrop] = useState<{
     fieldTypeInfo: (typeof FIELD_TYPES)[number];
     destinationIndex: number;
@@ -103,7 +108,20 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
     form.setFieldValue('questions', questions);
   }, [questions, form]);
 
+  useEffect(() => {
+    if (!recentlyDroppedQuestionId) return;
+    const timeout = window.setTimeout(() => {
+      setRecentlyDroppedQuestionId(null);
+    }, 700);
+    return () => window.clearTimeout(timeout);
+  }, [recentlyDroppedQuestionId]);
+
+  const onDragStart = (start: DragStart) => {
+    setIsDraggingFromSource(start.source.droppableId === SOURCES_DROPPABLE);
+  };
+
   const onDragEnd = (result: DropResult) => {
+    setIsDraggingFromSource(false);
     if (!result.destination) return;
     const { source, destination } = result;
 
@@ -147,8 +165,9 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
   const handleCustomFieldCreate = () => {
     customFieldForm.validateFields().then((values) => {
       if (!pendingDrop) return;
+      const newQuestionId = uuidv4();
       const newQuestion: QuestionItem = {
-        id: uuidv4(),
+        id: newQuestionId,
         fieldType: pendingDrop.fieldTypeInfo.type,
         question: values.fieldName,
         required: !!values.required,
@@ -159,6 +178,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
       const next = [...questions];
       next.splice(pendingDrop.destinationIndex, 0, newQuestion);
       setQuestions(next);
+      setRecentlyDroppedQuestionId(newQuestionId);
       handleCustomFieldCancel();
     });
   };
@@ -273,7 +293,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
           </div>
         </Form>
       </Modal>
-      <DragDropContext onDragEnd={onDragEnd}>
+      <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Left: Field types to drag */}
           <Droppable droppableId={SOURCES_DROPPABLE} isDropDisabled={true}>
@@ -323,9 +343,11 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className={`rounded-lg border border-dashed p-3 min-h-[200px] transition-colors ${
+                className={`rounded-lg border border-dashed p-3 min-h-[200px] transition-all duration-200 ${
                   snapshot.isDraggingOver
-                    ? 'border-[#6366F1] bg-[#6366F1]/5'
+                    ? 'border-[#6366F1] bg-[#6366F1]/8 shadow-[0_0_0_4px_rgba(99,102,241,0.10)]'
+                    : isDraggingFromSource
+                      ? 'border-[#A5B4FC] bg-[#EEF2FF]/60'
                     : 'border-gray-200 bg-white'
                 }`}
               >
@@ -335,6 +357,11 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                 <p className="mt-1 text-xs text-gray-500">
                   Drag fields here to add them to the form.
                 </p>
+                {isDraggingFromSource && (
+                  <div className="mt-3 rounded-md border border-dashed border-[#6366F1]/50 bg-[#6366F1]/5 px-3 py-2 text-xs text-[#4F46E5] animate-pulse">
+                    Drop here to create and configure your field
+                  </div>
+                )}
                 <div className="mt-3 space-y-2">
                   {questions.map((q, index) => (
                     <Draggable
@@ -347,9 +374,11 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`flex items-center gap-2 rounded-lg border bg-white p-3 cursor-grab active:cursor-grabbing ${
+                          className={`flex items-center gap-2 rounded-lg border bg-white p-3 cursor-grab active:cursor-grabbing transition-all duration-200 ${
                             snapshot.isDragging
                               ? 'opacity-90 shadow-lg ring-2 ring-[#6366F1] cursor-grabbing'
+                              : recentlyDroppedQuestionId === q.id
+                                ? 'border-[#818CF8] shadow-md ring-2 ring-[#C7D2FE] scale-[1.01]'
                               : 'border-gray-200'
                           }`}
                         >

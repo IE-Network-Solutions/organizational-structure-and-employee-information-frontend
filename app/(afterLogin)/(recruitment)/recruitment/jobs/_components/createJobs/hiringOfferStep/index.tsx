@@ -58,7 +58,7 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
             rules={[{ required: true, message: 'Please select job type!' }]}
           >
             <Radio.Group
-              className="flex flex-wrap gap-3 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:h-11 [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:rounded-lg [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-gray-300 [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-4 [&_.ant-radio-wrapper]:shadow-none [&_.ant-radio-wrapper-checked]:!border-[#6366F1] [&_.ant-radio-wrapper-checked]:!bg-[#6366F1] [&_.ant-radio-wrapper-checked]:!text-white [&_.ant-radio-wrapper-checked_.ant-radio-inner]:!border-white [&_.ant-radio-wrapper-checked_.ant-radio-inner::after]:!bg-white"
+              className="flex flex-wrap gap-3 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:h-11 [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:rounded-lg [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-gray-300 [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-4 [&_.ant-radio-wrapper]:shadow-none"
               data-cy="talent-acquisition-create-job-radio-employment-type"
             >
               <Radio value={EmploymentType.FULLTIME}>Full-time</Radio>
