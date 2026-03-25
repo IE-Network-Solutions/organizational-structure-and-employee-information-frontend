@@ -27,11 +27,11 @@ const StatsCard: React.FC<StatsCardProps> = ({
   return (
     <Card
       className="rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-      bodyStyle={{ padding: '20px' }}
+      bodyStyle={{ padding: '13px' }}
       id={id}
       data-cy={dataCy}
     >
-      <div data-cy="stats-card-body" className="flex flex-col gap-3">
+      <div data-cy="stats-card-body" className="flex flex-col gap-2">
         {/* Header with icon and title */}
         <div
           data-cy="stats-card-header"
