@@ -1,5 +1,24 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+function mergePayrollFilterState(
+  prev: { [key: string]: string },
+  partial: { [key: string]: string | undefined | null },
+): { [key: string]: string } {
+  const merged = { ...prev };
+  for (const [key, val] of Object.entries(partial)) {
+    if (
+      val === undefined ||
+      val === null ||
+      (typeof val === 'string' && val.trim() === '')
+    ) {
+      delete merged[key];
+    } else {
+      merged[key] = val;
+    }
+  }
+  return merged;
+}
 
 import {
   Table,
@@ -116,6 +135,8 @@ const Payroll = () => {
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
+  const searchValueRef = useRef(searchValue);
+  searchValueRef.current = searchValue;
 
   // Get payPeriodId from filters or from payroll data
   const currentPayPeriodId = payPeriodId || payroll?.items?.[0]?.payPeriodId;
@@ -308,49 +329,51 @@ const Payroll = () => {
       ?.flatMap((item: FiscalYear) => item.sessions || [])
       ?.flatMap((session) => session?.months || []) || [];
 
-  const handleSearch = (searchValues: any) => {
+  const handleSearch = (
+    partial: { [key: string]: string | undefined | null },
+  ) => {
+    const merged = mergePayrollFilterState(searchValueRef.current, partial);
+    searchValueRef.current = merged;
+    setSearchValue(merged);
+
     const queryParams = new URLSearchParams();
 
-    if (searchValues?.employeeId) {
-      queryParams.append('employeeId', searchValues.employeeId);
+    if (merged.employeeId) {
+      queryParams.append('employeeId', merged.employeeId);
     }
-    if (searchValues?.monthId) {
-      queryParams.append('monthId', searchValues.monthId);
+    if (merged.monthId) {
+      queryParams.append('monthId', merged.monthId);
 
-      // Find the month object to get start and end dates
-      const month = fiscalYearMonths.find(
-        (month) => month?.id === searchValues.monthId,
-      );
+      const month = fiscalYearMonths.find((m) => m?.id === merged.monthId);
 
       if (month?.startDate) {
         const startDate = new Date(month.startDate);
-        const formattedStartDate = startDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        const formattedStartDate = startDate.toISOString().split('T')[0];
         queryParams.append('startDate', formattedStartDate);
       }
       if (month?.endDate) {
         const endDate = new Date(month.endDate);
-        const formattedEndDate = endDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        const formattedEndDate = endDate.toISOString().split('T')[0];
         queryParams.append('endDate', formattedEndDate);
       }
     }
-    if (searchValues?.divisionId) {
-      queryParams.append('divisionId', searchValues.divisionId);
+    if (merged.divisionId) {
+      queryParams.append('divisionId', merged.divisionId);
     }
-    if (searchValues?.payPeriodId) {
-      queryParams.append('payPeriodId', searchValues.payPeriodId);
+    if (merged.payPeriodId) {
+      queryParams.append('payPeriodId', merged.payPeriodId);
       const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
       setPayPeriodQuery(query);
-      setPayPeriodId(searchValues.payPeriodId);
+      setPayPeriodId(merged.payPeriodId);
     }
-    if (searchValues?.departmentId) {
-      queryParams.append('departmentId', searchValues.departmentId);
+    if (merged.departmentId) {
+      queryParams.append('departmentId', merged.departmentId);
     }
 
     const searchParams = queryParams.toString()
       ? `&${queryParams.toString()}`
       : '';
     setSearchQuery(searchParams);
-    // Reset selection when filters change
     setSelectedRowKeys([]);
     refetch();
     refetchExportData();
@@ -1095,12 +1118,8 @@ const Payroll = () => {
   ];
   const { isMobile, isTablet } = useIsMobile();
 
-  const handleEmployeeSelect = (value: string) => {
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, employeeId: value };
-      handleSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
+  const handleEmployeeSelect = (value: string | null | undefined) => {
+    handleSearch({ employeeId: value ?? undefined });
   };
   const options = (
     searchValue?.divisionId && payroll?.divisionUsers
@@ -1305,6 +1324,7 @@ const Payroll = () => {
                     data-cy="payroll-generate-modal-view-component"
                     onGenerate={handleGeneratePayroll}
                     onClose={() => setIsPayrollModalOpen(false)}
+                    loading={isCreatingPayroll || loading}
                   />
                 )}
               </AccessGuard>
@@ -1528,27 +1548,27 @@ const Payroll = () => {
           <PayrollCard
             title="Total Amount"
             data-cy="payroll-summary-card-total-amount-view-component"
-            value={payroll?.totalGrossPaymentAmount}
+            value={payrollForExport?.totalGrossPaymentAmount}
           />
           <PayrollCard
             title="Net Paid Amount"
             data-cy="payroll-summary-card-net-paid-view-component"
-            value={payroll?.totalNetPayAmount}
+            value={payrollForExport?.totalNetPayAmount}
           />
           <PayrollCard
             title="Total Allowance"
             data-cy="payroll-summary-card-total-allowance-view-component"
-            value={payroll?.totalAllowanceAmount}
+            value={payrollForExport?.totalAllowanceAmount}
           />
           <PayrollCard
             title="Total Benefit"
             data-cy="payroll-summary-card-total-benefit-view-component"
-            value={payroll?.totalMeritAmount}
+            value={payrollForExport?.totalMeritAmount}
           />
           <PayrollCard
             title="Total Deduction"
             data-cy="payroll-summary-card-total-deduction-view-component"
-            value={payroll?.totalDeductionsAmount}
+            value={payrollForExport?.totalDeductionsAmount}
           />
         </div>
         <div

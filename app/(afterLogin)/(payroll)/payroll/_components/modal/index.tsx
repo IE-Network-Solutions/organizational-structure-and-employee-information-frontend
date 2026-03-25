@@ -8,13 +8,18 @@ import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries
 interface Props {
   onClose: () => void;
   onGenerate: (data: Incentive) => void;
+  loading?: boolean;
 }
 
 export interface Incentive {
   includeIncentive: boolean;
 }
 
-const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
+const GeneratePayrollModal: React.FC<Props> = ({
+  onClose,
+  onGenerate,
+  loading = false,
+}) => {
   const [form] = Form.useForm();
   
   const { data: payPeriodData } = useGetPayPeriod();
@@ -93,7 +98,10 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
           </span>
         }
         open={true}
-        onCancel={onClose}
+        maskClosable={!loading}
+        onCancel={() => {
+          if (!loading) onClose();
+        }}
         closeIcon={<IoCloseOutline size={24} className="text-gray-600 hover:text-gray-900" />}
         width={520}
         centered
@@ -101,6 +109,8 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
           <Button 
             key="cancel" 
             data-cy="payroll-generate-modal-cancel-click-button"
+            htmlType="button"
+            disabled={loading}
             onClick={onClose} 
             className="px-5"
           >
@@ -110,6 +120,8 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
             key="submit" 
             data-cy="payroll-generate-modal-submit-click-button"
             type="primary" 
+            htmlType="button"
+            loading={loading}
             onClick={handleGenerate} 
             className="px-5"
           >

@@ -13,6 +13,7 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { useGetLevel1Departments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 
 const { Option } = Select;
 
@@ -27,7 +28,7 @@ interface FilterValues {
 }
 
 interface FilterPopoverProps {
-  onSearch: (filters: { [key: string]: string }) => void;
+  onSearch: (filters: { [key: string]: string | undefined | null }) => void;
   defaultValues?: FilterValues;
 }
 
@@ -46,8 +47,13 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
   const { data: departmentData } = useGetDepartments();
   const { data: level1Departments } = useGetLevel1Departments();
   
-  const { searchQuery, pageSize, currentPage } = useEmployeeStore();
-  const { data: payroll } = useGetActivePayroll(searchQuery, pageSize, currentPage);
+  const { searchQuery } = useEmployeeStore();
+  const { pageSize, currentPage } = usePayrollStore();
+  const { data: payroll } = useGetActivePayroll(
+    searchQuery,
+    pageSize,
+    currentPage,
+  );
 
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
@@ -157,10 +163,74 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
     setOpen(false);
   };
 
+  const getDefaultActivePayPeriodId = (): string | undefined => {
+    if (!payPeriodData?.length) return undefined;
+    const openPeriod = payPeriodData.find((p: any) => p.status === 'OPEN');
+    return (openPeriod || payPeriodData[0])?.id;
+  };
+
   const onReset = () => {
-    form.resetFields();
-    // Maintain year and session but reset others if we want, or reset all.
-    // Resetting all is the requested behavior per mockup UI.
+    const fiscalItems = getAllFiscalYears?.items || [];
+    const selectedYear =
+      fiscalItems.find(
+        (year: any) => year.id === (defaultValues?.yearId || ''),
+      ) ||
+      fiscalItems.find((year: any) => year.active) ||
+      fiscalItems[0];
+
+    if (!selectedYear) {
+      form.resetFields();
+      onSearch({
+        divisionId: undefined,
+        departmentId: undefined,
+        payPeriodId: undefined,
+        monthId: undefined,
+      });
+      return;
+    }
+
+    const selectedSession =
+      selectedYear.sessions?.find(
+        (s: any) => s.id === (defaultValues?.sessionId || ''),
+      ) ||
+      selectedYear.sessions?.find((s: any) => s.active) ||
+      selectedYear.sessions?.[0];
+
+    const selectedMonth =
+      selectedSession?.months?.find(
+        (m: any) => m.id === (defaultValues?.monthId || ''),
+      ) ||
+      selectedSession?.months?.find((m: any) => m.active) ||
+      selectedSession?.months?.[0];
+
+    setSessions(selectedYear.sessions || []);
+    setMonths(selectedSession?.months || []);
+
+    const defaultPayPeriodId = getDefaultActivePayPeriodId();
+
+    const nextValues: FilterValues = {
+      yearId: selectedYear.id || '',
+      sessionId: selectedSession?.id || '',
+      monthId: selectedMonth?.id || '',
+      payPeriodId: defaultPayPeriodId,
+      divisionId: undefined,
+      departmentId: undefined,
+    };
+
+    form.setFieldsValue(nextValues);
+
+    setMonthId(nextValues.monthId || '');
+    setYearId(nextValues.yearId || '');
+    setSessionId(nextValues.sessionId || '');
+
+    onSearch({
+      yearId: nextValues.yearId || undefined,
+      sessionId: nextValues.sessionId || undefined,
+      monthId: nextValues.monthId || undefined,
+      payPeriodId: defaultPayPeriodId,
+      divisionId: undefined,
+      departmentId: undefined,
+    });
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -332,7 +402,14 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
             className="flex justify-end items-center gap-3 mt-4 pt-2 border-t border-gray-100"
             data-cy="payroll-filter-popover-footer"
           >
-            <Button size="large" onClick={onReset} className="px-6 text-gray-600 font-semibold" data-cy="payroll-filter-popover-reset-btn">
+            <Button
+              type="default"
+              htmlType="button"
+              size="large"
+              onClick={onReset}
+              className="px-6 text-gray-600 font-semibold"
+              data-cy="payroll-filter-popover-reset-btn"
+            >
               Reset
             </Button>
             <Button 
