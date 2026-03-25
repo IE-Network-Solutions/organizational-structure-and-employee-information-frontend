@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Popover, Spin, Table, Dropdown } from 'antd';
+import { Popover, Spin, Table, Dropdown, Skeleton } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -59,7 +59,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
   const { data: benefitEntitlementsData, isLoading } =
     useFetchBenefitEntitlement(id);
   const { searchQuery, searchText } = useAllowanceEntitlementStore();
-  const { data: employeeData } = useGetAllUsers();
+  const { data: employeeData, isLoading: employeeLoading } = useGetAllUsers();
   const transformedData = Array.isArray(benefitEntitlementsData)
     ? benefitEntitlementsData.map((item: any) => ({
         id: item.id,
@@ -84,8 +84,8 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
   const getEmployeeName = (userId: string) => {
     const emp = employeeData?.items?.find((e: any) => e.id === userId);
     return emp
-      ? `${emp?.firstName ?? ''} ${emp?.lastName ?? ''}`.trim() || 'Employee'
-      : 'Employee';
+      ? `${emp?.firstName ?? ''} ${emp?.lastName ?? ''}`.trim() || '—'
+      : '—';
   };
 
   const handleDeleteConfirm = () => {
@@ -108,7 +108,17 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
           onClick={() => handleEmployeeData(record)}
           className="cursor-pointer truncate text-[13px] text-[#262626]"
         >
-          <span className="truncate block">{getEmployeeName(record?.userId)}</span>
+          <span className="truncate block">
+            {employeeLoading ? (
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 120, height: 16 }}
+              />
+            ) : (
+              getEmployeeName(record?.userId)
+            )}
+          </span>
         </div>
       ),
     },
