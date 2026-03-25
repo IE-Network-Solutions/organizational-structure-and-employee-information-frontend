@@ -1,6 +1,15 @@
 'use client';
-import { Button, Form, Input, InputNumber, Modal, Select, Spin } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+  Spin,
+  Tag,
+} from 'antd';
+import { CloseOutlined, DownOutlined } from '@ant-design/icons';
 import { useUpdatedBenefitEntitlementSettlement } from '@/store/server/features/compensation/benefit/mutations';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
@@ -123,32 +132,37 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
   return (
     <Modal
       title={
-        <span
-          className="block text-base font-semibold text-gray-900 text-left"
-          id="compensation-benefit-sidebar-edit-title"
-          data-cy="compensation-benefit-sidebar-edit-title"
-        >
-          Edit Benefit Entitlement
-        </span>
+        <div className="flex w-full items-center justify-between gap-4">
+          <span
+            className="inline-flex min-h-6 items-center text-base font-semibold leading-6 text-gray-900"
+            id="compensation-benefit-sidebar-edit-title"
+            data-cy="compensation-benefit-sidebar-edit-title"
+          >
+            Edit Benefit Entitlement
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
+            data-cy="compensation-benefit-sidebar-edit-close"
+          >
+            <CloseOutlined style={{ fontSize: 16, color: '#262626' }} />
+          </button>
+        </div>
       }
       open={isBenefitEntitlementSidebarUpdateOpen}
       onCancel={onClose}
-      closable
-      closeIcon={
-        <CloseOutlined
-          className="text-gray-500 hover:text-gray-700"
-          style={{ fontSize: 14 }}
-        />
-      }
+      closable={false}
       footer={
         <div
-          className="flex justify-end gap-2 pt-4"
+          className="flex w-full justify-end gap-3"
           id="compensation-benefit-sidebar-edit-footer"
           data-cy="compensation-benefit-sidebar-edit-footer"
         >
           <Button
             type="default"
-            className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50"
+            className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
             loading={updateBenefitLoading}
             onClick={onClose}
             id="compensation-benefit-sidebar-edit-cancel-button"
@@ -158,7 +172,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
           </Button>
           <Button
             type="primary"
-            className="h-10 px-4 rounded-md"
+            className="h-10 px-4 rounded-md text-sm font-normal"
             loading={updateBenefitLoading}
             onClick={() => form.submit()}
             id="compensation-benefit-sidebar-edit-update-button"
@@ -168,29 +182,32 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
           </Button>
         </div>
       }
-      width={640}
+      width={720}
       centered
+      style={{ maxWidth: 'calc(100vw - 32px)' }}
       mask={true}
       maskClosable={false}
       zIndex={10002}
+      rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626]"
+      classNames={{
+        header:
+          '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',
+        body: '!px-6 !pb-0 !pt-0',
+        footer: '!mt-0 border-0 !px-6 !pb-6 !pt-4',
+      }}
       styles={{
-        content: {
-          borderRadius: 8,
-          border: '1px solid #e5e7eb',
-          boxShadow:
-            '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
-        },
-        header: {
+        content: { borderRadius: 8, padding: 0 },
+        header: { borderBottom: 'none' },
+        body: {
           borderBottom: 'none',
-          padding: '12px 24px 8px',
-          textAlign: 'left',
+          maxHeight: 'calc(100vh - 240px)',
+          overflowY: 'auto',
         },
-        body: { padding: '8px 12px' },
         footer: { borderTop: 'none' },
       }}
       data-cy="compensation-benefit-edit-entitlement-modal"
     >
-      <div className="border border-gray-200 rounded-lg px-4 py-4">
+      <div className="rounded-lg border border-solid border-[#D9D9D9] bg-white px-6 py-5">
         <Spin
           spinning={allUserLoading || payLoading || isLoading || depLoading}
           data-cy="compensation-benefit-sidebar-edit-spin"
@@ -202,7 +219,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
             requiredMark={CustomLabel}
             id="compensation-benefit-sidebar-edit-form"
             data-cy="compensation-benefit-sidebar-edit-form"
-            className="[&_.ant-form-item-label>label]:text-sm [&_.ant-form-item-label>label]:font-medium [&_.ant-form-item-label>label]:text-gray-700"
+            className="[&_.ant-form-item-label>label]:text-sm [&_.ant-form-item-label>label]:font-normal [&_.ant-form-item-label>label]:text-[#262626]"
           >
             {/* Top row - Total Amount & Pay Period */}
             <div
@@ -233,9 +250,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
                 label="Pay Period"
                 className="mb-0"
                 required
-                rules={[
-                  { required: true, message: 'Pay Period is required' },
-                ]}
+                rules={[{ required: true, message: 'Pay Period is required' }]}
               >
                 <InputNumber
                   disabled
@@ -316,7 +331,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
                           placeholder="Reason"
                           rows={1}
                           disabled={isPaid}
-                          className="rounded-md border-gray-300 w-full min-h-10 resize-none"
+                          className="rounded-md border-gray-300 w-full min-h-10 resize-none font-normal placeholder:font-normal"
                           style={{ height: 40 }}
                         />
                       </Form.Item>
@@ -369,35 +384,49 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
             </Form.Item>
 
             {/* Select Employees */}
+            {/* Keep the actual value in the form, but render UI like the design (tags below the field). */}
+            <Form.Item name="userId" hidden>
+              <Input />
+            </Form.Item>
             <Form.Item
-              name="userId"
               label="Select Employees"
-              rules={[{ required: true, message: 'Please select employees' }]}
+              required
               id="compensation-benefit-sidebar-edit-employee-item"
               data-cy="compensation-benefit-sidebar-edit-employee-item"
               className="mb-0"
             >
-              <Select
-                disabled
-                showSearch
-                placeholder="Select employee"
-                className="w-full min-h-10 rounded-md [&_.ant-select-selector]:rounded-md [&_.ant-select-selector]:border-gray-300 [&_.ant-select-selection-overflow-item]:rounded"
-                allowClear
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    ?.toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={allUsers?.items?.map((item: any) => ({
-                  ...item,
-                  value: item?.id,
-                  label:
-                    `${item?.firstName ?? ''} ${item?.lastName ?? ''}`.trim(),
-                }))}
-                loading={allUserLoading}
-                id="compensation-benefit-sidebar-edit-employee-select"
-                data-cy="compensation-benefit-sidebar-edit-employee-select"
-              />
+              <div>
+                <div
+                  className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 flex items-center justify-between text-sm text-gray-400"
+                  id="compensation-benefit-sidebar-edit-employee-select"
+                  data-cy="compensation-benefit-sidebar-edit-employee-select"
+                >
+                  <span>Select employee</span>
+                  <DownOutlined style={{ fontSize: 12, color: '#BFBFBF' }} />
+                </div>
+
+                <div
+                  className="mt-2 flex flex-wrap gap-2"
+                  id="compensation-benefit-sidebar-edit-employee-tags"
+                  data-cy="compensation-benefit-sidebar-edit-employee-tags"
+                >
+                  {(() => {
+                    const id = employeeEntitlementData?.employeeId;
+                    const user = allUsers?.items?.find((u: any) => u.id === id);
+                    const label = user
+                      ? `${user?.firstName ?? ''} ${user?.middleName ?? ''} ${user?.lastName ?? ''}`.trim()
+                      : '';
+                    return label ? (
+                      <Tag
+                        className="m-0 rounded-md px-2 py-1 text-sm font-normal bg-[#E6E6E6] border-[#D0D0D0] text-[#262626]"
+                        closable={false}
+                      >
+                        {label}
+                      </Tag>
+                    ) : null;
+                  })()}
+                </div>
+              </div>
             </Form.Item>
           </Form>
         </Spin>

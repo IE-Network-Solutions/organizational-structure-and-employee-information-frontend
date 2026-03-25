@@ -2,12 +2,13 @@
 import { FC, ReactNode } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Button, Breadcrumb, Divider } from 'antd';
+import { Button, Breadcrumb } from 'antd';
 import { MdOutlinePayments } from 'react-icons/md';
 import { FaUserPlus } from 'react-icons/fa';
 import { LeftOutlined } from '@ant-design/icons';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
+import PageHeader from '@/components/common/pageHeader/pageHeader';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
@@ -18,6 +19,14 @@ import BenefitypeSideBar from '../compensationSetting/benefitType/_components/be
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }
+
+/** Full-bleed horizontal rule so the line always spans the header block edge-to-edge */
+const BreadcrumbRule = () => (
+  <div
+    className="w-full min-w-0 shrink-0 border-0 border-t border-solid border-gray-200"
+    aria-hidden
+  />
+);
 
 const BenefitDetailHeader = () => {
   const params = useParams();
@@ -33,7 +42,7 @@ const BenefitDetailHeader = () => {
   return (
     <>
       <div
-        className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 sm:border-b sm:border-gray-200"
+        className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 sm:border-b sm:border-gray-200"
         id="compensation-benefit-detail-header"
         data-cy="compensation-benefit-detail-header"
       >
@@ -54,6 +63,8 @@ const BenefitDetailHeader = () => {
               }
               subtitle={
                 <Breadcrumb
+                  separator="/"
+                  className="text-sm"
                   items={[
                     {
                       title: (
@@ -64,7 +75,7 @@ const BenefitDetailHeader = () => {
                     },
                     {
                       title: (
-                        <span className="text-sm font-medium text-slate-500">
+                        <span className="text-sm font-bold text-slate-500">
                           Benefit
                         </span>
                       ),
@@ -75,12 +86,12 @@ const BenefitDetailHeader = () => {
             />
           </div>
         </div>
-        <div className="flex flex-shrink-0 flex-wrap justify-end items-center gap-2 sm:gap-4">
+        <div className="flex flex-shrink-0 flex-wrap justify-end items-center gap-2 sm:gap-4 mr-3">
           <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
             <Button
               type="primary"
               icon={<FaUserPlus className="text-base sm:text-lg" />}
-              className="h-9 w-9 min-w-9 sm:h-10 sm:w-auto sm:min-w-0 sm:px-4 text-xs sm:text-base"
+              className="h-9 w-9 min-w-9 sm:h-10 sm:w-auto sm:min-w-0 sm:px-4 text-xs sm:text-base font-normal"
               onClick={() => setIsBenefitEntitlementSidebarOpen(true)}
               disabled={isGlobal}
               data-cy="compensation-benefit-detail-all-employee-button"
@@ -109,81 +120,142 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
 
   return (
     <div
-      className="min-h-screen bg-white"
+      className="min-h-screen w-full min-w-0 bg-white"
       id="compensation-benefit-layout-wrapper"
       data-cy="compensation-benefit-layout-wrapper"
     >
       <div
-        className="h-auto w-auto bg-white"
+        className="h-auto w-full min-w-0 bg-white"
         id="compensation-benefit-layout-body"
         data-cy="compensation-benefit-layout-body"
       >
         {isDetailPage ? (
           <>
-            <Divider className="!my-0 !border-gray-200" />
+            <BreadcrumbRule />
             <BenefitDetailHeader />
-            <Divider className="!my-0 !border-gray-200" />
+            <BreadcrumbRule />
           </>
         ) : (
-          <BlockWrapper className="h-auto w-full bg-white hidden sm:block">
-            <Divider className="!my-0 !border-gray-200" />
+          <>
+            {/* Mobile page header */}
             <div
-              className="flex flex-wrap justify-between items-center gap-4 px-4 sm:px-6 py-4"
+              className="block sm:hidden px-4 pt-4 pb-3"
               id="compensation-benefit-layout-page-header"
               data-cy="compensation-benefit-layout-page-header"
             >
-              <div className="min-w-0 flex-1">
-                <CustomBreadcrumb
-                  title="Benefit"
-                  subtitle={
-                    <Breadcrumb
-                      items={[
-                        {
-                          title: (
-                            <span
-                              className="text-sm font-medium text-slate-500"
-                              data-cy="compensation-benefit-breadcrumb-parent"
-                            >
-                              Compensation and Benefit
-                            </span>
-                          ),
-                        },
-                        {
-                          title: (
-                            <span
-                              className="text-sm font-medium text-slate-500"
-                              data-cy="compensation-benefit-breadcrumb-benefit"
-                            >
-                              Benefit
-                            </span>
-                          ),
-                        },
-                      ]}
-                    />
-                  }
-                  data-cy="compensation-benefit-layout-breadcrumb"
-                />
-              </div>
-              <div
-                className="flex flex-shrink-0 flex-wrap justify-end items-center gap-4"
-                id="compensation-benefit-layout-actions"
-                data-cy="compensation-benefit-layout-actions"
-              >
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <CustomBreadcrumb
+                    title="Benefit"
+                    titleClassName="!text-[#000000]"
+                    rootClassName="!py-0 gap-1.5"
+                    subtitle={
+                      <Breadcrumb
+                        separator="/"
+                        className="text-sm"
+                        items={[
+                          {
+                            title: (
+                              <span
+                                className="text-sm font-medium text-slate-500"
+                                data-cy="compensation-benefit-breadcrumb-parent"
+                              >
+                                Compensation and Benefit
+                              </span>
+                            ),
+                          },
+                          {
+                            title: (
+                              <span
+                                className="text-sm font-bold text-slate-500"
+                                data-cy="compensation-benefit-breadcrumb-benefit"
+                              >
+                                Benefit
+                              </span>
+                            ),
+                          },
+                        ]}
+                      />
+                    }
+                    data-cy="compensation-benefit-layout-breadcrumb"
+                  />
+                </div>
                 <AccessGuard permissions={[Permissions.CreateBenefitType]}>
                   <Button
                     type="primary"
-                    icon={<MdOutlinePayments className="text-lg" />}
-                    className="h-10"
+                    icon={<MdOutlinePayments className="text-base" />}
+                    className="h-10 w-10 min-w-10 rounded-md"
                     onClick={handleAddBenefitType}
                     data-cy="compensation-benefit-add-benefit-type-button"
-                  >
-                    Add Benefit Type
-                  </Button>
+                  />
                 </AccessGuard>
               </div>
             </div>
-            <Divider className="!my-0 !border-gray-200" />
-          </BlockWrapper>
+
+            {/* Desktop page header */}
+            <BlockWrapper className="h-auto w-full min-w-0 bg-white hidden sm:block">
+              <div
+                className="flex flex-wrap justify-between items-start gap-x-4 gap-y-3 px-6 pt-5 pb-3 sm:px-6"
+                id="compensation-benefit-layout-page-header-desktop"
+                data-cy="compensation-benefit-layout-page-header-desktop"
+              >
+                <div className="min-w-0 flex-1">
+                  <CustomBreadcrumb
+                    title="Benefit"
+                    titleClassName="!text-[#000000]"
+                    rootClassName="!py-0 gap-1.5"
+                    subtitle={
+                      <Breadcrumb
+                        separator="/"
+                        className="text-sm"
+                        items={[
+                          {
+                            title: (
+                              <span
+                                className="text-sm font-medium text-slate-500"
+                                data-cy="compensation-benefit-breadcrumb-parent"
+                              >
+                                Compensation and Benefit
+                              </span>
+                            ),
+                          },
+                          {
+                            title: (
+                              <span
+                                className="text-sm font-bold text-slate-500"
+                                data-cy="compensation-benefit-breadcrumb-benefit"
+                              >
+                                Benefit
+                              </span>
+                            ),
+                          },
+                        ]}
+                      />
+                    }
+                    data-cy="compensation-benefit-layout-breadcrumb"
+                  />
+                </div>
+                <div
+                  className="flex flex-shrink-0 flex-wrap justify-end items-center gap-4 self-start pt-0.5 mr-3"
+                  id="compensation-benefit-layout-actions"
+                  data-cy="compensation-benefit-layout-actions"
+                >
+                  <AccessGuard permissions={[Permissions.CreateBenefitType]}>
+                    <Button
+                      type="primary"
+                      icon={<MdOutlinePayments className="text-lg" />}
+                      className="h-10 font-normal"
+                      onClick={handleAddBenefitType}
+                      data-cy="compensation-benefit-add-benefit-type-button"
+                    >
+                      Add Benefit Type
+                    </Button>
+                  </AccessGuard>
+                </div>
+              </div>
+            </BlockWrapper>
+            <BreadcrumbRule />
+          </>
         )}
         <div
           id="compensation-benefit-layout-content"
@@ -192,7 +264,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           <BlockWrapper
             data-cy="compensation-benefit-layout-block-wrapper-content"
             withBackground={false}
-            className="w-full h-max overflow-x-auto bg-white"
+            className="w-full h-max overflow-x-auto bg-white pr-4"
           >
             {children}
           </BlockWrapper>

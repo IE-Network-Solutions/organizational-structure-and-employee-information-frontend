@@ -16,10 +16,25 @@ const BenefitEntitlementPage = () => {
     setBenefitMode,
     setBenefitDefaultAmount,
     setBenefitApplicableTo,
-    employeeBenefitData,
+    setEmployeeBenefitData,
+    setCurrentPage,
+    setDetailCurrentPage,
   } = useBenefitEntitlementStore();
   const { setSearchText } = useAllowanceEntitlementStore();
-  const isTrackingView = Boolean(employeeBenefitData);
+
+  useEffect(() => {
+    // Reset detail drill-down state when switching benefit type routes.
+    setEmployeeBenefitData(null);
+    setCurrentPage(1);
+    setDetailCurrentPage(1);
+    setSearchText('');
+  }, [
+    id,
+    setEmployeeBenefitData,
+    setCurrentPage,
+    setDetailCurrentPage,
+    setSearchText,
+  ]);
 
   useEffect(() => {
     setBenefitMode(benefitData?.mode);
@@ -36,7 +51,7 @@ const BenefitEntitlementPage = () => {
 
   return (
     <div
-      className="px-3 py-4"
+      className="px-4 pb-2 pt-4 sm:pt-5"
       id="compensation-benefit-single-wrapper"
       data-cy="compensation-benefit-single-wrapper"
     >
@@ -45,25 +60,23 @@ const BenefitEntitlementPage = () => {
         id="compensation-benefit-single-inner"
         data-cy="compensation-benefit-single-inner"
       >
-        {!isTrackingView && (
-          <div
-            className="px-3 sm:px-4 pt-3 sm:pt-4 pb-0"
-            id="compensation-benefit-search-wrapper"
-            data-cy="compensation-benefit-search-wrapper"
-          >
-            <Input
-              placeholder="Search Employee"
-              addonAfter={<SearchOutlined className="text-gray-400" />}
-              allowClear
-              className="w-full max-w-md h-10 rounded-md text-sm sm:text-base"
-              onChange={(e) => setSearchText(e.target.value)}
-              data-cy="compensation-benefit-search-employee"
-            />
-          </div>
-        )}
+        <div
+          className="px-3 sm:px-4 pt-3 sm:pt-4 pb-1"
+          id="compensation-benefit-search-wrapper"
+          data-cy="compensation-benefit-search-wrapper"
+        >
+          <Input
+            placeholder="Search Employee"
+            addonAfter={<SearchOutlined className="text-gray-400" />}
+            allowClear
+            className="w-full max-w-[280px] h-10 rounded-md text-sm [&_.ant-input]:!text-sm [&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!bg-white"
+            onChange={(e) => setSearchText(e.target.value)}
+            data-cy="compensation-benefit-search-employee"
+          />
+        </div>
 
         <div
-          className={`overflow-x-auto px-3 sm:px-4 ${isTrackingView ? 'py-3 sm:py-4' : 'pb-3 sm:pb-4'}`}
+          className="overflow-x-auto px-3 sm:px-4 pb-3 sm:pb-4 pt-1"
           id="compensation-benefit-table-wrapper"
           data-cy="compensation-benefit-table-wrapper"
         >

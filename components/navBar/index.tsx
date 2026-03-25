@@ -30,14 +30,14 @@ import { removeCookie } from '@/helpers/storageHelper';
 const isRouteMatch = (routePattern: string, pathname: string) => {
   // Exact match
   if (routePattern === pathname) return true;
-  
+
   // Match [id] to UUIDs (or any non-slash segment)
   if (routePattern.includes('[id]')) {
     const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
     const regex = new RegExp('^' + regexPattern + '(/.*)?$');
     return regex.test(pathname);
   }
-  
+
   // Generic dynamic segment: [something] => [^/]+
   if (routePattern.match(/\[.*?\]/g)) {
     const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
@@ -109,45 +109,44 @@ const NavMenuItem: React.FC<{
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedKeys.includes(item.key);
 
-    // Check if this item or any of its children matches the current path
-    const isDirectlyActive =
-      selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
-    const isChildActive =
-      hasChildren &&
-      item.children.some(
-        (child: any) =>
-          selectedKeys.includes(child.key) || isRouteMatch(String(child.key), pathname),
+  // Check if this item or any of its children matches the current path
+  const isDirectlyActive =
+    selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
+  const isChildActive =
+    hasChildren &&
+    item.children.some(
+      (child: any) =>
+        selectedKeys.includes(child.key) ||
+        isRouteMatch(String(child.key), pathname),
+    );
+  const isActive =
+    isDirectlyActive || isChildActive || (hasChildren && isExpanded);
+
+  const handleToggle = () => {
+    if (hasChildren) {
+      setExpandedKeys((prev) =>
+        prev.includes(item.key)
+          ? prev.filter((k) => k !== item.key)
+          : [...prev, item.key],
       );
-    const isActive = isDirectlyActive || isChildActive || (hasChildren && isExpanded);
-
-    const handleToggle = () => {
-      if (hasChildren) {
-        setExpandedKeys((prev) =>
-          prev.includes(item.key)
-            ? prev.filter((k) => k !== item.key)
-            : [...prev, item.key],
-        );
-      } else {
-        const path = String(item.key);
-        if (pathname !== path) {
-          triggerRouteLoaderStart();
-          router.push(path);
-          setSelectedKeys([path]);
-        }
+    } else {
+      const path = String(item.key);
+      if (pathname !== path) {
+        triggerRouteLoaderStart();
+        router.push(path);
+        setSelectedKeys([path]);
       }
-    };
+    }
+  };
 
-    return (
+  return (
     <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
       <div
         data-cy="nav-menu-item"
         onClick={handleToggle}
         className={`
           group flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200 rounded-xl
-          ${isActive
-              ? 'text-[#1e40af] font-bold'
-              : 'text-black font-medium'
-            }
+          ${isActive ? 'text-[#1e40af] font-bold' : 'text-black font-medium'}
           ${isDirectlyActive ? 'bg-[#E1EFFF]' : ''}
           hover:bg-[#E1EFFF]
           ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
@@ -155,10 +154,9 @@ const NavMenuItem: React.FC<{
       >
         <div
           data-cy="nav-menu-item-icon"
-          className={`text-[21px] transition-colors ${isActive
-            ? 'text-[#1e40af]'
-            : 'text-black'
-            }`}
+          className={`text-[21px] transition-colors ${
+            isActive ? 'text-[#1e40af]' : 'text-black'
+          }`}
         >
           {item.icon}
         </div>
@@ -196,9 +194,10 @@ const NavMenuItem: React.FC<{
                 }}
                 className={`
                   py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
-                  ${isChildSelected
-                    ? 'text-[#1e40af] font-normal text-[16px]'
-                    : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
+                  ${
+                    isChildSelected
+                      ? 'text-[#1e40af] font-normal text-[16px]'
+                      : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
                   }
                 `}
               >
@@ -208,7 +207,6 @@ const NavMenuItem: React.FC<{
           })}
         </div>
       )}
-
     </div>
   );
 };
@@ -222,7 +220,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const fullBleedContent = pathname.startsWith('/organization/chart');
+  const fullBleedContent =
+    pathname.startsWith('/organization/chart') ||
+    pathname.startsWith('/benefit');
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
@@ -374,425 +374,434 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return routes;
   };
 
-  const treeData: CustomMenuItem[] = React.useMemo(() => [
-    {
-      icon: <MdGridView style={{ fontSize: 20 }} />,
-      title: 'Dashboard',
-      key: '/dashboard',
-      className: 'font-bold',
-      permissions: [],
-      moduleCode: 'DASHBOARD',
-    },
-    {
-      icon: <MdDomain style={{ fontSize: 20 }} />,
-      title: 'Organization',
-      key: '/organization',
-      className: 'font-bold',
-      permissions: ['view_organization'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'ORGANIZATION',
-      children: [
-        {
-          title: <span data-cy="nav-tree-org-structure">Org Structure</span>,
-          key: '/organization/chart',
-          className: 'font-bold',
-          permissions: ['view_organization_chart'],
-          disabled: hasEndedFiscalYear,
-        },
-        {
-          title: <span data-cy="nav-tree-org-settings">Settings</span>,
-          key: '/organization/settings',
-          className: 'font-bold',
-          permissions: ['view_organization_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdPeople style={{ fontSize: 20 }} />,
-      title: 'Employees',
-      key: '/employees',
-      className: 'font-bold',
-      permissions: ['view_employees'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'EMPLOYEES',
-      children: [
-        {
-          title: (
-            <span data-cy="nav-tree-manage-employees">Manage Employees</span>
-          ),
-          key: '/employees/manage-employees',
-          className: 'font-bold',
-          permissions: ['manage_employees'],
-        },
-        {
-          title: <span data-cy="nav-tree-employees-settings">Settings</span>,
-          key: '/employees/settings',
-          className: 'font-bold',
-          permissions: ['manage_employee_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdPersonSearch style={{ fontSize: 20 }} />,
-      title: 'Talent Acquisition',
-      key: '/recruitment',
-      className: 'font-bold',
-      permissions: ['view_recruitment'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'RECRUITMENT',
-      children: [
-        {
-          title: (
-            <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
-          ),
-          key: '/recruitment/dashboard',
-          className: 'font-bold',
-          permissions: ['view_recruitment_dashboard'],
-        },
-        {
-          title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
-          key: '/recruitment/jobs',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_jobs'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-ai-job-matching">AI Job Matching</span>
-          ),
-          key: '/recruitment/ai-job-matching',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_jobs'],
-          disabled: hasEndedFiscalYear,
-        },
-        {
-          title: <span data-cy="nav-tree-candidates">Candidates</span>,
-          key: '/recruitment/candidate',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_candidates'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-talent-resource">Talent Resource</span>
-          ),
-          key: '/recruitment/talent-resource',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_talent_pool'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-recruitment-settings" className="font-bold">
-              Settings
-            </span>
-          ),
-          key: '/recruitment/settings',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdAdjust style={{ fontSize: 20 }} />,
-      title: 'OKR',
-      key: '/okr-menu',
-      className: 'font-bold',
-      permissions: ['view_okr'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'OKR',
-      children: [
-        {
-          title: <span data-cy="nav-tree-okr-dashboard">Dashboard</span>,
-          key: '/okr/dashboard',
-          className: 'font-bold',
-          permissions: ['view_okr_dashboard'],
-        },
-        {
-          title: <span data-cy="nav-tree-okr">OKR</span>,
-          key: '/okr',
-          className: 'font-bold',
-          permissions: ['view_okr_overview'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-planning-reporting">
-              Planning and Reporting
-            </span>
-          ),
-          key: '/planning-and-reporting',
-          className: 'font-bold',
-          permissions: ['manage_planning_reporting'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-weekly-priority">Weekly Priority</span>
-          ),
-          key: '/weekly-priority',
-          className: 'font-bold h-8',
-          permissions: ['view_weekly_priority'],
-        },
-        {
-          title: <span data-cy="nav-tree-okr-settings">Settings</span>,
-          key: '/okr/settings',
-          className: 'font-bold',
-          permissions: ['manage_okr_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdChat style={{ fontSize: 20 }} />,
-      title: 'CFR',
-      key: 'feedback-menu',
-      className: 'font-bold',
-      permissions: ['view_feedback'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'CFR',
-      children: [
-        {
-          title: <span data-cy="nav-tree-conversation">Conversation</span>,
-          key: '/feedback/conversation',
-          className: 'font-bold',
-          permissions: ['view_feedback_conversation'],
-        },
-        {
-          title: <span data-cy="nav-tree-feedback">Feedback</span>,
-          key: '/feedback/feedback',
-          className: 'font-bold',
-          permissions: ['view_feedback_list'],
-        },
-        {
-          title: <span data-cy="nav-tree-recognition">Recognition</span>,
-          key: '/feedback/recognition',
-          className: 'font-bold',
-          permissions: ['view_feedback_recognition'],
-        },
-        {
-          title: 'Settings',
-          key: '/feedback/settings',
-          className: 'font-bold',
-          permissions: ['manage_feedback_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdSchool style={{ fontSize: 20 }} />,
-      title: 'Learning & Growth',
-      key: 'tna-menu',
-      className: 'font-bold',
-      permissions: ['view_learning_growth'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'TNA',
-      children: [
-        {
-          title: (
-            <span data-cy="nav-tree-training-management">
-              Training Management
-            </span>
-          ),
-          key: '/tna/management',
-          className: 'font-bold',
-          permissions: ['manage_training'],
-        },
-        {
-          title: <span data-cy="nav-tree-tna-settings">Settings</span>,
-          key: '/tna/settings/course-category',
-          className: 'font-bold',
-          permissions: ['manage_tna_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdAccountBalanceWallet style={{ fontSize: 20 }} />,
-      title: 'Payroll',
-      key: '/payroll-menu',
-      className: 'font-bold',
-      permissions: ['view_payroll_menu'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'PAYROLL',
-      children: [
-        {
-          title: (
-            <span data-cy="nav-tree-employee-information">
-              Employee Information
-            </span>
-          ),
-          key: '/employee-information',
-          className: 'font-bold',
-          permissions: ['view_employee_information'],
-        },
-        {
-          title: <span data-cy="nav-tree-payroll">Payroll</span>,
-          key: '/payroll',
-          className: 'font-bold',
-          permissions: ['view_payroll_overview'],
-        },
-        {
-          title: <span data-cy="nav-tree-my-payroll">My Payroll</span>,
-          key: '/myPayroll',
-          className: 'font-bold',
-          permissions: ['view_my_payroll'],
-        },
-        {
-          title: <span data-cy="nav-tree-payroll-settings">Settings</span>,
-          key: '/settings',
-          className: 'font-bold',
-          permissions: ['manage_payroll_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdOutlineAccessTime style={{ fontSize: 20 }} />,
-      title: 'Time & Attendance',
-      key: 'timesheet-menu',
-      className: 'font-bold',
-      permissions: ['view_timesheet'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'TIMESHEET',
-      children: [
-        {
-          title: <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>,
-          key: '/timesheet/dashboard',
-          className: 'font-bold',
-          permissions: ['view_timesheet_dashboard'],
-        },
-        {
-          title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
-          key: '/timesheet/my-timesheet',
-          className: 'font-bold',
-          permissions: ['view_my_timesheet'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-employee-attendance">
-              Employee Attendance
-            </span>
-          ),
-          key: '/timesheet/employee-attendance',
-          className: 'font-bold',
-          permissions: ['view_employee_attendance'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-leave-management">Leave Management</span>
-          ),
-          key: '/timesheet/leave-management/leaves',
-          className: 'font-bold',
-          permissions: ['manage_leave_management'],
-        },
-        {
-          title: <span data-cy="nav-tree-timesheet-settings">Settings</span>,
-          key: '/timesheet/settings/closed-date',
-          className: 'font-bold',
-          permissions: ['manage_timesheet_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdWidgets style={{ fontSize: 20 }} />,
-      title: 'Compensation & Benefit',
-      key: 'compensation-menu',
-      className: 'font-bold',
-      permissions: ['view_compensation'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'COMPENSATION',
-      children: [
-        {
-          title: <span data-cy="nav-tree-allowance">Allowance</span>,
-          key: '/allowance',
-          className: 'font-bold',
-          permissions: ['view_allowance'],
-        },
-        {
-          title: <span data-cy="nav-tree-benefit">Benefit</span>,
-          key: '/benefit',
-          className: 'font-bold',
-          permissions: ['view_benefit'],
-        },
-        {
-          title: <span data-cy="nav-tree-deduction">Deduction</span>,
-          key: '/deduction',
-          className: 'font-bold',
-          permissions: ['view_deduction'],
-        },
-        {
-          title: <span data-cy="nav-tree-compensation-settings">Settings</span>,
-          key: '/compensationSetting',
-          className: 'font-bold',
-          permissions: ['manage_compensation_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdCardGiftcard style={{ fontSize: 20 }} />,
-      title: 'Incentives',
-      key: 'incentive-menu',
-      className: 'font-bold',
-      permissions: ['view_incentive'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'INCENTIVE',
-      children: [
-        {
-          title: <span data-cy="nav-tree-incentive">Incentive</span>,
-          key: '/incentives',
-          className: 'font-bold',
-          permissions: ['view_incentive_page'],
-        },
-        {
-          title: <span data-cy="nav-tree-variable-pay">Variable Pay</span>,
-          key: '/variable-pay',
-          className: 'font-bold',
-          permissions: ['view_variable_pay'],
-        },
-        {
-          title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
-          key: '/incentives/settings',
-          className: 'font-bold',
-          permissions: ['manage_incentive_settings'],
-        },
-      ],
-    },
-    {
-      icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
-      title: 'Audit Log',
-      key: '/audit-log',
-      className: 'font-bold',
-      permissions: ['view_audit_log'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'AUDIT_LOG',
-    },
-    {
-      icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
-      title: 'Admin',
-      key: 'admin-menu',
-      className: 'font-bold',
-      permissions: ['view_admin_configuration'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'ADMIN',
-      children: [
-        {
-          title: <span data-cy="nav-tree-admin-dashboard">Dashboard</span>,
-          key: '/admin/dashboard',
-          className: 'font-bold',
-          permissions: ['view_admin_dashboard'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-admin-billing">Billing and Invoice</span>
-          ),
-          key: '/admin/billing',
-          className: 'font-bold',
-          permissions: ['view_admin_billing'],
-        },
-        {
-          title: <span data-cy="nav-tree-admin-profile">Update Profile</span>,
-          key: '/admin/profile',
-          className: 'font-bold',
-          permissions: ['view_admin_profile'],
-        },
-      ],
-    },
-  ], [hasEndedFiscalYear]);
+  const treeData: CustomMenuItem[] = React.useMemo(
+    () => [
+      {
+        icon: <MdGridView style={{ fontSize: 20 }} />,
+        title: 'Dashboard',
+        key: '/dashboard',
+        className: 'font-bold',
+        permissions: [],
+        moduleCode: 'DASHBOARD',
+      },
+      {
+        icon: <MdDomain style={{ fontSize: 20 }} />,
+        title: 'Organization',
+        key: '/organization',
+        className: 'font-bold',
+        permissions: ['view_organization'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'ORGANIZATION',
+        children: [
+          {
+            title: <span data-cy="nav-tree-org-structure">Org Structure</span>,
+            key: '/organization/chart',
+            className: 'font-bold',
+            permissions: ['view_organization_chart'],
+            disabled: hasEndedFiscalYear,
+          },
+          {
+            title: <span data-cy="nav-tree-org-settings">Settings</span>,
+            key: '/organization/settings',
+            className: 'font-bold',
+            permissions: ['view_organization_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdPeople style={{ fontSize: 20 }} />,
+        title: 'Employees',
+        key: '/employees',
+        className: 'font-bold',
+        permissions: ['view_employees'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'EMPLOYEES',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-manage-employees">Manage Employees</span>
+            ),
+            key: '/employees/manage-employees',
+            className: 'font-bold',
+            permissions: ['manage_employees'],
+          },
+          {
+            title: <span data-cy="nav-tree-employees-settings">Settings</span>,
+            key: '/employees/settings',
+            className: 'font-bold',
+            permissions: ['manage_employee_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdPersonSearch style={{ fontSize: 20 }} />,
+        title: 'Talent Acquisition',
+        key: '/recruitment',
+        className: 'font-bold',
+        permissions: ['view_recruitment'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'RECRUITMENT',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
+            ),
+            key: '/recruitment/dashboard',
+            className: 'font-bold',
+            permissions: ['view_recruitment_dashboard'],
+          },
+          {
+            title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
+            key: '/recruitment/jobs',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_jobs'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-ai-job-matching">AI Job Matching</span>
+            ),
+            key: '/recruitment/ai-job-matching',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_jobs'],
+            disabled: hasEndedFiscalYear,
+          },
+          {
+            title: <span data-cy="nav-tree-candidates">Candidates</span>,
+            key: '/recruitment/candidate',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_candidates'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-talent-resource">Talent Resource</span>
+            ),
+            key: '/recruitment/talent-resource',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_talent_pool'],
+          },
+          {
+            title: (
+              <span
+                data-cy="nav-tree-recruitment-settings"
+                className="font-bold"
+              >
+                Settings
+              </span>
+            ),
+            key: '/recruitment/settings',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdAdjust style={{ fontSize: 20 }} />,
+        title: 'OKR',
+        key: '/okr-menu',
+        className: 'font-bold',
+        permissions: ['view_okr'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'OKR',
+        children: [
+          {
+            title: <span data-cy="nav-tree-okr-dashboard">Dashboard</span>,
+            key: '/okr/dashboard',
+            className: 'font-bold',
+            permissions: ['view_okr_dashboard'],
+          },
+          {
+            title: <span data-cy="nav-tree-okr">OKR</span>,
+            key: '/okr',
+            className: 'font-bold',
+            permissions: ['view_okr_overview'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-planning-reporting">
+                Planning and Reporting
+              </span>
+            ),
+            key: '/planning-and-reporting',
+            className: 'font-bold',
+            permissions: ['manage_planning_reporting'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-weekly-priority">Weekly Priority</span>
+            ),
+            key: '/weekly-priority',
+            className: 'font-bold h-8',
+            permissions: ['view_weekly_priority'],
+          },
+          {
+            title: <span data-cy="nav-tree-okr-settings">Settings</span>,
+            key: '/okr/settings',
+            className: 'font-bold',
+            permissions: ['manage_okr_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdChat style={{ fontSize: 20 }} />,
+        title: 'CFR',
+        key: 'feedback-menu',
+        className: 'font-bold',
+        permissions: ['view_feedback'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'CFR',
+        children: [
+          {
+            title: <span data-cy="nav-tree-conversation">Conversation</span>,
+            key: '/feedback/conversation',
+            className: 'font-bold',
+            permissions: ['view_feedback_conversation'],
+          },
+          {
+            title: <span data-cy="nav-tree-feedback">Feedback</span>,
+            key: '/feedback/feedback',
+            className: 'font-bold',
+            permissions: ['view_feedback_list'],
+          },
+          {
+            title: <span data-cy="nav-tree-recognition">Recognition</span>,
+            key: '/feedback/recognition',
+            className: 'font-bold',
+            permissions: ['view_feedback_recognition'],
+          },
+          {
+            title: 'Settings',
+            key: '/feedback/settings',
+            className: 'font-bold',
+            permissions: ['manage_feedback_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdSchool style={{ fontSize: 20 }} />,
+        title: 'Learning & Growth',
+        key: 'tna-menu',
+        className: 'font-bold',
+        permissions: ['view_learning_growth'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'TNA',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-training-management">
+                Training Management
+              </span>
+            ),
+            key: '/tna/management',
+            className: 'font-bold',
+            permissions: ['manage_training'],
+          },
+          {
+            title: <span data-cy="nav-tree-tna-settings">Settings</span>,
+            key: '/tna/settings/course-category',
+            className: 'font-bold',
+            permissions: ['manage_tna_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdAccountBalanceWallet style={{ fontSize: 20 }} />,
+        title: 'Payroll',
+        key: '/payroll-menu',
+        className: 'font-bold',
+        permissions: ['view_payroll_menu'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'PAYROLL',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-employee-information">
+                Employee Information
+              </span>
+            ),
+            key: '/employee-information',
+            className: 'font-bold',
+            permissions: ['view_employee_information'],
+          },
+          {
+            title: <span data-cy="nav-tree-payroll">Payroll</span>,
+            key: '/payroll',
+            className: 'font-bold',
+            permissions: ['view_payroll_overview'],
+          },
+          {
+            title: <span data-cy="nav-tree-my-payroll">My Payroll</span>,
+            key: '/myPayroll',
+            className: 'font-bold',
+            permissions: ['view_my_payroll'],
+          },
+          {
+            title: <span data-cy="nav-tree-payroll-settings">Settings</span>,
+            key: '/settings',
+            className: 'font-bold',
+            permissions: ['manage_payroll_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdOutlineAccessTime style={{ fontSize: 20 }} />,
+        title: 'Time & Attendance',
+        key: 'timesheet-menu',
+        className: 'font-bold',
+        permissions: ['view_timesheet'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'TIMESHEET',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>
+            ),
+            key: '/timesheet/dashboard',
+            className: 'font-bold',
+            permissions: ['view_timesheet_dashboard'],
+          },
+          {
+            title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
+            key: '/timesheet/my-timesheet',
+            className: 'font-bold',
+            permissions: ['view_my_timesheet'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-employee-attendance">
+                Employee Attendance
+              </span>
+            ),
+            key: '/timesheet/employee-attendance',
+            className: 'font-bold',
+            permissions: ['view_employee_attendance'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-leave-management">Leave Management</span>
+            ),
+            key: '/timesheet/leave-management/leaves',
+            className: 'font-bold',
+            permissions: ['manage_leave_management'],
+          },
+          {
+            title: <span data-cy="nav-tree-timesheet-settings">Settings</span>,
+            key: '/timesheet/settings/closed-date',
+            className: 'font-bold',
+            permissions: ['manage_timesheet_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdWidgets style={{ fontSize: 20 }} />,
+        title: 'Compensation & Benefit',
+        key: 'compensation-menu',
+        className: 'font-bold',
+        permissions: ['view_compensation'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'COMPENSATION',
+        children: [
+          {
+            title: <span data-cy="nav-tree-allowance">Allowance</span>,
+            key: '/allowance',
+            className: 'font-bold',
+            permissions: ['view_allowance'],
+          },
+          {
+            title: <span data-cy="nav-tree-benefit">Benefit</span>,
+            key: '/benefit',
+            className: 'font-bold',
+            permissions: ['view_benefit'],
+          },
+          {
+            title: <span data-cy="nav-tree-deduction">Deduction</span>,
+            key: '/deduction',
+            className: 'font-bold',
+            permissions: ['view_deduction'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-compensation-settings">Settings</span>
+            ),
+            key: '/compensationSetting',
+            className: 'font-bold',
+            permissions: ['manage_compensation_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdCardGiftcard style={{ fontSize: 20 }} />,
+        title: 'Incentives',
+        key: 'incentive-menu',
+        className: 'font-bold',
+        permissions: ['view_incentive'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'INCENTIVE',
+        children: [
+          {
+            title: <span data-cy="nav-tree-incentive">Incentive</span>,
+            key: '/incentives',
+            className: 'font-bold',
+            permissions: ['view_incentive_page'],
+          },
+          {
+            title: <span data-cy="nav-tree-variable-pay">Variable Pay</span>,
+            key: '/variable-pay',
+            className: 'font-bold',
+            permissions: ['view_variable_pay'],
+          },
+          {
+            title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
+            key: '/incentives/settings',
+            className: 'font-bold',
+            permissions: ['manage_incentive_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
+        title: 'Audit Log',
+        key: '/audit-log',
+        className: 'font-bold',
+        permissions: ['view_audit_log'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'AUDIT_LOG',
+      },
+      {
+        icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
+        title: 'Admin',
+        key: 'admin-menu',
+        className: 'font-bold',
+        permissions: ['view_admin_configuration'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'ADMIN',
+        children: [
+          {
+            title: <span data-cy="nav-tree-admin-dashboard">Dashboard</span>,
+            key: '/admin/dashboard',
+            className: 'font-bold',
+            permissions: ['view_admin_dashboard'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-admin-billing">Billing and Invoice</span>
+            ),
+            key: '/admin/billing',
+            className: 'font-bold',
+            permissions: ['view_admin_billing'],
+          },
+          {
+            title: <span data-cy="nav-tree-admin-profile">Update Profile</span>,
+            key: '/admin/profile',
+            className: 'font-bold',
+            permissions: ['view_admin_profile'],
+          },
+        ],
+      },
+    ],
+    [hasEndedFiscalYear],
+  );
 
   // Helper function moved to global scope
-
 
   const checkPathnamePermissions = React.useCallback(
     (pathname: string): boolean => {
@@ -946,12 +955,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     };
 
     checkPermissions();
-  }, [
-    pathname,
-    router,
-    checkPathnamePermissions,
-    setIsCheckingPermissions,
-  ]);
+  }, [pathname, router, checkPathnamePermissions, setIsCheckingPermissions]);
 
   const findParentMenuKey = React.useCallback(
     (pathname: string, menuItems: CustomMenuItem[]): string | null => {
@@ -1264,9 +1268,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           data-cy="nav-sider-logo-wrap"
           className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
         >
-          <div data-cy="nav-sider-logo" className="relative h-10 w-full flex items-center">
+          <div
+            data-cy="nav-sider-logo"
+            className="relative h-10 w-full flex items-center"
+          >
             {collapsed ? (
-              <div data-cy="nav-sider-logo-collapsed-container" className="w-full flex justify-center">
+              <div
+                data-cy="nav-sider-logo-collapsed-container"
+                className="w-full flex justify-center"
+              >
                 <Image
                   src="/image/Logo.png"
                   alt="Logo"
@@ -1342,8 +1352,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
                       <div
                         data-cy="nav-sider-group-children"
-                        className={`space-y-1 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'hidden opacity-0'
-                          } ${collapsed ? '' : 'pl-2'}`}
+                        className={`space-y-1 transition-all duration-300 ${
+                          isExpanded ? 'opacity-100' : 'hidden opacity-0'
+                        } ${collapsed ? '' : 'pl-2'}`}
                       >
                         {group.children?.map((item: any) => (
                           <NavMenuItem
@@ -1378,9 +1389,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               icon={<MdHowToReg size={22} />}
               className={`
                 flex items-center justify-center bg-[#1e40af] hover:bg-[#173691] border-none shadow-lg transition-all duration-300
-                ${collapsed
-                  ? 'w-[52px] h-[52px] rounded-xl'
-                  : 'w-[85%] h-12 rounded-xl text-[14px] font-semibold gap-2'
+                ${
+                  collapsed
+                    ? 'w-[52px] h-[52px] rounded-xl'
+                    : 'w-[85%] h-12 rounded-xl text-[14px] font-semibold gap-2'
                 }
               `}
               onClick={() => router.push('/admin/dashboard')}
@@ -1389,8 +1401,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </Button>
           </div>
         </div>
-
-
       </Sider>
       <Layout
         style={{

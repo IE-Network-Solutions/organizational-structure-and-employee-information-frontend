@@ -1,5 +1,14 @@
 'use client';
-import { Form, Input, InputNumber, Modal, Select, Spin, Table } from 'antd';
+import {
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+  Spin,
+  Table,
+  Tag,
+} from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { useCreateBenefitEntitlementSettlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useParams } from 'next/navigation';
@@ -23,6 +32,10 @@ dayjs.extend(isBetween);
 
 const { Option } = Select;
 const inputClassName = 'w-full rounded-md border-gray-300';
+const CONTROL_40H =
+  'h-10 [&_.ant-input-number-input]:h-10 [&_.ant-input-number-input]:leading-10';
+const SELECT_40H =
+  'h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!items-center [&_.ant-select-selection-search-input]:!h-10';
 
 type BenefitEntitlementProps = {
   title: string;
@@ -55,6 +68,10 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   const { data: payPeriods, isLoading: payLoading } = useGetPayPeriod();
   const { data: existingEntitlements, isLoading: entitlementsLoading } =
     useFetchBenefitEntitlement(id);
+
+  const selectedEmployeeIds = Form.useWatch('employeeIds', form) as
+    | string[]
+    | undefined;
 
   // State for duplicate confirmation modal
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
@@ -283,7 +300,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           data-cy={`benefit-entitlement-sidebar-amount-item-${index}`}
         >
           <InputNumber
-            className="w-full"
+            className={`w-full ${CONTROL_40H}`}
             data-cy={`benefit-entitlement-sidebar-amount-input-${index}`}
           />
         </Form.Item>
@@ -308,7 +325,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           <Select
             placeholder="Pay Period"
             allowClear
-            className="w-full"
+            className={`w-full ${SELECT_40H}`}
             data-cy={`benefit-entitlement-sidebar-pay-period-select-${index}`}
           >
             {payPeriods
@@ -353,7 +370,9 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
         >
           <TextArea
             placeholder="Reason"
-            autoSize
+            rows={1}
+            className="w-full h-10 min-h-10 resize-none rounded-md border-gray-300 font-normal placeholder:font-normal"
+            style={{ height: 40 }}
             data-cy={`benefit-entitlement-sidebar-reason-textarea-${index}`}
           />
         </Form.Item>
@@ -365,32 +384,37 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     <>
       <Modal
         title={
-          <span
-            className="block text-base font-semibold text-gray-900 text-left"
-            id="compensation-benefit-sidebar-title"
-            data-cy="compensation-benefit-sidebar-title"
-          >
-            Add Benefit Entitlement
-          </span>
+          <div className="flex w-full items-center justify-between gap-4">
+            <span
+              className="inline-flex min-h-6 items-center text-base font-semibold leading-6 text-gray-900"
+              id="compensation-benefit-sidebar-title"
+              data-cy="compensation-benefit-sidebar-title"
+            >
+              Add Benefit Entitlement
+            </span>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
+              data-cy="compensation-benefit-sidebar-close"
+            >
+              <CloseOutlined style={{ fontSize: 16, color: '#262626' }} />
+            </button>
+          </div>
         }
         open={isBenefitEntitlementSidebarOpen}
         onCancel={onClose}
-        closable
-        closeIcon={
-          <CloseOutlined
-            className="text-gray-500 hover:text-gray-700"
-            style={{ fontSize: 14 }}
-          />
-        }
+        closable={false}
         footer={
           <div
-            className="flex justify-end gap-2 pt-4"
+            className="flex w-full justify-end gap-3"
             id="compensation-benefit-sidebar-footer"
             data-cy="compensation-benefit-sidebar-footer"
           >
             <Button
               type="default"
-              className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50"
+              className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
               loading={createBenefitLoading}
               onClick={onClose}
               id="compensation-benefit-sidebar-cancel-button"
@@ -400,40 +424,43 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
             </Button>
             <Button
               type="primary"
-              className="h-10 px-4 rounded-md"
+              className="h-10 px-4 rounded-md text-sm font-normal"
               loading={createBenefitLoading}
               disabled={entitlementsLoading}
               onClick={() => form.submit()}
               id="compensation-benefit-sidebar-create-button"
               data-cy="compensation-benefit-sidebar-create-button"
             >
-              Create
+              Continue
             </Button>
           </div>
         }
-        width={640}
+        width={560}
         centered
+        style={{ maxWidth: 'calc(100vw - 32px)' }}
         mask={true}
         maskClosable={false}
         zIndex={10002}
+        rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626]"
+        classNames={{
+          header:
+            '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',
+          body: '!px-6 !pb-0 !pt-0',
+          footer: '!mt-0 border-0 !px-6 !pb-6 !pt-4',
+        }}
         styles={{
-          content: {
-            borderRadius: 8,
-            border: '1px solid #e5e7eb',
-            boxShadow:
-              '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
-          },
-          header: {
+          content: { borderRadius: 8, padding: 0 },
+          header: { borderBottom: 'none' },
+          body: {
             borderBottom: 'none',
-            padding: '12px 24px 8px',
-            textAlign: 'left',
+            maxHeight: 'calc(100vh - 240px)',
+            overflowY: 'auto',
           },
-          body: { padding: '8px 12px' },
           footer: { borderTop: 'none' },
         }}
         data-cy="compensation-benefit-sidebar-modal"
       >
-        <div className="border border-gray-200 rounded-lg px-4 py-4">
+        <div className="rounded-lg border border-solid border-[#D9D9D9] bg-white px-6 py-5">
           <Spin
             data-cy="compensation-benefit-sidebar-loading"
             spinning={allUserLoading || payLoading || depLoading}
@@ -445,7 +472,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               requiredMark={CustomLabel}
               id="compensation-benefit-sidebar-form"
               data-cy="compensation-benefit-sidebar-form"
-              className="[&_.ant-form-item-label>label]:text-sm [&_.ant-form-item-label>label]:font-medium [&_.ant-form-item-label>label]:text-gray-700"
+              className="[&_.ant-form-item-label>label]:text-sm [&_.ant-form-item-label>label]:font-normal [&_.ant-form-item-label>label]:text-[#262626]"
             >
               <div
                 className={`grid gap-4 mb-5 ${benefitDatas?.isPeriodic === false ? 'grid-cols-1' : 'grid-cols-2'}`}
@@ -460,7 +487,8 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                   className="mb-0"
                 >
                   <InputNumber
-                    className={`${inputClassName} h-10`}
+                    className={`${inputClassName} ${CONTROL_40H}`}
+                    placeholder="0"
                     value={totalAmount}
                     onChange={(value) => setTotalAmount(value || 0)}
                     id="compensation-benefit-sidebar-total-amount-input"
@@ -486,7 +514,8 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                     className="mb-0"
                   >
                     <InputNumber
-                      className={`${inputClassName} h-10`}
+                      className={`${inputClassName} ${CONTROL_40H}`}
+                      placeholder="0"
                       value={settlementPeriod}
                       onChange={(value) => setSettlementPeriod(value || 0)}
                       id="compensation-benefit-sidebar-settlement-input"
@@ -498,7 +527,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
               {data && data.length > 0 && (
                 <div
-                  className="border border-gray-200 rounded-lg px-4 py-4 mb-5"
+                  className="border border-gray-200 rounded-lg py-4 mb-5"
                   id="compensation-benefit-sidebar-payments-table-wrapper"
                   data-cy="compensation-benefit-sidebar-payments-table-wrapper"
                 >
@@ -508,6 +537,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                     dataSource={data}
                     bordered={false}
                     className="mb-0"
+                    showHeader={false}
                     pagination={false}
                   />
                 </div>
@@ -523,7 +553,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 <Select
                   loading={depLoading}
                   placeholder="Select department"
-                  className={`${inputClassName} h-10`}
+                  className="w-full h-10 mt-2"
                   allowClear
                   showSearch
                   onChange={(value) => handleDepartmentChange(value)}
@@ -553,9 +583,10 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                   showSearch
                   placeholder="Select employee"
                   mode="multiple"
-                  className="w-full min-h-10 rounded-md [&_.ant-select-selector]:rounded-md [&_.ant-select-selector]:border-gray-300"
+                  // className={`w-full rounded-md ${SELECT_40H} [&_.ant-select-selection-placeholder]:!h-10 [&_.ant-select-selection-placeholder]:!leading-10 [&_.ant-select-selection-placeholder]:!display-flex [&_.ant-select-selection-placeholder]:!items-center`}
+                  className="w-full h-10 mt-2"
                   allowClear
-                  maxTagCount={1}
+                  maxTagCount={0}
                   filterOption={(input: any, option: any) =>
                     (option?.label ?? '')
                       ?.toLowerCase()
@@ -572,6 +603,32 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                   data-cy="compensation-benefit-sidebar-employees-select"
                 />
               </Form.Item>
+              {Array.isArray(selectedEmployeeIds) &&
+                selectedEmployeeIds.length > 0 && (
+                  <div
+                    className="mt-2 flex flex-wrap gap-2"
+                    id="compensation-benefit-sidebar-employees-tags"
+                    data-cy="compensation-benefit-sidebar-employees-tags"
+                  >
+                    {selectedEmployeeIds.map((empId) => {
+                      const user = allUsers?.items?.find(
+                        (u: any) => u.id === empId,
+                      );
+                      const label = user
+                        ? `${user?.firstName ?? ''} ${user?.middleName ?? ''} ${user?.lastName ?? ''}`.trim()
+                        : String(empId);
+                      return (
+                        <Tag
+                          key={empId}
+                          className="m-0 rounded-md px-2 py-1 text-sm font-normal bg-[#E6E6E6] border-[#D0D0D0] text-[#262626]"
+                          closable={false}
+                        >
+                          {label}
+                        </Tag>
+                      );
+                    })}
+                  </div>
+                )}
             </Form>
           </Spin>
         </div>
