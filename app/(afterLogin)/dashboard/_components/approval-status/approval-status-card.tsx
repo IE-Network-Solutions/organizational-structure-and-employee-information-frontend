@@ -1,7 +1,11 @@
 // components/ApprovalRequestCard.tsx
 import { FC } from 'react';
 import { Avatar, Input, Popconfirm } from 'antd';
-import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
+import {
+  CheckCircleFilled,
+  CloseCircleFilled,
+  UserOutlined,
+} from '@ant-design/icons';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetApproveLeaveRequest,
@@ -14,7 +18,8 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import genderNeutralAvatar from '@/public/gender_neutral_avatar.jpg';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { MdOutlineFileDownload } from 'react-icons/md';
+import { MdOutlineClose, MdOutlineFileDownload } from 'react-icons/md';
+import { LuCircleCheck } from 'react-icons/lu';
 
 interface ApprovalRequestCardProps {
   isLoading: boolean;
@@ -169,7 +174,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           data-cy="approval-status-card-avatar"
         >
           <Avatar
-            size={36}
+            className="w-[36px] h-[36px]"
             src={
               employeeData?.profileImage &&
               typeof employeeData?.profileImage === 'string'
@@ -178,15 +183,16 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
                       const parsed = JSON.parse(employeeData.profileImage);
                       return parsed.url && parsed.url.startsWith('http')
                         ? parsed.url
-                        : genderNeutralAvatar.src;
+                        : undefined;
                     } catch {
                       return employeeData.profileImage.startsWith('http')
                         ? employeeData.profileImage
-                        : genderNeutralAvatar.src;
+                        : undefined;
                     }
                   })()
-                : genderNeutralAvatar.src
+                : undefined
             }
+            icon={<UserOutlined />}
             alt="Description of image"
           />
         </div>
@@ -203,13 +209,13 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
               data-cy="approval-status-card-employee-names"
             >
               <p
-                className="font-semibold text-xs text-gray-900 truncate"
+                className="font-normal text-sm text-black truncate"
                 data-cy="approval-status-card-employee-name"
               >
                 {employeeData?.firstName || '-'}
               </p>
               <p
-                className="font-semibold text-xs text-gray-900 truncate md:block hidden"
+                className="font-normal text-sm text-black/90 truncate md:block hidden"
                 data-cy="approval-status-card-employee-name"
               >
                 {employeeData?.middleName || '-'}
@@ -218,7 +224,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
 
             <div className="flex gap-2 " data-cy="approval-status-card-meta">
               <span
-                className="truncate inline-flex items-center px-2.5 py-0.5 rounded-sm text-[10px] font-medium border bg-gray-50 text-gray-700 border-gray-200"
+                className="truncate inline-flex items-center px-2 py-[1px] rounded-[4px] text-[10px] font-medium border bg-gray-50 text-gray-700 border-gray-200"
                 data-cy="approval-status-card-leave-type"
               >
                 {leaveType}
@@ -232,7 +238,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
                     href={fileAttachment}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center w-6 h-6 rounded-sm bg-white border border-gray-100 !text-black"
+                    className="inline-flex items-center justify-center w-6 h-6 rounded-[4px] bg-white border border-gray-300 !text-black"
                     data-cy="approval-status-card-file-attachment"
                   >
                     <MdOutlineFileDownload className="text-xs" />
@@ -244,7 +250,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           {requestType === 'BranchTransfer' ? (
             <>
               <p
-                className="font-normal text-gray-500 text-[10px]"
+                className="font-normal text-gray-500 text-xs"
                 data-cy="approval-status-card-branch-transfer-dates"
               >
                 {startAt ? dayjs(startAt).format('MMM DD') : '-'} to {endAt}
@@ -309,7 +315,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
         >
           <button
             type="button"
-            className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-[#52C41A] text-[#52C41A]"
+            className="inline-flex items-center justify-center w-6 h-6 rounded-[4px] border border-[#52C41A] text-[#52C41A]"
             disabled={
               isLoading ||
               isLoadingEditApprover ||
@@ -318,19 +324,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             }
             data-cy={`approval-status-card-approve-btn-${id}`}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="12"
-              viewBox="0 -960 960 960"
-              width="12px"
-              fill="#52C41A"
-              data-cy="approval-status-card-approve-icon"
-            >
-              <path
-                d="m424-296 282-282-56-56-226 226-114-114-56 56 170 170Zm56 216q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
-                data-cy="approval-status-card-approve-path"
-              />
-            </svg>
+            <LuCircleCheck size={14} className="text-[#52C41A]" />
           </button>
         </Popconfirm>
         <Popconfirm
@@ -383,7 +377,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
         >
           <button
             type="button"
-            className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-[#FF4D4F] text-[#FF4D4F]"
+            className="inline-flex items-center justify-center w-6 h-6 rounded-[4px] border border-[#FF4D4F] text-[#FF4D4F]"
             disabled={
               isLoading ||
               isLoadingEditApprover ||
@@ -392,19 +386,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             }
             data-cy={`approval-status-card-reject-btn-${id}`}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="12"
-              viewBox="0 -960 960 960"
-              width="12px"
-              fill="#F5222D"
-              data-cy="approval-status-card-reject-icon"
-            >
-              <path
-                d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
-                data-cy="approval-status-card-reject-path"
-              />
-            </svg>{' '}
+            <MdOutlineClose size={14} className="text-[#FF4D4F]" />
           </button>
         </Popconfirm>
       </div>

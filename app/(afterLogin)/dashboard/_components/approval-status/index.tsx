@@ -32,7 +32,7 @@ const ApprovalStatus: FC = () => {
 
   return (
     <div
-      className="bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none px-4 py-3 h-[272px]"
+      className="bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none px-3 py-2 h-[272px]"
       data-cy="dashboard-approval-status-container"
     >
       <div
@@ -51,7 +51,7 @@ const ApprovalStatus: FC = () => {
           </span>
           <div data-cy="dashboard-approval-status-title-wrapper">
             <div
-              className="text-sm lg:text-base font-bold text-gray-900"
+              className="text-base font-bold text-gray-900"
               data-cy="dashboard-approval-status-title"
             >
               <span data-cy="dashboard-approval-status-title-text">
@@ -67,7 +67,7 @@ const ApprovalStatus: FC = () => {
         >
           {approverType !== 'Personal' && (
             <span
-              className="px-3 py-0.5 rounded-sm bg-gray-50 border border-gray-200 text-gray-700 font-medium"
+              className="px-3 py-0.5 rounded-sm bg-gray-100 border border-gray-500/30 text-gray-700 font-medium"
               data-cy="dashboard-approval-status-pending-pill"
             >
               {pendingCount} Pending
@@ -89,7 +89,7 @@ const ApprovalStatus: FC = () => {
           <Button
             type="primary"
             size="small"
-            className="inline-flex items-center gap-1 px-3 md:py-2 py-0 rounded-sm font-medium shadow-none"
+            className="inline-flex items-center gap-1 px-3 md:py-2 py-0 rounded-[4px] border-none font-medium shadow-none"
             data-cy="dashboard-approval-status-personal-pill"
             onClick={() =>
               handleChange(approverType === 'Personal' ? 'Leave' : 'Personal')
