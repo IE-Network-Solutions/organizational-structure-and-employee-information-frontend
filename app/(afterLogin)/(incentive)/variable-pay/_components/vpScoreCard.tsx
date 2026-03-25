@@ -1,13 +1,9 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Progress, Skeleton } from 'antd';
-import { AiOutlineReload } from 'react-icons/ai';
+import { Progress, Skeleton } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
-import {
-  useGetVPScore,
-  useGetVpScoreCalculate,
-} from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 Chart.register(ArcElement, Tooltip, Legend);
@@ -16,11 +12,6 @@ const VPScoreCard: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
   const userId = useAuthenticationStore.getState().userId;
   const { data: vpScore, isLoading } = useGetVPScore(userId);
-  const {
-    isLoading: isRefreshLoading,
-    refetch,
-    isRefetching,
-  } = useGetVpScoreCalculate(userId, false);
 
   const totalScore = vpScore?.score ?? 0;
   const previousScore = vpScore?.previousScore ?? 0;
@@ -163,28 +154,6 @@ const VPScoreCard: React.FC = () => {
                   {change} vs last month
                 </span>
               </div>
-              <Button
-                icon={
-                  <AiOutlineReload
-                    className={
-                      isRefreshLoading || isRefetching ? 'animate-spin' : ''
-                    }
-                    data-cy="variable-pay-score-card-refresh-icon"
-                  />
-                }
-                className="flex flex-shrink-0 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white font-normal text-[#5d5d5d] max-md:h-8 max-md:w-8 max-md:p-0"
-                onClick={() => refetch()}
-                disabled={isRefreshLoading || isRefetching}
-                data-cy="variable-pay-score-card-refresh-button"
-                id="variable-pay-score-card-refresh-button"
-              >
-                <span
-                  className="hidden md:inline"
-                  data-cy="variable-pay-score-card-refresh-button-text"
-                >
-                  Refresh VP
-                </span>
-              </Button>
             </div>
 
             {/* Criteria grid */}

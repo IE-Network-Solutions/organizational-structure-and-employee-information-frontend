@@ -49,12 +49,9 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
     40;
   const totalPercentage = Math.min((totalScore / totalWeight) * 100, 100);
 
-  // We ensure we only map exactly 3 criteria to match the 4-card layout (1 Total + 3 Criteria)
-  const displayCriteria = criteria.slice(0, 3);
-  // Pad if less than 3 criteria are returned to maintain the layout visually (optional, but robust)
-  while (displayCriteria.length < 3) {
-    displayCriteria.push({ name: 'N/A', score: 0, weight: 1 });
-  }
+  // Show *all* criteria for this user.
+  // The backend returns the full breakdown; previously we were slicing to 3.
+  const displayCriteria = criteria;
 
   return (
     <div className="w-full" data-cy="expanded-vp-details-wrapper">
@@ -69,164 +66,172 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
         }
       `}
       </style>
+      {/* Scroll only the cards strip (Total + criteria) */}
       <div
-        className="grid grid-cols-4 gap-4 lg:gap-6 w-full items-center animate-slideDownCards"
+        className="min-w-0 w-full max-w-[1100px] overflow-x-auto animate-slideDownCards"
         data-cy="expanded-vp-details-cards-grid"
       >
-        {/* Card 1: Total VP */}
         <div
-          className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-full max-w-[256px]"
-          style={{ height: '136px', borderRadius: '8px' }}
-          data-cy="expanded-vp-details-total-card"
+          className="flex flex-nowrap gap-4 lg:gap-6 w-max items-center"
+          data-cy="expanded-vp-details-cards-strip"
         >
+          {/* Card 1: Total VP */}
           <div
-            className="flex justify-between items-center"
-            data-cy="expanded-vp-details-total-card-header"
+            className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-[256px] flex-shrink-0"
+            style={{ height: '136px', borderRadius: '8px' }}
+            data-cy="expanded-vp-details-total-card"
           >
-            <span
-              className="text-gray-500 text-[13px] font-medium"
-              data-cy="expanded-vp-details-total-card-title"
-            >
-              Total VP
-            </span>
-            <span
-              className="text-gray-500 text-[13px] font-medium"
-              data-cy="expanded-vp-details-total-card-subtitle"
-            >
-              Out of {totalWeight}%
-            </span>
-          </div>
-
-          <div
-            className="flex items-center gap-10"
-            data-cy="expanded-vp-details-total-card-score-row"
-          >
-            <span
-              className="text-[28px] font-bold text-gray-800 leading-none"
-              data-cy="expanded-vp-details-total-card-score"
-            >
-              {Number(totalScore).toFixed(2)}
-            </span>
-            <Progress
-              percent={totalPercentage}
-              showInfo={false}
-              strokeColor="#1e3a8a"
-              trailColor="#f3f4f6"
-              className="flex-1 m-0 [&_.ant-progress-inner]:!bg-gray-100"
-              data-cy="expanded-vp-details-total-card-progress"
-              strokeWidth={8}
-              strokeLinecap="round"
-            />
-          </div>
-
-          <div
-            className="flex justify-between items-center"
-            data-cy="expanded-vp-details-total-card-change-row"
-          >
-            <span
-              className={`text-[12px] font-medium ${!isNegative ? 'text-green-500' : 'text-red-500'}`}
-              data-cy="expanded-vp-details-total-card-change"
-            >
-              {!isNegative ? '+' : ''}
-              {change}{' '}
-              <span
-                className="text-gray-400 font-normal"
-                data-cy="expanded-vp-details-total-card-change-subtext"
-              >
-                vs last month
-              </span>
-            </span>
-            <Button
-              type="text"
-              icon={
-                <AiOutlineReload
-                  className={
-                    isRefreshLoading || isRefetching ? 'animate-spin' : ''
-                  }
-                  size={14}
-                />
-              }
-              onClick={() => refetch()}
-              disabled={isRefreshLoading || isRefetching}
-              className="text-gray-500 hover:text-gray-700 border border-gray-200 flex items-center justify-center p-0 w-7 h-7 rounded bg-transparent shadow-none"
-              data-cy="expanded-vp-details-total-card-refresh-button"
-            />
-          </div>
-        </div>
-
-        {/* Three Metric Cards */}
-        {displayCriteria.map((card: any, index: number) => {
-          const score = Number(card?.score ?? 0);
-          const weight = Number(card?.weight ?? 1);
-          const curPercentage = Math.min((score / weight) * 100, 100);
-
-          return (
             <div
-              key={index}
-              className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-full max-w-[256px]"
-              style={{ height: '108px', borderRadius: '8px' }}
-              data-cy={`expanded-vp-details-metric-card-${index}`}
+              className="flex justify-between items-center"
+              data-cy="expanded-vp-details-total-card-header"
             >
-              <div
-                className="flex justify-between items-center"
-                data-cy={`expanded-vp-details-metric-card-header-${index}`}
+              <span
+                className="text-gray-500 text-[13px] font-medium"
+                data-cy="expanded-vp-details-total-card-title"
               >
-                <span
-                  className="text-gray-500 text-[13px] font-medium truncate pr-2"
-                  data-cy={`expanded-vp-details-metric-card-title-${index}`}
-                >
-                  {card?.name || 'OKR'}
-                </span>
-                <span
-                  className="text-gray-500 text-[13px] font-medium flex-shrink-0"
-                  data-cy={`expanded-vp-details-metric-card-subtitle-${index}`}
-                >
-                  Out of {weight.toFixed(2)}%
-                </span>
-              </div>
-
-              <div
-                className="flex items-center gap-3"
-                data-cy={`expanded-vp-details-metric-card-progress-row-${index}`}
+                Total VP
+              </span>
+              <span
+                className="text-gray-500 text-[13px] font-medium"
+                data-cy="expanded-vp-details-total-card-subtitle"
               >
-                <Progress
-                  percent={curPercentage}
-                  showInfo={false}
-                  strokeColor="#1c3ca5"
-                  trailColor="#f3f4f6"
-                  className="flex-1 m-0 [&_.ant-progress-inner]:!bg-gray-100"
-                  data-cy={`expanded-vp-details-metric-card-progress-${index}`}
-                  strokeWidth={8}
-                  strokeLinecap="round"
-                />
-                <span
-                  className="text-gray-600 text-[13px] font-medium w-8 text-right"
-                  data-cy={`expanded-vp-details-metric-card-progress-value-${index}`}
-                >
-                  {curPercentage.toFixed(0)}%
-                </span>
-              </div>
-
-              <div
-                className="flex justify-between items-center"
-                data-cy={`expanded-vp-details-metric-card-footer-${index}`}
-              >
-                <span
-                  className="text-[12px] text-green-500 font-medium"
-                  data-cy={`expanded-vp-details-metric-card-footer-text-${index}`}
-                >
-                  +0.00{' '}
-                  <span
-                    className="text-gray-400 font-normal"
-                    data-cy={`expanded-vp-details-metric-card-footer-subtext-${index}`}
-                  >
-                    vs last month
-                  </span>
-                </span>
-              </div>
+                Out of {totalWeight}%
+              </span>
             </div>
-          );
-        })}
+
+            <div
+              className="flex items-center gap-10"
+              data-cy="expanded-vp-details-total-card-score-row"
+            >
+              <span
+                className="text-[28px] font-bold text-gray-800 leading-none"
+                data-cy="expanded-vp-details-total-card-score"
+              >
+                {Number(totalScore).toFixed(2)}
+              </span>
+              <Progress
+                percent={totalPercentage}
+                showInfo={false}
+                strokeColor="#1e3a8a"
+                trailColor="#f3f4f6"
+                className="flex-1 m-0 [&_.ant-progress-inner]:!bg-gray-100"
+                data-cy="expanded-vp-details-total-card-progress"
+                strokeWidth={8}
+                strokeLinecap="round"
+              />
+            </div>
+
+            <div
+              className="flex justify-between items-center"
+              data-cy="expanded-vp-details-total-card-change-row"
+            >
+              <span
+                className={`text-[12px] font-medium ${!isNegative ? 'text-green-500' : 'text-red-500'}`}
+                data-cy="expanded-vp-details-total-card-change"
+              >
+                {!isNegative ? '+' : ''}
+                {change}{' '}
+                <span
+                  className="text-gray-400 font-normal"
+                  data-cy="expanded-vp-details-total-card-change-subtext"
+                >
+                  vs last month
+                </span>
+              </span>
+              <Button
+                type="text"
+                icon={
+                  <AiOutlineReload
+                    className={
+                      isRefreshLoading || isRefetching ? 'animate-spin' : ''
+                    }
+                    size={14}
+                  />
+                }
+                onClick={() => refetch()}
+                disabled={isRefreshLoading || isRefetching}
+                className="text-gray-500 hover:text-gray-700 border border-gray-200 flex items-center justify-center p-0 w-7 h-7 rounded bg-transparent shadow-none"
+                data-cy="expanded-vp-details-total-card-refresh-button"
+              />
+            </div>
+          </div>
+
+          {/* Criteria cards */}
+          {displayCriteria.map((card: any, index: number) => {
+            const score = Number(card?.score ?? 0);
+            const weight = Number(card?.weight ?? 1);
+            // Avoid divide-by-zero if weight is missing/invalid.
+            const safeWeight = weight > 0 ? weight : 1;
+            const curPercentage = Math.min((score / safeWeight) * 100, 100);
+
+            return (
+              <div
+                key={index}
+                className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-[256px] flex-shrink-0"
+                style={{ height: '108px', borderRadius: '8px' }}
+                data-cy={`expanded-vp-details-metric-card-${index}`}
+              >
+                <div
+                  className="flex justify-between items-center"
+                  data-cy={`expanded-vp-details-metric-card-header-${index}`}
+                >
+                  <span
+                    className="text-gray-500 text-[13px] font-medium truncate pr-2"
+                    data-cy={`expanded-vp-details-metric-card-title-${index}`}
+                  >
+                    {card?.name || 'OKR'}
+                  </span>
+                  <span
+                    className="text-gray-500 text-[13px] font-medium flex-shrink-0"
+                    data-cy={`expanded-vp-details-metric-card-subtitle-${index}`}
+                  >
+                    Out of {safeWeight.toFixed(2)}%
+                  </span>
+                </div>
+
+                <div
+                  className="flex items-center gap-3"
+                  data-cy={`expanded-vp-details-metric-card-progress-row-${index}`}
+                >
+                  <Progress
+                    percent={curPercentage}
+                    showInfo={false}
+                    strokeColor="#1c3ca5"
+                    trailColor="#f3f4f6"
+                    className="flex-1 m-0 [&_.ant-progress-inner]:!bg-gray-100"
+                    data-cy={`expanded-vp-details-metric-card-progress-${index}`}
+                    strokeWidth={8}
+                    strokeLinecap="round"
+                  />
+                  <span
+                    className="text-gray-600 text-[13px] font-medium w-8 text-right"
+                    data-cy={`expanded-vp-details-metric-card-progress-value-${index}`}
+                  >
+                    {curPercentage.toFixed(0)}%
+                  </span>
+                </div>
+
+                <div
+                  className="flex justify-between items-center"
+                  data-cy={`expanded-vp-details-metric-card-footer-${index}`}
+                >
+                  <span
+                    className="text-[12px] text-green-500 font-medium"
+                    data-cy={`expanded-vp-details-metric-card-footer-text-${index}`}
+                  >
+                    +0.00{' '}
+                    <span
+                      className="text-gray-400 font-normal"
+                      data-cy={`expanded-vp-details-metric-card-footer-subtext-${index}`}
+                    >
+                      vs last month
+                    </span>
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -427,7 +432,7 @@ const VariablePayTable = () => {
           data-cy="compensation-benefit-variable-pay-table-loading"
         >
           <div
-            className="overflow-x-auto"
+            className="overflow-x-hidden"
             id="compensation-benefit-variable-pay-scroll-container"
             data-cy="compensation-benefit-variable-pay-scroll-container"
           >
@@ -438,7 +443,6 @@ const VariablePayTable = () => {
               columns={columns}
               dataSource={paginatedData}
               pagination={false}
-              scroll={{ x: 'max-content' }}
               expandable={{
                 expandedRowRender: (record) => (
                   <ExpandedVPDetails userId={record.userId} />
