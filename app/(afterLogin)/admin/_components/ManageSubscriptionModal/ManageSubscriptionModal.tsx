@@ -286,7 +286,9 @@ export const ManageSubscriptionModal: React.FC<
   const isSeatDecreased = !!activeSubscription && seatCount < currentSlotTotal;
   const isSeatIncreased = !!activeSubscription && seatCount > currentSlotTotal;
   const isPlanChanged =
-    !!activeSubscription && !!selectedPlan && selectedPlan.id !== activeSubscription.planId;
+    !!activeSubscription &&
+    !!selectedPlan &&
+    selectedPlan.id !== activeSubscription.planId;
   const isPeriodChanged =
     !!activeSubscription &&
     !!selectedPlanPeriod &&
@@ -322,7 +324,10 @@ export const ManageSubscriptionModal: React.FC<
       const aCurrent = a.id === currentPeriodId ? 0 : 1;
       const bCurrent = b.id === currentPeriodId ? 0 : 1;
       if (aCurrent !== bCurrent) return aCurrent - bCurrent;
-      return (a.periodType?.periodInMonths ?? 0) - (b.periodType?.periodInMonths ?? 0);
+      return (
+        (a.periodType?.periodInMonths ?? 0) -
+        (b.periodType?.periodInMonths ?? 0)
+      );
     });
   }, [billingPeriodOptions, activeSubscription?.planPeriodId]);
 
@@ -688,7 +693,10 @@ export const ManageSubscriptionModal: React.FC<
             onClick={handleContinue}
             loading={isSubmitting}
             disabled={
-              !calculationDto || isSeatDecreased || isCalculating || isSubmitting
+              !calculationDto ||
+              isSeatDecreased ||
+              isCalculating ||
+              isSubmitting
             }
             data-cy="manage-subscription-continue"
           >
