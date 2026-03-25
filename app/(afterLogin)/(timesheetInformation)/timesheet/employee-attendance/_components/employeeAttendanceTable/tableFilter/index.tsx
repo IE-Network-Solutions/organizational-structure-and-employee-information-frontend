@@ -45,7 +45,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
 
   const MobileFilters = () => (
     <div
-      className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[320px] max-w-[420px] overflow-hidden"
+      className="bg-white rounded-lg border border-gray-200 min-w-[320px] max-w-[420px] overflow-hidden"
       id="time-attendance-employee-attendance-mobile-filter-menu"
       data-cy="time-attendance-employee-attendance-mobile-filter-menu"
     >
@@ -325,11 +325,10 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                 data-cy="time-attendance-employee-attendance-mobile-filter-employee-select"
                 placeholder="Search Employee"
                 allowClear
-                className="w-full pr-0 py-0 h-8 rounded-lg"
+                className="h-8"
                 options={employeeOptions}
                 showSearch
                 optionFilterProp="label"
-                size="large"
                 onChange={(value) => {
                   form.setFieldsValue({ employeeId: value });
                   onChange(getFilterValues());
@@ -361,7 +360,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
           >
             <Button
-              className={`h-8 rounded-lg flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
+              className={`h-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
               id="time-attendance-employee-attendance-mobile-filter-toggle-button"
               data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
               icon={

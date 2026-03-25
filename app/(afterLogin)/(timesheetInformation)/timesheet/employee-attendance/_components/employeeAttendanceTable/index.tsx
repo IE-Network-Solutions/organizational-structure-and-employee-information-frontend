@@ -532,11 +532,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   };
 
   return (
-    <>
+    < div className='border-[1px] border-[#D9D9D9] rounded-lg'>
       <div
         id="time-attendance-employee-attendance-table-filter-section"
         data-cy="time-attendance-employee-attendance-table-filter-section"
-        className="mb-4"
+        className="mb-4 px-5 pt-4"
       >
         <TableFilter
           data-cy="time-attendance-employee-attendance-table-filter"
@@ -562,12 +562,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               onChange: handleRowSelection,
             }}
             pagination={false}
-            rowClassName={() => 'h-[60px]'}
             scroll={{ x: 'max-content' }}
             className="w-full"
             onChange={handleTableChange}
             id="time-attendance-employee-attendance-table"
             data-cy="time-attendance-employee-attendance-table"
+            rowClassName={(notUsed, index) => (index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]')}
+
           />
         </div>
         {isMobile || isTablet ? (
@@ -592,7 +593,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           />
         )}
       </div>
-    </>
+    </div>
   );
 };
 

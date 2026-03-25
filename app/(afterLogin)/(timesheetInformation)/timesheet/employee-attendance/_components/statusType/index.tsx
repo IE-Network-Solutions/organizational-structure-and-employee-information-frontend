@@ -6,7 +6,7 @@ const statusType = (val: string) => {
       <Tag
         id="roleTypeOwner"
         data-cy="roleTypeOwner"
-        className="bg-[#e6f4ff] text-[#1677ff] text-xs font-medium py-1 px-2  border border-[#91caff] hover:bg-sky-50"
+        className="bg-[#e6f4ff] text-[#1677ff] text-xs font-medium py-0.5 px-2  border border-[#91caff] hover:bg-sky-50 h-[22px]"
       >
         PRESENT
       </Tag>
@@ -16,7 +16,7 @@ const statusType = (val: string) => {
       <Tag
         id="roleTypeAdmin"
         data-cy="roleTypeAdmin"
-        className="text-[#4d4d4d] text-sm font-normal py-1 px-2 bg-white border border-[#d9d9d9]"
+        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
       >
         ABSENT
       </Tag>
@@ -26,7 +26,7 @@ const statusType = (val: string) => {
       <Tag
         id="roleTypeSuper"
         data-cy="roleTypeProbation"
-        className="text-[#f5222d] text-sm font-normal py-1 px-2 bg-[#fff1f0] border border-[#ffa39e]"
+        className="text-[#f5222d] text-sm font-normal px-2 bg-[#fff1f0] border border-[#ffa39e] h-[22px]"
       >
         LATE
       </Tag>
@@ -36,7 +36,7 @@ const statusType = (val: string) => {
       <Tag
         id="roleTypeOnLeave" // Note: I changed this id because it's same with the above Button
         data-cy="roleTypeOnLeave"
-        className="text-green-600 text-xs font-medium py-1 px-2 bg-white border border-green-600 hover:bg-green-50"
+        className="text-green-600 text-xs font-medium py-0.5 px-2 bg-white border border-green-600 hover:bg-green-50 h-[22px]"
       >
         EARLY
       </Tag>
@@ -46,7 +46,7 @@ const statusType = (val: string) => {
       <Button
         id="roleTypeNull"
         data-cy="roleTypeNull"
-        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50"
+        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50 h-[22px]"
       >
         Unknown
       </Button>

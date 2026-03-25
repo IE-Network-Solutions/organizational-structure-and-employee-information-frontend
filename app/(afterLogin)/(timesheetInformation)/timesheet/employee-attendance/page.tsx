@@ -9,6 +9,7 @@ import {
   Menu,
   Popover,
   Row,
+  Typography,
   message,
 } from 'antd';
 import { TbFileUpload, TbLayoutList } from 'react-icons/tb';
@@ -31,7 +32,6 @@ import { useMediaQuery } from 'react-responsive';
 
 import AttendanceImportErrorModal from './_components/attendanceImportErrorModal';
 import { LuBookmark } from 'react-icons/lu';
-import CustomBreadcrumb from '@/components/common/breadCramp';
 import Link from 'next/link';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import IosShareIcon from '@mui/icons-material/IosShare';
@@ -230,45 +230,26 @@ const EmployeeAttendance = () => {
           id="time-attendance-employee-attendance-header-section"
           data-cy="time-attendance-employee-attendance-header-section"
         >
-          <CustomBreadcrumb
-            title={
-              <span
-                className="text-xl"
-                data-cy="time-attendance-employee-attendance-breadcrumb-title"
-              >
-                Time and Attendance
-              </span>
-            }
-            subtitle={
-              <Breadcrumb
-                data-cy="time-attendance-employee-attendance-breadcrumb"
-                items={[
-                  {
-                    title: (
-                      <span
-                        className="text-xs"
-                        data-cy="time-attendance-employee-attendance-breadcrumb-item-title"
-                      >
-                        Time and Attendance
-                      </span>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Link
-                        className="text-xs"
-                        data-cy="time-attendance-employee-attendance-breadcrumb-item-link"
-                        href="/timesheet/employee-attendance"
-                      >
-                        EmployeeAttendance
-                      </Link>
-                    ),
-                  },
-                ]}
-              />
-            }
-            data-cy="manage-employees-breadcrumb"
+ 
+          <div className="flex flex-col gap-2" data-cy="time-attendance-employee-attendance-header-title">
+          <h3
+            className="text-gray-900 text-xl font-bold mb-0"
+            data-cy="time-attendance-employee-attendance-header-title"
+            id="time-attendance-employee-attendance-header-title"
+          >
+            Time and Attendance
+          </h3>
+          <Breadcrumb
+            items={[
+              {
+                title: <span className="text-xs sm:text-sm font-normal">Time and Attendance</span>
+              },
+              {
+                title: <span className="text-xs sm:text-sm text-[#4d4d4d] font-normal">Employee Attendance</span>
+              },
+            ]}
           />
+        </div>
 
           {/* Action Buttons */}
           <div
@@ -291,7 +272,7 @@ const EmployeeAttendance = () => {
                     <IosShareIcon
                       fontSize="small"
                       data-cy="time-attendance-employee-attendance-import-button-icon"
-                      className="text-[#374151]"
+                      className="text-[#374151] h-10"
                     />
                   }
                   loading={isLoading || isLoadingImport}
