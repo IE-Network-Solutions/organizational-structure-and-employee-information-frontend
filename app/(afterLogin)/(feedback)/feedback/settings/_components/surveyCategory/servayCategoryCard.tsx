@@ -7,15 +7,26 @@ import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFormCategory } from '@/store/server/features/conversation/mutation';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 
 const servayCategoryCard = ({ category }: { category: any }) => {
   const { data: userData } = useGetEmployee(category?.createdBy);
   const deleteCategory = useDeleteFormCategory();
-  const { setEditModal, setEditingCategory, setSelectedUsers } =
-    CategoriesManagementStore();
+  const { pageSize, current } = EmployeeSurveyStore();
+  const {
+    setEditModal,
+    setEditingCategory,
+    setSelectedUsers,
+    setDeletedItem,
+    setPageSize: setCategoriesPageSize,
+    setCurrent: setCategoriesCurrent,
+  } = CategoriesManagementStore();
 
   const handleDelete = () => {
-    // deleteCategory.mutate(CategoriesManagementStore.getState().deletedItem);
+    setDeletedItem(category?.id);
+    setCategoriesPageSize(pageSize);
+    setCategoriesCurrent(current);
+    deleteCategory.mutate(undefined as any);
   };
 
   const handleEdit = () => {
@@ -60,16 +71,10 @@ const servayCategoryCard = ({ category }: { category: any }) => {
                   label: (
                     <Popconfirm
                       title="Are you sure you want to delete this category?"
-                      onConfirm={() => {
-                        // handleDeleteMeetingType(item?.id);
-                      }}
+                      onConfirm={handleDelete}
                       okText="Yes"
                       cancelText="No"
-                      okButtonProps={
-                        {
-                          // loading: deleteLoading,
-                        }
-                      }
+                      okButtonProps={{ loading: deleteCategory.isLoading }}
                       data-cy={`settings-define-meeting-type-card-delete-confirm-${category?.id}`}
                       id={`settingsDefineMeetingTypeCardDeleteConfirm${category?.id}`}
                     >
