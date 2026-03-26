@@ -90,7 +90,7 @@ const InfoItem = ({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              backgroundColor: '#f5f5f5',
+              backgroundColor: 'rgba(0, 0, 0, 0.02)',
               border: '1px solid #D9D9D9',
               borderRadius: '4px',
               padding: '2px 8px',
@@ -843,7 +843,7 @@ const EmployeeProfile = () => {
                   borderRadius: '12px',
                   border:
                     selectedCompensationId === compId
-                      ? '1.5px solid #635BFF'
+                      ? '1px solid #1E40AF'
                       : '1px solid #e0e0e0',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
@@ -896,7 +896,7 @@ const EmployeeProfile = () => {
         <Col xs={24} lg={14}>
           <div
             style={{
-              border: '1.5px solid #635BFF',
+              border: '1px solid #1E40AF',
               borderRadius: '12px',
               padding: '24px',
               backgroundColor: '#fff',
@@ -954,8 +954,9 @@ const EmployeeProfile = () => {
                 <div
                   style={{
                     marginTop: '16px',
-                    padding: '12px',
-                    backgroundColor: '#fafafa',
+                    padding: '16px',
+                    backgroundColor: '#fff',
+                    border: '1px solid #e0e0e0',
                     borderRadius: '8px',
                   }}
                   data-cy="payroll-settlement-progress-wrapper"
@@ -976,7 +977,7 @@ const EmployeeProfile = () => {
                     </Text>
                     <Text
                       style={{
-                        color: '#52C41A',
+                        color: '#4db818',
                         fontSize: '14px',
                         fontWeight: 600,
                       }}
@@ -987,7 +988,7 @@ const EmployeeProfile = () => {
                   </div>
                   <Progress
                     percent={progressPercent}
-                    strokeColor="#52c41a"
+                    strokeColor="#4db818"
                     showInfo={false}
                     strokeWidth={8}
                     trailColor="#f0f0f0"
@@ -1001,40 +1002,73 @@ const EmployeeProfile = () => {
                 >
                   <div
                     style={{
-                      padding: '12px 16px',
+                      padding: '16px',
                       display: 'flex',
                       alignItems: 'center',
+                      backgroundColor: '#fafafa',
+                      borderRadius: '4px',
+                      marginBottom: '8px',
                     }}
                     data-cy="payroll-settlement-payments-header"
                   >
-                    <Text
-                      strong
-                      style={{ flex: 1, fontSize: '12px', color: '#434343' }}
-                      data-cy="payroll-settlement-header-date"
+                    <div
+                      style={{
+                        flex: 1,
+                        borderRight: '1px solid #e0e0e0',
+                        paddingRight: '16px',
+                      }}
+                      data-cy="payroll-settlement-header-date-cell"
                     >
-                      Date
-                    </Text>
-                    <Text
-                      strong
-                      style={{ flex: 1, fontSize: '12px', color: '#434343' }}
-                      data-cy="payroll-settlement-header-amount"
+                      <Text
+                        strong
+                        style={{ fontSize: '14px', color: '#434343' }}
+                      >
+                        Date
+                      </Text>
+                    </div>
+                    <div
+                      style={{
+                        flex: 1,
+                        borderRight: '1px solid #e0e0e0',
+                        paddingLeft: '16px',
+                        paddingRight: '16px',
+                      }}
+                      data-cy="payroll-settlement-header-amount-cell"
                     >
-                      Pay Amount
-                    </Text>
-                    <Text
-                      strong
-                      style={{ flex: 2, fontSize: '12px', color: '#434343' }}
-                      data-cy="payroll-settlement-header-period"
+                      <Text
+                        strong
+                        style={{ fontSize: '14px', color: '#434343' }}
+                      >
+                        Pay Amount
+                      </Text>
+                    </div>
+                    <div
+                      style={{
+                        flex: 2,
+                        borderRight: '1px solid #e0e0e0',
+                        paddingLeft: '16px',
+                        paddingRight: '16px',
+                      }}
+                      data-cy="payroll-settlement-header-period-cell"
                     >
-                      Pay Period
-                    </Text>
-                    <Text
-                      strong
-                      style={{ flex: 1, fontSize: '12px', color: '#434343' }}
-                      data-cy="payroll-settlement-header-reason"
+                      <Text
+                        strong
+                        style={{ fontSize: '14px', color: '#434343' }}
+                      >
+                        Pay Period
+                      </Text>
+                    </div>
+                    <div
+                      style={{ flex: 1, paddingLeft: '16px' }}
+                      data-cy="payroll-settlement-header-reason-cell"
                     >
-                      Reason
-                    </Text>
+                      <Text
+                        strong
+                        style={{ fontSize: '14px', color: '#434343' }}
+                      >
+                        Reason
+                      </Text>
+                    </div>
                   </div>
 
                   <div
@@ -1055,43 +1089,50 @@ const EmployeeProfile = () => {
                           }}
                           data-cy="payroll-settlement-payment-row"
                         >
-                          <Text
-                            style={{
-                              flex: 1,
-                              fontSize: '12px',
-                              color: '#595959',
-                            }}
-                            data-cy="payroll-settlement-payment-date"
-                          >
-                            {payment.date ||
-                              dayjs(payment.createdAt).format('MMM DD, YYYY')}
-                          </Text>
-                          <Text
-                            style={{
-                              flex: 1,
-                              fontSize: '12px',
-                              color: '#595959',
-                            }}
-                            data-cy="payroll-settlement-payment-amount"
-                          >
-                            {parseFloat(payment.amount || '0').toLocaleString(
-                              undefined,
-                              {
-                                minimumFractionDigits: 2,
-                              },
-                            )}
-                          </Text>
                           <div
-                            style={{ flex: 2 }}
-                            data-cy="payroll-settlement-payment-period-wrapper"
+                            style={{ flex: 1, paddingRight: '16px' }}
+                            data-cy="payroll-settlement-payment-date-cell"
+                          >
+                            <Text
+                              style={{ fontSize: '14px', color: '#595959' }}
+                            >
+                              {payment.date ||
+                                dayjs(payment.createdAt).format('MMM DD, YYYY')}
+                            </Text>
+                          </div>
+                          <div
+                            style={{
+                              flex: 1,
+                              paddingLeft: '16px',
+                              paddingRight: '16px',
+                            }}
+                            data-cy="payroll-settlement-payment-amount-cell"
+                          >
+                            <Text
+                              style={{ fontSize: '14px', color: '#595959' }}
+                            >
+                              {parseFloat(payment.amount || '0').toLocaleString(
+                                undefined,
+                                { minimumFractionDigits: 2 },
+                              )}
+                            </Text>
+                          </div>
+                          <div
+                            style={{
+                              flex: 2,
+                              paddingLeft: '16px',
+                              paddingRight: '16px',
+                            }}
+                            data-cy="payroll-settlement-payment-period-cell"
                           >
                             <Tag
                               style={{
-                                backgroundColor: '#fafafa',
-                                border: '1px solid #e8e8e8',
+                                backgroundColor: '#fff',
+                                border: '1px solid #d9d9d9',
                                 borderRadius: '4px',
                                 padding: '2px 8px',
-                                fontSize: '11px',
+                                fontSize: '13px',
+                                color: '#595959',
                               }}
                               data-cy="payroll-settlement-payment-period-tag"
                             >
@@ -1106,16 +1147,16 @@ const EmployeeProfile = () => {
                               })()}
                             </Tag>
                           </div>
-                          <Text
-                            style={{
-                              flex: 1,
-                              fontSize: '12px',
-                              color: '#595959',
-                            }}
-                            data-cy="payroll-settlement-payment-reason"
+                          <div
+                            style={{ flex: 1, paddingLeft: '16px' }}
+                            data-cy="payroll-settlement-payment-reason-cell"
                           >
-                            {payment.reason || '--'}
-                          </Text>
+                            <Text
+                              style={{ fontSize: '14px', color: '#595959' }}
+                            >
+                              {payment.reason || '--'}
+                            </Text>
+                          </div>
                         </div>
                       ))
                     ) : (
@@ -1241,8 +1282,8 @@ const EmployeeProfile = () => {
                 <Text
                   style={{
                     fontSize: '14px',
-                    color: 'rgba(0, 0, 0, 0.85)',
-                    fontWeight: 500,
+                    color: 'rgba(0, 0, 0, 0.70)',
+                    fontWeight: 600,
                     lineHeight: '1.2',
                   }}
                 >
@@ -1255,7 +1296,7 @@ const EmployeeProfile = () => {
                     .join(' ')}
                 </Text>
                 <Text
-                  style={{ fontSize: '14px', color: 'rgba(0, 0, 0, 0.65)' }}
+                  style={{ fontSize: '14px', color: 'rgba(0, 0, 0, 0.45)' }}
                 >
                   {employee?.email}
                 </Text>
@@ -1271,7 +1312,7 @@ const EmployeeProfile = () => {
                   <Text
                     style={{
                       fontSize: '14px',
-                      color: 'rgba(0, 0, 0, 0.65)',
+                      color: 'rgba(0, 0, 0, 0.40)',
                       display: 'block',
                       marginBottom: '4px',
                     }}
@@ -1281,9 +1322,9 @@ const EmployeeProfile = () => {
                   <Text
                     style={{
                       fontSize: '16px',
-                      color: 'rgba(0, 0, 0, 0.65)',
+                      color: 'rgba(0, 0, 0, 0.70)',
                       display: 'block',
-                      fontWeight: 500,
+                      fontWeight: 700,
                     }}
                   >
                     {employee?.employeeInformation?.joinedDate
@@ -1308,7 +1349,7 @@ const EmployeeProfile = () => {
                   <Text
                     style={{
                       fontSize: '14px',
-                      color: 'rgba(0, 0, 0, 0.65)',
+                      color: 'rgba(0, 0, 0, 0.40)',
                       display: 'block',
                       marginBottom: '4px',
                     }}
@@ -1318,9 +1359,9 @@ const EmployeeProfile = () => {
                   <Text
                     style={{
                       fontSize: '16px',
-                      color: 'rgba(0, 0, 0, 0.65)',
+                      color: 'rgba(0, 0, 0, 0.70)',
                       display: 'block',
-                      fontWeight: 500,
+                      fontWeight: 700,
                     }}
                   >
                     {formattedAddress}
@@ -1341,7 +1382,7 @@ const EmployeeProfile = () => {
                   <Text
                     style={{
                       fontSize: '14px',
-                      color: 'rgba(0, 0, 0, 0.65)',
+                      color: 'rgba(0, 0, 0, 0.40)',
                       display: 'block',
                       marginBottom: '4px',
                     }}
@@ -1351,9 +1392,9 @@ const EmployeeProfile = () => {
                   <Text
                     style={{
                       fontSize: '16px',
-                      color: 'rgba(0, 0, 0, 0.65)',
+                      color: 'rgba(0, 0, 0, 0.70)',
                       display: 'block',
-                      fontWeight: 500,
+                      fontWeight: 700,
                     }}
                   >
                     {serviceYear}
@@ -1373,7 +1414,7 @@ const EmployeeProfile = () => {
                   <Text
                     style={{
                       fontSize: '14px',
-                      color: 'rgba(0, 0, 0, 0.65)',
+                      color: 'rgba(0, 0, 0, 0.40)',
                       display: 'block',
                       marginBottom: '4px',
                     }}
@@ -1383,9 +1424,9 @@ const EmployeeProfile = () => {
                   <Text
                     style={{
                       fontSize: '16px',
-                      color: 'rgba(0, 0, 0, 0.65)',
+                      color: 'rgba(0, 0, 0, 0.70)',
                       display: 'block',
-                      fontWeight: 500,
+                      fontWeight: 700,
                     }}
                   >
                     {employee?.employeeJobInformation?.find(

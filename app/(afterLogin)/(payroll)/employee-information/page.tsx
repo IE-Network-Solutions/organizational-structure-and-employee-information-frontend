@@ -224,7 +224,7 @@ const EmployeeInformation = () => {
                 margin: 0,
                 fontSize: '12px',
                 color: '#595959',
-                backgroundColor: '#f5f5f5',
+                backgroundColor: 'rgba(0, 0, 0, 0.02)',
                 border: '1px solid #D9D9D9',
                 fontWeight: 500,
               }}
@@ -345,7 +345,7 @@ const EmployeeInformation = () => {
                       style={{
                         color: '#000',
                         fontSize: '20px',
-                        transform: 'translateY(1px)', // Fine-tune vertical centering
+                        transform: 'translateY(2px)', // Precise adjustment for centering
                       }}
                     />
                   }
@@ -422,7 +422,7 @@ const EmployeeInformation = () => {
         }
 
         .ant-table-tbody > tr:hover > td {
-          background-color: #f0f5ff !important;
+          background-color: transparent !important;
         }
 
         /* Hide horizontal scrollbar while keeping scroll functionality */
