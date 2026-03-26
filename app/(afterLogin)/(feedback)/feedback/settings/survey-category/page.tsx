@@ -17,7 +17,6 @@ const page = () => {
       searchParams?.category_description || '',
       searchParams?.createdBy || '',
     );
-  console.log('[ fastCategories]', categories);
   return (
     <div data-cy="survey-category-page" id="surveyCategoryPage">
       <div
