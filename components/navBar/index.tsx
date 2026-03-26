@@ -1388,7 +1388,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   className="w-full flex justify-center"
                 >
                   <Image
-                    src="/image/selamnew-workspace-logo.svg"
+                    src="/image/selamnew-workspace-logo-collapsed.svg"
                     alt="SelamNew Workspace Logo"
                     width={32}
                     height={32}
