@@ -871,11 +871,17 @@ const EmployeeProfile = () => {
                       'Settlement Item'}
                   </Text>
                   <Tag
-                    color={items.every((item: any) => item.isPaid === true) ? 'success' : undefined}
+                    color={
+                      items.every((item: any) => item.isPaid === true)
+                        ? 'success'
+                        : undefined
+                    }
                     style={{
                       borderRadius: '4px',
                       margin: 0,
-                      backgroundColor: items.every((item: any) => item.isPaid === true)
+                      backgroundColor: items.every(
+                        (item: any) => item.isPaid === true,
+                      )
                         ? undefined
                         : '#fffbe6',
                       border: items.every((item: any) => item.isPaid === true)

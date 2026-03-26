@@ -266,7 +266,11 @@ export default function MyPayroll() {
             title={
               <Text
                 strong
-                style={{ fontSize: '15px', color: 'rgba(0, 0, 0, 0.65)', fontWeight: 600 }}
+                style={{
+                  fontSize: '15px',
+                  color: 'rgba(0, 0, 0, 0.65)',
+                  fontWeight: 600,
+                }}
               >
                 Payroll Information
               </Text>
@@ -1174,11 +1178,17 @@ const SettlementView = ({ userId }: { userId: string }) => {
                     'Settlement Item'}
                 </Text>
                 <Tag
-                  color={items.every((item: any) => item.isPaid === true) ? 'success' : undefined}
+                  color={
+                    items.every((item: any) => item.isPaid === true)
+                      ? 'success'
+                      : undefined
+                  }
                   style={{
                     borderRadius: '4px',
                     margin: 0,
-                    backgroundColor: items.every((item: any) => item.isPaid === true)
+                    backgroundColor: items.every(
+                      (item: any) => item.isPaid === true,
+                    )
                       ? undefined
                       : '#fffbe6',
                     border: items.every((item: any) => item.isPaid === true)

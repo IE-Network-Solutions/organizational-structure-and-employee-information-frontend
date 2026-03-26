@@ -5,7 +5,8 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Col, Modal, Row, Select } from 'antd';
-import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
+import { MdOutlineFilterAlt } from 'react-icons/md';
 
 interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
@@ -100,19 +101,23 @@ const Filters: React.FC<FiltersProps> = () => {
           <Button
             id="payroll-mobile-filter-open-click-button"
             data-cy="payroll-mobile-filter-open-click-button"
-            className="flex items-center justify-center border border-gray-300 rounded-lg overflow-hidden"
+            className="flex items-center justify-center rounded-lg overflow-hidden"
             style={{
               height: '40px',
               width: '40px',
               minWidth: '40px',
               padding: 0,
+              backgroundColor: '#fff',
+              border: '1px solid #d9d9d9',
+              borderRadius: '10px',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06)',
             }}
             onClick={() => setIsModalOpen(true)}
             icon={
-              <FilterOutlined
-                style={{ fontSize: '18px', color: '#595959' }}
+              <MdOutlineFilterAlt
                 id="payroll-mobile-filter-open-click-icon"
                 data-cy="payroll-mobile-filter-open-click-icon"
+                style={{ fontSize: 22, color: '#374151', display: 'block' }}
               />
             }
           />
@@ -166,13 +171,25 @@ const Filters: React.FC<FiltersProps> = () => {
             <div
               id="payroll-mobile-filter-modal-footer-view-container"
               data-cy="payroll-mobile-filter-modal-footer-view-container"
-              style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '10px',
+              }}
             >
               <Button
                 id="payroll-mobile-filter-cancel-click-button"
                 data-cy="payroll-mobile-filter-cancel-click-button"
                 key="cancel"
                 onClick={() => setIsModalOpen(false)}
+                style={{
+                  height: '40px',
+                  padding: '0 24px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  color: '#595959',
+                  border: '1px solid #d9d9d9',
+                }}
               >
                 Cancel
               </Button>
@@ -182,7 +199,15 @@ const Filters: React.FC<FiltersProps> = () => {
                 data-cy="payroll-mobile-filter-apply-click-button"
                 type="primary"
                 onClick={() => setIsModalOpen(false)}
-                className="bg-purple-600"
+                style={{
+                  height: '40px',
+                  padding: '0 24px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  backgroundColor: '#1d39c4',
+                  border: 'none',
+                  fontWeight: 500,
+                }}
               >
                 Filter
               </Button>

@@ -4,12 +4,14 @@ import { CloseOutlined } from '@ant-design/icons';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import { useUpdateAllowance } from '@/store/server/features/payroll/employeeInformation/mutation';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
 const PayrollModal: React.FC = () => {
   const [form] = Form.useForm();
   const entitledAllowances = Form.useWatch('entitled_allowance', form);
+  const { isMobile } = useIsMobile();
 
   const {
     isDrawerVisible,
@@ -65,9 +67,9 @@ const PayrollModal: React.FC = () => {
       closeIcon={
         <CloseOutlined style={{ fontSize: '18px', color: '#8c8c8c' }} />
       }
-      width={600}
+      width={isMobile ? 'calc(100vw - 24px)' : 600}
       centered
-      bodyStyle={{ padding: '16px 24px' }}
+      bodyStyle={{ padding: isMobile ? '16px' : '16px 24px' }}
       data-cy="payroll-allowance-modal"
       title={
         <span
