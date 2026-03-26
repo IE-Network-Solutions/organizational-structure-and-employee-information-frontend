@@ -147,6 +147,7 @@ const BenefitTracking = () => {
       maskClosable
       zIndex={BENEFIT_TRACKING_MODAL_Z_INDEX}
       rootClassName="compensation-benefit-tracking-modal"
+      classNames={{ body: 'hide-scrollbar' }}
       data-cy="compensation-benefit-tracking-modal"
       styles={{
         body: {
