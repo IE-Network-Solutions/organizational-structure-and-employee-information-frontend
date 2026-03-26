@@ -33,6 +33,10 @@ const config: Config = {
         purple: '#8C62FF',
         light_purple: '#E7E7FF',
         lightblue: '#E6F4FF',
+        lightorange: '#FFFBE6',
+        orangebg: '#fe964a',
+        greenbg: '#52C41A',
+        greenlight: '#F6FFED',
       },
       fontFamily: {
         sans: ['Calibre', 'sans-serif'],

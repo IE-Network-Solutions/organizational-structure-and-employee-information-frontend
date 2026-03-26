@@ -1,9 +1,18 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Form, Input, Select, Modal, Tooltip, Row, Col, message } from 'antd';
+import {
+  Form,
+  Input,
+  Select,
+  Modal,
+  Tooltip,
+  Row,
+  Col,
+  message,
+  Button,
+} from 'antd';
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
-import CustomButton from '@/components/common/buttons/customButton';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useFetchVpScoringById,
@@ -252,27 +261,26 @@ const ScoringModal: React.FC = () => {
   };
 
   const footer = (
-    <div
-      className="flex justify-end gap-3 mt-4"
-      data-cy="okr-criteria-modal-footer"
-    >
-      <CustomButton
+    <div className="flex justify-end gap-3" data-cy="okr-criteria-modal-footer">
+      <Button
         type="default"
-        title="Cancel"
         onClick={handleModalClose}
-        className="h-10 px-6 rounded-lg"
+        className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
         id="okr-criteria-modal-cancel-button"
         data-cy="okr-criteria-modal-cancel-button"
-      />
-      <CustomButton
-        onClick={() => form.submit()}
-        title={currentId ? 'Update' : 'Create'}
+      >
+        Cancel
+      </Button>
+      <Button
         type="primary"
+        onClick={() => form.submit()}
         loading={isCreateLoading || isUpdatingLoading}
-        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2]"
+        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
         id="okr-criteria-modal-submit-button"
         data-cy="okr-criteria-modal-submit-button"
-      />
+      >
+        {currentId ? 'Update' : 'Create'}
+      </Button>
     </div>
   );
 
@@ -299,13 +307,14 @@ const ScoringModal: React.FC = () => {
           data-cy="okr-criteria-modal-close-icon"
         />
       }
+      className="okr-settings-modal"
       data-cy="okr-criteria-modal"
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
-        className="pt-4"
+        className=""
         id="okr-criteria-modal-form"
         data-cy="okr-criteria-modal-form"
       >
@@ -323,12 +332,6 @@ const ScoringModal: React.FC = () => {
                   >
                     Name configuration
                   </span>
-                  <span
-                    className="text-red-500"
-                    data-cy="okr-criteria-modal-name-required-indicator"
-                  >
-                    *
-                  </span>
                   <Tooltip title="Enter a name for this scoring configuration.">
                     <QuestionCircleOutlined
                       className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
@@ -338,6 +341,7 @@ const ScoringModal: React.FC = () => {
                 </div>
               }
               name="name"
+              required
               rules={[{ required: true, message: 'Please enter the name' }]}
               data-cy="okr-criteria-modal-name-field"
             >
@@ -362,12 +366,6 @@ const ScoringModal: React.FC = () => {
                   >
                     Total Percentage
                   </span>
-                  <span
-                    className="text-red-500"
-                    data-cy="okr-criteria-modal-percentage-required-indicator"
-                  >
-                    *
-                  </span>
                   <Tooltip title="Enter the total percentage (0-100).">
                     <QuestionCircleOutlined
                       className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
@@ -377,6 +375,7 @@ const ScoringModal: React.FC = () => {
                 </div>
               }
               name="totalPercentage"
+              required
               rules={[{ required: true, message: 'Please enter percentage' }]}
               data-cy="okr-criteria-modal-percentage-field"
             >
@@ -402,12 +401,6 @@ const ScoringModal: React.FC = () => {
               >
                 Department
               </span>
-              <span
-                className="text-red-500"
-                data-cy="okr-criteria-modal-department-required-indicator"
-              >
-                *
-              </span>
               <Tooltip title="Select departments to filter employees.">
                 <QuestionCircleOutlined
                   className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
@@ -418,6 +411,7 @@ const ScoringModal: React.FC = () => {
           }
           name="department"
           className="mb-2"
+          required
           data-cy="okr-criteria-modal-department-field"
         >
           <div
@@ -515,12 +509,6 @@ const ScoringModal: React.FC = () => {
                   >
                     Users
                   </span>
-                  <span
-                    className="text-red-500"
-                    data-cy="okr-criteria-modal-users-required-indicator"
-                  >
-                    *
-                  </span>
                   <Tooltip title="Select specific users for this configuration.">
                     <QuestionCircleOutlined
                       className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
@@ -531,6 +519,7 @@ const ScoringModal: React.FC = () => {
               }
               name="users"
               className="mb-2"
+              required
               rules={[{ required: true, message: 'Please select users' }]}
               data-cy="okr-criteria-modal-users-field"
             >
@@ -678,12 +667,6 @@ const ScoringModal: React.FC = () => {
               >
                 Chritaria
               </span>
-              <span
-                className="text-red-500"
-                data-cy="okr-criteria-modal-criteria-required-indicator"
-              >
-                *
-              </span>
               <Tooltip title="Select the criteria items.">
                 <QuestionCircleOutlined
                   className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
@@ -694,6 +677,7 @@ const ScoringModal: React.FC = () => {
           }
           name="criteria"
           className="mb-2"
+          required
           rules={[{ required: true, message: 'Please select criteria' }]}
           data-cy="okr-criteria-modal-criteria-field"
         >
@@ -865,6 +849,22 @@ const ScoringModal: React.FC = () => {
             .ant-select-item-option-selected
             .ant-select-item-option-state {
             color: #1890ff;
+          }
+          .okr-settings-modal .ant-modal-header {
+            padding: 20px 24px 16px 24px !important;
+            border-bottom: none !important;
+          }
+          .okr-settings-modal .ant-modal-body {
+            padding: 0px 24px 24px 24px !important;
+          }
+          .okr-settings-modal .ant-modal-footer {
+            padding: 8px 24px 24px 24px !important;
+            border-top: none !important;
+          }
+          .okr-settings-modal .ant-form-item-label > label {
+            height: auto !important;
+            line-height: 1.5 !important;
+            padding-bottom: 4px !important;
           }
         `}</style>
       </Form>

@@ -125,12 +125,20 @@ function isLeaf(dept: DepartmentUserTree): boolean {
  * Leaf or "all children are leaves" (vertical stack) → 1 column.
  * Otherwise → sum of children's column counts.
  */
-function getWidthCols(dept: DepartmentUserTree): number {
+function getWidthCols(
+  dept: DepartmentUserTree,
+  collapsedIds?: Set<string>,
+): number {
+  // If this department is collapsed, we treat it as a leaf for layout purposes.
+  if (collapsedIds?.has(dept.id)) return 1;
   const children = dept.department ?? [];
   if (children.length === 0) return 1;
   const allChildrenAreLeaves = children.every(isLeaf);
   if (allChildrenAreLeaves) return 1;
-  return children.reduce((sum, child) => sum + getWidthCols(child), 0);
+  return children.reduce(
+    (sum, child) => sum + getWidthCols(child, collapsedIds),
+    0,
+  );
 }
 
 interface PlacedNode {
@@ -174,9 +182,11 @@ function placeTree(
   connectors: HorizontalConnectorPlacement[],
   edges: Edge[],
   colorMap: Map<string, string>,
+  collapsedIds?: Set<string>,
 ): void {
   const nodeId = dept.id;
-  const children = dept.department ?? [];
+  const isCollapsed = !!collapsedIds?.has(nodeId);
+  const children = isCollapsed ? [] : (dept.department ?? []);
   const nodeColor = colorMap.get(nodeId) || '#cbd5e0';
 
   nodes.push({ id: nodeId, dept, x, y, level, isRoot });
@@ -231,7 +241,7 @@ function placeTree(
   }
 
   // Normal horizontal layout: one straight line under parent, then verticals to each child
-  const widths = children.map(getWidthCols);
+  const widths = children.map((c) => getWidthCols(c, collapsedIds));
   const totalCols = widths.reduce((sum, w) => sum + w, 0);
 
   // Left-most x position (centered under parent)
@@ -321,6 +331,7 @@ function placeTree(
       connectors,
       edges,
       colorMap,
+      collapsedIds,
     );
   }
 }
@@ -387,6 +398,7 @@ export function getDescendantIds(
  */
 export function buildFlowFromTree(
   root: DepartmentUserTree | null | undefined,
+  opts?: { collapsedDepartmentIds?: string[] | Set<string> },
 ): {
   nodes: (
     | Node<OrgNodeData>
@@ -410,7 +422,24 @@ export function buildFlowFromTree(
   const colorMap = new Map<string, string>();
   buildColorMap(root, colorMap);
 
-  placeTree(root, 0, 0, 0, true, placed, spines, connectors, edges, colorMap);
+  const collapsedIds =
+    opts?.collapsedDepartmentIds instanceof Set
+      ? opts.collapsedDepartmentIds
+      : new Set(opts?.collapsedDepartmentIds ?? []);
+
+  placeTree(
+    root,
+    0,
+    0,
+    0,
+    true,
+    placed,
+    spines,
+    connectors,
+    edges,
+    colorMap,
+    collapsedIds,
+  );
 
   // Debug aid: ensure no overlapping positions for development
   if (process.env.NODE_ENV === 'development') {

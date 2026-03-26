@@ -191,6 +191,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
         }
         .priority-item-row {
           transition: all 0.2s ease;
+          background-color: #f9fafb;
           border-bottom: 1px solid #f3f4f6;
         }
         .priority-item-row:last-child {
@@ -214,12 +215,12 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
         style={{ maxWidth: 'calc(100vw - 32px)' }}
         footer={
           <div
-            className="flex justify-end gap-2 md:gap-3 pt-4 md:pt-6 px-0 md:px-2"
+            className="flex justify-end gap-2 md:gap-3 pt-2 md:pt-3 px-0 md:px-2"
             data-cy="weekly-priority-modal-footer"
           >
             <Button
               onClick={handleClose}
-              className="h-[40px] md:h-[44px] px-4 md:px-8 text-[#374151] font-semibold border-gray-200 rounded-[10px] hover:text-[#111827] hover:border-gray-400 text-sm md:text-base"
+              className="h-[40px] px-5 text-[#4b5563] font-medium border-gray-200 rounded-[12px] hover:text-[#111827] hover:border-gray-400 text-[15px]"
               data-cy="weekly-priority-modal-cancel-button"
             >
               Cancel
@@ -229,7 +230,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
               disabled={checkedList.length === 0}
               onClick={handleAdd}
               loading={isLoadings}
-              className="bg-[#254ec2] hover:bg-[#1e40af] h-[40px] md:h-[44px] px-6 md:px-10 text-white font-semibold rounded-[10px] border-none shadow-sm text-sm md:text-base"
+              className="bg-[#254ec2] hover:bg-[#1e40af] h-[40px] px-8 text-white font-medium rounded-[12px] border-none shadow-sm text-[15px]"
               data-cy="weekly-priority-modal-submit-button"
             >
               {selectedTask == null ? 'Create' : 'Update'}
@@ -255,10 +256,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
           </div>
         }
       >
-        <div
-          className="mt-4 border-t border-gray-100 -mx-4 md:-mx-6"
-          data-cy="weekly-priority-modal-body"
-        >
+        <div className="mt-1" data-cy="weekly-priority-modal-body">
           {isLoading ? (
             <div
               className="py-24 flex justify-center"
@@ -268,7 +266,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
             </div>
           ) : priorities?.length > 0 ? (
             <div
-              className="max-h-[460px] overflow-y-auto scrollbar-none"
+              className="max-h-[460px] overflow-y-auto scrollbar-none border border-gray-100"
               data-cy="weekly-priority-modal-priorities-list"
             >
               {priorities?.map((priority) => {
