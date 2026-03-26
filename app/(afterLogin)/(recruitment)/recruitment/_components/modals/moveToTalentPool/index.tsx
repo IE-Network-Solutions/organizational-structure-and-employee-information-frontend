@@ -124,156 +124,198 @@ const MoveToTalentPool: React.FC = () => {
           data-cy="talent-acquisition-move-talent-pool-form"
           form={form}
           layout="vertical"
+          requiredMark={false}
+          className="[&_.ant-form-item]:mb-4 [&_.ant-form-item:last-of-type]:mb-0"
         >
           <div
             id="talent-acquisition-move-talent-pool-div-form-container"
             data-cy="talent-acquisition-move-talent-pool-div-form-container"
-            className="bg-white border border-[#D9D9D9] rounded-lg px-4 py-2"
+            className="bg-white border border-[#D9D9D9] rounded-lg -mx-8 sm:mx-0"
           >
-            <Form.Item
-              id="jobCandidateInformationId"
-              data-cy="talent-acquisition-move-talent-pool-form-item-candidates"
-              name="jobCandidateInformationId"
-              label={
-                <span
-                  data-cy="-components-modals-movetotalentpool-index-tsx-index-span-146"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Candidate{' '}
-                  <span
-                    className="text-red-500"
-                    aria-hidden
-                    data-cy="talent-acquisition-move-talent-pool-required-mark"
-                  >
-                    *
-                  </span>
-                </span>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select at least one candidate',
-                },
-              ]}
+            <div
+              className="px-3 sm:px-4 py-2"
+              data-cy="talent-acquisition-move-talent-pool-form-inner"
             >
-              <Select
-                id="talent-acquisition-move-talent-pool-select-candidates"
-                data-cy="talent-acquisition-move-talent-pool-select-candidates"
-                mode="multiple"
-                className="text-sm w-full min-h-10"
-                placeholder="select candidate"
-                value={(Array.isArray(selectedCandidate)
-                  ? selectedCandidate
-                  : []
-                ).map((item: any) => item.id)}
-                onChange={handleChange}
-                tagRender={({ label, closable, onClose }) => (
-                  <span
-                    id="talent-acquisition-move-talent-pool-div-candidate-option"
-                    data-cy="talent-acquisition-move-talent-pool-div-candidate-option"
-                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-gray-100 border border-gray-200 text-sm text-gray-800 mr-1 mb-1"
+              <Form.Item
+                id="jobCandidateInformationId"
+                data-cy="talent-acquisition-move-talent-pool-form-item-candidates"
+                name="jobCandidateInformationId"
+                label={
+                  <div
+                    className="flex items-center justify-between"
+                    data-cy="talent-acquisition-move-talent-pool-candidate-label"
                   >
                     <span
-                      data-cy="-components-modals-movetotalentpool-index-tsx-index-span-188"
-                      id="talent-acquisition-move-talent-pool-div-candidate-info"
+                      data-cy="talent-acquisition-move-talent-pool-candidate-label-text"
+                      className="text-sm font-medium text-gray-700"
                     >
-                      {label}
+                      Candidate
                     </span>
-                    {closable && (
-                      <CloseOutlined
-                        role="button"
-                        tabIndex={0}
-                        className="text-gray-400 hover:text-gray-600 cursor-pointer text-xs"
-                        onClick={onClose}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            onClose();
-                          }
-                        }}
-                      />
-                    )}
-                  </span>
-                )}
+                    <span
+                      className="text-red-500"
+                      aria-hidden
+                      data-cy="talent-acquisition-move-talent-pool-candidate-required"
+                    >
+                      *
+                    </span>
+                  </div>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select at least one candidate',
+                  },
+                ]}
               >
-                {(Array.isArray(selectedCandidate)
-                  ? selectedCandidate
-                  : []
-                ).map((item: any) => (
-                  <Option
-                    key={item.id}
-                    value={item.id}
-                    id={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
-                    data-cy={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
-                  >
-                    {item.fullName}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
+                <Select
+                  id="talent-acquisition-move-talent-pool-select-candidates"
+                  data-cy="talent-acquisition-move-talent-pool-select-candidates"
+                  mode="multiple"
+                  size="large"
+                  className="w-full"
+                  placeholder="select candidate"
+                  popupClassName="org-structure-branch-select-dropdown"
+                  value={(Array.isArray(selectedCandidate)
+                    ? selectedCandidate
+                    : []
+                  ).map((item: any) => item.id)}
+                  onChange={handleChange}
+                  tagRender={({ label, closable, onClose }) => (
+                    <span
+                      id="talent-acquisition-move-talent-pool-div-candidate-option"
+                      data-cy="talent-acquisition-move-talent-pool-div-candidate-option"
+                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-gray-100 border border-gray-200 text-sm text-gray-800 mr-1 mb-1"
+                    >
+                      <span
+                        data-cy="-components-modals-movetotalentpool-index-tsx-index-span-188"
+                        id="talent-acquisition-move-talent-pool-div-candidate-info"
+                      >
+                        {label}
+                      </span>
+                      {closable && (
+                        <CloseOutlined
+                          role="button"
+                          tabIndex={0}
+                          className="text-gray-400 hover:text-gray-600 cursor-pointer text-xs"
+                          onClick={onClose}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              onClose();
+                            }
+                          }}
+                        />
+                      )}
+                    </span>
+                  )}
+                >
+                  {(Array.isArray(selectedCandidate)
+                    ? selectedCandidate
+                    : []
+                  ).map((item: any) => (
+                    <Option
+                      key={item.id}
+                      value={item.id}
+                      id={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
+                      data-cy={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
+                    >
+                      {item.fullName}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
 
-            <Form.Item
-              id="talentPoolCategoryId"
-              data-cy="talent-acquisition-move-talent-pool-form-item-category"
-              name="talentPoolCategoryId"
-              label={
-                <span
-                  data-cy="-components-modals-movetotalentpool-index-tsx-index-span-237"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Talent Pool Category
-                </span>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select talent pool category',
-                },
-              ]}
-            >
-              <Select
-                id="talent-acquisition-move-talent-pool-select-category"
-                data-cy="talent-acquisition-move-talent-pool-select-category"
-                className="text-sm w-full h-10"
-                placeholder="Select talent pool category"
-              >
-                {talentPool?.items?.map((item: any) => (
-                  <Option
-                    key={item?.id}
-                    value={item?.id}
-                    id={`talent-acquisition-move-talent-pool-option-category-${item?.id}`}
-                    data-cy={`talent-acquisition-move-talent-pool-option-category-${item?.id}`}
+              <Form.Item
+                id="talentPoolCategoryId"
+                data-cy="talent-acquisition-move-talent-pool-form-item-category"
+                name="talentPoolCategoryId"
+                label={
+                  <div
+                    className="flex items-center justify-between"
+                    data-cy="talent-acquisition-move-talent-pool-category-label"
                   >
-                    {item?.title}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              id="reason"
-              data-cy="talent-acquisition-move-talent-pool-form-item-reason"
-              name="reason"
-              label={
-                <span
-                  data-cy="-components-modals-movetotalentpool-index-tsx-index-span-271"
-                  className="text-sm font-medium text-gray-700"
+                    <span
+                      data-cy="talent-acquisition-move-talent-pool-category-label-text"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Talent Pool Category
+                    </span>
+                    <span
+                      className="text-red-500"
+                      aria-hidden
+                      data-cy="talent-acquisition-move-talent-pool-category-required"
+                    >
+                      *
+                    </span>
+                  </div>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select talent pool category',
+                  },
+                ]}
+              >
+                <Select
+                  id="talent-acquisition-move-talent-pool-select-category"
+                  data-cy="talent-acquisition-move-talent-pool-select-category"
+                  size="large"
+                  className="w-full"
+                  placeholder="Select talent pool category"
+                  popupClassName="org-structure-branch-select-dropdown"
                 >
-                  Reason
-                </span>
-              }
-              rules={[{ required: true, message: 'Please input your reason' }]}
-            >
-              <TextArea
-                id="talent-acquisition-move-talent-pool-textarea-reason"
-                data-cy="talent-acquisition-move-talent-pool-textarea-reason"
-                rows={3}
-                placeholder="Please provide your reason for moving to the talent pool."
-                className="text-sm"
-              />
-            </Form.Item>
+                  {talentPool?.items?.map((item: any) => (
+                    <Option
+                      key={item?.id}
+                      value={item?.id}
+                      id={`talent-acquisition-move-talent-pool-option-category-${item?.id}`}
+                      data-cy={`talent-acquisition-move-talent-pool-option-category-${item?.id}`}
+                    >
+                      {item?.title}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                id="reason"
+                data-cy="talent-acquisition-move-talent-pool-form-item-reason"
+                name="reason"
+                label={
+                  <div
+                    className="flex items-center justify-between"
+                    data-cy="talent-acquisition-move-talent-pool-reason-label"
+                  >
+                    <span
+                      data-cy="talent-acquisition-move-talent-pool-reason-label-text"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Reason
+                    </span>
+                    <span
+                      className="text-red-500"
+                      aria-hidden
+                      data-cy="talent-acquisition-move-talent-pool-reason-required"
+                    >
+                      *
+                    </span>
+                  </div>
+                }
+                rules={[
+                  { required: true, message: 'Please input your reason' },
+                ]}
+              >
+                <TextArea
+                  id="talent-acquisition-move-talent-pool-textarea-reason"
+                  data-cy="talent-acquisition-move-talent-pool-textarea-reason"
+                  rows={3}
+                  placeholder="Please provide your reason for moving to the talent pool."
+                  className="text-sm"
+                />
+              </Form.Item>
+            </div>
           </div>
 
-          <Form.Item>
+          <Form.Item style={{ marginBottom: 0 }}>
             <div
               id="talent-acquisition-move-talent-pool-div-footer"
               data-cy="talent-acquisition-move-talent-pool-div-footer"

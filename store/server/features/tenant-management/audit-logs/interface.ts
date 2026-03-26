@@ -19,5 +19,7 @@ export interface AggregateAuditLogParams {
   orderDirection?: 'ASC' | 'DESC';
   action?: string;
   performedBy?: string;
+  startDate?: string;
+  endDate?: string;
   entityType?: string;
 }

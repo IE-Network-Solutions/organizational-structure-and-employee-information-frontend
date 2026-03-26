@@ -6,7 +6,7 @@ import {
   CandidateData,
   useCandidateState,
 } from '@/store/uistate/features/recruitment/candidate';
-import { Dropdown, Table, TableColumnsType, Tag } from 'antd';
+import { Dropdown, Skeleton, Table, TableColumnsType, Tag, theme } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { EyeOutlined } from '@ant-design/icons';
@@ -28,6 +28,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useRouter } from 'next/navigation';
 
 const AllCandidateTable: React.FC = () => {
+  const { token } = theme.useToken();
   const router = useRouter();
   const rowActionButtonRefs = React.useRef<
     Record<string, HTMLButtonElement | null>
@@ -56,8 +57,11 @@ const AllCandidateTable: React.FC = () => {
     {
       title: (
         <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
           data-cy="talent-acquisition-candidate-column-title-name"
         >
           Name
@@ -65,7 +69,6 @@ const AllCandidateTable: React.FC = () => {
       ),
       dataIndex: 'candidateName',
       key: 'candidateName',
-      sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
       render: (text: string) => (
         <div
           className="text-sm text-gray-700"
@@ -78,11 +81,14 @@ const AllCandidateTable: React.FC = () => {
     {
       title: (
         <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
           data-cy="talent-acquisition-candidate-column-title-phone"
         >
-          Phone Number
+          Phone
         </span>
       ),
       dataIndex: 'phoneNumber',
@@ -100,8 +106,11 @@ const AllCandidateTable: React.FC = () => {
     {
       title: (
         <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
           data-cy="talent-acquisition-candidate-column-title-cgpa"
         >
           CGPA
@@ -109,7 +118,6 @@ const AllCandidateTable: React.FC = () => {
       ),
       dataIndex: 'cgpa',
       key: 'cgpa',
-      sorter: (a: any, b: any) => a.cgpa - b.cgpa,
       render: (text: string | number) => (
         <div
           className="text-sm text-gray-700"
@@ -122,8 +130,11 @@ const AllCandidateTable: React.FC = () => {
     {
       title: (
         <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
           data-cy="talent-acquisition-candidate-column-title-cv"
         >
           CV
@@ -135,8 +146,11 @@ const AllCandidateTable: React.FC = () => {
     {
       title: (
         <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
           data-cy="talent-acquisition-candidate-column-title-created"
         >
           Applied/ Created Date
@@ -156,8 +170,11 @@ const AllCandidateTable: React.FC = () => {
     {
       title: (
         <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
           data-cy="talent-acquisition-candidate-column-title-email"
         >
           Email
@@ -169,8 +186,11 @@ const AllCandidateTable: React.FC = () => {
     {
       title: (
         <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
           data-cy="talent-acquisition-candidate-column-title-stages"
         >
           Stages
@@ -182,8 +202,11 @@ const AllCandidateTable: React.FC = () => {
     {
       title: (
         <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
+          style={{
+            fontWeight: 600,
+            fontSize: token.fontSize,
+            color: 'inherit',
+          }}
           data-cy="talent-acquisition-candidate-column-title-action"
         >
           Action
@@ -260,6 +283,26 @@ const AllCandidateTable: React.FC = () => {
     }
   };
 
+  if (isResponseLoading) {
+    return (
+      <div
+        className="space-y-3"
+        data-cy="talent-acquisition-candidate-table-skeleton"
+      >
+        <Skeleton
+          active
+          title={false}
+          paragraph={{ rows: isMobile || isTablet ? 5 : 3 }}
+        />
+        <Skeleton
+          active
+          title={false}
+          paragraph={{ rows: isMobile || isTablet ? 6 : 4 }}
+        />
+      </div>
+    );
+  }
+
   const data = candidateList?.items?.map((item: any, index: any) => {
     const editDeleteItems = [
       {
@@ -334,7 +377,16 @@ const AllCandidateTable: React.FC = () => {
             data-cy={`talent-acquisition-candidate-table-link-email-${item?.id}`}
             href={item?.email ? `mailto:${item.email}` : undefined}
             title={item?.email ?? ''}
-            className="text-primary hover:text-[#4096FF] transition-colors text-sm break-all"
+            className="transition-colors text-sm break-all"
+            style={{ color: token.colorPrimary }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.color =
+                token.colorPrimaryHover;
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.color =
+                token.colorPrimary;
+            }}
           >
             {item?.email ?? '--'}
           </a>
@@ -366,10 +418,10 @@ const AllCandidateTable: React.FC = () => {
               data-cy={`talent-acquisition-candidate-table-tag-stage-${item?.id}`}
               className="inline-flex items-center justify-center cursor-pointer border border-solid transition-colors px-3 py-0.5 text-xs font-normal"
               style={{
-                borderRadius: 6,
+                borderRadius: 4,
                 backgroundColor: '#E6F0FF',
                 color: '#1677FF',
-                borderColor: '#B3CCFF',
+                borderColor: '#91CAFF',
               }}
             >
               {item?.jobCandidate?.[0]?.applicantStatusStage?.title ?? '--'}
@@ -400,7 +452,7 @@ const AllCandidateTable: React.FC = () => {
               }}
               type="button"
               disabled={item?.deletedAt !== null}
-              className="cursor-pointer text-gray-500 hover:text-gray-700 px-0.5 py-0.5 border border-gray-300 rounded-md bg-white flex items-center justify-center hover:border-[#4096FF] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="cursor-pointer text-gray-500 hover:text-gray-700 w-6 h-6 border border-gray-300 rounded-[4px] bg-white flex items-center justify-center hover:border-[#4096FF] disabled:opacity-50 disabled:cursor-not-allowed"
               data-cy={`talent-acquisition-candidate-table-action-${item?.id}`}
               id={`talent-acquisition-candidate-table-action-${item?.id}`}
             >
@@ -416,11 +468,8 @@ const AllCandidateTable: React.FC = () => {
     selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
       setSelectedRowKeys(newSelectedRowKeys);
-      setSelectedCandidate(
-        candidateList?.items?.filter((item: CandidateData) =>
-          selectedRows.some((row: CandidateData) => row.id === item.id),
-        ) || [],
-      );
+      // Use selectedRows directly to avoid filtering the full list on every click.
+      setSelectedCandidate((selectedRows as CandidateData[]) ?? []);
     },
   };
 
@@ -441,7 +490,7 @@ const AllCandidateTable: React.FC = () => {
         <Table
           id="talent-acquisition-candidate-table-table"
           data-cy="talent-acquisition-candidate-table-table"
-          className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table-tbody_.ant-table-row]:cursor-pointer"
+          className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table-thead_.ant-table-cell]:px-4 [&_.ant-table-thead_.ant-table-cell]:text-[14px] [&_.ant-table-tbody_.ant-table-cell]:px-4 [&_.ant-table-tbody_.ant-table-row]:cursor-pointer [&_.ant-table-row.ant-table-row-selected>td]:!bg-white [&_.ant-table-row.ant-table-row-selected:hover>td]:!bg-white [&_.ant-table-tbody>tr.ant-table-row:nth-child(odd)>td]:bg-[#FAFAFA] [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!border-gray-300 [&_.ant-checkbox:hover_.ant-checkbox-inner]:!border-gray-300 [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!shadow-none [&_.ant-checkbox:hover_.ant-checkbox-inner]:!shadow-none [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!bg-white"
           rowClassName={() => 'h-[60px]'}
           columns={columns}
           dataSource={data}
@@ -454,6 +503,8 @@ const AllCandidateTable: React.FC = () => {
               const target = e.target as HTMLElement;
               if (
                 record?.id &&
+                !target.closest('.ant-checkbox') &&
+                !target.closest('.ant-checkbox-wrapper') &&
                 !target.closest('button') &&
                 !target.closest('.ant-dropdown')
               ) {
