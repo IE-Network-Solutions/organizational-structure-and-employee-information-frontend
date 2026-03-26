@@ -289,8 +289,8 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 border-bottom: none !important;
               }
               .okr-settings-modal .ant-modal-body {
-            padding: 0px 24px 24px 24px !important;
-          }
+                padding: 0px 24px 24px 24px !important;
+              }
               .okr-settings-modal .ant-modal-footer {
                 padding: 8px 24px 24px 24px !important;
                 border-top: none !important;
@@ -442,7 +442,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                   className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
                   onClick={() => {
                     const newPeriods = planningPeriods.filter(
-                      (pid: string) => pid !== id
+                      (pid: string) => pid !== id,
                     );
                     form.setFieldsValue({ planningPeriods: newPeriods });
                   }}
