@@ -22,6 +22,10 @@ export interface EmployeeSurveyState {
   setCurrentPage: (currentPage: number) => void;
   survey: SurveyObject;
   setSurvey: (survey: SurveyObject) => void;
+  openSurveyCategoryModal: boolean;
+  setOpenSurveyCategoryModal: (openSurveyCategoryModal: boolean) => void;
+  surveyCategoryEditId: string | null;
+  setSurveyCategoryEditId: (surveyCategoryEditId: string | null) => void;
 }
 
 export const EmployeeSurveyStore = create<EmployeeSurveyState>((set) => ({
@@ -41,4 +45,10 @@ export const EmployeeSurveyStore = create<EmployeeSurveyState>((set) => ({
   setCurrentPage: (currentPage) => set({ currentPage }),
   survey: { userId: '', score: '', monthId: '', id: '' },
   setSurvey: (survey) => set({ survey }),
+  openSurveyCategoryModal: false,
+  setOpenSurveyCategoryModal: (openSurveyCategoryModal) =>
+    set({ openSurveyCategoryModal }),
+  surveyCategoryEditId: null,
+  setSurveyCategoryEditId: (surveyCategoryEditId) =>
+    set({ surveyCategoryEditId }),
 }));

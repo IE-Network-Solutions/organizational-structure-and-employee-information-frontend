@@ -55,7 +55,10 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   } = ConversationStore();
   const { setOpenEmployeeSurvey } = EmployeeSurveyStore();
   const { variantType } = ConversationStore();
-  const { setOpen: setMeetingTypeDrawerOpen, setMeetingType } = useMeetingStore();
+  const { setOpenSurveyCategoryModal, setSurveyCategoryEditId } =
+    EmployeeSurveyStore();
+  const { setOpen: setMeetingTypeDrawerOpen, setMeetingType } =
+    useMeetingStore();
   const [categoryForm] = Form.useForm();
   const isRecognitionDetailRoute =
     pathname?.includes('/feedback/settings/recognition/') &&
@@ -63,6 +66,9 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const isMeetingTypeDetailRoute =
     pathname?.includes('/feedback/settings/define-meeting-type/') &&
     !pathname?.endsWith('/feedback/settings/define-meeting-type');
+  const isSurveyCategoryDetailRoute =
+    pathname?.includes('/feedback/settings/survey-category/') &&
+    !pathname?.endsWith('/feedback/settings/survey-category');
 
   const { data: categoryById, isLoading: isCategoryLoading } =
     useGetRecognitionTypeById(
@@ -98,6 +104,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     if (pathname.includes('/recognition')) return 'recognition';
     if (pathname.includes('/target-achievement')) return 'targetAchievement';
     if (pathname.includes('/define-meeting-type')) return 'meetingType';
+    if (pathname.includes('/survey-category')) return 'surveyCategory';
     return 'defineFeedback';
   };
 
@@ -114,6 +121,9 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         break;
       case 'meetingType':
         router.push('/feedback/settings/define-meeting-type');
+        break;
+      case 'surveyCategory':
+        router.push('/feedback/settings/survey-category');
         break;
       default:
         router.push('/feedback/settings/define-feedback');
@@ -136,6 +146,10 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     {
       key: 'meetingType',
       label: 'Meeting Type',
+    },
+    {
+      key: 'surveyCategory',
+      label: 'Survey Category',
     },
   ];
 
@@ -267,6 +281,27 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                       id="org-settings-branches-add-btn"
                     >
                       {!isMobile && 'Meeting Type'}
+                    </Button>
+                  )
+                ) : getActiveKey() === 'surveyCategory' ? (
+                  !isSurveyCategoryDetailRoute && (
+                    <Button
+                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      icon={
+                        <FaPlus
+                          data-cy="org-settings-branches-add-btn-icon"
+                          id="org-settings-branches-add-btn-icon"
+                        />
+                      }
+                      type="primary"
+                      onClick={() => {
+                        setSurveyCategoryEditId('');
+                        setOpenSurveyCategoryModal(true);
+                      }}
+                      data-cy="org-settings-branches-add-btn"
+                      id="org-settings-branches-add-btn"
+                    >
+                      {!isMobile && 'Survey Category'}
                     </Button>
                   )
                 ) : null
