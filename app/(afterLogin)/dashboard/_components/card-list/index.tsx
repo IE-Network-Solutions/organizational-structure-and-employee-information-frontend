@@ -1,6 +1,6 @@
 // components/CardList.tsx
 import { FC, useEffect, useRef, useState } from 'react';
-import { Avatar, Button, Card, Carousel } from 'antd';
+import { Avatar, Button, Card, Carousel, Skeleton } from 'antd';
 import type { CarouselRef } from 'antd/es/carousel';
 import { UserOutlined } from '@ant-design/icons';
 import {
@@ -27,6 +27,42 @@ interface CardListProps {
   loading: boolean;
   type: string;
 }
+
+const CardListSkeleton: FC = () => (
+  <>
+    <div
+      className="flex items-center justify-between px-4 pt-3 pb-1"
+      data-cy="dashboard-card-list-skeleton-header"
+    >
+      <div
+        className="flex items-center gap-2"
+        data-cy="dashboard-card-list-skeleton-header-left"
+      >
+        <Skeleton.Avatar
+          active
+          shape="square"
+          size={34}
+          className="!rounded-sm"
+        />
+        <Skeleton.Input active size="small" className="!h-4 !w-28 !min-w-0" />
+      </div>
+      <Skeleton.Input active size="small" className="!h-5 !w-8 !min-w-0" />
+    </div>
+    <div
+      className="flex-1 px-4 pb-2 flex items-center justify-center relative min-h-0 max-w-[260px] md:max-w-none"
+      data-cy="dashboard-card-list-skeleton-body"
+    >
+      <div
+        className="w-full flex flex-col items-center gap-2 py-0.5"
+        data-cy="dashboard-card-list-skeleton-body-content"
+      >
+        <Skeleton.Avatar active size={44} />
+        <Skeleton.Input active size="small" className="!h-4 !w-24 !min-w-0" />
+        <Skeleton.Input active size="small" className="!h-3 !w-32 !min-w-0" />
+      </div>
+    </div>
+  </>
+);
 
 const PersonSlide: FC<{ person: CardPerson; slideIndex: number }> = ({
   person,
@@ -136,104 +172,112 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
     <Card
       bordered={false}
       bodyStyle={{ padding: 0 }}
-      loading={loading}
-      className="bg-white rounded-lg border border-[#E5E7EB] shadow-none min-h-[150px] h-auto sm:h-[150px] flex flex-col"
+      className="p-3 bg-white rounded-lg border border-[#E5E7EB] shadow-none min-h-[150px] h-auto sm:h-[150px] flex flex-col"
       data-cy="dashboard-card-list-container"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className="flex items-center justify-between px-4 pt-3 pb-1"
-        data-cy="dashboard-card-list-title"
-      >
-        <div
-          className="flex items-center gap-2"
-          data-cy="dashboard-card-list-title-left"
-        >
-          <span
-            className={`inline-flex items-center justify-center w-7 h-7 rounded-sm text-lg ${bg} ${text}`}
-            data-cy="dashboard-card-list-title-emoji"
-          >
-            {icon}
-          </span>
-          <span
-            className="text-sm font-semibold text-gray-900"
-            data-cy="dashboard-card-list-title-text"
-          >
-            {title}
-          </span>
-        </div>
-        <span
-          className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700"
-          data-cy="dashboard-card-list-count-tag"
-        >
-          {people?.length || 0}
-        </span>
-      </div>
-
-      <div
-        className="flex-1 px-4 pb-2 flex items-center justify-center relative min-h-0 max-w-[260px] md:max-w-none"
-        data-cy="dashboard-card-list-content"
-      >
-        {totalCards > 0 ? (
+      {loading ? (
+        <CardListSkeleton />
+      ) : (
+        <>
           <div
-            className="w-full relative dashboard-card-list-carousel touch-pan-x"
-            data-cy="dashboard-card-list-cards"
+            className="flex items-center justify-between pb-2"
+            data-cy="dashboard-card-list-title"
           >
-            {showNavButtons && (
-              <>
-                <Button
-                  htmlType="button"
-                  onClick={handlePrevious}
-                  icon={
-                    <MdKeyboardArrowLeft data-cy="dashboard-card-list-previous-icon" />
-                  }
-                  disabled={currentSlide === 0}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-sm w-8 h-8 min-w-8 min-h-8 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary touch-manipulation"
-                  data-cy="dashboard-card-list-previous-button"
-                />
-                <Button
-                  htmlType="button"
-                  onClick={handleNext}
-                  icon={
-                    <MdKeyboardArrowRight data-cy="dashboard-card-list-next-icon" />
-                  }
-                  disabled={currentSlide >= maxIndex}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-sm w-8 h-8 min-w-8 min-h-8 rounded-md flex items-center justify-center border border-gray-200 hover:border-primary touch-manipulation"
-                  data-cy="dashboard-card-list-next-button"
-                />
-              </>
-            )}
-
-            <Carousel
-              ref={carouselRef}
-              infinite={false}
-              dots={totalCards > 1}
-              dotPosition="bottom"
-              speed={450}
-              draggable
-              afterChange={setCurrentSlide}
-              rootClassName="dashboard-card-list-ant-carousel"
-              className={`[&_.slick-dots]:!-bottom-3 [&_.slick-dots_li_button]:!h-1.5 [&_.slick-dots_li_button]:!w-1.5 [&_.slick-dots_li.slick-active_button]:!w-2 ${totalCards > 1 ? '[&_.slick-slide]:!px-7' : ''}`}
+            <div
+              className="flex items-center gap-2"
+              data-cy="dashboard-card-list-title-left"
             >
-              {people.map((person, index) => (
-                <div key={index} data-cy={`dashboard-card-list-slide-${index}`}>
-                  <PersonSlide person={person} slideIndex={index} />
-                </div>
-              ))}
-            </Carousel>
-          </div>
-        ) : (
-          <div
-            className="text-sm font-light flex min-h-20 justify-center items-center"
-            data-cy="dashboard-card-list-empty"
-          >
-            <span data-cy="dashboard-card-list-empty-text">
-              No {type} today
+              <span
+                className={`inline-flex items-center justify-center w-7 h-7 rounded-sm text-lg ${bg} ${text}`}
+                data-cy="dashboard-card-list-title-emoji"
+              >
+                {icon}
+              </span>
+              <span
+                className="text-sm font-semibold text-gray-900"
+                data-cy="dashboard-card-list-title-text"
+              >
+                {title}
+              </span>
+            </div>
+            <span
+              className="inline-flex justify-center items-center w-[22px] h-[22px] border border-gray-200 rounded-[4px] text-xs font-normal bg-gray-100/40 text-black"
+              data-cy="dashboard-card-list-count-tag"
+            >
+              {people?.length || 0}
             </span>
           </div>
-        )}
-      </div>
+
+          <div
+            className="flex-1  pb-2 flex items-center justify-center relative min-h-0 max-w-[260px] md:max-w-none"
+            data-cy="dashboard-card-list-content"
+          >
+            {totalCards > 0 ? (
+              <div
+                className="w-full relative dashboard-card-list-carousel touch-pan-x"
+                data-cy="dashboard-card-list-cards"
+              >
+                {showNavButtons && (
+                  <>
+                    <Button
+                      htmlType="button"
+                      onClick={handlePrevious}
+                      icon={
+                        <MdKeyboardArrowLeft data-cy="dashboard-card-list-previous-icon" />
+                      }
+                      disabled={currentSlide === 0}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-sm w-8 h-8 min-w-8 min-h-8 rounded-md flex items-center justify-center border border-gray-200 hover:border-[#E6F7FF] touch-manipulation"
+                      data-cy="dashboard-card-list-previous-button"
+                    />
+                    <Button
+                      htmlType="button"
+                      onClick={handleNext}
+                      icon={
+                        <MdKeyboardArrowRight data-cy="dashboard-card-list-next-icon" />
+                      }
+                      disabled={currentSlide >= maxIndex}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-sm w-8 h-8 min-w-8 min-h-8 rounded-md flex items-center justify-center border border-gray-200 hover:border-[#E6F7FF] touch-manipulation"
+                      data-cy="dashboard-card-list-next-button"
+                    />
+                  </>
+                )}
+
+                <Carousel
+                  ref={carouselRef}
+                  infinite={false}
+                  dots={totalCards > 1}
+                  dotPosition="bottom"
+                  speed={450}
+                  draggable
+                  afterChange={setCurrentSlide}
+                  rootClassName="dashboard-card-list-ant-carousel"
+                  className={`[&_.slick-dots]:!-bottom-3 [&_.slick-dots_li_button]:!h-1.5 [&_.slick-dots_li_button]:!w-1.5 [&_.slick-dots_li.slick-active_button]:!w-2 ${totalCards > 1 ? '[&_.slick-slide]:!px-7' : ''}`}
+                >
+                  {people.map((person, index) => (
+                    <div
+                      key={index}
+                      data-cy={`dashboard-card-list-slide-${index}`}
+                    >
+                      <PersonSlide person={person} slideIndex={index} />
+                    </div>
+                  ))}
+                </Carousel>
+              </div>
+            ) : (
+              <div
+                className="text-sm font-light flex min-h-20 justify-center items-center"
+                data-cy="dashboard-card-list-empty"
+              >
+                <span data-cy="dashboard-card-list-empty-text">
+                  No {type} today
+                </span>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </Card>
   );
 };
