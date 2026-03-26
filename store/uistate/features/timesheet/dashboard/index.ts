@@ -1,6 +1,42 @@
 import { create } from 'zustand';
 
 export interface TimeAndAttendanceDashboardUseState {
+  todaysAttendancePeriod: 'Day' | 'Month' | 'Year' | 'Custom' | null;
+  setTodaysAttendancePeriod: (
+    todaysAttendancePeriod: 'Day' | 'Month' | 'Year' | 'Custom' | null,
+  ) => void;
+  todaysAttendanceSelectedChip: string | null;
+  setTodaysAttendanceSelectedChip: (
+    todaysAttendanceSelectedChip: string | null,
+  ) => void;
+  todaysAttendanceDisplayPeriod: 'Day' | 'Month' | 'Year' | 'Custom' | null;
+  setTodaysAttendanceDisplayPeriod: (
+    todaysAttendanceDisplayPeriod: 'Day' | 'Month' | 'Year' | 'Custom' | null,
+  ) => void;
+  todaysAttendanceChipsAnim: 'in' | 'out';
+  setTodaysAttendanceChipsAnim: (
+    todaysAttendanceChipsAnim: 'in' | 'out',
+  ) => void;
+  hireResignationTrendRange: [string, string] | null;
+  setHireResignationTrendRange: (
+    hireResignationTrendRange: [string, string] | null,
+  ) => void;
+  hireResignationTrendIsMobile: boolean;
+  setHireResignationTrendIsMobile: (
+    hireResignationTrendIsMobile: boolean,
+  ) => void;
+  leaveChartPeriod: 'Day' | 'Month' | 'Year' | 'Custom' | null;
+  setLeaveChartPeriod: (
+    leaveChartPeriod: 'Day' | 'Month' | 'Year' | 'Custom' | null,
+  ) => void;
+  leaveChartSelectedChip: string | null;
+  setLeaveChartSelectedChip: (leaveChartSelectedChip: string | null) => void;
+  leaveChartDisplayPeriod: 'Day' | 'Month' | 'Year' | 'Custom' | null;
+  setLeaveChartDisplayPeriod: (
+    leaveChartDisplayPeriod: 'Day' | 'Month' | 'Year' | 'Custom' | null,
+  ) => void;
+  leaveChartChipsAnim: 'in' | 'out';
+  setLeaveChartChipsAnim: (leaveChartChipsAnim: 'in' | 'out') => void;
   activeTab: string;
   setActiveTab: (activeTab: string) => void;
   startDate: string;
@@ -66,6 +102,35 @@ export interface TimeAndAttendanceDashboardUseState {
 
 export const TimeAndAttendaceDashboardStore =
   create<TimeAndAttendanceDashboardUseState>((set) => ({
+    todaysAttendancePeriod: null,
+    setTodaysAttendancePeriod: (todaysAttendancePeriod) =>
+      set({ todaysAttendancePeriod }),
+    todaysAttendanceSelectedChip: null,
+    setTodaysAttendanceSelectedChip: (todaysAttendanceSelectedChip) =>
+      set({ todaysAttendanceSelectedChip }),
+    todaysAttendanceDisplayPeriod: null,
+    setTodaysAttendanceDisplayPeriod: (todaysAttendanceDisplayPeriod) =>
+      set({ todaysAttendanceDisplayPeriod }),
+    todaysAttendanceChipsAnim: 'in',
+    setTodaysAttendanceChipsAnim: (todaysAttendanceChipsAnim) =>
+      set({ todaysAttendanceChipsAnim }),
+    hireResignationTrendRange: null,
+    setHireResignationTrendRange: (hireResignationTrendRange) =>
+      set({ hireResignationTrendRange }),
+    hireResignationTrendIsMobile: false,
+    setHireResignationTrendIsMobile: (hireResignationTrendIsMobile) =>
+      set({ hireResignationTrendIsMobile }),
+    leaveChartPeriod: null,
+    setLeaveChartPeriod: (leaveChartPeriod) => set({ leaveChartPeriod }),
+    leaveChartSelectedChip: null,
+    setLeaveChartSelectedChip: (leaveChartSelectedChip) =>
+      set({ leaveChartSelectedChip }),
+    leaveChartDisplayPeriod: null,
+    setLeaveChartDisplayPeriod: (leaveChartDisplayPeriod) =>
+      set({ leaveChartDisplayPeriod }),
+    leaveChartChipsAnim: 'in',
+    setLeaveChartChipsAnim: (leaveChartChipsAnim) =>
+      set({ leaveChartChipsAnim }),
     activeTab: 'admin',
     setActiveTab: (activeTab: string) => set({ activeTab }),
     startDate: '',
