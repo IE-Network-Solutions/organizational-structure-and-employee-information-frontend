@@ -1,13 +1,11 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Table, Select, Tag, Avatar, Row, Col, Popover, Button, DatePicker } from 'antd';
+import { Table, Select, Tag, Avatar, Popover, Button, DatePicker } from 'antd';
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
-  FilterOutlined,
   SearchOutlined,
-  CloseOutlined,
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -20,7 +18,7 @@ import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import dayjs, { Dayjs } from 'dayjs';
 import { UserOutlined } from '@ant-design/icons';
-import { MdFilterAlt } from 'react-icons/md';
+import { MdOutlineFilterAlt } from 'react-icons/md';
 
 const { Option } = Select;
 
@@ -85,7 +83,9 @@ const AuditLogPage = () => {
     true,
   );
 
-  const auditLogsData = auditLogsResponse?.items || [];
+  const auditLogsData = useMemo(() => {
+    return auditLogsResponse?.items ?? [];
+  }, [auditLogsResponse]);
   const totalItems = auditLogsResponse?.meta?.totalItems || 0;
 
   const actions = useMemo(() => {
@@ -139,8 +139,14 @@ const AuditLogPage = () => {
       title: 'Log ID',
       dataIndex: 'id',
       key: 'id',
-      render: (id: string) => (
-        <span className="text-sm">{id || 'N/A'}</span>
+      render: (id: string, record: AuditLog) => (
+        <span
+          className="text-sm"
+          data-cy={`audit-log-id-${record?.id ?? id ?? 'na'}`}
+          id={`audit-log-id-${record?.id ?? id ?? 'na'}`}
+        >
+          {id || 'N/A'}
+        </span>
       ),
     },
     {
@@ -169,7 +175,15 @@ const AuditLogPage = () => {
           ? getModuleDisplayName(selectedModule)
           : getModuleDisplayName(record?.module);
 
-        return <span className="text-sm">{displayName}</span>;
+        return (
+          <span
+            className="text-sm"
+            data-cy={`audit-log-module-${record?.id ?? 'na'}`}
+            id={`audit-log-module-${record?.id ?? 'na'}`}
+          >
+            {displayName}
+          </span>
+        );
       },
     },
     {
@@ -231,12 +245,28 @@ const AuditLogPage = () => {
       ),
       dataIndex: 'performedAt',
       key: 'performedAt',
-      render: (date: string) => <span className="text-sm">{formatDate(date)}</span>,
+      render: (date: string, record: AuditLog) => (
+        <span
+          className="text-sm"
+          data-cy={`audit-log-performed-at-${record?.id ?? 'na'}`}
+          id={`audit-log-performed-at-${record?.id ?? 'na'}`}
+        >
+          {formatDate(date)}
+        </span>
+      ),
     },
     {
       title: 'Remarks',
       key: 'remarks',
-      render: (unusedValue: any, record: AuditLog) => <span className="text-sm">{getRemarks(record)}</span>,
+      render: (unusedValue: any, record: AuditLog) => (
+        <span
+          className="text-sm"
+          data-cy={`audit-log-remarks-${record?.id ?? 'na'}`}
+          id={`audit-log-remarks-${record?.id ?? 'na'}`}
+        >
+          {getRemarks(record)}
+        </span>
+      ),
     },
   ];
 
@@ -267,15 +297,31 @@ const AuditLogPage = () => {
 
   const filterPopoverContent = (
     <div
-      className="bg-white rounded-lg shadow-sm border border-gray-100 p-4"
-      style={{ width: 440, maxWidth: 'calc(100vw - 32px)' }}
+      className="md:w-[440px] w-full md:max-w-[calc(100vw-32px)] max-w-full px-4 py-2"
       data-cy="audit-log-filter-popover-content"
       id="audit-log-filter-popover-content"
     >
-      <div className="flex justify-between items-start mb-1">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 m-0">Filter</h3>
-          <p className="text-sm text-gray-500 mt-1 mb-0">
+      <div
+        className="flex justify-between items-start mb-1"
+        data-cy="audit-log-filter-popover-header"
+        id="audit-log-filter-popover-header"
+      >
+        <div
+          data-cy="audit-log-filter-popover-title-wrap"
+          id="audit-log-filter-popover-title-wrap"
+        >
+          <h3
+            className="text-lg font-semibold text-gray-900 m-0"
+            data-cy="audit-log-filter-popover-title"
+            id="audit-log-filter-popover-title"
+          >
+            Filter
+          </h3>
+          <p
+            className="text-sm text-gray-500 mt-1 mb-0"
+            data-cy="audit-log-filter-popover-subtitle"
+            id="audit-log-filter-popover-subtitle"
+          >
             Select All filters that apply
           </p>
         </div>
@@ -292,16 +338,27 @@ const AuditLogPage = () => {
         </button>
       </div>
 
-      <div className="mt-4 flex flex-col gap-5">
-        <div>
-          <div className="text-sm font-semibold text-gray-900 mb-2">
+      <div
+        className="mt-4 flex flex-col gap-5"
+        data-cy="audit-log-filter-fields"
+        id="audit-log-filter-fields"
+      >
+        <div
+          data-cy="audit-log-filter-date-field"
+          id="audit-log-filter-date-field"
+        >
+          <div
+            className="text-sm font-semibold text-gray-900 mb-2"
+            data-cy="audit-log-filter-date-label"
+            id="audit-log-filter-date-label"
+          >
             Date
           </div>
           <DatePicker.RangePicker
             value={[dateFrom, dateTo] as any}
             format="YYYY-MM-DD"
             placeholder={['Start date', 'End date']}
-            className="w-full"
+            className="w-full h-10"
             onChange={(dates) => {
               setDateFrom(dates?.[0] ?? null);
               setDateTo(dates?.[1] ?? null);
@@ -312,8 +369,15 @@ const AuditLogPage = () => {
           />
         </div>
 
-        <div>
-          <div className="text-sm font-semibold text-gray-900 mb-2">
+        <div
+          data-cy="audit-log-filter-action-field"
+          id="audit-log-filter-action-field"
+        >
+          <div
+            className="text-sm font-semibold text-gray-900 mb-2"
+            data-cy="audit-log-filter-action-label"
+            id="audit-log-filter-action-label"
+          >
             Action
           </div>
           <Select
@@ -323,7 +387,7 @@ const AuditLogPage = () => {
               setSelectedAction(value);
               setCurrentPage(1);
             }}
-            className="w-full h-12"
+            className="w-full h-10"
             data-cy="audit-log-action-select-popover"
             id="audit-log-action-select-popover"
           >
@@ -340,8 +404,15 @@ const AuditLogPage = () => {
           </Select>
         </div>
 
-        <div>
-          <div className="text-sm font-semibold text-gray-900 mb-2">
+        <div
+          data-cy="audit-log-filter-module-field"
+          id="audit-log-filter-module-field"
+        >
+          <div
+            className="text-sm font-semibold text-gray-900 mb-2"
+            data-cy="audit-log-filter-module-label"
+            id="audit-log-filter-module-label"
+          >
             Module
           </div>
           <Select
@@ -351,7 +422,7 @@ const AuditLogPage = () => {
               setSelectedModule(value || undefined);
               setCurrentPage(1);
             }}
-            className="w-full h-12"
+            className="w-full h-10"
             data-cy="audit-log-module-select-popover"
             id="audit-log-module-select-popover"
           >
@@ -369,7 +440,11 @@ const AuditLogPage = () => {
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 mt-6">
+      <div
+        className="flex justify-end gap-3 mt-6"
+        data-cy="audit-log-filter-actions"
+        id="audit-log-filter-actions"
+      >
         <Button
           onClick={() => {
             setDateFrom(null);
@@ -412,54 +487,54 @@ const AuditLogPage = () => {
           subtitle="Track all the events that have happened in the system"
         />
       </div>
-      <div className='border border-gray-200 rounded-md'>
+      <div
+        data-cy="audit-log-filters-container"
+        className="border border-gray-200 rounded-md"
+      >
         <div
           className=" p-3 md:p-3"
           data-cy="audit-log-filters-container"
           id="audit-log-filters-container"
         >
-          <Row
-            gutter={[16, 16]}
-            align="middle"
-            justify="space-between"
+          <div
+            className="flex items-center justify-between md:gap-2 gap-6"
             data-cy="audit-log-filters-row"
             id="audit-log-filters-row"
           >
-            <Col
-              xs={24}
-              sm={18}
-              md={18}
-              lg={14}
-              data-cy="audit-log-person-filter-col"
-              id="audit-log-person-filter-col"
+            <Select
+              placeholder="Search Employee"
+              value={selectedUserId}
+              onChange={(value) => {
+                setSelectedUserId(value || undefined);
+                setCurrentPage(1);
+              }}
+              allowClear
+              showSearch
+              loading={isLoadingUsers}
+              suffixIcon={
+                <div
+                  className="border-l border-gray-200 h-8 flex items-center justify-center"
+                  data-cy="audit-log-search-suffix"
+                  id="audit-log-search-suffix"
+                >
+                  <SearchOutlined
+                    className="text-gray-600 ml-2"
+                    data-cy="audit-log-search-icon"
+                  />
+                </div>
+              }
+              filterOption={(input, option) => {
+                const label = String(option?.children ?? '');
+                return label.toLowerCase().includes(input.toLowerCase());
+              }}
+              className="md:w-80 w-full h-8"
+              data-cy="audit-log-search-person-select"
+              id="audit-log-search-person-select"
             >
-              <Select
-                placeholder="Search Employee"
-                value={selectedUserId}
-                onChange={(value) => {
-                  setSelectedUserId(value || undefined);
-                  setCurrentPage(1);
-                }}
-                allowClear
-                showSearch
-                loading={isLoadingUsers}
-                suffixIcon={
-                  <div className='border-l border-gray-200 h-8 flex items-center justify-center'>
-                    <SearchOutlined className="text-gray-600 ml-2" data-cy="audit-log-search-icon" />
-                  </div>
-                }
-                filterOption={(input, option) => {
-                  const label = String(option?.children ?? '');
-                  return label.toLowerCase().includes(input.toLowerCase());
-                }}
-                className="w-80  h-8"
-                data-cy="audit-log-search-person-select"
-                id="audit-log-search-person-select"
-              >
-                {allUsers?.items &&
-                  Array.isArray(allUsers.items) &&
-                  allUsers.items.length > 0
-                  ? allUsers.items.map((user: any) => {
+              {allUsers?.items &&
+              Array.isArray(allUsers.items) &&
+              allUsers.items.length > 0
+                ? allUsers.items.map((user: any) => {
                     const fullName =
                       `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
                       'Unknown User';
@@ -474,7 +549,7 @@ const AuditLogPage = () => {
                       </Option>
                     );
                   })
-                  : !isLoadingUsers && (
+                : !isLoadingUsers && (
                     <Option
                       disabled
                       value=""
@@ -484,53 +559,49 @@ const AuditLogPage = () => {
                       No users found
                     </Option>
                   )}
-              </Select>
-            </Col>
-            <Col
-              xs={24}
-              sm={6}
-              md={6}
-              lg={5}
-              data-cy="audit-log-module-filter-col"
-              id="audit-log-module-filter-col"
-              className="flex justify-end"
+            </Select>
+
+            <Popover
+              content={filterPopoverContent}
+              trigger="click"
+              open={filterPopoverOpen}
+              onOpenChange={setFilterPopoverOpen}
+              placement="bottomRight"
+              align={{
+                offset: [0, 4],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+              getPopupContainer={() => document.body}
+              data-cy="audit-log-filter-popover"
+              id="audit-log-filter-popover"
             >
-              <Popover
-                content={filterPopoverContent}
-                trigger="click"
-                open={filterPopoverOpen}
-                onOpenChange={setFilterPopoverOpen}
-                placement="bottomRight"
-                align={{
-                  offset: [0, 4],
-                  overflow: { adjustX: true, adjustY: true },
+              <Button
+                className="h-8 flex items-center gap-2 border border-gray-200 text-gray-700 bg-white transition-colors hover:border-[#4096FF] hover:text-[#4096FF] hover:[&_.ant-btn-icon]:text-[#4096FF]"
+                id="audit-log-filter-button"
+                data-cy="audit-log-filter-button"
+                htmlType="button"
+                icon={
+                  <MdOutlineFilterAlt
+                    data-cy="audit-log-filter-button-icon"
+                    className="text-gray-600"
+                  />
+                }
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setFilterPopoverOpen(true);
                 }}
-                getPopupContainer={() => document.body}
-                data-cy="audit-log-filter-popover"
-                id="audit-log-filter-popover"
               >
-                <Button
-                  className="h-12 flex items-center gap-2 border border-gray-200 text-gray-700 bg-white transition-colors hover:border-[#4096FF] hover:text-[#4096FF] hover:[&_.ant-btn-icon]:text-[#4096FF]"
-                  id="audit-log-filter-button"
-                  data-cy="audit-log-filter-button"
-                  htmlType="button"
-                  icon={
-                    <MdFilterAlt
-                      data-cy="audit-log-filter-button-icon"
-                      className="text-gray-600"
-                    />
-                  }
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setFilterPopoverOpen(true);
-                  }}
+                <span
+                  className="hidden md:block"
+                  data-cy="audit-log-filter-button-text"
+                  id="audit-log-filter-button-text"
                 >
                   Filter
-                </Button>
-              </Popover>
-            </Col>
-          </Row>
+                </span>
+              </Button>
+            </Popover>
+          </div>
         </div>
 
         <div
@@ -544,7 +615,9 @@ const AuditLogPage = () => {
             loading={isLoading}
             pagination={false}
             rowKey="id"
-            rowClassName={(_, index) => (index % 2 === 1 ? 'bg-gray-50' : '')}
+            rowClassName={(unusedRecord, index) =>
+              index % 2 === 1 ? 'bg-gray-50' : ''
+            }
             scroll={{ x: true }}
             data-cy="audit-log-table"
             id="audit-log-table"
@@ -565,7 +638,11 @@ const AuditLogPage = () => {
               emptyText: 'No data available',
             }}
           />
-          <div className='px-3 md:px-3'>
+          <div
+            className="px-3 md:px-3"
+            data-cy="audit-log-pagination-container"
+            id="audit-log-pagination-container"
+          >
             {isMobile || isTablet ? (
               <CustomMobilePagination
                 totalResults={totalItems}
@@ -587,7 +664,6 @@ const AuditLogPage = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };

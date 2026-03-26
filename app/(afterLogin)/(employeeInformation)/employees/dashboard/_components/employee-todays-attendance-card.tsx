@@ -168,7 +168,7 @@ export default function EmployeeTodaysAttendanceCard() {
       if (animTimerRef.current) window.clearTimeout(animTimerRef.current);
       animTimerRef.current = null;
     };
-  }, [period, displayPeriod]);
+  }, [period, displayPeriod, setChipsAnim, setDisplayPeriod]);
 
   const handlePeriodPillClick = (p: Period) => {
     setPeriod(p);

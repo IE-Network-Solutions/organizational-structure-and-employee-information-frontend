@@ -36,7 +36,10 @@ const StatsCard: React.FC<StatsCardProps> = ({
     : 'rounded-lg border border-gray-200 shadow-sm';
 
   return (
-    <div className={showHoverButton ? 'group relative' : ''}>
+    <div
+      data-cy="stats-card-container"
+      className={showHoverButton ? 'group relative' : ''}
+    >
       <Card
         className={cardClassName}
         bodyStyle={{
@@ -102,7 +105,10 @@ const StatsCard: React.FC<StatsCardProps> = ({
       </Card>
 
       {showHoverButton && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center ">
+        <div
+          data-cy="stats-card-hover-button-container"
+          className="pointer-events-none absolute inset-0 flex items-center justify-center "
+        >
           <button
             type="button"
             className="pointer-events-none rounded-md bg-gray-200 px-4 py-1.5 text-xs font-medium text-gray-700 opacity-0 transition-opacity duration-200 group-hover:pointer-events-auto group-hover:opacity-100"

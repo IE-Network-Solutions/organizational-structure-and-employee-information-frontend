@@ -18,13 +18,13 @@ export default function EmployeeDashboardPage() {
     useGetCombinedHrDashboard();
   return (
     <div
-      className="h-auto w-full pr-2"
+      className="h-auto w-full md:pr-2 pr-0"
       id="employee-dashboard-page"
       data-cy="employee-dashboard-page"
     >
       <BlockWrapper className="h-auto w-full bg-white">
         <div
-          className="flex flex-wrap justify-between items-center px-3 sm:px-6"
+          className="flex flex-wrap justify-between items-center px-3 sm:px-3"
           id="employee-dashboard-header"
           data-cy="employee-dashboard-header"
         >
@@ -35,7 +35,6 @@ export default function EmployeeDashboardPage() {
                 items={[
                   {
                     title: (
-
                       <Link
                         className="text-xs sm:text-sm"
                         href="/employees/manage-employees"
@@ -94,13 +93,13 @@ export default function EmployeeDashboardPage() {
               <HireVsResignationTrendChart />
             </div>
             <div
-              className="md:mt-6 mt-2 col-span-8"
+              className="md:mt-6 mt-2 md:col-span-8 col-span-12"
               data-cy="employee-dashboard-leave-section"
             >
               <EmployeeLeave />
             </div>
             <div
-              className="md:mt-6 mt-2 col-span-4"
+              className="md:mt-6 mt-2 md:col-span-4 col-span-12"
               data-cy="employee-dashboard-recent-hr-actions-section"
             >
               <RecentHrActions />

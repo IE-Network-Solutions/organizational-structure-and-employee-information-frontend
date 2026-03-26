@@ -9,73 +9,80 @@ import Link from 'next/link';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
 
 export default function TimesheetDashboardPage() {
-    return (
+  return (
+    <div
+      className="h-auto w-full pr-2"
+      id="timesheet-dashboard-page"
+      data-cy="timesheet-dashboard-page"
+    >
+      <BlockWrapper className="h-auto w-full bg-white">
         <div
-            className="h-auto w-full pr-2"
-            id="timesheet-dashboard-page"
-            data-cy="timesheet-dashboard-page"
+          className="flex flex-wrap justify-between items-center px-3 sm:px-6"
+          id="timesheet-dashboard-header"
+          data-cy="timesheet-dashboard-header"
         >
-            <BlockWrapper className="h-auto w-full bg-white">
-                <div
-                    className="flex flex-wrap justify-between items-center px-3 sm:px-6"
-                    id="timesheet-dashboard-header"
-                    data-cy="timesheet-dashboard-header"
-                >
-                    <div className="flex items-center gap-2">
+          <div
+            className="flex items-center gap-2"
+            data-cy="timesheet-dashboard-header-left"
+            id="timesheet-dashboard-header-left"
+          >
+            <Link
+              href="/employees/dashboard"
+              className="w-9 h-9 !text-black flex items-center justify-center rounded bg-white hover:bg-gray-200 border border-gray-300 transition"
+              data-cy="timesheet-dashboard-back-button"
+            >
+              <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
+            </Link>
+            <CustomBreadcrumb
+              title="Dashboard"
+              subtitle={
+                <Breadcrumb
+                  items={[
+                    {
+                      title: (
                         <Link
-                            href="/employees/dashboard"
-                            className="w-9 h-9 !text-black flex items-center justify-center rounded bg-white hover:bg-gray-200 border border-gray-300 transition"
-                            data-cy="timesheet-dashboard-back-button"
+                          className="text-xs sm:text-sm"
+                          href="/employees/manage-employees"
                         >
-                            <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
+                          Employee
                         </Link>
-                        <CustomBreadcrumb
-                            title="Dashboard"
-                            subtitle={
-                                <Breadcrumb
-                                    items={[
-                                        {
-                                            title: (
-                                                <Link
-                                                    className="text-xs sm:text-sm"
-                                                    href="/employees/manage-employees"
-                                                >
-                                                    Employee
-                                                </Link>
-                                            ),
-                                        },
-                                        {
-                                            title: (
-                                                <Link
-                                                    className="text-xs sm:text-sm"
-                                                    href="/employees/dashboard"
-                                                >
-                                                    Dashboard
-                                                </Link>
-                                            ),
-                                        },
-                                        {
-                                            title: (
-                                                <span
-                                                    className="text-xs sm:text-sm"
-                                                    data-cy="employee-dashboard-breadcrumb-employee"
-                                                >
-                                                    Timesheet
-                                                </span>
-                                            ),
-                                        },
-                                    ]}
-                                />
-                            }
-                            data-cy="employee-dashboard-breadcrumb"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <EmployeeAttendance />
-                </div>
-            </BlockWrapper>
+                      ),
+                    },
+                    {
+                      title: (
+                        <Link
+                          className="text-xs sm:text-sm"
+                          href="/employees/dashboard"
+                        >
+                          Dashboard
+                        </Link>
+                      ),
+                    },
+                    {
+                      title: (
+                        <span
+                          className="text-xs sm:text-sm"
+                          data-cy="employee-dashboard-breadcrumb-employee"
+                        >
+                          Timesheet
+                        </span>
+                      ),
+                    },
+                  ]}
+                />
+              }
+              data-cy="employee-dashboard-breadcrumb"
+            />
+          </div>
         </div>
-    );
+
+        <div
+          data-cy="timesheet-dashboard-content"
+          id="timesheet-dashboard-content"
+        >
+          <EmployeeAttendance />
+        </div>
+      </BlockWrapper>
+    </div>
+  );
 }

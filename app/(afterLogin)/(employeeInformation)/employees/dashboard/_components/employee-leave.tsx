@@ -73,7 +73,9 @@ export default function EmployeeLeave() {
     // Ensure the active fiscal year appears first in the expanded list.
     const activeKey = activeFiscalYear.id ?? activeFiscalYear.name;
     return [
-      ...fiscalYears.filter((fiscalYear: any) => (fiscalYear.id ?? fiscalYear.name) === activeKey),
+      ...fiscalYears.filter(
+        (fiscalYear: any) => (fiscalYear.id ?? fiscalYear.name) === activeKey,
+      ),
       ...fiscalYears.filter(
         (fiscalYear: any) => (fiscalYear.id ?? fiscalYear.name) !== activeKey,
       ),
@@ -200,7 +202,7 @@ export default function EmployeeLeave() {
 
   return (
     <div
-      className="border border-gray-200 rounded-lg p-4 bg-white"
+      className="border border-gray-200 rounded-lg p-4 bg-white h-[490px]"
       data-cy="employee-leave-card"
     >
       <div
@@ -230,7 +232,8 @@ export default function EmployeeLeave() {
               data-cy="employee-leave-fiscal-year-active-toggle"
             >
               {selectedFiscalYear?.name ?? 'Select Fiscal Year'}
-            </button>)}
+            </button>
+          )}
 
           {isFiscalYearListOpen && (
             <div
@@ -264,7 +267,7 @@ export default function EmployeeLeave() {
       </div>
 
       <div
-        style={{ height: 320, width: '100%' }}
+        style={{ height: 430, width: '100%' }}
         id="time-attendance-leave-request-chart-container-div"
         data-cy="time-attendance-leave-request-chart-container-div"
       >

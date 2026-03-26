@@ -7,11 +7,8 @@ import {
   MdArrowUpward,
   MdAutorenew,
   MdCardGiftcard,
-  MdDescription,
   MdOutlinePersonAdd,
   MdOutlineTextSnippet,
-  MdPersonAddAlt1,
-  MdSwapHoriz,
   MdTrendingUp,
 } from 'react-icons/md';
 
@@ -71,12 +68,21 @@ const RECENT_HR_ACTIONS: RecentHrAction[] = [
     iconBgClassName: 'bg-pink-100',
     iconClassName: 'text-pink-700',
   },
+  {
+    id: 'department-transfer',
+    title: 'Department Transfer',
+    description: 'Nahon Bekle moved from Sales to Account Management',
+    time: 'Yesterday',
+    icon: <MdAutorenew className="w-4 h-4" />,
+    iconBgClassName: 'bg-light_purple',
+    iconClassName: 'text-purple',
+  },
 ];
 
 export default function RecentHrActions() {
   return (
     <div
-      className="border border-gray-200 rounded-lg p-4 bg-white"
+      className="border border-gray-200 rounded-lg p-4 bg-white md:h-[490px] min-h-[430px]"
       id="recent-hr-actions-card"
       data-cy="recent-hr-actions-card"
     >
@@ -85,14 +91,25 @@ export default function RecentHrActions() {
         id="recent-hr-actions-header"
         data-cy="recent-hr-actions-header"
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <MdTrendingUp size={24} className="text-gray-900" />
-          <h3 className="text-[14px] font-bold text-gray-900 truncate">
+        <div
+          className="flex items-center gap-2 min-w-0"
+          data-cy="recent-hr-actions-title-row"
+          id="recent-hr-actions-title-row"
+        >
+          <MdTrendingUp
+            size={24}
+            className="text-gray-900"
+            data-cy="recent-hr-actions-title-icon"
+            id="recent-hr-actions-title-icon"
+          />
+          <h3
+            className="text-[14px] font-bold text-gray-900 truncate"
+            data-cy="recent-hr-actions-title"
+            id="recent-hr-actions-title"
+          >
             Recent HR Actions
           </h3>
         </div>
-
-        import Link from "next/link";
 
         <Link
           href="/audit-log"
@@ -105,10 +122,7 @@ export default function RecentHrActions() {
         </Link>
       </div>
 
-      <div
-        id="recent-hr-actions-timeline"
-        data-cy="recent-hr-actions-timeline"
-      >
+      <div id="recent-hr-actions-timeline" data-cy="recent-hr-actions-timeline">
         <Steps
           direction="vertical"
           items={RECENT_HR_ACTIONS.map((action) => ({
@@ -140,10 +154,18 @@ export default function RecentHrActions() {
                 className="min-w-0"
                 data-cy={`recent-hr-actions-desc-${action.id}`}
               >
-                <div className="text-xs font-normal text-gray-500 leading-4">
+                <div
+                  className="text-xs font-normal text-gray-500 leading-4"
+                  data-cy={`recent-hr-actions-desc-text-${action.id}`}
+                  id={`recent-hr-actions-desc-text-${action.id}`}
+                >
                   {action.description}
                 </div>
-                <div className="text-xs font-normal text-gray-400 leading-4 mt-1">
+                <div
+                  className="text-xs font-normal text-gray-400 leading-4 mt-1"
+                  data-cy={`recent-hr-actions-time-${action.id}`}
+                  id={`recent-hr-actions-time-${action.id}`}
+                >
                   {action.time}
                 </div>
               </div>
@@ -154,4 +176,3 @@ export default function RecentHrActions() {
     </div>
   );
 }
-

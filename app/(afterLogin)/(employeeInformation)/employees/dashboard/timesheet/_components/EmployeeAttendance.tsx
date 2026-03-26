@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Table,
-  Select,
-  Avatar,
-  Tag,
-  DatePicker,
-  Popover,
-} from 'antd';
-import { useRouter } from 'next/navigation';
+import { Table, Select, Avatar, Tag, DatePicker, Popover } from 'antd';
 import { useGetAdminAttendanceUsers } from '@/store/server/features/timesheet/dashboard/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
@@ -41,11 +33,12 @@ const statusColors = {
 
 export default function EmployeeAttendanceTable() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
+  const [filterStatus, setFilterStatus] = useState<string | undefined>(
+    undefined,
+  );
   const [filterDateRange, setFilterDateRange] = useState<[Dayjs, Dayjs] | null>(
     null,
   );
-  const router = useRouter();
   const {
     searchOnAttendance,
     setsearchOnAttendance,
@@ -155,7 +148,6 @@ export default function EmployeeAttendanceTable() {
               data-cy={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-avatar-fallback`}
               icon={<UserOutlined size={24} />}
             />
-
           )}
           <span
             id={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-name-text`}
@@ -209,22 +201,41 @@ export default function EmployeeAttendanceTable() {
       className="px-1 sm:px-2 py-1"
       data-cy="time-attendance-employee-attendance-mobile-filter-content-div"
     >
-      <div className="mb-4 relative">
+      <div
+        className="mb-4 relative"
+        data-cy="time-attendance-employee-attendance-mobile-filter-header-div"
+        id="time-attendance-employee-attendance-mobile-filter-header-div"
+      >
         <button
           type="button"
           aria-label="Close filters"
           className="absolute -top-1 -right-1 h-8 w-8 rounded-md flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 text-2xl leading-none"
           onClick={() => setIsFilterOpen(false)}
+          data-cy="time-attendance-employee-attendance-mobile-filter-close-button"
+          id="time-attendance-employee-attendance-mobile-filter-close-button"
         >
           ×
         </button>
-        <h3 className="text-base font-semibold text-gray-800 m-0">Filter</h3>
-        <p className="text-[14px] text-gray-500 mt-1 mb-0">
+        <h3
+          className="text-base font-semibold text-gray-800 m-0"
+          data-cy="time-attendance-employee-attendance-mobile-filter-title"
+          id="time-attendance-employee-attendance-mobile-filter-title"
+        >
+          Filter
+        </h3>
+        <p
+          className="text-[14px] text-gray-500 mt-1 mb-0"
+          data-cy="time-attendance-employee-attendance-mobile-filter-subtitle"
+          id="time-attendance-employee-attendance-mobile-filter-subtitle"
+        >
           Select All filters that apply
         </p>
       </div>
 
-      <div className="space-y-5">
+      <div
+        data-cy="time-attendance-employee-attendance-mobile-filter-content-div"
+        className="space-y-5"
+      >
         <div
           className="flex flex-col gap-2"
           data-cy="time-attendance-employee-attendance-mobile-filter-date-range-div"
@@ -335,7 +346,15 @@ export default function EmployeeAttendanceTable() {
                     .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
-                suffixIcon={<span className="text-gray-400">⌕</span>}
+                suffixIcon={
+                  <span
+                    className="text-gray-400"
+                    data-cy="time-attendance-employee-attendance-desktop-filters-employee-select-suffix"
+                    id="time-attendance-employee-attendance-desktop-filters-employee-select-suffix"
+                  >
+                    ⌕
+                  </span>
+                }
                 showArrow={false}
                 data-cy="time-attendance-employee-attendance-desktop-filters-employee-select"
               />
@@ -370,7 +389,6 @@ export default function EmployeeAttendanceTable() {
           </div>
         </div>
 
-
         {/* Desktop Table */}
         <div
           className="block overflow-x-auto"
@@ -385,8 +403,8 @@ export default function EmployeeAttendanceTable() {
             scroll={{ x: 900 }}
             className="ant-table-thead-bg-white"
             // Zebra striping for even rows
-            rowClassName={(_, index) =>
-              index % 2 === 1 ? "bg-[#FAFAFA]" : "bg-white"
+            rowClassName={(unusedRecord, index) =>
+              index % 2 === 1 ? 'bg-[#FAFAFA]' : 'bg-white'
             }
             // onRow={(record: Employee) => ({
             //   onClick: () => {
@@ -416,11 +434,8 @@ export default function EmployeeAttendanceTable() {
             }}
             data-cy="time-attendance-employee-attendance-pagination"
           />
-
-
         </div>
       </div>
-
     </div>
   );
 }

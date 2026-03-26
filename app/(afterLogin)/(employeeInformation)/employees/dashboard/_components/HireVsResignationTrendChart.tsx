@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Card, DatePicker, Spin } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
@@ -92,7 +92,6 @@ export default function HireVsResignationTrendChart({
     ...(selectedStartDate ? { startDate: selectedStartDate } : {}),
     ...(selectedEndDate ? { endDate: selectedEndDate } : {}),
   });
-  console.log(trendData, selectedStartDate, selectedEndDate, 'llllll');
   const chartStartDate =
     selectedStartDate ?? dayjs().startOf('year').format('YYYY-MM-DD');
   const chartEndDate = selectedEndDate ?? dayjs().format('YYYY-MM-DD');
@@ -109,7 +108,7 @@ export default function HireVsResignationTrendChart({
     return () => {
       mediaQuery.removeEventListener('change', handleViewportChange);
     };
-  }, []);
+  }, [setIsMobile]);
 
   const chartRows = useMemo(() => {
     const raw = trendData as unknown;
@@ -177,48 +176,54 @@ export default function HireVsResignationTrendChart({
     selectedEndDate,
   ]);
 
-  const rowMonthKey = (item: Record<string, unknown>): string | null => {
-    const y = item.year;
-    const m = item.month;
-    if (y != null && m != null) {
-      const year = Number(y);
-      let monthNum = Number(m);
-      if (!Number.isFinite(year) || !Number.isFinite(monthNum)) return null;
-      if (monthNum >= 1 && monthNum <= 12) monthNum -= 1;
-      return dayjs().year(year).month(monthNum).format('YYYY-MM');
-    }
-    const ym = item.yearMonth ?? item.period;
-    if (typeof ym === 'string' && /^\d{4}-\d{2}/.test(ym)) {
-      return ym.slice(0, 7);
-    }
-    const labelish = item.month ?? item.monthName ?? item.label ?? item.name;
-    if (labelish != null) {
-      const parsed = dayjs(String(labelish));
-      if (parsed.isValid()) return parsed.format('YYYY-MM');
-    }
-    return null;
-  };
+  const rowMonthKey = useCallback(
+    (item: Record<string, unknown>): string | null => {
+      const y = item.year;
+      const m = item.month;
+      if (y != null && m != null) {
+        const year = Number(y);
+        let monthNum = Number(m);
+        if (!Number.isFinite(year) || !Number.isFinite(monthNum)) return null;
+        if (monthNum >= 1 && monthNum <= 12) monthNum -= 1;
+        return dayjs().year(year).month(monthNum).format('YYYY-MM');
+      }
+      const ym = item.yearMonth ?? item.period;
+      if (typeof ym === 'string' && /^\d{4}-\d{2}/.test(ym)) {
+        return ym.slice(0, 7);
+      }
+      const labelish = item.month ?? item.monthName ?? item.label ?? item.name;
+      if (labelish != null) {
+        const parsed = dayjs(String(labelish));
+        if (parsed.isValid()) return parsed.format('YYYY-MM');
+      }
+      return null;
+    },
+    [],
+  );
 
-  const hireResignForMonth = (monthKey: string) => {
-    let hire = 0;
-    let resignation = 0;
-    for (const row of chartRows) {
-      const item = row as Record<string, unknown>;
-      const rk = rowMonthKey(item);
-      if (rk !== monthKey) continue;
-      const hv = item.hire ?? item.hired ?? item.hireCount ?? item.hires;
-      const rv =
-        item.resignation ??
-        item.resignations ??
-        item.resignationCount ??
-        item.resigned;
-      const hn = Number(hv);
-      const rn = Number(rv);
-      if (Number.isFinite(hn)) hire += hn;
-      if (Number.isFinite(rn)) resignation += rn;
-    }
-    return { hire, resignation };
-  };
+  const hireResignForMonth = useCallback(
+    (monthKey: string) => {
+      let hire = 0;
+      let resignation = 0;
+      for (const row of chartRows) {
+        const item = row as Record<string, unknown>;
+        const rk = rowMonthKey(item);
+        if (rk !== monthKey) continue;
+        const hv = item.hire ?? item.hired ?? item.hireCount ?? item.hires;
+        const rv =
+          item.resignation ??
+          item.resignations ??
+          item.resignationCount ??
+          item.resigned;
+        const hn = Number(hv);
+        const rn = Number(rv);
+        if (Number.isFinite(hn)) hire += hn;
+        if (Number.isFinite(rn)) resignation += rn;
+      }
+      return { hire, resignation };
+    },
+    [chartRows, rowMonthKey],
+  );
 
   const chartData = useMemo(() => {
     const { monthKeys, labels } = monthKeysAndLabels;
@@ -304,7 +309,7 @@ export default function HireVsResignationTrendChart({
         },
       ],
     };
-  }, [chartRows, monthKeysAndLabels]);
+  }, [chartRows, hireResignForMonth, monthKeysAndLabels, rowMonthKey]);
 
   const yAxisMax = useMemo(() => {
     const datasets = chartData.datasets;
