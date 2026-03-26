@@ -84,7 +84,7 @@ const InfoItem = ({
               border: '1px solid #D9D9D9',
               borderRadius: '4px',
               padding: '2px 8px',
-              fontSize: '14px',
+              fontSize: '12px',
               margin: 0,
             }}
             data-cy="my-payroll-info-item-tag"
@@ -266,7 +266,7 @@ export default function MyPayroll() {
             title={
               <Text
                 strong
-                style={{ fontSize: '15px', color: '#434343', fontWeight: 600 }}
+                style={{ fontSize: '15px', color: 'rgba(0, 0, 0, 0.65)', fontWeight: 600 }}
               >
                 Payroll Information
               </Text>
@@ -324,7 +324,7 @@ export default function MyPayroll() {
                   strong
                   style={{
                     fontSize: '15px',
-                    color: '#434343',
+                    color: 'rgba(0, 0, 0, 0.65)',
                     fontWeight: 600,
                   }}
                 >
@@ -625,7 +625,7 @@ export default function MyPayroll() {
                                 strong
                                 style={{
                                   fontSize: '15px',
-                                  color: '#434343',
+                                  color: 'rgba(0, 0, 0, 0.65)',
                                   fontWeight: 600,
                                 }}
                                 data-cy="my-payroll-history-card-title"
@@ -1174,16 +1174,25 @@ const SettlementView = ({ userId }: { userId: string }) => {
                     'Settlement Item'}
                 </Text>
                 <Tag
-                  color={
-                    items.every((item: any) => item.isPaid === true)
-                      ? 'success'
-                      : 'processing'
-                  }
+                  color={items.every((item: any) => item.isPaid === true) ? 'success' : undefined}
+                  style={{
+                    borderRadius: '4px',
+                    margin: 0,
+                    backgroundColor: items.every((item: any) => item.isPaid === true)
+                      ? undefined
+                      : '#fffbe6',
+                    border: items.every((item: any) => item.isPaid === true)
+                      ? undefined
+                      : '1px solid #FFE58F',
+                    color: items.every((item: any) => item.isPaid === true)
+                      ? undefined
+                      : '#FAAD14',
+                  }}
                   data-cy="my-payroll-settlement-item-status-tag"
                 >
                   {items.every((item: any) => item.isPaid === true)
                     ? 'Paid'
-                    : 'In Progress'}
+                    : 'Pending'}
                 </Tag>
               </div>
             </Card>
@@ -1299,7 +1308,11 @@ const SettlementView = ({ userId }: { userId: string }) => {
               </div>
 
               <div
-                style={{ marginTop: '24px' }}
+                style={{
+                  marginTop: '24px',
+                  overflowX: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                }}
                 data-cy="my-payroll-settlement-payments-container"
               >
                 <div
@@ -1310,6 +1323,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                     backgroundColor: '#fafafa',
                     borderRadius: '4px',
                     marginBottom: '8px',
+                    minWidth: '720px',
                   }}
                   data-cy="my-payroll-settlement-payments-header"
                 >
@@ -1376,6 +1390,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                           display: 'flex',
                           alignItems: 'center',
                           marginBottom: '4px',
+                          minWidth: '720px',
                         }}
                         data-cy="my-payroll-settlement-payment-row"
                       >

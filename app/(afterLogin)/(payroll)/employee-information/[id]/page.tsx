@@ -871,20 +871,25 @@ const EmployeeProfile = () => {
                       'Settlement Item'}
                   </Text>
                   <Tag
-                    color={
-                      items.every((item: any) => item.isPaid === true)
-                        ? 'success'
-                        : 'processing'
-                    }
+                    color={items.every((item: any) => item.isPaid === true) ? 'success' : undefined}
                     style={{
                       borderRadius: '4px',
                       margin: 0,
+                      backgroundColor: items.every((item: any) => item.isPaid === true)
+                        ? undefined
+                        : '#fffbe6',
+                      border: items.every((item: any) => item.isPaid === true)
+                        ? undefined
+                        : '1px solid #FFE58F',
+                      color: items.every((item: any) => item.isPaid === true)
+                        ? undefined
+                        : '#FAAD14',
                     }}
                     data-cy="payroll-settlement-item-status-tag"
                   >
                     {items.every((item: any) => item.isPaid === true)
                       ? 'Paid'
-                      : 'In Progress'}
+                      : 'Pending'}
                   </Tag>
                 </div>
               </Card>
@@ -997,7 +1002,11 @@ const EmployeeProfile = () => {
                 </div>
 
                 <div
-                  style={{ marginTop: '24px' }}
+                  style={{
+                    marginTop: '24px',
+                    overflowX: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
                   data-cy="payroll-settlement-payments-container"
                 >
                   <div
@@ -1008,6 +1017,7 @@ const EmployeeProfile = () => {
                       backgroundColor: '#fafafa',
                       borderRadius: '4px',
                       marginBottom: '8px',
+                      minWidth: '720px',
                     }}
                     data-cy="payroll-settlement-payments-header"
                   >
@@ -1086,6 +1096,7 @@ const EmployeeProfile = () => {
                             display: 'flex',
                             alignItems: 'center',
                             marginBottom: '4px',
+                            minWidth: '720px',
                           }}
                           data-cy="payroll-settlement-payment-row"
                         >
