@@ -1446,7 +1446,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       >
                         <div
                           data-cy="nav-sider-group-label-skeleton"
-                          className="w-full font-light text-[#64748B] tracking-wide"
+                          className={`w-full font-light text-[#64748B] tracking-wide ${
+                            collapsed ? 'text-center truncate' : ''
+                          }`}
                           style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
@@ -1494,7 +1496,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         <div
                           data-cy="nav-sider-group-label-wrap"
                           className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
-                            collapsed ? 'hidden' : ''
+                            collapsed ? 'text-center truncate' : ''
                           }`}
                           style={{ fontSize: fontSizeSM }}
                         >
