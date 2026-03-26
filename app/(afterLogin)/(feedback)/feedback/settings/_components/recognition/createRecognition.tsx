@@ -150,8 +150,8 @@ const RecognitionForm: React.FC<PropsData> = ({
 
   const { data: formulaById, refetch: refetchFormulaById } =
     useIncentiveFormulaByRecognitionId(
-    selectedRecognitionType ? selectedRecognitionType : undefined,
-  );
+      selectedRecognitionType ? selectedRecognitionType : undefined,
+    );
 
   const { mutate: createIncentiveFormula, isLoading: createFormulaLoading } =
     useSetIncentiveFormula();
@@ -526,8 +526,8 @@ const RecognitionForm: React.FC<PropsData> = ({
       name: recognitionTypeById.name || '',
       description: recognitionTypeById.description || '',
       criteria:
-        recognitionTypeById.recognitionCriteria?.map(
-          (item: any) => String(item.criteriaId),
+        recognitionTypeById.recognitionCriteria?.map((item: any) =>
+          String(item.criteriaId),
         ) || [],
       isMonetized: recognitionTypeById.isMonetized ?? false,
       requiresCertification: recognitionTypeById.requiresCertification ?? false,
@@ -735,9 +735,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       .filter(Boolean);
 
     const newFormula: FormulaToken[] = tokens.map((token) => {
-      const crit = selectedCriteria.find(
-        (c: any) => c.criterionKey === token,
-      );
+      const crit = selectedCriteria.find((c: any) => c.criterionKey === token);
       if (crit) {
         const id = crit.criteriaId || crit.id;
         const name = crit.criterionKey;
@@ -785,7 +783,8 @@ const RecognitionForm: React.FC<PropsData> = ({
 
     const formdata = {
       recognitionTypeId,
-      expression: amountType === 'Fixed' ? null : JSON.stringify(cleanedExpression),
+      expression:
+        amountType === 'Fixed' ? null : JSON.stringify(cleanedExpression),
       isComputed: amountType !== 'Fixed',
       monetizedValue: amountType === 'Fixed' ? fixedVal : 0,
     };
@@ -840,9 +839,7 @@ const RecognitionForm: React.FC<PropsData> = ({
   };
 
   const wizardStepItems = useMemo(() => {
-    const items: { title: string }[] = [
-      { title: 'Recognition information' },
-    ];
+    const items: { title: string }[] = [{ title: 'Recognition information' }];
     if (createCategory) return items;
     items.push({ title: 'Recognition Criteria' });
     if (isMonetizedWatch) {
@@ -919,9 +916,7 @@ const RecognitionForm: React.FC<PropsData> = ({
   useEffect(() => {
     if (
       pendingNewCriteriaId &&
-      criteria?.some(
-        (c: any) => String(c.id) === String(pendingNewCriteriaId),
-      )
+      criteria?.some((c: any) => String(c.id) === String(pendingNewCriteriaId))
     ) {
       const currentCriteria = (form.getFieldValue('criteria') || []).map(
         (c: any) => String(c),
@@ -997,8 +992,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                 : showFormulaStep && currentStep === 2
                   ? 640
                   : 457,
-            overflowY:
-              showFormulaStep && currentStep === 2 ? 'auto' : 'hidden',
+            overflowY: showFormulaStep && currentStep === 2 ? 'auto' : 'hidden',
           },
           content: {
             borderRadius: 12,
@@ -1822,14 +1816,16 @@ const RecognitionForm: React.FC<PropsData> = ({
 
           {showFormulaStep && (
             <div
-              className={currentStep === 2 ? 'block' : 'hidden'}
+              className={
+                currentStep === 2 ? 'block bg-red-500' : 'hidden bg-red-500'
+              }
               data-cy="create-recognition-step-2-formula"
             >
               <Form.Item name="incentiveAmountType" hidden>
                 <Input />
               </Form.Item>
 
-              <div className="flex gap-2 mb-4">
+              <div className="flex gap-2 mb-4 bg-red-300">
                 <Form.Item shouldUpdate noStyle>
                   {() => {
                     const t =
@@ -1845,7 +1841,9 @@ const RecognitionForm: React.FC<PropsData> = ({
                           }
                           onClick={() => {
                             setFormulaError('');
-                            form.setFieldsValue({ incentiveAmountType: 'Fixed' });
+                            form.setFieldsValue({
+                              incentiveAmountType: 'Fixed',
+                            });
                           }}
                           data-cy="create-recognition-formula-fixed-toggle"
                         >
@@ -1892,8 +1890,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     <Form.Item
                       label={
                         <span className="text-black text-sm">
-                          Amount{' '}
-                          <span className="text-red-500">*</span>
+                          Amount <span className="text-red-500">*</span>
                         </span>
                       }
                       name="incentiveFixedAmount"
@@ -1919,8 +1916,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     <Form.Item
                       label={
                         <span className="text-black text-sm font-semibold">
-                          Formula{' '}
-                          <span className="text-red-500">*</span>
+                          Formula <span className="text-red-500">*</span>
                         </span>
                       }
                       data-cy="create-recognition-formula-expression"
@@ -2163,9 +2159,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     !showFormulaStep &&
                     selectedCriteria?.length > 0 &&
                     totalWeight !== 1) ||
-                  (showFormulaStep &&
-                    currentStep === 2 &&
-                    !!formulaError)
+                  (showFormulaStep && currentStep === 2 && !!formulaError)
                 }
                 type="primary"
                 onClick={() => {
