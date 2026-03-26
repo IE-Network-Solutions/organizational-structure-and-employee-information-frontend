@@ -414,7 +414,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           >
             <Button
               type="default"
-              className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
+              className="h-8 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
               loading={createBenefitLoading}
               onClick={onClose}
               id="compensation-benefit-sidebar-cancel-button"
@@ -424,7 +424,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
             </Button>
             <Button
               type="primary"
-              className="h-10 px-4 rounded-md text-sm font-normal"
+              className="h-8 px-4 rounded-md text-sm font-normal"
               loading={createBenefitLoading}
               disabled={entitlementsLoading}
               onClick={() => form.submit()}

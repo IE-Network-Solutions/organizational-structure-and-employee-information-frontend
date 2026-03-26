@@ -106,7 +106,7 @@ const BenefitypeSideBar = () => {
         ? Number(formValues.NoOfPayPeriod)
         : null,
       isPeriodic:
-        formValues.mode == 'DEBIT'
+        formValues.mode == 'CREDIT'
           ? formValues.type === 'PERIODIC'
             ? true
             : false
@@ -206,7 +206,7 @@ const BenefitypeSideBar = () => {
         classNames={{
           header:
             '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',
-          body: '!px-6 !pb-0 !pt-0',
+          body: '!px-6 !pb-0 !pt-0 hide-scrollbar',
           footer: '!mt-0 border-0 !px-6 !pb-6 !pt-4',
         }}
         styles={{
@@ -286,22 +286,22 @@ const BenefitypeSideBar = () => {
                 data-cy="compensation-settings-benefit-sidebar-mode-group"
               >
                 <Radio
-                  value="CREDIT"
+                  value="DEBIT"
                   className="!text-sm !font-normal !leading-snug"
-                  data-cy="compensation-settings-benefit-sidebar-mode-credit"
+                  data-cy="compensation-settings-benefit-sidebar-mode-debit"
                 >
                   Repayable
                 </Radio>
                 <Radio
-                  value="DEBIT"
+                  value="CREDIT"
                   className="!text-sm !font-normal !leading-snug"
-                  data-cy="compensation-settings-benefit-sidebar-mode-debit"
+                  data-cy="compensation-settings-benefit-sidebar-mode-credit"
                 >
                   Non-repayable
                 </Radio>
               </Radio.Group>
             </Form.Item>
-            {benefitMode == 'DEBIT' && (
+            {benefitMode == 'CREDIT' && (
               <Form.Item
                 name="type"
                 label="Type"
@@ -334,7 +334,7 @@ const BenefitypeSideBar = () => {
                 </Radio.Group>
               </Form.Item>
             )}
-            {benefitMode == 'CREDIT' && (
+            {benefitMode == 'DEBIT' && (
               <>
                 <Form.Item
                   id="compensation-settings-benefit-sidebar-fixed-rate-item"

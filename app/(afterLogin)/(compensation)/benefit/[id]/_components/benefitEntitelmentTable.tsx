@@ -68,8 +68,26 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
         Amount: item.totalAmount,
         ApplicableTo: item.compensationItem.applicableTo,
         mode: item.compensationItem.mode,
+        isPeriodic: item.compensationItem.isPeriodic,
       }))
     : [];
+
+  const formatModePills = (mode?: string, isPeriodic?: boolean) => {
+    const isNonRepayable = mode === 'CREDIT';
+    const isRepayable = mode === 'DEBIT';
+    const modeLabel = isNonRepayable
+      ? 'Non-repayable'
+      : isRepayable
+        ? 'Repayable'
+        : '—';
+    const periodicLabel =
+      isNonRepayable && isPeriodic !== undefined
+        ? isPeriodic
+          ? 'Periodic'
+          : 'Non-periodic'
+        : null;
+    return { modeLabel, periodicLabel };
+  };
   const handleDelete = (id: string) => {
     deleteBenefitEntitlement(id);
   };
@@ -100,8 +118,8 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       title: 'Employee',
       dataIndex: 'userId',
       key: 'userId',
-      width: '52%',
-      minWidth: isMobile ? 130 : 230,
+      width: '32%',
+      minWidth: isMobile ? 110 : 180,
       ellipsis: true,
       render: (_: any, record: any) => (
         <div
@@ -123,14 +141,21 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       ),
     },
     {
-      title: 'Type',
-      dataIndex: 'isRate',
-      key: 'isRate',
-      width: isMobile ? 72 : 110,
-      render: (isRate: boolean) => (
-        <span className="text-[13px] text-[#595959]">
-          {isRate ? 'Rate' : 'Fixed'}
-        </span>
+      title: 'Mode',
+      dataIndex: 'mode',
+      key: 'mode',
+      width: isMobile ? 120 : 200,
+      render: (mode: string, record: any) => (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-[13px] font-normal leading-[18px] text-[#595959] whitespace-nowrap">
+            {formatModePills(mode, record?.isPeriodic).modeLabel}
+          </span>
+          {formatModePills(mode, record?.isPeriodic).periodicLabel && (
+            <span className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-[13px] font-normal leading-[18px] text-[#595959] whitespace-nowrap">
+              {formatModePills(mode, record?.isPeriodic).periodicLabel}
+            </span>
+          )}
+        </div>
       ),
     },
     {
@@ -259,6 +284,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
+      width: 220,
       render: (rule: any, record: any) => (
         <div
           onClick={() => handleEmployeeData(record)}
@@ -274,32 +300,26 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       ),
     },
     {
-      title: 'Type',
-      dataIndex: 'isRate',
-      key: 'isRate',
-      sorter: true,
-      width: 100,
-      render: (isRate: string) => (
-        <div
-          id="compensation-benefit-entitlement-type-display"
-          data-cy="compensation-benefit-entitlement-type-display"
-        >
-          {isRate ? 'Rate' : 'Fixed'}
-        </div>
-      ),
-    },
-    {
       title: 'Mode',
       dataIndex: 'mode',
       key: 'mode',
       sorter: true,
-      width: 100,
-      render: (mode: string) => (
+      width: 220,
+      render: (mode: string, record: any) => (
         <div
           id="compensation-benefit-entitlement-mode-display"
           data-cy="compensation-benefit-entitlement-mode-display"
         >
-          {mode == 'CREDIT' ? 'Credit' : 'Debit'}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-xs font-normal leading-[18px] text-[#595959] whitespace-nowrap">
+              {formatModePills(mode, record?.isPeriodic).modeLabel}
+            </span>
+            {formatModePills(mode, record?.isPeriodic).periodicLabel && (
+              <span className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-xs font-normal leading-[18px] text-[#595959] whitespace-nowrap">
+                {formatModePills(mode, record?.isPeriodic).periodicLabel}
+              </span>
+            )}
+          </div>
         </div>
       ),
     },
@@ -419,8 +439,8 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
               data-cy="compensation-benefit-entitlement-table"
               className={`benefit-entitlement-table !shadow-none ${compact ? '' : 'mt-6'} ${
                 compact
-                    ? '[&_.ant-table]:text-sm [&_.ant-table]:rounded-md [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-medium [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-thead>tr>th:last-child]:text-left [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]'
-                  : ''
+                    ? '[&_.ant-table]:text-sm [&_.ant-table]:rounded-md [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-thead>tr>th:last-child]:text-left [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]'
+                  : '[&_.ant-table-thead>tr>th]:font-bold'
               }`}
               columns={compact ? columnsCompact : columns}
               dataSource={paginatedData}

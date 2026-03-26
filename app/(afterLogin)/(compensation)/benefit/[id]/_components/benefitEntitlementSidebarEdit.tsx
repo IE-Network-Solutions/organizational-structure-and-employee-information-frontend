@@ -192,7 +192,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       classNames={{
         header:
           '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',
-        body: '!px-6 !pb-0 !pt-0',
+        body: '!px-6 !pb-0 !pt-0 hide-scrollbar',
         footer: '!mt-0 border-0 !px-6 !pb-6 !pt-4',
       }}
       styles={{

@@ -75,7 +75,7 @@ const BenefitDetailHeader = () => {
                     },
                     {
                       title: (
-                        <span className="text-sm font-bold text-slate-500">
+                        <span className="text-sm font-bold text-black/70">
                           Benefit
                         </span>
                       ),

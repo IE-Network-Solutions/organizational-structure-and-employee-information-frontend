@@ -72,7 +72,7 @@ const BenefitTracking = () => {
   const periodLabelById = useMemo(() => {
     const map = new Map<string, string>();
     for (const period of payPeriods ?? []) {
-      const label = `${dayjs(period.startDate).format('MMM DD,YYYY')} - ${dayjs(period.endDate).format('MMM DD,YYYY')}`;
+      const label = `${dayjs(period.startDate).format('MMM DD, YYYY')} - ${dayjs(period.endDate).format('MMM DD, YYYY')}`;
       map.set(period.id, label);
     }
     return map;
@@ -215,7 +215,7 @@ const BenefitTracking = () => {
             id="compensation-benefit-tracker-paid-back-header"
             data-cy="compensation-benefit-tracker-paid-back-header"
           >
-            Paid Back
+            Repaid Amount
           </h3>
 
           <div

@@ -93,6 +93,23 @@ const BenefitTypeCardGrid = () => {
     );
   };
 
+  const formatModePills = (mode?: string, isPeriodic?: boolean) => {
+    const isNonRepayable = mode === 'CREDIT';
+    const isRepayable = mode === 'DEBIT';
+    const modeLabel = isNonRepayable
+      ? 'Non-repayable'
+      : isRepayable
+        ? 'Repayable'
+        : '—';
+    const periodicLabel =
+      isNonRepayable && isPeriodic !== undefined
+        ? isPeriodic
+          ? 'Periodic'
+          : 'Non-periodic'
+        : null;
+    return { modeLabel, periodicLabel };
+  };
+
   return (
     <div
       data-testid="benefit-type-card-grid-container"
@@ -267,7 +284,7 @@ const BenefitTypeCardGrid = () => {
                     style={pillStyle}
                     data-cy={`compensation-settings-benefit-type-card-mode-${record.id}`}
                   >
-                    {record.mode === 'CREDIT' ? 'Credit' : 'Debit'}
+                    {formatModePills(record.mode, record.isPeriodic).modeLabel}
                   </span>
                   <AccessGuard
                     permissions={[
