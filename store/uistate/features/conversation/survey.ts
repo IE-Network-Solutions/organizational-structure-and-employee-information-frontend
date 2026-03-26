@@ -5,6 +5,17 @@ interface SurveyObject {
   monthId: string;
   id: string;
 }
+interface SearchUserParams {
+  user_name: string;
+}
+interface User {
+  userId: string;
+}
+interface SearchParams {
+  category_name: string;
+  category_description: string;
+  createdBy: string;
+}
 export interface EmployeeSurveyState {
   openEmployeeSurvey: boolean;
   setOpenEmployeeSurvey: (openEmployeeSurvey: boolean) => void;
@@ -26,6 +37,16 @@ export interface EmployeeSurveyState {
   setOpenSurveyCategoryModal: (openSurveyCategoryModal: boolean) => void;
   surveyCategoryEditId: string | null;
   setSurveyCategoryEditId: (surveyCategoryEditId: string | null) => void;
+  searchUserParams: SearchUserParams;
+  setSearchUserParams: (key: keyof SearchUserParams, value: string) => void;
+  selectedUsers: User[];
+  setSelectedUsers: (users: User[]) => void;
+  pageSize: number;
+  setPageSize: (pageSize: number) => void;
+  current: number;
+  setCurrent: (current: number) => void;
+  searchParams: SearchParams;
+  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
 }
 
 export const EmployeeSurveyStore = create<EmployeeSurveyState>((set) => ({
@@ -51,4 +72,22 @@ export const EmployeeSurveyStore = create<EmployeeSurveyState>((set) => ({
   surveyCategoryEditId: null,
   setSurveyCategoryEditId: (surveyCategoryEditId) =>
     set({ surveyCategoryEditId }),
+  searchUserParams: { user_name: '' },
+  setSearchUserParams: (key: keyof SearchUserParams, value: string) =>
+    set({ searchUserParams: { [key]: value } }),
+  selectedUsers: [],
+  setSelectedUsers: (users) => set({ selectedUsers: users }),
+  pageSize: 12,
+  setPageSize: (pageSize) => set({ pageSize }),
+  current: 1,
+  setCurrent: (current) => set({ current }),
+  searchParams: {
+    category_name: '',
+    category_description: '',
+    createdBy: '',
+  },
+  setSearchParams: (key, value) =>
+    set((state) => ({
+      searchParams: { ...state.searchParams, [key]: value },
+    })),
 }));
