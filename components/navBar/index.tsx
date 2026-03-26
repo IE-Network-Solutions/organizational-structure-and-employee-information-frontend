@@ -236,7 +236,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const { userId } = useAuthenticationStore();
+  const { userId, tenantId } = useAuthenticationStore();
   useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
   const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
