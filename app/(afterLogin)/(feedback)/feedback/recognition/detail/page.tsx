@@ -436,7 +436,7 @@ function DetailPage() {
         }}
         footer={null}
         centered
-        className="md:h-[670px] md:w-[1145px]  overflow-y-auto scrollbar-none z-10"
+        className="md:h-[670px] md:w-[1145px]"
         destroyOnClose
         closeIcon={null}
       >

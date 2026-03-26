@@ -88,7 +88,16 @@ export default function RecognitionDetail({
       { title: 'Operator', dataIndex: 'operator', key: 'operator' },
       { title: 'Condition', dataIndex: 'condition', key: 'condition' },
       { title: 'Value', dataIndex: 'value', key: 'value' },
-      { title: 'Score', dataIndex: 'score', key: 'score' },
+      {
+        title: 'Score',
+        dataIndex: 'score',
+        key: 'score',
+        render: (value) => (
+          <span className="text-sm font-medium">
+            {Number.isFinite(value) ? value?.toLocaleString() : '-'}
+          </span>
+        ),
+      },
     ],
     [],
   );
@@ -105,8 +114,13 @@ export default function RecognitionDetail({
 
   return (
     <div className="w-full">
-      <Card loading={loading || recipientLoading} bodyStyle={{ padding: 0 }}>
-        <div className="flex items-center justify-between ">
+      <Card
+        className="border-none rounded-none p-0 shadow-none"
+        bordered={false}
+        loading={loading || recipientLoading}
+        bodyStyle={{ padding: 0 }}
+      >
+        <div className="flex items-center justify-between mb-4">
           <div className="text-base font-semibold">Recognition Detail</div>
           <Button
             type="text"
@@ -115,7 +129,7 @@ export default function RecognitionDetail({
           />
         </div>
 
-        <div className="p-6">
+        <div className="p-0 md:h-[670px] overflow-y-auto scrollbar-none">
           <div className="rounded-xl border border-[#E5E7EB] bg-white p-5">
             <div className="flex items-center gap-3">
               <Avatar
@@ -145,7 +159,9 @@ export default function RecognitionDetail({
               <div>
                 <div className="text-xs text-gray-400 mb-1">Final Score</div>
                 <div className="text-sm font-medium">
-                  {Number.isFinite(totalScore) ? Math.round(totalScore) : '-'}
+                  {Number.isFinite(totalScore)
+                    ? totalScore?.toLocaleString()
+                    : '-'}
                 </div>
               </div>
               <div>
@@ -160,30 +176,32 @@ export default function RecognitionDetail({
               columns={columns}
               dataSource={criteriaRows}
               pagination={false}
-              className="rounded-xl overflow-hidden"
+              className="rounded-xl overflow-hidden text-black/70"
             />
           </div>
 
           <div className="mt-6 rounded-xl border border-[#E5E7EB] bg-white p-5">
-            <div className="text-sm font-semibold mb-4">Scoring Breakdown</div>
+            <div className="text-sm font-bold text-black/70 mb-4">
+              Scoring Breakdown
+            </div>
 
             <div className="rounded-xl border border-[#E5E7EB] bg-white p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="text-sm font-semibold mb-3">
+                  <div className="text-sm font-bold text-black/70 mb-3">
                     Formula Breakdown
                   </div>
                   <div className="flex flex-wrap items-center gap-2 text-sm">
-                    <span className="rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
+                    <span className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
                       Criteria
                     </span>
-                    <span className="rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
+                    <span className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
                       Operator
                     </span>
-                    <span className="rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
+                    <span className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
                       (Weight × 100 / 1)
                     </span>
-                    <span className="rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
+                    <span className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
                       =
                     </span>
                     <span className="rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-2 py-1 text-[#2563EB]">
@@ -195,7 +213,9 @@ export default function RecognitionDetail({
                 <div className="shrink-0">
                   <span className="inline-flex items-center rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1 text-xs font-medium text-[#2563EB]">
                     Total Score:{' '}
-                    {Number.isFinite(totalScore) ? totalScore.toFixed(0) : '-'}
+                    {Number.isFinite(totalScore)
+                      ? totalScore?.toLocaleString()
+                      : '-'}
                   </span>
                 </div>
               </div>
