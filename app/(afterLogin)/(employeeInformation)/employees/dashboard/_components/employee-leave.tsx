@@ -5,7 +5,7 @@ import { useGetAdminPendingLeaveRequests } from '@/store/server/features/timeshe
 import { useGetAllCalendars } from '@/store/server/features/payroll/payroll/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import dayjs from 'dayjs';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 
 export default function EmployeeLeave() {
@@ -64,6 +64,21 @@ export default function EmployeeLeave() {
       activeFiscalYear,
     [fiscalYears, selectedChip, activeFiscalYear],
   );
+
+  const [isFiscalYearListOpen, setIsFiscalYearListOpen] = useState(false);
+
+  const orderedFiscalYears = useMemo(() => {
+    if (!activeFiscalYear) return fiscalYears;
+
+    // Ensure the active fiscal year appears first in the expanded list.
+    const activeKey = activeFiscalYear.id ?? activeFiscalYear.name;
+    return [
+      ...fiscalYears.filter((fiscalYear: any) => (fiscalYear.id ?? fiscalYear.name) === activeKey),
+      ...fiscalYears.filter(
+        (fiscalYear: any) => (fiscalYear.id ?? fiscalYear.name) !== activeKey,
+      ),
+    ];
+  }, [fiscalYears, activeFiscalYear]);
 
   const queryParams = useMemo(
     () => ({
@@ -200,27 +215,51 @@ export default function EmployeeLeave() {
         </h3>
 
         <div
-          className="flex flex-wrap items-center gap-2 justify-end"
+          className="flex items-end gap-2 justify-end"
           id="employee-leave-fiscal-year-list"
           data-cy="employee-leave-fiscal-year-list"
         >
-          {fiscalYears.map((fiscalYear: any) => (
+          {!isFiscalYearListOpen && (
             <button
-              key={fiscalYear.id || fiscalYear.name}
               type="button"
-              onClick={() => setSelectedChip(fiscalYear.name)}
-              className={[
-                'px-3 py-1 text-xs rounded border transition',
-                selectedFiscalYear?.name === fiscalYear.name
-                  ? 'bg-gray-100 text-gray-900 border-gray-300'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
-              ].join(' ')}
-              id={`employee-leave-fiscal-year-item-${fiscalYear.name}`}
-              data-cy={`employee-leave-fiscal-year-item-${fiscalYear.name}`}
+              onClick={() => setIsFiscalYearListOpen((prev) => !prev)}
+              aria-expanded={isFiscalYearListOpen}
+              aria-controls="employee-leave-fiscal-year-items"
+              className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
+              id="employee-leave-fiscal-year-active-toggle"
+              data-cy="employee-leave-fiscal-year-active-toggle"
             >
-              {fiscalYear.name}
-            </button>
-          ))}
+              {selectedFiscalYear?.name ?? 'Select Fiscal Year'}
+            </button>)}
+
+          {isFiscalYearListOpen && (
+            <div
+              id="employee-leave-fiscal-year-items"
+              data-cy="employee-leave-fiscal-year-items"
+              className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+            >
+              {orderedFiscalYears.map((fiscalYear: any) => (
+                <button
+                  key={fiscalYear.id || fiscalYear.name}
+                  type="button"
+                  onClick={() => {
+                    setSelectedChip(fiscalYear.name);
+                    setIsFiscalYearListOpen(false);
+                  }}
+                  className={[
+                    'px-3 py-1 text-xs rounded border transition flex-shrink-0',
+                    selectedFiscalYear?.name === fiscalYear.name
+                      ? 'bg-gray-100 text-gray-900 border-gray-300'
+                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
+                  ].join(' ')}
+                  id={`employee-leave-fiscal-year-item-${fiscalYear.name}`}
+                  data-cy={`employee-leave-fiscal-year-item-${fiscalYear.name}`}
+                >
+                  {fiscalYear.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
