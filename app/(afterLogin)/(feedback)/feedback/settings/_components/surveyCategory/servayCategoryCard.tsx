@@ -6,14 +6,29 @@ import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFormCategory } from '@/store/server/features/conversation/mutation';
 import { EllipsisOutlined } from '@ant-design/icons';
+import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 
 const servayCategoryCard = ({ category }: { category: any }) => {
   const { data: userData } = useGetEmployee(category?.createdBy);
-  console.log('[ fast userData', userData);
   const deleteCategory = useDeleteFormCategory();
+  const { setEditModal, setEditingCategory, setSelectedUsers } =
+    CategoriesManagementStore();
 
   const handleDelete = () => {
     // deleteCategory.mutate(CategoriesManagementStore.getState().deletedItem);
+  };
+
+  const handleEdit = () => {
+    const permissions = Array.isArray(category?.permissions)
+      ? category.permissions
+      : [];
+
+    setSelectedUsers(permissions.map((p: any) => ({ userId: p.userId })));
+    setEditingCategory({
+      ...category,
+      users: permissions.map((p: any) => p.userId),
+    });
+    setEditModal(true);
   };
   return (
     <div
@@ -37,7 +52,7 @@ const servayCategoryCard = ({ category }: { category: any }) => {
                   label: 'Edit',
                   icon: <Edit2Icon className="w-4 h-4 text-xs" />,
                   onClick: () => {
-                    // handleEditModal(item);
+                    handleEdit();
                   },
                 },
                 {

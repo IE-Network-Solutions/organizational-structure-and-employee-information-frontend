@@ -5,6 +5,7 @@ import { useFetchCategories } from '@/store/server/features/feedback/category/qu
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 import ServayCategoryCard from '../_components/surveyCategory/servayCategoryCard';
 import CustomPagination from '@/components/customPagination';
+import EditCategoryModal from '../../categories/_components/categoriesCard/editCategory';
 
 const page = () => {
   const { pageSize, current, setCurrent, setPageSize, searchParams } =
@@ -59,6 +60,7 @@ const page = () => {
         />
       )}
       <CreateSurvayCategory />
+      <EditCategoryModal userOptions={[]} />
     </div>
   );
 };
