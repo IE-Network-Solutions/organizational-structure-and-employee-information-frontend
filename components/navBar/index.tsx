@@ -1616,9 +1616,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 aria-label="Open menu"
                 className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
                 onClick={toggleMobileCollapsed}
-                icon={
-                  <MenuOutlined className="text-gray-600 text-[20px]" />
-                }
+                icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
               />
             </div>
           )}
