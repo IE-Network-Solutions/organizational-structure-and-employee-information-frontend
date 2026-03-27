@@ -86,9 +86,15 @@ function RecognitionStatsCards({
           bodyStyle={{ padding: 0 }}
           data-cy={card.cardCy}
         >
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-lightblue text-primary">
+          <div className="flex flex-col gap-2" data-cy={`${card.cardCy}-inner`}>
+            <div
+              className="flex items-center gap-2"
+              data-cy={`${card.cardCy}-header`}
+            >
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-md bg-lightblue text-primary"
+                data-cy={`${card.cardCy}-icon`}
+              >
                 {card.icon}
               </span>
               <p
@@ -99,7 +105,7 @@ function RecognitionStatsCards({
               </p>
             </div>
             {isLoading ? (
-              <div className="pl-9">
+              <div className="pl-9" data-cy={`${card.cardCy}-value-skeleton`}>
                 <Skeleton.Input active size="small" style={{ width: 80 }} />
               </div>
             ) : (

@@ -76,14 +76,20 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
       data-cy="recognition-type-modal"
     >
       <Form
-        onValuesChange={(_, values) => handleRecogintionForm(values)}
+        onValuesChange={(unusedChanged, values) => {
+          void unusedChanged;
+          handleRecogintionForm(values);
+        }}
         layout="vertical"
         form={form}
         data-cy="recognition-type-modal-form"
         id="recognitionTypeModalForm"
       >
-        <div className="grid grid-cols-12 gap-2">
-          <div className="col-span-8">
+        <div
+          className="grid grid-cols-12 gap-2"
+          data-cy="recognition-type-modal-fields-grid"
+        >
+          <div className="col-span-8" data-cy="recognition-type-modal-type-col">
             <Form.Item
               label="Recognition Type"
               name="recognitionTypeId"
@@ -115,7 +121,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
               </Select>
             </Form.Item>
           </div>
-          <div className="col-span-4">
+          <div className="col-span-4" data-cy="recognition-type-modal-date-col">
             <Form.Item
               label="Date"
               name="dateRange"

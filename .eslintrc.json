@@ -1,65 +1,65 @@
-// {
-//   "extends": [
-//     "next",
-//     "next/core-web-vitals",
-//     "plugin:@typescript-eslint/recommended",
-//     "plugin:prettier/recommended"
-//   ],
-//   "plugins": ["@typescript-eslint", "prettier", "local-rules"],
-//   "rules": {
-//     "no-console": "error",
-//     "@typescript-eslint/interface-name-prefix": "off",
-//     "@typescript-eslint/explicit-function-return-type": "off",
-//     "@typescript-eslint/explicit-module-boundary-types": "off",
-//     "@typescript-eslint/no-explicit-any": "off",
-//     "prettier/prettier": "error",
-//     "@typescript-eslint/naming-convention": [
-//       "error",
-//       {
-//         "selector": "variableLike",
-//         "format": ["camelCase"]
-//       },
-//       {
-//         "selector": "variable",
-//         "modifiers": ["const"],
-//         "format": ["camelCase", "UPPER_CASE", "PascalCase"]
-//       },
-//       {
-//         "selector": "function",
-//         "format": ["camelCase", "PascalCase"]
-//       },
-//       {
-//         "selector": "parameter",
-//         "format": ["camelCase"]
-//       },
-//       {
-//         "selector": "memberLike",
-//         "modifiers": ["private"],
-//         "format": ["camelCase"]
-//       },
-//       {
-//         "selector": "typeLike",
-//         "format": ["PascalCase"]
-//       },
-//       {
-//         "selector": "class",
-//         "format": ["PascalCase"]
-//       }
-//     ]
-//   },
-//   "overrides": [
-//     {
-//       "files": ["*.jsx", "*.tsx"],
-//       "rules": {
-//         "local-rules/data-cy-required": "error"
-//       }
-//     }
-//   ],
-//   "ignorePatterns": [
-//     "public/workbox-*.js",
-//     "public/sw.js",
-//     "public/fallback-*.js",
-//     "fix-data-cy.js",
-//     "fix-data-cy-all.js"
-//   ]
-// }
+{
+  "extends": [
+    "next",
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "prettier", "local-rules"],
+  "rules": {
+    "no-console": "error",
+    "@typescript-eslint/interface-name-prefix": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "prettier/prettier": "error",
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "variableLike",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "variable",
+        "modifiers": ["const"],
+        "format": ["camelCase", "UPPER_CASE", "PascalCase"]
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase", "PascalCase"]
+      },
+      {
+        "selector": "parameter",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "memberLike",
+        "modifiers": ["private"],
+        "format": ["camelCase"]
+      },
+      {
+        "selector": "typeLike",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "class",
+        "format": ["PascalCase"]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["*.jsx", "*.tsx"],
+      "rules": {
+        "local-rules/data-cy-required": "error"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "public/workbox-*.js",
+    "public/sw.js",
+    "public/fallback-*.js",
+    "fix-data-cy.js",
+    "fix-data-cy-all.js"
+  ]
+}

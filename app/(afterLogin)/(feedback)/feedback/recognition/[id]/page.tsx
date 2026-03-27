@@ -19,7 +19,10 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
   const downloadMutation = useDownloadCertificate();
   return (
     <div data-cy="recognition-detail-page" id="recognitionDetailPage">
-      <div className="mt-5 flex justify-end">
+      <div
+        className="mt-5 flex justify-end"
+        data-cy="recognition-detail-download-row"
+      >
         <Tooltip placement="top" overlayClassName="custom-tooltip">
           <Button
             loading={downloadMutation.isLoading}
@@ -29,14 +32,19 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
             type="primary"
             className="h-14 px-6 rounded-lg flex items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700"
           >
-            <div className="text-center text-base font-bold leading-normal tracking-tight">
-              {downloadMutation.isLoading ? 'Downloading...' : 'Print Certification'}
+            <div
+              className="text-center text-base font-bold leading-normal tracking-tight"
+              data-cy="recognition-detail-download-label"
+            >
+              {downloadMutation.isLoading
+                ? 'Downloading...'
+                : 'Print Certification'}
             </div>
           </Button>
         </Tooltip>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4" data-cy="recognition-detail-content">
         <RecognitionDetail
           loading={isLoading}
           recognition={getRecognitionById}

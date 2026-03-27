@@ -1,19 +1,8 @@
 import React from 'react';
-import {
-  Modal,
-  Form,
-  Select,
-  Button,
-  Table,
-  Tag,
-  Avatar,
-  Spin,
-  Skeleton,
-} from 'antd';
+import { Form, Select, Button, Table, Tag, Avatar, Skeleton } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
-import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { UserOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -22,7 +11,6 @@ import {
   useCreateEmployeeRecognition,
   useCreateRecognition,
 } from '@/store/server/features/CFR/recognition/mutation';
-import RecognitionTypeSelector from './recognitionTypeSelector';
 
 const { Option } = Select;
 
@@ -38,7 +26,6 @@ interface EmployeeRecognitionModalProps {
 }
 
 const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
-  visible,
   onCancel,
   loading,
 }) => {
@@ -65,8 +52,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { mutate: createEmployeeRecognition, isLoading } =
     useCreateEmployeeRecognition();
-  const { mutate: createRecognition, isLoading: createRecognitionLoading } =
-    useCreateRecognition();
+  const { isLoading: createRecognitionLoading } = useCreateRecognition();
 
   const issuerId = useAuthenticationStore.getState().userId;
 
@@ -119,7 +105,10 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
 
     if (isLoading)
       return (
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2"
+          data-cy="employee-recognition-modal-emp-render-loading"
+        >
           <Skeleton.Avatar active size="small" />
           <Skeleton.Input active size="small" style={{ width: 120 }} />
         </div>
@@ -254,35 +243,66 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
   };
   if (loading)
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-12 gap-4 my-3">
-          <div className="col-span-6">
+      <div
+        className="space-y-4"
+        data-cy="employee-recognition-modal-loading-shell"
+      >
+        <div
+          className="grid grid-cols-12 gap-4 my-3"
+          data-cy="employee-recognition-modal-loading-filters"
+        >
+          <div
+            className="col-span-6"
+            data-cy="employee-recognition-modal-loading-col-a"
+          >
             <Skeleton.Input active block className="!h-10 !w-full" />
           </div>
-          <div className="col-span-6">
+          <div
+            className="col-span-6"
+            data-cy="employee-recognition-modal-loading-col-b"
+          >
             <Skeleton.Input active block className="!h-10 !w-full" />
           </div>
         </div>
 
         <Skeleton paragraph={false} title={{ width: 220 }} active />
 
-        <div className="rounded-md border border-gray-100 p-4">
-          <div className="grid grid-cols-12 gap-3 pb-3 border-b border-gray-100">
+        <div
+          className="rounded-md border border-gray-100 p-4"
+          data-cy="employee-recognition-modal-loading-table-shell"
+        >
+          <div
+            className="grid grid-cols-12 gap-3 pb-3 border-b border-gray-100"
+            data-cy="employee-recognition-modal-loading-table-head"
+          >
             <Skeleton.Input active className="col-span-1 !h-4 !w-4" />
             <Skeleton.Input active className="col-span-4 !h-4 !w-28" />
             <Skeleton.Input active className="col-span-5 !h-4 !w-24" />
             <Skeleton.Input active className="col-span-2 !h-4 !w-16" />
           </div>
 
-          <div className="space-y-3 pt-3">
-            {[...Array(5)].map((_, index) => (
-              <div key={index} className="grid grid-cols-12 gap-3 items-center">
+          <div
+            className="space-y-3 pt-3"
+            data-cy="employee-recognition-modal-loading-table-body"
+          >
+            {[...Array(5).keys()].map((index) => (
+              <div
+                key={index}
+                className="grid grid-cols-12 gap-3 items-center"
+                data-cy={`employee-recognition-modal-loading-row-${index}`}
+              >
                 <Skeleton.Input active className="col-span-1 !h-4 !w-4" />
-                <div className="col-span-4 flex items-center gap-2">
+                <div
+                  className="col-span-4 flex items-center gap-2"
+                  data-cy={`employee-recognition-modal-loading-row-emp-${index}`}
+                >
                   <Skeleton.Avatar active size="small" />
                   <Skeleton.Input active className="!h-4 !w-28" />
                 </div>
-                <div className="col-span-5 flex gap-2">
+                <div
+                  className="col-span-5 flex gap-2"
+                  data-cy={`employee-recognition-modal-loading-row-tags-${index}`}
+                >
                   <Skeleton.Input active className="!h-6 !w-20" />
                   <Skeleton.Input active className="!h-6 !w-20" />
                   <Skeleton.Input active className="!h-6 !w-16" />
@@ -375,7 +395,10 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
             </Option>
           </Select>
         </div>
-        <div className="h-80 overflow-y-auto scrollbar-none">
+        <div
+          className="h-80 overflow-y-auto scrollbar-none"
+          data-cy="employee-recognition-modal-table-scroll"
+        >
           <p
             className="text-sm text-gray-500 mt-2"
             data-cy="employee-recognition-modal-selected-count"

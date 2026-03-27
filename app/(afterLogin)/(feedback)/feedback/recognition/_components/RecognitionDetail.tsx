@@ -26,14 +26,22 @@ function formatName(user?: EmployeeMini | null) {
 function EmployeePill({ empId }: { empId?: string }) {
   const { data: userDetails, isLoading } = useGetEmployee(empId || '');
 
-  if (!empId) return <span>-</span>;
+  if (!empId) return <span data-cy="recognition-detail-emp-pill-empty">-</span>;
   if (isLoading) return <LoadingOutlined />;
 
   const user = userDetails as EmployeeMini | undefined;
   return (
-    <div className="flex items-center gap-2">
+    <div
+      className="flex items-center gap-2"
+      data-cy="recognition-detail-emp-pill"
+    >
       <Avatar src={user?.profileImage} icon={<UserOutlined />} size={24} />
-      <div className="text-sm font-medium">{formatName(user)}</div>
+      <div
+        className="text-sm font-medium"
+        data-cy="recognition-detail-emp-pill-name"
+      >
+        {formatName(user)}
+      </div>
     </div>
   );
 }
@@ -79,7 +87,10 @@ export default function RecognitionDetail({
         dataIndex: 'name',
         key: 'criteria',
         render: (value) => (
-          <span className="inline-flex items-center rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-1 text-sm">
+          <span
+            className="inline-flex items-center rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-1 text-sm"
+            data-cy="recognition-detail-criteria-name-pill"
+          >
             {value ?? '-'}
           </span>
         ),
@@ -93,7 +104,10 @@ export default function RecognitionDetail({
         dataIndex: 'score',
         key: 'score',
         render: (value) => (
-          <span className="text-sm font-medium">
+          <span
+            className="text-sm font-medium"
+            data-cy="recognition-detail-criteria-score"
+          >
             {Number.isFinite(value) ? value?.toLocaleString() : '-'}
           </span>
         ),
@@ -113,15 +127,23 @@ export default function RecognitionDetail({
     '-';
 
   return (
-    <div className="w-full ">
+    <div className="w-full " data-cy="recognition-detail-root">
       <Card
         className="border-none rounded-none p-0 shadow-none"
         bordered={false}
         loading={loading || recipientLoading}
         bodyStyle={{ padding: 0 }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-base font-semibold">Recognition Detail</div>
+        <div
+          className="flex items-center justify-between mb-4"
+          data-cy="recognition-detail-header-row"
+        >
+          <div
+            className="text-base font-semibold"
+            data-cy="recognition-detail-header-title"
+          >
+            Recognition Detail
+          </div>
           <Button
             type="text"
             onClick={onClose}
@@ -129,49 +151,103 @@ export default function RecognitionDetail({
           />
         </div>
 
-        <div className="p-0  scrollbar-none">
-          <div className="rounded-xl border border-[#E5E7EB] bg-white p-5">
-            <div className="flex items-center gap-3">
+        <div className="p-0  scrollbar-none" data-cy="recognition-detail-body">
+          <div
+            className="rounded-xl border border-[#E5E7EB] bg-white p-5"
+            data-cy="recognition-detail-summary-card"
+          >
+            <div
+              className="flex items-center gap-3"
+              data-cy="recognition-detail-recipient-row"
+            >
               <Avatar
                 src={recipientUser?.profileImage}
                 icon={<UserOutlined />}
                 size={44}
               />
-              <div className="min-w-0">
-                <div className="text-sm font-semibold truncate">
+              <div
+                className="min-w-0"
+                data-cy="recognition-detail-recipient-text"
+              >
+                <div
+                  className="text-sm font-semibold truncate"
+                  data-cy="recognition-detail-recipient-name"
+                >
                   {formatName(recipientUser)}
                 </div>
-                <div className="text-xs text-gray-400 truncate">
+                <div
+                  className="text-xs text-gray-400 truncate"
+                  data-cy="recognition-detail-recipient-email"
+                >
                   {recipientUser?.email ?? '-'}
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-4">
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Recognized By</div>
+            <div
+              className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-4"
+              data-cy="recognition-detail-meta-grid"
+            >
+              <div data-cy="recognition-detail-meta-recognized-by">
+                <div
+                  className="text-xs text-gray-400 mb-1"
+                  data-cy="recognition-detail-label-recognized-by"
+                >
+                  Recognized By
+                </div>
                 <EmployeePill empId={issuerId} />
               </div>
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Issued Date</div>
-                <div className="text-sm font-medium">{issuedDate}</div>
+              <div data-cy="recognition-detail-meta-issued-date">
+                <div
+                  className="text-xs text-gray-400 mb-1"
+                  data-cy="recognition-detail-label-issued-date"
+                >
+                  Issued Date
+                </div>
+                <div
+                  className="text-sm font-medium"
+                  data-cy="recognition-detail-value-issued-date"
+                >
+                  {issuedDate}
+                </div>
               </div>
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Final Score</div>
-                <div className="text-sm font-medium">
+              <div data-cy="recognition-detail-meta-final-score">
+                <div
+                  className="text-xs text-gray-400 mb-1"
+                  data-cy="recognition-detail-label-final-score"
+                >
+                  Final Score
+                </div>
+                <div
+                  className="text-sm font-medium"
+                  data-cy="recognition-detail-value-final-score"
+                >
                   {Number.isFinite(totalScore)
                     ? totalScore?.toLocaleString()
                     : '-'}
                 </div>
               </div>
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Detail</div>
-                <div className="text-sm font-medium">{detailText}</div>
+              <div data-cy="recognition-detail-meta-detail">
+                <div
+                  className="text-xs text-gray-400 mb-1"
+                  data-cy="recognition-detail-label-detail"
+                >
+                  Detail
+                </div>
+                <div
+                  className="text-sm font-medium"
+                  data-cy="recognition-detail-value-detail"
+                >
+                  {detailText}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 h-[200px] overflow-y-auto scrollbar-none">
+          <div
+            className="mt-6 h-[200px] overflow-y-auto scrollbar-none"
+            data-cy="recognition-detail-criteria-table-wrap"
+          >
             <Table
               columns={columns}
               dataSource={criteriaRows}
@@ -180,38 +256,77 @@ export default function RecognitionDetail({
             />
           </div>
 
-          <div className="mt-6 rounded-xl border border-[#E5E7EB] bg-white p-5">
-            <div className="text-sm font-bold text-black/70 mb-4">
+          <div
+            className="mt-6 rounded-xl border border-[#E5E7EB] bg-white p-5"
+            data-cy="recognition-detail-scoring-breakdown"
+          >
+            <div
+              className="text-sm font-bold text-black/70 mb-4"
+              data-cy="recognition-detail-scoring-title"
+            >
               Scoring Breakdown
             </div>
 
-            <div className="rounded-xl border border-[#E5E7EB] bg-white p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-sm font-bold text-black/70 mb-3">
+            <div
+              className="rounded-xl border border-[#E5E7EB] bg-white p-4"
+              data-cy="recognition-detail-formula-card"
+            >
+              <div
+                className="flex items-start justify-between gap-4"
+                data-cy="recognition-detail-formula-row"
+              >
+                <div data-cy="recognition-detail-formula-left">
+                  <div
+                    className="text-sm font-bold text-black/70 mb-3"
+                    data-cy="recognition-detail-formula-subtitle"
+                  >
                     Formula Breakdown
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 text-sm">
-                    <span className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
+                  <div
+                    className="flex flex-wrap items-center gap-2 text-sm"
+                    data-cy="recognition-detail-formula-chips"
+                  >
+                    <span
+                      className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1"
+                      data-cy="recognition-detail-formula-chip-criteria"
+                    >
                       Criteria
                     </span>
-                    <span className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
+                    <span
+                      className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1"
+                      data-cy="recognition-detail-formula-chip-operator"
+                    >
                       Operator
                     </span>
-                    <span className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
+                    <span
+                      className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1"
+                      data-cy="recognition-detail-formula-chip-weight"
+                    >
                       (Weight × 100 / 1)
                     </span>
-                    <span className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1">
+                    <span
+                      className="text-black/70 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1"
+                      data-cy="recognition-detail-formula-chip-equals"
+                    >
                       =
                     </span>
-                    <span className="rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-2 py-1 text-[#2563EB]">
+                    <span
+                      className="rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-2 py-1 text-[#2563EB]"
+                      data-cy="recognition-detail-formula-chip-score"
+                    >
                       Score
                     </span>
                   </div>
                 </div>
 
-                <div className="shrink-0">
-                  <span className="inline-flex items-center rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1 text-xs font-medium text-[#2563EB]">
+                <div
+                  className="shrink-0"
+                  data-cy="recognition-detail-total-chip-wrap"
+                >
+                  <span
+                    className="inline-flex items-center rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1 text-xs font-medium text-[#2563EB]"
+                    data-cy="recognition-detail-total-score-chip"
+                  >
                     Total Score:{' '}
                     {Number.isFinite(totalScore)
                       ? totalScore?.toLocaleString()

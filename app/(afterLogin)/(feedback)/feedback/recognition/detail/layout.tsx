@@ -1,14 +1,13 @@
 'use client';
 
-import EmployeeRecognitionModal from '../_components/EmployeeRecognitionModal';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import RecognitionTypeModal from '../_components/recognitionTypeModal';
-import { useGetAllRecognitionData } from '@/store/server/features/CFR/recognition/queries';
+import { useGetRecognitionTypeById } from '@/store/server/features/CFR/recognition/queries';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
-import { Breadcrumb, Button } from 'antd';
+import { Breadcrumb, Button, Skeleton } from 'antd';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense, useMemo } from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import React, { Suspense } from 'react';
 import { MdOutlineArrowBackIos, MdOutlineEmojiEvents } from 'react-icons/md';
 
 function RecognitionDetailLayoutShell({
@@ -17,66 +16,88 @@ function RecognitionDetailLayoutShell({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const recognitionTypeId = searchParams.get('recognitionTypeId') ?? '1';
-  const { data: recognitionData } = useGetAllRecognitionData();
-  const { setVisible, visible, visibleEmployee, setVisibleEmployee } =
-    useRecongnitionStore();
+  const { data: recognitionData, isLoading: isRecognitionTypeLoading } =
+    useGetRecognitionTypeById(recognitionTypeId);
+  const { setVisible, visible } = useRecongnitionStore();
 
-  const categoryName = useMemo(() => {
-    const items = recognitionData?.items ?? [];
-    const found = items.find(
-      (item: { id: string }) => item.id === recognitionTypeId,
-    );
-    return found?.name ?? 'Recognition';
-  }, [recognitionData?.items, recognitionTypeId]);
-
+  const categoryName = recognitionData?.name ?? 'Recognition';
   const historyHref = `/feedback/recognition/detail?recognitionTypeId=${encodeURIComponent(recognitionTypeId)}`;
+  const typesHref = `/feedback/recognition/detail/recognition-type?recognitionTypeId=${encodeURIComponent(recognitionTypeId)}`;
+
+  const isHistoryActive =
+    pathname.endsWith('/feedback/recognition/detail') ||
+    pathname.endsWith('/feedback/recognition/detail/history');
+
+  const isTypesActive = pathname.endsWith(
+    '/feedback/recognition/detail/recognition-type',
+  );
 
   return (
     <div className="" data-cy="recognition-detail-layout">
-      <div className="flex flex-wrap  items-center justify-between gap-4 mb-1 p-3">
-        <div className="flex items-center gap-3 min-w-0 ">
+      <div
+        className="flex flex-wrap  items-center justify-between gap-4 mb-1 py-3"
+        data-cy="recognition-detail-layout-toolbar"
+      >
+        <div
+          className="flex items-center gap-3 min-w-0 "
+          data-cy="recognition-detail-layout-breadcrumb-row"
+        >
           <Button
             icon={<MdOutlineArrowBackIos />}
             onClick={() => router.push('/feedback/recognition')}
             data-cy="recognition-detail-back"
           />
-          <div className="min-w-0">
-            <h2
-              className="text-gray-900 text-2xl font-bold leading-tight truncate"
-              data-cy="recognition-detail-layout-title"
-            >
-              {categoryName}
-            </h2>
-            <Breadcrumb
-              className="mt-1 text-sm"
-              data-cy="recognition-detail-breadcrumb"
-              items={[
-                {
-                  title: (
-                    <Link
-                      href="/feedback/conversation"
-                      className="text-gray-500 hover:text-gray-700"
-                      data-cy="recognition-breadcrumb-cfr"
-                    >
-                      CFR
-                    </Link>
-                  ),
-                },
-                {
-                  title: (
-                    <Link
-                      href="/feedback/recognition"
-                      className="text-gray-500 hover:text-gray-700"
-                      data-cy="recognition-breadcrumb-recognition"
-                    >
-                      Recognition
-                    </Link>
-                  ),
-                },
-              ]}
-            />
+          <div
+            className="min-w-0"
+            data-cy="recognition-detail-layout-title-area"
+          >
+            {isRecognitionTypeLoading ? (
+              <Skeleton.Input
+                active
+                size="default"
+                style={{ width: 200, height: 32, borderRadius: 4 }}
+                data-cy="recognition-detail-layout-title-skeleton"
+              />
+            ) : (
+              <div data-cy="recognition-detail-layout-breadcrumb-wrap">
+                <CustomBreadcrumb
+                  title={categoryName}
+                  subtitle={
+                    <Breadcrumb
+                      className="mt-1 text-sm"
+                      data-cy="recognition-detail-breadcrumb"
+                      items={[
+                        {
+                          title: (
+                            <Link
+                              href="/feedback/conversation"
+                              className="text-gray-500 hover:text-gray-700"
+                              data-cy="recognition-breadcrumb-cfr"
+                            >
+                              CFR
+                            </Link>
+                          ),
+                        },
+                        {
+                          title: (
+                            <Link
+                              href="/feedback/recognition"
+                              className="text-gray-500 hover:text-gray-700"
+                              data-cy="recognition-breadcrumb-recognition"
+                            >
+                              Recognition
+                            </Link>
+                          ),
+                        },
+                      ]}
+                    />
+                  }
+                />
+              </div>
+            )}
           </div>
         </div>
         <Button
@@ -97,14 +118,24 @@ function RecognitionDetailLayoutShell({
       >
         <Link
           href={historyHref}
-          className="-mb-px border-b-2 border-primary pb-3 text-sm font-semibold text-primary"
+          className={
+            `-mb-px border-b-2 pb-3 text-sm font-semibold ` +
+            (isHistoryActive
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-500 hover:text-gray-700')
+          }
           data-cy="recognition-tab-history"
         >
           Recognition History
         </Link>
         <Link
-          href="/feedback/recognition"
-          className="-mb-px border-b-2 border-transparent pb-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+          href={typesHref}
+          className={
+            `-mb-px border-b-2 pb-3 text-sm font-medium ` +
+            (isTypesActive
+              ? 'border-primary text-primary font-semibold'
+              : 'border-transparent text-gray-500 hover:text-gray-700')
+          }
           data-cy="recognition-tab-types"
         >
           Recognition Types
@@ -117,7 +148,6 @@ function RecognitionDetailLayoutShell({
         visible={visible}
         onCancel={() => setVisible(false)}
       />
-      
     </div>
   );
 }

@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  useGetAllRecognition,
   useGetAllRecognitionIds,
   useGetRecognitionById,
-  useGetAllRecognitionType,
+  useGetRecognitionsByParentRecognitionType,
+  useGetRecognitionTypeParentChildById,
 } from '@/store/server/features/CFR/recognition/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
@@ -36,7 +36,6 @@ import CustomPagination from '@/components/customPagination';
 import {
   CloseOutlined,
   DeleteOutlined,
-  FilterOutlined,
   SearchOutlined,
   UserOutlined,
 } from '@ant-design/icons';
@@ -67,6 +66,16 @@ function DetailPage() {
     setSelectedRowKeys,
     showBulkDeleteModal,
     setShowBulkDeleteModal,
+    deleteModalOpen,
+    setDeleteModalOpen,
+    filterPopoverOpen,
+    setFilterPopoverOpen,
+    draftFilters,
+    setDraftFilters,
+    detailModalOpen,
+    setDetailModalOpen,
+    selectedRecognitionId,
+    setSelectedRecognitionId,
   } = useRecongnitionStore();
 
   const { mutate: deleteRecognition, isLoading: isDeletingSingle } =
@@ -74,28 +83,25 @@ function DetailPage() {
   const { mutate: deleteBulkRecognitions, isLoading: isDeleting } =
     useDeleteBulkRecognitions();
   const isSelectingAllRef = useRef(false);
-  const [deleteModalOpen, setDeleteModalOpen] = React.useState<
-    Record<string, boolean>
-  >({});
-  const [filterPopoverOpen, setFilterPopoverOpen] = React.useState(false);
-  const [draftFilters, setDraftFilters] = React.useState<Record<string, any>>(
-    searchValue ?? {},
-  );
-  const [detailModalOpen, setDetailModalOpen] = React.useState(false);
-  const [selectedRecognitionId, setSelectedRecognitionId] = React.useState<
-    string | null
-  >(null);
 
   const searchParams = useSearchParams();
 
   const { refetch: fetchAllIds } = useGetAllRecognitionIds(searchValue, false);
   const { data: allUserData } = useGetAllUsers();
-  const { data: recognitionTypes } = useGetAllRecognitionType();
-  const { data: getAllRecognition, isLoading } = useGetAllRecognition({
-    searchValue,
-    current,
-    pageSize,
-  });
+  const { data: recognitionTypes } = useGetRecognitionTypeParentChildById(
+    searchValue?.recognitionTypeId ?? '',
+  );
+  const { data: getAllRecognition, isLoading } =
+    useGetRecognitionsByParentRecognitionType({
+      parentRecognitionTypeId: searchValue?.recognitionTypeId ?? '',
+      calendarId: searchValue?.calendarId ?? '',
+      sessionId: searchValue?.sessionId ?? '',
+      monthId: searchValue?.monthId ?? '',
+      recognitionTypeId: searchValue?.childRecognitionTypeId ?? '',
+      userId: searchValue?.userId ?? '',
+      current,
+      pageSize,
+    });
   const { data: selectedRecognition, isLoading: isSelectedRecognitionLoading } =
     useGetRecognitionById(selectedRecognitionId ?? '');
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
@@ -174,7 +180,10 @@ function DetailPage() {
       title: 'Recognition',
       dataIndex: 'recognition',
       render: (notused, record) => (
-        <span className="text-sm font-normal leading-normal text-black/70 ">
+        <span
+          className="text-sm font-normal leading-normal text-black/70 "
+          data-cy={`recognition-history-col-type-${record.id}`}
+        >
           {record.recognitionType?.name ?? '-'}
         </span>
       ),
@@ -193,7 +202,10 @@ function DetailPage() {
           : '-';
         const avatarUrl = employee?.profileImage; // update property name if it's different, e.g., employee?.avatar
         return record.recipientId ? (
-          <div className="flex items-center gap-2">
+          <div
+            className="flex items-center gap-2"
+            data-cy={`recognition-history-col-employee-${record.id}`}
+          >
             {avatarUrl ? (
               // Avatar image if exists
               <Avatar
@@ -208,7 +220,10 @@ function DetailPage() {
                 className="w-7 h-7 rounded-full object-cover"
               />
             )}
-            <span className="text-sm font-normal leading-normal text-black/70 ">
+            <span
+              className="text-sm font-normal leading-normal text-black/70 "
+              data-cy={`recognition-history-col-employee-name-${record.id}`}
+            >
               {name}
             </span>
           </div>
@@ -229,12 +244,21 @@ function DetailPage() {
           const firstCriteria = record.criteriaScore[0];
           const restCount = record.criteriaScore.length - 1;
           return (
-            <div className="flex items-center gap-2 ">
-              <span className="whitespace-nowrap px-2 py-.5 bg-gray-100 rounded-[4px] border border-[#D1D5DB] text-sm font-normal text-black/70">
+            <div
+              className="flex items-center gap-2 "
+              data-cy={`recognition-history-col-criteria-${record.id}`}
+            >
+              <span
+                className="whitespace-nowrap px-2 py-.5 bg-gray-100 rounded-[4px] border border-[#D1D5DB] text-sm font-normal text-black/70"
+                data-cy={`recognition-history-col-criteria-first-${record.id}`}
+              >
                 {firstCriteria?.name}
               </span>
               {restCount > 0 && (
-                <span className="whitespace-nowrap px-2 py-.5 bg-gray-100 rounded-[4px] border border-[#D1D5DB] text-sm font-normal text-black/70">
+                <span
+                  className="whitespace-nowrap px-2 py-.5 bg-gray-100 rounded-[4px] border border-[#D1D5DB] text-sm font-normal text-black/70"
+                  data-cy={`recognition-history-col-criteria-more-${record.id}`}
+                >
                   +{restCount}
                 </span>
               )}
@@ -267,22 +291,26 @@ function DetailPage() {
           : '-';
         const avatarUrl = employee?.profileImage; // update property name if it's different, e.g., employee?.avatar
         return record.issuerId ? (
-          <div className="flex items-center gap-2">
+          <div
+            className="flex items-center gap-2"
+            data-cy={`recognition-history-col-issuer-${record.id}`}
+          >
             {avatarUrl ? (
-              // Avatar image if exists
               <Avatar
                 src={avatarUrl}
                 alt={name}
                 className="w-7 h-7 rounded-full object-cover"
               />
             ) : (
-              // Fallback icon if no image
               <Avatar
                 icon={<UserOutlined />}
                 className="w-7 h-7 rounded-full object-cover"
               />
             )}
-            <span className="text-sm font-normal leading-normal text-black/70 ">
+            <span
+              className="text-sm font-normal leading-normal text-black/70 "
+              data-cy={`recognition-history-col-issuer-name-${record.id}`}
+            >
               {name}
             </span>
           </div>
@@ -295,7 +323,10 @@ function DetailPage() {
       title: 'Details',
       dataIndex: 'description',
       render: (notused, record) => (
-        <p className="text-sm font-normal leading-normal text-black/70 ">
+        <p
+          className="text-sm font-normal leading-normal text-black/70 "
+          data-cy={`recognition-history-col-details-${record.id}`}
+        >
           {record?.recognitionType?.description ?? '-'}
         </p>
       ),
@@ -315,6 +346,7 @@ function DetailPage() {
               loading={isDeletingSingle}
             >
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   setDeleteModalOpen((prev) => ({
@@ -323,6 +355,7 @@ function DetailPage() {
                   }));
                 }}
                 className="bg-white hover:bg-gray-100 text-black border rounded-[4px] border-gray-300 w-7 h-7 flex items-center justify-center"
+                data-cy={`recognition-history-delete-trigger-${record.id}`}
               >
                 <MdDeleteOutline />
               </button>
@@ -436,7 +469,10 @@ function DetailPage() {
         />
       </Modal>
 
-      <div className="border border-gray-200 rounded-lg p-4">
+      <div
+        className="border border-gray-200 rounded-lg p-4"
+        data-cy="recognition-history-filters-card"
+      >
         <Row gutter={[16, 16]} align="middle" className="mb-5">
           <Col flex="auto" xs={24} sm={24} md={16} lg={16}>
             <Select
@@ -452,7 +488,10 @@ function DetailPage() {
               }
               size="large"
               suffixIcon={
-                <div className="border-l border-gray-200  flex items-center justify-center h-8 ">
+                <div
+                  className="border-l border-gray-200  flex items-center justify-center h-8 "
+                  data-cy="recognition-history-employee-search-suffix"
+                >
                   {' '}
                   <SearchOutlined className="ml-2" />
                 </div>
@@ -475,9 +514,18 @@ function DetailPage() {
                 if (open) setDraftFilters(searchValue ?? {});
               }}
               content={
-                <div className="w-[570px] max-w-[92vw] py-4 px-5">
-                  <div className="flex items-center justify-between mb-3 ">
-                    <div className="text-base font-bold text-black/70">
+                <div
+                  className="w-[570px] max-w-[92vw] py-4 px-5"
+                  data-cy="recognition-history-filter-popover"
+                >
+                  <div
+                    className="flex items-center justify-between mb-3 "
+                    data-cy="recognition-history-filter-popover-header"
+                  >
+                    <div
+                      className="text-base font-bold text-black/70"
+                      data-cy="recognition-history-filter-popover-title"
+                    >
                       Filter
                     </div>
                     <Button
@@ -487,25 +535,36 @@ function DetailPage() {
                     />
                   </div>
 
-                  <div className="">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <div className="text-sm font-normal text-black/70 mb-2">
+                  <div
+                    className=""
+                    data-cy="recognition-history-filter-popover-body"
+                  >
+                    <div
+                      className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                      data-cy="recognition-history-filter-grid"
+                    >
+                      <div data-cy="recognition-history-filter-type-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-type-label"
+                        >
                           Type
                         </div>
                         <Select
                           placeholder="Select"
                           allowClear
                           className="w-full h-10"
-                          value={draftFilters?.recognitionTypeId || undefined}
+                          value={
+                            draftFilters?.childRecognitionTypeId || undefined
+                          }
                           onChange={(value) =>
                             setDraftFilters((prev) => ({
                               ...prev,
-                              recognitionTypeId: value,
+                              childRecognitionTypeId: value,
                             }))
                           }
                           options={
-                            recognitionTypes?.items?.map((item: any) => ({
+                            recognitionTypes?.map((item: any) => ({
                               key: item?.id,
                               value: item?.id,
                               label: item?.name,
@@ -514,8 +573,11 @@ function DetailPage() {
                         />
                       </div>
 
-                      <div>
-                        <div className="text-sm font-normal text-black/70 mb-2">
+                      <div data-cy="recognition-history-filter-month-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-month-label"
+                        >
                           Month
                         </div>
                         <Select
@@ -548,8 +610,11 @@ function DetailPage() {
                         />
                       </div>
 
-                      <div>
-                        <div className="text-sm font-normal text-black/70 mb-2">
+                      <div data-cy="recognition-history-filter-session-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-session-label"
+                        >
                           Session
                         </div>
                         <Select
@@ -579,8 +644,11 @@ function DetailPage() {
                         />
                       </div>
 
-                      <div>
-                        <div className="text-sm font-normal text-black/70 mb-2">
+                      <div data-cy="recognition-history-filter-year-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-year-label"
+                        >
                           Year
                         </div>
                         <Select
@@ -607,7 +675,10 @@ function DetailPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-3 pt-4">
+                    <div
+                      className="flex items-center justify-end gap-3 pt-4"
+                      data-cy="recognition-history-filter-actions"
+                    >
                       <Button
                         onClick={() => {
                           setDraftFilters(searchValue ?? {});
@@ -620,18 +691,21 @@ function DetailPage() {
                         type="primary"
                         onClick={() => {
                           handleSearchChange(
-                            'recognitionTypeId',
-                            draftFilters?.recognitionTypeId,
+                            'childRecognitionTypeId',
+                            draftFilters?.childRecognitionTypeId as string,
                           );
                           handleSearchChange(
                             'calendarId',
-                            draftFilters?.calendarId,
+                            draftFilters?.calendarId as string,
                           );
                           handleSearchChange(
                             'sessionId',
-                            draftFilters?.sessionId,
+                            draftFilters?.sessionId as string,
                           );
-                          handleSearchChange('monthId', draftFilters?.monthId);
+                          handleSearchChange(
+                            'monthId',
+                            draftFilters?.monthId as string,
+                          );
                           setCurrent(1);
                           setFilterPopoverOpen(false);
                         }}
@@ -651,7 +725,10 @@ function DetailPage() {
         </Row>
 
         {hasSelectedRows && (
-          <div className=" mb-4 flex justify-end">
+          <div
+            className=" mb-4 flex justify-end"
+            data-cy="recognition-history-bulk-delete-row"
+          >
             <AccessGuard permissions={[Permissions.DeleteRecognition]}>
               <Button
                 type="primary"
@@ -666,7 +743,7 @@ function DetailPage() {
           </div>
         )}
 
-        <div className="">
+        <div className="" data-cy="recognition-history-table-section">
           <Table<any>
             rowSelection={{ type: 'checkbox', ...rowSelection }}
             rowKey="id"
@@ -679,7 +756,10 @@ function DetailPage() {
               onClick: () => handleRowClick(record),
             })}
             loading={isLoading}
-            rowClassName={(_, index) => (index % 2 === 1 ? 'bg-[#fafafa]' : '')}
+            rowClassName={(unusedRecord, rowIndex) => {
+              void unusedRecord;
+              return rowIndex % 2 === 1 ? 'bg-[#fafafa]' : '';
+            }}
           />
           <CustomPagination
             current={getAllRecognition?.meta?.currentPage || 1}
@@ -693,6 +773,7 @@ function DetailPage() {
               setPageSize(size);
               setCurrent(1);
             }}
+            data-cy="recognition-history-pagination"
           />
         </div>
       </div>

@@ -23,7 +23,9 @@ function formatFrequency(freq?: string) {
   return freq.charAt(0).toUpperCase() + freq.slice(1).toLowerCase();
 }
 
-function getRecognitionTypeRows(items: any[] | undefined): RecognitionTypeRow[] {
+function getRecognitionTypeRows(
+  items: any[] | undefined,
+): RecognitionTypeRow[] {
   if (!items?.length) return [];
   const roots = items.filter((i) => i.parentTypeId == null);
   const rows: RecognitionTypeRow[] = [];
@@ -78,8 +80,11 @@ export default function RecognitionTypesAccordion({
       title: 'Criteria',
       dataIndex: ['criteria', 'criteriaName'],
       key: 'criteriaName',
-      render: (_: unknown, record: any) => (
-        <span className="inline-block rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm text-gray-800">
+      render: (notUsedCell: unknown, record: any) => (
+        <span
+          className="inline-block rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm text-gray-800"
+          data-cy="recognition-types-accordion-criteria-pill"
+        >
           {record?.criteria?.criteriaName ?? '-'}
         </span>
       ),
@@ -107,7 +112,7 @@ export default function RecognitionTypesAccordion({
       dataIndex: 'active',
       key: 'active',
       width: 100,
-      render: (_: unknown, record: any) => (
+      render: (notUsedStatus: unknown, record: any) => (
         <Tag className="m-0 border-gray-200 bg-gray-50 text-gray-700">
           {record?.active ? 'Active' : 'Inactive'}
         </Tag>
@@ -140,7 +145,7 @@ export default function RecognitionTypesAccordion({
         const critCount = criteria.length;
         const freqLabel = formatFrequency(type.frequency);
         const deptLabel = type.departmentId
-          ? departmentNameById.get(type.departmentId) ?? 'Department'
+          ? (departmentNameById.get(type.departmentId) ?? 'Department')
           : 'All Departments';
 
         return (
@@ -162,11 +167,20 @@ export default function RecognitionTypesAccordion({
               className="flex w-full cursor-pointer items-start gap-3 p-4 text-left outline-none hover:bg-gray-50/80"
               data-cy={`recognition-type-accordion-header-${type.id}`}
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#E6F4FF] text-primary">
+              <span
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#E6F4FF] text-primary"
+                data-cy={`recognition-type-accordion-icon-${type.id}`}
+              >
                 <MdOutlineEmojiEvents size={22} />
               </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <div
+                className="min-w-0 flex-1"
+                data-cy={`recognition-type-accordion-main-${type.id}`}
+              >
+                <div
+                  className="flex flex-wrap items-baseline gap-x-2 gap-y-1"
+                  data-cy={`recognition-type-accordion-title-row-${type.id}`}
+                >
                   <Link
                     href={`/feedback/recognition/detail?recognitionTypeId=${encodeURIComponent(type.id)}`}
                     className="text-base font-semibold text-gray-900 hover:text-primary"
@@ -177,30 +191,51 @@ export default function RecognitionTypesAccordion({
                   </Link>
                 </div>
                 {type.description ? (
-                  <p className="mt-1 text-sm leading-snug text-gray-500">
+                  <p
+                    className="mt-1 text-sm leading-snug text-gray-500"
+                    data-cy={`recognition-type-accordion-desc-${type.id}`}
+                  >
                     {type.description}
                   </p>
                 ) : null}
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div
+                  className="mt-3 flex flex-wrap gap-2"
+                  data-cy={`recognition-type-accordion-meta-${type.id}`}
+                >
                   {freqLabel ? (
-                    <span className="rounded-full border border-gray-200 bg-white px-3 py-0.5 text-xs font-medium text-gray-600">
+                    <span
+                      className="rounded-full border border-gray-200 bg-white px-3 py-0.5 text-xs font-medium text-gray-600"
+                      data-cy={`recognition-type-accordion-freq-${type.id}`}
+                    >
                       {freqLabel}
                     </span>
                   ) : null}
-                  <span className="rounded-full border border-gray-200 bg-white px-3 py-0.5 text-xs font-medium text-gray-600">
+                  <span
+                    className="rounded-full border border-gray-200 bg-white px-3 py-0.5 text-xs font-medium text-gray-600"
+                    data-cy={`recognition-type-accordion-dept-${type.id}`}
+                  >
                     {deptLabel}
                   </span>
                   {type.isMonetized ? (
-                    <span className="rounded-full border border-gray-200 bg-white px-3 py-0.5 text-xs font-medium text-gray-600">
+                    <span
+                      className="rounded-full border border-gray-200 bg-white px-3 py-0.5 text-xs font-medium text-gray-600"
+                      data-cy={`recognition-type-accordion-monetized-${type.id}`}
+                    >
                       Monetized
                     </span>
                   ) : null}
-                  <span className="rounded-full border border-gray-200 bg-white px-3 py-0.5 text-xs font-medium text-gray-600">
+                  <span
+                    className="rounded-full border border-gray-200 bg-white px-3 py-0.5 text-xs font-medium text-gray-600"
+                    data-cy={`recognition-type-accordion-crit-count-${type.id}`}
+                  >
                     {critCount} {critCount === 1 ? 'Criterion' : 'Criteria'}
                   </span>
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-2 self-start">
+              <div
+                className="flex shrink-0 items-center gap-2 self-start"
+                data-cy={`recognition-type-accordion-actions-${type.id}`}
+              >
                 {isOpen ? (
                   <Button
                     type="primary"
@@ -215,7 +250,10 @@ export default function RecognitionTypesAccordion({
                     Import Custom Criteria
                   </Button>
                 ) : null}
-                <span className="text-gray-400">
+                <span
+                  className="text-gray-400"
+                  data-cy={`recognition-type-accordion-toggle-icon-${type.id}`}
+                >
                   {isOpen ? <UpOutlined /> : <DownOutlined />}
                 </span>
               </div>
