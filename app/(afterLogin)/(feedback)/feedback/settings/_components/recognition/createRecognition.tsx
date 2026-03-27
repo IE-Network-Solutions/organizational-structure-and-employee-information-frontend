@@ -105,6 +105,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     setParentRecognitionTypeId,
     setOpenModal,
     editType,
+    setEditType,
   } = ConversationStore();
 
   const { isModalVisible, setIsModalVisible } =
@@ -147,7 +148,13 @@ const RecognitionForm: React.FC<PropsData> = ({
   const formulaTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const isMonetizedWatch = Form.useWatch('isMonetized', form);
-  const showFormulaStep = !createCategory && !!isMonetizedWatch;
+  const isEditingRecognition = selectedRecognitionType !== '';
+  const isRecognitionOnlyEdit =
+    isEditingRecognition && editType === 'recognition';
+  const isFormulaOnlyEdit = isEditingRecognition && editType === 'formula';
+  const showFormulaStep =
+    !createCategory &&
+    (isFormulaOnlyEdit || (!isRecognitionOnlyEdit && !!isMonetizedWatch));
 
   const { data: formulaById, refetch: refetchFormulaById } =
     useIncentiveFormulaByRecognitionId(
@@ -181,6 +188,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     setOpenModal(false);
     setFormulaTokens([]);
     setFormulaError('');
+    setEditType('');
     form.setFieldsValue({
       incentiveAmountType: 'Fixed',
       incentiveFixedAmount: undefined,
@@ -188,9 +196,10 @@ const RecognitionForm: React.FC<PropsData> = ({
   };
 
   useEffect(() => {
-    if (isWizardOpen) setCurrentStep(0);
+    if (!isWizardOpen) return;
+    setCurrentStep(isFormulaOnlyEdit ? 2 : 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWizardOpen]);
+  }, [isWizardOpen, isFormulaOnlyEdit]);
 
   useEffect(() => {
     if (!showFormulaStep && currentStep === 2) {
@@ -427,6 +436,11 @@ const RecognitionForm: React.FC<PropsData> = ({
     </span>
   );
   const onFinish = (values: RecognitionFormValues) => {
+    if (isFormulaOnlyEdit && selectedRecognitionType) {
+      persistIncentiveFormula(selectedRecognitionType, handleWizardClose);
+      return;
+    }
+
     const { ...rest } = values;
 
     const filteredObj = Object.fromEntries(
@@ -496,7 +510,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         },
         {
           onSuccess: () => {
-            if (values.isMonetized) {
+            if (values.isMonetized && !isRecognitionOnlyEdit) {
               persistIncentiveFormula(recognitionId, finishWizard);
             } else {
               finishWizard();
@@ -836,10 +850,17 @@ const RecognitionForm: React.FC<PropsData> = ({
       }
       setFormulaError('');
     }
+
+    if (isFormulaOnlyEdit && selectedRecognitionType) {
+      persistIncentiveFormula(selectedRecognitionType, handleWizardClose);
+      return;
+    }
+
     form.submit();
   };
 
   const wizardStepItems = useMemo(() => {
+    if (isFormulaOnlyEdit) return [];
     const items: { title: string }[] = [{ title: 'Recognition information' }];
     if (createCategory) return items;
     items.push({ title: 'Recognition Criteria' });
@@ -847,13 +868,15 @@ const RecognitionForm: React.FC<PropsData> = ({
       items.push({ title: 'Formula' });
     }
     return items;
-  }, [createCategory, isMonetizedWatch]);
+  }, [createCategory, isMonetizedWatch, isFormulaOnlyEdit]);
 
-  const isLastWizardStep = createCategory
+  const isLastWizardStep = isFormulaOnlyEdit
     ? true
-    : showFormulaStep
-      ? currentStep === 2
-      : currentStep === 1;
+    : createCategory
+      ? true
+      : showFormulaStep
+        ? currentStep === 2
+        : currentStep === 1;
 
   const onFinishCriteria = (values: CriteriaFormValues) => {
     createRecognitionCriteria(
@@ -1001,14 +1024,16 @@ const RecognitionForm: React.FC<PropsData> = ({
         }}
         data-cy="create-recognition-wizard-modal"
       >
-        <div className="px-6 pb-4" data-cy="create-recognition-wizard-steps">
-          <Steps
-            size="small"
-            current={currentStep}
-            items={wizardStepItems}
-            data-cy="create-recognition-wizard-steps-component"
-          />
-        </div>
+        {!isFormulaOnlyEdit && (
+          <div className="px-6 pb-4" data-cy="create-recognition-wizard-steps">
+            <Steps
+              size="small"
+              current={currentStep}
+              items={wizardStepItems}
+              data-cy="create-recognition-wizard-steps-component"
+            />
+          </div>
+        )}
         <Form
           form={form}
           layout="vertical"
@@ -2108,7 +2133,7 @@ const RecognitionForm: React.FC<PropsData> = ({
               }}
               data-cy="create-recognition-wizard-back"
             >
-              {currentStep === 0 ? 'Cancel' : 'Back'}
+              {currentStep === 0 || isFormulaOnlyEdit ? 'Cancel' : 'Back'}
             </Button>
 
             {!isLastWizardStep ? (

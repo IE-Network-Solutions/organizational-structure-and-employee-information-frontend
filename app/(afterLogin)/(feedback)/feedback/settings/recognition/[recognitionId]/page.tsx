@@ -117,6 +117,7 @@ export default function RecognitionDetailPage() {
           className="rounded-md"
           data-cy="recognition-detail-new"
           onClick={() => {
+            setEditType('');
             setSelectedRecognitionType('');
             setParentRecognitionTypeId(String(recognitionId ?? ''));
             setOpenRecognitionType(true);
