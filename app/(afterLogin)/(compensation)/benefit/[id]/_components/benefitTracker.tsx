@@ -220,7 +220,7 @@ const BenefitTracking = () => {
           </h3>
 
           <div
-            className="overflow-x-auto scrollbar-hide [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none"
+            className="overflow-hidden [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
             id="compensation-benefit-tracker-table-scroll"
             data-cy="compensation-benefit-tracker-table-scroll"
           >

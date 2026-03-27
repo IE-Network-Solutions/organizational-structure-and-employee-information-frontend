@@ -119,7 +119,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       dataIndex: 'userId',
       key: 'userId',
       width: '32%',
-      minWidth: isMobile ? 110 : 180,
+      minWidth: isMobile ? 180 : 180,
       ellipsis: true,
       render: (_: any, record: any) => (
         <div
@@ -144,7 +144,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       title: 'Mode',
       dataIndex: 'mode',
       key: 'mode',
-      width: isMobile ? 120 : 200,
+      width: isMobile ? 220 : 200,
       render: (mode: string, record: any) => (
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-[13px] font-normal leading-[18px] text-[#595959] whitespace-nowrap">
@@ -162,14 +162,14 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       title: 'Amount',
       dataIndex: 'Amount',
       key: 'Amount',
-      width: isMobile ? 90 : 130,
+      width: isMobile ? 140 : 130,
       render: (amount: string, record: any) =>
         amount ? <span className="text-[13px] text-[#434343]">{amount}</span> : '-',
     },
     {
       title: 'Action',
       key: 'action',
-      width: isMobile ? 60 : 84,
+      width: isMobile ? 72 : 84,
       align: 'left',
       render: (_: any, record: any) => {
         const hasAmount =
@@ -431,7 +431,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       >
         <>
           <div
-            className="overflow-x-auto scrollbar-hide [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none"
+            className="overflow-hidden [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
             id="compensation-benefit-entitlement-table-scroll"
             data-cy="compensation-benefit-entitlement-table-scroll"
           >
@@ -450,7 +450,11 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
                 index % 2 === 0 ? 'benefit-row-even' : 'benefit-row-odd'
               }
               pagination={false}
-              scroll={compact && (isMobile || isTablet) ? { x: 340 } : undefined}
+              scroll={
+                compact && (isMobile || isTablet)
+                  ? { x: 620 }
+                  : undefined
+              }
             />
           </div>
           {isMobile || isTablet ? (
