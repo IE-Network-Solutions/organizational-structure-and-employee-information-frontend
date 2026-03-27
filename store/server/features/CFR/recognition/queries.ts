@@ -70,6 +70,20 @@ const getTotalRecognition = async () => {
   });
 };
 
+const getRecognitionTypeDashboardStats = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/dashboard/stats`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 const getAllRecognitionTypesWithOutCriteria = async () => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -149,6 +163,30 @@ const getRecognitionTypeById = async (id: string) => {
   });
 };
 
+const getRecognitionTypeParentWithChildren = async (
+  parentRecognitionId: string,
+  pageSize: number,
+  current: number,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const queryString = [
+    `limit=${pageSize}`,
+    `page=${current}`,
+    ...Object.entries(parentRecognitionId)
+      .filter(([, value]) => value)
+      .map(([key, value]) => `${key}=${value}`),
+  ].join('&');
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/parents/with-children?${queryString}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 export const useGetRecognitionTypeById = (id: string | null) => {
   return useQuery<any>(
     ['recognitionTypes', id],
@@ -175,6 +213,29 @@ export const useGetAllRecognitionData = () => {
 
 export const useGetTotalRecognition = () => {
   return useQuery<any>('totalRecognition', getTotalRecognition);
+};
+
+export const useGetRecognitionTypeDashboardStats = () => {
+  return useQuery<any>(
+    'recognitionTypeDashboardStats',
+    getRecognitionTypeDashboardStats,
+  );
+};
+
+export const useGetRecognitionTypeParentWithChildren = (
+  searchCategory?: string | null,
+  pageSize: number,
+  current: number,
+) => {
+  return useQuery<any>(
+    ['recognitionTypeParentWithChildren', searchCategory, current, pageSize],
+    () =>
+      getRecognitionTypeParentWithChildren(
+        searchCategory as string,
+        pageSize,
+        current,
+      ),
+  );
 };
 
 export const useGetAllRecognitionTypeWithOutCriteria = () => {

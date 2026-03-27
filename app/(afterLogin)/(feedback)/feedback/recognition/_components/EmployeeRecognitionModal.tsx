@@ -1,5 +1,15 @@
 import React from 'react';
-import { Modal, Form, Select, Button, Table, Tag, Avatar, Spin } from 'antd';
+import {
+  Modal,
+  Form,
+  Select,
+  Button,
+  Table,
+  Tag,
+  Avatar,
+  Spin,
+  Skeleton,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
@@ -24,11 +34,13 @@ interface FormValues {
 interface EmployeeRecognitionModalProps {
   visible: boolean;
   onCancel: () => void;
+  loading: boolean;
 }
 
 const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
   visible,
   onCancel,
+  loading,
 }) => {
   const [form] = Form.useForm<FormValues>();
   const {
@@ -41,12 +53,14 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
     setVisible,
     selectedEmployeeId,
     employeesList,
+    setEmployeesList,
     setSelectedEmployeeId,
     filterOption,
     setFilterOption,
     dateRange,
     setSelectedRowKeys,
     resetSelection,
+    visibleEmployee,
   } = useRecongnitionStore();
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { mutate: createEmployeeRecognition, isLoading } =
@@ -103,7 +117,13 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <Spin size="small" />;
+    if (isLoading)
+      return (
+        <div className="flex items-center gap-2">
+          <Skeleton.Avatar active size="small" />
+          <Skeleton.Input active size="small" style={{ width: 120 }} />
+        </div>
+      );
     if (isError) return <>-</>;
 
     return employeeData ? (
@@ -221,60 +241,71 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
   };
   const handleCancel = () => {
     onCancel();
+    setVisible(false);
+    setVisibleEmployee(false);
     form.resetFields();
     setRecognitionTypeId('');
     setDateRange({ startDate: '', endDate: '' });
+    setEmployeesList([]);
+    setFilterOption('all');
     setSelectedEmployees([]);
     setSelectedEmployeeId('');
     setSelectedRowKeys([]); // Reset selected rows
   };
+  if (loading)
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-12 gap-4 my-3">
+          <div className="col-span-6">
+            <Skeleton.Input active block className="!h-10 !w-full" />
+          </div>
+          <div className="col-span-6">
+            <Skeleton.Input active block className="!h-10 !w-full" />
+          </div>
+        </div>
+
+        <Skeleton paragraph={false} title={{ width: 220 }} active />
+
+        <div className="rounded-md border border-gray-100 p-4">
+          <div className="grid grid-cols-12 gap-3 pb-3 border-b border-gray-100">
+            <Skeleton.Input active className="col-span-1 !h-4 !w-4" />
+            <Skeleton.Input active className="col-span-4 !h-4 !w-28" />
+            <Skeleton.Input active className="col-span-5 !h-4 !w-24" />
+            <Skeleton.Input active className="col-span-2 !h-4 !w-16" />
+          </div>
+
+          <div className="space-y-3 pt-3">
+            {[...Array(5)].map((_, index) => (
+              <div key={index} className="grid grid-cols-12 gap-3 items-center">
+                <Skeleton.Input active className="col-span-1 !h-4 !w-4" />
+                <div className="col-span-4 flex items-center gap-2">
+                  <Skeleton.Avatar active size="small" />
+                  <Skeleton.Input active className="!h-4 !w-28" />
+                </div>
+                <div className="col-span-5 flex gap-2">
+                  <Skeleton.Input active className="!h-6 !w-20" />
+                  <Skeleton.Input active className="!h-6 !w-20" />
+                  <Skeleton.Input active className="!h-6 !w-16" />
+                </div>
+                <Skeleton.Input active className="col-span-2 !h-4 !w-10" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   return (
-    <Modal
-      open={visible}
-      onCancel={handleCancel}
-      footer={
-        <Form.Item
-          style={{ textAlign: 'center' }}
-          data-cy="employee-recognition-modal-footer"
-          id="employeeRecognitionModalFooter"
-        >
-          <Button
-            disabled={isLoading}
-            onClick={handleCancel}
-            style={{ marginRight: 8 }}
-            data-cy="employee-recognition-modal-cancel-button"
-            id="employeeRecognitionModalCancelButton"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => form.submit()} // Manually trigger form submission
-            loading={isLoading}
-            type="primary"
-            htmlType="submit"
-            disabled={selectedEmployees.length === 0}
-            data-cy="employee-recognition-modal-create-button"
-            id="employeeRecognitionModalCreateButton"
-          >
-            Create
-          </Button>
-        </Form.Item>
-      }
-      centered
-      width={800}
+    <div
+      className={`${visibleEmployee ? 'block' : 'hidden'}`}
       data-cy="employee-recognition-modal"
+      id="employeeRecognitionModal"
     >
-      <CustomBreadcrumb
-        title="List"
-        subtitle="Employee's who fit the criteria"
-        data-cy="employee-recognition-modal-breadcrumb"
-      />
-      <RecognitionTypeSelector
+      {/* <RecognitionTypeSelector
         createRecognition={createRecognition}
         data-cy="employee-recognition-modal-recognition-type-selector"
-      />
+      /> */}
       <Form
-        className="h-80 overflow-y-auto scrollbar-none"
+        className=""
         form={form}
         onFinish={handleFinish}
         layout="vertical"
@@ -297,7 +328,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
-            className="w-full h-10 col-span-8"
+            className="w-full h-10 col-span-6"
             onChange={(value) => setSelectedEmployeeId(value)}
             data-cy="employee-recognition-modal-employee-select"
           >
@@ -316,7 +347,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
           <Select
             allowClear
             onChange={(value) => setFilterOption(value)}
-            className="col-span-4 h-10"
+            className="col-span-6 h-10"
             placeholder="Filter  By Selection"
             data-cy="employee-recognition-modal-filter-select"
             id="employeeRecognitionModalFilterSelect"
@@ -344,25 +375,53 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
             </Option>
           </Select>
         </div>
-        <p
-          className="text-sm text-gray-500 mt-2"
-          data-cy="employee-recognition-modal-selected-count"
-          id="employeeRecognitionModalSelectedCount"
+        <div className="h-80 overflow-y-auto scrollbar-none">
+          <p
+            className="text-sm text-gray-500 mt-2"
+            data-cy="employee-recognition-modal-selected-count"
+            id="employeeRecognitionModalSelectedCount"
+          >
+            {selectedEmployees.length} employee(s) selected across filters.
+          </p>
+          <Table
+            key={filterOption} // forces remount on filter change
+            rowSelection={{ type: 'checkbox', ...rowSelection }}
+            columns={columns}
+            dataSource={filteredEmployees}
+            rowKey="recipientId"
+            loading={createRecognitionLoading}
+            data-cy="employee-recognition-modal-table"
+            id="employeeRecognitionModalTable"
+          />
+        </div>
+        <Form.Item
+          className="flex items-center justify-end gap-2"
+          data-cy="employee-recognition-modal-footer"
+          id="employeeRecognitionModalFooter"
         >
-          {selectedEmployees.length} employee(s) selected across filters.
-        </p>
-        <Table
-          key={filterOption} // forces remount on filter change
-          rowSelection={{ type: 'checkbox', ...rowSelection }}
-          columns={columns}
-          dataSource={filteredEmployees}
-          rowKey="recipientId"
-          loading={createRecognitionLoading}
-          data-cy="employee-recognition-modal-table"
-          id="employeeRecognitionModalTable"
-        />
+          <Button
+            disabled={isLoading}
+            onClick={handleCancel}
+            style={{ marginRight: 8 }}
+            data-cy="employee-recognition-modal-cancel-button"
+            id="employeeRecognitionModalCancelButton"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => form.submit()} // Manually trigger form submission
+            loading={isLoading}
+            type="primary"
+            htmlType="submit"
+            disabled={selectedEmployees.length === 0}
+            data-cy="employee-recognition-modal-create-button"
+            id="employeeRecognitionModalCreateButton"
+          >
+            Create
+          </Button>
+        </Form.Item>
       </Form>
-    </Modal>
+    </div>
   );
 };
 

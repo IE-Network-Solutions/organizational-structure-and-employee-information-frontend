@@ -1,6 +1,5 @@
 'use client';
 
-import TabLandingLayout from '@/components/tabLanding';
 import {
   useGetAllRecognition,
   useGetAllRecognitionIds,
@@ -32,12 +31,8 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import RecognitionTypeModal from '../_components/recognitionTypeModal';
-import EmployeeRecognitionModal from '../_components/EmployeeRecognitionModal';
+import { useSearchParams } from 'next/navigation';
 import CustomPagination from '@/components/customPagination';
-import { FaArrowLeft, FaPlus } from 'react-icons/fa';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import {
   CloseOutlined,
   DeleteOutlined,
@@ -68,10 +63,6 @@ function DetailPage() {
     pageSize,
     setCurrent,
     setPageSize,
-    visible,
-    visibleEmployee,
-    setVisible,
-    setVisibleEmployee,
     selectedRowKeys,
     setSelectedRowKeys,
     showBulkDeleteModal,
@@ -96,7 +87,6 @@ function DetailPage() {
   >(null);
 
   const searchParams = useSearchParams();
-  const navigate = useRouter();
 
   const { refetch: fetchAllIds } = useGetAllRecognitionIds(searchValue, false);
   const { data: allUserData } = useGetAllUsers();
@@ -422,10 +412,6 @@ function DetailPage() {
     setDetailModalOpen(true);
   };
 
-  const handleRecognitionModal = () => {
-    setVisible(true);
-  };
-
   return (
     <div className="" data-cy="recognition-detail-page">
       <Modal
@@ -435,8 +421,8 @@ function DetailPage() {
           setSelectedRecognitionId(null);
         }}
         footer={null}
-        centered
-        className="md:h-[670px] md:w-[1145px]"
+        centered={false}
+        className="!w-[1145px] !max-w-[calc(100vw-2rem)] h-[670px] overflow-y-auto scrollbar-none"
         destroyOnClose
         closeIcon={null}
       >
@@ -450,27 +436,6 @@ function DetailPage() {
         />
       </Modal>
 
-      <div className="flex items-center justify-between mb-4">
-        <PageHeader
-          title="Recognition Detail"
-          description="Manage Recognition"
-        />
-        <div className="flex items-center gap-2">
-          <Button
-            icon={<FaArrowLeft />}
-            onClick={() => navigate.push('/feedback/recognition')}
-          >
-            Back
-          </Button>
-          <Button
-            type="primary"
-            onClick={handleRecognitionModal}
-            icon={<FaPlus />}
-          >
-            Recognize
-          </Button>
-        </div>
-      </div>
       <div className="border border-gray-200 rounded-lg p-4">
         <Row gutter={[16, 16]} align="middle" className="mb-5">
           <Col flex="auto" xs={24} sm={24} md={16} lg={16}>
@@ -732,14 +697,6 @@ function DetailPage() {
         </div>
       </div>
 
-      <RecognitionTypeModal
-        visible={visible}
-        onCancel={() => setVisible(false)}
-      />
-      <EmployeeRecognitionModal
-        visible={visibleEmployee}
-        onCancel={() => setVisibleEmployee(false)}
-      />
       <DeleteModal
         open={showBulkDeleteModal}
         onCancel={() => setShowBulkDeleteModal(false)}

@@ -113,7 +113,7 @@ export default function RecognitionDetail({
     '-';
 
   return (
-    <div className="w-full">
+    <div className="w-full ">
       <Card
         className="border-none rounded-none p-0 shadow-none"
         bordered={false}
@@ -129,7 +129,7 @@ export default function RecognitionDetail({
           />
         </div>
 
-        <div className="p-0 md:h-[670px] overflow-y-auto scrollbar-none">
+        <div className="p-0  scrollbar-none">
           <div className="rounded-xl border border-[#E5E7EB] bg-white p-5">
             <div className="flex items-center gap-3">
               <Avatar
@@ -171,7 +171,7 @@ export default function RecognitionDetail({
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 h-[200px] overflow-y-auto scrollbar-none">
             <Table
               columns={columns}
               dataSource={criteriaRows}
