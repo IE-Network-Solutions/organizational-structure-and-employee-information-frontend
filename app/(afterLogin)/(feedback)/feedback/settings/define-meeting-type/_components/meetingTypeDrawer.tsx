@@ -140,7 +140,6 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
           <Button
             htmlType="submit"
             type="primary"
-            onClick={() => form.submit()}
             loading={loading}
             className="h-10 px-6"
             data-cy="meeting-type-drawer-submit-button"
