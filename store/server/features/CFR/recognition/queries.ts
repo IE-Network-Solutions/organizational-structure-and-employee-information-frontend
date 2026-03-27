@@ -170,15 +170,21 @@ const getRecognitionTypeParentWithChildren = async (
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const queryString = [
+  // Construct query string safely, ensuring parentRecognitionId is not null/undefined
+  const queryStringParts = [
     `limit=${pageSize}`,
     `page=${current}`,
-    ...Object.entries(parentRecognitionId)
-      .filter(([, value]) => value)
-      .map(([key, value]) => `${key}=${value}`),
-  ].join('&');
+  ];
+
+  if (parentRecognitionId !== null) {
+    // If parentRecognitionId is provided, add it as a query param
+    queryStringParts.push(`parentRecognitionId=${parentRecognitionId}`);
+  }
+
+  const queryString = queryStringParts.join('&');
+
   return crudRequest({
-    url: `${ORG_DEV_URL}/recognition-type/parents/with-children?${queryString}`,
+    url: `${ORG_DEV_URL}/recognition-type/parents/with-children${parentRecognitionId !== null ? `?parentRecognitionId=${parentRecognitionId}` : ''}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -223,7 +229,7 @@ export const useGetRecognitionTypeDashboardStats = () => {
 };
 
 export const useGetRecognitionTypeParentWithChildren = (
-  searchCategory?: string | null,
+  searchCategory: string | null,
   pageSize: number,
   current: number,
 ) => {
