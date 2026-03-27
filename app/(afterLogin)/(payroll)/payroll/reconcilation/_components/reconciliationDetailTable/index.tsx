@@ -86,25 +86,25 @@ const ReconciliationDetailTable = ({
 
   const columns = [
     {
-      title: 'Employee ',
+      title: <span id="reconciliation-detail-table-employee-name-title" data-cy="reconciliation-detail-table-employee-name-title" className="text-sm font-bold text-[#4b4b4b]">Employee</span>,
       dataIndex: 'employeeName',
       key: 'employeeName',
       minWidth: 200,
     },
     {
-      title: 'Current',
+      title: <span id="reconciliation-detail-table-current-title" data-cy="reconciliation-detail-table-current-title" className="text-sm font-bold text-[#4b4b4b]">Current</span>,
       dataIndex: 'current',
       key: 'current',
       minWidth: 150,
     },
     {
-      title: 'Previous',
+      title: <span id="reconciliation-detail-table-previous-title" data-cy="reconciliation-detail-table-previous-title" className="text-sm font-bold text-[#4b4b4b]">Previous</span>,
       dataIndex: 'previous',
       key: 'previous',
       minWidth: 150,
     },
     {
-      title: 'Difference',
+      title: <span id="reconciliation-detail-table-difference-title" data-cy="reconciliation-detail-table-difference-title" className="text-sm font-bold text-[#4b4b4b]">Difference</span>,
       dataIndex: 'difference',
       key: 'difference',
       minWidth: 150,
@@ -136,9 +136,9 @@ const ReconciliationDetailTable = ({
 
   const payrollVarianceData =
     reconcilationDetails?.employeeVariances?.items?.map((item: any) => ({
-      employeeName: item.employeeName,
-      previous: Number(item.previous).toLocaleString(),
-      current: Number(item.current).toLocaleString(),
+      employeeName: <span id="reconciliation-detail-table-employee-name" data-cy="reconciliation-detail-table-employee-name" className="text-sm font-normal text-[#4d4d4d]">{item.employeeName}</span>,
+      previous: <span id="reconciliation-detail-table-previous" data-cy="reconciliation-detail-table-previous" className="text-sm font-normal text-[#4d4d4d]">{Number(item.previous).toLocaleString()}</span>,
+      current: <span id="reconciliation-detail-table-current" data-cy="reconciliation-detail-table-current" className="text-sm font-normal text-[#4d4d4d]">{Number(item.current).toLocaleString()}</span>,
       difference:
         item.difference != null && !isNaN(Number(item.difference))
           ? Number(item.difference).toLocaleString()
@@ -177,10 +177,10 @@ const ReconciliationDetailTable = ({
     varianceNumber == null
       ? 'text-[#4d4d4d]'
       : varianceNumber < 0
-        ? 'text-green-600'
+        ? 'text-[#86d65f]'
         : varianceNumber === 0
           ? 'text-gray-600'
-          : 'text-red-600';
+          : 'text-[#ff8384]';
 
   return (
     <div data-cy="reconciliation-detail-table-container" className="w-full">
@@ -191,7 +191,7 @@ const ReconciliationDetailTable = ({
         {/* Summary panel (left) */}
         <div
           data-cy="reconciliation-detail-table-summary-panel"
-          className="rounded-xl border border-gray-200 bg-white p-4 h-fit"
+          className="rounded-lg border-[1px] border-[#d9d9d9] bg-white p-4 h-fit"
         >
           <div
             data-cy="reconciliation-detail-table-summary-panel-content"
@@ -200,13 +200,13 @@ const ReconciliationDetailTable = ({
             <div data-cy="reconciliation-detail-table-previous-container">
               <div
                 data-cy="reconciliation-detail-table-previous-label"
-                className="text-[#74777F]"
+                className="text-[#4d4d4d] text-sm font-normal"
               >
                 Total Previous
               </div>
               <div
                 data-cy="reconciliation-detail-table-previous-container"
-                className="font-semibold"
+                className="text-base font-normal text-[#4d4d4d]"
               >
                 {formatMoneyLike(componentSummary?.previous)}
               </div>
@@ -214,13 +214,13 @@ const ReconciliationDetailTable = ({
             <div data-cy="reconciliation-detail-table-current-container">
               <div
                 data-cy="reconciliation-detail-table-current-label"
-                className="text-[#74777F]"
+                className="text-[#4d4d4d] text-sm font-normal"
               >
                 Current
               </div>
               <div
                 data-cy="reconciliation-detail-table-current-container"
-                className="font-semibold"
+                className="text-base font-normal text-[#4d4d4d]"
               >
                 {formatMoneyLike(componentSummary?.current)}
               </div>
@@ -232,13 +232,13 @@ const ReconciliationDetailTable = ({
             <div data-cy="reconciliation-detail-table-variance-container">
               <div
                 data-cy="reconciliation-detail-table-variance-label"
-                className="text-[#74777F]"
+                className="text-[#4d4d4d] text-sm font-normal"
               >
                 Variance(ATM)
               </div>
               <div
                 data-cy="reconciliation-detail-table-variance-container"
-                className={`font-semibold ${varianceClass}`}
+                className={`text-base font-normal ${varianceClass}`}
               >
                 {formatMoneyLike(componentSummary?.variance)}
               </div>
@@ -246,13 +246,13 @@ const ReconciliationDetailTable = ({
             <div data-cy="reconciliation-detail-table-variance-percentage-container">
               <div
                 data-cy="reconciliation-detail-table-variance-percentage-label"
-                className="text-[#74777F]"
+                className="text-[#4d4d4d] text-sm font-normal"
               >
                 Variance(%)
               </div>
               <div
                 data-cy="reconciliation-detail-table-variance-percentage-container"
-                className={`font-semibold ${varianceClass}`}
+                className={`text-base font-normal ${varianceClass}`}
               >
                 {componentSummary?.variancePercentage ?? '--'}
               </div>
@@ -264,23 +264,23 @@ const ReconciliationDetailTable = ({
             <div data-cy="reconciliation-detail-table-impact-container">
               <div
                 data-cy="reconciliation-detail-table-impact-label"
-                className="text-[#74777F]"
+                className="text-[#4d4d4d] text-sm font-normal"
               >
                 Impact
               </div>
               <div
                 data-cy="reconciliation-detail-table-impact-container"
-                className="flex items-center gap-2 font-semibold"
+                className="flex items-center gap-2 text-base font-normal text-[#4d4d4d]"
               >
                 <span
                   data-cy="reconciliation-detail-table-impact-icon"
                   className={`inline-block h-2 w-2 rounded-full ${
                     (componentSummary?.impact || '').toLowerCase() === 'high'
-                      ? 'bg-red-500'
+                      ? 'bg-[#ff4d4f]'
                       : (componentSummary?.impact || '').toLowerCase() ===
                           'medium'
-                        ? 'bg-orange-500'
-                        : 'bg-green-500'
+                        ? 'bg-[#faad14]'
+                        : 'bg-[#52c41a]'
                   }`}
                 />
                 <span
@@ -297,7 +297,7 @@ const ReconciliationDetailTable = ({
         {/* Table panel (right) */}
         <div
           data-cy="reconciliation-detail-table-container"
-          className="rounded-xl border border-gray-200 bg-white p-4"
+          className="rounded-lg border-[1px] border-[#d9d9d9] bg-white p-4"
         >
           <div
             data-cy="reconciliation-detail-table-select"
@@ -306,8 +306,7 @@ const ReconciliationDetailTable = ({
             <Select
               showSearch
               allowClear
-              suffixIcon={<SearchOutlined />}
-              className="h-8 w-full max-w-md"
+              className="h-8 w-full max-w-[300px]"
               placeholder="Search Employee"
               value={search || undefined}
               onChange={(value) => handleEmployeeSelect(value)}
@@ -319,6 +318,14 @@ const ReconciliationDetailTable = ({
                 );
               }}
               options={options}
+              suffixIcon={
+                <div
+                  className="text-gray-400 border-l border-gray-300 p-2"
+                  data-cy="transfer-search-icon-container"
+                >
+                  <SearchOutlined data-cy="transfer-search-icon" />
+                </div>
+              }
             />
           </div>
 
@@ -331,10 +338,7 @@ const ReconciliationDetailTable = ({
               dataSource={payrollVarianceData}
               columns={columns}
               pagination={false}
-              className="custom-payroll-table"
-              rowClassName={(record: any) =>
-                record?.userId ? 'cursor-pointer' : ''
-              }
+              rowHoverable={false}
               onRow={(record: any) => ({
                 onClick: () => {
                   if (record?.userId) {
@@ -342,6 +346,9 @@ const ReconciliationDetailTable = ({
                   }
                 },
               })}
+              rowClassName={(notUsed, index) =>
+                index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+              }
             />
           </div>
 

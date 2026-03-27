@@ -1,6 +1,6 @@
 'use client';
-import CustomBreadcrumb from '@/components/common/breadCramp';
 import {
+  Breadcrumb,
   Button,
   Card,
   Col,
@@ -12,9 +12,12 @@ import {
   Tabs,
   Tag,
 } from 'antd';
+import { CalendarOutlined, CheckOutlined } from '@ant-design/icons';
 import { PiExportLight } from 'react-icons/pi';
 import ReconciliationDetailTable from './_components/reconciliationDetailTable';
 import { useState, useEffect } from 'react';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 
 import {
   useGetPayPeriod,
@@ -35,7 +38,6 @@ import {
   useApprovePayrollApproval,
   useLastApprovingPayroll,
 } from '@/store/server/features/payroll/payrollApproval/mutation';
-import { TbFileExport } from 'react-icons/tb';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const { Option } = Select;
@@ -147,7 +149,7 @@ const PayrollReconcilation = () => {
 
   const columns = [
     {
-      title: 'Types',
+      title: <span id="payroll-reconciliation-types-title" data-cy="payroll-reconciliation-types-title" className="text-sm font-bold text-[#4b4b4b]">Types</span>,
       dataIndex: 'types',
       key: 'types',
       minWidth: 200,
@@ -163,7 +165,7 @@ const PayrollReconcilation = () => {
       ),
     },
     {
-      title: 'Previous',
+      title: <span id="payroll-reconciliation-previous-title" data-cy="payroll-reconciliation-previous-title" className="text-sm font-bold text-[#4b4b4b]">Previous</span>,
       dataIndex: 'previous',
       key: 'previous',
       minWidth: 150,
@@ -177,7 +179,7 @@ const PayrollReconcilation = () => {
       },
     },
     {
-      title: 'Current',
+      title: <span id="payroll-reconciliation-current-title" data-cy="payroll-reconciliation-current-title" className="text-sm font-bold text-[#4b4b4b]">Current</span>,
       dataIndex: 'current',
       key: 'current',
       minWidth: 150,
@@ -192,7 +194,7 @@ const PayrollReconcilation = () => {
     },
 
     {
-      title: 'Variance(AMT)',
+      title: <span id="payroll-reconciliation-variance-title" data-cy="payroll-reconciliation-variance-title" className="text-sm font-bold text-[#4b4b4b]">Variance(AMT)</span>,
       dataIndex: 'variance',
       key: 'variance',
       minWidth: 150,
@@ -221,7 +223,7 @@ const PayrollReconcilation = () => {
       },
     },
     {
-      title: 'Variance(%)',
+      title: <span id="payroll-reconciliation-variance-percentage-title" data-cy="payroll-reconciliation-variance-percentage-title" className="text-sm font-bold text-[#4b4b4b]">Variance(%)</span>,
       dataIndex: 'variancePercentage',
       key: 'variancePercentage',
       minWidth: 150,
@@ -252,7 +254,7 @@ const PayrollReconcilation = () => {
       },
     },
     {
-      title: 'Impact',
+      title: <span id="payroll-reconciliation-impact-title" data-cy="payroll-reconciliation-impact-title" className="text-sm font-bold text-[#4b4b4b]">Impact</span>,
       dataIndex: 'impact',
       key: 'impact',
       minWidth: 150,
@@ -261,9 +263,9 @@ const PayrollReconcilation = () => {
   ];
 
   const payrollVarianceData = data?.components?.map((item: any) => ({
-    types: item.label,
-    previous: Number(item.previous).toLocaleString(),
-    current: Number(item.current).toLocaleString(),
+    types: <span id="payroll-reconciliation-types" data-cy="payroll-reconciliation-types" className="text-sm font-normal text-[#4d4d4d]">{item.label}</span>,
+    previous: <span id="payroll-reconciliation-previous" data-cy="payroll-reconciliation-previous" className="text-sm font-normal text-[#4d4d4d]">{Number(item.previous).toLocaleString()}</span>,
+    current: <span id="payroll-reconciliation-current" data-cy="payroll-reconciliation-current" className="text-sm font-normal text-[#4d4d4d]">{Number(item.current).toLocaleString()}</span>,
     variance:
       item.variance != null && !isNaN(Number(item.variance))
         ? Number(item.variance).toLocaleString()
@@ -273,9 +275,20 @@ const PayrollReconcilation = () => {
         ? item.variancePercentage
         : '--',
     impact: (
-      <Tag color={impactColors[item.impact as keyof typeof impactColors]}>
-        {item.impact}
-      </Tag>
+      <div className="flex items-center gap-2">
+      <span
+                  data-cy="reconciliation-detail-table-impact-icon"
+                  className={`inline-block h-[6px] w-[6px] rounded-full ${
+                    (item.impact || '').toLowerCase() === 'high'
+                      ? 'bg-[#ff4d4f]'
+                      : (item.impact || '').toLowerCase() ===
+                          'medium'
+                        ? 'bg-[#faad14]'
+                        : 'bg-[#52c41a]'
+                  }`}
+                />
+        <span data-cy="reconciliation-detail-table-impact" className="capitalize">{item.impact}</span>
+        </div>
     ),
   }));
 
@@ -328,6 +341,10 @@ const PayrollReconcilation = () => {
             dataSource={payrollVarianceData}
             columns={columns}
             pagination={false}
+            rowHoverable={false}
+            rowClassName={(notUsed, index) =>
+              index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+            }
           />
         </div>
       );
@@ -345,19 +362,61 @@ const PayrollReconcilation = () => {
     );
   };
 
+  const getTabLabel = (key: string, text: string) => (
+    <span data-cy="payroll-reconciliation-tab-label" className={activeTab === key ? 'font-bold' : 'font-normal'}>
+      {text}
+    </span>
+  );
+
   const items: any = [
-    { key: '1', label: 'All Category', children: renderTabContent('1') },
-    { key: '2', label: 'Basic', children: renderTabContent('2') },
-    { key: '3', label: 'Allowance', children: renderTabContent('3') },
-    { key: '4', label: 'Benefit', children: renderTabContent('4') },
-    { key: '5', label: 'VP', children: renderTabContent('5') },
-    { key: '6', label: 'Incentive', children: renderTabContent('6') },
-    { key: '7', label: 'Gross', children: renderTabContent('7') },
-    { key: '8', label: 'Tax', children: renderTabContent('8') },
-    { key: '9', label: 'Pension', children: renderTabContent('9') },
-    { key: '10', label: 'Cost Sharing', children: renderTabContent('10') },
-    { key: '11', label: 'Deduction', children: renderTabContent('11') },
-    { key: '12', label: 'Net Pay', children: renderTabContent('12') },
+    {
+      key: '1',
+      label: getTabLabel('1', 'All Category'),
+      children: renderTabContent('1'),
+    },
+    {
+      key: '2',
+      label: getTabLabel('2', 'Basic'),
+      children: renderTabContent('2'),
+    },
+    {
+      key: '3',
+      label: getTabLabel('3', 'Allowance'),
+      children: renderTabContent('3'),
+    },
+    {
+      key: '4',
+      label: getTabLabel('4', 'Benefit'),
+      children: renderTabContent('4'),
+    },
+    { key: '5', label: getTabLabel('5', 'VP'), children: renderTabContent('5') },
+    {
+      key: '6',
+      label: getTabLabel('6', 'Incentive'),
+      children: renderTabContent('6'),
+    },
+    { key: '7', label: getTabLabel('7', 'Gross'), children: renderTabContent('7') },
+    { key: '8', label: getTabLabel('8', 'Tax'), children: renderTabContent('8') },
+    {
+      key: '9',
+      label: getTabLabel('9', 'Pension'),
+      children: renderTabContent('9'),
+    },
+    {
+      key: '10',
+      label: getTabLabel('10', 'Cost Sharing'),
+      children: renderTabContent('10'),
+    },
+    {
+      key: '11',
+      label: getTabLabel('11', 'Deduction'),
+      children: renderTabContent('11'),
+    },
+    {
+      key: '12',
+      label: getTabLabel('12', 'Net Pay'),
+      children: renderTabContent('12'),
+    },
   ];
 
   const handleApprovePayroll = () => {
@@ -402,76 +461,128 @@ const PayrollReconcilation = () => {
     });
   };
 
+  const formatNumber = (value: number | string | null | undefined) =>
+    Number(value ?? 0).toLocaleString();
+
+  const formatETB = (value: number | string | null | undefined) =>
+    `ETB ${formatNumber(value)}`;
+
   return (
     <div
-      className="min-h-screen w-full px-3 sm:px-6 "
-      id="manage-employees-page"
-      data-cy="manage-employees-page"
+      id="payroll-reconciliation-page"
+      data-cy="payroll-reconciliation-page"
     >
       <div
-        className="flex flex-wrap justify-between items-center"
-        id="manage-employees-header"
-        data-cy="manage-employees-header"
+        className="mb-6"
+        id="payroll-reconciliation-header"
+        data-cy="payroll-reconciliation-header"
       >
-        <Button
-          value={'back'}
-          name="back"
-          onClick={handleGoBack}
-          className="border-none bg-transparent p-0 mr-2"
-          id="payroll-reconciliation-back-btn"
-          data-cy="payroll-reconciliation-back-btn"
-        >
-          <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
-        </Button>
-        <CustomBreadcrumb
-          title="Payroll Reconciliation"
-          subtitle="Employee Payroll Reconciliation"
-        />
-
-        <div
-          data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
-          className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
-        >
-          <Button
-            type="primary"
-            size="large"
-            className="h-10 w-10 sm:w-auto"
-            icon={<PiExportLight />}
-          >
-            <span
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285"
-              className="hidden sm:inline"
-            >
-              Export
-            </span>
-          </Button>
-          {hasPendingApprovals && (
+        <div id="payroll-reconciliation-header-container" className="flex flex-wrap items-start justify-between gap-4">
+          <div id="payroll-reconciliation-header-content" className="flex items-start">
             <Button
-              id="payroll-approve-button"
-              data-cy="payroll-approve-button"
-              type="primary"
-              className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
-              onClick={() => setIsApproveModalOpen(true)}
-              loading={isApproving || isLastApproving}
+              value={'back'}
+              name="back"
+              onClick={handleGoBack}
+              className="border-none bg-transparent p-0 mr-2 mt-1"
+              id="payroll-reconciliation-back-btn"
+              data-cy="payroll-reconciliation-back-btn"
             >
-              {isMobile ? (
-                <TbFileExport data-cy="payroll-approve-icon" size={24} />
-              ) : (
-                'Approve Payroll'
-              )}
+              <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
             </Button>
-          )}
+            <div
+              className="pt-1"
+              data-cy="org-settings-header-container"
+            >
+              <h3
+                className="text-gray-900 text-2xl font-bold mb-0"
+                data-cy="org-settings-page-header-title"
+                id="org-settings-page-header-title"
+              >
+                Payroll Reconciliation
+              </h3>
+              <Breadcrumb
+                className="mt-2 mb-0"
+                items={[
+                  {
+                    title: (
+                      <a
+                        href="/payroll/payroll"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          router.push('/payroll/payroll');
+                        }}
+                        data-cy="payroll-reconciliation-breadcrumb-payroll-link"
+                      >
+                        Payroll
+                      </a>
+                    ),
+                  },
+                  {
+                    title: 'Employee’s Payroll Reconciliation',
+                  },
+                ]}
+                data-cy="payroll-reconciliation-breadcrumb"
+              />
+            </div>
+          </div>
+
+          <div
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
+            className="flex flex-wrap items-center justify-end gap-3 pt-3"
+          >
+            <Button
+              size="large"
+              className="h-10 w-10 sm:px-4 text-[#3A3A3A] border-[#D9D9D9]"
+              icon={<SaveAltIcon />}
+            >
+              <span data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285">
+               {!isMobile && 'Export'}
+              </span>
+            </Button>
+            {true && (
+              <Button
+                id="payroll-approve-button"
+                data-cy="payroll-approve-button"
+                type="primary"
+                icon={<DoneOutlineIcon />}
+                className="h-10 px-4"
+                onClick={() => setIsApproveModalOpen(true)}
+                loading={isApproving || isLastApproving}
+              >
+                {!isMobile && 'Approve Payroll'}
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
-      <Row gutter={[16, 16]} align="middle" className="mb-6">
-        <Col xs={24} sm={24} md={4} lg={4} xl={4}>
-          <div data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-291">
+
+        <Row gutter={[16, 16]} align="middle" className="mt-6">
+          <Col xs={24} sm={12} md={8} lg={6} xl={5} className="md:ml-auto">
+            <div data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-291">
+              <Select
+                placeholder="Select date"
+                allowClear
+                suffixIcon={<CalendarOutlined />}
+                className="w-full h-10"
+                value={previousPayPeriodId}
+                onChange={(value) => setPreviousPayPeriodId(value)}
+              >
+                {payPeriodData?.map((period: any) => (
+                  <Option key={period.id} value={period.id}>
+                    {dayjs(period.startDate).format('MMM DD, YYYY')} --
+                    {dayjs(period.endDate).format('MMM DD, YYYY')}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6} xl={5}>
             <Select
-              placeholder="Previous Pay Period"
               allowClear
-              style={{ width: '100%', height: '48px' }}
-              value={previousPayPeriodId}
-              onChange={(value) => setPreviousPayPeriodId(value)}
+              placeholder="Select date"
+              suffixIcon={<CalendarOutlined />}
+              className="w-full h-10"
+              value={currentPayPeriodId}
+              onChange={(value) => setCurrentPayPeriodId(value)}
             >
               {payPeriodData?.map((period: any) => (
                 <Option key={period.id} value={period.id}>
@@ -480,32 +591,19 @@ const PayrollReconcilation = () => {
                 </Option>
               ))}
             </Select>
-          </div>
-        </Col>
-        <Col xs={24} sm={24} md={4} lg={4} xl={4}>
-          <Select
-            allowClear
-            className="min-h-12 w-full"
-            placeholder="Current Pay Period"
-            value={currentPayPeriodId}
-            onChange={(value) => setCurrentPayPeriodId(value)}
-          >
-            {payPeriodData?.map((period: any) => (
-              <Option key={period.id} value={period.id}>
-                {dayjs(period.startDate).format('MMM DD, YYYY')} --
-                {dayjs(period.endDate).format('MMM DD, YYYY')}
-              </Option>
-            ))}
-          </Select>
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+      </div>
 
       <div
         data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-326"
-        className="grid grid-cols-1 lg:grid lg:grid-cols-3 xl:grid-cols-3 md:grid-cols-1 gap-12 mb-3"
+        className="grid w-full grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-[80px] mb-6"
       >
         {/* Total Payroll Cost */}
-        <Card className="rounded-lg shadow-sm border" loading={isLoading}>
+        <Card
+          className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
+          loading={isLoading}
+        >
           <p
             data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-329"
             className="text-[#707070] text-base mb-2 font-normal"
@@ -516,9 +614,7 @@ const PayrollReconcilation = () => {
             data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-332"
             className="text-3xl font-bold text-black"
           >
-            {data?.summary?.totalPayrollCost
-              ? Number(data?.summary?.totalPayrollCost).toLocaleString()
-              : 0}
+            {formatETB(data?.summary?.totalPayrollCost)}
           </p>
 
           <p
@@ -530,14 +626,15 @@ const PayrollReconcilation = () => {
               data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-340"
               className="font-normal text-[#4d4d4d]"
             >
-              {data?.summary?.previousPayrollCost
-                ? Number(data?.summary?.previousPayrollCost).toLocaleString()
-                : 0}
+              {formatNumber(data?.summary?.previousPayrollCost)}
             </span>
           </p>
         </Card>
         {/* Net Variance */}
-        <Card className="rounded-lg shadow-sm border" loading={isLoading}>
+        <Card
+          className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
+          loading={isLoading}
+        >
           <p
             data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-349"
             className="text-[#707070] text-base mb-2 font-normal"
@@ -548,27 +645,26 @@ const PayrollReconcilation = () => {
             data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-352"
             className="text-3xl font-bold text-black"
           >
-            {data?.summary?.netVariance
-              ? Number(data?.summary?.netVariance).toLocaleString()
-              : 0}
+            {formatETB(data?.summary?.netVariance)}
           </p>
           <p
             data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-355"
             className="text-sm text-[#4d4d4d] mt-3 font-normal"
           >
-            Previous:{' '}
+            <span className="text-[#F04438]">-4</span>{' '}
             <span
               data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-357"
               className="font-normal text-[#4d4d4d]"
             >
-              {data?.summary?.previousNetVariance
-                ? Number(data?.summary?.previousNetVariance).toLocaleString()
-                : 0}
+              Since Last pay period
             </span>
           </p>
         </Card>
         {/* Headcount Impact */}
-        <Card className="rounded-lg shadow-sm border" loading={isLoading}>
+        <Card
+          className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
+          loading={isLoading}
+        >
           <p
             data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-381"
             className="text-[#707070] text-base mb-2 font-normal"
@@ -579,7 +675,7 @@ const PayrollReconcilation = () => {
             data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-384"
             className="text-3xl font-bold text-black"
           >
-            {data?.summary?.headcount} Employees
+            {formatNumber(data?.summary?.headcount)} Employees
           </p>
 
           <div
@@ -595,19 +691,19 @@ const PayrollReconcilation = () => {
                 data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-391"
                 className="font-normal text-[#4d4d4d]"
               >
-                {data?.summary?.previousHeadcount}
+                {formatNumber(data?.summary?.previousHeadcount)}
               </span>
             </p>
             <p
               className="font-normal text-[#4d4d4d]"
               data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-395"
             >
-              Terminations:{' '}
+              Termination:{' '}
               <span
                 data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-397"
                 className="font-normal text-[#4d4d4d]"
               >
-                {data?.summary?.terminations}
+                {formatNumber(data?.summary?.terminations)}
               </span>
             </p>
           </div>
