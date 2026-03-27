@@ -75,6 +75,9 @@ export interface CategoriesUseState {
   parentRecognitionTypeId: string;
   setParentRecognitionTypeId: (value: string) => void;
 
+  editType: string;
+  setEditType: (value: string) => void;
+
   editingRowKeys: any;
   setEditingRowKeys: (valiue: any) => void;
 
@@ -223,6 +226,9 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   parentRecognitionTypeId: '',
   setParentRecognitionTypeId: (parentRecognitionTypeId: string) =>
     set({ parentRecognitionTypeId }),
+
+  editType: '',
+  setEditType: (editType: string) => set({ editType }),
 
   editingRowKeys: {},
   setEditingRowKeys: (editingRowKeys: any) => set({ editingRowKeys }),

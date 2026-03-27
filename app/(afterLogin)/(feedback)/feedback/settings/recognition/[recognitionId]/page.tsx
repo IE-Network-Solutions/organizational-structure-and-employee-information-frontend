@@ -14,6 +14,7 @@ import { useMemo, useState } from 'react';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import RecognitionForm from '../../_components/recognition/createRecognition';
 import { AiOutlineTrophy } from 'react-icons/ai';
+import { LuSuperscript } from 'react-icons/lu';
 
 type RecognitionCriterion = {
   id?: string;
@@ -48,6 +49,7 @@ export default function RecognitionDetailPage() {
     setOpenRecognitionType,
     setParentRecognitionTypeId,
     setSelectedRecognitionType,
+    setEditType,
   } = ConversationStore();
 
   const { data: recognitionType, isLoading } =
@@ -62,8 +64,9 @@ export default function RecognitionDetailPage() {
     [recognitionName, selectedRecognition?.name],
   );
   const description = selectedRecognition?.description || '';
-  const openEditRecognitionModal = (id?: string) => {
+  const openEditRecognitionModal = (id?: string, editType?: string) => {
     if (!id) return;
+    setEditType(editType || '');
     setParentRecognitionTypeId('');
     setSelectedRecognitionType(String(id));
     setOpenRecognitionType(true);
@@ -228,11 +231,24 @@ export default function RecognitionDetailPage() {
                         menu={{
                           items: [
                             {
-                              key: 'edit',
-                              label: 'Edit',
+                              key: 'editRecognitionType',
+                              label: 'Edit Recognition Type',
                               icon: <Edit2Icon className="w-4 h-4 text-xs" />,
                               onClick: () => {
-                                openEditRecognitionModal(child?.id);
+                                openEditRecognitionModal(
+                                  child?.id,
+                                  'recognition',
+                                );
+                              },
+                            },
+                            {
+                              key: 'editFormula',
+                              label: 'Edit Formula',
+                              icon: (
+                                <LuSuperscript className="w-4 h-4 text-xs" />
+                              ),
+                              onClick: () => {
+                                openEditRecognitionModal(child?.id, 'formula');
                               },
                             },
                             {
@@ -407,35 +423,11 @@ export default function RecognitionDetailPage() {
                                             icon: (
                                               <Edit2Icon className="w-4 h-4 text-xs" />
                                             ),
-                                            onClick: () => {
-                                              openEditRecognitionModal(
-                                                child?.id,
-                                              );
-                                            },
-                                          },
-                                          {
-                                            key: 'delete',
-                                            label: (
-                                              <Popconfirm
-                                                title="Are you sure you want to delete?"
-                                                onConfirm={() => {
-                                                  // TODO: wire delete action later
-                                                  // deleteRecognitionType(item?.id);
-                                                }}
-                                                okText="Yes"
-                                                cancelText="No"
-                                                data-cy={`recognition-detail-criteria-delete-confirm-${criterion?.id}`}
-                                                id={`recognitionDetailCriteriaDeleteConfirm${criterion?.id}`}
-                                              >
-                                                <span
-                                                  className="flex items-center gap-2"
-                                                  data-cy={`recognition-detail-criteria-delete-${criterion?.id}`}
-                                                >
-                                                  <MdDeleteOutline className="w-4 h-4" />
-                                                  Delete
-                                                </span>
-                                              </Popconfirm>
-                                            ),
+                                            // onClick: () => {
+                                            //   openEditRecognitionModal(
+                                            //     child?.id,
+                                            //   );
+                                            // },
                                           },
                                         ],
                                       }}

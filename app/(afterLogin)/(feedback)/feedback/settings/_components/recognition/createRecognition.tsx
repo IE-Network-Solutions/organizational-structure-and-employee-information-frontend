@@ -104,6 +104,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     open: openModal,
     setParentRecognitionTypeId,
     setOpenModal,
+    editType,
   } = ConversationStore();
 
   const { isModalVisible, setIsModalVisible } =
@@ -1816,16 +1817,14 @@ const RecognitionForm: React.FC<PropsData> = ({
 
           {showFormulaStep && (
             <div
-              className={
-                currentStep === 2 ? 'block bg-red-500' : 'hidden bg-red-500'
-              }
+              className={currentStep === 2 ? 'block ' : 'hidden '}
               data-cy="create-recognition-step-2-formula"
             >
               <Form.Item name="incentiveAmountType" hidden>
                 <Input />
               </Form.Item>
 
-              <div className="flex gap-2 mb-4 bg-red-300">
+              <div className="flex gap-2 mb-4 ">
                 <Form.Item shouldUpdate noStyle>
                   {() => {
                     const t =
