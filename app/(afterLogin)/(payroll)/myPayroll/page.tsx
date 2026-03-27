@@ -502,6 +502,15 @@ export default function MyPayroll() {
           margin-right: -24px !important;
           min-width: calc(100% + 48px) !important;
         }
+        :global(.settlement-scroll-hidden) {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        :global(.settlement-scroll-hidden::-webkit-scrollbar) {
+          width: 0;
+          height: 0;
+          display: none;
+        }
         :global(.ant-tabs-tab .ant-tabs-tab-btn) {
           font-size: 16px !important;
         }
@@ -1318,6 +1327,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
               </div>
 
               <div
+                className="settlement-scroll-hidden"
                 style={{
                   marginTop: '24px',
                   overflowX: 'auto',

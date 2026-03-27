@@ -1008,6 +1008,7 @@ const EmployeeProfile = () => {
                 </div>
 
                 <div
+                  className="settlement-scroll-hidden"
                   style={{
                     marginTop: '24px',
                     overflowX: 'auto',
@@ -1686,6 +1687,15 @@ const EmployeeProfile = () => {
         </div>
       </div>
       <style jsx data-cy="payroll-employee-detail-local-styles">{`
+        :global(.settlement-scroll-hidden) {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        :global(.settlement-scroll-hidden::-webkit-scrollbar) {
+          width: 0;
+          height: 0;
+          display: none;
+        }
         :global(.ant-tabs-tab .ant-tabs-tab-btn) {
           font-size: 16px !important;
         }

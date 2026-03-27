@@ -69,7 +69,7 @@ const PayrollModal: React.FC = () => {
       }
       width={isMobile ? 'calc(100vw - 24px)' : 600}
       centered
-      bodyStyle={{ padding: isMobile ? '16px' : '16px 24px' }}
+      bodyStyle={{ padding: isMobile ? 0 : '16px 24px' }}
       data-cy="payroll-allowance-modal"
       title={
         <span
@@ -114,6 +114,7 @@ const PayrollModal: React.FC = () => {
               </span>
             }
             name="entitled_allowance"
+            required={false}
             rules={[{ required: true, message: 'Please select Allowance' }]}
             style={{ marginBottom: entitledAllowances?.length > 0 ? 12 : 0 }}
             data-cy="payroll-allowance-form-item"
