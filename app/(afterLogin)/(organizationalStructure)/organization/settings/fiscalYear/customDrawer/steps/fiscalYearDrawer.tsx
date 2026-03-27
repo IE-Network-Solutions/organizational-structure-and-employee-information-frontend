@@ -94,44 +94,6 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
     setHasOverlapError(false);
     return Promise.resolve();
   };
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
-  const validateEndDate = (_: any, value: any) => {
-    /* eslint-enable-next-line @typescript-eslint/naming-convention */
-
-    const startDate = form.getFieldValue('fiscalYearStartDate');
-
-    // If end date is empty, don't show any error here - let the required field validation handle it
-    if (!value) {
-      return Promise.resolve();
-    }
-
-    // If start date is empty, show this message first
-    if (!startDate) {
-      return Promise.reject(new Error('Please select the start date first.'));
-    }
-
-    const expectedEndDate = dayjs(startDate).add(1, 'year');
-
-    if (!dayjs(value).isSame(expectedEndDate, 'day')) {
-      return Promise.reject(
-        new Error(
-          `End date must be exactly one year after the start date (${expectedEndDate.format('YYYY-MM-DD')}).`,
-        ),
-      );
-    }
-
-    if (startDate && value) {
-      if (doesOverlap(dayjs(startDate), dayjs(value))) {
-        setHasOverlapError(true);
-        return Promise.reject(
-          new Error('This fiscal year overlaps with an existing fiscal year.'),
-        );
-      }
-    }
-    setHasOverlapError(false);
-    return Promise.resolve();
-  };
-
   const handleClose = () => {
     // Reset form fields
     form.resetFields();
@@ -393,9 +355,16 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
             let nextValues = allValues;
 
             // Auto-fill end date whenever start date changes (picker or typed+Enter).
-            if (Object.prototype.hasOwnProperty.call(changedValues, 'fiscalYearStartDate')) {
+            if (
+              Object.prototype.hasOwnProperty.call(
+                changedValues,
+                'fiscalYearStartDate',
+              )
+            ) {
               const startDate = changedValues.fiscalYearStartDate;
-              const autoEndDate = startDate ? dayjs(startDate).add(1, 'year') : null;
+              const autoEndDate = startDate
+                ? dayjs(startDate).add(1, 'year')
+                : null;
               form.setFieldsValue({ fiscalYearEndDate: autoEndDate });
               nextValues = {
                 ...allValues,

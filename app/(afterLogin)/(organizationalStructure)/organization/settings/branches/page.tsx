@@ -139,11 +139,9 @@ const Branches = () => {
             id={`org-settings-branch-delete-${branchId}`}
             className="bg-white hover:bg-gray-100 text-gray-600"
             icon={<MdOutlineDelete />}
-            
           >
             <Popconfirm
               icon={<></>}
-              
               open={
                 openDeleteConfirmBranchId === branchId &&
                 openActionMenuBranchId === branchId
@@ -197,7 +195,8 @@ const Branches = () => {
               }}
               cancelButtonProps={{
                 'data-cy': `org-settings-branch-delete-popconfirm-cancel-${branchId}`,
-                className: 'font-normal m-0 p-2 mb-2 rounded-md border-gray-300',
+                className:
+                  'font-normal m-0 p-2 mb-2 rounded-md border-gray-300',
               }}
               cancelText={
                 <div
