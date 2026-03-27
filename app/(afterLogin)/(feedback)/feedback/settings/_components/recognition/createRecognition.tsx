@@ -2121,7 +2121,7 @@ const RecognitionForm: React.FC<PropsData> = ({
             <Button
               type="default"
               onClick={() => {
-                if (currentStep === 0) {
+                if (isFormulaOnlyEdit || currentStep === 0) {
                   handleWizardClose();
                 } else {
                   setCurrentStep((s) => s - 1);
