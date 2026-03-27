@@ -1,10 +1,11 @@
 import React from 'react';
 import { Modal, Select, DatePicker, Form } from 'antd';
 import type { FC } from 'react';
-import { useGetAllRecognitionTypeChild } from '@/store/server/features/CFR/recognition/queries';
+import { useGetAllRecognitionTypeChild, useGetRecognitionTypeParentChildById } from '@/store/server/features/CFR/recognition/queries';
 import { useCreateRecognition } from '@/store/server/features/CFR/recognition/mutation';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
 import EmployeeRecognitionModal from './EmployeeRecognitionModal';
+import { useSearchParams } from 'next/navigation';
 
 const { RangePicker } = DatePicker;
 
@@ -17,9 +18,10 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
   onCancel,
 }) => {
   const [form] = Form.useForm();
-  const { data: RecognitionTypesChild } = useGetAllRecognitionTypeChild();
-  const { mutate: createRecognition, isLoading: createRecognitionLoading } =
-    useCreateRecognition();
+  const searchParams = useSearchParams();
+  const recognitionTypeId = searchParams.get('recognitionTypeId');
+  const { data: recognitionTypesParentChild } = useGetRecognitionTypeParentChildById(recognitionTypeId ?? '');
+  const { mutate: createRecognition, isLoading: createRecognitionLoading } = useCreateRecognition();
   const {
     setVisibleEmployee,
     setRecognitionTypeId,
@@ -71,7 +73,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
       footer={null}
       centered={false}
       className="!w-[1145px] !max-w-[calc(100vw-2rem)]"
-      classNames={{ body: 'max-h-[670px] overflow-y-auto scrollbar-none' }}
+      classNames={{ body: `${visibleEmployee ? 'max-h-[670px] overflow-y-auto scrollbar-none' : 'h-[400px]'}` }}
       onCancel={handleCancel}
       data-cy="recognition-type-modal"
     >
@@ -113,7 +115,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
                 data-cy="recognition-type-modal-type-select"
                 className="h-10"
               >
-                {RecognitionTypesChild?.map((item: any) => (
+                {recognitionTypesParentChild?.map((item: any) => (
                   <Select.Option key={item?.id} value={item?.id}>
                     {item?.name}
                   </Select.Option>

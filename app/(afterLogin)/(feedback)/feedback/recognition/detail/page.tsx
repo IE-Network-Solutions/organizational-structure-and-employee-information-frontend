@@ -572,7 +572,70 @@ function DetailPage() {
                           }
                         />
                       </div>
+                      <div data-cy="recognition-history-filter-year-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-year-label"
+                        >
+                          Year
+                        </div>
+                        <Select
+                          placeholder="Select"
+                          allowClear
+                          className="w-full h-10"
+                          value={draftFilters?.calendarId || undefined}
+                          onChange={(value) =>
+                            setDraftFilters((prev) => ({
+                              ...prev,
+                              calendarId: value,
+                              sessionId: undefined,
+                              monthId: undefined,
+                            }))
+                          }
+                          options={
+                            getAllFisicalYear?.items?.map((item: any) => ({
+                              key: item?.id,
+                              value: item?.id,
+                              label: item?.name,
+                            })) ?? []
+                          }
+                        />
+                      </div>
+                     
 
+                      <div data-cy="recognition-history-filter-session-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-session-label"
+                        >
+                          Session
+                        </div>
+                        <Select
+                          placeholder="Select"
+                          allowClear
+                          className="w-full h-10"
+                          value={draftFilters?.sessionId || undefined}
+                          onChange={(value) =>
+                            setDraftFilters((prev) => ({
+                              ...prev,
+                              sessionId: value,
+                              monthId: undefined,
+                            }))
+                          }
+                          options={
+                            getAllFisicalYear?.items
+                              ?.find(
+                                (item: FiscalYear) =>
+                                  item?.id === draftFilters?.calendarId,
+                              )
+                              ?.sessions?.map((session: Session) => ({
+                                key: session?.id,
+                                value: session?.id,
+                                label: session?.name,
+                              })) ?? []
+                          }
+                        />
+                      </div>
                       <div data-cy="recognition-history-filter-month-field">
                         <div
                           className="text-sm font-normal text-black/70 mb-2"
@@ -609,70 +672,7 @@ function DetailPage() {
                           }
                         />
                       </div>
-
-                      <div data-cy="recognition-history-filter-session-field">
-                        <div
-                          className="text-sm font-normal text-black/70 mb-2"
-                          data-cy="recognition-history-filter-session-label"
-                        >
-                          Session
-                        </div>
-                        <Select
-                          placeholder="Select"
-                          allowClear
-                          className="w-full h-10"
-                          value={draftFilters?.sessionId || undefined}
-                          onChange={(value) =>
-                            setDraftFilters((prev) => ({
-                              ...prev,
-                              sessionId: value,
-                              monthId: undefined,
-                            }))
-                          }
-                          options={
-                            getAllFisicalYear?.items
-                              ?.find(
-                                (item: FiscalYear) =>
-                                  item?.id === draftFilters?.calendarId,
-                              )
-                              ?.sessions?.map((session: Session) => ({
-                                key: session?.id,
-                                value: session?.id,
-                                label: session?.name,
-                              })) ?? []
-                          }
-                        />
-                      </div>
-
-                      <div data-cy="recognition-history-filter-year-field">
-                        <div
-                          className="text-sm font-normal text-black/70 mb-2"
-                          data-cy="recognition-history-filter-year-label"
-                        >
-                          Year
-                        </div>
-                        <Select
-                          placeholder="Select"
-                          allowClear
-                          className="w-full h-10"
-                          value={draftFilters?.calendarId || undefined}
-                          onChange={(value) =>
-                            setDraftFilters((prev) => ({
-                              ...prev,
-                              calendarId: value,
-                              sessionId: undefined,
-                              monthId: undefined,
-                            }))
-                          }
-                          options={
-                            getAllFisicalYear?.items?.map((item: any) => ({
-                              key: item?.id,
-                              value: item?.id,
-                              label: item?.name,
-                            })) ?? []
-                          }
-                        />
-                      </div>
+                     
                     </div>
 
                     <div

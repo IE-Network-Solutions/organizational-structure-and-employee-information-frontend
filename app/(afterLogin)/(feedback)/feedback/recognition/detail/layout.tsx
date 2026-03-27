@@ -119,7 +119,7 @@ function RecognitionDetailLayoutShell({
         <Link
           href={historyHref}
           className={
-            `-mb-px border-b-2 pb-3 text-sm font-semibold ` +
+            `-mb-px border-b-2 pb-3 text-sm font-medium ` +
             (isHistoryActive
               ? 'border-primary text-primary'
               : 'border-transparent text-gray-500 hover:text-gray-700')
