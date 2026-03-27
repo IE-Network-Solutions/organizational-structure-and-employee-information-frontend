@@ -6,7 +6,8 @@ import { useVariablePayStore } from '@/store/uistate/features/compensation/benef
 import VariablePayModal from './VariablePayModal';
 import { FaRegEye, FaEyeSlash } from 'react-icons/fa';
 import { AiOutlineReload } from 'react-icons/ai';
-import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
+import { MdOutlineFilterAlt } from 'react-icons/md';
 import {
   useGetActiveMonth,
   useGetVariablePay,
@@ -93,13 +94,13 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
               data-cy="expanded-vp-details-total-card-header"
             >
               <span
-                className="text-gray-500 text-[13px] font-medium"
+                className="text-gray-500 text-[14px] font-medium"
                 data-cy="expanded-vp-details-total-card-title"
               >
                 Total VP
               </span>
               <span
-                className="text-gray-500 text-[13px] font-medium"
+                className="text-gray-500 text-[14px] font-medium"
                 data-cy="expanded-vp-details-total-card-subtitle"
               >
                 Out of {totalWeight}%
@@ -183,13 +184,13 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
                   data-cy={`expanded-vp-details-metric-card-header-${index}`}
                 >
                   <span
-                    className="text-gray-500 text-[13px] font-medium truncate pr-2"
+                    className="text-gray-500 text-[14px] font-medium truncate pr-2"
                     data-cy={`expanded-vp-details-metric-card-title-${index}`}
                   >
                     {card?.name || 'OKR'}
                   </span>
                   <span
-                    className="text-gray-500 text-[13px] font-medium flex-shrink-0"
+                    className="text-gray-500 text-[14px] font-medium flex-shrink-0"
                     data-cy={`expanded-vp-details-metric-card-subtitle-${index}`}
                   >
                     Out of {safeWeight.toFixed(2)}%
@@ -211,7 +212,7 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
                     strokeLinecap="round"
                   />
                   <span
-                    className="text-gray-600 text-[13px] font-medium w-8 text-right"
+                    className="text-gray-600 text-[14px] font-medium w-8 text-right"
                     data-cy={`expanded-vp-details-metric-card-progress-value-${index}`}
                   >
                     {curPercentage.toFixed(0)}%
@@ -325,7 +326,15 @@ const VariablePayTable = () => {
 
   const employeeOptions = tableData.map((employee: any) => ({
     value: employee.userId,
-    label: getEmployeeFullName(employee.userId),
+    searchLabel: getEmployeeFullName(employee.userId),
+    label: (
+      <span
+        className="text-[14px]"
+        data-cy={`compensation-benefit-variable-pay-search-option-${employee.userId}`}
+      >
+        {getEmployeeFullName(employee.userId)}
+      </span>
+    ),
   }));
 
   const uniqueEmployeeOptions = Array.from(
@@ -523,7 +532,7 @@ const VariablePayTable = () => {
 
   return (
     <div
-      className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white"
+      className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white text-[14px]"
       data-testid="variable-pay-table-container"
       id="compensation-benefit-variable-pay-table-container"
       data-cy="compensation-benefit-variable-pay-table-container"
@@ -539,7 +548,7 @@ const VariablePayTable = () => {
           data-cy="compensation-benefit-variable-pay-table-toolbar"
         >
           <Select
-            className="w-full max-w-[360px]"
+            className="w-full max-w-[360px] text-[14px]"
             options={uniqueEmployeeOptions}
             value={selectedEmployeeId || undefined}
             open={isSearchDropdownOpen}
@@ -548,7 +557,7 @@ const VariablePayTable = () => {
             placeholder="Search Employee"
             optionFilterProp="label"
             filterOption={(input, option) =>
-              String(option?.label || '')
+              String((option as any)?.searchLabel || '')
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
@@ -568,7 +577,7 @@ const VariablePayTable = () => {
                 (option: any) => option.value === value,
               );
               setSelectedEmployeeId(value);
-              setEmployeeSearch(selectedOption?.label || '');
+              setEmployeeSearch(selectedOption?.searchLabel || '');
               setIsSearchDropdownOpen(false);
               setCurrentPage(1);
             }}
@@ -599,8 +608,9 @@ const VariablePayTable = () => {
             data-cy="compensation-benefit-variable-pay-table-filter-wrapper"
           >
             <Button
-              icon={<FilterOutlined />}
-              className="h-10 px-4 border border-gray-300 text-gray-600"
+              icon={<MdOutlineFilterAlt size={14} />}
+              className="h-10 px-4 border border-gray-300 text-gray-600 text-[14px] font-normal"
+              style={{ fontFamily: 'Calibri, sans-serif', fontWeight: 400 }}
               data-cy="compensation-benefit-variable-pay-table-filter-button"
               onClick={handleOpenFilterModal}
             >
@@ -611,7 +621,7 @@ const VariablePayTable = () => {
         <Modal
           title={
             <span
-              className="text-[20px] font-semibold text-gray-700"
+              className="text-[14px] font-semibold text-gray-700"
               data-cy="compensation-benefit-variable-pay-filter-modal-title"
             >
               Filter
@@ -628,7 +638,7 @@ const VariablePayTable = () => {
             >
               <Button
                 onClick={() => setIsFilterModalOpen(false)}
-                className="h-9 rounded-md px-4 text-gray-600"
+                className="h-9 rounded-md px-4 text-gray-600 text-[14px]"
                 data-cy="compensation-benefit-variable-pay-filter-modal-cancel"
               >
                 Cancel
@@ -636,7 +646,7 @@ const VariablePayTable = () => {
               <Button
                 type="primary"
                 onClick={handleApplyFilter}
-                className="h-9 rounded-md px-5"
+                className="h-9 rounded-md px-5 text-[14px]"
                 data-cy="compensation-benefit-variable-pay-filter-modal-apply"
               >
                 Filter
@@ -671,7 +681,7 @@ const VariablePayTable = () => {
                   setSelectedSessionId(value);
                   setSelectedMonthId('');
                 }}
-                className="w-full"
+                className="w-full text-[14px]"
                 size="large"
                 allowClear
                 data-cy="compensation-benefit-variable-pay-filter-modal-session"
@@ -689,7 +699,7 @@ const VariablePayTable = () => {
                 placeholder="Select"
                 options={monthOptions}
                 onChange={(value) => setSelectedMonthId(value)}
-                className="w-full"
+                className="w-full text-[14px]"
                 size="large"
                 allowClear
                 disabled={!selectedSessionId}
@@ -709,6 +719,7 @@ const VariablePayTable = () => {
             data-cy="compensation-benefit-variable-pay-scroll-container"
           >
             <Table
+              className="[&_.ant-table]:text-[14px] [&_.ant-table-thead>tr>th]:text-[14px]"
               rowClassName={(record, index) =>
                 index % 2 !== 0 ? 'bg-gray-50' : 'bg-white'
               }

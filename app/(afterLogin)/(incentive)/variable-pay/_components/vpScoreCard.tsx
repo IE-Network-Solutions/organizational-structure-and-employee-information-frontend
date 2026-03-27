@@ -80,7 +80,7 @@ const VPScoreCard: React.FC = () => {
 
   return (
     <div
-      className="bg-white rounded-xl border border-gray-100 px-5 py-4 mt-4"
+      className="mt-4 rounded-xl border border-gray-100 bg-white px-5 py-4 text-[14px]"
       id="variable-pay-score-card-container"
       data-cy="variable-pay-score-card-container"
     >
@@ -145,13 +145,13 @@ const VPScoreCard: React.FC = () => {
                   My Variable Pay Score
                 </span>
                 <span
-                  className="text-sm font-medium text-gray-700 whitespace-nowrap md:hidden"
+                  className="whitespace-nowrap text-[14px] font-medium text-gray-700 md:hidden"
                   data-cy="variable-pay-score-card-title-mobile"
                 >
                   My VP
                 </span>
                 <span
-                  className={`truncate whitespace-nowrap rounded px-2.5 py-0.5 text-xs font-medium max-md:max-w-[120px] ${
+                  className={`max-md:max-w-[120px] truncate whitespace-nowrap rounded px-2.5 py-0.5 text-[14px] font-medium ${
                     isNegative
                       ? 'bg-red-50 text-red-500 border border-red-200'
                       : 'bg-green-50 text-green-600 border border-green-200'
@@ -209,7 +209,7 @@ const VPScoreCard: React.FC = () => {
                           data-cy={`variable-pay-criteria-progress-${index}`}
                         />
                         <span
-                          className="text-xs text-gray-500 whitespace-nowrap"
+                          className="whitespace-nowrap text-[14px] text-gray-500"
                           data-cy={`variable-pay-criteria-item-score-${index}`}
                         >
                           {score}/{weight}
@@ -224,7 +224,7 @@ const VPScoreCard: React.FC = () => {
                 >
                   <span
                     onClick={() => setShowAll(!showAll)}
-                    className="cursor-pointer text-sm font-medium text-[#1677ff] hover:text-blue-800"
+                    className="cursor-pointer text-[14px] font-medium text-[#1677ff] hover:text-blue-800"
                     data-cy="variable-pay-score-card-view-all-mobile"
                     id="variable-pay-score-card-view-all-mobile"
                   >
@@ -274,7 +274,7 @@ const VPScoreCard: React.FC = () => {
                         data-cy={`variable-pay-criteria-progress-${index}`}
                       />
                       <span
-                        className="text-xs text-gray-500 whitespace-nowrap"
+                        className="whitespace-nowrap text-[14px] text-gray-500"
                         data-cy={`variable-pay-criteria-item-score-desktop-${index}`}
                       >
                         {score}/{weight}
@@ -289,7 +289,7 @@ const VPScoreCard: React.FC = () => {
               >
                 <span
                   onClick={() => setShowAll(!showAll)}
-                  className="cursor-pointer text-sm font-medium text-[#1677ff] hover:text-blue-800"
+                  className="cursor-pointer text-[14px] font-medium text-[#1677ff] hover:text-blue-800"
                   data-cy="variable-pay-score-card-view-all"
                   id="variable-pay-score-card-view-all"
                 >
