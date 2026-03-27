@@ -82,6 +82,11 @@ const AdminDashboard = () => {
       : 0;
 
   useEffect(() => {
+    const manageSubscription = searchParams.get('manageSubscription');
+    if (manageSubscription === '1') {
+      setManageSubscriptionOpen(true);
+      router.replace('/admin/dashboard', { scroll: false });
+    }
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         queryClient.invalidateQueries('invoices').then(() => refetchInvoices());

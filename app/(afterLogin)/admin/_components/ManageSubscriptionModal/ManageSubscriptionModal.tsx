@@ -7,6 +7,7 @@ import {
   Input,
   InputNumber,
   Radio,
+  Checkbox,
   Tooltip,
   Tag,
   Divider,
@@ -28,6 +29,7 @@ import { useGetSubscriptions } from '@/store/server/features/tenant-management/s
 import { useCalculateSubscriptionPrice } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import {
   useCreateSubscription,
+  usePrepaySubscription,
   useUpgradeSubscription,
 } from '@/store/server/features/tenant-management/manage-subscriptions/mutation';
 import type { CalculateSubscriptionPriceDto } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
@@ -81,6 +83,7 @@ export const ManageSubscriptionModal: React.FC<
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [seatCount, setSeatCount] = useState<number>(10);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [prepayNow, setPrepayNow] = useState(false);
   /** Which billing period (by period type id) is selected — must exist on the selected plan's `periods`. */
   const [selectedPeriodTypeId, setSelectedPeriodTypeId] = useState<
     string | null
@@ -99,6 +102,7 @@ export const ManageSubscriptionModal: React.FC<
   );
   const createSubscriptionMutation = useCreateSubscription();
   const upgradeSubscriptionMutation = useUpgradeSubscription();
+  const prepaySubscriptionMutation = usePrepaySubscription();
 
   const allModulesSorted = useMemo(() => {
     const items = modulesData?.items;
@@ -157,6 +161,7 @@ export const ManageSubscriptionModal: React.FC<
       defaultSelectionAppliedRef.current = false;
       periodManuallySelectedRef.current = false;
       planManuallySelectedRef.current = false;
+      setPrepayNow(false);
       return;
     }
     if (!visiblePlans.length) return;
@@ -294,6 +299,48 @@ export const ManageSubscriptionModal: React.FC<
     !!selectedPlanPeriod &&
     selectedPlanPeriod.id !== activeSubscription.planPeriodId;
 
+  const currentPlanPeriod =
+    activeSubscription?.planPeriod ??
+    activeSubscription?.plan?.periods?.find(
+      (pp) => pp.id === activeSubscription?.planPeriodId,
+    ) ??
+    null;
+  const currentPeriodSlotPrice =
+    currentPlanPeriod?.periodSlotPrice ??
+    activeSubscription?.plan?.slotPrice ??
+    Number(currentPlanPeriod?.periodSlotPrice) ??
+    0;
+  const targetPeriodSlotPrice =
+    selectedPlanPeriod?.periodSlotPrice ??
+    selectedPlan?.slotPrice ??
+    Number(selectedPlan?.slotPrice) ??
+    0;
+
+  const currentPeriodInMonths = currentPlanPeriod?.periodType?.periodInMonths;
+  const targetPeriodInMonths = selectedPlanPeriod?.periodType?.periodInMonths;
+
+  const isScheduledDowngradeForPrepay =
+    !!activeSubscription &&
+    (isPlanChanged || isPeriodChanged) &&
+    (targetPeriodSlotPrice < currentPeriodSlotPrice ||
+      (typeof currentPeriodInMonths === 'number' &&
+        typeof targetPeriodInMonths === 'number' &&
+        targetPeriodInMonths < currentPeriodInMonths));
+
+  const shouldPrepayNow =
+    prepayNow && isScheduledDowngradeForPrepay && !!activeSubscription;
+
+  useEffect(() => {
+    if (!isScheduledDowngradeForPrepay) setPrepayNow(false);
+  }, [isScheduledDowngradeForPrepay]);
+
+  const nextBillingDateLabel = activeSubscription?.endAt
+    ? new Date(activeSubscription.endAt).toLocaleDateString()
+    : null;
+  const scheduledDowngradeTooltip = nextBillingDateLabel
+    ? `This change is treated as a downgrade and will take effect on your next billing cycle (${nextBillingDateLabel}).`
+    : 'This change is treated as a downgrade and will take effect on your next billing cycle.';
+
   const resolvedTransactionType: TransactionType | null = useMemo(() => {
     if (!selectedPlan || !selectedPlanPeriod || seatCount < 1) return null;
     if (!activeSubscription) return TransactionType.PURCHASE_SUBSCRIPTION;
@@ -344,7 +391,9 @@ export const ManageSubscriptionModal: React.FC<
       planId: selectedPlan.id,
       planPeriodId: selectedPlanPeriod.id,
       slotTotal: seatCount,
-      transactionType: resolvedTransactionType,
+      transactionType: shouldPrepayNow
+        ? TransactionType.PREPAY_SUBSCRIPTION
+        : resolvedTransactionType,
       ...(resolvedTransactionType === TransactionType.PURCHASE_SLOTS
         ? { newSlotTotal: seatCount - currentSlotTotal }
         : {}),
@@ -356,6 +405,7 @@ export const ManageSubscriptionModal: React.FC<
     selectedPlanPeriod,
     seatCount,
     resolvedTransactionType,
+    shouldPrepayNow,
     currentSlotTotal,
     activeSubscription,
   ]);
@@ -369,10 +419,26 @@ export const ManageSubscriptionModal: React.FC<
   const currencySymbol = selectedPlan?.currency?.symbol ?? '$';
 
   const getInvoiceIdFromResponse = (payload: any): string | null => {
+    // Different endpoints return different shapes (upgrade vs slots vs prepay).
+    // Try the most common invoice-id locations.
     return (
+      // Sometimes it's a singular invoice object
+      payload?.invoice?.id ??
+      payload?.data?.invoice?.id ??
+      payload?.item?.invoice?.id ??
+      // Sometimes it's an array of invoices
       payload?.invoices?.[0]?.id ??
       payload?.data?.invoices?.[0]?.id ??
       payload?.item?.invoices?.[0]?.id ??
+      // Sometimes nested under "items"
+      payload?.items?.[0]?.id ??
+      payload?.data?.items?.[0]?.id ??
+      payload?.item?.items?.[0]?.id ??
+      // Last resort: sometimes the endpoint returns the invoice directly
+      // (but note: many endpoints return a subscription at the top-level `id`)
+      payload?.id ??
+      payload?.data?.id ??
+      payload?.item?.id ??
       null
     );
   };
@@ -387,7 +453,9 @@ export const ManageSubscriptionModal: React.FC<
       return;
 
     setIsSubmitting(true);
-    setTransactionType(resolvedTransactionType);
+    setTransactionType(
+      shouldPrepayNow ? TransactionType.PREPAY_SUBSCRIPTION : resolvedTransactionType,
+    );
     try {
       let response: any;
       if (!activeSubscription) {
@@ -402,12 +470,31 @@ export const ManageSubscriptionModal: React.FC<
           isActive: false,
         } as any);
       } else {
-        response = await upgradeSubscriptionMutation.mutateAsync({
-          subscriptionId: activeSubscription.id,
-          planId: selectedPlan.id,
-          planPeriodId: selectedPlanPeriod.id,
-          slots: seatCount,
-        });
+        if (resolvedTransactionType === TransactionType.PURCHASE_SLOTS) {
+          // Keep slot-only increase routed through the legacy upgrade endpoint.
+          response = await upgradeSubscriptionMutation.mutateAsync({
+            subscriptionId: activeSubscription.id,
+            tenantId: DEFAULT_TENANT_ID,
+            planId: selectedPlan.id,
+            planPeriodId: selectedPlanPeriod.id,
+            slots: seatCount,
+          });
+        } else {
+          response = await upgradeSubscriptionMutation.mutateAsync({
+            subscriptionId: activeSubscription.id,
+            tenantId: DEFAULT_TENANT_ID,
+            planId: selectedPlan.id,
+            planPeriodId: selectedPlanPeriod.id,
+            slots: seatCount,
+          });
+
+          if (shouldPrepayNow) {
+            response = await prepaySubscriptionMutation.mutateAsync({
+              subscriptionId: activeSubscription.id,
+              tenantId: DEFAULT_TENANT_ID,
+            });
+          }
+        }
       }
 
       const invoiceId = getInvoiceIdFromResponse(response);
@@ -415,7 +502,7 @@ export const ManageSubscriptionModal: React.FC<
         notification.error({
           message: 'Invoice Error',
           description:
-            'Subscription updated but invoice was not returned. Please refresh and open Billing.',
+            'Operation completed but invoice id could not be read from the response. Please check Network → the response body shape (invoice.id / invoices[0].id) or open Billing.',
         });
         return;
       }
@@ -514,6 +601,17 @@ export const ManageSubscriptionModal: React.FC<
                     ? `You will be billed ${formatPeriodLabel(selectedPlanPeriod)} for the plan you have chosen.`
                     : ''}
                 </p>
+                {isScheduledDowngradeForPrepay ? (
+                  <div className="w-full flex justify-center mt-2">
+                    <Checkbox
+                      checked={prepayNow}
+                      onChange={(e) => setPrepayNow(e.target.checked)}
+                      data-cy="manage-subscription-prepay"
+                    >
+                      Pay now for next billing cycle (prepay)
+                    </Checkbox>
+                  </div>
+                ) : null}
               </>
             )}
           </div>
@@ -688,20 +786,26 @@ export const ManageSubscriptionModal: React.FC<
           <Button onClick={onClose} data-cy="manage-subscription-cancel">
             Cancel
           </Button>
-          <Button
-            type="primary"
-            onClick={handleContinue}
-            loading={isSubmitting}
-            disabled={
-              !calculationDto ||
-              isSeatDecreased ||
-              isCalculating ||
-              isSubmitting
-            }
-            data-cy="manage-subscription-continue"
+          <Tooltip
+            title={isScheduledDowngradeForPrepay ? scheduledDowngradeTooltip : null}
           >
-            Continue
-          </Button>
+            <span className="inline-block">
+              <Button
+                type="primary"
+                onClick={handleContinue}
+                loading={isSubmitting}
+                disabled={
+                  !calculationDto ||
+                  isSeatDecreased ||
+                  isCalculating ||
+                  isSubmitting
+                }
+                data-cy="manage-subscription-continue"
+              >
+                Continue
+              </Button>
+            </span>
+          </Tooltip>
         </div>
       </div>
     </Modal>

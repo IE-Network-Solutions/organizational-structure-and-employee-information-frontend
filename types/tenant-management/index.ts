@@ -395,6 +395,7 @@ export interface GetSubscriptionByTenantRequest {
  */
 export interface UpgradeSubscriptionRequest {
   subscriptionId: string;
+  tenantId: string;
   planId?: string;
   planPeriodId?: string;
   slots?: number;
@@ -408,15 +409,18 @@ export interface UpgradeSubscriptionRequest {
  */
 export interface BuyAdditionalSlotsRequest {
   subscriptionId: string;
+  tenantId: string;
   newSlotsAmount: number;
 }
 
 export interface RenewSubscriptionRequest {
   subscriptionId: string;
+  tenantId: string;
 }
 
 export interface PrepaySubscriptionRequest {
   subscriptionId: string;
+  tenantId: string;
 }
 /**
  * Tenant

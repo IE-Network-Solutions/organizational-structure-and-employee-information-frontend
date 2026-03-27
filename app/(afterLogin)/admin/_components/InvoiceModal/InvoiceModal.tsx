@@ -112,9 +112,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     }
   };
 
-  const isPending =
-    invoiceData?.status?.toLowerCase() === 'pending' ||
-    invoiceData?.status?.toLowerCase() === 'issued';
+  const payableStatuses = new Set(['pending', 'issued', 'overdue', 'unpaid']);
+  const isPending = payableStatuses.has(invoiceData?.status?.toLowerCase() ?? '');
 
   return (
     <Modal
