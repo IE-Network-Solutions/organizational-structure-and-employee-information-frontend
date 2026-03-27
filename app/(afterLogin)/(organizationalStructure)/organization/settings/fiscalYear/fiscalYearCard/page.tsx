@@ -639,17 +639,17 @@ const FiscalYearListCard: React.FC = () => {
                                                   okButtonProps={{
                                                     type: 'primary',
                                                     className:
-                                                      'p-2 px-4 mr-3 mb-2 rounded-md',
+                                                      'font-normal p-2 px-4 mr-3 mb-2 rounded-md',
                                                     'data-cy': `org-settings-fiscal-year-activate-month-popconfirm-ok-${monthId}`,
                                                   }}
                                                   cancelButtonProps={{
                                                     'data-cy': `org-settings-fiscal-year-activate-month-popconfirm-cancel-${monthId}`,
                                                     className:
-                                                      'text-gray-200 m-0 p-2 mb-2 rounded-md',
+                                                      'font-normal m-0 p-2 mb-2 rounded-md border-gray-400',
                                                   }}
                                                   cancelText={
                                                     <div
-                                                      className="text-gray-500 m-0"
+                                                      className="border-gray-400 font-normal m-0"
                                                       data-cy={`org-settings-fiscal-year-activate-month-popconfirm-cancel-text-${monthId}`}
                                                     >
                                                       Cancel

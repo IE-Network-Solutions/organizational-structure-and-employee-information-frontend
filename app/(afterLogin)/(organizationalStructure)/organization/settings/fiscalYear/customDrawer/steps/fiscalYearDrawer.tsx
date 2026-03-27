@@ -388,39 +388,52 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
           </>
         )}
         className="flex flex-col [&_.ant-form-item-label]:pb-1 [&_.ant-form-item]:mb-2"
-        onValuesChange={(nonused, allValues) => {
+        onValuesChange={(changedValues, allValues) => {
           try {
+            let nextValues = allValues;
+
+            // Auto-fill end date whenever start date changes (picker or typed+Enter).
+            if (Object.prototype.hasOwnProperty.call(changedValues, 'fiscalYearStartDate')) {
+              const startDate = changedValues.fiscalYearStartDate;
+              const autoEndDate = startDate ? dayjs(startDate).add(1, 'year') : null;
+              form.setFieldsValue({ fiscalYearEndDate: autoEndDate });
+              nextValues = {
+                ...allValues,
+                fiscalYearEndDate: autoEndDate,
+              };
+            }
+
             setFormValidation({
-              fiscalYearName: allValues.fiscalYearName,
-              fiscalYearStartDate: allValues.fiscalYearStartDate,
-              fiscalYearEndDate: allValues.fiscalYearEndDate,
+              fiscalYearName: nextValues.fiscalYearName,
+              fiscalYearStartDate: nextValues.fiscalYearStartDate,
+              fiscalYearEndDate: nextValues.fiscalYearEndDate,
             });
 
-            setFiscalYearFormValues(allValues);
+            setFiscalYearFormValues(nextValues);
 
             // --- Add these lines ---
-            if (allValues.fiscalYearStartDate)
-              setFiscalYearStart(allValues.fiscalYearStartDate);
-            if (allValues.fiscalYearEndDate)
-              setFiscalYearEnd(allValues.fiscalYearEndDate);
-            if (allValues.fiscalYearCalenderId)
-              setCalendarType(allValues.fiscalYearCalenderId);
+            if (nextValues.fiscalYearStartDate)
+              setFiscalYearStart(nextValues.fiscalYearStartDate);
+            if (nextValues.fiscalYearEndDate)
+              setFiscalYearEnd(nextValues.fiscalYearEndDate);
+            if (nextValues.fiscalYearCalenderId)
+              setCalendarType(nextValues.fiscalYearCalenderId);
             // -----------------------
 
             // Check form validity immediately when values change
             const isValid = Boolean(
-              allValues.fiscalYearName &&
-                allValues.fiscalYearStartDate &&
-                allValues.fiscalYearEndDate &&
-                allValues.fiscalYearCalenderId,
+              nextValues.fiscalYearName &&
+                nextValues.fiscalYearStartDate &&
+                nextValues.fiscalYearEndDate &&
+                nextValues.fiscalYearCalenderId,
             );
             setIsFormValid(isValid);
 
             // Trigger validation for date fields when values change (catches copy-paste)
-            if (allValues.fiscalYearStartDate) {
+            if (nextValues.fiscalYearStartDate) {
               form.validateFields(['fiscalYearStartDate']);
             }
-            if (allValues.fiscalYearEndDate) {
+            if (nextValues.fiscalYearEndDate) {
               form.validateFields(['fiscalYearEndDate']);
             }
           } catch (error) {
@@ -549,10 +562,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                         Fiscal Year Ending Date
                       </span>
                     }
-                    rules={[
-                      { required: true, message: 'Please select an end date!' },
-                      { validator: validateEndDate },
-                    ]}
+                    rules={[]}
                   >
                     <DatePicker
                       size="middle"
@@ -615,7 +625,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                           Monthly
                         </span>
                         <span
-                          className="text-xs text-gray-600 mt-1"
+                          className="text-xs text-[rgba(0,0,0,0.45)] mt-1"
                           data-cy="org-settings-fiscal-year-calendar-input-option-monthly-description"
                         >
                           The fiscal year will be divided through out 12 months
@@ -637,7 +647,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                           Quarterly
                         </span>
                         <span
-                          className="text-xs text-gray-600 mt-1"
+                          className="text-xs text-[rgba(0,0,0,0.45)] mt-1"
                           data-cy="org-settings-fiscal-year-calendar-input-option-quarterly-description"
                         >
                           The fiscal year will be divided through out 3 months
@@ -659,7 +669,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                           Biannual
                         </span>
                         <span
-                          className="text-xs text-gray-600 mt-1"
+                          className="text-xs text-[rgba(0,0,0,0.45)] mt-1"
                           data-cy="org-settings-fiscal-year-calendar-input-option-bianual-description"
                         >
                           The fiscal year will be divided through out 6 months

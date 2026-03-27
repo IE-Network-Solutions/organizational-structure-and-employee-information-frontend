@@ -493,7 +493,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         data-cy="org-settings-fiscal-year-session-drawer-description-container"
       >
         <p
-          className="text-sm text-gray-600 mb-4"
+          className="text-sm text-[rgba(0,0,0,0.45)] mb-4"
           data-cy="org-settings-fiscal-year-session-drawer-description"
         >
           {calendarType === 'Semester' &&

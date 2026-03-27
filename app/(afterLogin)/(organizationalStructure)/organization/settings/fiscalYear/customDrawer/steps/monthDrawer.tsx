@@ -551,7 +551,7 @@ const MonthDrawer: React.FC<
                               data-cy={`org-settings-fiscal-year-month-row-${monthInfo.monthNumber}`}
                             >
                               <Col
-                                span={isMobile ? undefined : 12}
+                                span={isMobile ? undefined : 10}
                                 flex={isMobile ? 'auto' : undefined}
                                 style={isMobile ? { minWidth: 0 } : undefined}
                                 data-cy={`org-settings-fiscal-year-month-name-col-${monthInfo.monthNumber}`}
@@ -577,7 +577,7 @@ const MonthDrawer: React.FC<
                                 </Form.Item>
                               </Col>
                               <Col
-                                span={isMobile ? undefined : 12}
+                                span={isMobile ? undefined : 14}
                                 flex={isMobile ? 'none' : undefined}
                                 data-cy={`org-settings-fiscal-year-month-date-range-col-${monthInfo.monthNumber}`}
                               >

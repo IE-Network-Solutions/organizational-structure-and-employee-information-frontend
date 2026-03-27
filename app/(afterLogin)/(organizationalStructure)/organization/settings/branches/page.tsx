@@ -17,12 +17,15 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { CloseOutlined } from '@ant-design/icons';
 
 const Branches = () => {
-  const { data: branches, isLoading } = useGetBranches();
+  const { data: branches, isLoading, refetch } = useGetBranches();
   const { mutate: createBranch, isLoading: createLoading } = useCreateBranch();
   const { mutate: updateBranch, isLoading: updateLoading } = useUpdateBranch();
   const { mutate: deleteBranch } = useDeleteBranch();
   const [form] = Form.useForm();
   const [openDeleteConfirmBranchId, setOpenDeleteConfirmBranchId] = useState<
+    string | null
+  >(null);
+  const [openActionMenuBranchId, setOpenActionMenuBranchId] = useState<
     string | null
   >(null);
 
@@ -47,6 +50,7 @@ const Branches = () => {
           onSuccess: () => {
             form.resetFields();
             setFormOpen(false);
+            refetch();
           },
         },
       );
@@ -55,6 +59,7 @@ const Branches = () => {
         onSuccess: () => {
           form.resetFields();
           setFormOpen(false);
+          refetch();
         },
       });
     }
@@ -62,8 +67,13 @@ const Branches = () => {
 
   const handleDelete = (branch: Branch) => {
     if (branch && branch.id) {
-      deleteBranch(branch.id);
-      setSelectedBranch(null);
+      deleteBranch(branch.id, {
+        onSuccess: () => {
+          setSelectedBranch(null);
+          setOpenDeleteConfirmBranchId(null);
+          refetch();
+        },
+      });
     }
   };
 
@@ -120,17 +130,31 @@ const Branches = () => {
           id={`org-settings-branch-delete-menu-item-${branchId}`}
         >
           <Menu.Item
+            onClick={(e) => {
+              e.domEvent.preventDefault();
+              e.domEvent.stopPropagation();
+              setOpenDeleteConfirmBranchId(branchId);
+            }}
             data-cy={`org-settings-branch-delete-${branchId}`}
             id={`org-settings-branch-delete-${branchId}`}
             className="bg-white hover:bg-gray-100 text-gray-600"
             icon={<MdOutlineDelete />}
+            
           >
             <Popconfirm
               icon={<></>}
-              open={openDeleteConfirmBranchId === branchId}
+              
+              open={
+                openDeleteConfirmBranchId === branchId &&
+                openActionMenuBranchId === branchId
+              }
               onOpenChange={(visible) =>
                 setOpenDeleteConfirmBranchId(visible ? branchId : null)
               }
+              onCancel={(e) => {
+                e?.stopPropagation();
+                setOpenDeleteConfirmBranchId(null);
+              }}
               title={
                 <div
                   className="flex items-center justify-between mb-3 mx-4"
@@ -145,6 +169,7 @@ const Branches = () => {
                   <CloseOutlined
                     className="text-gray-400 m-0 cursor-pointer hover:text-gray-600"
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
                       setOpenDeleteConfirmBranchId(null);
                     }}
@@ -159,20 +184,24 @@ const Branches = () => {
                   Are you sure you want to delete {branch.name}?
                 </p>
               }
-              onConfirm={() => handleDelete(branch)}
+              onConfirm={(e) => {
+                e?.stopPropagation();
+                setOpenDeleteConfirmBranchId(null);
+                handleDelete(branch);
+              }}
               okText="Delete"
               okButtonProps={{
                 danger: true,
-                className: 'p-2 mr-4 mb-2 rounded-md',
+                className: 'font-normal p-2 mr-4 mb-2 rounded-md',
                 'data-cy': `org-settings-branch-delete-popconfirm-ok-${branchId}`,
               }}
               cancelButtonProps={{
                 'data-cy': `org-settings-branch-delete-popconfirm-cancel-${branchId}`,
-                className: 'text-gray-200 m-0 p-2 mb-2 rounded-md',
+                className: 'font-normal m-0 p-2 mb-2 rounded-md border-gray-300',
               }}
               cancelText={
                 <div
-                  className="text-gray-500 m-0"
+                  className="font-normal m-0 border-gray-400"
                   data-cy={`org-settings-branch-delete-popconfirm-cancel-text-${branchId}`}
                 >
                   Cancel
@@ -181,7 +210,12 @@ const Branches = () => {
               data-cy={`org-settings-branch-delete-popconfirm-${branchId}`}
             >
               <span
-                className="cursor-pointer"
+                className="cursor-pointer font-normal"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setOpenDeleteConfirmBranchId(branchId);
+                }}
                 data-cy={`org-settings-branch-delete-popconfirm-pointer-text-${branchId}`}
               >
                 Delete
@@ -239,6 +273,13 @@ const Branches = () => {
                   <Dropdown
                     overlay={menu(item)}
                     trigger={['click']}
+                    open={openActionMenuBranchId === branchId}
+                    onOpenChange={(open) => {
+                      setOpenActionMenuBranchId(open ? branchId : null);
+                      if (!open) {
+                        setOpenDeleteConfirmBranchId(null);
+                      }
+                    }}
                     data-cy={`org-settings-branch-dropdown-${branchId}`}
                   >
                     <button
