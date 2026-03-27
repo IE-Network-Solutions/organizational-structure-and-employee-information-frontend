@@ -217,6 +217,11 @@ interface PayPeriod {
   status: 'OPEN' | 'CLOSED';
   activeFiscalYearId: string;
   tenantId: string;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string | null;
+  updatedBy?: string | null;
+  deletedAt?: string | null;
 }
 
 interface PayrollState {
@@ -252,12 +257,22 @@ const useEmployeeStore = create<PayrollState>((set) => ({
   mergedPayroll: [],
   activePayPeriod: null,
 
-  setActiveMergedPayroll: (data: ActiveMergedPayroll) =>
-    set({ activeMergedPayroll: data }),
+  setActiveMergedPayroll: (data: ActiveMergedPayroll | null) =>
+    set((state) => {
+      if (
+        state.activeMergedPayroll?.employeeId === data?.employeeId &&
+        state.activeMergedPayroll?.payPeriodId === data?.payPeriodId
+      )
+        return state;
+      return { activeMergedPayroll: data };
+    }),
   setMergedPayroll: (data: ActiveMergedPayroll[]) =>
     set({ mergedPayroll: data }),
   setActivePayPeriod: (data: PayPeriod | null) =>
-    set({ activePayPeriod: data }),
+    set((state) => {
+      if (state.activePayPeriod?.id === data?.id) return state;
+      return { activePayPeriod: data };
+    }),
 
   isPayrollModalOpen: false,
   setIsPayrollModalOpen: (open) => set({ isPayrollModalOpen: open }),
