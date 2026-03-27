@@ -135,7 +135,9 @@ const MergeDragDrop: React.FC = () => {
 
   // Exclude already selected teams from the list
   const availableDepartments = useMemo(() => {
-    const selectedIds = [sourceTeam?.id, destinationTeam?.id].filter(Boolean);
+    const selectedIds = [sourceTeam?.id, destinationTeam?.id].filter(
+      (id): id is string => Boolean(id),
+    );
     const excludedDescendantIds = new Set<string>();
 
     const collectDescendantIds = (nodes: any[] = []) => {
